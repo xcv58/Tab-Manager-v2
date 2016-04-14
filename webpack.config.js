@@ -42,11 +42,17 @@ var options = {
         test: /\.html$/,
         loader: "html-loader",
         exclude: /node_modules/
+      },
+      {
+        test: /\.(js|jsx)$/,
+        loader: "babel-loader",
+        exclude: /node_modules/
       }
     ]
   },
   resolve: {
-    alias: alias
+    alias: alias,
+    extensions: fileExtensions.map(extension => ("." + extension)).concat([".jsx", ".js", ".css"])
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
