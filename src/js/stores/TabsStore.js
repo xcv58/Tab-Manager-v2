@@ -1,4 +1,19 @@
 import { action, computed, observable } from 'mobx'
+import windowsStore from './WindowsStore'
+
+export const moveTabs = (tabs, windowId, from = 0) => {
+  let index = from
+  tabs.map(({ id, pinned }) => {
+    chrome.tabs.move(
+      id,
+      { windowId, index },
+      () => {
+        chrome.tabs.update(id, { pinned })
+      }
+    )
+    index += 1
+  })
+}
 
 class TabsStore {
   @observable selection = new Map()
@@ -43,20 +58,21 @@ class TabsStore {
     })
   }
 
+  getUnselectedTabs = (tabs) => {
+    return tabs.filter(x => !this.selection.has(x.id))
+  }
+
   @action
   drop = (tab) => {
     const { windowId } = tab
-    const index = tab.index + (this.before ? 0 : 1)
-    const sources = this.before ? this.sources.reverse() : this.sources
-    sources.map(({ id, pinned }) => {
-      chrome.tabs.move(
-        id,
-        { windowId, index },
-        () => {
-          chrome.tabs.update(id, { pinned })
-        }
-      )
-    })
+    const win = windowsStore.windowsMap.get(windowId)
+    const targetIndex = tab.index + (this.before ? 0 : 1)
+    const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
+    if (index !== targetIndex) {
+      const tabs = this.getUnselectedTabs(win.tabs)
+      moveTabs(tabs, windowId)
+    }
+    moveTabs(this.sources, windowId, index)
   }
 }
 

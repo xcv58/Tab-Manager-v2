@@ -6,8 +6,8 @@ class WindowsStore {
   }
 
   @observable windows = []
-  @observable windowsbyid = {}
-  @observable tabsbyid = {}
+  @observable windowsMap = new Map()
+  @observable tabsMap = new Map()
 
   @computed
   get tabCount () {
@@ -26,13 +26,14 @@ class WindowsStore {
 
   @action
   allWindows = (windows) => {
-    console.log(windows)
     this.windows = windows
+    this.windowsMap.clear()
+    this.tabsMap.clear()
     windows.map((win) => {
       const { id, tabs } = win
-      this.windowsbyid[id] = win
+      this.windowsMap.set(id, win)
       tabs.map((tab) => {
-        this.tabsbyid[tab.id] = tab
+        this.tabsMap.set(tab.id, tab)
       })
     })
   }
