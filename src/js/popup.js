@@ -1,6 +1,13 @@
 import '../css/popup.css'
-import Greeting from './popup/greeting_component.jsx'
+import Timer from './components/Timer'
 import React from 'react'
 import { render } from 'react-dom'
+import { Provider } from 'mobx-react'
+import timerStore from './stores/TimerStore'
 
-render(<Greeting />, window.document.getElementById('app-container'))
+render(
+  <Provider {...{ timerStore }}>
+    <Timer />
+  </Provider>,
+  window.document.getElementById('app-container')
+)
