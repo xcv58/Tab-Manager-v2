@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx'
 
-class TimerStore {
+class WindowsStore {
   constructor () {
     chrome.windows.getAll({ populate: true }, this.allWindows)
   }
@@ -32,6 +32,6 @@ class TimerStore {
   }
 }
 
-const timerStore = new TimerStore()
+const windowsStore = new WindowsStore()
 
-export default timerStore
+export default windowsStore

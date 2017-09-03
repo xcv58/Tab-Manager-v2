@@ -1,0 +1,15 @@
+html {
+  padding: 8px;
+  margin: 0px;
+  user-select: none;
+}
+
+body {
+  padding: 0px;
+  margin: 0px;
+  -webkit-user-select: none;
+}
+
+#app-container {
+  width: 768px;
+}

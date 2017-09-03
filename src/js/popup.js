@@ -1,13 +1,13 @@
 import '../css/popup.css'
-import Timer from './components/Timer'
+import App from './components/App'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'mobx-react'
-import timerStore from './stores/TimerStore'
+import windowsStore from './stores/WindowsStore'
 
 render(
-  <Provider {...{ timerStore }}>
-    <Timer />
+  <Provider {...{ windowsStore }}>
+    <App />
   </Provider>,
   window.document.getElementById('app-container')
 )
