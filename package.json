@@ -4,6 +4,8 @@
   "description": "A boilerplate to chrome extension with webpack",
   "scripts": {
     "build": "node utils/build.js",
+    "lint": "standard 'src/**/*.js'",
+    "lintfix": "prettier-standard 'src/**/*.js'",
     "start": "node utils/webserver.js"
   },
   "dependencies": {
@@ -21,6 +23,8 @@
     "fs-extra": "^4.0.1",
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
+    "prettier-standard": "^6.0.0",
+    "standard": "^10.0.3",
     "webpack": "^3.5.5",
     "webpack-dev-server": "^2.7.1",
     "write-file-webpack-plugin": "^4.1.0"
