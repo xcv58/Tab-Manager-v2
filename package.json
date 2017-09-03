@@ -4,7 +4,7 @@
   "description": "A boilerplate to chrome extension with webpack",
   "scripts": {
     "build": "node utils/build.js",
-    "lint": "standard 'src/**/*.js'",
+    "lint": "standard",
     "lintfix": "prettier-standard 'src/**/*.js'",
     "start": "node utils/webserver.js"
   },
