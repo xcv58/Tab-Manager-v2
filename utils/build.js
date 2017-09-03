@@ -5,7 +5,6 @@ require('./prepare')
 
 delete config.chromeExtensionBoilerplate
 
-webpack(
-  config,
-  function (err) { if (err) throw err }
-)
+webpack(config, function (err) {
+  if (err) throw err
+})
