@@ -9,7 +9,8 @@ class WindowsStore {
   @observable windowsbyid = {}
   @observable tabsbyid = {}
 
-  @computed get tabCount () {
+  @computed
+  get tabCount () {
     return this.windows
     .map(
       x => x.tabs.length
