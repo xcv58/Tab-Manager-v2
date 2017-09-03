@@ -57,7 +57,6 @@ class TabsStore {
         }
       )
     })
-    this.clear()
   }
 }
 

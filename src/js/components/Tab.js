@@ -5,13 +5,15 @@ import { inject, observer } from 'mobx-react'
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
-    const { tabsStore: { select } } = this.props
-    select(this.props)
+    this.props.tabsStore.select(this.props)
   }
 
   onDragStart = () => {
-    const { tabsStore: { dragStart } } = this.props
-    dragStart(this.props)
+    this.props.tabsStore.dragStart(this.props)
+  }
+
+  onDragEnd = () => {
+    this.props.tabsStore.clear()
   }
 
   onDragOver = (e) => {
@@ -44,12 +46,12 @@ export default class Tab extends React.Component {
       const border = 'border' + (before ? 'Top' : 'Bottom')
       style[border] = '2px black solid'
     }
-    const { onDragStart, onDragOver, onDrop, onClick } = this
+    const { onDragStart, onDragEnd, onDragOver, onDrop, onClick } = this
     return (
       <div ref='tab'
         draggable
         style={style}
-        {...{ onDragStart, onDragOver, onDrop, onClick }}
+        {...{ onDragStart, onDragEnd, onDragOver, onDrop, onClick }}
       >
         {title}
       </div>
