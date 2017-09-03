@@ -2,7 +2,7 @@ import { action, computed, observable } from 'mobx'
 
 class WindowsStore {
   constructor () {
-    chrome.windows.getAll({ populate: true }, this.allWindows)
+    this.updateAllWindows()
   }
 
   @observable windows = []
@@ -19,6 +19,11 @@ class WindowsStore {
   }
 
   @action
+  updateAllWindows = () => {
+    chrome.windows.getAll({ populate: true }, this.allWindows)
+  }
+
+  @action
   allWindows = (windows) => {
     console.log(windows)
     this.windows = windows
@@ -32,6 +37,4 @@ class WindowsStore {
   }
 }
 
-const windowsStore = new WindowsStore()
-
-export default windowsStore
+export default new WindowsStore()
