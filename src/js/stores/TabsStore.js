@@ -19,12 +19,17 @@ class TabsStore {
   @observable selection = new Map()
   @observable targetId = null
   @observable before = true
+  @observable selecting = false
 
   @action
   select = (tab) => {
+    this.selecting = true
     const { id } = tab
     if (this.selection.has(id)) {
       this.selection.delete(id)
+      if (this.selection.size === 0) {
+        this.clear()
+      }
     } else {
       this.selection.set(id, tab)
     }
@@ -35,10 +40,12 @@ class TabsStore {
     this.selection.clear()
     this.targetId = null
     this.before = false
+    this.selecting = false
   }
 
   @action
   dragStart = (tab) => {
+    this.selecting = true
     this.selection.set(tab.id, tab)
   }
 
@@ -73,6 +80,13 @@ class TabsStore {
       moveTabs(tabs, windowId)
     }
     moveTabs(this.sources, windowId, index)
+  }
+
+  @action
+  focus = (tab) => {
+    const { id, windowId } = tab
+    chrome.tabs.update(id, { selected: true })
+    chrome.windows.update(windowId, { focused: true })
   }
 }
 

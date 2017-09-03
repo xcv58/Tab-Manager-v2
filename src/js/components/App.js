@@ -20,6 +20,9 @@ export default class App extends React.Component {
 
   render () {
     const { windowsStore: { tabCount, windows } } = this.props
+    if (!tabCount) {
+      return null
+    }
     const winList = windows.map((win) => (
       <Window key={win.id} {...win} />
     ))

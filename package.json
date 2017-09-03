@@ -9,6 +9,7 @@
     "start": "node utils/webserver.js"
   },
   "dependencies": {
+    "material-ui": "next",
     "mobx": "^3.2.2",
     "mobx-react": "^4.2.2",
     "react": "^15.6.1",
