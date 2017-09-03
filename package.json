@@ -36,6 +36,8 @@
   },
   "standard": {
     "parser": "babel-eslint",
-    "globals": [ "chrome" ]
+    "globals": [
+      "chrome"
+    ]
   }
 }
