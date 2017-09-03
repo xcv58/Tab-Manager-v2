@@ -1,5 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import Window from './Window'
+import Search from './Search'
 
 @inject('timerStore')
 @observer
@@ -9,10 +11,16 @@ export default class Timer extends React.Component {
   }
 
   render () {
+    const { timerStore: { tabCount, windows } } = this.props
+    const winList = windows.map((win) => (
+      <Window key={win.id} {...win} />
+    ))
     return (
-      <button onClick={this.onReset}>
-        Seconds passed: {this.props.timerStore.timer}
-      </button>
+      <div>
+        <Search />
+        Tabs: {tabCount}
+        {winList}
+      </div>
     )
   }
 }

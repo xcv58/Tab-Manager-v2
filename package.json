@@ -35,6 +35,7 @@
     "write-file-webpack-plugin": "^4.1.0"
   },
   "standard": {
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "globals": [ "chrome" ]
   }
 }

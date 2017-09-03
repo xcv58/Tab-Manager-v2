@@ -1,20 +1,37 @@
-import { action, observable } from 'mobx'
+import { action, computed, observable } from 'mobx'
 
 class TimerStore {
-  @observable timer = 0
+  constructor () {
+    chrome.windows.getAll({ populate: true }, this.allWindows)
+  }
+
+  @observable windows = []
+  @observable windowsbyid = {}
+  @observable tabsbyid = {}
+
+  @computed get tabCount () {
+    return this.windows
+    .map(
+      x => x.tabs.length
+    ).reduce(
+      (acc, cur) => acc + cur, 0
+    )
+  }
+
   @action
-  resetTimer = () => {
-    this.timer = 0
+  allWindows = (windows) => {
+    console.log(windows)
+    this.windows = windows
+    windows.map((win) => {
+      const { id, tabs } = win
+      this.windowsbyid[id] = win
+      tabs.map((tab) => {
+        this.tabsbyid[tab.id] = tab
+      })
+    })
   }
 }
 
 const timerStore = new TimerStore()
-
-setInterval(
-  action(() => {
-    timerStore.timer += 1
-  }),
-  1000
-)
 
 export default timerStore
