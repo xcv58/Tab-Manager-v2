@@ -76,11 +76,19 @@ export default class App extends React.Component {
       <Window key={win.id} {...win} />
     ))
     return (
-      <div
-        // onKeyDown={this.onKeyDown}
-      >
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        height: '100vh'
+      }}>
         <Search />
-        {winList}
+        <div style={{
+          overflow: 'auto',
+          flex: '1 1 auto'
+        }}>
+          {winList}
+        </div>
       </div>
     )
   }

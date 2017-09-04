@@ -8,8 +8,11 @@ body {
   padding: 0px;
   margin: 0px;
   -webkit-user-select: none;
+  overflow: hidden;
 }
 
 #app-container {
   width: 768px;
+  height: 1024px;
+  overflow: auto;
 }
