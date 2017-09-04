@@ -1,35 +1,17 @@
 import { action, computed, observable } from 'mobx'
 import windowsStore from './WindowsStore'
-
-export const moveTabs = (tabs, windowId, from = 0) => {
-  let index = from
-  tabs.map(({ id, pinned }) => {
-    chrome.tabs.move(
-      id,
-      { windowId, index },
-      () => {
-        chrome.tabs.update(id, { pinned })
-      }
-    )
-    index += 1
-  })
-}
+import { moveTabs } from '../libs'
 
 class TabsStore {
   @observable selection = new Map()
   @observable targetId = null
   @observable before = true
-  @observable selecting = false
 
   @action
   select = (tab) => {
-    this.selecting = true
     const { id } = tab
     if (this.selection.has(id)) {
       this.selection.delete(id)
-      if (this.selection.size === 0) {
-        this.clear()
-      }
     } else {
       this.selection.set(id, tab)
     }
@@ -40,12 +22,10 @@ class TabsStore {
     this.selection.clear()
     this.targetId = null
     this.before = false
-    this.selecting = false
   }
 
   @action
   dragStart = (tab) => {
-    this.selecting = true
     this.selection.set(tab.id, tab)
   }
 

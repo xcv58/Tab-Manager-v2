@@ -2,20 +2,17 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Checkbox from 'material-ui/Checkbox'
 
+const borderBottom = '1px solid rgba(0,0,0,.08)'
+const borderTop = '1px solid white'
+
 @inject('tabsStore')
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
-    const { tabsStore: { select, focus, selecting } } = this.props
-    if (selecting) {
-      select(this.props)
-    } else {
-      focus(this.props)
-    }
+    this.props.tabsStore.focus(this.props)
   }
 
   select = () => {
-    console.log('select')
     this.props.tabsStore.select(this.props)
   }
 
@@ -45,16 +42,15 @@ export default class Tab extends React.Component {
     const style = {
       display: 'flex',
       alignItems: 'center',
-      padding: 4,
-      margin: 4,
-      border: '1px red solid',
-      borderTop: '1px red solid',
-      borderBottom: '1px red solid',
+      padding: 8,
+      margin: 0,
+      borderTop: borderTop,
+      borderBottom: borderBottom,
       whiteSpace: 'nowrap'
     }
     if (targetId === id) {
       const border = 'border' + (before ? 'Top' : 'Bottom')
-      style[border] = '2px black solid'
+      style[border] = '1px black solid'
     }
     const { onDragStart, onDragEnd, onDragOver, onDrop } = this
     return (
@@ -64,14 +60,19 @@ export default class Tab extends React.Component {
         {...{ onDragStart, onDragEnd, onDragOver, onDrop }}
       >
         <Checkbox
-          style={{
-            width: '1rem',
-            height: '1rem'
-          }}
           checked={selected}
           onChange={this.select}
+          style={{
+            width: '1rem',
+            height: '1rem',
+            padding: 4
+          }}
         />
-        <div onClick={this.onClick}>
+        <div
+          onClick={this.onClick}
+          style={{
+            marginLeft: 4
+          }}>
           {title}
         </div>
       </div>

@@ -3,13 +3,13 @@ import Tab from './Tab'
 
 export default class Window extends React.Component {
   render () {
-    const { id, tabs } = this.props
+    const { tabs } = this.props
     const content = tabs.map((tab) => (
       <Tab key={tab.id} {...tab} />
     ))
     return (
       <div>
-        <h1>window: {id}</h1>
+        <h2>Tabs: {tabs.length}</h2>
         {content}
       </div>
     )
