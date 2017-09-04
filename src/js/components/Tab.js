@@ -49,9 +49,9 @@ export default class Tab extends React.Component {
       title,
       id,
       tabStore: { selection, targetId, before },
-      searchStore: { query, matchedTabsMap, focusedTab }
+      searchStore: { query, matchedSet, focusedTab }
     } = this.props
-    const notMatched = Boolean(query) && !matchedTabsMap.has(id)
+    const notMatched = Boolean(query) && !matchedSet.has(id)
     const focused = focusedTab === id
     const selected = selection.has(id)
     const style = {

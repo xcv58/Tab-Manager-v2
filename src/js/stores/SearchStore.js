@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx'
+import { action, computed, observable } from 'mobx'
 import Fuse from 'fuse.js'
 import { activateTab } from '../libs'
 
@@ -8,10 +8,18 @@ export default class SearchStore {
   }
 
   @observable query = ''
-  @observable matchedTabs = []
-  @observable matchedTabsMap = new Map()
   @observable focusedTab = null
   @observable typing = false
+
+  @computed
+  get matchedTabs () {
+    return this.fuzzySearch()
+  }
+
+  @computed
+  get matchedSet () {
+    return new Set(this.matchedTabs.map(x => x.id))
+  }
 
   @action
   startType = () => {
@@ -26,29 +34,24 @@ export default class SearchStore {
   @action
   search = (value) => {
     this.query = value
-    this.matchedTabs = this.fuzzySearch(this.query)
     this.focusedTab = null
-    this.matchedTabsMap.clear()
-    this.matchedTabs.map((tab) => this.matchedTabsMap.set(tab.id, tab))
     if (value) {
       this.findFocusedTab(1)
     }
   }
 
-  fuzzySearch = (query) => {
-    // const tabs = windowStore.getTabs()
+  fuzzySearch = () => {
     const tabs = this.store.windowStore.tabs
-    // const tabs = [].concat(...(windowStore.windows.map(x => x.tabs.slice())))
-    if (!query) {
+    if (!this.query) {
       return tabs
     }
-    const containsUpperCase = (/[A-Z]/.test(query))
+    const containsUpperCase = (/[A-Z]/.test(this.query))
     return new Fuse(tabs, {
       threshold: 0.6,
       caseSensitive: containsUpperCase,
       shouldSort: false,
       keys: [ 'title' ]
-    }).search(query)
+    }).search(this.query)
   }
 
   @action
