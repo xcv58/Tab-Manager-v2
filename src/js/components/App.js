@@ -84,7 +84,9 @@ export default class App extends React.Component {
         height: '100vh'
       }}>
         <div style={{
-          // display: 'flex',
+          display: 'flex',
+          alignItems: 'center',
+          flex: '0 0 auto',
           padding: '0 4px'
         }}>
           <Search />

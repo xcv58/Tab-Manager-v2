@@ -15,6 +15,10 @@ export default class Tools extends React.Component {
     return (
       <div>
         <IconButton
+          style={{
+            width: '2rem',
+            height: '2rem'
+          }}
           disabled={duplicatedTabsCount === 0}
           onClick={this.onClick}>
           <SortIcon />
