@@ -14,5 +14,5 @@ body {
 #app-container {
   width: 768px;
   height: 1024px;
-  overflow: auto;
+  overflow: hidden;
 }
