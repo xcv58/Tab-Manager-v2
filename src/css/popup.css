@@ -1,18 +1,16 @@
-html {
-  padding: 8px;
-  margin: 0px;
-  user-select: none;
-}
-
+html,
 body {
+  width: 800px;
+  height: 600px;
   padding: 0px;
   margin: 0px;
+  user-select: none;
   -webkit-user-select: none;
   overflow: hidden;
 }
 
 #app-container {
-  width: 768px;
-  height: 1024px;
+  width: 800px;
+  height: 600px;
   overflow: hidden;
 }
