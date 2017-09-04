@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Window from './Window'
 import Search from './Search'
+// import Tools from './Tools'
 
 @inject('windowsStore')
 @inject('searchStore')
@@ -83,6 +84,7 @@ export default class App extends React.Component {
         height: '100vh'
       }}>
         <Search />
+        {/* <Tools /> */}
         <div style={{
           overflow: 'auto',
           flex: '1 1 auto'

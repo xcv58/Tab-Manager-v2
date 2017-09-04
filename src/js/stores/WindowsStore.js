@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx'
+import { moveTabs } from '../libs'
 
 class WindowsStore {
   constructor () {
@@ -20,6 +21,11 @@ class WindowsStore {
   }
 
   @action
+  getTabs = () => {
+    return [].concat(...(this.windows.map(x => x.tabs.slice())))
+  }
+
+  @action
   updateAllWindows = () => {
     chrome.windows.getAll({ populate: true }, this.allWindows)
   }
@@ -36,6 +42,19 @@ class WindowsStore {
         this.tabsMap.set(tab.id, tab)
       })
     })
+  }
+
+  @action
+  sortTabs = () => {
+    const tabs = this.getTabs()
+    tabs.sort((a, b) => {
+      if (a.url === b.url) {
+        return a.title.localeCompare(b.title)
+      }
+      return a.url.localeCompare(b.url)
+    })
+    // console.log(this.windows[0]);
+    moveTabs(tabs, this.windows[0].id)
   }
 }
 

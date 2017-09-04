@@ -34,7 +34,8 @@ class SearchStore {
   }
 
   fuzzySearch = (query) => {
-    const tabs = [].concat(...(windowsStore.windows.map(x => x.tabs.slice())))
+    const tabs = windowsStore.getTabs()
+    // const tabs = [].concat(...(windowsStore.windows.map(x => x.tabs.slice())))
     if (!query) {
       return tabs
     }
