@@ -1,8 +1,9 @@
 import { action, computed, observable } from 'mobx'
 import { moveTabs } from '../libs'
 
-class WindowsStore {
-  constructor () {
+export default class WindowsStore {
+  constructor (store) {
+    this.store = store
     this.updateAllWindows()
   }
 
@@ -22,6 +23,11 @@ class WindowsStore {
 
   @action
   getTabs = () => {
+    return [].concat(...(this.windows.map(x => x.tabs.slice())))
+  }
+
+  @computed
+  get tabs () {
     return [].concat(...(this.windows.map(x => x.tabs.slice())))
   }
 
@@ -57,5 +63,3 @@ class WindowsStore {
     moveTabs(tabs, this.windows[0].id)
   }
 }
-
-export default new WindowsStore()

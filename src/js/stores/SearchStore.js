@@ -1,10 +1,12 @@
 import { action, observable } from 'mobx'
 import Fuse from 'fuse.js'
-import windowsStore from './WindowsStore'
-import tabsStore from './TabsStore'
 import { activateTab } from '../libs'
 
-class SearchStore {
+export default class SearchStore {
+  constructor (store) {
+    this.store = store
+  }
+
   @observable query = ''
   @observable matchedTabs = []
   @observable matchedTabsMap = new Map()
@@ -34,8 +36,9 @@ class SearchStore {
   }
 
   fuzzySearch = (query) => {
-    const tabs = windowsStore.getTabs()
-    // const tabs = [].concat(...(windowsStore.windows.map(x => x.tabs.slice())))
+    // const tabs = windowStore.getTabs()
+    const tabs = this.store.windowStore.tabs
+    // const tabs = [].concat(...(windowStore.windows.map(x => x.tabs.slice())))
     if (!query) {
       return tabs
     }
@@ -59,7 +62,7 @@ class SearchStore {
       return
     }
     chrome.tabs.get(this.focusedTab, (tab) => {
-      tabsStore.select(tab)
+      this.store.tabStore.select(tab)
     })
   }
 
@@ -88,5 +91,3 @@ class SearchStore {
     }
   }
 }
-
-export default new SearchStore()

@@ -4,12 +4,12 @@ import Window from './Window'
 import Search from './Search'
 import Tools from './Tools'
 
-@inject('windowsStore')
+@inject('windowStore')
 @inject('searchStore')
 @observer
 export default class App extends React.Component {
   componentDidMount () {
-    const { windowsStore: { updateAllWindows } } = this.props
+    const { windowStore: { updateAllWindows } } = this.props
     chrome.windows.onCreated.addListener(updateAllWindows)
     chrome.windows.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onCreated.addListener(updateAllWindows)
@@ -69,7 +69,7 @@ export default class App extends React.Component {
   }
 
   render () {
-    const { windowsStore: { tabCount, windows } } = this.props
+    const { windowStore: { tabCount, windows } } = this.props
     if (!tabCount) {
       return null
     }

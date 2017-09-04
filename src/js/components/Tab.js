@@ -5,35 +5,35 @@ import Checkbox from 'material-ui/Checkbox'
 const borderBottom = '1px solid rgba(0,0,0,.08)'
 const borderTop = '1px solid white'
 
-@inject('tabsStore')
 @inject('searchStore')
+@inject('tabStore')
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
-    this.props.tabsStore.focus(this.props)
+    this.props.tabStore.focus(this.props)
   }
 
   select = () => {
-    this.props.tabsStore.select(this.props)
+    this.props.tabStore.select(this.props)
   }
 
   onDragStart = () => {
-    this.props.tabsStore.dragStart(this.props)
+    this.props.tabStore.dragStart(this.props)
   }
 
   onDragEnd = () => {
-    this.props.tabsStore.clear()
+    this.props.tabStore.clear()
   }
 
   onDragOver = (e) => {
     e.nativeEvent.preventDefault()
-    const { id, tabsStore: { setDropTarget } } = this.props
+    const { id, tabStore: { setDropTarget } } = this.props
     const before = e.nativeEvent.offsetY < this.refs.tab.clientHeight / 2
     setDropTarget(id, before)
   }
 
   onDrop = () => {
-    const { tabsStore: { drop } } = this.props
+    const { tabStore: { drop } } = this.props
     drop(this.props)
   }
 
@@ -48,7 +48,7 @@ export default class Tab extends React.Component {
     const {
       title,
       id,
-      tabsStore: { selection, targetId, before },
+      tabStore: { selection, targetId, before },
       searchStore: { query, matchedTabsMap, focusedTab }
     } = this.props
     const notMatched = Boolean(query) && !matchedTabsMap.has(id)

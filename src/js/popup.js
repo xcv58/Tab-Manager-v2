@@ -3,12 +3,12 @@ import App from './components/App'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'mobx-react'
-import windowsStore from './stores/WindowsStore'
-import tabsStore from './stores/TabsStore'
-import searchStore from './stores/SearchStore'
+import Store from './stores'
+
+const store = new Store()
 
 render(
-  <Provider {...{ windowsStore, tabsStore, searchStore }}>
+  <Provider {...store}>
     <App />
   </Provider>,
   window.document.getElementById('app-container')

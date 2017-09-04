@@ -1,8 +1,11 @@
 import { action, computed, observable } from 'mobx'
-import windowsStore from './WindowsStore'
 import { activateTab, moveTabs } from '../libs'
 
-class TabsStore {
+export default class TabStore {
+  constructor (store) {
+    this.store = store
+  }
+
   @observable selection = new Map()
   @observable targetId = null
   @observable before = true
@@ -52,7 +55,7 @@ class TabsStore {
   @action
   drop = (tab) => {
     const { windowId } = tab
-    const win = windowsStore.windowsMap.get(windowId)
+    const win = this.store.windowStore.windowsMap.get(windowId)
     const targetIndex = tab.index + (this.before ? 0 : 1)
     const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
     if (index !== targetIndex) {
@@ -67,5 +70,3 @@ class TabsStore {
     activateTab(tab.id)
   }
 }
-
-export default new TabsStore()

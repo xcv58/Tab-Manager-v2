@@ -3,11 +3,11 @@ import { inject, observer } from 'mobx-react'
 import SortIcon from 'material-ui-icons/Sort'
 import IconButton from 'material-ui/IconButton'
 
-@inject('windowsStore')
+@inject('windowStore')
 @observer
 export default class Search extends React.Component {
   onClick = (e) => {
-    this.props.windowsStore.sortTabs()
+    this.props.windowStore.sortTabs()
   }
 
   onFocus = () => {
