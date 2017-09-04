@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx'
 import windowsStore from './WindowsStore'
-import { moveTabs } from '../libs'
+import { activateTab, moveTabs } from '../libs'
 
 class TabsStore {
   @observable selection = new Map()
@@ -64,9 +64,7 @@ class TabsStore {
 
   @action
   focus = (tab) => {
-    const { id, windowId } = tab
-    chrome.tabs.update(id, { selected: true })
-    chrome.windows.update(windowId, { focused: true })
+    activateTab(tab.id)
   }
 }
 
