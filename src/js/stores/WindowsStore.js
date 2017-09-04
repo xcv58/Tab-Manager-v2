@@ -19,6 +19,11 @@ class WindowsStore {
     )
   }
 
+  @computed
+  get tabs () {
+    return [].concat(...(this.windows.map(x => x.tabs.slice())))
+  }
+
   @action
   updateAllWindows = () => {
     chrome.windows.getAll({ populate: true }, this.allWindows)
