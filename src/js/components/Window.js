@@ -9,7 +9,12 @@ export default class Window extends React.Component {
     ))
     return (
       <div>
-        <h2>Tabs: {tabs.length}</h2>
+        <div style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold'
+        }}>
+          Tabs: {tabs.length}
+        </div>
         {content}
       </div>
     )

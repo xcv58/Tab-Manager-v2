@@ -2,7 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Window from './Window'
 import Search from './Search'
-// import Tools from './Tools'
+import Tools from './Tools'
 
 @inject('windowsStore')
 @inject('searchStore')
@@ -83,9 +83,15 @@ export default class App extends React.Component {
         overflow: 'hidden',
         height: '100vh'
       }}>
-        <Search />
-        {/* <Tools /> */}
         <div style={{
+          // display: 'flex',
+          padding: '0 4px'
+        }}>
+          <Search />
+          <Tools />
+        </div>
+        <div style={{
+          padding: '0 4px',
           overflow: 'auto',
           flex: '1 1 auto'
         }}>
