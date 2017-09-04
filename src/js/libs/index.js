@@ -8,7 +8,9 @@ export const moveTabs = (tabs, windowId, from = 0) => {
         chrome.tabs.update(id, { pinned })
       }
     )
-    index += 1
+    if (index !== -1) {
+      index += 1
+    }
   })
 }
 

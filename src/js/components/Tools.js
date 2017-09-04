@@ -5,25 +5,18 @@ import IconButton from 'material-ui/IconButton'
 
 @inject('windowStore')
 @observer
-export default class Search extends React.Component {
+export default class Tools extends React.Component {
   onClick = (e) => {
-    this.props.windowStore.sortTabs()
-  }
-
-  onFocus = () => {
-    const { searchStore: { search, query, startType } } = this.props
-    search(query)
-    startType()
-  }
-
-  onBlur = () => {
-    this.props.searchStore.stopType()
+    this.props.windowStore.deduplicate()
   }
 
   render () {
+    const { windowStore: { duplicatedTabsCount } } = this.props
     return (
       <div>
-        <IconButton onClick={this.onClick}>
+        <IconButton
+          disabled={duplicatedTabsCount === 0}
+          onClick={this.onClick}>
           <SortIcon />
         </IconButton>
       </div>

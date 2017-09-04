@@ -62,4 +62,34 @@ export default class WindowsStore {
     // console.log(this.windows[0]);
     moveTabs(tabs, this.windows[0].id)
   }
+
+  @computed
+  get duplicatedTabs () {
+    const urlTabMap = this.tabs.reduce((acc, tab) => {
+      const { url } = tab
+      acc[url] = acc[url] || []
+      acc[url].push(tab)
+      return acc
+    }, {})
+    return Object.values(urlTabMap).filter(x => x.length > 1)
+  }
+
+  @computed
+  get duplicatedTabsCount () {
+    return this.duplicatedTabs.map(x => x.length).reduce((acc, num) => acc + num, 0)
+  }
+
+  @action
+  deduplicate = () => {
+    if (this.duplicatedTabs.length === 0) {
+      return
+    }
+
+    chrome.windows.create({ tabId: this.duplicatedTabs[0][0].id }, (win) => {
+      const { id } = win
+      this.duplicatedTabs.map((tabs) => {
+        moveTabs(tabs, id, -1)
+      })
+    })
+  }
 }
