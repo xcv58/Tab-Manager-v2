@@ -6,6 +6,7 @@ const borderBottom = '1px solid rgba(0,0,0,.08)'
 const borderTop = '1px solid white'
 
 @inject('tabsStore')
+@inject('searchStore')
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
@@ -37,7 +38,14 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { title, id, tabsStore: { selection, targetId, before } } = this.props
+    const {
+      title,
+      id,
+      tabsStore: { selection, targetId, before },
+      searchStore: { query, matchedTabsMap, focusedTab }
+    } = this.props
+    const notMatched = Boolean(query) && !matchedTabsMap.has(id)
+    const focused = focusedTab === id
     const selected = selection.has(id)
     const style = {
       display: 'flex',
@@ -47,6 +55,12 @@ export default class Tab extends React.Component {
       borderTop: borderTop,
       borderBottom: borderBottom,
       whiteSpace: 'nowrap'
+    }
+    if (notMatched) {
+      style.opacity = 0.2
+    }
+    if (focused) {
+      style.borderLeft = '1px red solid'
     }
     if (targetId === id) {
       const border = 'border' + (before ? 'Top' : 'Bottom')
