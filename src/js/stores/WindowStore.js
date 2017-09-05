@@ -63,6 +63,19 @@ export default class WindowsStore {
     moveTabs(tabs, this.windows[0].id)
   }
 
+  @action
+  sortInWindow = () => {
+    this.windows.map((win) => {
+      const tabs = win.tabs.sort((a, b) => {
+        if (a.url === b.url) {
+          return a.title.localeCompare(b.title)
+        }
+        return a.url.localeCompare(b.url)
+      })
+      moveTabs(tabs, win.id, 0)
+    })
+  }
+
   @computed
   get duplicatedTabs () {
     const urlTabMap = this.tabs.reduce((acc, tab) => {
@@ -80,16 +93,13 @@ export default class WindowsStore {
   }
 
   @action
-  deduplicate = () => {
-    if (this.duplicatedTabs.length === 0) {
+  groupDuplicateTabs = () => {
+    if (this.duplicatedTabsCount === 0) {
       return
     }
 
-    chrome.windows.create({ tabId: this.duplicatedTabs[0][0].id }, (win) => {
-      const { id } = win
-      this.duplicatedTabs.map((tabs) => {
-        moveTabs(tabs, id, -1)
-      })
+    this.duplicatedTabs.map((tabs) => {
+      moveTabs(tabs, tabs[0].windowId, -1)
     })
   }
 }
