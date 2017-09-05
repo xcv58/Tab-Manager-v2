@@ -38,9 +38,20 @@ export default class Tab extends React.Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
-    const { id, searchStore: { focusedTab } } = this.props
+    const {
+      id,
+      searchStore: { focusedTab, searchTriggered, scrolled }
+    } = this.props
     if (id === focusedTab) {
-      this.refs.tab.scrollIntoView({ block: 'end', behavior: 'smooth' })
+      const scrollOption = {
+        block: 'end',
+        behavior: 'smooth'
+      }
+      if (searchTriggered) {
+        scrollOption.behavior = 'auto'
+        scrolled()
+      }
+      this.refs.tab.scrollIntoView(scrollOption)
     }
   }
 
