@@ -4,6 +4,7 @@
   "description": "A boilerplate to chrome extension with webpack",
   "scripts": {
     "build": "node utils/build.js",
+    "deploy": "NODE_ENV=production yarn build && zip -r build.zip build/*",
     "lint": "standard",
     "lintfix": "yarn lint -- --fix",
     "start": "node utils/webserver.js"
