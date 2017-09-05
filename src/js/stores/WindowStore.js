@@ -4,7 +4,7 @@ import { moveTabs } from '../libs'
 export default class WindowsStore {
   constructor (store) {
     this.store = store
-    this.updateAllWindows()
+    this.getAllWindows()
   }
 
   @observable windows = []
@@ -38,23 +38,25 @@ export default class WindowsStore {
     if (this.updateHandler != null) {
       clearTimeout(this.updateHandler)
     }
-    this.updateHandler = setTimeout(
-      () => chrome.windows.getAll({ populate: true }, this.allWindows), 2
-    )
+    this.updateHandler = setTimeout(this.getAllWindows, 2)
   }
 
-  @action
-  allWindows = (windows) => {
-    this.windows = windows
-    this.windowsMap.clear()
-    this.tabsMap.clear()
-    windows.map((win) => {
-      const { id, tabs } = win
-      this.windowsMap.set(id, win)
-      tabs.map((tab) => {
-        this.tabsMap.set(tab.id, tab)
-      })
-    })
+  getAllWindows = () => {
+    chrome.windows.getAll(
+      { populate: true },
+      (windows) => {
+        this.windows = windows
+        this.windowsMap.clear()
+        this.tabsMap.clear()
+        windows.map((win) => {
+          const { id, tabs } = win
+          this.windowsMap.set(id, win)
+          tabs.map((tab) => {
+            this.tabsMap.set(tab.id, tab)
+          })
+        })
+      }
+    )
   }
 
   @action
