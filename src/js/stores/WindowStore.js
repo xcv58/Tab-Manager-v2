@@ -11,6 +11,8 @@ export default class WindowsStore {
   @observable windowsMap = new Map()
   @observable tabsMap = new Map()
 
+  updateHandler = null
+
   @computed
   get tabCount () {
     return this.windows
@@ -33,7 +35,12 @@ export default class WindowsStore {
 
   @action
   updateAllWindows = () => {
-    chrome.windows.getAll({ populate: true }, this.allWindows)
+    if (this.updateHandler != null) {
+      clearTimeout(this.updateHandler)
+    }
+    this.updateHandler = setTimeout(
+      () => chrome.windows.getAll({ populate: true }, this.allWindows), 2
+    )
   }
 
   @action
