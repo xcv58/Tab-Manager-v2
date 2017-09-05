@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { moveTabs } from '../libs'
+import { moveTabs, tabComparator } from '../libs'
 
 export default class WindowsStore {
   constructor (store) {
@@ -21,11 +21,6 @@ export default class WindowsStore {
     ).reduce(
       (acc, cur) => acc + cur, 0
     )
-  }
-
-  @action
-  getTabs = () => {
-    return [].concat(...(this.windows.map(x => x.tabs.slice())))
   }
 
   @computed
@@ -61,26 +56,14 @@ export default class WindowsStore {
 
   @action
   sortTabs = () => {
-    const tabs = this.getTabs()
-    tabs.sort((a, b) => {
-      if (a.url === b.url) {
-        return a.title.localeCompare(b.title)
-      }
-      return a.url.localeCompare(b.url)
-    })
-    // console.log(this.windows[0]);
+    const tabs = this.tabs.sort(tabComparator)
     moveTabs(tabs, this.windows[0].id)
   }
 
   @action
   sortInWindow = () => {
     this.windows.map((win) => {
-      const tabs = win.tabs.sort((a, b) => {
-        if (a.url === b.url) {
-          return a.title.localeCompare(b.title)
-        }
-        return a.url.localeCompare(b.url)
-      })
+      const tabs = win.tabs.sort(tabComparator)
       moveTabs(tabs, win.id, 0)
     })
   }

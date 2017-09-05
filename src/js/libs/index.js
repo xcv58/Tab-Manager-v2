@@ -23,3 +23,10 @@ export const activateTab = (id) => {
     chrome.windows.update(tab.windowId, { focused: true })
   })
 }
+
+export const tabComparator = (a, b) => {
+  if (a.url === b.url) {
+    return a.title.localeCompare(b.title)
+  }
+  return a.url.localeCompare(b.url)
+}
