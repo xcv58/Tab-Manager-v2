@@ -43,9 +43,20 @@ export default class Tab extends React.Component {
       searchStore: { focusedTab, searchTriggered, scrolled }
     } = this.props
     if (id === focusedTab) {
+      const containmentRect = this.props.containment().getBoundingClientRect()
+      const { top, bottom } = this.refs.tab.getBoundingClientRect()
+      const topGap = top - containmentRect.top
+      const bottomGap = containmentRect.bottom - bottom
+      if (topGap > 0 && bottomGap > 0) {
+        return
+      }
       const scrollOption = {
-        block: 'end',
+        block: 'start',
+        inline: 'start',
         behavior: 'smooth'
+      }
+      if (topGap <= 0) {
+        scrollOption.block = 'end'
       }
       if (searchTriggered) {
         scrollOption.behavior = 'auto'

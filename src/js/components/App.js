@@ -74,7 +74,7 @@ export default class App extends React.Component {
       return null
     }
     const winList = windows.map((win) => (
-      <Window key={win.id} {...win} />
+      <Window key={win.id} {...win} containment={() => this.refs.containment} />
     ))
     return (
       <div style={{
@@ -92,11 +92,12 @@ export default class App extends React.Component {
           <Search />
           <Tools />
         </div>
-        <div style={{
-          padding: '0 4px',
-          overflow: 'auto',
-          flex: '1 1 auto'
-        }}>
+        <div ref='containment'
+          style={{
+            padding: '0 4px',
+            overflow: 'auto',
+            flex: '1 1 auto'
+          }}>
           {winList}
         </div>
       </div>

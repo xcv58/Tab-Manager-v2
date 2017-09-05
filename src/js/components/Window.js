@@ -3,9 +3,9 @@ import Tab from './Tab'
 
 export default class Window extends React.Component {
   render () {
-    const { tabs } = this.props
+    const { tabs, containment } = this.props
     const content = tabs.map((tab) => (
-      <Tab key={tab.id} {...tab} />
+      <Tab key={tab.id} {...tab} {...{ containment }} />
     ))
     return (
       <div>
