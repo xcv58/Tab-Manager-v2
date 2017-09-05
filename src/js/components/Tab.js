@@ -22,7 +22,7 @@ export default class Tab extends React.Component {
   }
 
   onDragEnd = () => {
-    this.props.tabStore.clear()
+    this.props.tabStore.dragEnd()
   }
 
   onDragOver = (e) => {
@@ -40,9 +40,9 @@ export default class Tab extends React.Component {
   componentDidUpdate (prevProps, prevState) {
     const {
       id,
-      searchStore: { focusedTab, searchTriggered, scrolled }
+      searchStore: { focusedTab, searchTriggered, scrolled, typing }
     } = this.props
-    if (id === focusedTab) {
+    if (typing && id === focusedTab) {
       const scrollOption = {
         block: 'end',
         behavior: 'smooth'

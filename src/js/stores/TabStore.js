@@ -9,6 +9,7 @@ export default class TabStore {
   @observable selection = new Map()
   @observable targetId = null
   @observable before = true
+  @observable dragging = false
 
   @action
   select = (tab) => {
@@ -21,15 +22,17 @@ export default class TabStore {
   }
 
   @action
-  clear = () => {
+  dragEnd = () => {
     this.selection.clear()
     this.targetId = null
     this.before = false
+    this.dragging = false
   }
 
   @action
   dragStart = (tab) => {
     this.selection.set(tab.id, tab)
+    this.dragging = true
   }
 
   @action
