@@ -114,7 +114,9 @@ export default class Tab extends React.Component {
         <div
           onClick={this.onClick}
           style={{
-            marginLeft: 4
+            marginLeft: 4,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
           {title}
         </div>
