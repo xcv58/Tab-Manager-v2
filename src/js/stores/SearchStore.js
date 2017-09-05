@@ -39,6 +39,11 @@ export default class SearchStore {
   }
 
   @action
+  defocusTab = () => {
+    this.focusedTab = null
+  }
+
+  @action
   search = (value) => {
     this.query = value
     this.focusedTab = null

@@ -10,7 +10,7 @@ const borderTop = '1px solid white'
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
-    this.props.tabStore.focus(this.props)
+    this.props.tabStore.activate(this.props)
   }
 
   select = () => {
@@ -40,9 +40,9 @@ export default class Tab extends React.Component {
   componentDidUpdate (prevProps, prevState) {
     const {
       id,
-      searchStore: { focusedTab, searchTriggered, scrolled, typing }
+      searchStore: { focusedTab, searchTriggered, scrolled }
     } = this.props
-    if (typing && id === focusedTab) {
+    if (id === focusedTab) {
       const scrollOption = {
         block: 'end',
         behavior: 'smooth'

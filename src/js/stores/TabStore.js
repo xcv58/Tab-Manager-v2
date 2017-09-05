@@ -33,6 +33,7 @@ export default class TabStore {
   dragStart = (tab) => {
     this.selection.set(tab.id, tab)
     this.dragging = true
+    this.store.searchStore.defocusTab()
   }
 
   @action
@@ -69,7 +70,7 @@ export default class TabStore {
   }
 
   @action
-  focus = (tab) => {
+  activate = (tab) => {
     activateTab(tab.id)
   }
 }
