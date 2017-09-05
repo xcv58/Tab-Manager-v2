@@ -9,15 +9,15 @@ const iconStyle = {
   height: '2rem'
 }
 
-@inject('windowStore')
+@inject('arrangeStore')
 @observer
 export default class Tools extends React.Component {
   onClick = (e) => {
-    this.props.windowStore.groupDuplicateTabs()
+    this.props.arrangeStore.groupDuplicateTabs()
   }
 
   render () {
-    const { windowStore: { duplicatedTabsCount, sortInWindow } } = this.props
+    const { arrangeStore: { duplicatedTabsCount, sortInWindow } } = this.props
     return (
       <div style={{
         display: 'flex'

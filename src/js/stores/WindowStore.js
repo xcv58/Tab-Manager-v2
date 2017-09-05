@@ -1,5 +1,4 @@
 import { action, computed, observable } from 'mobx'
-import { moveTabs, tabComparator } from '../libs'
 
 export default class WindowsStore {
   constructor (store) {
@@ -52,46 +51,5 @@ export default class WindowsStore {
         })
       }
     )
-  }
-
-  @action
-  sortTabs = () => {
-    const tabs = this.tabs.sort(tabComparator)
-    moveTabs(tabs, this.windows[0].id)
-  }
-
-  @action
-  sortInWindow = () => {
-    this.windows.map((win) => {
-      const tabs = win.tabs.sort(tabComparator)
-      moveTabs(tabs, win.id, 0)
-    })
-  }
-
-  @computed
-  get duplicatedTabs () {
-    const urlTabMap = this.tabs.reduce((acc, tab) => {
-      const { url } = tab
-      acc[url] = acc[url] || []
-      acc[url].push(tab)
-      return acc
-    }, {})
-    return Object.values(urlTabMap).filter(x => x.length > 1)
-  }
-
-  @computed
-  get duplicatedTabsCount () {
-    return this.duplicatedTabs.map(x => x.length).reduce((acc, num) => acc + num, 0)
-  }
-
-  @action
-  groupDuplicateTabs = () => {
-    if (this.duplicatedTabsCount === 0) {
-      return
-    }
-
-    this.duplicatedTabs.map((tabs) => {
-      moveTabs(tabs, tabs[0].windowId, -1)
-    })
   }
 }
