@@ -43,12 +43,9 @@ export default class DraggableTab extends React.Component {
         return
       }
       const scrollOption = {
-        block: 'start',
+        block: 'end',
         inline: 'start',
         behavior: 'smooth'
-      }
-      if (topGap <= 0) {
-        scrollOption.block = 'end'
       }
       if (searchTriggered) {
         scrollOption.behavior = 'auto'
