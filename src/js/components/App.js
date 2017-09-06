@@ -114,7 +114,7 @@ export default class App extends React.Component {
           <Search inputRef={(input) => { this.search = input }} />
           <Tools />
         </div>
-        <div ref={(el) => { this.containment = el }}
+        <div ref={(el) => { this.containment = el || this.containment }}
           style={{
             padding: '0 4px',
             overflow: 'auto',

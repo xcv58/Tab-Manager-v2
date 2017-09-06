@@ -102,7 +102,7 @@ export default class Tab extends React.Component {
       <div
         draggable
         style={style}
-        ref={(el) => { this.node = el }}
+        ref={(el) => { this.node = el || this.node }}
         {...{ onDragStart, onDragEnd, onDragOver, onDrop }}
       >
         <Checkbox
