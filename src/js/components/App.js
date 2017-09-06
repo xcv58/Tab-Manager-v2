@@ -43,6 +43,13 @@ export default class App extends React.Component {
         e.preventDefault()
         enter()
         break
+      // Escape
+      case 27:
+        if (typing) {
+          e.preventDefault()
+          this.search.blur()
+        }
+        break
       default:
         break
     }
