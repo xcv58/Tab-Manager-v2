@@ -25,7 +25,7 @@ export default class App extends React.Component {
 
   onKeyDown = (e) => {
     const {
-      searchStore: { up, down, enter, select, typing },
+      searchStore: { up, down, enter, select, typing, query },
       tabStore: { remove }
     } = this.props
     console.log(e.keyCode)
@@ -48,6 +48,13 @@ export default class App extends React.Component {
       // Escape
       case 27:
         if (typing) {
+          e.preventDefault()
+          this.search.blur()
+        }
+        break
+      // Delete
+      case 8:
+        if (!query) {
           e.preventDefault()
           this.search.blur()
         }
