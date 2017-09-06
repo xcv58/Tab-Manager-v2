@@ -11,10 +11,12 @@ const borderTop = '1px solid white'
 export default class Tab extends React.Component {
   onClick = () => {
     this.props.tabStore.activate(this.props)
+    this.props.searchStore.focus(this.props)
   }
 
   select = () => {
     this.props.tabStore.select(this.props)
+    this.props.searchStore.focus(this.props)
   }
 
   onDragStart = () => {

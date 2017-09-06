@@ -48,7 +48,7 @@ export default class SearchStore {
     this.query = value
     this.focusedTab = null
     this.searchTriggered = true
-    this.findFocusedTab(1)
+    this.findFocusedTab()
   }
 
   fuzzySearch = () => {
@@ -68,6 +68,11 @@ export default class SearchStore {
   @action
   enter = () => {
     activateTab(this.focusedTab)
+  }
+
+  @action
+  focus = (tab) => {
+    this.focusedTab = tab.id
   }
 
   @action

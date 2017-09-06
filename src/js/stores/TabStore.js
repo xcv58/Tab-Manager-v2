@@ -73,4 +73,25 @@ export default class TabStore {
   activate = (tab) => {
     activateTab(tab.id)
   }
+
+  @action
+  remove = () => {
+    const { findFocusedTab, focusedTab } = this.store.searchStore
+    if (this.selection.size > 0) {
+      if (this.selection.has(focusedTab)) {
+        while (this.selection.has(this.store.searchStore.focusedTab)) {
+          findFocusedTab()
+        }
+      }
+      chrome.tabs.remove(
+        this.selection.values().map(x => x.id),
+        () => this.selection.clear()
+      )
+    } else {
+      if (focusedTab) {
+        this.store.searchStore.findFocusedTab()
+        chrome.tabs.remove(focusedTab)
+      }
+    }
+  }
 }

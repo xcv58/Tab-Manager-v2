@@ -7,6 +7,7 @@ import Tools from './Tools'
 
 @inject('windowStore')
 @inject('searchStore')
+@inject('tabStore')
 @observer
 export default class App extends React.Component {
   componentDidMount () {
@@ -24,7 +25,8 @@ export default class App extends React.Component {
 
   onKeyDown = (e) => {
     const {
-      searchStore: { up, down, enter, select, typing }
+      searchStore: { up, down, enter, select, typing },
+      tabStore: { remove }
     } = this.props
     console.log(e.keyCode)
     switch (e.keyCode) {
@@ -72,6 +74,11 @@ export default class App extends React.Component {
       case 75:
         e.preventDefault()
         up()
+        break
+      // Delete
+      case 8:
+        e.preventDefault()
+        remove()
         break
       // /
       case 191:
