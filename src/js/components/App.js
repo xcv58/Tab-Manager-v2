@@ -96,7 +96,7 @@ export default class App extends React.Component {
       return (<LinearProgress />)
     }
     const winList = windows.map((win) => (
-      <Window key={win.id} {...win} containment={() => this.refs.containment} />
+      <Window key={win.id} {...win} containment={() => this.containment} />
     ))
     return (
       <div style={{
@@ -114,7 +114,7 @@ export default class App extends React.Component {
           <Search inputRef={(input) => { this.search = input }} />
           <Tools />
         </div>
-        <div ref='containment'
+        <div ref={(el) => { this.containment = el }}
           style={{
             padding: '0 4px',
             overflow: 'auto',

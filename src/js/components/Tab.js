@@ -30,7 +30,7 @@ export default class Tab extends React.Component {
   onDragOver = (e) => {
     e.nativeEvent.preventDefault()
     const { id, tabStore: { setDropTarget } } = this.props
-    const before = e.nativeEvent.offsetY < this.refs.tab.clientHeight / 2
+    const before = e.nativeEvent.offsetY < this.node.clientHeight / 2
     setDropTarget(id, before)
   }
 
@@ -46,7 +46,7 @@ export default class Tab extends React.Component {
     } = this.props
     if (id === focusedTab) {
       const containmentRect = this.props.containment().getBoundingClientRect()
-      const { top, bottom } = this.refs.tab.getBoundingClientRect()
+      const { top, bottom } = this.node.getBoundingClientRect()
       const topGap = top - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom
       if (topGap > 0 && bottomGap > 0) {
@@ -64,7 +64,7 @@ export default class Tab extends React.Component {
         scrollOption.behavior = 'auto'
         scrolled()
       }
-      this.refs.tab.scrollIntoView(scrollOption)
+      this.node.scrollIntoView(scrollOption)
     }
   }
 
@@ -99,9 +99,10 @@ export default class Tab extends React.Component {
     }
     const { onDragStart, onDragEnd, onDragOver, onDrop } = this
     return (
-      <div ref='tab'
+      <div
         draggable
         style={style}
+        ref={(el) => { this.node = el }}
         {...{ onDragStart, onDragEnd, onDragOver, onDrop }}
       >
         <Checkbox
