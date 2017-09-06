@@ -44,6 +44,7 @@ export default class App extends React.Component {
         enter()
         break
       default:
+        break
     }
     console.log(typing)
     if (typing) {
@@ -65,7 +66,13 @@ export default class App extends React.Component {
         e.preventDefault()
         up()
         break
+      // /
+      case 191:
+        e.preventDefault()
+        this.search.focus()
+        break
       default:
+        break
     }
   }
 
@@ -90,7 +97,7 @@ export default class App extends React.Component {
           flex: '0 0 auto',
           padding: '0 4px'
         }}>
-          <Search />
+          <Search inputRef={(input) => { this.search = input }} />
           <Tools />
         </div>
         <div ref='containment'

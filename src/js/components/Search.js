@@ -20,11 +20,12 @@ export default class Search extends React.Component {
   }
 
   render () {
-    const { searchStore: { query } } = this.props
+    const { inputRef, searchStore: { query } } = this.props
     return (
       <Input
         fullWidth
         autoFocus
+        inputProps={{ ref: inputRef }}
         placeholder='Search your tab title...'
         onChange={this.onChange}
         onFocus={this.onFocus}
