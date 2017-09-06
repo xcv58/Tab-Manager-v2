@@ -9,6 +9,16 @@
     "default_popup": "popup.html",
     "default_icon": "icon-34.png"
   },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Ctrl+T",
+        "mac": "MacCtrl+T",
+        "chromeos": "Ctrl+T",
+        "linux": "Ctrl+T"
+      }
+    }
+  },
   "icons": {
     "128": "icon-128.png"
   },
