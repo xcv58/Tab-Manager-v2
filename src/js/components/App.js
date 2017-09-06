@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { LinearProgress } from 'material-ui/Progress'
-import Window from './Window'
+import WindowList from './WindowList'
 import Search from './Search'
 import Tools from './Tools'
 
@@ -91,13 +91,10 @@ export default class App extends React.Component {
   }
 
   render () {
-    const { windowStore: { tabCount, windows } } = this.props
+    const { windowStore: { tabCount } } = this.props
     if (!tabCount) {
       return (<LinearProgress />)
     }
-    const winList = windows.map((win) => (
-      <Window key={win.id} {...win} containment={() => this.containment} />
-    ))
     return (
       <div style={{
         display: 'flex',
@@ -114,14 +111,7 @@ export default class App extends React.Component {
           <Search inputRef={(input) => { this.search = input }} />
           <Tools />
         </div>
-        <div ref={(el) => { this.containment = el || this.containment }}
-          style={{
-            padding: '0 4px',
-            overflow: 'auto',
-            flex: '1 1 auto'
-          }}>
-          {winList}
-        </div>
+        <WindowList />
       </div>
     )
   }
