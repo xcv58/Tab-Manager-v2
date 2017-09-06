@@ -1,11 +1,11 @@
 import React from 'react'
-import Tab from './Tab'
+import DraggableTab from './DraggableTab'
 
 export default class Window extends React.Component {
   render () {
     const { tabs, containment } = this.props
     const content = tabs.map((tab) => (
-      <Tab key={tab.id} {...tab} {...{ containment }} />
+      <DraggableTab key={tab.id} {...tab} {...{ containment }} />
     ))
     return (
       <div>
