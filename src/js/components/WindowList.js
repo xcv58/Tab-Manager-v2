@@ -8,7 +8,11 @@ export default class App extends React.Component {
   render () {
     const { windowStore: { windows } } = this.props
     const winList = windows.map((win) => (
-      <Window key={win.id} {...win} containment={() => this.containment} />
+      <Window
+        key={win.id}
+        containment={() => this.containment}
+        {...win}
+      />
     ))
     return (
       <div ref={(el) => { this.containment = el || this.containment }}

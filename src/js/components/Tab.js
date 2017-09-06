@@ -7,35 +7,40 @@ const borderTop = '1px solid white'
 
 @inject('searchStore')
 @inject('tabStore')
+@inject('dragStore')
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
+    this.focus()
     this.props.tabStore.activate(this.props)
-    this.props.searchStore.focus(this.props)
   }
 
   select = () => {
+    this.focus()
     this.props.tabStore.select(this.props)
+  }
+
+  focus = () => {
     this.props.searchStore.focus(this.props)
   }
 
   onDragStart = () => {
-    this.props.tabStore.dragStart(this.props)
+    this.props.dragStore.dragStart(this.props)
   }
 
   onDragEnd = () => {
-    this.props.tabStore.dragEnd()
+    this.props.dragStore.dragEnd()
   }
 
   onDragOver = (e) => {
     e.nativeEvent.preventDefault()
-    const { id, tabStore: { setDropTarget } } = this.props
+    const { id, dragStore: { setDropTarget } } = this.props
     const before = e.nativeEvent.offsetY < this.node.clientHeight / 2
     setDropTarget(id, before)
   }
 
   onDrop = () => {
-    const { tabStore: { drop } } = this.props
+    const { dragStore: { drop } } = this.props
     drop(this.props)
   }
 
@@ -72,7 +77,8 @@ export default class Tab extends React.Component {
     const {
       title,
       id,
-      tabStore: { selection, targetId, before },
+      tabStore: { selection },
+      dragStore: { targetId, before },
       searchStore: { query, matchedSet, focusedTab }
     } = this.props
     const notMatched = Boolean(query) && !matchedSet.has(id)

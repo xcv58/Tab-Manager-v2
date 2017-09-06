@@ -2,6 +2,7 @@ import WindowStore from './WindowStore'
 import SearchStore from './SearchStore'
 import TabStore from './TabStore'
 import ArrangeStore from './ArrangeStore'
+import DragStore from './DragStore'
 
 export default class Store {
   constructor () {
@@ -9,5 +10,6 @@ export default class Store {
     this.searchStore = new SearchStore(this)
     this.tabStore = new TabStore(this)
     this.arrangeStore = new ArrangeStore(this)
+    this.dragStore = new DragStore(this)
   }
 }
