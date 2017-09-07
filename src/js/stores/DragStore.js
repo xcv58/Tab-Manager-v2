@@ -1,5 +1,5 @@
 import { action, observable } from 'mobx'
-import { moveTabs } from '../libs'
+import { moveTabs, createWindow } from '../libs'
 
 export default class DragStore {
   constructor (store) {
@@ -21,7 +21,7 @@ export default class DragStore {
   @action
   dragEnd = () => {
     if (!this.dropped) {
-      this.targetId = null
+      this.dropToNewWindow()
     }
   }
 
@@ -55,6 +55,11 @@ export default class DragStore {
       await moveTabs(tabs, windowId, 0)
     }
     await moveTabs(this.store.tabStore.sources, windowId, index)
+    this.clear()
+  }
+
+  dropToNewWindow = async () => {
+    await createWindow(this.store.tabStore.sources)
     this.clear()
   }
 }
