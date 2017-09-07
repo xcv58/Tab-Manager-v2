@@ -1,5 +1,5 @@
 import React from 'react'
-import DraggableTab from './DraggableTab'
+import DraggableTab from './Tab/DraggableTab'
 
 export default class Window extends React.Component {
   getBoundingClientRect = () => {
