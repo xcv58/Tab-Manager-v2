@@ -7,16 +7,16 @@ import Checkbox from 'material-ui/Checkbox'
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
-    this.focus()
+    this.onFocus()
     this.props.tabStore.activate(this.props)
   }
 
   select = () => {
-    this.focus()
+    this.onFocus()
     this.props.tabStore.select(this.props)
   }
 
-  focus = () => {
+  onFocus = () => {
     this.props.searchStore.focus(this.props)
   }
 
@@ -36,6 +36,7 @@ export default class Tab extends React.Component {
         <Checkbox
           checked={selected}
           onChange={this.select}
+          onFocus={this.onFocus}
           style={{
             width: '1rem',
             height: '1rem',
