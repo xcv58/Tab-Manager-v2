@@ -7,41 +7,30 @@ export default class ArrangeStore {
   }
 
   @computed
-  get duplicatedTabs () {
-    const urlTabMap = this.store.windowStore.tabs.reduce((acc, tab) => {
+  get urlTabMap () {
+    return this.store.windowStore.tabs.reduce((acc, tab) => {
       const { url } = tab
       acc[url] = acc[url] || []
       acc[url].push(tab)
       return acc
     }, {})
-    return Object.values(urlTabMap).filter(x => x.length > 1)
   }
 
   @computed
-  get duplicatedTabsCount () {
-    return this.duplicatedTabs.map(x => x.length).reduce((acc, num) => acc + num, 0)
+  get duplicatedTabs () {
+    return Object.values(this.urlTabMap).filter(x => x.length > 1)
   }
 
   @action
   sortTabs = () => {
-    const tabs = this.store.windowStore.tabs.sort(tabComparator)
-    moveTabs(tabs, this.windows[0].id)
-  }
-
-  @action
-  sortInWindow = () => {
     this.store.windowStore.windows.map((win) => {
       const tabs = win.tabs.sort(tabComparator)
       moveTabs(tabs, win.id, 0)
     })
+    this.groupDuplicateTabs()
   }
 
-  @action
   groupDuplicateTabs = () => {
-    if (this.duplicatedTabsCount === 0) {
-      return
-    }
-
     this.duplicatedTabs.map((tabs) => {
       moveTabs(tabs, tabs[0].windowId, -1)
     })

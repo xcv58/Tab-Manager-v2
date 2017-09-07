@@ -1,7 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import SortIcon from 'material-ui-icons/Sort'
-import FormatListBulleted from 'material-ui-icons/FormatListBulleted'
 import IconButton from 'material-ui/IconButton'
 
 const iconStyle = {
@@ -12,26 +11,16 @@ const iconStyle = {
 @inject('arrangeStore')
 @observer
 export default class Tools extends React.Component {
-  onClick = (e) => {
-    this.props.arrangeStore.groupDuplicateTabs()
-  }
-
   render () {
-    const { arrangeStore: { duplicatedTabsCount, sortInWindow } } = this.props
+    const { arrangeStore: { sortTabs } } = this.props
     return (
       <div style={{
         display: 'flex'
       }}>
         <IconButton
           style={iconStyle}
-          onClick={sortInWindow}>
+          onClick={sortTabs}>
           <SortIcon />
-        </IconButton>
-        <IconButton
-          style={iconStyle}
-          disabled={duplicatedTabsCount === 0}
-          onClick={this.onClick}>
-          <FormatListBulleted />
         </IconButton>
       </div>
     )
