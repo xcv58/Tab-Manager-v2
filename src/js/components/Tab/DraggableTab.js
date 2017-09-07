@@ -28,37 +28,6 @@ export default class DraggableTab extends React.Component {
     drop(this.props)
   }
 
-  componentDidUpdate (prevProps, prevState) {
-    const {
-      faked,
-      id,
-      searchStore: { focusedTab, searchTriggered, scrolled }
-    } = this.props
-    if (faked) {
-      return
-    }
-    if (id === focusedTab) {
-      const containmentRect = this.props.containment().getBoundingClientRect()
-      const { top, bottom } = this.node.getBoundingClientRect()
-      const topGap = top - containmentRect.top
-      const bottomGap = containmentRect.bottom - bottom
-      if (topGap > 0 && bottomGap > 0) {
-        return
-      }
-      const scrollOption = {
-        block: 'end',
-        inline: 'start',
-        behavior: 'smooth'
-      }
-      if (searchTriggered) {
-        scrollOption.behavior = 'auto'
-        scrolled()
-      }
-      console.log('scrollOption', scrollOption)
-      this.node.scrollIntoView(scrollOption)
-    }
-  }
-
   render () {
     const { id, dragStore: { targetId, before } } = this.props
     const style = {}

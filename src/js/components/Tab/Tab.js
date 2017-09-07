@@ -52,11 +52,37 @@ export default class Tab extends React.Component {
     return Object.assign({}, ...styles)
   }
 
+  componentDidUpdate () {
+    const {
+      faked, id, searchStore: { focusedTab, searchTriggered, scrolled }
+    } = this.props
+    if (!faked && id === focusedTab) {
+      const containmentRect = this.props.containment().getBoundingClientRect()
+      const { top, bottom } = this.node.getBoundingClientRect()
+      const topGap = top - containmentRect.top
+      const bottomGap = containmentRect.bottom - bottom
+      if (topGap > 0 && bottomGap > 0) {
+        return
+      }
+      const scrollOption = {
+        block: 'end',
+        inline: 'start',
+        behavior: 'smooth'
+      }
+      if (searchTriggered) {
+        scrollOption.behavior = 'auto'
+        scrolled()
+      }
+      this.node.scrollIntoView(scrollOption)
+    }
+  }
+
   render () {
     const { title } = this.props
     const style = this.getStyle()
     return (
-      <div style={style}>
+      <div ref={(node) => { this.node = node }}
+        style={style}>
         <Icon {...this.props} />
         <div
           onClick={this.onClick}
