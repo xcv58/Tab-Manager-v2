@@ -3,11 +3,13 @@ import { inject, observer } from 'mobx-react'
 import Tab from './Tab'
 
 @inject('searchStore')
+@inject('tabStore')
 @inject('dragStore')
 @observer
 export default class DraggableTab extends React.Component {
-  onDragStart = () => {
+  onDragStart = (e) => {
     this.props.dragStore.dragStart(this.props)
+    e.dataTransfer.setDragImage(this.props.dragPreview(), 0, 0)
   }
 
   onDragEnd = () => {
@@ -28,9 +30,13 @@ export default class DraggableTab extends React.Component {
 
   componentDidUpdate (prevProps, prevState) {
     const {
+      faked,
       id,
       searchStore: { focusedTab, searchTriggered, scrolled }
     } = this.props
+    if (faked) {
+      return
+    }
     if (id === focusedTab) {
       const containmentRect = this.props.containment().getBoundingClientRect()
       const { top, bottom } = this.node.getBoundingClientRect()
@@ -48,6 +54,7 @@ export default class DraggableTab extends React.Component {
         scrollOption.behavior = 'auto'
         scrolled()
       }
+      console.log('scrollOption', scrollOption)
       this.node.scrollIntoView(scrollOption)
     }
   }

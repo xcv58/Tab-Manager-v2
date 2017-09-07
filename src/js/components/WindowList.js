@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Window from './Window'
+import DragPreview from './DragPreview'
 
 @inject('windowStore')
 @observer
@@ -26,6 +27,7 @@ export default class App extends React.Component {
         key={win.id}
         ref={win.id}
         containment={() => this.containment}
+        dragPreview={() => this.dragPreview}
         {...win}
       />
     ))
@@ -36,6 +38,9 @@ export default class App extends React.Component {
           overflow: 'auto',
           flex: '1 1 auto'
         }}>
+        <DragPreview
+          setDragPreview={(dragPreview) => { this.dragPreview = dragPreview }}
+        />
         {winList}
       </div>
     )
