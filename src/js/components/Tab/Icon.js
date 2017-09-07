@@ -1,12 +1,14 @@
 import React from 'react'
-import bookmarks from '../../img/chrome/bookmarks.png'
-import chrome from '../../img/chrome/chrome.png'
-import crashes from '../../img/chrome/crashes.png'
-import downloads from '../../img/chrome/downloads.png'
-import extensions from '../../img/chrome/extensions.png'
-import flags from '../../img/chrome/flags.png'
-import history from '../../img/chrome/history.png'
-import settings from '../../img/chrome/settings.png'
+import { inject, observer } from 'mobx-react'
+import IconButton from 'material-ui/IconButton'
+import bookmarks from '../../../img/chrome/bookmarks.png'
+import chrome from '../../../img/chrome/chrome.png'
+import crashes from '../../../img/chrome/crashes.png'
+import downloads from '../../../img/chrome/downloads.png'
+import extensions from '../../../img/chrome/extensions.png'
+import flags from '../../../img/chrome/flags.png'
+import history from '../../../img/chrome/history.png'
+import settings from '../../../img/chrome/settings.png'
 
 const FAV_ICONS = {
   bookmarks,
@@ -21,6 +23,9 @@ const FAV_ICONS = {
 
 const CHROME_PREFIX = 'chrome://'
 
+@inject('searchStore')
+@inject('tabStore')
+@observer
 export default class Icon extends React.Component {
   getFavIconUrl = () => {
     const { url, favIconUrl } = this.props
@@ -33,15 +38,36 @@ export default class Icon extends React.Component {
     return favIconUrl
   }
 
+  onClick = () => {
+    this.onFocus()
+    this.props.tabStore.activate(this.props)
+  }
+
+  select = () => {
+    this.onFocus()
+    this.props.tabStore.select(this.props)
+  }
+
+  onFocus = () => {
+    this.props.searchStore.focus(this.props)
+  }
+
   render () {
     return (
-      <img src={this.getFavIconUrl()}
+      <IconButton
+        onClick={this.select}
+        onFocus={this.onFocus}
         style={{
-          padding: '0 8px',
-          width: '1rem',
-          height: '1rem'
-        }}
-      />
+          width: '1.5rem',
+          height: '1.5rem'
+        }}>
+        <img src={this.getFavIconUrl()}
+          style={{
+            width: '1rem',
+            height: '1rem'
+          }}
+        />
+      </IconButton>
     )
   }
 }

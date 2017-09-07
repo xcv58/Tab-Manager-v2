@@ -2,9 +2,6 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tab from './Tab'
 
-const borderBottom = '1px solid rgba(0,0,0,.08)'
-const borderTop = '1px solid white'
-
 @inject('searchStore')
 @inject('dragStore')
 @observer
@@ -56,28 +53,13 @@ export default class DraggableTab extends React.Component {
   }
 
   render () {
-    const {
-      id,
-      dragStore: { targetId, before },
-      searchStore: { query, matchedSet, focusedTab }
-    } = this.props
-    const notMatched = Boolean(query) && !matchedSet.has(id)
-    const focused = focusedTab === id
-    const style = {
-      padding: 8,
-      margin: 0,
-      borderTop: borderTop,
-      borderBottom: borderBottom
-    }
-    if (notMatched) {
-      style.opacity = 0.2
-    }
-    if (focused) {
-      style.borderLeft = '1px red solid'
-    }
+    const { id, dragStore: { targetId, before } } = this.props
+    const style = {}
     if (targetId === id) {
       const border = 'border' + (before ? 'Top' : 'Bottom')
+      const margin = 'margin' + (before ? 'Top' : 'Bottom')
       style[border] = '1px black solid'
+      style[margin] = '-1px'
     }
     const { onDragStart, onDragEnd, onDragOver, onDrop } = this
     return (
