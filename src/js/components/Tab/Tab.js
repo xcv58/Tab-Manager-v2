@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Checkbox from 'material-ui/Checkbox'
+import Checkbox from './Checkbox'
 import Icon from './Icon'
 
 @inject('searchStore')
@@ -8,42 +8,19 @@ import Icon from './Icon'
 @observer
 export default class Tab extends React.Component {
   onClick = () => {
-    this.onFocus()
+    this.props.searchStore.focus(this.props)
     this.props.tabStore.activate(this.props)
   }
 
-  select = () => {
-    this.onFocus()
-    this.props.tabStore.select(this.props)
-  }
-
-  onFocus = () => {
-    this.props.searchStore.focus(this.props)
-  }
-
   render () {
-    const {
-      id,
-      title,
-      tabStore: { selection }
-    } = this.props
-    const selected = selection.has(id)
+    const { title } = this.props
     return (
       <div style={{
         display: 'flex',
         alignItems: 'center',
         whiteSpace: 'nowrap'
       }}>
-        <Checkbox
-          checked={selected}
-          onChange={this.select}
-          onFocus={this.onFocus}
-          style={{
-            width: '1rem',
-            height: '1rem',
-            padding: 4
-          }}
-        />
+        <Checkbox {...this.props} />
         <Icon {...this.props} />
         <div
           onClick={this.onClick}
