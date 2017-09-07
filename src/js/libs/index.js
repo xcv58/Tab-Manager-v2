@@ -1,17 +1,13 @@
-export const moveTabs = (tabs, windowId, from = 0) => {
-  let index = from
-  tabs.map(({ id, pinned }) => {
-    chrome.tabs.move(
-      id,
-      { windowId, index },
-      () => {
-        chrome.tabs.update(id, { pinned })
+export const moveTabs = async (tabs, windowId, from = 0) => {
+  await Promise.all(
+    tabs.map(
+      async ({ id, pinned, title }, i) => {
+        const index = from + (from !== -1 ? i : 0)
+        await chrome.tabs.move(id, { windowId, index })
+        await chrome.tabs.update(id, { pinned })
       }
     )
-    if (index !== -1) {
-      index += 1
-    }
-  })
+  )
 }
 
 export const activateTab = (id) => {

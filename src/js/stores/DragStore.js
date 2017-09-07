@@ -9,6 +9,7 @@ export default class DragStore {
   @observable targetId = null
   @observable before = true
   @observable dragging = false
+  @observable dropped = false
 
   @action
   dragStart = (tab) => {
@@ -19,10 +20,17 @@ export default class DragStore {
 
   @action
   dragEnd = () => {
+    if (!this.dropped) {
+      this.targetId = null
+    }
+  }
+
+  clear = () => {
     this.store.tabStore.selection.clear()
     this.targetId = null
     this.before = false
     this.dragging = false
+    this.dropped = false
   }
 
   @action
@@ -36,15 +44,17 @@ export default class DragStore {
   }
 
   @action
-  drop = (tab) => {
+  drop = async (tab) => {
+    this.dropped = true
     const { windowId } = tab
     const win = this.store.windowStore.windowsMap.get(windowId)
     const targetIndex = tab.index + (this.before ? 0 : 1)
     const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
     if (index !== targetIndex) {
       const tabs = this.getUnselectedTabs(win.tabs)
-      moveTabs(tabs, windowId)
+      await moveTabs(tabs, windowId, 0)
     }
-    moveTabs(this.store.tabStore.sources, windowId, index)
+    await moveTabs(this.store.tabStore.sources, windowId, index)
+    this.clear()
   }
 }
