@@ -27,11 +27,14 @@ export const activateTab = (id) => {
 }
 
 export const tabComparator = (a, b) => {
-  if (a.url === b.url) {
-    if (a.title === b.title) {
-      return a.index - b.index
-    }
+  if (a.pinned ^ b.pinned) {
+    return b.pinned ? 1 : -1
+  }
+  if (a.url !== b.url) {
+    return a.url.localeCompare(b.url)
+  }
+  if (a.title !== b.title) {
     return a.title.localeCompare(b.title)
   }
-  return a.url.localeCompare(b.url)
+  return a.index - b.index
 }
