@@ -7,10 +7,5 @@ body {
   user-select: none;
   -webkit-user-select: none;
   overflow: hidden;
-}
-
-#app-container {
-  width: 800px;
-  height: 600px;
-  overflow: hidden;
+  font-size: 12px;
 }

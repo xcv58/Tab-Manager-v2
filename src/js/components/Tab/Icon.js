@@ -22,6 +22,8 @@ const FAV_ICONS = {
 }
 
 const CHROME_PREFIX = 'chrome://'
+const buttonWidth = '2.5rem'
+const iconWidth = '1.5rem'
 
 @inject('searchStore')
 @inject('tabStore')
@@ -58,13 +60,13 @@ export default class Icon extends React.Component {
         onClick={this.select}
         onFocus={this.onFocus}
         style={{
-          width: '1.5rem',
-          height: '1.5rem'
+          width: buttonWidth,
+          height: buttonWidth
         }}>
         <img src={this.getFavIconUrl()}
           style={{
-            width: '1rem',
-            height: '1rem'
+            width: iconWidth,
+            height: iconWidth
           }}
         />
       </IconButton>

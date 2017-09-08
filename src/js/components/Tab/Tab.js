@@ -17,17 +17,23 @@ const highlightStyle = {
   borderTop: `1px solid ${blue[100]}`
 }
 const focusedStyle = {
-  borderLeft: '1px red solid',
-  marginLeft: -1
+  borderLeft: '4px red solid',
+  marginLeft: -4
 }
 const notMatchStyle = {
-  opacity: 0.2
+  opacity: 0.3
 }
 
 @inject('searchStore')
 @inject('tabStore')
 @observer
 export default class Tab extends React.Component {
+  state = { hover: false }
+
+  onMouseEnter = () => this.setState({ hover: true })
+
+  onMouseLeave = () => this.setState({ hover: false })
+
   onClick = () => {
     this.props.searchStore.focus(this.props)
     this.props.tabStore.activate(this.props)
@@ -50,6 +56,21 @@ export default class Tab extends React.Component {
       styles.push(notMatchStyle)
     }
     return Object.assign({}, ...styles)
+  }
+
+  getUrlStyle = () => {
+    const { id, searchStore: { query, matchedSet, focusedTab } } = this.props
+    const urlStyle = {
+      opacity: 0.3,
+      fontSize: '0.7rem'
+    }
+    if (Boolean(query) && !matchedSet.has(id)) {
+      return urlStyle
+    }
+    if (this.state.hover || (id === focusedTab)) {
+      urlStyle.opacity = 1
+    }
+    return urlStyle
   }
 
   componentDidUpdate () {
@@ -78,19 +99,25 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { title } = this.props
+    const { title, url } = this.props
     const style = this.getStyle()
     return (
       <div ref={(node) => { this.node = node }}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
         style={style}>
         <Icon {...this.props} />
         <div
           onClick={this.onClick}
           style={{
             overflow: 'hidden',
+            textAlign: 'left',
             textOverflow: 'ellipsis'
           }}>
           {title}
+          <div style={this.getUrlStyle()}>
+            {url}
+          </div>
         </div>
       </div>
     )
