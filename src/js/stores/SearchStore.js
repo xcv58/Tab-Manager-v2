@@ -61,7 +61,7 @@ export default class SearchStore {
       threshold: 0.6,
       caseSensitive: containsUpperCase,
       shouldSort: false,
-      keys: [ 'title' ]
+      keys: [ 'title', 'url' ]
     }).search(this.query)
   }
 
