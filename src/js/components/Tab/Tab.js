@@ -1,20 +1,15 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { blue, grey } from 'material-ui/colors'
+import { blue } from 'material-ui/colors'
 import Icon from './Icon'
 
-const borderBottom = `1px solid ${grey[200]}`
-const borderTop = '1px solid white'
 const tabStyle = {
   display: 'flex',
   alignItems: 'center',
-  whiteSpace: 'nowrap',
-  borderTop,
-  borderBottom
+  whiteSpace: 'nowrap'
 }
 const highlightStyle = {
-  backgroundColor: blue[100],
-  borderTop: `1px solid ${blue[100]}`
+  backgroundColor: blue[100]
 }
 const focusedStyle = {
   borderLeft: '4px red solid',

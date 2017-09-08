@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import { grey } from 'material-ui/colors'
 import Tab from './Tab'
 
 @inject('searchStore')
@@ -30,12 +31,14 @@ export default class DraggableTab extends React.Component {
 
   render () {
     const { id, dragStore: { targetId, before } } = this.props
-    const style = {}
+    const style = {
+      borderBottom: `1px solid ${grey[200]}`,
+      borderTop: '1px solid transparent',
+      margin: '-1px 0'
+    }
     if (targetId === id) {
       const border = 'border' + (before ? 'Top' : 'Bottom')
-      const margin = 'margin' + (before ? 'Top' : 'Bottom')
       style[border] = '1px black solid'
-      style[margin] = '-1px'
     }
     const { onDragStart, onDragEnd, onDragOver, onDrop } = this
     return (
