@@ -1,19 +1,23 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { blue } from 'material-ui/colors'
+import { blue, red } from 'material-ui/colors'
 import Icon from './Icon'
 
+const indicatorWidth = '2px'
 const tabStyle = {
   display: 'flex',
   alignItems: 'center',
-  whiteSpace: 'nowrap'
+  whiteSpace: 'nowrap',
+  marginLeft: indicatorWidth,
+  borderLeft: `${indicatorWidth} transparent solid`,
+  boxShadow: `-${indicatorWidth} 0px white`
 }
 const highlightStyle = {
-  backgroundColor: blue[100]
+  backgroundColor: blue[100],
+  boxShadow: `-${indicatorWidth} 0px ${blue[100]}`
 }
 const focusedStyle = {
-  borderLeft: '4px red solid',
-  marginLeft: -4
+  borderLeft: `${indicatorWidth} ${red[500]} solid`
 }
 const notMatchStyle = {
   opacity: 0.3

@@ -34,7 +34,6 @@ export default class App extends React.Component {
     return (
       <div ref={(el) => { this.containment = el || this.containment }}
         style={{
-          padding: '0 4px',
           overflow: 'auto',
           flex: '1 1 auto'
         }}>
