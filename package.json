@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-webpack",
+  "name": "tab-manager-v2",
   "version": "0.0.8",
-  "description": "A boilerplate to chrome extension with webpack",
+  "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "build": "node utils/build.js",
     "deploy": "NODE_ENV=production yarn build && zip -r build.zip build/*",
