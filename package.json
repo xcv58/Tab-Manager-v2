@@ -17,6 +17,7 @@
     "material-ui-icons": "^1.0.0-beta.5",
     "mobx": "^3.2.2",
     "mobx-react": "^4.2.2",
+    "mousetrap": "^1.6.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "style-loader": "^0.18.2"
