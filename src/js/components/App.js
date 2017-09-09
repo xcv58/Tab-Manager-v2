@@ -4,6 +4,10 @@ import { LinearProgress } from 'material-ui/Progress'
 import WindowList from './WindowList'
 import Search from './Search'
 import Tools from './Tools'
+import Mousetrap from 'mousetrap'
+import shortcuts, { stopCallback } from '../libs/shortcuts'
+
+Mousetrap.prototype.stopCallback = stopCallback
 
 @inject('windowStore')
 @inject('searchStore')
@@ -20,86 +24,11 @@ export default class App extends React.Component {
     chrome.tabs.onDetached.addListener(updateAllWindows)
     chrome.tabs.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onReplaced.addListener(updateAllWindows)
-    document.addEventListener('keydown', this.onKeyDown, false)
+    shortcuts.map(([ key, func ]) => Mousetrap.bind(key, func.bind(this)))
   }
 
-  onKeyDown = (e) => {
-    const {
-      searchStore: { up, down, enter, select, typing, query },
-      tabStore: { remove, togglePin }
-    } = this.props
-    console.log(e.keyCode)
-    switch (e.keyCode) {
-      // DOWN
-      case 40:
-        e.preventDefault()
-        down()
-        break
-      // UP
-      case 38:
-        e.preventDefault()
-        up()
-        break
-      // Enter
-      case 13:
-        e.preventDefault()
-        enter()
-        break
-      // Escape
-      case 27:
-        if (typing) {
-          e.preventDefault()
-          this.search.blur()
-        }
-        break
-      // Delete
-      case 8:
-        if (!query) {
-          e.preventDefault()
-          this.search.blur()
-        }
-        break
-      default:
-        break
-    }
-    console.log(typing)
-    if (typing) {
-      return
-    }
-    switch (e.keyCode) {
-      // X
-      case 88:
-        e.preventDefault()
-        select()
-        break
-      // j
-      case 74:
-        e.preventDefault()
-        down()
-        break
-      // k
-      case 75:
-        e.preventDefault()
-        up()
-        break
-      // Delete
-      case 8:
-        e.preventDefault()
-        remove()
-        break
-      // p
-      case 80:
-        e.preventDefault()
-        togglePin()
-        break
-      // /
-      case 191:
-        e.preventDefault()
-        this.search.focus()
-        break
-      default:
-        break
-    }
+  componentWillUnmount () {
+    Mousetrap.reset()
   }
 
   render () {
