@@ -1,6 +1,17 @@
 const inputShortcutSet = new Set([
-  'up', 'down', 'escape', 'enter', 'ctrl+p', 'ctrl+j', 'ctrl+k',
-  'ctrl+s', 'ctrl+g', 'shift+ctrl+g', 'ctrl+x', 'ctrl+d'
+  'escape',
+  'enter',
+  'ctrl+enter',
+  'down',
+  'ctrl+j',
+  'up',
+  'ctrl+k',
+  'ctrl+p',
+  'ctrl+s',
+  'ctrl+x',
+  'ctrl+d',
+  'ctrl+g',
+  'shift+ctrl+g'
 ])
 
 export const stopCallback = (e, element, combo) => {
@@ -50,7 +61,7 @@ export default [
   [ [ 'backspace', 'ctrl+d' ], function (e) {
     this.props.tabStore.remove()
   }],
-  [ 'enter', function (e) {
+  [ [ 'enter', 'ctrl+enter' ], function (e) {
     this.props.searchStore.enter()
   }],
   [ 'escape', function (e) {
