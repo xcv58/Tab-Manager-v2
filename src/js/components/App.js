@@ -26,7 +26,7 @@ export default class App extends React.Component {
   onKeyDown = (e) => {
     const {
       searchStore: { up, down, enter, select, typing, query },
-      tabStore: { remove }
+      tabStore: { remove, togglePin }
     } = this.props
     console.log(e.keyCode)
     switch (e.keyCode) {
@@ -86,6 +86,11 @@ export default class App extends React.Component {
       case 8:
         e.preventDefault()
         remove()
+        break
+      // p
+      case 80:
+        e.preventDefault()
+        togglePin()
         break
       // /
       case 191:

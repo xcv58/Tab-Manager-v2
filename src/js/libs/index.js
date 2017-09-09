@@ -26,6 +26,10 @@ export const activateTab = (id) => {
   })
 }
 
+export const togglePinTabs = (tabs) => (tabs || []).map(
+  ({ id, pinned }) => chrome.tabs.update(id, { pinned: !pinned })
+)
+
 export const tabComparator = (a, b) => {
   if (a.pinned ^ b.pinned) {
     return b.pinned ? 1 : -1

@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { activateTab } from '../libs'
+import { activateTab, togglePinTabs } from '../libs'
 
 export default class TabStore {
   constructor (store) {
@@ -52,5 +52,15 @@ export default class TabStore {
         chrome.tabs.remove(focusedTab)
       }
     }
+  }
+
+  @action
+  togglePin = async () => {
+    const { focusedTab } = this.store.searchStore
+    if (this.selection.size === 0 && focusedTab) {
+      const tab = await chrome.tabs.get(focusedTab)
+      togglePinTabs([ tab ])
+    }
+    togglePinTabs(this.selection.values())
   }
 }
