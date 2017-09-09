@@ -26,9 +26,15 @@ export const activateTab = (id) => {
   })
 }
 
-export const togglePinTabs = (tabs) => (tabs || []).map(
-  ({ id, pinned }) => chrome.tabs.update(id, { pinned: !pinned })
-)
+export const togglePinTabs = async (tabs) => {
+  await Promise.all(
+    (tabs || []).map(
+      async ({ id, pinned }) => {
+        await chrome.tabs.update(id, { pinned: !pinned })
+      }
+    )
+  )
+}
 
 export const tabComparator = (a, b) => {
   if (a.pinned ^ b.pinned) {

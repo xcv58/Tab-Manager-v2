@@ -59,8 +59,10 @@ export default class TabStore {
     const { focusedTab } = this.store.searchStore
     if (this.selection.size === 0 && focusedTab) {
       const tab = await chrome.tabs.get(focusedTab)
-      togglePinTabs([ tab ])
+      await togglePinTabs([ tab ])
+    } else {
+      await togglePinTabs(this.selection.values())
+      this.selection.clear()
     }
-    togglePinTabs(this.selection.values())
   }
 }
