@@ -1,6 +1,7 @@
 export const stopCallback = (e, element, combo) => {
   if ([
-    'up', 'down', 'escape', 'enter', 'option+p', 'option+j', 'option+k'
+    'up', 'down', 'escape', 'enter', 'option+p', 'option+j', 'option+k',
+    'option+g', 'shift+option+g'
   ].includes(combo)) {
     return false
   }
@@ -23,6 +24,14 @@ export default [
   [ [ 'j', 'down', 'option+j' ], function (e) {
     e.preventDefault()
     this.props.searchStore.down()
+  }],
+  [ [ 'g g', 'option+g' ], function (e) {
+    e.preventDefault()
+    this.props.searchStore.firstTab()
+  }],
+  [ [ 'shift+g', 'shift+option+g' ], function (e) {
+    e.preventDefault()
+    this.props.searchStore.lastTab()
   }],
   [ [ 'k', 'up', 'option+k' ], function (e) {
     e.preventDefault()

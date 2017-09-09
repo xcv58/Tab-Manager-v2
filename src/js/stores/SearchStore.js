@@ -86,14 +86,16 @@ export default class SearchStore {
   }
 
   @action
-  up = () => {
-    this.findFocusedTab(-1)
-  }
+  up = () => this.findFocusedTab(-1)
 
   @action
-  down = () => {
-    this.findFocusedTab()
-  }
+  down = () => this.findFocusedTab()
+
+  @action
+  lastTab = () => this.jumpToTab(-1)
+
+  @action
+  firstTab = () => this.jumpToTab(0)
 
   findFocusedTab = (step = 1) => {
     const { length } = this.matchedTabs
@@ -102,11 +104,19 @@ export default class SearchStore {
     }
     if (this.focusedTab) {
       const index = this.matchedTabs.findIndex(x => x.id === this.focusedTab)
-      const nextIndex = (length + index + step) % length
-      this.focusedTab = this.matchedTabs[nextIndex].id
+      this.jumpToTab(index + step)
     } else {
       const index = (length + ((step - 1) / 2)) % length
-      this.focusedTab = this.matchedTabs[index].id
+      this.jumpToTab(index)
     }
+  }
+
+  jumpToTab = (index = 0) => {
+    const { length } = this.matchedTabs
+    if (length === 0) {
+      return
+    }
+    const newIndex = (length + index) % length
+    this.focusedTab = this.matchedTabs[newIndex].id
   }
 }
