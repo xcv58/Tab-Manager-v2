@@ -1,8 +1,10 @@
+const inputShortcutSet = new Set([
+  'up', 'down', 'escape', 'enter', 'ctrl+p', 'ctrl+j', 'ctrl+k',
+  'ctrl+s', 'ctrl+g', 'shift+ctrl+g', 'ctrl+x', 'ctrl+d'
+])
+
 export const stopCallback = (e, element, combo) => {
-  if ([
-    'up', 'down', 'escape', 'enter', 'ctrl+p', 'ctrl+j', 'ctrl+k',
-    'ctrl+s', 'ctrl+g', 'shift+ctrl+g'
-  ].includes(combo)) {
+  if (inputShortcutSet.has(combo)) {
     return false
   }
   const { tagName, contentEditable } = element
@@ -17,7 +19,7 @@ export default [
     e.preventDefault()
     this.props.tabStore.togglePin()
   }],
-  [ 'x', function (e) {
+  [ [ 'x', 'ctrl+x' ], function (e) {
     e.preventDefault()
     this.props.searchStore.select()
   }],
@@ -45,7 +47,7 @@ export default [
     event.preventDefault()
     this.props.arrangeStore.sortTabs()
   }],
-  [ 'backspace', function (e) {
+  [ [ 'backspace', 'ctrl+d' ], function (e) {
     this.props.tabStore.remove()
   }],
   [ 'enter', function (e) {
