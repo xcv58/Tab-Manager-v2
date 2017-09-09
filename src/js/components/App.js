@@ -9,6 +9,7 @@ import shortcuts, { stopCallback } from '../libs/shortcuts'
 
 Mousetrap.prototype.stopCallback = stopCallback
 
+@inject('arrangeStore')
 @inject('windowStore')
 @inject('searchStore')
 @inject('tabStore')

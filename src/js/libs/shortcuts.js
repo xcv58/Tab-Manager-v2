@@ -1,7 +1,7 @@
 export const stopCallback = (e, element, combo) => {
   if ([
-    'up', 'down', 'escape', 'enter', 'option+p', 'option+j', 'option+k',
-    'option+g', 'shift+option+g'
+    'up', 'down', 'escape', 'enter', 'ctrl+p', 'ctrl+j', 'ctrl+k',
+    'ctrl+s', 'ctrl+g', 'shift+ctrl+g'
   ].includes(combo)) {
     return false
   }
@@ -13,7 +13,7 @@ export const stopCallback = (e, element, combo) => {
 }
 
 export default [
-  [ [ 'p', 'option+p' ], function (e) {
+  [ [ 'p', 'ctrl+p' ], function (e) {
     e.preventDefault()
     this.props.tabStore.togglePin()
   }],
@@ -21,25 +21,29 @@ export default [
     e.preventDefault()
     this.props.searchStore.select()
   }],
-  [ [ 'j', 'down', 'option+j' ], function (e) {
+  [ [ 'j', 'down', 'ctrl+j' ], function (e) {
     e.preventDefault()
     this.props.searchStore.down()
   }],
-  [ [ 'g g', 'option+g' ], function (e) {
+  [ [ 'g g', 'ctrl+g' ], function (e) {
     e.preventDefault()
     this.props.searchStore.firstTab()
   }],
-  [ [ 'shift+g', 'shift+option+g' ], function (e) {
+  [ [ 'shift+g', 'shift+ctrl+g' ], function (e) {
     e.preventDefault()
     this.props.searchStore.lastTab()
   }],
-  [ [ 'k', 'up', 'option+k' ], function (e) {
+  [ [ 'k', 'up', 'ctrl+k' ], function (e) {
     e.preventDefault()
     this.props.searchStore.up()
   }],
   [ '/', function (event) {
     event.preventDefault()
     this.search.focus()
+  }],
+  [ 'ctrl+s', function (event) {
+    event.preventDefault()
+    this.props.arrangeStore.sortTabs()
   }],
   [ 'backspace', function (e) {
     this.props.tabStore.remove()
