@@ -4,15 +4,9 @@ import { LinearProgress } from 'material-ui/Progress'
 import WindowList from './WindowList'
 import Search from './Search'
 import Tools from './Tools'
-import Mousetrap from 'mousetrap'
-import shortcuts, { stopCallback } from '../libs/shortcuts'
 
-Mousetrap.prototype.stopCallback = stopCallback
-
-@inject('arrangeStore')
 @inject('windowStore')
-@inject('searchStore')
-@inject('tabStore')
+@inject('shortcutStore')
 @observer
 export default class App extends React.Component {
   componentDidMount () {
@@ -25,11 +19,11 @@ export default class App extends React.Component {
     chrome.tabs.onDetached.addListener(updateAllWindows)
     chrome.tabs.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onReplaced.addListener(updateAllWindows)
-    shortcuts.map(([ key, func ]) => Mousetrap.bind(key, func.bind(this)))
+    this.props.shortcutStore.didMount(this)
   }
 
   componentWillUnmount () {
-    Mousetrap.reset()
+    this.props.shortcutStore.willUnmount()
   }
 
   render () {
