@@ -98,8 +98,16 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { title, url } = this.props
+    const { title, url, pinned } = this.props
     const style = this.getStyle()
+    const pin = pinned && (
+      <div style={{
+        position: 'absolute',
+        right: '1rem'
+      }}>
+        📌
+      </div>
+    )
     return (
       <div ref={(node) => { this.node = node }}
         onMouseEnter={this.onMouseEnter}
@@ -118,6 +126,7 @@ export default class Tab extends React.Component {
             {url}
           </div>
         </div>
+        {pin}
       </div>
     )
   }
