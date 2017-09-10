@@ -8,6 +8,7 @@ export default class ShortcutStore {
 
   @observable combo = null
   @observable toastOpen = false
+  @observable dialogOpen = false
   closeHandle = null
 
   @observable inputShortcutSet = new Set([
@@ -65,17 +66,27 @@ export default class ShortcutStore {
     [ [ 'enter', 'ctrl+enter' ], (e) => {
       this.store.searchStore.enter()
     }],
+    [ '?', (e) => {
+      this.openDialog()
+    }],
     [ 'escape', (e) => {
       const { searchStore: { typing } } = this.store
       if (typing) {
         e.preventDefault()
         this.App.search.blur()
       }
+      if (this.dialogOpen) {
+        e.preventDefault()
+        this.closeDialog()
+      }
     }]
   ]
 
   @action
   stopCallback = (e, element, combo) => {
+    if (this.dialogOpen) {
+      return combo !== 'escape'
+    }
     if (this.inputShortcutSet.has(combo)) {
       return false
     }
@@ -119,5 +130,15 @@ export default class ShortcutStore {
   @action
   closeToast = () => {
     this.toastOpen = false
+  }
+
+  @action
+  openDialog = () => {
+    this.dialogOpen = true
+  }
+
+  @action
+  closeDialog = () => {
+    this.dialogOpen = false
   }
 }
