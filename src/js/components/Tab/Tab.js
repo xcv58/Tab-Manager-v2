@@ -7,6 +7,7 @@ const indicatorWidth = '2px'
 const tabStyle = {
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   whiteSpace: 'nowrap',
   marginLeft: indicatorWidth,
   borderLeft: `${indicatorWidth} transparent solid`,
@@ -102,8 +103,7 @@ export default class Tab extends React.Component {
     const style = this.getStyle()
     const pin = pinned && (
       <div style={{
-        position: 'absolute',
-        right: '1rem'
+        padding: '0 1rem'
       }}>
         📌
       </div>
@@ -113,17 +113,19 @@ export default class Tab extends React.Component {
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         style={style}>
-        <Icon {...this.props} />
-        <div
-          onClick={this.onClick}
-          style={{
-            overflow: 'hidden',
-            textAlign: 'left',
-            textOverflow: 'ellipsis'
-          }}>
-          {title}
-          <div style={this.getUrlStyle()}>
-            {url}
+        <div style={{ display: 'flex' }}>
+          <Icon {...this.props} />
+          <div
+            onClick={this.onClick}
+            style={{
+              overflow: 'hidden',
+              textAlign: 'left',
+              textOverflow: 'ellipsis'
+            }}>
+            {title}
+            <div style={this.getUrlStyle()}>
+              {url}
+            </div>
           </div>
         </div>
         {pin}
