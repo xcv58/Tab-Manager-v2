@@ -12,7 +12,7 @@
 
 Chrome Web Store: https://xcv58.xyz/tabs
 
-Tab Manager v2 is Chrome Extension that helps you manage your opend Chrome tabs easily. It's a forked version of https://github.com/joshperry/Tab-Manager. The Tab Manager v2 is rewritten by React, MobX with ES2017, and has different features with original Tab Manager, and logo of course :).
+Tab Manager v2 is Chrome Extension that helps you manage your opend Chrome tabs easily. It's a forked version of https://github.com/joshperry/Tab-Manager. The Tab Manager v2 is rewritten by React, MobX with ES2017, and has different features with original Tab Manager.
 
 
 # Usage
