@@ -12,7 +12,7 @@ export default class App extends React.Component {
         x => x.getBoundingClientRect().bottom
       )
     )
-    const height = `${bottom}px`
+    const height = `${Math.max(bottom, 300)}px`
     document.getElementsByTagName('html')[0].style.height = height
     document.body.style.height = height
   }
