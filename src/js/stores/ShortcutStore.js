@@ -28,47 +28,24 @@ export default class ShortcutStore {
   ])
 
   @observable shortcuts = [
-    [ [ 'p', 'ctrl+p' ], (e) => {
-      e.preventDefault()
-      this.store.tabStore.togglePin()
-    }],
-    [ [ 'x', 'ctrl+x' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.select()
-    }],
-    [ [ 'j', 'down', 'ctrl+j' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.down()
-    }],
-    [ [ 'g g', 'ctrl+g' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.firstTab()
-    }],
-    [ [ 'shift+g', 'shift+ctrl+g' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.lastTab()
-    }],
-    [ [ 'k', 'up', 'ctrl+k' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.up()
-    }],
-    [ '/', (event) => {
-      event.preventDefault()
-      this.App.search.focus()
-    }],
     [ 'ctrl+s', (event) => {
       event.preventDefault()
       this.store.arrangeStore.sortTabs()
-    }],
+    }, 'Sort tabs' ],
     [ [ 'backspace', 'ctrl+d' ], (e) => {
       this.store.tabStore.remove()
-    }],
+    }, 'Close tab' ],
     [ [ 'enter', 'ctrl+enter' ], (e) => {
       this.store.searchStore.enter()
-    }],
-    [ '?', (e) => {
-      this.openDialog()
-    }],
+    }, 'Go to tab' ],
+    [ [ 'p', 'ctrl+p' ], (e) => {
+      e.preventDefault()
+      this.store.tabStore.togglePin()
+    }, 'Toogle pin' ],
+    [ '/', (event) => {
+      event.preventDefault()
+      this.App.search.focus()
+    }, 'Search tab' ],
     [ 'escape', (e) => {
       const { searchStore: { typing } } = this.store
       if (typing) {
@@ -79,7 +56,30 @@ export default class ShortcutStore {
         e.preventDefault()
         this.closeDialog()
       }
-    }]
+    }, 'Go to tab list' ],
+    [ [ 'j', 'down', 'ctrl+j' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.down()
+    }, 'Next tab' ],
+    [ [ 'k', 'up', 'ctrl+k' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.up()
+    }, 'Previous tab' ],
+    [ [ 'g g', 'ctrl+g' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.firstTab()
+    }, 'First tab' ],
+    [ [ 'shift+g', 'shift+ctrl+g' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.lastTab()
+    }, 'Last tab' ],
+    [ [ 'x', 'ctrl+x' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.select()
+    }, 'Select tab' ],
+    [ '?', (e) => {
+      this.openDialog()
+    }, 'Open keyboard shortcut help' ]
   ]
 
   @action

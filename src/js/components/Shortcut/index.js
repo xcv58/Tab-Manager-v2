@@ -2,34 +2,46 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Dialog, {
   DialogContent,
-  DialogContentText,
   DialogTitle
 } from 'material-ui/Dialog'
+import Help from './Help'
 import Snackbar from 'material-ui/Snackbar'
+import { withStyles } from 'material-ui/styles'
 import Fade from 'material-ui/transitions/Fade'
+
+export const styles = (theme: Object) => ({
+  paper: {
+    width: '100%'
+  }
+})
 
 @inject('shortcutStore')
 @observer
 class Shortcut extends React.Component {
   render () {
     const {
-      shortcutStore: { combo, toastOpen, dialogOpen, closeDialog }
+      classes,
+      shortcutStore: {
+        combo,
+        toastOpen,
+        dialogOpen,
+        closeDialog
+      }
     } = this.props
     return (
       <div>
-        <Dialog open={dialogOpen}
+        <Dialog
+          open={dialogOpen}
+          classes={classes}
           transition={Fade}
           onEscapeKeyUp={closeDialog}
           onBackdropClick={closeDialog}
         >
           <DialogTitle>
-            title
+            Keyboard shortcuts
           </DialogTitle>
           <DialogContent>
-            content
-            <DialogContentText>
-              text
-            </DialogContentText>
+            <Help />
           </DialogContent>
         </Dialog>
         <Snackbar
@@ -59,4 +71,4 @@ class Shortcut extends React.Component {
   }
 }
 
-export default Shortcut
+export default withStyles(styles)(Shortcut)
