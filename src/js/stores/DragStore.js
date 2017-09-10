@@ -47,7 +47,7 @@ export default class DragStore {
   drop = async (tab) => {
     this.dropped = true
     const { windowId } = tab
-    const win = this.store.windowStore.windowsMap.get(windowId)
+    const win = await chrome.windows.get(windowId, { populate: true })
     const targetIndex = tab.index + (this.before ? 0 : 1)
     const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
     if (index !== targetIndex) {

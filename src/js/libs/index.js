@@ -48,3 +48,16 @@ export const tabComparator = (a, b) => {
   }
   return a.index - b.index
 }
+
+export const windowComparator = (a, b) => {
+  if (a.lastFocused ^ b.lastFocused) {
+    return b.lastFocused ? 1 : -1
+  }
+  if (a.focused ^ b.focused) {
+    return b.focused ? 1 : -1
+  }
+  if (a.alwaysOnTop !== b.alwaysOnTop) {
+    return b.alwaysOnTop ? 1 : -1
+  }
+  return a.id - b.id
+}

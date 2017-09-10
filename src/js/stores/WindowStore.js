@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx'
+import { windowComparator } from '../libs'
 
 export default class WindowsStore {
   constructor (store) {
@@ -7,8 +8,6 @@ export default class WindowsStore {
   }
 
   @observable windows = []
-  @observable windowsMap = new Map()
-  @observable tabsMap = new Map()
 
   updateHandler = null
 
@@ -32,24 +31,20 @@ export default class WindowsStore {
     if (this.updateHandler != null) {
       clearTimeout(this.updateHandler)
     }
-    this.updateHandler = setTimeout(this.getAllWindows, 2)
+    this.updateHandler = setTimeout(this.getAllWindows, 50)
   }
 
-  getAllWindows = () => {
-    chrome.windows.getAll(
-      { populate: true },
-      (windows) => {
-        this.windows = windows
-        this.windowsMap.clear()
-        this.tabsMap.clear()
-        windows.map((win) => {
-          const { id, tabs } = win
-          this.windowsMap.set(id, win)
-          tabs.map((tab) => {
-            this.tabsMap.set(tab.id, tab)
-          })
-        })
+  getAllWindows = async () => {
+    if (!this.lastFocusedWindowId) {
+      const lastFocusedWindow = await chrome.windows.getLastFocused({})
+      this.lastFocusedWindowId = lastFocusedWindow.id
+    }
+    const windows = await chrome.windows.getAll({ populate: true })
+    this.windows = windows.map((win) => {
+      return {
+        ...win,
+        lastFocused: this.lastFocusedWindowId === win.id
       }
-    )
+    }).sort(windowComparator)
   }
 }
