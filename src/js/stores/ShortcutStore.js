@@ -6,6 +6,10 @@ export default class ShortcutStore {
     this.store = store
   }
 
+  @observable combo = null
+  @observable toastOpen = false
+  closeHandle = null
+
   @observable inputShortcutSet = new Set([
     'escape',
     'enter',
@@ -70,6 +74,7 @@ export default class ShortcutStore {
     }]
   ]
 
+  @action
   stopCallback = (e, element, combo) => {
     if (this.inputShortcutSet.has(combo)) {
       return false
@@ -86,10 +91,33 @@ export default class ShortcutStore {
     this.App = App
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.shortcuts.map(
-      ([ key, func ]) => Mousetrap.bind(key, func)
+      ([ key, func ]) => Mousetrap.bind(key, (e, combo) => {
+        this.combo = combo
+        this.openToast()
+        func(e)
+      })
     )
   }
 
   @action
   willUnmount = () => Mousetrap.reset()
+
+  @action
+  clearCombo = () => {
+    this.combo = null
+  }
+
+  @action
+  openToast = () => {
+    if (this.closeHandle) {
+      clearTimeout(this.closeHandle)
+    }
+    this.toastOpen = true
+    this.closeHandle = setTimeout(this.closeToast, 512)
+  }
+
+  @action
+  closeToast = () => {
+    this.toastOpen = false
+  }
 }

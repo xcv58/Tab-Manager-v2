@@ -4,6 +4,7 @@ import { LinearProgress } from 'material-ui/Progress'
 import WindowList from './WindowList'
 import Search from './Search'
 import Tools from './Tools'
+import Shortcut from './Shortcut'
 
 @inject('windowStore')
 @inject('shortcutStore')
@@ -48,6 +49,7 @@ export default class App extends React.Component {
           <Tools />
         </div>
         <WindowList />
+        <Shortcut />
       </div>
     )
   }
