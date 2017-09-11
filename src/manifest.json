@@ -4,7 +4,19 @@
   "background": {
     "page": "background.html"
   },
-	"permissions": ["tabs"],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "contentscript.bundle.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "permissions": ["tabs"],
   "browser_action": {
     "default_popup": "popup.html",
     "default_title": "Tab Manager v2",
