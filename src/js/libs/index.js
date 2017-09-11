@@ -16,14 +16,13 @@ export const createWindow = async (tabs) => {
   await moveTabs(tabs, win.id)
 }
 
-export const activateTab = (id) => {
+export const activateTab = async (id) => {
   if (!id) {
     return
   }
-  chrome.tabs.get(id, (tab) => {
-    chrome.tabs.update(tab.id, { selected: true })
-    chrome.windows.update(tab.windowId, { focused: true })
-  })
+  const tab = await chrome.tabs.get(id)
+  await chrome.tabs.update(tab.id, { selected: true })
+  await chrome.windows.update(tab.windowId, { focused: true })
 }
 
 export const togglePinTabs = async (tabs) => {
