@@ -7,8 +7,17 @@ import TabHistory from './background/TabHistory'
 class Background {
   constructor () {
     this.tabHistory = new TabHistory(this)
+    chrome.runtime.onMessage.addListener(this.onMessage)
+  }
+
+  onMessage = (request, sender, sendResponse) => {
+    if (request.action === 'last-active-tab') {
+      this.tabHistory.activateTab()
+    }
+    if (!sendResponse && typeof sendResponse === 'function') {
+      sendResponse()
+    }
   }
 }
 
-const init = () => new Background()
-init()
+(() => new Background())()

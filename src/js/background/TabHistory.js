@@ -3,11 +3,10 @@ import { activateTab } from '../libs'
 export default class TabHistory {
   constructor (background) {
     this.root = background
-    const { onActivated, onFocusChanged, onRemoved, onMessage } = this
+    const { onActivated, onFocusChanged, onRemoved } = this
     chrome.tabs.onActivated.addListener(onActivated)
     chrome.tabs.onRemoved.addListener(onRemoved)
     chrome.windows.onFocusChanged.addListener(onFocusChanged)
-    chrome.runtime.onMessage.addListener(onMessage)
   }
 
   tabHistory = []
@@ -64,12 +63,5 @@ export default class TabHistory {
 
   onRemoved = async (tabId) => {
     this.remove(tabId)
-  }
-
-  onMessage = (request, sender, sendResponse) => {
-    if (request.action === 'last-active-tab') {
-      this.activateTab()
-    }
-    sendResponse()
   }
 }
