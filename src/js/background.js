@@ -4,19 +4,30 @@ import '../img/icon-128.png'
 import 'chrome-extension-async'
 import TabHistory from './background/TabHistory'
 import actions from './libs/actions'
+import { createWindow } from './libs'
 
 class Background {
   constructor () {
     this.tabHistory = new TabHistory(this)
     chrome.runtime.onMessage.addListener(this.onMessage)
+    this.actionMap = {
+      [actions.createWindow()]: this.createWindow
+    }
+    Object.assign(this.actionMap, this.tabHistory.actionMap)
+  }
+
+  createWindow = async (request, sender, sendResponse) => {
+    createWindow(request.tabs)
+    sendResponse()
   }
 
   onMessage = (request, sender, sendResponse) => {
-    if (request.action === actions.lastActiveTab()) {
-      this.tabHistory.activateTab()
-    }
-    if (!sendResponse && typeof sendResponse === 'function') {
-      sendResponse()
+    const { action } = request
+    const func = this.actionMap[action]
+    if (func && typeof func === 'function') {
+      func(request, sender, sendResponse)
+    } else {
+      sendResponse(`Unknown action: ${action}`)
     }
   }
 }

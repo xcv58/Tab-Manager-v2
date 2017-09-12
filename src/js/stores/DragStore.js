@@ -1,5 +1,6 @@
 import { action, observable } from 'mobx'
-import { moveTabs, createWindow } from '../libs'
+import { moveTabs } from '../libs'
+import actions from '../libs/actions'
 
 export default class DragStore {
   constructor (store) {
@@ -59,7 +60,11 @@ export default class DragStore {
   }
 
   dropToNewWindow = async () => {
-    await createWindow(this.store.tabStore.sources)
+    const tabs = this.store.tabStore.sources.map(({ id, pinned }) => ({ id, pinned }))
+    chrome.runtime.sendMessage({
+      tabs,
+      action: actions.createWindow()
+    })
     this.clear()
   }
 }

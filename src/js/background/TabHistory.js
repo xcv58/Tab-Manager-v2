@@ -1,4 +1,5 @@
 import { activateTab } from '../libs'
+import actions from '../libs/actions'
 
 export default class TabHistory {
   constructor (background) {
@@ -7,6 +8,9 @@ export default class TabHistory {
     chrome.tabs.onActivated.addListener(onActivated)
     chrome.tabs.onRemoved.addListener(onRemoved)
     chrome.windows.onFocusChanged.addListener(onFocusChanged)
+    this.actionMap = {
+      [actions.lastActiveTab()]: this.activateTab
+    }
   }
 
   tabHistory = []
