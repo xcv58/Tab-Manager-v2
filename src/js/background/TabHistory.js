@@ -36,6 +36,9 @@ export default class TabHistory {
   }
 
   add = ({ tabId, windowId, title }) => {
+    if (!tabId || windowId === -1) {
+      return
+    }
     this.remove(tabId)
     this.tabHistory.push({ tabId, windowId, title })
   }
@@ -52,9 +55,12 @@ export default class TabHistory {
     this.resetCount()
     const { length } = this.tabHistory
     if (length > 1) {
-      let index = length - 1 - this.count
+      const index = length - 1 - this.count
       if (index < 0) {
-        index += length
+        this.count = 0
+        const tabs = this.tabHistory.slice(0, length - 1).reverse()
+        this.tabHistory = [ ...tabs, this.tabHistory[length - 1] ]
+        return this.activateTab()
       }
       activateTab(this.tabHistory[index].tabId)
     }
