@@ -1,5 +1,6 @@
 import Mousetrap from 'mousetrap'
+import actions from './libs/actions'
 
 Mousetrap.bind('ctrl+b', (e) => {
-  chrome.runtime.sendMessage({ action: 'last-active-tab' })
+  chrome.runtime.sendMessage({ action: actions.lastActiveTab() })
 })

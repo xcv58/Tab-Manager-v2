@@ -3,6 +3,7 @@ import '../img/icon-48.png'
 import '../img/icon-128.png'
 import 'chrome-extension-async'
 import TabHistory from './background/TabHistory'
+import actions from './libs/actions'
 
 class Background {
   constructor () {
@@ -11,7 +12,7 @@ class Background {
   }
 
   onMessage = (request, sender, sendResponse) => {
-    if (request.action === 'last-active-tab') {
+    if (request.action === actions.lastActiveTab()) {
       this.tabHistory.activateTab()
     }
     if (!sendResponse && typeof sendResponse === 'function') {
