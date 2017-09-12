@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { activateTab, togglePinTabs } from '../libs'
+import { activateTab, togglePinTabs, tabComparator } from '../libs'
 
 export default class TabStore {
   constructor (store) {
@@ -20,12 +20,7 @@ export default class TabStore {
 
   @computed
   get sources () {
-    return this.selection.values().sort((a, b) => {
-      if (a.windowId === b.windowId) {
-        return a.index - b.index
-      }
-      return a.windowId - b.windowId
-    })
+    return this.selection.values().sort(tabComparator)
   }
 
   @action

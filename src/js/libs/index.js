@@ -11,9 +11,11 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
 }
 
 export const createWindow = async (tabs) => {
-  const tabId = tabs[0].id
+  const [ firstTab, ...restTabs ] = tabs
+  const tabId = firstTab.id
   const win = await chrome.windows.create({ tabId })
-  await moveTabs(tabs, win.id)
+  await moveTabs(restTabs, win.id, -1)
+  await chrome.windows.update(win.id, { focused: true })
 }
 
 export const activateTab = async (id) => {
