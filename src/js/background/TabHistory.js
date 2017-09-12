@@ -23,6 +23,12 @@ export default class TabHistory {
     }
     this.resetCountHandler = setTimeout(
       () => {
+        const { length } = this.tabHistory
+        const index = Math.max(length - 1 - this.count, 0)
+        const untouchedTabs = this.tabHistory.slice(0, index)
+        const touchedTabs = this.tabHistory.slice(index, length - 1).reverse()
+        const lastTab = this.tabHistory[length - 1]
+        this.tabHistory = [ ...untouchedTabs, ...touchedTabs, lastTab ]
         this.count = 0
       },
       1000
@@ -46,8 +52,11 @@ export default class TabHistory {
     this.resetCount()
     const { length } = this.tabHistory
     if (length > 1) {
-      const index = length - 1 - this.count
-      activateTab(this.tabHistory[Math.max(index, 0)].tabId)
+      let index = length - 1 - this.count
+      if (index < 0) {
+        index += length
+      }
+      activateTab(this.tabHistory[index].tabId)
     }
   }
 
