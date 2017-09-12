@@ -1,7 +1,7 @@
 html,
 body {
   width: 800px;
-  height: 600px;
+  height: 300px;
   padding: 0;
   margin: 0;
   user-select: none;
@@ -10,4 +10,8 @@ body {
   -webkit-user-select: none;
   overflow: hidden;
   font-size: 12px;
+}
+
+#app-container {
+  width: 800px;
 }

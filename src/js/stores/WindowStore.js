@@ -4,7 +4,7 @@ import { windowComparator } from '../libs'
 export default class WindowsStore {
   constructor (store) {
     this.store = store
-    this.getAllWindows()
+    this.updateAllWindows()
   }
 
   @observable windows = []
