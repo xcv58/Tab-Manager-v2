@@ -86,6 +86,11 @@ export default class SearchStore {
   }
 
   @action
+  selectAll = () => {
+    this.store.tabStore.selectAll(this.matchedTabs)
+  }
+
+  @action
   up = () => this.findFocusedTab(-1)
 
   @action

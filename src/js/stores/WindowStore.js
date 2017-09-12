@@ -34,6 +34,11 @@ export default class WindowsStore {
     this.updateHandler = setTimeout(this.getAllWindows, 50)
   }
 
+  @action
+  selectAll = () => {
+    this.store.tabStore.selectAll(this.tabs)
+  }
+
   getAllWindows = async () => {
     if (!this.lastFocusedWindowId) {
       const lastFocusedWindow = await chrome.windows.getLastFocused({})

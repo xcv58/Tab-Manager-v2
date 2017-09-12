@@ -19,11 +19,15 @@ export default class ShortcutStore {
     'ctrl+j',
     'up',
     'ctrl+k',
+    'ctrl+/',
     'ctrl+p',
     'ctrl+s',
     'ctrl+x',
     'ctrl+d',
     'ctrl+g',
+    'ctrl+8',
+    'ctrl+m',
+    'ctrl+n',
     'shift+ctrl+g'
   ])
 
@@ -77,7 +81,20 @@ export default class ShortcutStore {
       e.preventDefault()
       this.store.searchStore.select()
     }, 'Select tab' ],
-    [ '?', (e) => {
+    [ [ '* m', 'ctrl+m' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.selectAll()
+    }, 'Select all matched tab' ],
+    [ [ '* a', 'ctrl+8' ], (e) => {
+      e.preventDefault()
+      this.store.windowStore.selectAll()
+    }, 'Select all tab' ],
+    [ [ '* n', 'ctrl+n' ], (e) => {
+      e.preventDefault()
+      this.store.tabStore.unselectAll()
+    }, 'Unselect all tab' ],
+    [ [ '?', 'ctrl+/' ], (e) => {
+      e.preventDefault()
       this.openDialog()
     }, 'Open keyboard shortcut help' ]
   ]

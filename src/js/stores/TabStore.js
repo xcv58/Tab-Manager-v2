@@ -18,6 +18,18 @@ export default class TabStore {
     }
   }
 
+  @action
+  selectAll = (tabs) => {
+    tabs.map(tab => {
+      this.selection.set(tab.id, tab)
+    })
+  }
+
+  @action
+  unselectAll = () => {
+    this.selection.clear()
+  }
+
   @computed
   get sources () {
     return this.selection.values().sort(tabComparator)
@@ -39,7 +51,7 @@ export default class TabStore {
       }
       chrome.tabs.remove(
         this.selection.values().map(x => x.id),
-        () => this.selection.clear()
+        this.unselectAll
       )
     } else {
       if (focusedTab) {
@@ -57,7 +69,7 @@ export default class TabStore {
       await togglePinTabs([ tab ])
     } else {
       await togglePinTabs(this.selection.values())
-      this.selection.clear()
+      this.unselectAll()
     }
   }
 }
