@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "build": "node utils/build.js",
