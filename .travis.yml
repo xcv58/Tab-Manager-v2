@@ -3,10 +3,11 @@ node_js:
   - "8"
 script:
   - yarn test
+  - yarn deploy
 deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
-  file: "build.zip"
+  file: build.zip
   skip_cleanup: true
   on:
     tags: true
