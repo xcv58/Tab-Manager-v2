@@ -57,6 +57,7 @@ export default class SearchStore {
       return tabs
     }
     const options = {
+      // TODO: this will cause bug to if both title and url have part of query
       extract: ({ title, url }) => `${title} ${url}`
     }
     return filter(this.query, tabs, options)
