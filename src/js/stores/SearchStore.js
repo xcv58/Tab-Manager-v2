@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import Fuse from 'fuse.js'
+import { filter } from 'fuzzy'
 import { activateTab } from '../libs'
 
 export default class SearchStore {
@@ -56,13 +56,12 @@ export default class SearchStore {
     if (!this.query) {
       return tabs
     }
-    const containsUpperCase = (/[A-Z]/.test(this.query))
-    return new Fuse(tabs, {
-      threshold: 0.6,
-      caseSensitive: containsUpperCase,
-      shouldSort: false,
-      keys: [ 'title', 'url' ]
-    }).search(this.query)
+    const options = {
+      extract: ({ title, url }) => `${title} ${url}`
+    }
+    return filter(this.query, tabs, options)
+    .sort((a, b) => a.index - b.index)
+    .map((x) => x.original)
   }
 
   @action
