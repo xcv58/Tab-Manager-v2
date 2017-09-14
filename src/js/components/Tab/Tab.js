@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { blue, red } from 'material-ui/colors'
 import Icon from './Icon'
+import { match } from 'fuzzy'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -73,6 +74,23 @@ export default class Tab extends React.Component {
     return urlStyle
   }
 
+  getHighlightNode = (text) => {
+    const { id, searchStore: { query, matchedSet } } = this.props
+    if (!query || !matchedSet.has(id)) {
+      return text
+    }
+    const result = match(this.props.searchStore.query, text, {
+      pre: `<span style='color:${red[500]}'>`,
+      post: '</span>'
+    })
+    if (!result) {
+      return text
+    }
+    return (
+      <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
+    )
+  }
+
   componentDidUpdate () {
     const {
       faked, id, searchStore: { focusedTab, searchTriggered, scrolled }
@@ -122,9 +140,9 @@ export default class Tab extends React.Component {
               textAlign: 'left',
               textOverflow: 'ellipsis'
             }}>
-            {title}
+            {this.getHighlightNode(title)}
             <div style={this.getUrlStyle()}>
-              {url}
+              {this.getHighlightNode(url)}
             </div>
           </div>
         </div>
