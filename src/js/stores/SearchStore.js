@@ -56,14 +56,18 @@ export default class SearchStore {
     if (!this.query) {
       return tabs
     }
-    const options = {
-      // TODO: this will cause bug to if both title and url have part of query
-      extract: ({ title, url }) => `${title} ${url}`
-    }
-    return filter(this.query, tabs, options)
-    .sort((a, b) => a.index - b.index)
-    .map((x) => x.original)
+    const set = new Set([
+      ...this.getMatchedIds(tabs, 'title'),
+      ...this.getMatchedIds(tabs, 'url')
+    ])
+    return tabs.filter(x => set.has(x.id))
   }
+
+  getMatchedIds = (tabs, field) => filter(
+    this.query,
+    tabs,
+    { extract: (x) => x[field] }
+  ).map(x => x.original.id)
 
   @action
   enter = () => {
