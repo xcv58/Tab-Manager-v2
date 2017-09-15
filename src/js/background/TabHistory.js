@@ -16,6 +16,7 @@ export default class TabHistory {
   tabHistory = []
   count = 0
   resetCountHandler = null
+  expectedTabId = null
 
   resetCount = () => {
     if (this.resetCountHandler != null) {
@@ -30,6 +31,7 @@ export default class TabHistory {
         const lastTab = this.tabHistory[length - 1]
         this.tabHistory = [ ...untouchedTabs, ...touchedTabs, lastTab ]
         this.count = 0
+        this.resetCountHandler = null
       },
       1000
     )
@@ -55,19 +57,26 @@ export default class TabHistory {
     this.resetCount()
     const { length } = this.tabHistory
     if (length > 1) {
-      const index = length - 1 - this.count
-      if (index < 0) {
-        this.count = 0
-        const tabs = this.tabHistory.slice(0, length - 1).reverse()
-        this.tabHistory = [ ...tabs, this.tabHistory[length - 1] ]
-        return this.activateTab()
-      }
-      activateTab(this.tabHistory[index].tabId)
+      const index = Math.max(length - 1 - this.count, 0)
+      const { tabId } = this.tabHistory[index]
+      this.expectedTabId = tabId
+      activateTab(tabId)
     }
   }
 
   onActivated = async (activeInfo) => {
     const { tabId, windowId } = activeInfo
+    if (tabId !== this.expectedTabId) {
+      const { length } = this.tabHistory
+      if (this.resetCountHandler) {
+        this.resetCount()
+        const index = this.tabHistory.findIndex(x => x.tabId === tabId)
+        if (index < length - this.count) {
+          this.count += 1
+        }
+      }
+    }
+    this.expectedTabId = null
     const tab = await chrome.tabs.get(tabId)
     this.add({ tabId, windowId, title: tab.title })
   }
