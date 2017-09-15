@@ -22,30 +22,25 @@ export default class TabHistory {
     if (this.resetCountHandler != null) {
       clearTimeout(this.resetCountHandler)
     }
-    this.resetCountHandler = setTimeout(
-      () => {
-        const { length } = this.tabHistory
-        const untouchedTabs = this.tabHistory.slice(0, this.nextTabIndex)
-        const touchedTabs = this.tabHistory.slice(this.nextTabIndex, length - 1).reverse()
-        const lastTab = this.tabHistory[length - 1]
-        this.tabHistory = [ ...untouchedTabs, ...touchedTabs, lastTab ]
-        this.count = 0
-        this.resetCountHandler = null
-      },
-      1000
-    )
+    this.resetCountHandler = setTimeout(this.reset, 1000)
   }
 
-  add = ({ tabId, windowId, title }) => {
+  reset = () => {
+    const { length } = this.tabHistory
+    const untouchedTabs = this.tabHistory.slice(0, this.nextTabIndex)
+    const touchedTabs = this.tabHistory.slice(this.nextTabIndex, length - 1).reverse()
+    const lastTab = this.tabHistory[length - 1]
+    this.tabHistory = [ ...untouchedTabs, ...touchedTabs, lastTab ]
+    this.count = 0
+    this.resetCountHandler = null
+  }
+
+  add = ({ tabId, windowId, ...rest }) => {
     if (!tabId || windowId === -1) {
       return
     }
     this.remove(tabId)
-    this.tabHistory.push({ tabId, windowId, title })
-  }
-
-  get nextTabIndex () {
-    return Math.max(this.tabHistory.length - 1 - this.count, 0)
+    this.tabHistory.push({ tabId, windowId, ...rest })
   }
 
   remove = (tabId) => {
@@ -53,6 +48,10 @@ export default class TabHistory {
     if (index !== -1) {
       this.tabHistory.splice(index, 1)
     }
+  }
+
+  get nextTabIndex () {
+    return Math.max(this.tabHistory.length - 1 - this.count, 0)
   }
 
   activateTab = () => {
@@ -79,18 +78,19 @@ export default class TabHistory {
     }
     this.expectedTabId = null
     const tab = await chrome.tabs.get(tabId)
-    this.add({ tabId, windowId, title: tab.title })
+    this.add({ ...tab, tabId, windowId })
   }
 
   onFocusChanged = async (windowId) => {
-    const tab = await chrome.tabs.query({ active: true, windowId })
-    if (tab.length === 0) {
+    if (windowId < 0) {
       return
     }
-    this.add({ tabId: tab.id, windowId, title: tab[0].title })
+    const [ tab ] = await chrome.tabs.query({ active: true, windowId })
+    if (!tab) {
+      return
+    }
+    this.add({ ...tab, tabId: tab.id, windowId })
   }
 
-  onRemoved = async (tabId) => {
-    this.remove(tabId)
-  }
+  onRemoved = async (tabId) => this.remove(tabId)
 }
