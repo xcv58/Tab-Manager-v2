@@ -25,9 +25,8 @@ export default class TabHistory {
     this.resetCountHandler = setTimeout(
       () => {
         const { length } = this.tabHistory
-        const index = Math.max(length - 1 - this.count, 0)
-        const untouchedTabs = this.tabHistory.slice(0, index)
-        const touchedTabs = this.tabHistory.slice(index, length - 1).reverse()
+        const untouchedTabs = this.tabHistory.slice(0, this.nextTabIndex)
+        const touchedTabs = this.tabHistory.slice(this.nextTabIndex, length - 1).reverse()
         const lastTab = this.tabHistory[length - 1]
         this.tabHistory = [ ...untouchedTabs, ...touchedTabs, lastTab ]
         this.count = 0
@@ -45,6 +44,10 @@ export default class TabHistory {
     this.tabHistory.push({ tabId, windowId, title })
   }
 
+  get nextTabIndex () {
+    return Math.max(this.tabHistory.length - 1 - this.count, 0)
+  }
+
   remove = (tabId) => {
     const index = this.tabHistory.findIndex(x => x.tabId === tabId)
     if (index !== -1) {
@@ -55,10 +58,8 @@ export default class TabHistory {
   activateTab = () => {
     this.count += 1
     this.resetCount()
-    const { length } = this.tabHistory
-    if (length > 1) {
-      const index = Math.max(length - 1 - this.count, 0)
-      const { tabId } = this.tabHistory[index]
+    if (this.tabHistory.length > 1) {
+      const { tabId } = this.tabHistory[this.nextTabIndex]
       this.expectedTabId = tabId
       activateTab(tabId)
     }
