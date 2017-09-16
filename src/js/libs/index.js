@@ -37,6 +37,15 @@ export const togglePinTabs = async (tabs) => {
   )
 }
 
+export const setLastFocusedWindowId = (lastFocusedWindowId) => {
+  chrome.storage.local.set({ lastFocusedWindowId })
+}
+
+export const getLastFocusedWindowId = async () => {
+  const { lastFocusedWindowId } = await chrome.storage.local.get({ lastFocusedWindowId: null })
+  return lastFocusedWindowId
+}
+
 export const tabComparator = (a, b) => {
   if (a.pinned ^ b.pinned) {
     return b.pinned ? 1 : -1

@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { windowComparator } from '../libs'
+import { getLastFocusedWindowId, windowComparator } from '../libs'
 
 export default class WindowsStore {
   constructor (store) {
@@ -41,8 +41,7 @@ export default class WindowsStore {
 
   getAllWindows = async () => {
     if (!this.lastFocusedWindowId) {
-      const lastFocusedWindow = await chrome.windows.getLastFocused({})
-      this.lastFocusedWindowId = lastFocusedWindow.id
+      this.lastFocusedWindowId = await getLastFocusedWindowId()
     }
     const windows = await chrome.windows.getAll({ populate: true })
     this.windows = windows.map((win) => {

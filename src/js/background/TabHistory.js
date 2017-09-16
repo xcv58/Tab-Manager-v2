@@ -1,4 +1,4 @@
-import { activateTab } from '../libs'
+import { activateTab, setLastFocusedWindowId } from '../libs'
 import actions from '../libs/actions'
 
 export default class TabHistory {
@@ -90,6 +90,7 @@ export default class TabHistory {
       return
     }
     this.add({ ...tab, tabId: tab.id, windowId })
+    setLastFocusedWindowId(windowId)
   }
 
   onRemoved = async (tabId) => this.remove(tabId)
