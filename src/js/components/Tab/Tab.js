@@ -96,7 +96,8 @@ export default class Tab extends React.Component {
       faked, id, searchStore: { focusedTab, searchTriggered, scrolled }
     } = this.props
     if (!faked && id === focusedTab) {
-      const containmentRect = this.props.containment().getBoundingClientRect()
+      const { shadowScrollbars } = this.props.getWindowList()
+      const containmentRect = shadowScrollbars.node.getBoundingClientRect()
       const { top, bottom } = this.node.getBoundingClientRect()
       const topGap = top - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom

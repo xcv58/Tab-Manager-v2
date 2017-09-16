@@ -31,14 +31,14 @@ export default class App extends React.Component {
       <Window
         key={win.id}
         ref={win.id}
-        containment={() => this.containment}
+        getWindowList={() => this}
         dragPreview={() => this.dragPreview}
         {...win}
       />
     ))
     return (
       <ShadowScrollbars
-        ref={(el) => { this.containment = (el && el.node) || this.containment }}
+        ref={(el) => { this.shadowScrollbars = el || this.shadowScrollbars }}
         style={{
           display: 'flex',
           flex: '1 1 auto',

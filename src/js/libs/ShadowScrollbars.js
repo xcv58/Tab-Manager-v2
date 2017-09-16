@@ -22,7 +22,7 @@ const shadowBottomStyle = {
 
 export default class ShadowScrollbars extends Component {
   onUpdate = (values) => {
-    const { shadowTop, shadowBottom } = this.refs
+    const { shadowTop, shadowBottom } = this
     const { scrollTop, scrollHeight, clientHeight } = values
     const shadowTopOpacity = 1 / 20 * Math.min(scrollTop, 20)
     const bottomScrollTop = scrollHeight - clientHeight
@@ -39,16 +39,16 @@ export default class ShadowScrollbars extends Component {
     }
     return (
       <div
-        ref={(node) => { this.node = node }}
+        ref={(node) => { this.node = node || this.node }}
         style={containerStyle}
       >
-        <div ref='shadowTop'
+        <div ref={(shadowTop) => { this.shadowTop = shadowTop || this.shadowTop }}
           style={shadowTopStyle} />
         <Scrollbars
-          ref='scrollbars'
+          ref={(scrollbars) => { this.scrollbars = scrollbars || this.scrollbars }}
           onUpdate={this.onUpdate}
           {...props} />
-        <div ref='shadowBottom'
+        <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
           style={shadowBottomStyle} />
       </div>
     )
