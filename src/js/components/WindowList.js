@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Window from './Window'
 import DragPreview from './DragPreview'
+import ShadowScrollbars from '../libs/ShadowScrollbars'
 
 const width = '800px'
 
@@ -36,16 +37,18 @@ export default class App extends React.Component {
       />
     ))
     return (
-      <div ref={(el) => { this.containment = el || this.containment }}
+      <ShadowScrollbars
+        ref={(el) => { this.containment = (el && el.node) || this.containment }}
         style={{
-          overflow: 'auto',
-          flex: '1 1 auto'
+          display: 'flex',
+          flex: '1 1 auto',
+          height: 'fit-content'
         }}>
         <DragPreview
           setDragPreview={(dragPreview) => { this.dragPreview = dragPreview }}
         />
         {winList}
-      </div>
+      </ShadowScrollbars>
     )
   }
 }
