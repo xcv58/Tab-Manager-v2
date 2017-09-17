@@ -44,7 +44,10 @@ export default class DraggableTab extends React.Component {
     return (
       <div
         draggable
-        style={style}
+        style={{
+          ...style,
+          ...this.props.style
+        }}
         ref={(el) => { this.node = el || this.node }}
         {...{ onDragStart, onDragEnd, onDragOver, onDrop }}
       >
