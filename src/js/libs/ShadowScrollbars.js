@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars'
+import { SpringSystem } from 'rebound'
 import css from 'dom-css'
 
 const shadowTopStyle = {
@@ -31,6 +32,44 @@ export default class ShadowScrollbars extends Component {
     css(shadowBottom, { opacity: shadowBottomOpacity })
   }
 
+  handleSpringUpdate = (spring) => {
+    const val = spring.getCurrentValue()
+    this.refs.scrollbars.scrollTop(val)
+  }
+
+  getScrollTop = () => {
+    return this.refs.scrollbars.getScrollTop()
+  }
+
+  getScrollHeight = () => {
+    return this.refs.scrollbars.getScrollHeight()
+  }
+
+  scrollTo = (top) => {
+    const { scrollbars } = this.refs
+    const scrollTop = scrollbars.getScrollTop()
+    this.spring.setCurrentValue(scrollTop).setAtRest()
+    this.spring.setEndValue(scrollTop + top)
+  }
+
+  getBoundingClientRect = () => {
+    return this.node.getBoundingClientRect()
+  }
+
+  componentDidMount () {
+    this.springSystem = new SpringSystem()
+    this.spring = this.springSystem.createSpring()
+    this.spring.addListener({ onSpringUpdate: this.handleSpringUpdate })
+  }
+
+  componentWillUnmount () {
+    this.springSystem.deregisterSpring(this.spring)
+    this.springSystem.removeAllListeners()
+    this.spring.destroy()
+    this.springSystem = null
+    this.spring = null
+  }
+
   render () {
     const { style, ...props } = this.props
     const containerStyle = {
@@ -45,7 +84,7 @@ export default class ShadowScrollbars extends Component {
         <div ref={(shadowTop) => { this.shadowTop = shadowTop || this.shadowTop }}
           style={shadowTopStyle} />
         <Scrollbars
-          ref={(scrollbars) => { this.scrollbars = scrollbars || this.scrollbars }}
+          ref='scrollbars'
           onUpdate={this.onUpdate}
           {...props} />
         <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}

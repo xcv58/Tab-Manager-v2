@@ -38,7 +38,7 @@ export default class App extends React.Component {
     ))
     return (
       <ShadowScrollbars
-        ref={(el) => { this.shadowScrollbars = el || this.shadowScrollbars }}
+        ref='shadowScrollbars'
         style={{
           display: 'flex',
           flex: '1 1 auto',

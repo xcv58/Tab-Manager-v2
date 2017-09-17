@@ -93,27 +93,21 @@ export default class Tab extends React.Component {
 
   componentDidUpdate () {
     const {
-      faked, id, searchStore: { focusedTab, searchTriggered, scrolled }
+      faked, id, searchStore: { focusedTab }
     } = this.props
     if (!faked && id === focusedTab) {
-      const { shadowScrollbars } = this.props.getWindowList()
+      const { shadowScrollbars } = this.props.getWindowList().refs
       const containmentRect = shadowScrollbars.node.getBoundingClientRect()
       const { top, bottom } = this.node.getBoundingClientRect()
-      const topGap = top - containmentRect.top
-      const bottomGap = containmentRect.bottom - bottom
-      if (topGap > 0 && bottomGap > 0) {
-        return
+      const height = bottom - top
+      const topGap = top - height - containmentRect.top
+      const bottomGap = containmentRect.bottom - bottom - height
+      if (bottomGap < 0) {
+        shadowScrollbars.scrollTo(-bottomGap)
       }
-      const scrollOption = {
-        block: 'end',
-        inline: 'start',
-        behavior: 'smooth'
+      if (topGap < 0) {
+        shadowScrollbars.scrollTo(topGap)
       }
-      if (searchTriggered) {
-        scrollOption.behavior = 'auto'
-        scrolled()
-      }
-      this.node.scrollIntoView(scrollOption)
     }
   }
 

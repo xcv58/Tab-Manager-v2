@@ -10,13 +10,6 @@ export default class SearchStore {
   @observable query = ''
   @observable focusedTab = null
   @observable typing = false
-  // TODO: Fix in UI side, this is a hack way to handle scrollIntoView({ behavior: 'smooth' }) doesn't work
-  @observable searchTriggered = false
-
-  @action
-  scrolled = () => {
-    this.searchTriggered = false
-  }
 
   @computed
   get matchedTabs () {
@@ -47,7 +40,6 @@ export default class SearchStore {
   search = (value) => {
     this.query = value
     this.focusedTab = null
-    this.searchTriggered = true
     this.findFocusedTab()
   }
 
