@@ -84,7 +84,9 @@ export default class Tab extends React.Component {
       post: '</span>'
     })
     if (!result) {
-      return text
+      return (
+        <div>{text}</div>
+      )
     }
     return (
       <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
@@ -126,15 +128,14 @@ export default class Tab extends React.Component {
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         style={style}>
-        <div style={{ display: 'flex' }}>
+        <div style={{
+          display: 'flex',
+          overflow: 'hidden',
+          textAlign: 'left',
+          textOverflow: 'ellipsis'
+        }}>
           <Icon {...this.props} />
-          <div
-            onClick={this.onClick}
-            style={{
-              overflow: 'hidden',
-              textAlign: 'left',
-              textOverflow: 'ellipsis'
-            }}>
+          <div onClick={this.onClick}>
             {this.getHighlightNode(title)}
             <div style={this.getUrlStyle()}>
               {this.getHighlightNode(url)}
