@@ -4,7 +4,7 @@ import { getLastFocusedWindowId, windowComparator } from '../libs'
 export default class WindowsStore {
   constructor (store) {
     this.store = store
-    this.updateAllWindows()
+    this.getAllWindows()
   }
 
   @observable windows = []
