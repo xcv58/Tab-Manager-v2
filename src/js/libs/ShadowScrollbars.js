@@ -8,8 +8,8 @@ const shadowTopStyle = {
   top: 0,
   left: 0,
   right: 0,
-  height: 16,
-  background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)'
+  height: 10,
+  background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 100%)'
 }
 
 const shadowBottomStyle = {
@@ -17,8 +17,8 @@ const shadowBottomStyle = {
   bottom: 0,
   left: 0,
   right: 0,
-  height: 16,
-  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%)'
+  height: 10,
+  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 100%)'
 }
 
 export default class ShadowScrollbars extends Component {
@@ -83,12 +83,12 @@ export default class ShadowScrollbars extends Component {
       >
         <div ref={(shadowTop) => { this.shadowTop = shadowTop || this.shadowTop }}
           style={shadowTopStyle} />
+        <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
+          style={shadowBottomStyle} />
         <Scrollbars
           ref='scrollbars'
           onUpdate={this.onUpdate}
           {...props} />
-        <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
-          style={shadowBottomStyle} />
       </div>
     )
   }
