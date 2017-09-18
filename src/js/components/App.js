@@ -11,7 +11,7 @@ import Shortcut from './Shortcut'
 @observer
 export default class App extends React.Component {
   componentDidMount () {
-    const { windowStore: { updateAllWindows } } = this.props
+    const { windowStore: { updateAllWindows, getAllWindows } } = this.props
     chrome.windows.onCreated.addListener(updateAllWindows)
     chrome.windows.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onCreated.addListener(updateAllWindows)
@@ -21,6 +21,7 @@ export default class App extends React.Component {
     chrome.tabs.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onReplaced.addListener(updateAllWindows)
     this.props.shortcutStore.didMount(this)
+    getAllWindows()
   }
 
   componentWillUnmount () {
