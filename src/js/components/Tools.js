@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import Tooltip from 'material-ui/Tooltip'
 import SortIcon from 'material-ui-icons/Sort'
 import IconButton from 'material-ui/IconButton'
 
@@ -17,11 +18,13 @@ export default class Tools extends React.Component {
       <div style={{
         display: 'flex'
       }}>
-        <IconButton
-          style={iconStyle}
-          onClick={sortTabs}>
-          <SortIcon />
-        </IconButton>
+        <Tooltip title='Sort Tabs' placement='left'>
+          <IconButton
+            style={iconStyle}
+            onClick={sortTabs}>
+            <SortIcon />
+          </IconButton>
+        </Tooltip>
       </div>
     )
   }
