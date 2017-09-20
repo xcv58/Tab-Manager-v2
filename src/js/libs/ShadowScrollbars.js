@@ -33,23 +33,20 @@ export default class ShadowScrollbars extends Component {
   }
 
   handleSpringUpdate = (spring) => {
-    const val = spring.getCurrentValue()
-    this.refs.scrollbars.scrollTop(val)
-  }
-
-  getScrollTop = () => {
-    return this.refs.scrollbars.getScrollTop()
-  }
-
-  getScrollHeight = () => {
-    return this.refs.scrollbars.getScrollHeight()
+    const { scrollbars } = this
+    if (scrollbars) {
+      const val = spring.getCurrentValue()
+      scrollbars.scrollTop(val)
+    }
   }
 
   scrollTo = (top) => {
-    const { scrollbars } = this.refs
-    const scrollTop = scrollbars.getScrollTop()
-    this.spring.setCurrentValue(scrollTop).setAtRest()
-    this.spring.setEndValue(scrollTop + top)
+    const { scrollbars } = this
+    if (scrollbars) {
+      const scrollTop = scrollbars.getScrollTop()
+      this.spring.setCurrentValue(scrollTop).setAtRest()
+      this.spring.setEndValue(scrollTop + top)
+    }
   }
 
   getBoundingClientRect = () => {
@@ -86,7 +83,7 @@ export default class ShadowScrollbars extends Component {
         <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
           style={shadowBottomStyle} />
         <Scrollbars
-          ref='scrollbars'
+          ref={(scrollbars) => { this.scrollbars = scrollbars }}
           onUpdate={this.onUpdate}
           {...props} />
       </div>
