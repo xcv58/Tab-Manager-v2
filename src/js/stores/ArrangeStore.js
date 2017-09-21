@@ -51,8 +51,11 @@ export default class ArrangeStore {
   sortInWindow = async () => {
     const windows = await chrome.windows.getAll({ populate: true })
     windows.map((win) => {
-      const tabs = win.tabs.sort(tabComparator)
-      moveTabs(tabs, win.id)
+      const sortedTabs = win.tabs.slice().sort(tabComparator)
+      const differentTabIndex = sortedTabs.map((tab, i) => tab.id !== win.tabs[i].id).findIndex(x => x)
+      if (differentTabIndex !== -1) {
+        moveTabs(sortedTabs.slice(differentTabIndex), win.id, -1)
+      }
     })
   }
 }
