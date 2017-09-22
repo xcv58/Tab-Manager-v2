@@ -13,12 +13,16 @@ export default class DragPreview extends React.Component {
       dragStore: { dragging },
       setDragPreview
     } = this.props
-    let content
-    if (dragging) {
-      content = sources.map((tab) => (
-        <DraggableTab key={tab.id} {...tab} faked />
-      ))
-    }
+    const head = dragging && (
+      <h3>
+        {sources.length} tab{sources.length > 1 && 's'}
+        <br />
+        drop out ➤ new window
+      </h3>
+    )
+    const content = dragging && sources.map((tab) => (
+      <DraggableTab key={tab.id} {...tab} faked />
+    ))
     return (
       <div
         ref={setDragPreview}
@@ -29,11 +33,7 @@ export default class DragPreview extends React.Component {
           textAlign: 'center',
           top: 2048
         }}>
-        <h3>
-          {sources.length} tab{sources.length > 1 && 's'}
-          <br />
-          drop out ➤ new window
-        </h3>
+        {head}
         {content}
       </div>
     )
