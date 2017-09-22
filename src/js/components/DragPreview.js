@@ -3,14 +3,22 @@ import { inject, observer } from 'mobx-react'
 import DraggableTab from './Tab/DraggableTab'
 import { blue } from 'material-ui/colors'
 
+@inject('dragStore')
 @inject('tabStore')
 @observer
 export default class DragPreview extends React.Component {
   render () {
-    const { tabStore: { sources }, setDragPreview } = this.props
-    const content = sources.map((tab) => (
-      <DraggableTab key={tab.id} {...tab} faked />
-    ))
+    const {
+      tabStore: { sources },
+      dragStore: { dragging },
+      setDragPreview
+    } = this.props
+    let content
+    if (dragging) {
+      content = sources.map((tab) => (
+        <DraggableTab key={tab.id} {...tab} faked />
+      ))
+    }
     return (
       <div
         ref={setDragPreview}
