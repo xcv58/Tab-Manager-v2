@@ -1,6 +1,5 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { LinearProgress } from 'material-ui/Progress'
 import WindowList from './WindowList'
 import Search from './Search'
 import Tools from './Tools'
@@ -29,10 +28,6 @@ export default class App extends React.Component {
   }
 
   render () {
-    const { windowStore: { tabCount } } = this.props
-    if (!tabCount) {
-      return (<LinearProgress />)
-    }
     return (
       <div style={{
         display: 'flex',
