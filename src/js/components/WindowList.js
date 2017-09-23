@@ -11,9 +11,9 @@ const width = '800px'
 export default class WindowList extends React.Component {
   resize = () => {
     const bottom = Math.max(
-      ...Object.values(this.refs).map(
-        x => x.getBoundingClientRect().bottom
-      )
+      ...Object.entries(this.refs)
+      .filter(([ key ]) => key !== 'shadowScrollbars')
+      .map(([ _, x ]) => x.getBoundingClientRect().bottom)
     )
     const height = `${Math.max(bottom, 300)}px`
     document.getElementsByTagName('html')[0].style.height = height

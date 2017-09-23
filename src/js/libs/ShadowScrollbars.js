@@ -49,10 +49,6 @@ export default class ShadowScrollbars extends Component {
     }
   }
 
-  getBoundingClientRect = () => {
-    return this.node.getBoundingClientRect()
-  }
-
   componentDidMount () {
     this.springSystem = new SpringSystem()
     this.spring = this.springSystem.createSpring()
