@@ -30,7 +30,11 @@ export default class Window extends React.Component {
         }}>
           {tabs.length} tab{tabs.length > 1 && 's'}
         </div>
-        <FlipMove duration={256} easing='ease-in-out' appearAnimation='accordionVertical' enterAnimation='accordionVertical' leaveAnimation='accordionVertical'>
+        <FlipMove duration={256}
+          easing='ease-in-out'
+          appearAnimation='accordionHorizontal'
+          enterAnimation='accordionHorizontal'
+          leaveAnimation='accordionHorizontal'>
           {content}
         </FlipMove>
       </div>
