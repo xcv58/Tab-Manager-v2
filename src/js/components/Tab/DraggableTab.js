@@ -30,7 +30,7 @@ export default class DraggableTab extends React.Component {
   }
 
   render () {
-    const { id, dragStore: { targetId, before } } = this.props
+    const { id, dragStore: { before, targetId } } = this.props
     const style = {
       borderBottom: `1px solid ${grey[200]}`,
       borderTop: '1px solid transparent',

@@ -8,7 +8,7 @@ const width = '800px'
 
 @inject('windowStore')
 @observer
-export default class App extends React.Component {
+export default class WindowList extends React.Component {
   resize = () => {
     const bottom = Math.max(
       ...Object.values(this.refs).map(
