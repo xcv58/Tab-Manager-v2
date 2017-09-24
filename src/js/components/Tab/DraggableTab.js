@@ -4,6 +4,10 @@ import { grey, red } from 'material-ui/colors'
 import { dropTargetColor } from '../../libs'
 import Tab from './Tab'
 
+const getBackground = (before) => `
+  linear-gradient(to ${before ? 'bottom' : 'top'}, ${red[500]}, ${dropTargetColor}, ${dropTargetColor}, ${dropTargetColor})
+`
+
 @inject('searchStore')
 @inject('tabStore')
 @inject('dragStore')
@@ -40,14 +44,10 @@ export default class DraggableTab extends React.Component {
   render () {
     const { id, dragStore: { before, targetId } } = this.props
     const style = {
-      borderBottom: `1px solid ${grey[200]}`,
-      borderTop: '1px solid transparent',
-      margin: '-1px 0'
+      borderBottom: `1px solid ${grey[200]}`
     }
     if (targetId === id) {
-      const border = 'border' + (before ? 'Top' : 'Bottom')
-      style[border] = `1px ${red[500]} solid`
-      style.backgroundColor = dropTargetColor
+      style.background = getBackground(before)
     }
     const { onDragStart, onDragLeave, onDragEnd, onDragOver, onDrop } = this
     return (
