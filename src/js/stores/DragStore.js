@@ -8,6 +8,7 @@ export default class DragStore {
   }
 
   @observable targetId = null
+  @observable targetWinId = null
   @observable before = true
   @observable dragging = false
   @observable dropped = false
@@ -22,12 +23,13 @@ export default class DragStore {
   @action
   dragEnd = () => {
     if (!this.dropped) {
-      this.dropToNewWindow()
+      this.clear()
     }
   }
 
   clear = () => {
     this.store.tabStore.selection.clear()
+    this.targetWinId = null
     this.targetId = null
     this.before = false
     this.dragging = false
@@ -36,8 +38,15 @@ export default class DragStore {
 
   @action
   setDropTarget = (id, before) => {
+    this.targetWinId = null
     this.targetId = id
     this.before = before
+  }
+
+  @action
+  setTargetWinId = (winId) => {
+    this.targetId = null
+    this.targetWinId = winId
   }
 
   getUnselectedTabs = (tabs) => {
@@ -59,6 +68,7 @@ export default class DragStore {
     this.clear()
   }
 
+  @action
   dropToNewWindow = async () => {
     const tabs = this.store.tabStore.sources.map(({ id, pinned }) => ({ id, pinned }))
     chrome.runtime.sendMessage({

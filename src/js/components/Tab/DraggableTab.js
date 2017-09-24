@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { grey } from 'material-ui/colors'
+import { grey, red } from 'material-ui/colors'
+import { dropTargetColor } from '../../libs'
 import Tab from './Tab'
 
 @inject('searchStore')
@@ -20,8 +21,15 @@ export default class DraggableTab extends React.Component {
   onDragOver = (e) => {
     e.nativeEvent.preventDefault()
     const { id, dragStore: { setDropTarget } } = this.props
-    const before = e.nativeEvent.offsetY < this.node.clientHeight / 2
+    const { offsetY } = e.nativeEvent
+    const { clientHeight } = this.node
+    const before = offsetY < clientHeight / 2
     setDropTarget(id, before)
+  }
+
+  onDragLeave = () => {
+    const { dragStore: { setDropTarget } } = this.props
+    setDropTarget(null)
   }
 
   onDrop = () => {
@@ -38,9 +46,10 @@ export default class DraggableTab extends React.Component {
     }
     if (targetId === id) {
       const border = 'border' + (before ? 'Top' : 'Bottom')
-      style[border] = '1px black solid'
+      style[border] = `1px ${red[500]} solid`
+      style.backgroundColor = dropTargetColor
     }
-    const { onDragStart, onDragEnd, onDragOver, onDrop } = this
+    const { onDragStart, onDragLeave, onDragEnd, onDragOver, onDrop } = this
     return (
       <div
         draggable
@@ -49,7 +58,7 @@ export default class DraggableTab extends React.Component {
           ...this.props.style
         }}
         ref={(el) => { this.node = el || this.node }}
-        {...{ onDragStart, onDragEnd, onDragOver, onDrop }}
+        {...{ onDragStart, onDragLeave, onDragEnd, onDragOver, onDrop }}
       >
         <Tab {...this.props} />
       </div>

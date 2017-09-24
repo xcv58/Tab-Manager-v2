@@ -16,8 +16,6 @@ export default class DragPreview extends React.Component {
     const head = dragging && (
       <h3>
         {sources.length} tab{sources.length > 1 && 's'}
-        <br />
-        drop out ➤ new window
       </h3>
     )
     const content = dragging && sources.map((tab) => (

@@ -1,3 +1,7 @@
+import { green } from 'material-ui/colors'
+
+export const dropTargetColor = green[100]
+
 export const moveTabs = async (tabs, windowId, from = 0) => {
   await Promise.all(
     tabs.map(

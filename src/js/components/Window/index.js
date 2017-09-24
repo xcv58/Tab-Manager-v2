@@ -1,9 +1,7 @@
 import React from 'react'
-import DraggableTab from './Tab/DraggableTab'
-import { grey } from 'material-ui/colors'
 import FlipMove from 'react-flip-move'
-
-const borderBottom = `1px solid ${grey[200]}`
+import Title from './Title'
+import DraggableTab from '../Tab/DraggableTab'
 
 export default class Window extends React.Component {
   getBoundingClientRect = () => {
@@ -22,14 +20,7 @@ export default class Window extends React.Component {
     ))
     return (
       <div ref={(el) => { this.node = el || this.node }}>
-        <div style={{
-          borderBottom,
-          paddingLeft: '2.5rem',
-          fontSize: '1.5rem',
-          fontWeight: 'bold'
-        }}>
-          {tabs.length} tab{tabs.length > 1 && 's'}
-        </div>
+        <Title {...this.props} />
         <FlipMove duration={256}
           easing='ease-in-out'
           appearAnimation='accordionHorizontal'
