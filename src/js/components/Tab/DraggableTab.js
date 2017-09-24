@@ -1,11 +1,10 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { grey, red } from 'material-ui/colors'
-import { dropTargetColor } from '../../libs'
 import Tab from './Tab'
 
 const getBackground = (before) => `
-  linear-gradient(to ${before ? 'bottom' : 'top'}, ${red[500]}, ${dropTargetColor}, ${dropTargetColor}, ${dropTargetColor})
+  linear-gradient(to ${before ? 'bottom' : 'top'}, ${red[500]}, white, white, white)
 `
 
 @inject('searchStore')
