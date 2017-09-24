@@ -1,7 +1,7 @@
 html,
 body {
-  width: 800px;
-  height: 300px;
+  min-width: 800px;
+  min-height: 300px;
   padding: 0;
   margin: 0;
   user-select: none;
@@ -13,5 +13,7 @@ body {
 }
 
 #app-container {
-  width: 800px;
+  margin: auto;
+  min-width: 800px;
+  max-width: 1024px;
 }

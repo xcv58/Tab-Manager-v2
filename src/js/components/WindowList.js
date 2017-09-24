@@ -4,8 +4,6 @@ import Window from './Window'
 import DragPreview from './DragPreview'
 import ShadowScrollbars from '../libs/ShadowScrollbars'
 
-const width = '800px'
-
 @inject('windowStore')
 @observer
 export default class WindowList extends React.Component {
@@ -17,9 +15,7 @@ export default class WindowList extends React.Component {
     )
     const height = `${Math.max(bottom, 300)}px`
     document.getElementsByTagName('html')[0].style.height = height
-    document.getElementsByTagName('html')[0].style.width = width
     document.body.style.height = height
-    document.body.style.width = width
   }
 
   componentDidUpdate = this.resize

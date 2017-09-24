@@ -135,7 +135,11 @@ export default class Tab extends React.Component {
           textOverflow: 'ellipsis'
         }}>
           <Icon {...this.props} />
-          <div onClick={this.onClick}>
+          <div onClick={this.onClick}
+            style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
             {this.getHighlightNode(title)}
             <div style={this.getUrlStyle()}>
               {this.getHighlightNode(url)}

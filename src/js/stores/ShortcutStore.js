@@ -28,6 +28,7 @@ export default class ShortcutStore {
     'ctrl+8',
     'ctrl+m',
     'ctrl+n',
+    'ctrl+o',
     'shift+ctrl+g'
   ])
 
@@ -93,6 +94,11 @@ export default class ShortcutStore {
       e.preventDefault()
       this.store.tabStore.unselectAll()
     }, 'Unselect all tab' ],
+    [ [ 'ctrl+o' ], (e) => {
+      e.preventDefault()
+      const url = chrome.runtime.getURL('popup.html')
+      chrome.tabs.create({ url })
+    }, 'Open this window in new tab' ],
     [ [ '?', 'ctrl+/' ], (e) => {
       e.preventDefault()
       this.openDialog()
