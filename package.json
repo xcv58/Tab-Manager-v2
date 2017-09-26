@@ -9,7 +9,9 @@
     "lint": "standard",
     "lintfix": "yarn lint -- --fix",
     "start": "node utils/webserver.js",
-    "test": "yarn lint && yarn build"
+    "test": "yarn lint && yarn build",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "chrome-extension-async": "^3.2.4",
@@ -44,7 +46,10 @@
     "webpack": "^3.6.0",
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-server": "^2.8.2",
-    "write-file-webpack-plugin": "^4.1.0"
+    "write-file-webpack-plugin": "^4.1.0",
+    "@storybook/react": "^3.2.10",
+    "@storybook/addon-actions": "^3.2.10",
+    "@storybook/addon-links": "^3.2.10"
   },
   "standard": {
     "parser": "babel-eslint",
