@@ -1,8 +1,8 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Window from './Window'
-import DragPreview from './DragPreview'
-import ShadowScrollbars from '../libs/ShadowScrollbars'
+import Window from 'components/Window'
+import DragPreview from 'components/DragPreview'
+import ShadowScrollbars from 'libs/ShadowScrollbars'
 
 @inject('windowStore')
 @observer

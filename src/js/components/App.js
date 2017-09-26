@@ -1,9 +1,9 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import WindowList from './WindowList'
-import Search from './Search'
-import Tools from './Tools'
-import Shortcut from './Shortcut'
+import WindowList from 'components/WindowList'
+import Search from 'components/Search'
+import Tools from 'components/Tools'
+import Shortcut from 'components/Shortcut'
 
 @inject('windowStore')
 @inject('shortcutStore')

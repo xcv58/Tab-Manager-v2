@@ -76,6 +76,11 @@ const options = {
   },
   resolve: {
     alias: alias,
+    modules: [
+      'node_modules',
+      'src',
+      'src/js'
+    ],
     extensions: fileExtensions
       .map(extension => '.' + extension)
       .concat(['.jsx', '.js', '.css'])

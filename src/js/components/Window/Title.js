@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { grey } from 'material-ui/colors'
-import { dropTargetColor } from '../../libs'
+import { dropTargetColor } from 'libs'
 
 const borderBottom = `1px solid ${grey[200]}`
 

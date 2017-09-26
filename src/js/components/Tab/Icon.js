@@ -1,14 +1,14 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import IconButton from 'material-ui/IconButton'
-import bookmarks from '../../../img/chrome/bookmarks.png'
-import chrome from '../../../img/chrome/chrome.png'
-import crashes from '../../../img/chrome/crashes.png'
-import downloads from '../../../img/chrome/downloads.png'
-import extensions from '../../../img/chrome/extensions.png'
-import flags from '../../../img/chrome/flags.png'
-import history from '../../../img/chrome/history.png'
-import settings from '../../../img/chrome/settings.png'
+import bookmarks from 'img/chrome/bookmarks.png'
+import chrome from 'img/chrome/chrome.png'
+import crashes from 'img/chrome/crashes.png'
+import downloads from 'img/chrome/downloads.png'
+import extensions from 'img/chrome/extensions.png'
+import flags from 'img/chrome/flags.png'
+import history from 'img/chrome/history.png'
+import settings from 'img/chrome/settings.png'
 
 const FAV_ICONS = {
   bookmarks,

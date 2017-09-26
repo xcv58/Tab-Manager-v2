@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { getLastFocusedWindowId, windowComparator } from '../libs'
+import { getLastFocusedWindowId, windowComparator } from 'libs'
 
 export default class WindowsStore {
   constructor (store) {

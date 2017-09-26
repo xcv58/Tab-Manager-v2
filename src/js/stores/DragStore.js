@@ -1,6 +1,6 @@
 import { action, observable } from 'mobx'
-import { moveTabs } from '../libs'
-import actions from '../libs/actions'
+import { moveTabs } from 'libs'
+import actions from 'libs/actions'
 
 export default class DragStore {
   constructor (store) {

@@ -1,7 +1,7 @@
 import React from 'react'
 import FlipMove from 'react-flip-move'
 import Title from './Title'
-import DraggableTab from '../Tab/DraggableTab'
+import DraggableTab from 'components/Tab/DraggableTab'
 
 export default class Window extends React.Component {
   getBoundingClientRect = () => {

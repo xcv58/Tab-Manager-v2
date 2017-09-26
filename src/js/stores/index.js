@@ -1,9 +1,9 @@
-import WindowStore from './WindowStore'
-import SearchStore from './SearchStore'
-import TabStore from './TabStore'
-import ArrangeStore from './ArrangeStore'
-import DragStore from './DragStore'
-import ShortcutStore from './ShortcutStore'
+import WindowStore from 'stores/WindowStore'
+import SearchStore from 'stores/SearchStore'
+import TabStore from 'stores/TabStore'
+import ArrangeStore from 'stores/ArrangeStore'
+import DragStore from 'stores/DragStore'
+import ShortcutStore from 'stores/ShortcutStore'
 
 export default class Store {
   constructor () {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import DraggableTab from './Tab/DraggableTab'
+import DraggableTab from 'components/Tab/DraggableTab'
 import { blue } from 'material-ui/colors'
 
 @inject('dragStore')

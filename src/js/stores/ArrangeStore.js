@@ -1,5 +1,5 @@
 import { action, computed } from 'mobx'
-import { moveTabs, tabComparator } from '../libs'
+import { moveTabs, tabComparator } from 'libs'
 
 const urlPattern = /.*:\/\/[^/]*/
 const getDomain = (url) => {

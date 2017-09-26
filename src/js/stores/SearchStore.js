@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx'
 import { filter } from 'fuzzy'
-import { activateTab } from '../libs'
+import { activateTab } from 'libs'
 
 export default class SearchStore {
   constructor (store) {

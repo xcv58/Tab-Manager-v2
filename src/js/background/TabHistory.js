@@ -1,5 +1,5 @@
-import { activateTab, setLastFocusedWindowId } from '../libs'
-import actions from '../libs/actions'
+import { activateTab, setLastFocusedWindowId } from 'libs'
+import actions from 'libs/actions'
 
 export default class TabHistory {
   constructor (background) {
