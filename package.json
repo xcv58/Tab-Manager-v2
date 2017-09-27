@@ -11,7 +11,7 @@
     "start": "node utils/webserver.js",
     "test": "yarn lint && yarn build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook -c .storybook -o .out"
   },
   "dependencies": {
     "chrome-extension-async": "^3.2.4",
