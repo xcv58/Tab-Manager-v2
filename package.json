@@ -30,6 +30,9 @@
     "style-loader": "^0.18.2"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^3.2.10",
+    "@storybook/addon-links": "^3.2.10",
+    "@storybook/react": "^3.2.10",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.0",
     "babel-loader": "^7.1.2",
@@ -42,14 +45,12 @@
     "fs-extra": "^4.0.2",
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
+    "sinon-chrome": "^2.2.1",
     "standard": "^10.0.3",
     "webpack": "^3.6.0",
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-server": "^2.8.2",
-    "write-file-webpack-plugin": "^4.1.0",
-    "@storybook/react": "^3.2.10",
-    "@storybook/addon-actions": "^3.2.10",
-    "@storybook/addon-links": "^3.2.10"
+    "write-file-webpack-plugin": "^4.1.0"
   },
   "standard": {
     "parser": "babel-eslint",
