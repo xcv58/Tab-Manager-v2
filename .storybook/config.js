@@ -1,9 +1,7 @@
 import React from 'react'
 import { configure, addDecorator } from '@storybook/react'
-import Store from 'stores'
 import { Provider } from 'mobx-react'
-
-const store = new Store()
+import store from './store'
 
 addDecorator(story => (
   <Provider {...store}>
