@@ -13,6 +13,9 @@ body {
 
 #app-container {
   margin: auto;
-  min-width: 800px;
   max-width: 1024px;
+}
+
+#popup {
+  min-width: 800px;
 }
