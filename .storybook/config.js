@@ -1,7 +1,7 @@
 import React from 'react'
 import { configure, addDecorator } from '@storybook/react'
 import { Provider } from 'mobx-react'
-import store from './store'
+import store from './mock-store'
 
 addDecorator(story => (
   <Provider {...store}>
