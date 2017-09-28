@@ -7,6 +7,7 @@ export default class TabStore {
   }
 
   @observable selection = new Map()
+  @observable hoveredTab = null
 
   @action
   select = (tab) => {
@@ -33,6 +34,11 @@ export default class TabStore {
   @computed
   get sources () {
     return this.selection.values().sort(tabComparator)
+  }
+
+  @action
+  hover = ({ id = null } = {}) => {
+    this.hoveredTab = id
   }
 
   @action
