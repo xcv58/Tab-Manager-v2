@@ -4,9 +4,9 @@ import { action } from '@storybook/addon-actions'
 import Tab from 'components/Tab/Tab'
 import DraggableTab from 'components/Tab/DraggableTab'
 import Icon from 'components/Tab/Icon'
-import store from '../.storybook/mock-store'
+import windows from '../.storybook/windows'
 
-const { tabs } = store.windowStore
+const tabs = [].concat(...windows.map(x => x.tabs))
 
 const tabProps = () => ({
   ...tabs[Math.floor(Math.random() * tabs.length)],
