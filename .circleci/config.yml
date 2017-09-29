@@ -24,6 +24,6 @@ jobs:
           command: yarn deploy
       - run:
           name: ls-stats
+          command: ls -l build
       - store_artifacts:
           path: build.zip
-
