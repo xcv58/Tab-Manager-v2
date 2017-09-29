@@ -3,7 +3,6 @@ jobs:
   build:
     docker:
       - image: circleci/node:latest
-    working_directory: ~/Tab-Manager-v2
     steps:
       - checkout
       - restore_cache:
@@ -16,9 +15,15 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+  test:
+    docker:
+      - image: circleci/node:latest
       - run:
           name: test
           command: yarn test
+  test:
+    docker:
+      - image: circleci/node:latest
       - run:
           name: deploy
           command: yarn deploy
@@ -27,3 +32,9 @@ jobs:
           command: ls -l build
       - store_artifacts:
           path: build.zip
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
