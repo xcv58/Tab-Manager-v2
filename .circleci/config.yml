@@ -18,12 +18,14 @@ jobs:
   test:
     docker:
       - image: circleci/node:latest
+    steps:
       - run:
           name: test
           command: yarn test
   test:
     docker:
       - image: circleci/node:latest
+    steps:
       - run:
           name: deploy
           command: yarn deploy
