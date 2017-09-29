@@ -19,3 +19,9 @@ jobs:
       - run:
           name: test
           command: yarn test
+      - run:
+          name: deploy
+          command: yarn deploy
+      - run:
+          name: ls-stats
+          command: ls -l build
