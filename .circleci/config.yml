@@ -22,7 +22,7 @@ jobs:
       - run:
           name: test
           command: yarn test
-  test:
+  deploy:
     docker:
       - image: circleci/node:latest
     steps:
@@ -39,4 +39,7 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - test
+      - test:
+          requires: build
+      - deploy:
+          requires: test
