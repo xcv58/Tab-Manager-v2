@@ -29,8 +29,11 @@ const notMatchStyle = {
 @inject('tabStore')
 @observer
 export default class Tab extends React.Component {
-  onMouseEnter = () => this.props.tabStore.hover(this.props)
-  onMouseLeave = () => this.props.tabStore.hover()
+  state = { hover: false }
+
+  onMouseEnter = () => this.setState({ hover: true })
+
+  onMouseLeave = () => this.setState({ hover: false })
 
   onClick = () => {
     this.props.searchStore.focus(this.props)
@@ -57,11 +60,7 @@ export default class Tab extends React.Component {
   }
 
   getUrlStyle = () => {
-    const {
-      id,
-      searchStore: { query, matchedSet, focusedTab },
-      tabStore: { hoveredTab }
-    } = this.props
+    const { id, searchStore: { query, matchedSet, focusedTab } } = this.props
     const urlStyle = {
       opacity: 0.3,
       fontSize: '0.7rem'
@@ -69,7 +68,7 @@ export default class Tab extends React.Component {
     if (Boolean(query) && !matchedSet.has(id)) {
       return urlStyle
     }
-    if ((id === hoveredTab) || (id === focusedTab)) {
+    if (this.state.hover || (id === focusedTab)) {
       urlStyle.opacity = 1
     }
     return urlStyle
