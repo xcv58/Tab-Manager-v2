@@ -4,29 +4,34 @@ import { action } from '@storybook/addon-actions'
 import Tab from 'components/Tab/Tab'
 import DraggableTab from 'components/Tab/DraggableTab'
 import Icon from 'components/Tab/Icon'
-import windows from '../.storybook/windows'
+import store from '../.storybook/mock-store'
 
-const tabs = [].concat(...windows.map(x => x.tabs))
+store.windowStore.getAllWindows()
+const tabs = store.windowStore.windows[0].tabs
 
-const tabProps = () => ({
-  ...tabs[Math.floor(Math.random() * tabs.length)],
-  dragPreview: action('dragPreview'),
-  getWindowList: action('getWindowList'),
-  faked: true
-})
+const tabProps = (props) => {
+  const tab = tabs[Math.floor(Math.random() * tabs.length)]
+  Object.assign(tab, props)
+  return {
+    tab,
+    dragPreview: action('dragPreview'),
+    getWindowList: action('getWindowList'),
+    faked: true
+  }
+}
 
 storiesOf('Tab', module)
   .add('DraggableTab', () => (
-    <DraggableTab {...tabProps()} />
+    <DraggableTab {...tabProps({ pinned: false })} />
   ))
   .add('Tab', () => (
-    <Tab {...tabProps()} />
+    <Tab {...tabProps({ pinned: false })} />
   ))
   .add('Pinned DraggableTab', () => (
-    <DraggableTab {...tabProps()} pinned />
+    <DraggableTab {...tabProps({ pinned: true })} />
   ))
   .add('Pinned Tab', () => (
-    <Tab {...tabProps()} pinned />
+    <Tab {...tabProps({ pinned: true })} />
   ))
 
 const iconStory = storiesOf('Icon', module)
