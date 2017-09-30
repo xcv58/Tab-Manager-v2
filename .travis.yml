@@ -9,10 +9,10 @@ script:
   - yarn test
   - yarn deploy
   - ls -l build
-# deploy:
-#   provider: releases
-#   api_key: $GITHUB_OAUTH_TOKEN
-#   file: build.zip
-#   skip_cleanup: true
-#   on:
-#     tags: true
+deploy:
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file: build.zip
+  skip_cleanup: true
+  on:
+    tags: true
