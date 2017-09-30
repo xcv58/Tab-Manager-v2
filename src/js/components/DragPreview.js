@@ -19,7 +19,7 @@ export default class DragPreview extends React.Component {
       </h3>
     )
     const content = dragging && sources.map((tab) => (
-      <DraggableTab key={tab.id} {...tab} faked />
+      <DraggableTab key={tab.id} tab={tab} faked />
     ))
     return (
       <div

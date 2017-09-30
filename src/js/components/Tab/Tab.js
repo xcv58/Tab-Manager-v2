@@ -30,39 +30,38 @@ const notMatchStyle = {
 @inject('tabStore')
 @observer
 export default class Tab extends React.Component {
-  onMouseEnter = () => this.props.tabStore.hover(this.props)
-  onMouseLeave = () => this.props.tabStore.hover()
+  onMouseEnter = () => this.props.tab.hover()
+  onMouseLeave = () => this.props.tab.unhover()
 
   onClick = () => {
-    this.props.searchStore.focus(this.props)
-    this.props.tabStore.activate(this.props)
+    const { tab, searchStore: { focus }, tabStore: { activate } } = this.props
+    focus(tab)
+    activate(tab)
   }
 
   getStyle = () => {
     const {
-      id,
-      tabStore: { selection },
-      searchStore: { query, matchedSet, focusedTab }
+      tab: { isFocused, isMatched, isSelected }
     } = this.props
     const styles = [ tabStyle ]
-    if (selection.has(id)) {
+    if (isSelected) {
       styles.push(highlightStyle)
     }
-    if (focusedTab === id) {
+    if (isFocused) {
       styles.push(focusedStyle)
     }
-    if (Boolean(query) && !matchedSet.has(id)) {
+    if (!isMatched) {
       styles.push(notMatchStyle)
     }
     return Object.assign({}, ...styles)
   }
 
   getHighlightNode = (text) => {
-    const { id, searchStore: { query, matchedSet } } = this.props
-    if (!query || !matchedSet.has(id)) {
+    const { tab: { isMatched }, searchStore: { query } } = this.props
+    if (!isMatched || !query) {
       return text
     }
-    const result = match(this.props.searchStore.query, text, {
+    const result = match(query, text, {
       pre: `<span style='color:${red[500]}'>`,
       post: '</span>'
     })
@@ -78,7 +77,7 @@ export default class Tab extends React.Component {
 
   componentDidUpdate () {
     const {
-      faked, id, searchStore: { focusedTab }
+      faked, tab: { id }, searchStore: { focusedTab }
     } = this.props
     if (!faked && id === focusedTab) {
       const { shadowScrollbars } = this.props.getWindowList().refs
@@ -97,7 +96,7 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { title, pinned } = this.props
+    const { title, pinned } = this.props.tab
     const style = this.getStyle()
     const pin = pinned && (
       <div style={{

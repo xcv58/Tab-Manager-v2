@@ -30,7 +30,7 @@ const iconWidth = '1.5rem'
 @observer
 export default class Icon extends React.Component {
   getFavIconUrl = () => {
-    const { url, favIconUrl } = this.props
+    const { url, favIconUrl } = this.props.tab
     if (url.startsWith(CHROME_PREFIX)) {
       const segments = url.slice(CHROME_PREFIX.length).match(/^\w+/g)
       if (segments) {
@@ -42,16 +42,16 @@ export default class Icon extends React.Component {
 
   onClick = () => {
     this.onFocus()
-    this.props.tabStore.activate(this.props)
+    this.props.tabStore.activate(this.props.tab)
   }
 
   select = () => {
     this.onFocus()
-    this.props.tabStore.select(this.props)
+    this.props.tabStore.select(this.props.tab)
   }
 
   onFocus = () => {
-    this.props.searchStore.focus(this.props)
+    this.props.searchStore.focus(this.props.tab)
   }
 
   render () {

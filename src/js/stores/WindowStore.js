@@ -1,5 +1,6 @@
 import { action, computed, observable } from 'mobx'
 import { getLastFocusedWindowId, windowComparator } from 'libs'
+import Tab from './Tab'
 
 export default class WindowsStore {
   constructor (store) {
@@ -46,6 +47,7 @@ export default class WindowsStore {
     this.windows = windows.map((win) => {
       return {
         ...win,
+        tabs: win.tabs.map(tab => new Tab(tab, this.store)),
         lastFocused: this.lastFocusedWindowId === win.id
       }
     }).sort(windowComparator)

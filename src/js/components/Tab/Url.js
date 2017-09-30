@@ -11,19 +11,15 @@ const urlStyle = {
 @observer
 export default class Url extends React.Component {
   getUrlStyle = () => {
-    const {
-      id,
-      searchStore: { matchedSet, focusedTab },
-      tabStore: { hoveredTab }
-    } = this.props
-    if (matchedSet.has(id) && ((id === hoveredTab) || (id === focusedTab))) {
+    const { tab: { isMatched, isHovered, isFocused } } = this.props
+    if (isMatched && (isHovered || isFocused)) {
       return { ...urlStyle, opacity: 1 }
     }
     return urlStyle
   }
 
   render () {
-    const { url, getHighlightNode } = this.props
+    const { tab: { url }, getHighlightNode } = this.props
     return (
       <div style={this.getUrlStyle()}>
         {getHighlightNode(url)}

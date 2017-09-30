@@ -14,7 +14,7 @@ export default class Window extends React.Component {
     const { tabs, getWindowList, dragPreview } = this.props
     const content = tabs.map(tab => (
       <DraggableTab key={tab.id}
-        {...tab}
+        tab={tab}
         {...{ getWindowList, dragPreview }}
       />
     ))

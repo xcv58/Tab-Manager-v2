@@ -7,14 +7,13 @@ const getBackground = (before) => `
   linear-gradient(to ${before ? 'bottom' : 'top'}, ${red[500]}, white, white, white)
 `
 
-@inject('searchStore')
-@inject('tabStore')
 @inject('dragStore')
 @observer
 export default class DraggableTab extends React.Component {
   onDragStart = (e) => {
-    this.props.dragStore.dragStart(this.props)
-    e.dataTransfer.setDragImage(this.props.dragPreview(), 0, 0)
+    const { dragPreview, tab, dragStore: { dragStart } } = this.props
+    dragStart(tab)
+    e.dataTransfer.setDragImage(dragPreview(), 0, 0)
   }
 
   onDragEnd = () => {
@@ -23,7 +22,7 @@ export default class DraggableTab extends React.Component {
 
   onDragOver = (e) => {
     e.nativeEvent.preventDefault()
-    const { id, dragStore: { setDropTarget } } = this.props
+    const { tab: { id }, dragStore: { setDropTarget } } = this.props
     const { offsetY } = e.nativeEvent
     const { clientHeight } = this.node
     const before = offsetY < clientHeight / 2
@@ -37,11 +36,11 @@ export default class DraggableTab extends React.Component {
 
   onDrop = () => {
     const { dragStore: { drop } } = this.props
-    drop(this.props)
+    drop(this.props.tab)
   }
 
   render () {
-    const { id, dragStore: { before, targetId } } = this.props
+    const { tab: { id }, dragStore: { before, targetId } } = this.props
     const style = {
       borderBottom: `1px solid ${grey[200]}`
     }
