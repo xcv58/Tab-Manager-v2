@@ -26,6 +26,6 @@ jobs:
           command: ls -l build
       - run:
           name: sha256sum
-          command: sha256sum build.zip
+          command: sha256sum build/*
       - store_artifacts:
           path: build.zip
