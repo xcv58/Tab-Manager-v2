@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { blue, red } from 'material-ui/colors'
 import Icon from './Icon'
+import Url from './Url'
 import { match } from 'fuzzy'
 
 const indicatorWidth = '2px'
@@ -29,11 +30,8 @@ const notMatchStyle = {
 @inject('tabStore')
 @observer
 export default class Tab extends React.Component {
-  state = { hover: false }
-
-  onMouseEnter = () => this.setState({ hover: true })
-
-  onMouseLeave = () => this.setState({ hover: false })
+  onMouseEnter = () => this.props.tabStore.hover(this.props)
+  onMouseLeave = () => this.props.tabStore.hover()
 
   onClick = () => {
     this.props.searchStore.focus(this.props)
@@ -57,21 +55,6 @@ export default class Tab extends React.Component {
       styles.push(notMatchStyle)
     }
     return Object.assign({}, ...styles)
-  }
-
-  getUrlStyle = () => {
-    const { id, searchStore: { query, matchedSet, focusedTab } } = this.props
-    const urlStyle = {
-      opacity: 0.3,
-      fontSize: '0.7rem'
-    }
-    if (Boolean(query) && !matchedSet.has(id)) {
-      return urlStyle
-    }
-    if (this.state.hover || (id === focusedTab)) {
-      urlStyle.opacity = 1
-    }
-    return urlStyle
   }
 
   getHighlightNode = (text) => {
@@ -114,7 +97,7 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { title, url, pinned } = this.props
+    const { title, pinned } = this.props
     const style = this.getStyle()
     const pin = pinned && (
       <div style={{
@@ -141,9 +124,7 @@ export default class Tab extends React.Component {
               textOverflow: 'ellipsis'
             }}>
             {this.getHighlightNode(title)}
-            <div style={this.getUrlStyle()}>
-              {this.getHighlightNode(url)}
-            </div>
+            <Url {...this.props} getHighlightNode={this.getHighlightNode} />
           </div>
         </div>
         {pin}
