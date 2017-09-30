@@ -27,9 +27,9 @@ export default class WindowList extends React.Component {
       <Window
         key={win.id}
         ref={win.id}
+        win={win}
         getWindowList={() => this}
         dragPreview={() => this.dragPreview}
-        {...win}
       />
     ))
     return (

@@ -10,7 +10,7 @@ const borderBottom = `1px solid ${grey[200]}`
 export default class Title extends React.Component {
   onDragOver = (e) => {
     e.nativeEvent.preventDefault()
-    const { id, dragStore: { setTargetWinId } } = this.props
+    const { win: { id }, dragStore: { setTargetWinId } } = this.props
     setTargetWinId(id)
   }
 
@@ -19,7 +19,7 @@ export default class Title extends React.Component {
   }
 
   render () {
-    const { id, tabs, dragStore: { targetWinId } } = this.props
+    const { win: { id, tabs }, dragStore: { targetWinId } } = this.props
     const { length } = tabs
     const { onDragOver, onDrop } = this
     const style = {
