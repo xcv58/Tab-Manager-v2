@@ -9,7 +9,7 @@ script:
   - yarn test
   - yarn deploy
   - ls -l build
-  - sha256sum build/*
+  - sha256sum build/* && sha256sum build.zip
 deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
