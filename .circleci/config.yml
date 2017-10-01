@@ -23,9 +23,11 @@ jobs:
           command: yarn deploy
       - run:
           name: ls-stats
-          command: ls -l build
+          command: ls -l build/* build.zip
       - run:
           name: sha256sum
-          command: sha256sum build/* build.zip
+          command: sha256sum build/* build.zip > SHA256SUMS.txt
       - store_artifacts:
-          path: build.zip
+          path:
+            - build.zip
+            - SHA256SUMS.txt

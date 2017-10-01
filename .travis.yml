@@ -8,12 +8,14 @@ node_js:
 script:
   - yarn test
   - yarn deploy
-  - ls -l build
-  - sha256sum build/* build.zip
+  - ls -l build/* build.zip
+  - sha256sum build/* build.zip > SHA256SUMS.txt
 deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
-  file: build.zip
+  file:
+    - build.zip
+    - SHA256SUM.txt
   skip_cleanup: true
   on:
     tags: true
