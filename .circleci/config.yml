@@ -8,22 +8,17 @@ jobs:
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
-      - run:
-          name: install
-          command: yarn install
+      - run: yarn install
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run:
-          name: test
-          command: yarn test
-      - run:
-          name: deploy
-          command: yarn deploy
+      - run: yarn test
+      - run: yarn deploy
       - run: ls -l build/* build.zip
       - run: sha256sum build/* build.zip | tee SHA256SUMS.txt
       - run: mkdir dist && mv build.zip SHA256SUMS.txt dist
+      - run: cat build/* | sha256sum | tee -a SHA256SUMS.txt
       - store_artifacts:
           path: dist
           destination: dist
