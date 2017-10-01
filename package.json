@@ -42,7 +42,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "css-loader": "^0.28.7",
-    "file-loader": "0.11.2",
+    "file-loader": "1.1.4",
     "fs-extra": "^4.0.2",
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
