@@ -21,13 +21,8 @@ jobs:
       - run:
           name: deploy
           command: yarn deploy
-      - run:
-          name: collect artifacts
-          command: |
-            ls -l build/* build.zip;
-            sha256sum build/* build.zip | tee SHA256SUMS.txt;
-            mkdir dist;
-            mv build.zip SHA256SUMS.txt;
+      - run: ls -l build/* build.zip && sha256sum build/* build.zip | tee SHA256SUMS.txt
+      - run: mkdir dist && mv build.zip SHA256SUMS.txt
       - store_artifacts:
           path: dist
           destination: dist
