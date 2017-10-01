@@ -16,7 +16,7 @@ deploy:
   api_key: $GITHUB_OAUTH_TOKEN
   file:
     - build.zip
-    - SHA256SUM.txt
+    - SHA256SUMS.txt
   skip_cleanup: true
   on:
     tags: true
