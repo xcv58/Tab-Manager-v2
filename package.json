@@ -5,7 +5,7 @@
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
     "build": "node utils/build.js",
-    "deploy": "NODE_ENV=production yarn build && zip --compression-method deflate -r build.zip build/*",
+    "deploy": "NODE_ENV=production yarn build && zip --no-extra -r build.zip build/*",
     "lint": "standard",
     "lintfix": "yarn lint -- --fix",
     "start": "node utils/webserver.js",
