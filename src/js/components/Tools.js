@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
-import SortIcon from 'material-ui-icons/Sort'
+import FilterList from 'material-ui-icons/FilterList'
 import IconButton from 'material-ui/IconButton'
 
 const iconStyle = {
@@ -18,11 +18,11 @@ export default class Tools extends React.Component {
       <div style={{
         display: 'flex'
       }}>
-        <Tooltip title='Sort Tabs' placement='left'>
+        <Tooltip title='Group & Sort Tabs' placement='left'>
           <IconButton
             style={iconStyle}
-            onClick={sortTabs}>
-            <SortIcon />
+            onClick={() => sortTabs()}>
+            <FilterList />
           </IconButton>
         </Tooltip>
       </div>

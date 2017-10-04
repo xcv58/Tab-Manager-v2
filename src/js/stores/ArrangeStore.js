@@ -26,9 +26,17 @@ export default class ArrangeStore {
   }
 
   @action
-  sortTabs = async () => {
-    await this.groupTabs()
-    await this.sortInWindow()
+  sortTabs = async (windowId) => {
+    const windows = []
+    if (windowId) {
+      const win = await chrome.windows.get(windowId, { populate: true })
+      windows.push(win)
+    } else {
+      await this.groupTabs()
+      const allWindows = await chrome.windows.getAll({ populate: true })
+      windows.push(...allWindows)
+    }
+    await this.sortInWindow(windows)
   }
 
   groupTabs = async () => {
@@ -48,8 +56,7 @@ export default class ArrangeStore {
     )
   }
 
-  sortInWindow = async () => {
-    const windows = await chrome.windows.getAll({ populate: true })
+  sortInWindow = async (windows = []) => {
     windows.map((win) => {
       const sortedTabs = win.tabs.slice().sort(tabComparator)
       const differentTabIndex = sortedTabs.map((tab, i) => tab.id !== win.tabs[i].id).findIndex(x => x)
