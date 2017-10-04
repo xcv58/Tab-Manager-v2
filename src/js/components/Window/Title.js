@@ -36,6 +36,7 @@ export default class Title extends React.Component {
       paddingLeft: '2.5rem',
       paddingRight: 4,
       justifyContent: 'space-between',
+      alignItems: 'center',
       fontSize: '1.5rem',
       fontWeight: 'bold',
       lineHeight: '3rem'
@@ -58,7 +59,9 @@ export default class Title extends React.Component {
           {length} tab{length > 1 && 's'}
         </span>
         {dropIndicator}
-        <Tooltip title='Sort Tabs' placement='left'>
+        <Tooltip title='Sort Tabs' placement='left' style={{
+          display: 'inline-flex'
+        }}>
           <IconButton
             style={iconStyle}
             onClick={() => sortTabs(id)}>
