@@ -58,7 +58,7 @@ export default class Title extends React.Component {
           {length} tab{length > 1 && 's'}
         </span>
         {dropIndicator}
-        <Tooltip title='Sort Tabs'>
+        <Tooltip title='Sort Tabs' placement='left'>
           <IconButton
             style={iconStyle}
             onClick={() => sortTabs(id)}>
