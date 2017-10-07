@@ -112,6 +112,7 @@ export default class Tab extends React.Component {
         style={style}>
         <div style={{
           display: 'flex',
+          flex: '1 1 auto',
           overflow: 'hidden',
           textAlign: 'left',
           textOverflow: 'ellipsis'
@@ -120,6 +121,7 @@ export default class Tab extends React.Component {
           <div onClick={this.onClick}
             style={{
               overflow: 'hidden',
+              flex: '1 1 auto',
               textOverflow: 'ellipsis'
             }}>
             {this.getHighlightNode(title)}
