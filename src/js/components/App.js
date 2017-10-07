@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import WindowList from 'components/WindowList'
 import Search from 'components/Search'
+import Summary from 'components/Summary'
 import Tools from 'components/Tools'
 import Shortcut from 'components/Shortcut'
 
@@ -35,6 +36,7 @@ export default class App extends React.Component {
         overflow: 'hidden',
         height: '100vh'
       }}>
+        <Summary />
         <div style={{
           display: 'flex',
           alignItems: 'center',
