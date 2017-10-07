@@ -24,7 +24,6 @@ export default class Search extends React.Component {
     return (
       <Input
         fullWidth
-        autoFocus
         inputProps={{ ref: inputRef }}
         placeholder='Search your tab title...'
         onChange={this.onChange}
