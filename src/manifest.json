@@ -4,18 +4,6 @@
   "background": {
     "page": "background.html"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "contentscript.bundle.js"
-      ],
-      "all_frames": true
-    }
-  ],
   "permissions": [
     "storage",
     "tabs"
@@ -33,6 +21,15 @@
         "chromeos": "Ctrl+T",
         "linux": "Ctrl+T"
       }
+    },
+    "LAST-ACTIVE-TAB": {
+      "suggested_key": {
+        "windows": "Ctrl+B",
+        "mac": "MacCtrl+B",
+        "chromeos": "Ctrl+B",
+        "linux": "Ctrl+B"
+      },
+      "description": "Switch to next tab (recently used order)"
     }
   },
   "icons": {

@@ -10,6 +10,7 @@ class Background {
   constructor () {
     this.tabHistory = new TabHistory(this)
     chrome.runtime.onMessage.addListener(this.onMessage)
+    chrome.commands.onCommand.addListener(this.onCommand)
     this.actionMap = {
       [actions.createWindow()]: this.createWindow
     }
@@ -19,6 +20,13 @@ class Background {
   createWindow = async (request, sender, sendResponse) => {
     createWindow(request.tabs)
     sendResponse()
+  }
+
+  onCommand = (action) => {
+    const func = this.actionMap[action]
+    if (func && typeof func === 'function') {
+      func()
+    }
   }
 
   onMessage = (request, sender, sendResponse) => {
