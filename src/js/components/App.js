@@ -20,6 +20,7 @@ export default class App extends React.Component {
     chrome.tabs.onDetached.addListener(updateAllWindows)
     chrome.tabs.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onReplaced.addListener(updateAllWindows)
+    chrome.tabs.onActivated.addListener(updateAllWindows)
     this.props.shortcutStore.didMount(this)
     updateAllWindows()
   }

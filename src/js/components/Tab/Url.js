@@ -10,13 +10,11 @@ const urlStyle = {
 @inject('tabStore')
 @observer
 export default class Url extends React.Component {
-  getUrlStyle = () => {
-    const { tab: { isMatched, isHovered, isFocused } } = this.props
-    if (isMatched && (isHovered || isFocused)) {
-      return { ...urlStyle, opacity: 1 }
-    }
-    return urlStyle
-  }
+  getUrlStyle = () => Object.assign(
+    {},
+    urlStyle,
+    this.props.tab.shouldHighlight && { opacity: 1 }
+  )
 
   render () {
     const { tab: { url }, getHighlightNode } = this.props

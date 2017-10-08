@@ -32,4 +32,9 @@ export default class Tab {
   get isSelected () {
     return this.store.tabStore.selection.has(this.id)
   }
+
+  @computed
+  get shouldHighlight () {
+    return this.isMatched && (this.isFocused || this.isHovered)
+  }
 }

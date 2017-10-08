@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { blue, red } from 'material-ui/colors'
+import { blue, red, grey } from 'material-ui/colors'
 import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
@@ -16,6 +16,9 @@ const tabStyle = {
   boxShadow: `-${indicatorWidth} 0px white`
 }
 const highlightStyle = {
+  backgroundColor: grey[100]
+}
+const selectedStyle = {
   backgroundColor: blue[100],
   boxShadow: `-${indicatorWidth} 0px ${blue[100]}`
 }
@@ -26,6 +29,7 @@ const notMatchStyle = {
   opacity: 0.3
 }
 
+@inject('dragStore')
 @inject('searchStore')
 @inject('tabStore')
 @observer
@@ -41,19 +45,17 @@ export default class Tab extends React.Component {
 
   getStyle = () => {
     const {
-      tab: { isFocused, isMatched, isSelected }
+      dragStore: { dragging },
+      tab: { active, isFocused, isMatched, isSelected, shouldHighlight }
     } = this.props
-    const styles = [ tabStyle ]
-    if (isSelected) {
-      styles.push(highlightStyle)
-    }
-    if (isFocused) {
-      styles.push(focusedStyle)
-    }
-    if (!isMatched) {
-      styles.push(notMatchStyle)
-    }
-    return Object.assign({}, ...styles)
+    return Object.assign(
+      {},
+      tabStyle,
+      !dragging && (active || shouldHighlight) && highlightStyle,
+      isSelected && selectedStyle,
+      isFocused && focusedStyle,
+      !isMatched && notMatchStyle
+    )
   }
 
   getHighlightNode = (text) => {
