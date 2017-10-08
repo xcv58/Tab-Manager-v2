@@ -103,7 +103,9 @@ export default class Tab extends React.Component {
         position: 'absolute',
         fontSize: '0.75rem',
         width: '1rem',
-        transform: 'scaleX(-1)'
+        transform: 'scaleX(-1)',
+        zIndex: 1,
+        pointerEvents: 'none'
       }}>
         📌
       </div>
