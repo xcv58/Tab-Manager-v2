@@ -100,7 +100,10 @@ export default class Tab extends React.Component {
     const style = this.getStyle()
     const pin = pinned && (
       <div style={{
-        padding: '0 1rem'
+        position: 'absolute',
+        fontSize: '0.75rem',
+        width: '1rem',
+        transform: 'scaleX(-1)'
       }}>
         📌
       </div>
@@ -117,6 +120,7 @@ export default class Tab extends React.Component {
           textAlign: 'left',
           textOverflow: 'ellipsis'
         }}>
+          {pin}
           <Icon {...this.props} />
           <div onClick={this.onClick}
             style={{
@@ -128,7 +132,6 @@ export default class Tab extends React.Component {
             <Url {...this.props} getHighlightNode={this.getHighlightNode} />
           </div>
         </div>
-        {pin}
       </div>
     )
   }
