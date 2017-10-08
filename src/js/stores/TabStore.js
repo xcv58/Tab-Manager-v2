@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { activateTab, togglePinTabs, tabComparator } from 'libs'
+import { activateTab, togglePinTabs } from 'libs'
 
 export default class TabStore {
   constructor (store) {
