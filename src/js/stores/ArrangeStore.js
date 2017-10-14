@@ -32,7 +32,6 @@ export default class ArrangeStore {
       const win = await chrome.windows.get(windowId, { populate: true })
       windows.push(win)
     } else {
-      await this.groupTabs()
       const allWindows = await chrome.windows.getAll({ populate: true })
       windows.push(...allWindows)
     }
@@ -54,6 +53,7 @@ export default class ArrangeStore {
         }
       )
     )
+    await this.sortTabs()
   }
 
   sortInWindow = async (windows = []) => {

@@ -22,6 +22,7 @@ export default class ShortcutStore {
     'ctrl+/',
     'ctrl+p',
     'ctrl+s',
+    'shift+ctrl+s',
     'ctrl+x',
     'ctrl+d',
     'ctrl+g',
@@ -37,6 +38,10 @@ export default class ShortcutStore {
       event.preventDefault()
       this.store.arrangeStore.sortTabs()
     }, 'Sort tabs' ],
+    [ 'shift+ctrl+s', (event) => {
+      event.preventDefault()
+      this.store.arrangeStore.groupTabs()
+    }, 'Group and sort tabs' ],
     [ [ 'backspace', 'ctrl+d' ], (e) => {
       this.store.tabStore.remove()
     }, 'Close tab' ],

@@ -13,7 +13,7 @@ const iconStyle = {
 @observer
 export default class Tools extends React.Component {
   render () {
-    const { arrangeStore: { sortTabs } } = this.props
+    const { arrangeStore: { groupTabs } } = this.props
     return (
       <div style={{
         display: 'flex'
@@ -21,7 +21,7 @@ export default class Tools extends React.Component {
         <Tooltip title='Group & Sort Tabs' placement='left'>
           <IconButton
             style={iconStyle}
-            onClick={() => sortTabs()}>
+            onClick={() => groupTabs()}>
             <FilterList />
           </IconButton>
         </Tooltip>
