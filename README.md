@@ -47,3 +47,5 @@ yarn deploy
 # Distribute
 
 Follow the official guide to distribute extension: https://developers.chrome.com/extensions/hosting.
+
+You can download older versions from https://crx.dam.io/ext/nimllkpgmmbdglnjneeakdgcpkbgbfbp.html.
