@@ -5,7 +5,7 @@
 [![dependencies Status](https://david-dm.org/xcv58/Tab-Manager-v2/status.svg)](https://david-dm.org/xcv58/Tab-Manager-v2)
 [![devDependencies Status](https://david-dm.org/xcv58/Tab-Manager-v2/dev-status.svg)](https://david-dm.org/xcv58/Tab-Manager-v2?type=dev)
 
-[![Code Climate](https://codeclimate.com/github/xcv58/Tab-Manager-v2/badges/gpa.svg)](https://codeclimate.com/github/xcv58/Tab-Manager-v2)
+[![Maintainability](https://api.codeclimate.com/v1/badges/37ba8a86e2a74b36c2a8/maintainability)](https://codeclimate.com/github/xcv58/Tab-Manager-v2/maintainability)
 
 
 [![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
