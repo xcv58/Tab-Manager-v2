@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const path = require('path')
 const fileSystem = require('fs')
 const env = require('./utils/env')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WriteFilePlugin = require('write-file-webpack-plugin')
 
@@ -27,6 +28,12 @@ if (fileSystem.existsSync(secretsPath)) {
   alias['secrets'] = secretsPath
 }
 
+const imgDir = path.join(__dirname, 'src/img')
+const images = fileSystem
+.readdirSync(imgDir)
+.filter(x => x.endsWith('.png'))
+.map(x => path.join(imgDir, x))
+
 const HtmlFiles = [
   'popup',
   'options'
@@ -38,12 +45,16 @@ const HtmlFiles = [
   })
 )
 
+const entry = Object.assign(...[
+  'popup',
+  'options',
+  'background'
+].map(
+  (name) => ({ [name]: path.join(__dirname, 'src', 'js', `${name}.js`) }))
+)
+
 const options = {
-  entry: {
-    popup: path.join(__dirname, 'src', 'js', 'popup.js'),
-    options: path.join(__dirname, 'src', 'js', 'options.js'),
-    background: path.join(__dirname, 'src', 'js', 'background.js')
-  },
+  entry,
   output: {
     path: path.join(__dirname, 'build'),
     filename: '[name].js'
@@ -88,6 +99,7 @@ const options = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV)
     }),
+    new CopyWebpackPlugin(images),
     ...HtmlFiles,
     new WriteFilePlugin()
   ]
