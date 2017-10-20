@@ -29,8 +29,7 @@ if (fileSystem.existsSync(secretsPath)) {
 
 const HtmlFiles = [
   'popup',
-  'options',
-  'background'
+  'options'
 ].map(
   (name) => new HtmlWebpackPlugin({
     template: path.join(__dirname, 'src', `${name}.html`),
@@ -47,7 +46,7 @@ const options = {
   },
   output: {
     path: path.join(__dirname, 'build'),
-    filename: '[name].bundle.js'
+    filename: '[name].js'
   },
   module: {
     rules: [

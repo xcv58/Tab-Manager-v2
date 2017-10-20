@@ -2,7 +2,8 @@
   "name": "Tab Manager v2",
 	"description": "Quickly and conveniently manage your open tabs",
   "background": {
-    "page": "background.html"
+    "scripts": [ "background.js" ],
+    "persistent": false
   },
   "permissions": [
     "storage",
