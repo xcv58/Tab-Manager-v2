@@ -4,8 +4,6 @@ const config = require('../webpack.config')
 const env = require('./env')
 const path = require('path')
 
-require('./prepare')
-
 const options = config.chromeExtensionBoilerplate || {}
 const excludeEntriesToHotReload = options.notHotReload || []
 
