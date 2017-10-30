@@ -130,8 +130,8 @@ export default class ShortcutStore {
     this.App = App
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.shortcuts.map(
-      ([ key, func ]) => Mousetrap.bind(key, (e, combo) => {
-        this.combo = combo
+      ([ key, func, description ]) => Mousetrap.bind(key, (e, combo) => {
+        this.combo = `${combo}: ${description}`
         this.openToast()
         func(e)
       })

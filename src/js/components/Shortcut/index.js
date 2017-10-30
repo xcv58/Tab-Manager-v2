@@ -59,7 +59,7 @@ class Shortcut extends React.Component {
               padding: '0 2rem',
               justifyContent: 'center',
               textTransform: 'capitalize',
-              background: 'rgba(0, 0, 0, 0.25)'
+              background: 'rgba(0, 0, 0, 0.3)'
             }
           }}
           transition={Fade}
