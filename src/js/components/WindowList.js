@@ -19,7 +19,6 @@ export default class WindowList extends React.Component {
   }
 
   componentDidUpdate = this.resize
-  componentDidMount = this.resize
 
   render () {
     const { windowStore: { windows } } = this.props
