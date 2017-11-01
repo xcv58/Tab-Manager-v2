@@ -41,6 +41,7 @@ export default class App extends React.Component {
         <div style={{
           display: 'flex',
           alignItems: 'center',
+          marginTop: '-0.8rem',
           flex: '0 0 auto',
           padding: '0 4px'
         }}>
