@@ -64,11 +64,14 @@ export const tabComparator = (a, b) => {
 }
 
 export const windowComparator = (a, b) => {
-  if (a.lastFocused ^ b.lastFocused) {
-    return b.lastFocused ? 1 : -1
-  }
-  if (a.focused ^ b.focused) {
-    return b.focused ? 1 : -1
+  // if (a.lastFocused ^ b.lastFocused) {
+  //   return b.lastFocused ? 1 : -1
+  // }
+  // if (a.focused ^ b.focused) {
+  //   return b.focused ? 1 : -1
+  // }
+  if (a.tabs.length !== b.tabs.length) {
+    return b.tabs.length - a.tabs.length
   }
   if (a.alwaysOnTop !== b.alwaysOnTop) {
     return b.alwaysOnTop ? 1 : -1

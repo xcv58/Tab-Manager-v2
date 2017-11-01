@@ -4,6 +4,18 @@ import Window from 'components/Window'
 import DragPreview from 'components/DragPreview'
 import ShadowScrollbars from 'libs/ShadowScrollbars'
 
+const View = (props) => {
+  const { style } = props
+  return (
+    <div {...props}
+      style={{
+        ...style,
+        display: 'flex'
+      }}
+    />
+  )
+}
+
 @inject('windowStore')
 @observer
 export default class WindowList extends React.Component {
@@ -33,6 +45,7 @@ export default class WindowList extends React.Component {
     ))
     return (
       <ShadowScrollbars
+        renderView={View}
         ref='shadowScrollbars'
         style={{
           display: 'flex',

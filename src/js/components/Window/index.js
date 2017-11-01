@@ -19,7 +19,8 @@ export default class Window extends React.Component {
       />
     ))
     return (
-      <div ref={(el) => { this.node = el || this.node }}>
+      <div ref={(el) => { this.node = el || this.node }}
+        style={{ height: 'fit-content' }}>
         <Title {...this.props} />
         <FlipMove duration={256}
           easing='ease-in-out'

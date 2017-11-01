@@ -33,7 +33,7 @@ export default class Title extends React.Component {
     const style = {
       borderBottom,
       display: 'flex',
-      paddingLeft: '2.5rem',
+      paddingLeft: '0.5rem',
       paddingRight: 4,
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -42,12 +42,13 @@ export default class Title extends React.Component {
       lineHeight: '3rem'
     }
     const isOver = id === targetWinId
-    const dropIndicator = isOver && (
+    const text = isOver ? 'New Window' : `${length} tab${length > 1 ? 's' : ''}`
+    const title = (
       <span style={{
         flex: '1 1 auto',
-        padding: '0 2rem'
+        width: 'max-content'
       }}>
-        drop here to create a new window
+        {text}
       </span>
     )
     if (isOver) {
@@ -55,10 +56,7 @@ export default class Title extends React.Component {
     }
     return (
       <div style={style} {...{ onDragOver, onDrop }}>
-        <span>
-          {length} tab{length > 1 && 's'}
-        </span>
-        {dropIndicator}
+        {title}
         <Tooltip title='Sort Tabs' placement='left' style={{
           display: 'inline-flex'
         }}>

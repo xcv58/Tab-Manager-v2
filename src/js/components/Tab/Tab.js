@@ -122,6 +122,7 @@ export default class Tab extends React.Component {
           flex: '1 1 auto',
           overflow: 'hidden',
           textAlign: 'left',
+          maxWidth: '18rem',
           textOverflow: 'ellipsis'
         }}>
           {pin}
