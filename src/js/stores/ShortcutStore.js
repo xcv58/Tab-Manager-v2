@@ -15,6 +15,8 @@ export default class ShortcutStore {
     'escape',
     'enter',
     'ctrl+enter',
+    'ctrl+h',
+    'ctrl+l',
     'down',
     'ctrl+j',
     'up',
@@ -67,6 +69,14 @@ export default class ShortcutStore {
         this.closeDialog()
       }
     }, 'Go to tab list' ],
+    [ [ 'h', 'left', 'ctrl+h' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.left()
+    }, 'Left tab' ],
+    [ [ 'l', 'right', 'ctrl+l' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.right()
+    }, 'Right tab' ],
     [ [ 'j', 'down', 'ctrl+j' ], (e) => {
       e.preventDefault()
       this.store.searchStore.down()

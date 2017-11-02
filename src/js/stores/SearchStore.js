@@ -21,6 +21,40 @@ export default class SearchStore {
     return new Set(this.matchedTabs.map(x => x.id))
   }
 
+  @computed
+  get matchedWindows () {
+    return this.store.windowStore.windows.map((win) => {
+      const tabs = win.tabs.filter(x => this.matchedSet.has(x.id))
+      if (tabs.length) {
+        return { ...win, tabs }
+      }
+      return null
+    }).filter(x => x)
+  }
+
+  @computed
+  get focusedWinIndex () {
+    return this.matchedWindows.findIndex(
+      (win) => win.tabs.find((tab) => tab.id === this.focusedTab)
+    )
+  }
+
+  @computed
+  get focusedWindow () {
+    if (this.focusedWinIndex === -1) {
+      return null
+    }
+    return this.matchedWindows[this.focusedWinIndex]
+  }
+
+  @computed
+  get focusedTabIndex () {
+    if (!this.focusedWindow) {
+      return -1
+    }
+    return this.focusedWindow.tabs.findIndex((tab) => tab.id === this.focusedTab)
+  }
+
   @action
   startType = () => {
     this.typing = true
@@ -87,10 +121,38 @@ export default class SearchStore {
   }
 
   @action
+  left = () => this.jumpToHorizontalTab(-1)
+
+  @action
+  right = () => this.jumpToHorizontalTab(1)
+
+  jumpToHorizontalTab = (direction) => {
+    const windows = this.matchedWindows
+    const { length } = windows
+    if (length <= 1 || this.focusedWinIndex < 0 || this.focusedTabIndex < 0) {
+      return
+    }
+    if (this.focusedTab) {
+      this.jumpToWin(
+        this.focusedWindow.tabs[this.focusedTabIndex],
+        windows[(this.focusedWinIndex + length + direction) % length]
+      )
+    } else {
+      this.jumpToTab(0)
+    }
+  }
+
+  jumpToWin = (tab, win) => {
+    const delta = win.tabs.map((t) => Math.abs(t.index - tab.index))
+    const target = delta.indexOf(Math.min(...delta))
+    this.focusedTab = win.tabs[target].id
+  }
+
+  @action
   up = () => this.findFocusedTab(-1)
 
   @action
-  down = () => this.findFocusedTab()
+  down = () => this.findFocusedTab(1)
 
   @action
   lastTab = () => this.jumpToTab(-1)
