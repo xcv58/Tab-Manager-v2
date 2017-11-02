@@ -27,6 +27,18 @@ export default class WindowsStore {
   }
 
   @computed
+  get width () {
+    const { length } = this.windows
+    if (length === 0) {
+      return '100%'
+    }
+    if (length <= 4) {
+      return `${100 / (length)}%`
+    }
+    return '18rem'
+  }
+
+  @computed
   get tabs () {
     return [].concat(...(this.windows.map(x => x.tabs.slice())))
   }

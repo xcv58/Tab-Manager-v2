@@ -33,12 +33,13 @@ export default class WindowList extends React.Component {
   componentDidUpdate = this.resize
 
   render () {
-    const { windowStore: { windows } } = this.props
+    const { windowStore: { windows, width } } = this.props
     const winList = windows.map((win) => (
       <Window
         key={win.id}
         ref={win.id}
         win={win}
+        width={width}
         getWindowList={() => this}
         dragPreview={() => this.dragPreview}
       />

@@ -11,7 +11,7 @@ export default class Window extends React.Component {
   }
 
   render () {
-    const { win: { tabs }, getWindowList, dragPreview } = this.props
+    const { win: { tabs }, getWindowList, dragPreview, width } = this.props
     const content = tabs.map(tab => (
       <DraggableTab key={tab.id}
         tab={tab}
@@ -20,7 +20,7 @@ export default class Window extends React.Component {
     ))
     return (
       <div ref={(el) => { this.node = el || this.node }}
-        style={{ height: 'fit-content' }}>
+        style={{ width, height: 'fit-content' }}>
         <Title {...this.props} />
         <FlipMove duration={256}
           easing='ease-in-out'
