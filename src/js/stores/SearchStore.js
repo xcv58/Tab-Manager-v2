@@ -133,7 +133,7 @@ export default class SearchStore {
     const windows = this.matchedWindows
     const { length } = windows
     if (length <= 1 || this.focusedWinIndex < 0 || this.focusedTabIndex < 0) {
-      return
+      return this.findFocusedTab(direction)
     }
     if (this.focusedTab) {
       this.jumpToWin(

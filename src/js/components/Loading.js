@@ -8,7 +8,7 @@ export default class Loading extends Component {
     this.timer = setTimeout(() => this.setState({ tooLong: true }), 100)
   }
 
-  componentWillMount () {
+  componentWillUnmount () {
     if (this.timer) {
       clearTimeout(this.timer)
     }
