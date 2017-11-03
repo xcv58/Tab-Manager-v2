@@ -39,7 +39,7 @@ export default class Title extends React.Component {
       alignItems: 'center',
       fontSize: '1.5rem',
       fontWeight: 'bold',
-      lineHeight: '3rem'
+      lineHeight: '2.5rem'
     }
     const isOver = id === targetWinId
     const text = isOver ? 'New Window' : `${length} tab${length > 1 ? 's' : ''}`
