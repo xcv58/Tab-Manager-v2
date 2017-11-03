@@ -78,7 +78,9 @@ export default class ShadowScrollbars extends Component {
     this.springSystem.deregisterSpring(this.spring)
     this.springSystem.removeAllListeners()
     this.spring.destroy()
+    this.leftSpring.destroy()
     this.springSystem = null
+    this.leftSpring = null
     this.spring = null
   }
 
