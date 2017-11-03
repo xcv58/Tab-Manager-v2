@@ -127,6 +127,9 @@ export default class SearchStore {
   right = () => this.jumpToHorizontalTab(1)
 
   jumpToHorizontalTab = (direction) => {
+    if (!this.focusedTab) {
+      return this.findFocusedTab()
+    }
     const windows = this.matchedWindows
     const { length } = windows
     if (length <= 1 || this.focusedWinIndex < 0 || this.focusedTabIndex < 0) {
