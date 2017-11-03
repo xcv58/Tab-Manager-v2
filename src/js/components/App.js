@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import Loading from 'components/Loading'
 import WindowList from 'components/WindowList'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
@@ -11,7 +12,7 @@ import Shortcut from 'components/Shortcut'
 @observer
 export default class App extends React.Component {
   componentDidMount () {
-    const { windowStore: { updateAllWindows } } = this.props
+    const { getAllWindows, updateAllWindows } = this.props.windowStore
     chrome.windows.onCreated.addListener(updateAllWindows)
     chrome.windows.onRemoved.addListener(updateAllWindows)
     chrome.tabs.onCreated.addListener(updateAllWindows)
@@ -22,7 +23,7 @@ export default class App extends React.Component {
     chrome.tabs.onReplaced.addListener(updateAllWindows)
     chrome.tabs.onActivated.addListener(updateAllWindows)
     this.props.shortcutStore.didMount(this)
-    updateAllWindows()
+    getAllWindows()
   }
 
   componentWillUnmount () {
@@ -30,6 +31,9 @@ export default class App extends React.Component {
   }
 
   render () {
+    if (this.props.windowStore.initialLoading) {
+      return (<Loading />)
+    }
     return (
       <div style={{
         display: 'flex',

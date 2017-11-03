@@ -9,6 +9,7 @@ export default class WindowsStore {
   }
 
   @observable windows = []
+  @observable initialLoading = true
 
   init = async () => {
     this.lastFocusedWindowId = await getLastFocusedWindowId()
@@ -63,6 +64,7 @@ export default class WindowsStore {
         this.windows = windows
         .map((win) => new Window(win, this.store))
         .sort(windowComparator)
+        this.initialLoading = false
       }
     )
   }
