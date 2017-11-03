@@ -84,10 +84,18 @@ export default class Tab extends React.Component {
     if (!faked && id === focusedTab) {
       const { shadowScrollbars } = this.props.getWindowList().refs
       const containmentRect = shadowScrollbars.node.getBoundingClientRect()
-      const { top, bottom } = this.node.getBoundingClientRect()
+      const { top, bottom, left, right } = this.node.getBoundingClientRect()
       const height = bottom - top
       const topGap = top - height - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom - height
+      const leftGap = left - 2 - containmentRect.left
+      const rightGap = containmentRect.right - right
+      if (leftGap < 0) {
+        shadowScrollbars.scrollToLeft(leftGap)
+      }
+      if (rightGap < 0) {
+        shadowScrollbars.scrollToLeft(-rightGap)
+      }
       if (bottomGap < 0) {
         shadowScrollbars.scrollTo(-bottomGap)
       }

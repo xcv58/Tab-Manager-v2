@@ -40,6 +40,14 @@ export default class ShadowScrollbars extends Component {
     }
   }
 
+  handleLeftSpringUpdate = (spring) => {
+    const { scrollbars } = this
+    if (scrollbars) {
+      const val = spring.getCurrentValue()
+      scrollbars.scrollLeft(val)
+    }
+  }
+
   scrollTo = (top) => {
     const { scrollbars } = this
     if (scrollbars) {
@@ -49,10 +57,21 @@ export default class ShadowScrollbars extends Component {
     }
   }
 
+  scrollToLeft = (left) => {
+    const { scrollbars } = this
+    if (scrollbars) {
+      const scrollLeft = scrollbars.getScrollLeft()
+      this.leftSpring.setCurrentValue(scrollLeft).setAtRest()
+      this.leftSpring.setEndValue(scrollLeft + left)
+    }
+  }
+
   componentDidMount () {
     this.springSystem = new SpringSystem()
     this.spring = this.springSystem.createSpring()
     this.spring.addListener({ onSpringUpdate: this.handleSpringUpdate })
+    this.leftSpring = this.springSystem.createSpring()
+    this.leftSpring.addListener({ onSpringUpdate: this.handleLeftSpringUpdate })
   }
 
   componentWillUnmount () {

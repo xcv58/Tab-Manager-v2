@@ -20,7 +20,7 @@ export default class Window extends React.Component {
     ))
     return (
       <div ref={(el) => { this.node = el || this.node }}
-        style={{ width, height: 'fit-content' }}>
+        style={{ width }}>
         <Title {...this.props} />
         <FlipMove duration={256}
           easing='ease-in-out'
