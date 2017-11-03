@@ -86,7 +86,7 @@ export default class Tab extends React.Component {
       const containmentRect = shadowScrollbars.node.getBoundingClientRect()
       const { top, bottom, left, right } = this.node.getBoundingClientRect()
       const height = bottom - top
-      const topGap = top - height - containmentRect.top
+      const topGap = top - (2 * height) - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom - height
       const leftGap = left - 2 - containmentRect.left
       const rightGap = containmentRect.right - right
