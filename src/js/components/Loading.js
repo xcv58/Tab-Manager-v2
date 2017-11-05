@@ -16,7 +16,7 @@ export default class Loading extends Component {
 
   render () {
     if (!this.state.tooLong) {
-      return null
+      return 'Loading...'
     }
     return (
       <div style={{

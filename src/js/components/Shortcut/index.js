@@ -56,10 +56,11 @@ class Shortcut extends React.Component {
           }}
           SnackbarContentProps={{
             style: {
+              fontSize: '1.5rem',
               padding: '0 2rem',
               justifyContent: 'center',
               textTransform: 'capitalize',
-              background: 'rgba(0, 0, 0, 0.3)'
+              background: 'rgba(0, 0, 0, 0.618)'
             }
           }}
           transition={Fade}
