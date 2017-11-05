@@ -9,7 +9,7 @@ export default class TabHistory {
     chrome.tabs.onRemoved.addListener(onRemoved)
     chrome.windows.onFocusChanged.addListener(onFocusChanged)
     this.actionMap = {
-      [actions.lastActiveTab()]: this.activateTab
+      [actions.lastActiveTab]: this.activateTab
     }
   }
 

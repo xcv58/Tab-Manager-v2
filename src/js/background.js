@@ -9,7 +9,7 @@ class Background {
     chrome.runtime.onMessage.addListener(this.onMessage)
     chrome.commands.onCommand.addListener(this.onCommand)
     this.actionMap = {
-      [actions.createWindow()]: this.createWindow
+      [actions.createWindow]: this.createWindow
     }
     Object.assign(this.actionMap, this.tabHistory.actionMap)
   }

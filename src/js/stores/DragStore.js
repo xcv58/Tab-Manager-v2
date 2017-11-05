@@ -73,7 +73,7 @@ export default class DragStore {
     const tabs = this.store.tabStore.sources.map(({ id, pinned }) => ({ id, pinned }))
     chrome.runtime.sendMessage({
       tabs,
-      action: actions.createWindow()
+      action: actions.createWindow
     })
     this.clear()
   }
