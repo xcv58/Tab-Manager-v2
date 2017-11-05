@@ -30,6 +30,15 @@
         "linux": "Ctrl+B"
       },
       "description": "Switch to next tab (recently used order)"
+    },
+    "OPEN-IN-NEW-TAB": {
+      "suggested_key": {
+        "windows": "Ctrl+O",
+        "mac": "MacCtrl+O",
+        "chromeos": "Ctrl+O",
+        "linux": "Ctrl+O"
+      },
+      "description": "Open extension in new tab"
     }
   },
   "icons": {
