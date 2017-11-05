@@ -29,6 +29,16 @@ const notMatchStyle = {
   opacity: 0.3
 }
 
+const getTargetValue = (lValue, rValue) => {
+  if (lValue < 0) {
+    return lValue
+  }
+  if (rValue < 0) {
+    return -rValue
+  }
+  return 0
+}
+
 @inject('dragStore')
 @inject('searchStore')
 @inject('tabStore')
@@ -90,18 +100,10 @@ export default class Tab extends React.Component {
       const bottomGap = containmentRect.bottom - bottom - height
       const leftGap = left - 2 - containmentRect.left
       const rightGap = containmentRect.right - right
-      if (leftGap < 0) {
-        shadowScrollbars.scrollToLeft(leftGap)
-      }
-      if (rightGap < 0) {
-        shadowScrollbars.scrollToLeft(-rightGap)
-      }
-      if (bottomGap < 0) {
-        shadowScrollbars.scrollTo(-bottomGap)
-      }
-      if (topGap < 0) {
-        shadowScrollbars.scrollTo(topGap)
-      }
+      shadowScrollbars.scrollTo({
+        left: getTargetValue(leftGap, rightGap),
+        top: getTargetValue(topGap, bottomGap)
+      })
     }
   }
 

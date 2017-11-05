@@ -32,46 +32,38 @@ export default class ShadowScrollbars extends Component {
     css(shadowBottom, { opacity: shadowBottomOpacity })
   }
 
-  handleSpringUpdate = (spring) => {
-    const { scrollbars } = this
-    if (scrollbars) {
-      const val = spring.getCurrentValue()
-      scrollbars.scrollTop(val)
+  getSpringUpdateFunc = (func) => (spring) => {
+    if (func && typeof func === 'function') {
+      func(spring.getCurrentValue())
     }
   }
 
-  handleLeftSpringUpdate = (spring) => {
-    const { scrollbars } = this
-    if (scrollbars) {
-      const val = spring.getCurrentValue()
-      scrollbars.scrollLeft(val)
+  scrollTo = ({ top = 0, left = 0 }) => {
+    if (!top && !left) {
+      return
     }
-  }
-
-  scrollTo = (top) => {
     const { scrollbars } = this
     if (scrollbars) {
       const scrollTop = scrollbars.getScrollTop()
+      const scrollLeft = scrollbars.getScrollLeft()
+      this.leftSpring.setCurrentValue(scrollLeft).setAtRest()
+      this.leftSpring.setEndValue(scrollLeft + left)
       this.spring.setCurrentValue(scrollTop).setAtRest()
       this.spring.setEndValue(scrollTop + top)
     }
   }
 
-  scrollToLeft = (left) => {
-    const { scrollbars } = this
-    if (scrollbars) {
-      const scrollLeft = scrollbars.getScrollLeft()
-      this.leftSpring.setCurrentValue(scrollLeft).setAtRest()
-      this.leftSpring.setEndValue(scrollLeft + left)
-    }
-  }
-
   componentDidMount () {
+    const { scrollTop, scrollLeft } = this.scrollbars
     this.springSystem = new SpringSystem()
     this.spring = this.springSystem.createSpring()
-    this.spring.addListener({ onSpringUpdate: this.handleSpringUpdate })
+    this.spring.addListener({
+      onSpringUpdate: this.getSpringUpdateFunc(scrollTop)
+    })
     this.leftSpring = this.springSystem.createSpring()
-    this.leftSpring.addListener({ onSpringUpdate: this.handleLeftSpringUpdate })
+    this.leftSpring.addListener({
+      onSpringUpdate: this.getSpringUpdateFunc(scrollLeft)
+    })
   }
 
   componentWillUnmount () {
@@ -79,9 +71,9 @@ export default class ShadowScrollbars extends Component {
     this.springSystem.removeAllListeners()
     this.spring.destroy()
     this.leftSpring.destroy()
-    this.springSystem = null
-    this.leftSpring = null
     this.spring = null
+    this.leftSpring = null
+    this.springSystem = null
   }
 
   render () {
