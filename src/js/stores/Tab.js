@@ -1,12 +1,36 @@
 import { action, computed, observable } from 'mobx'
+import bookmarks from 'img/chrome/bookmarks.png'
+import chromeIcon from 'img/chrome/chrome.png'
+import crashes from 'img/chrome/crashes.png'
+import downloads from 'img/chrome/downloads.png'
+import extensions from 'img/chrome/extensions.png'
+import flags from 'img/chrome/flags.png'
+import history from 'img/chrome/history.png'
+import settings from 'img/chrome/settings.png'
+
+const FAV_ICONS = {
+  bookmarks,
+  chrome: chromeIcon,
+  crashes,
+  downloads,
+  extensions,
+  flags,
+  history,
+  settings
+}
+
+const CHROME_PREFIX = 'chrome://'
+const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
 export default class Tab {
   constructor (tab, store) {
     this.store = store
     Object.assign(this, tab)
+    this.setUrlIcon()
   }
 
   @observable isHovered = false
+  @observable iconUrl = ''
 
   @action
   hover = () => {
@@ -36,5 +60,18 @@ export default class Tab {
   @computed
   get shouldHighlight () {
     return this.isMatched && (this.isFocused || this.isHovered)
+  }
+
+  setUrlIcon = async () => {
+    const { url, favIconUrl } = this
+    const { host } = new window.URL(url)
+    if (url.startsWith(CHROME_PREFIX)) {
+      this.iconUrl = FAV_ICONS[host]
+    } else if (url.startsWith(CHROME_EXTENSION_PREFIX)) {
+      const { icons } = await chrome.management.get(host)
+      this.iconUrl = ([ ...icons ].pop() || {}).url
+    } else {
+      this.iconUrl = favIconUrl
+    }
   }
 }
