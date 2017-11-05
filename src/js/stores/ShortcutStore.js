@@ -1,5 +1,6 @@
 import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
+import { openInNewTab } from 'libs'
 
 export default class ShortcutStore {
   constructor (store) {
@@ -111,8 +112,7 @@ export default class ShortcutStore {
     }, 'Unselect all tab' ],
     [ [ 'ctrl+o' ], (e) => {
       e.preventDefault()
-      const url = chrome.runtime.getURL('popup.html')
-      chrome.tabs.create({ url })
+      openInNewTab()
     }, 'Open this window in new tab' ],
     [ [ '?', 'ctrl+/' ], (e) => {
       e.preventDefault()

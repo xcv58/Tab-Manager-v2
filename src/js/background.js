@@ -1,7 +1,7 @@
 import 'chrome-extension-async'
 import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
-import { createWindow } from 'libs'
+import { createWindow, openInNewTab } from 'libs'
 
 class Background {
   constructor () {
@@ -9,7 +9,7 @@ class Background {
     chrome.runtime.onMessage.addListener(this.onMessage)
     chrome.commands.onCommand.addListener(this.onCommand)
     this.actionMap = {
-      [actions.openInNewTab]: this.openInNewTab,
+      [actions.openInNewTab]: openInNewTab,
       [actions.createWindow]: this.createWindow
     }
     Object.assign(this.actionMap, this.tabHistory.actionMap)
@@ -18,11 +18,6 @@ class Background {
   createWindow = async (request, sender, sendResponse) => {
     createWindow(request.tabs)
     sendResponse()
-  }
-
-  openInNewTab = async () => {
-    const url = chrome.runtime.getURL('popup.html')
-    chrome.tabs.create({ url })
   }
 
   onCommand = (action) => {

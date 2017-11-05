@@ -41,6 +41,11 @@ export const togglePinTabs = async (tabs) => {
   )
 }
 
+export const openInNewTab = () => {
+  const url = chrome.runtime.getURL('popup.html')
+  chrome.tabs.create({ url })
+}
+
 export const setLastFocusedWindowId = (lastFocusedWindowId) => {
   chrome.storage.local.set({ lastFocusedWindowId })
 }
