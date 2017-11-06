@@ -49,3 +49,7 @@ yarn deploy
 Follow the official guide to distribute extension: https://developers.chrome.com/extensions/hosting.
 
 You can download older versions from https://crx.dam.io/ext/nimllkpgmmbdglnjneeakdgcpkbgbfbp.html.
+
+# Thanks
+
+The default fav icon is made by [Lyolya](https://www.flaticon.com/authors/lyolya) from https://www.flaticon.com is licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/)

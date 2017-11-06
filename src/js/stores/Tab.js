@@ -2,6 +2,7 @@ import { action, computed, observable } from 'mobx'
 import bookmarks from 'img/chrome/bookmarks.png'
 import chromeIcon from 'img/chrome/chrome.png'
 import crashes from 'img/chrome/crashes.png'
+import empty from 'img/chrome/empty.png'
 import downloads from 'img/chrome/downloads.png'
 import extensions from 'img/chrome/extensions.png'
 import flags from 'img/chrome/flags.png'
@@ -30,7 +31,7 @@ export default class Tab {
   }
 
   @observable isHovered = false
-  @observable iconUrl = ''
+  @observable iconUrl = empty
 
   @action
   hover = () => {
@@ -66,12 +67,12 @@ export default class Tab {
     const { url, favIconUrl } = this
     const { host } = new window.URL(url)
     if (url.startsWith(CHROME_PREFIX)) {
-      this.iconUrl = FAV_ICONS[host]
+      this.iconUrl = FAV_ICONS[host] || this.iconUrl
     } else if (url.startsWith(CHROME_EXTENSION_PREFIX)) {
       const { icons } = await chrome.management.get(host)
-      this.iconUrl = ([ ...icons ].pop() || {}).url
+      this.iconUrl = ([ ...icons ].pop() || {}).url || this.iconUrl
     } else {
-      this.iconUrl = favIconUrl
+      this.iconUrl = favIconUrl || this.iconUrl
     }
   }
 }
