@@ -4,7 +4,7 @@
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
-    "ava": "nyc ava",
+    "ava": "nyc --reporter=lcov ava",
     "build": "node utils/build.js",
     "deploy": "NODE_ENV=production yarn build && yarn zip",
     "zip": "zip -X --compression-method deflate -r build.zip build/*",
