@@ -22,7 +22,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: ./cc-test-reporter before-build
       - run: yarn test
-      - run: ./cc-test-reporter after-build
+      - run: ./cc-test-reporter after-build --coverage-input-type lcov
       - run: yarn deploy
       - run: ls -l build/* build.zip
       - run: sha256sum build/* build.zip | tee SHA256SUMS.txt
