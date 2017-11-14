@@ -4,13 +4,15 @@
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
+    "ava": "nyc ava",
     "build": "node utils/build.js",
     "deploy": "NODE_ENV=production yarn build && yarn zip",
     "zip": "zip -X --compression-method deflate -r build.zip build/*",
     "lint": "standard",
     "lintfix": "yarn lint -- --fix",
     "start": "node utils/webserver.js",
-    "test": "yarn lint && yarn build",
+    "test": "yarn lint && yarn ava && yarn build",
+    "test-watch": "yarn ava --watch",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -c .storybook -o .out"
   },
@@ -33,6 +35,7 @@
     "@storybook/addon-actions": "^3.2.12",
     "@storybook/addon-links": "^3.2.12",
     "@storybook/react": "^3.2.12",
+    "ava": "^0.23.0",
     "babel-core": "7.0.0-beta.3",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
@@ -44,11 +47,14 @@
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.2.0",
     "css-loader": "^0.28.7",
+    "enzyme": "^3.1.1",
+    "enzyme-adapter-react-16": "^1.0.4",
     "file-loader": "^1.1.5",
     "fs-extra": "^4.0.2",
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
     "jest": "^21.2.1",
+    "nyc": "^11.3.0",
     "sinon-chrome": "^2.2.1",
     "standard": "^10.0.3",
     "style-loader": "^0.19.0",
@@ -63,5 +69,11 @@
     "globals": [
       "chrome"
     ]
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ],
+    "babel": "inherit"
   }
 }
