@@ -3,26 +3,17 @@ jobs:
   build:
     docker:
       - image: circleci/node:latest
-    environment:
-      CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
     steps:
       - checkout
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
       - run: yarn install
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run: ./cc-test-reporter before-build
       - run: yarn test
-      - run: ./cc-test-reporter after-build --coverage-input-type lcov
       - run: yarn deploy
       - run: ls -l build/* build.zip
       - run: sha256sum build/* build.zip | tee SHA256SUMS.txt

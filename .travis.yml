@@ -3,6 +3,9 @@ cache: yarn
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.1.0
   - export PATH="$HOME/.yarn/bin:$PATH"
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 node_js:
   - "8"
 script:
@@ -11,6 +14,8 @@ script:
   - ls -l build/* build.zip
   - sha256sum build/* build.zip | tee SHA256SUMS.txt
   - cat build/* | sha256sum | tee -a SHA256SUMS.txt
+after_script:
+  - ./cc-test-reporter after-build --coverage-input-type lcov
 deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
