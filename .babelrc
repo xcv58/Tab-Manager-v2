@@ -10,6 +10,11 @@
     "stage-2"
   ],
   "plugins": [
-    "transform-decorators-legacy"
+    "transform-decorators-legacy",
+    [
+      "module-resolver", {
+        "root": [ "./src", "./src/js" ]
+      }
+    ]
   ]
 }
