@@ -1,11 +1,8 @@
 import React from 'react'
 import test from 'ava'
-import { shallow, configure } from 'enzyme'
-import Adapter from 'enzyme-adapter-react-16'
+import { shallow } from 'test'
 import { CircularProgress } from 'material-ui/Progress'
 import Loading from '../Loading'
-
-configure({ adapter: new Adapter() })
 
 test.cb('Loading should show Loading... first then CircularProgress', t => {
   const el = shallow(<Loading />)
