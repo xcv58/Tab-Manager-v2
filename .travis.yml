@@ -14,7 +14,8 @@ script:
   - ls -l build/* build.zip
   - sha256sum build/* build.zip | tee SHA256SUMS.txt
   - cat build/* | sha256sum | tee -a SHA256SUMS.txt
-after_script:
+after_success:
+  - yarn coverage
   - ./cc-test-reporter after-build --coverage-input-type lcov
 deploy:
   provider: releases
