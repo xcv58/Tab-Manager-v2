@@ -7,7 +7,8 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/37ba8a86e2a74b36c2a8/maintainability)](https://codeclimate.com/github/xcv58/Tab-Manager-v2/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/37ba8a86e2a74b36c2a8/test_coverage)](https://codeclimate.com/github/xcv58/Tab-Manager-v2/test_coverage)
-
+[![codecov](https://codecov.io/gh/xcv58/Tab-Manager-v2/branch/master/graph/badge.svg)](https://codecov.io/gh/xcv58/Tab-Manager-v2)
+[![Coverage Status](https://coveralls.io/repos/github/xcv58/Tab-Manager-v2/badge.svg?branch=coverage)](https://coveralls.io/github/xcv58/Tab-Manager-v2?branch=coverage)
 
 [![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
 
