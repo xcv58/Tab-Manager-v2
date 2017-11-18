@@ -47,8 +47,9 @@ export const openOrFocusPopup = async () => {
   const win = windows.find(isSelfPopup)
   if (!win) {
     openPopup()
+  } else {
+    chrome.windows.update(win.id, { focused: true })
   }
-  chrome.windows.update(win.id, { focused: true })
 }
 
 export const openPopup = () => {
