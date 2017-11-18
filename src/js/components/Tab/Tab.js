@@ -41,17 +41,10 @@ const getTargetValue = (lValue, rValue) => {
 
 @inject('dragStore')
 @inject('searchStore')
-@inject('tabStore')
 @observer
 export default class Tab extends React.Component {
   onMouseEnter = () => this.props.tab.hover()
   onMouseLeave = () => this.props.tab.unhover()
-
-  onClick = () => {
-    const { tab, searchStore: { focus }, tabStore: { activate } } = this.props
-    focus(tab)
-    activate(tab)
-  }
 
   getStyle = () => {
     const {
@@ -108,7 +101,7 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { title, pinned } = this.props.tab
+    const { activate, title, pinned } = this.props.tab
     const style = this.getStyle()
     const pin = pinned && (
       <div style={{
@@ -136,7 +129,7 @@ export default class Tab extends React.Component {
         }}>
           {pin}
           <Icon {...this.props} />
-          <div onClick={this.onClick}
+          <div onClick={activate}
             style={{
               overflow: 'hidden',
               flex: '1 1 auto',

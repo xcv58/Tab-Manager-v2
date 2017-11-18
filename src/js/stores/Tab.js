@@ -34,6 +34,23 @@ export default class Tab {
   @observable iconUrl = empty
 
   @action
+  activate = () => {
+    this.focus()
+    this.store.tabStore.activate(this)
+  }
+
+  @action
+  select = () => {
+    this.focus()
+    this.store.tabStore.select(this)
+  }
+
+  @action
+  focus = () => {
+    this.store.searchStore.focus(this)
+  }
+
+  @action
   hover = () => {
     this.isHovered = true
   }
