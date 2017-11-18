@@ -35,9 +35,9 @@
     "rebound": "^0.0.15"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^3.2.12",
-    "@storybook/addon-links": "^3.2.12",
-    "@storybook/react": "^3.2.12",
+    "@storybook/addon-actions": "^3.2.16",
+    "@storybook/addon-links": "^3.2.16",
+    "@storybook/react": "^3.2.16",
     "ava": "^0.23.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "8.0.2",
