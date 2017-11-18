@@ -72,7 +72,8 @@
   "standard": {
     "parser": "babel-eslint",
     "globals": [
-      "chrome", "screen"
+      "chrome",
+      "screen"
     ]
   },
   "ava": {
