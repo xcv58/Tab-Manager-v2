@@ -44,7 +44,6 @@ export const togglePinTabs = async (tabs) => {
 
 export const openOrFocusPopup = async () => {
   const windows = await chrome.windows.getAll({ populate: true })
-  console.log(windows)
   const win = windows.find(isSelfPopup)
   if (!win) {
     openPopup()
