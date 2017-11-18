@@ -1,9 +1,11 @@
 import React from 'react'
+import { observer } from 'mobx-react'
 import IconButton from 'material-ui/IconButton'
 
 const buttonWidth = '2.5rem'
 const iconWidth = '1.5rem'
 
+@observer
 export default class Icon extends React.Component {
   render () {
     const { focus, select, iconUrl } = this.props.tab
