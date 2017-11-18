@@ -76,6 +76,16 @@ export default class Tab {
   }
 
   @computed
+  get query () {
+    return this.store.searchStore.query
+  }
+
+  @computed
+  get dragging () {
+    return this.store.dragStore.dragging
+  }
+
+  @computed
   get shouldHighlight () {
     return this.isMatched && (this.isFocused || this.isHovered)
   }

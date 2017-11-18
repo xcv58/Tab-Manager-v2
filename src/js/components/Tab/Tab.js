@@ -1,5 +1,5 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react'
 import { blue, red, grey } from 'material-ui/colors'
 import Icon from './Icon'
 import Url from './Url'
@@ -39,8 +39,6 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
-@inject('dragStore')
-@inject('searchStore')
 @observer
 export default class Tab extends React.Component {
   onMouseEnter = () => this.props.tab.hover()
@@ -48,8 +46,9 @@ export default class Tab extends React.Component {
 
   getStyle = () => {
     const {
-      dragStore: { dragging },
-      tab: { active, isFocused, isMatched, isSelected, shouldHighlight }
+      tab: {
+        dragging, active, isFocused, isMatched, isSelected, shouldHighlight
+      }
     } = this.props
     return Object.assign(
       {},
@@ -62,7 +61,7 @@ export default class Tab extends React.Component {
   }
 
   getHighlightNode = (text) => {
-    const { tab: { isMatched }, searchStore: { query } } = this.props
+    const { tab: { isMatched, query } } = this.props
     if (!isMatched || !query) {
       return text
     }
