@@ -8,12 +8,12 @@ body {
   -ms-user-select: none;
   -webkit-user-select: none;
   overflow: hidden;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 #app-container {
   margin: auto;
-  max-width: 1024px;
+  max-width: 1440px;
 }
 
 #popup {
