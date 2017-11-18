@@ -1,4 +1,4 @@
-import { activateTab, setLastFocusedWindowId } from 'libs'
+import { activateTab, popupURL, setLastFocusedWindowId } from 'libs'
 import actions from 'libs/actions'
 
 export default class TabHistory {
@@ -87,6 +87,9 @@ export default class TabHistory {
     }
     const [ tab ] = await chrome.tabs.query({ active: true, windowId })
     if (!tab) {
+      return
+    }
+    if (tab.url === popupURL) {
       return
     }
     this.add({ ...tab, tabId: tab.id, windowId })
