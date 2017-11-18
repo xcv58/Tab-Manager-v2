@@ -1,18 +1,11 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { withStyles } from 'material-ui/styles'
 import Snackbar from 'material-ui/Snackbar'
 import Fade from 'material-ui/transitions/Fade'
 
-export const styles = (theme: Object) => ({
-  paper: {
-    width: '100%'
-  }
-})
-
 @inject('shortcutStore')
 @observer
-class Hint extends React.Component {
+export default class Hint extends React.Component {
   render () {
     const { combo, toastOpen } = this.props.shortcutStore
     return (
@@ -43,5 +36,3 @@ class Hint extends React.Component {
     )
   }
 }
-
-export default withStyles(styles)(Hint)
