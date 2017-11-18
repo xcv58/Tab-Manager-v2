@@ -15,6 +15,7 @@ export default class App extends React.Component {
     const { getAllWindows, updateAllWindows } = this.props.windowStore
     chrome.windows.onCreated.addListener(updateAllWindows)
     chrome.windows.onRemoved.addListener(updateAllWindows)
+    chrome.windows.onFocusChanged.addListener(updateAllWindows)
     chrome.tabs.onCreated.addListener(updateAllWindows)
     chrome.tabs.onUpdated.addListener(updateAllWindows)
     chrome.tabs.onMoved.addListener(updateAllWindows)

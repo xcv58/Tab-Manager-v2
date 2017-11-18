@@ -1,19 +1,15 @@
 import { action, computed, observable } from 'mobx'
-import { getLastFocusedWindowId, windowComparator } from 'libs'
+import { getLastFocusedWindowId, notSelfPopup, windowComparator } from 'libs'
 import Window from './Window'
 
 export default class WindowsStore {
   constructor (store) {
     this.store = store
-    this.init()
   }
 
   @observable windows = []
   @observable initialLoading = true
-
-  init = async () => {
-    this.lastFocusedWindowId = await getLastFocusedWindowId()
-  }
+  @observable lastFocusedWindowId = null
 
   updateHandler = null
 
@@ -57,13 +53,29 @@ export default class WindowsStore {
     this.store.tabStore.selectAll(this.tabs)
   }
 
+  focusLastActiveTab = () => {
+    if (this.windows.length <= 0) {
+      return
+    }
+    const tab = this.windows[0].tabs.find(x => x.active)
+    if (tab) {
+      this.store.searchStore.focus(tab)
+    }
+  }
+
   getAllWindows = () => {
     chrome.windows.getAll(
       { populate: true },
-      (windows = []) => {
+      async (windows = []) => {
+        this.lastFocusedWindowId = await getLastFocusedWindowId()
+
         this.windows = windows
+        .filter(notSelfPopup)
         .map((win) => new Window(win, this.store))
         .sort(windowComparator)
+
+        this.focusLastActiveTab()
+
         this.initialLoading = false
       }
     )

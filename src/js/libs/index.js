@@ -1,6 +1,7 @@
 import { green } from 'material-ui/colors'
 
 export const dropTargetColor = green[100]
+export const popupURL = chrome.runtime.getURL('popup.html')
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
   await Promise.all(
@@ -41,10 +42,48 @@ export const togglePinTabs = async (tabs) => {
   )
 }
 
-export const openInNewTab = () => {
-  const url = chrome.runtime.getURL('popup.html')
-  chrome.tabs.create({ url })
+export const openOrFocusPopup = async () => {
+  const windows = await chrome.windows.getAll({ populate: true })
+  const win = windows.find(isSelfPopup)
+  if (!win) {
+    openPopup()
+  }
+  chrome.windows.update(win.id, { focused: true })
 }
+
+export const openPopup = () => {
+  const {
+    availHeight,
+    availLeft,
+    availTop,
+    availWidth
+  } = screen
+  const width = Math.max(800, availWidth / 2)
+  const height = Math.max(600, availHeight / 2)
+  const top = availTop + (availHeight - height) / 2
+  const left = availLeft + (availWidth - width) / 2
+
+  chrome.windows.create({
+    top,
+    left,
+    height,
+    width,
+    url: popupURL,
+    focused: true,
+    type: 'popup'
+  })
+}
+
+export const openInNewTab = () => chrome.tabs.create({ url: popupURL })
+
+export const isSelfPopup = ({ type, tabs = [] }) => {
+  if (type === 'popup' && tabs.length === 1) {
+    return tabs[0].url === popupURL
+  }
+  return false
+}
+
+export const notSelfPopup = (...args) => !isSelfPopup(...args)
 
 export const setLastFocusedWindowId = (lastFocusedWindowId) => {
   chrome.storage.local.set({ lastFocusedWindowId })
