@@ -21,12 +21,11 @@ export default class Hint extends React.Component {
         }}
         SnackbarContentProps={{
           style: {
-            fontSize: '8.5rem',
+            fontSize: '1.5rem',
             padding: '0 2rem',
             justifyContent: 'center',
             textTransform: 'capitalize',
-            background: '#FF0000'
-            // background: 'rgba(0, 0, 0, 0.0618)'
+            background: 'rgba(0, 0, 0, 0.618)'
           }
         }}
         transition={Fade}
