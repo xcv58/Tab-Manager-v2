@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { getLastFocusedWindowId, windowComparator } from 'libs'
+import { getLastFocusedWindowId, notSelfPopup, windowComparator } from 'libs'
 import Window from './Window'
 
 export default class WindowsStore {
@@ -62,6 +62,7 @@ export default class WindowsStore {
       { populate: true },
       (windows = []) => {
         this.windows = windows
+        .filter(notSelfPopup)
         .map((win) => new Window(win, this.store))
         .sort(windowComparator)
         this.initialLoading = false
