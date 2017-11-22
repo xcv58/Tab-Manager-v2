@@ -126,23 +126,41 @@ export default class SearchStore {
   @action
   right = () => this.jumpToHorizontalTab(1)
 
+  jumpInSameWin = (direction) => {
+    if (this.jumpOrFocusTab(direction)) {
+      const { tabs } = this.focusedWindow
+      const { length } = tabs
+      this.focusedTab = tabs[(this.focusedTabIndex + direction + length) % length].id
+    }
+  }
+
   jumpToHorizontalTab = (direction) => {
-    if (!this.focusedTab) {
-      return this.findFocusedTab()
-    }
-    const windows = this.matchedWindows
-    const { length } = windows
-    if (length <= 1 || this.focusedWinIndex < 0 || this.focusedTabIndex < 0) {
-      return this.findFocusedTab(direction)
-    }
-    if (this.focusedTab) {
+    if (this.jumpOrFocusTab(direction)) {
+      const windows = this.matchedWindows
+      const { length } = windows
       this.jumpToWin(
         this.focusedWindow.tabs[this.focusedTabIndex],
         windows[(this.focusedWinIndex + length + direction) % length]
       )
-    } else {
-      this.jumpToTab(0)
     }
+  }
+
+  jumpOrFocusTab = (direction) => {
+    if (!this.focusedTab) {
+      this.findFocusedTab()
+      return
+    }
+    const windows = this.matchedWindows
+    const { length } = windows
+    if (length <= 1 || this.focusedWinIndex < 0 || this.focusedTabIndex < 0) {
+      this.findFocusedTab(direction)
+      return
+    }
+    if (!this.focusedTab) {
+      this.jumpToTab(0)
+      return
+    }
+    return true
   }
 
   jumpToWin = (tab, win) => {
@@ -152,10 +170,10 @@ export default class SearchStore {
   }
 
   @action
-  up = () => this.findFocusedTab(-1)
+  up = () => this.jumpInSameWin(-1)
 
   @action
-  down = () => this.findFocusedTab(1)
+  down = () => this.jumpInSameWin(1)
 
   @action
   lastTab = () => this.jumpToTab(-1)
