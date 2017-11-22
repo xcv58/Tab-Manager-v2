@@ -14,13 +14,14 @@
     "default_icon": "icon-16.png"
   },
   "commands": {
-    "_execute_browser_action": {
+    "TOGGLE-POPUP": {
       "suggested_key": {
         "windows": "Ctrl+T",
         "mac": "MacCtrl+T",
         "chromeos": "Ctrl+T",
         "linux": "Ctrl+T"
-      }
+      },
+      "description": "Open or toggle Tab Manager popup window"
     },
     "LAST-ACTIVE-TAB": {
       "suggested_key": {

@@ -42,14 +42,14 @@ export const togglePinTabs = async (tabs) => {
   )
 }
 
-export const openOrFocusPopup = async () => {
+export const openOrTogglePopup = async () => {
   const windows = await chrome.windows.getAll({ populate: true })
   const win = windows.find(isSelfPopup)
   if (!win) {
-    openPopup()
-  } else {
-    chrome.windows.update(win.id, { focused: true })
+    return openPopup()
   }
+  const winId = win.focused ? await getLastFocusedWindowId() : win.id
+  chrome.windows.update(winId, { focused: true })
 }
 
 export const openPopup = () => {
