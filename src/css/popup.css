@@ -14,6 +14,7 @@ body {
 #app-container {
   margin: auto;
   max-width: 1440px;
+  min-width: 600px;
 }
 
 #popup {
