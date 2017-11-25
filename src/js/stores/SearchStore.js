@@ -73,9 +73,14 @@ export default class SearchStore {
   @action
   search = (value) => {
     this.query = value
-    this.focusedTab = null
-    this.findFocusedTab()
+    if (!this.matchedSet.has(this.focusedTab)) {
+      this.focusedTab = null
+      this.findFocusedTab()
+    }
   }
+
+  @action
+  clear = () => this.search('')
 
   fuzzySearch = () => {
     const tabs = this.store.windowStore.tabs

@@ -2,6 +2,16 @@ import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
 
+const getDescription = (description) => {
+  if (typeof description === 'string') {
+    return description
+  }
+  if (typeof description === 'function') {
+    return description()
+  }
+  return 'Unknow description'
+}
+
 export default class ShortcutStore {
   constructor (store) {
     this.store = store
@@ -60,16 +70,25 @@ export default class ShortcutStore {
       this.App.search.focus()
     }, 'Search tab' ],
     [ 'escape', (e) => {
-      const { searchStore: { typing } } = this.store
+      const { searchStore: { clear, typing } } = this.store
       if (typing) {
         e.preventDefault()
-        this.App.search.blur()
+        return this.App.search.blur()
       }
       if (this.dialogOpen) {
         e.preventDefault()
-        this.closeDialog()
+        return this.closeDialog()
       }
-    }, 'Go to tab list' ],
+      clear()
+    }, () => {
+      if (this.store.searchStore.typing) {
+        return 'Go to tab list'
+      }
+      if (this.dialogOpen) {
+        return 'Close hotkey dialog'
+      }
+      return 'Clear search text'
+    } ],
     [ [ 'h', 'left', 'ctrl+h' ], (e) => {
       e.preventDefault()
       this.store.searchStore.left()
@@ -141,7 +160,7 @@ export default class ShortcutStore {
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.shortcuts.map(
       ([ key, func, description ]) => Mousetrap.bind(key, (e, combo) => {
-        this.combo = `${combo}: ${description}`
+        this.combo = `${combo}: ${getDescription(description)}`
         this.openToast()
         func(e)
       })
