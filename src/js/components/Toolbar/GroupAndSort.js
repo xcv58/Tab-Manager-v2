@@ -8,7 +8,7 @@ import IconButton from 'material-ui/IconButton'
 @observer
 export default class GroupAndSort extends React.Component {
   render () {
-    const { arrangeStore: { groupTabs } } = this.props
+    const { groupTabs } = this.props.arrangeStore
     return (
       <Tooltip title='Group & Sort Tabs' placement='left'>
         <IconButton onClick={() => groupTabs()}>

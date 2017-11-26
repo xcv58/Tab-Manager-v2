@@ -10,10 +10,19 @@ export default class TabStore {
 
   @computed
   get closeAllTitle () {
-    if (this.selection.size === 0) {
-      return 'Close focused tab'
+    return `Close ${this.tabDescription}`
+  }
+
+  @computed
+  get tabDescription () {
+    const { size } = this.selection
+    if (size === 0) {
+      return 'focused tab'
     }
-    return 'Close selected tab' + (this.selection.size > 1 ? 's' : '')
+    if (size === 1) {
+      return 'selected tab'
+    }
+    return 'selected tabs'
   }
 
   @action
