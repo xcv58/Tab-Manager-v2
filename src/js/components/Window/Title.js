@@ -2,18 +2,12 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { grey } from 'material-ui/colors'
 import { dropTargetColor } from 'libs'
-import Tooltip from 'material-ui/Tooltip'
-import Sort from 'material-ui-icons/Sort'
-import IconButton from 'material-ui/IconButton'
+import SelectAll from './SelectAll'
+import Sort from './Sort'
 
 const borderBottom = `1px solid ${grey[200]}`
-const iconStyle = {
-  width: '2rem',
-  height: '2rem'
-}
 
 @inject('dragStore')
-@inject('arrangeStore')
 @observer
 export default class Title extends React.Component {
   onDragOver = (e) => {
@@ -27,7 +21,10 @@ export default class Title extends React.Component {
   }
 
   render () {
-    const { win: { id, tabs }, dragStore: { targetWinId }, arrangeStore: { sortTabs } } = this.props
+    const {
+      win: { id, tabs },
+      dragStore: { targetWinId }
+    } = this.props
     const { length } = tabs
     const { onDragOver, onDrop } = this
     const style = {
@@ -57,15 +54,8 @@ export default class Title extends React.Component {
     return (
       <div style={style} {...{ onDragOver, onDrop }}>
         {title}
-        <Tooltip title='Sort Tabs' placement='left' style={{
-          display: 'inline-flex'
-        }}>
-          <IconButton
-            style={iconStyle}
-            onClick={() => sortTabs(id)}>
-            <Sort />
-          </IconButton>
-        </Tooltip>
+        <SelectAll {...this.props} />
+        <Sort {...this.props} />
       </div>
     )
   }

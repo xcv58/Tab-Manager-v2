@@ -1,35 +1,31 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Checkbox from 'material-ui/Checkbox'
 import Tooltip from 'material-ui/Tooltip'
+import Checkbox from 'material-ui/Checkbox'
 
-@inject('searchStore')
 @inject('tabStore')
 @observer
 export default class SelectAll extends React.Component {
   selectAll = (e) => {
     e.target.blur()
     const {
-      searchStore: { allTabSelected, selectAll },
-      tabStore: { unselectAll }
+      win: { allTabSelected, tabs },
+      tabStore: { selectAll, unselectAll }
     } = this.props
     if (allTabSelected) {
-      unselectAll()
+      unselectAll(tabs)
     } else {
-      selectAll()
+      selectAll(tabs)
     }
   }
 
   render () {
-    const { allTabSelected } = this.props.searchStore
-    const { selection } = this.props.tabStore
-    const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
+    const { win: { allTabSelected } } = this.props
     return (
-      <Tooltip title={title}>
+      <Tooltip title='Select/Unselect all tabs'>
         <Checkbox
           checked={allTabSelected}
           onChange={this.selectAll}
-          indeterminate={selection.size !== 0 && !allTabSelected}
         />
       </Tooltip>
     )

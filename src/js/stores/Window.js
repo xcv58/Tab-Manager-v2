@@ -14,4 +14,9 @@ export default class Window {
   get lastFocused () {
     return this.id === this.store.windowStore.lastFocusedWindowId
   }
+
+  @computed
+  get allTabSelected () {
+    return this.tabs.every((tab) => this.store.tabStore.selection.has(tab.id))
+  }
 }

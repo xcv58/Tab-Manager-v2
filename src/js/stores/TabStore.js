@@ -43,8 +43,11 @@ export default class TabStore {
   }
 
   @action
-  unselectAll = () => {
-    this.selection.clear()
+  unselectAll = (tabs) => {
+    if (!tabs) {
+      return this.selection.clear()
+    }
+    tabs.forEach(({ id }) => this.selection.delete(id))
   }
 
   @computed
