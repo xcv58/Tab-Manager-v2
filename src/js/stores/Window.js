@@ -17,6 +17,14 @@ export default class Window {
 
   @computed
   get allTabSelected () {
-    return this.tabs.every((tab) => this.store.tabStore.selection.has(tab.id))
+    return this.tabs.every(this.store.tabStore.isTabSelected)
+  }
+
+  @computed
+  get someTabSelected () {
+    return !this.allTabSelected &&
+    this.tabs.some(
+      this.store.tabStore.isTabSelected
+    )
   }
 }

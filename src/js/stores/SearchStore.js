@@ -57,16 +57,17 @@ export default class SearchStore {
 
   @computed
   get allTabSelected () {
-    const { selection } = this.store.tabStore
-    if (this.matchedSet.size !== selection.size) {
-      return false
-    }
-    this.matchedSet.forEach((id) => {
-      if (!selection.has(id)) {
-        return false
-      }
-    })
-    return true
+    return this.matchedTabs.every(
+      this.store.tabStore.isTabSelected
+    )
+  }
+
+  @computed
+  get someTabSelected () {
+    return !this.allTabSelected &&
+    this.matchedTabs.some(
+      this.store.tabStore.isTabSelected
+    )
   }
 
   @action
@@ -137,6 +138,11 @@ export default class SearchStore {
   @action
   selectAll = () => {
     this.store.tabStore.selectAll(this.matchedTabs)
+  }
+
+  @action
+  unselectAll = () => {
+    this.store.tabStore.unselectAll()
   }
 
   @action

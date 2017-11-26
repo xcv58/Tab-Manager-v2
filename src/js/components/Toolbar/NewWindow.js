@@ -4,8 +4,8 @@ import Tooltip from 'material-ui/Tooltip'
 import OpenInNew from 'material-ui-icons/OpenInNew'
 import IconButton from 'material-ui/IconButton'
 
-@inject('tabStore')
 @inject('dragStore')
+@inject('tabStore')
 @observer
 export default class NewWindow extends React.Component {
   render () {

@@ -4,15 +4,13 @@ import Checkbox from 'material-ui/Checkbox'
 import Tooltip from 'material-ui/Tooltip'
 
 @inject('searchStore')
-@inject('tabStore')
 @observer
 export default class SelectAll extends React.Component {
   selectAll = (e) => {
     e.target.blur()
     const {
-      searchStore: { allTabSelected, selectAll },
-      tabStore: { unselectAll }
-    } = this.props
+      allTabSelected, selectAll, unselectAll
+    } = this.props.searchStore
     if (allTabSelected) {
       unselectAll()
     } else {
@@ -21,15 +19,14 @@ export default class SelectAll extends React.Component {
   }
 
   render () {
-    const { allTabSelected } = this.props.searchStore
-    const { selection } = this.props.tabStore
+    const { allTabSelected, someTabSelected } = this.props.searchStore
     const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
     return (
       <Tooltip title={title}>
         <Checkbox
           checked={allTabSelected}
           onChange={this.selectAll}
-          indeterminate={selection.size !== 0 && !allTabSelected}
+          indeterminate={someTabSelected}
         />
       </Tooltip>
     )

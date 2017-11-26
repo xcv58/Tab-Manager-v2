@@ -9,11 +9,6 @@ export default class TabStore {
   @observable selection = new Map()
 
   @computed
-  get closeAllTitle () {
-    return `Close ${this.tabDescription}`
-  }
-
-  @computed
   get tabDescription () {
     const { size } = this.selection
     if (size === 0) {
@@ -99,4 +94,6 @@ export default class TabStore {
       this.unselectAll()
     }
   }
+
+  isTabSelected = ({ id }) => this.selection.has(id)
 }

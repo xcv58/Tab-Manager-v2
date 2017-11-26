@@ -8,9 +8,9 @@ import IconButton from 'material-ui/IconButton'
 @observer
 export default class Close extends React.Component {
   render () {
-    const { closeAllTitle, remove } = this.props.tabStore
+    const { remove, tabDescription } = this.props.tabStore
     return (
-      <Tooltip title={closeAllTitle}>
+      <Tooltip title={`Close ${tabDescription}`}>
         <IconButton onClick={() => remove()}>
           <CloseIcon />
         </IconButton>
