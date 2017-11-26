@@ -8,6 +8,14 @@ export default class TabStore {
 
   @observable selection = new Map()
 
+  @computed
+  get closeAllTitle () {
+    if (this.selection.size === 0) {
+      return 'Close focused tab'
+    }
+    return 'Close selected tab' + (this.selection.size > 1 ? 's' : '')
+  }
+
   @action
   select = (tab) => {
     const { id } = tab

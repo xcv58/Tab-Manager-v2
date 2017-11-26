@@ -6,7 +6,7 @@ import Tooltip from 'material-ui/Tooltip'
 @inject('searchStore')
 @inject('tabStore')
 @observer
-export default class Toolbar extends React.Component {
+export default class SelectAll extends React.Component {
   selectAll = (e) => {
     e.target.blur()
     const {
@@ -23,16 +23,12 @@ export default class Toolbar extends React.Component {
   render () {
     const { allTabSelected } = this.props.searchStore
     return (
-      <div style={{
-        display: 'flex'
-      }}>
-        <Tooltip title='Select/Unselect all tabs'>
-          <Checkbox
-            checked={allTabSelected}
-            onChange={this.selectAll}
-          />
-        </Tooltip>
-      </div>
+      <Tooltip title='Select/Unselect all tabs'>
+        <Checkbox
+          checked={allTabSelected}
+          onChange={this.selectAll}
+        />
+      </Tooltip>
     )
   }
 }
