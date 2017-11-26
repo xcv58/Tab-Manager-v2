@@ -6,6 +6,7 @@ import Search from 'components/Search'
 import Summary from 'components/Summary'
 import Tools from 'components/Tools'
 import Shortcut from 'components/Shortcut'
+import Toolbar from 'components/Toolbar'
 
 @inject('windowStore')
 @inject('shortcutStore')
@@ -54,6 +55,7 @@ export default class App extends React.Component {
           <Tools />
         </div>
         <WindowList />
+        <Toolbar />
         <Shortcut />
       </div>
     )

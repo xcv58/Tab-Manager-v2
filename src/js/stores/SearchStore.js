@@ -55,6 +55,20 @@ export default class SearchStore {
     return this.focusedWindow.tabs.findIndex((tab) => tab.id === this.focusedTab)
   }
 
+  @computed
+  get allTabSelected () {
+    const { selection } = this.store.tabStore
+    if (this.matchedSet.size !== selection.size) {
+      return false
+    }
+    this.matchedSet.forEach((id) => {
+      if (!selection.has(id)) {
+        return false
+      }
+    })
+    return true
+  }
+
   @action
   startType = () => {
     this.typing = true
