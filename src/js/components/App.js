@@ -7,6 +7,23 @@ import Summary from 'components/Summary'
 import Tools from 'components/Tools'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
+import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
+
+const theme = createMuiTheme({
+  overrides: {
+    MuiIconButton: {
+      root: {
+        height: '2.5rem',
+        width: '2.5rem'
+      }
+    },
+    MuiTooltip: {
+      root: {
+        display: 'inline-flex'
+      }
+    }
+  }
+})
 
 @inject('windowStore')
 @inject('shortcutStore')
@@ -37,27 +54,29 @@ export default class App extends React.Component {
       return (<Loading />)
     }
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        height: '100vh'
-      }}>
-        <Summary />
+      <MuiThemeProvider theme={theme}>
         <div style={{
           display: 'flex',
-          alignItems: 'center',
-          marginTop: '-0.8rem',
-          flex: '0 0 auto',
-          padding: '0 4px'
+          flexDirection: 'column',
+          overflow: 'hidden',
+          height: '100vh'
         }}>
-          <Search inputRef={(input) => { this.search = input }} />
-          <Tools />
+          <Summary />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginTop: '-0.8rem',
+            flex: '0 0 auto',
+            padding: '0 4px'
+          }}>
+            <Search inputRef={(input) => { this.search = input }} />
+            <Tools />
+          </div>
+          <WindowList />
+          <Toolbar />
+          <Shortcut />
         </div>
-        <WindowList />
-        <Toolbar />
-        <Shortcut />
-      </div>
+      </MuiThemeProvider>
     )
   }
 }
