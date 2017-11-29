@@ -17,6 +17,11 @@ const theme = createMuiTheme({
         width: '2.5rem'
       }
     },
+    MuiSwitch: {
+      root: {
+        width: '3.5rem'
+      }
+    },
     MuiTooltip: {
       root: {
         display: 'inline-flex'
