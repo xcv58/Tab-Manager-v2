@@ -24,7 +24,7 @@ export default class UserStore {
   @action
   hideToolbar = () => {
     this._clearHideToolbarHandler()
-    this.hideToolbarHandler = setTimeout(this._hideToolbar, 500)
+    this.hideToolbarHandler = setTimeout(this._hideToolbar, 2000)
   }
 
   @action

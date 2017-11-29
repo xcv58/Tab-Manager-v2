@@ -6,7 +6,6 @@ import SelectAll from './SelectAll'
 import Close from './Close'
 import NewWindow from './NewWindow'
 import GroupAndSort from './GroupAndSort'
-import ToolbarSwitch from './ToolbarSwitch'
 
 @inject('userStore')
 @observer
@@ -25,7 +24,8 @@ export default class Toolbar extends React.Component {
             position: 'fixed',
             bottom: 0,
             right: 0
-          }}>
+          }}
+        >
           <IconButton>
             <KeyboardArrowLeft />
           </IconButton>
@@ -36,17 +36,12 @@ export default class Toolbar extends React.Component {
       <div
         onMouseEnter={showToolbar}
         onMouseLeave={hideToolbar}
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between'
-        }}>
-        <div>
-          <GroupAndSort />
-          <SelectAll />
-          <NewWindow />
-          <Close />
-        </div>
-        <ToolbarSwitch />
+        style={{ display: 'flex' }}
+      >
+        <GroupAndSort />
+        <SelectAll />
+        <NewWindow />
+        <Close />
       </div>
     )
   }

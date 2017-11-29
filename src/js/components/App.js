@@ -4,7 +4,7 @@ import Loading from 'components/Loading'
 import WindowList from 'components/WindowList'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
-import Tools from 'components/Tools'
+import ToolbarSwitch from 'components/Toolbar/ToolbarSwitch'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
@@ -75,7 +75,7 @@ export default class App extends React.Component {
             padding: '0 4px'
           }}>
             <Search inputRef={(input) => { this.search = input }} />
-            <Tools />
+            <ToolbarSwitch />
           </div>
           <WindowList />
           <Toolbar />
