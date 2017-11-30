@@ -26,7 +26,8 @@ export default class Window extends React.Component {
           easing='ease-in-out'
           appearAnimation='accordionHorizontal'
           enterAnimation='accordionHorizontal'
-          leaveAnimation='accordionHorizontal'>
+          leaveAnimation='accordionHorizontal'
+        >
           {content}
         </FlipMove>
       </div>

@@ -13,24 +13,40 @@ export default class UserStore {
 
   init = async () => {
     this.toolbarAutoHide = await getToolbarAutoHide()
+    this.toolbarVisible = !this.toolbarAutoHide
   }
 
   @action
   toggleAutoHide = () => {
-    this.toolbarAutoHide = !this.toolbarAutoHide
-    setToolbarAutoHide(this.toolbarAutoHide)
+    this._clearHideToolbarHandler()
+    setToolbarAutoHide(!this.toolbarAutoHide)
+    this.init()
   }
 
   @action
-  hideToolbar = () => {
+  lazyHideToolbar = () => {
+    if (!this.toolbarAutoHide) {
+      return
+    }
     this._clearHideToolbarHandler()
-    this.hideToolbarHandler = setTimeout(this._hideToolbar, 2000)
+    this.hideToolbarHandler = setTimeout(this.hideToolbar, 500)
   }
 
   @action
   showToolbar = () => {
+    if (!this.toolbarAutoHide) {
+      return
+    }
     this._clearHideToolbarHandler()
     this.toolbarVisible = true
+  }
+
+  @action
+  hideToolbar = () => {
+    if (!this.toolbarAutoHide) {
+      return
+    }
+    this.toolbarVisible = false
   }
 
   _clearHideToolbarHandler = () => {
@@ -38,9 +54,5 @@ export default class UserStore {
       clearTimeout(this.hideToolbarHandler)
     }
     this.hideToolbarHandler = null
-  }
-
-  _hideToolbar = () => {
-    this.toolbarVisible = false
   }
 }
