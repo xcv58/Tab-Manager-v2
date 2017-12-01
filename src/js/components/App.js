@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import Fade from 'material-ui/transitions/Fade'
 import Loading from 'components/Loading'
 import WindowList from 'components/WindowList'
 import Search from 'components/Search'
@@ -82,7 +83,9 @@ export default class App extends React.Component {
           overflow: 'hidden',
           height: '100vh'
         }}>
-          <Summary />
+          <Fade in>
+            <Summary />
+          </Fade>
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -93,7 +96,9 @@ export default class App extends React.Component {
             <Search inputRef={(input) => { this.search = input }} />
             <ToolbarSwitch />
           </div>
-          <WindowList />
+          <Fade in>
+            <WindowList />
+          </Fade>
           <Toolbar />
           <Shortcut />
         </div>
