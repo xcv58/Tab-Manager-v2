@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import Slide from 'material-ui/transitions/Slide'
 import SelectAll from './SelectAll'
 import Close from './Close'
 import NewWindow from './NewWindow'
@@ -14,12 +15,14 @@ export default class Toolbar extends React.Component {
       return null
     }
     return (
-      <div>
-        <GroupAndSort />
-        <SelectAll />
-        <NewWindow />
-        <Close />
-      </div>
+      <Slide direction='up' in>
+        <div>
+          <GroupAndSort />
+          <SelectAll />
+          <NewWindow />
+          <Close />
+        </div>
+      </Slide>
     )
   }
 }

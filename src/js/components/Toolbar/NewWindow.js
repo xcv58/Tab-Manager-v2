@@ -13,12 +13,14 @@ export default class NewWindow extends React.Component {
     const { selection, tabDescription } = this.props.tabStore
     return (
       <Tooltip title={`Open ${tabDescription} in new window`}>
-        <IconButton
-          onClick={() => dropToNewWindow()}
-          disabled={selection.size === 0}
-        >
-          <OpenInNew />
-        </IconButton>
+        <div>
+          <IconButton
+            onClick={() => dropToNewWindow()}
+            disabled={selection.size === 0}
+          >
+            <OpenInNew />
+          </IconButton>
+        </div>
       </Tooltip>
     )
   }
