@@ -22,6 +22,22 @@ const theme = createMuiTheme({
         width: '3.5rem'
       }
     },
+    MuiSnackbar: {
+      root: {
+        left: 'unset',
+        right: 0,
+        margin: 'auto'
+      }
+    },
+    MuiSnackbarContent: {
+      root: {
+        fontSize: '1.5rem',
+        padding: '0 2rem',
+        justifyContent: 'center',
+        textTransform: 'capitalize',
+        backgroundColor: 'rgba(0, 0, 0, 0.618)'
+      }
+    },
     MuiTooltip: {
       root: {
         display: 'inline-flex'
