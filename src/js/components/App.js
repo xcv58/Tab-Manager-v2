@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Fade from 'material-ui/transitions/Fade'
+import Slide from 'material-ui/transitions/Slide'
 import Loading from 'components/Loading'
 import WindowList from 'components/WindowList'
 import Search from 'components/Search'
@@ -83,9 +84,9 @@ export default class App extends React.Component {
           overflow: 'hidden',
           height: '100vh'
         }}>
-          <Fade in>
+          <Slide in direction='down'>
             <Summary />
-          </Fade>
+          </Slide>
           <div style={{
             display: 'flex',
             alignItems: 'center',
