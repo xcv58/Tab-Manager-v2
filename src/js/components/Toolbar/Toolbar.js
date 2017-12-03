@@ -11,11 +11,8 @@ import GroupAndSort from './GroupAndSort'
 export default class Toolbar extends React.Component {
   render () {
     const { toolbarVisible } = this.props.userStore
-    if (!toolbarVisible) {
-      return null
-    }
     return (
-      <Slide direction='up' in>
+      <Slide in={toolbarVisible} direction='up'>
         <div>
           <GroupAndSort />
           <SelectAll />

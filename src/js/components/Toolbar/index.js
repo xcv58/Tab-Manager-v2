@@ -18,8 +18,7 @@ export default class ToolbarWrapper extends React.Component {
           width: 'fit-content',
           position: 'fixed',
           bottom: 0,
-          right: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.8)'
+          right: 0
         }}
       >
         <Toolbar />
