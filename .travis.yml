@@ -17,7 +17,7 @@ script:
 after_script:
   - yarn codecov
   - yarn coveralls
-  - yarn lcov && ./cc-test-reporter after-build --coverage-input-type lcov
+  - ./cc-test-reporter after-build --coverage-input-type lcov
 deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN

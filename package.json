@@ -10,7 +10,6 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "deploy": "NODE_ENV=production yarn build && yarn zip",
     "zip": "zip -X --compression-method deflate -r build.zip build/*",
-    "lcov": "nyc report --reporter=lcov",
     "lint": "standard",
     "lintfix": "yarn lint -- --fix",
     "start": "node utils/webserver.js",
@@ -81,5 +80,11 @@
       "babel-register"
     ],
     "babel": "inherit"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
   }
 }
