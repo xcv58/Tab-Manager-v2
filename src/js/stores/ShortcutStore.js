@@ -121,6 +121,10 @@ export default class ShortcutStore {
       e.preventDefault()
       this.store.searchStore.selectAll()
     }, 'Select all matched tab' ],
+    [ [ '* u', 'ctrl+u' ], (e) => {
+      e.preventDefault()
+      this.store.searchStore.invertSelect()
+    }, 'Invert select tabs' ],
     [ [ '* a', 'ctrl+8' ], (e) => {
       e.preventDefault()
       this.store.windowStore.selectAll()

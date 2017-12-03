@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-react'
 import Slide from 'material-ui/transitions/Slide'
 import SelectAll from './SelectAll'
 import Close from './Close'
+import InvertSelect from './InvertSelect'
 import NewWindow from './NewWindow'
 import GroupAndSort from './GroupAndSort'
 
@@ -16,6 +17,7 @@ export default class Toolbar extends React.Component {
         <div>
           <GroupAndSort />
           <SelectAll />
+          <InvertSelect />
           <NewWindow />
           <Close />
         </div>

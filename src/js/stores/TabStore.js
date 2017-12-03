@@ -38,6 +38,18 @@ export default class TabStore {
   }
 
   @action
+  invertSelect = (tabs) => {
+    tabs.forEach((tab) => {
+      const { id } = tab
+      if (this.selection.has(id)) {
+        this.selection.delete(id)
+      } else {
+        this.selection.set(id, tab)
+      }
+    })
+  }
+
+  @action
   unselectAll = (tabs) => {
     if (!tabs) {
       return this.selection.clear()

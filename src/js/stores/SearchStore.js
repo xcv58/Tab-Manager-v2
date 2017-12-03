@@ -141,6 +141,11 @@ export default class SearchStore {
   }
 
   @action
+  invertSelect = () => {
+    this.store.tabStore.invertSelect(this.matchedTabs)
+  }
+
+  @action
   unselectAll = () => {
     this.store.tabStore.unselectAll()
   }
