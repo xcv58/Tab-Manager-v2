@@ -4,11 +4,9 @@ import Fade from 'material-ui/transitions/Fade'
 import Slide from 'material-ui/transitions/Slide'
 import Loading from 'components/Loading'
 import WindowList from 'components/WindowList'
-import Search from 'components/Search'
-import Summary from 'components/Summary'
-import ToolbarSwitch from 'components/Toolbar/ToolbarSwitch'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
+import Tools from 'components/Tools'
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
 
 const theme = createMuiTheme({
@@ -78,18 +76,8 @@ export default class App extends React.Component {
           height: '100vh'
         }}>
           <Slide in direction='down'>
-            <Summary />
+            <Tools inputRef={(input) => { this.search = input }} />
           </Slide>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: '-0.8rem',
-            flex: '0 0 auto',
-            padding: '0 4px'
-          }}>
-            <Search inputRef={(input) => { this.search = input }} />
-            <ToolbarSwitch />
-          </div>
           <Fade in>
             <WindowList />
           </Fade>

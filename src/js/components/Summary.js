@@ -2,6 +2,9 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 
 const fakeButtonStyle = {
+  position: 'fixed',
+  top: 0,
+  width: '100%',
   margin: 'auto',
   fontSize: '0.8rem',
   padding: 0,
