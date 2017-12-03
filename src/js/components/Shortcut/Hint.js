@@ -12,7 +12,7 @@ export default class Hint extends React.Component {
       <Snackbar
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'right'
+          horizontal: 'center'
         }}
         transition={Fade}
         open={toastOpen}

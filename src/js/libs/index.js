@@ -59,8 +59,8 @@ export const openPopup = () => {
     availTop,
     availWidth
   } = screen
-  const width = Math.max(800, availWidth / 2)
-  const height = Math.max(600, availHeight / 2)
+  const width = Math.max(1024, availWidth / 2)
+  const height = Math.max(768, availHeight / 2)
   const top = availTop + (availHeight - height) / 2
   const left = availLeft + (availWidth - width) / 2
 
