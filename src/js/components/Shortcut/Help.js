@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Table, { TableBody, TableCell, TableRow } from 'material-ui/Table'
 import Hotkeys from './Hotkeys'
+import { getDescription } from 'stores/ShortcutStore'
 
 @inject('shortcutStore')
 @observer
@@ -12,7 +13,7 @@ export default class Help extends React.Component {
       <TableRow key={i} hover>
         <Hotkeys keys={keys} />
         <TableCell>
-          {description || 'default description'}
+          {getDescription(description)}
         </TableCell>
       </TableRow>
     ))

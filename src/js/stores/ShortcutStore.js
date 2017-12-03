@@ -2,7 +2,7 @@ import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
 
-const getDescription = (description) => {
+export const getDescription = (description) => {
   if (typeof description === 'string') {
     return description
   }
@@ -85,7 +85,11 @@ export default class ShortcutStore {
         return 'Go to tab list'
       }
       if (this.dialogOpen) {
-        return 'Close hotkey dialog'
+        return `
+          Close hotkey dialog;
+          Go to tab list if typing in search box;
+          Clear search text if search box is not focused.
+        `
       }
       return 'Clear search text'
     } ],
