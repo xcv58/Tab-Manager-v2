@@ -57,7 +57,7 @@ export default class WindowsStore {
     if (this.windows.length <= 0) {
       return
     }
-    if (this.store.searchStore.focusedTab) {
+    if (this.store.searchStore.focusedWinIndex !== -1) {
       return
     }
     const tab = this.windows[0].tabs.find(x => x.active)

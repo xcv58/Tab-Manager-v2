@@ -74,10 +74,10 @@ export default class TabStore {
 
   @action
   remove = () => {
-    const { findFocusedTab, focusedTab } = this.store.searchStore
+    const { down, focusedTab } = this.store.searchStore
     if (this.selection.size > 0) {
       while (this.selection.has(this.store.searchStore.focusedTab)) {
-        findFocusedTab()
+        down()
         if (focusedTab === this.store.searchStore.focusedTab) {
           this.store.searchStore.defocusTab()
           break
@@ -89,7 +89,7 @@ export default class TabStore {
       )
     } else {
       if (focusedTab) {
-        findFocusedTab()
+        down()
         chrome.tabs.remove(focusedTab)
       }
     }
