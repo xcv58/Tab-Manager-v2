@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { grey } from 'material-ui/colors'
-import { dropTargetColor } from 'libs'
+import { dropTargetColor, highlightColor } from 'libs'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
 
@@ -22,7 +22,7 @@ export default class Title extends React.Component {
 
   render () {
     const {
-      win: { id, tabs },
+      win: { id, tabs, lastFocused },
       dragStore: { targetWinId }
     } = this.props
     const { length } = tabs
@@ -48,6 +48,9 @@ export default class Title extends React.Component {
         {text}
       </span>
     )
+    if (lastFocused) {
+      style.backgroundColor = highlightColor
+    }
     if (isOver) {
       style.backgroundColor = dropTargetColor
     }

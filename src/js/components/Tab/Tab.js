@@ -1,6 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import { blue, red, grey } from 'material-ui/colors'
+import { blue, red } from 'material-ui/colors'
+import { highlightColor } from 'libs'
 import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
@@ -16,7 +17,7 @@ const tabStyle = {
   boxShadow: `-${indicatorWidth} 0px white`
 }
 const highlightStyle = {
-  backgroundColor: grey[100]
+  backgroundColor: highlightColor
 }
 const selectedStyle = {
   backgroundColor: blue[100],
