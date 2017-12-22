@@ -1,6 +1,5 @@
 import React from 'react'
 import { TableCell } from 'material-ui/Table'
-import { blue500 } from 'libs/colors'
 
 export default ({ keys }) => {
   let content = keys
@@ -19,7 +18,6 @@ export default ({ keys }) => {
         display: 'flex',
         flexDirection: 'row-reverse',
         justifyContent: 'space-between',
-        color: blue500,
         textTransform: 'capitalize'
       }}>
         {content}
