@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tab from './Tab'
-import { highlightBorderColor, bottomColor } from 'libs/colors'
+import { highlightBorderColor, borderColor } from 'libs/colors'
 
 const getBackground = (before) => `
   linear-gradient(to ${before ? 'bottom' : 'top'}, ${highlightBorderColor}, white, white, white)
@@ -42,7 +42,7 @@ export default class DraggableTab extends React.Component {
   render () {
     const { tab: { id }, dragStore: { before, targetId } } = this.props
     const style = {
-      borderBottom: `1px solid ${bottomColor}`
+      borderBottom: `1px solid ${borderColor}`
     }
     if (targetId === id) {
       style.background = getBackground(before)

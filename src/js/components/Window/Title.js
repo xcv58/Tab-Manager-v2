@@ -2,9 +2,9 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { dropTargetColor, highlightColor, bottomColor } from 'libs/colors'
+import { dropTargetColor, highlightColor, borderColor } from 'libs/colors'
 
-const borderBottom = `1px solid ${bottomColor}`
+const borderBottom = `1px solid ${borderColor}`
 
 @inject('dragStore')
 @observer
