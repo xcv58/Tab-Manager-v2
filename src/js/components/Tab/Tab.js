@@ -1,10 +1,11 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import { blue, red } from 'material-ui/colors'
-import { highlightColor } from 'libs'
 import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
+import {
+  focusedColor, highlightColor, highlightBorderColor
+} from 'libs/colors'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -20,11 +21,11 @@ const highlightStyle = {
   backgroundColor: highlightColor
 }
 const selectedStyle = {
-  backgroundColor: blue[100],
-  boxShadow: `-${indicatorWidth} 0px ${blue[100]}`
+  backgroundColor: focusedColor,
+  boxShadow: `-${indicatorWidth} 0px ${focusedColor}`
 }
 const focusedStyle = {
-  borderLeft: `${indicatorWidth} ${red[500]} solid`
+  borderLeft: `${indicatorWidth} ${highlightBorderColor} solid`
 }
 const notMatchStyle = {
   opacity: 0.3
@@ -67,7 +68,7 @@ export default class Tab extends React.Component {
       return text
     }
     const result = match(query, text, {
-      pre: `<span style='color:${red[500]}'>`,
+      pre: `<span style='color:${highlightBorderColor}'>`,
       post: '</span>'
     })
     if (!result) {

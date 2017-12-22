@@ -1,7 +1,3 @@
-import { green, grey } from 'material-ui/colors'
-
-export const dropTargetColor = green[100]
-export const highlightColor = grey[100]
 export const popupURL = chrome.runtime.getURL('popup.html')
 
 export const moveTabs = async (tabs, windowId, from = 0) => {

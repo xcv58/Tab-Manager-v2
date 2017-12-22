@@ -1,11 +1,10 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { grey } from 'material-ui/colors'
-import { dropTargetColor, highlightColor } from 'libs'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
+import { dropTargetColor, highlightColor, grey200 } from 'libs/colors'
 
-const borderBottom = `1px solid ${grey[200]}`
+const borderBottom = `1px solid ${grey200}`
 
 @inject('dragStore')
 @observer

@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import DraggableTab from 'components/Tab/DraggableTab'
-import { blue } from 'material-ui/colors'
+import { focusedColor } from 'libs/colors'
 
 @inject('dragStore')
 @inject('tabStore')
@@ -27,7 +27,7 @@ export default class DragPreview extends React.Component {
         style={{
           width: '64%',
           position: 'fixed',
-          background: blue[100],
+          background: focusedColor,
           textAlign: 'center',
           top: 2048
         }}>

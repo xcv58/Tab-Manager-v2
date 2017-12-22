@@ -1,10 +1,10 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { grey, red } from 'material-ui/colors'
 import Tab from './Tab'
+import { highlightBorderColor, grey200 } from 'libs/colors'
 
 const getBackground = (before) => `
-  linear-gradient(to ${before ? 'bottom' : 'top'}, ${red[500]}, white, white, white)
+  linear-gradient(to ${before ? 'bottom' : 'top'}, ${highlightBorderColor}, white, white, white)
 `
 
 @inject('dragStore')
@@ -42,7 +42,7 @@ export default class DraggableTab extends React.Component {
   render () {
     const { tab: { id }, dragStore: { before, targetId } } = this.props
     const style = {
-      borderBottom: `1px solid ${grey[200]}`
+      borderBottom: `1px solid ${grey200}`
     }
     if (targetId === id) {
       style.background = getBackground(before)
