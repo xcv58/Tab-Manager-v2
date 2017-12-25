@@ -10,8 +10,7 @@ export default class DragPreview extends React.Component {
   render () {
     const {
       tabStore: { sources },
-      dragStore: { dragging },
-      setDragPreview
+      dragStore: { dragging }
     } = this.props
     const head = dragging && (
       <h3>
@@ -23,13 +22,14 @@ export default class DragPreview extends React.Component {
     ))
     return (
       <div
-        ref={setDragPreview}
+        id='dragPreview'
         style={{
           width: '64%',
           position: 'fixed',
           background: focusedColor,
           textAlign: 'center',
-          top: 2048
+          top: 2048,
+          left: 2048
         }}>
         {head}
         {content}

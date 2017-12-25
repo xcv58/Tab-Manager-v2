@@ -1,31 +1,34 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import { DropTarget } from 'react-dnd'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
 import { dropTargetColor, highlightColor, borderColor } from 'libs/colors'
+import { ItemTypes } from 'libs'
 
 const borderBottom = `1px solid ${borderColor}`
 
 @inject('dragStore')
 @observer
+@DropTarget(
+  ItemTypes.TAB,
+  {
+    drop (props) {
+      props.dragStore.dropToNewWindow()
+    }
+  },
+  (connect, monitor) => ({
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver()
+  })
+)
 export default class Title extends React.Component {
-  onDragOver = (e) => {
-    e.nativeEvent.preventDefault()
-    const { win: { id }, dragStore: { setTargetWinId } } = this.props
-    setTargetWinId(id)
-  }
-
-  onDrop = () => {
-    this.props.dragStore.dropToNewWindow()
-  }
-
   render () {
     const {
-      win: { id, tabs, lastFocused },
-      dragStore: { targetWinId }
+      connectDropTarget, isOver,
+      win: { tabs, lastFocused }
     } = this.props
     const { length } = tabs
-    const { onDragOver, onDrop } = this
     const style = {
       borderBottom,
       display: 'flex',
@@ -37,7 +40,6 @@ export default class Title extends React.Component {
       fontWeight: 'bold',
       lineHeight: '2.5rem'
     }
-    const isOver = id === targetWinId
     const text = isOver ? 'New Window' : `${length} tab${length > 1 ? 's' : ''}`
     const title = (
       <span style={{
@@ -53,8 +55,8 @@ export default class Title extends React.Component {
     if (isOver) {
       style.backgroundColor = dropTargetColor
     }
-    return (
-      <div style={style} {...{ onDragOver, onDrop }}>
+    return connectDropTarget(
+      <div style={style}>
         {title}
         <SelectAll {...this.props} />
         <Sort {...this.props} />

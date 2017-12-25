@@ -1,7 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Window from 'components/Window'
-import DragPreview from 'components/DragPreview'
 import ShadowScrollbars from 'libs/ShadowScrollbars'
 
 const View = (props) => {
@@ -39,9 +38,6 @@ export default class WindowList extends React.Component {
           flex: '1 1 auto',
           height: 'fit-content'
         }}>
-        <DragPreview
-          setDragPreview={(dragPreview) => { this.dragPreview = dragPreview }}
-        />
         {winList}
       </ShadowScrollbars>
     )

@@ -7,9 +7,6 @@ export default class DragStore {
     this.store = store
   }
 
-  @observable targetId = null
-  @observable targetWinId = null
-  @observable before = true
   @observable dragging = false
   @observable dropped = false
 
@@ -29,24 +26,8 @@ export default class DragStore {
 
   clear = () => {
     this.store.tabStore.selection.clear()
-    this.targetWinId = null
-    this.targetId = null
-    this.before = false
     this.dragging = false
     this.dropped = false
-  }
-
-  @action
-  setDropTarget = (id, before) => {
-    this.targetWinId = null
-    this.targetId = id
-    this.before = before
-  }
-
-  @action
-  setTargetWinId = (winId) => {
-    this.targetId = null
-    this.targetWinId = winId
   }
 
   getUnselectedTabs = (tabs) => {
@@ -54,11 +35,11 @@ export default class DragStore {
   }
 
   @action
-  drop = async (tab) => {
+  drop = async (tab, before = true) => {
     this.dropped = true
     const { windowId } = tab
     const win = await chrome.windows.get(windowId, { populate: true })
-    const targetIndex = tab.index + (this.before ? 0 : 1)
+    const targetIndex = tab.index + (before ? 0 : 1)
     const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
     if (index !== targetIndex) {
       const tabs = this.getUnselectedTabs(win.tabs)

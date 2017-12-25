@@ -1,65 +1,69 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
-import { highlightBorderColor, borderColor } from 'libs/colors'
+import { borderColor } from 'libs/colors'
+import { ItemTypes, getBackground } from 'libs'
 
-const getBackground = (before) => `
-  linear-gradient(to ${before ? 'bottom' : 'top'}, ${highlightBorderColor}, white, white, white)
-`
+const tabSource = {
+  beginDrag (props, monitor, component) {
+    const { tab, dragStore: { dragStart } } = props
+    dragStart(tab)
+    return { id: props.tab.id }
+  },
+  endDrag (props, monitor, component) {
+    props.dragStore.dragEnd()
+  }
+}
+
+const tabTarget = {
+  drop (props) {
+    const { tab, dragStore: { drop } } = props
+    drop(tab)
+  }
+}
 
 @inject('dragStore')
 @observer
+@DropTarget(
+  ItemTypes.TAB,
+  tabTarget,
+  (connect, monitor) => ({
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver({ shallow: true })
+  })
+)
+@DragSource(
+  ItemTypes.TAB,
+  tabSource,
+  (connect, monitor) => ({
+    connectDragSource: connect.dragSource(),
+    connectDragPreview: connect.dragPreview()
+  })
+)
 export default class DraggableTab extends React.Component {
-  onDragStart = (e) => {
-    const { dragPreview, tab, dragStore: { dragStart } } = this.props
-    dragStart(tab)
-    e.dataTransfer.setDragImage(dragPreview(), 0, 0)
-  }
-
-  onDragEnd = () => {
-    this.props.dragStore.dragEnd()
-  }
-
-  onDragOver = (e) => {
-    e.nativeEvent.preventDefault()
-    const { tab: { id }, dragStore: { setDropTarget } } = this.props
-    const { offsetY } = e.nativeEvent
-    const { clientHeight } = this.node
-    const before = offsetY < clientHeight / 2
-    setDropTarget(id, before)
-  }
-
-  onDragLeave = () => {
-    const { dragStore: { setDropTarget } } = this.props
-    setDropTarget(null)
-  }
-
-  onDrop = () => {
-    const { dragStore: { drop } } = this.props
-    drop(this.props.tab)
+  componentDidMount () {
+    const { connectDragPreview } = this.props
+    connectDragPreview(document.getElementById('dragPreview'))
   }
 
   render () {
-    const { tab: { id }, dragStore: { before, targetId } } = this.props
+    const { connectDragSource, connectDropTarget, isOver } = this.props
     const style = {
       borderBottom: `1px solid ${borderColor}`
     }
-    if (targetId === id) {
-      style.background = getBackground(before)
+    if (isOver) {
+      style.background = getBackground(true)
     }
-    const { onDragStart, onDragLeave, onDragEnd, onDragOver, onDrop } = this
-    return (
+    return connectDropTarget(connectDragSource(
       <div
-        draggable
         style={{
           ...style,
           ...this.props.style
         }}
-        ref={(el) => { this.node = el || this.node }}
-        {...{ onDragStart, onDragLeave, onDragEnd, onDragOver, onDrop }}
       >
         <Tab {...this.props} />
       </div>
-    )
+    ))
   }
 }

@@ -7,7 +7,10 @@ import WindowList from 'components/WindowList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import Tools from 'components/Tools'
+import DragPreview from 'components/DragPreview'
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
+import { DragDropContext } from 'react-dnd'
+import HTML5Backend from 'react-dnd-html5-backend'
 
 const theme = createMuiTheme({
   overrides: {
@@ -39,6 +42,7 @@ const theme = createMuiTheme({
   }
 })
 
+@DragDropContext(HTML5Backend)
 @inject('windowStore')
 @inject('shortcutStore')
 @observer
@@ -83,6 +87,7 @@ export default class App extends React.Component {
           </Fade>
           <Toolbar />
           <Shortcut />
+          <DragPreview />
         </div>
       </MuiThemeProvider>
     )

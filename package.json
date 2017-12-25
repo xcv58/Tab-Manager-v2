@@ -29,6 +29,8 @@
     "mousetrap": "^1.6.1",
     "react": "^16.2.0",
     "react-custom-scrollbars": "^4.2.1",
+    "react-dnd": "^2.5.4",
+    "react-dnd-html5-backend": "^2.5.4",
     "react-dom": "^16.2.0",
     "react-flip-move": "^2.10.0",
     "rebound": "^0.0.15"

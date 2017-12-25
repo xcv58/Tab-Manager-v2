@@ -1,3 +1,5 @@
+import { highlightBorderColor } from 'libs/colors'
+
 export const popupURL = chrome.runtime.getURL('popup.html')
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
@@ -120,3 +122,11 @@ export const getToolbarAutoHide = async () => {
   const { toolbarAutoHide } = await chrome.storage.sync.get({ toolbarAutoHide: false })
   return toolbarAutoHide
 }
+
+export const ItemTypes = {
+  TAB: 'tab'
+}
+
+export const getBackground = (before) => `
+  linear-gradient(to ${before ? 'bottom' : 'top'}, ${highlightBorderColor}, white, white, white)
+`
