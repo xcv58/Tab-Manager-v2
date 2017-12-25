@@ -81,11 +81,6 @@ export default class Tab {
   }
 
   @computed
-  get dragging () {
-    return this.store.dragStore.dragging
-  }
-
-  @computed
   get shouldHighlight () {
     return this.isMatched && (this.isFocused || this.isHovered)
   }

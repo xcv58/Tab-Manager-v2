@@ -7,14 +7,12 @@ export default class DragStore {
     this.store = store
   }
 
-  @observable dragging = false
   @observable dropped = false
 
   @action
   dragStart = (tab) => {
     this.store.searchStore.defocusTab()
     this.store.tabStore.selection.set(tab.id, tab)
-    this.dragging = true
   }
 
   @action
@@ -26,7 +24,6 @@ export default class DragStore {
 
   clear = () => {
     this.store.tabStore.selection.clear()
-    this.dragging = false
     this.dropped = false
   }
 

@@ -3,21 +3,17 @@ import { inject, observer } from 'mobx-react'
 import DraggableTab from 'components/Tab/DraggableTab'
 import { focusedColor } from 'libs/colors'
 
-@inject('dragStore')
 @inject('tabStore')
 @observer
 export default class DragPreview extends React.Component {
   render () {
-    const {
-      tabStore: { sources },
-      dragStore: { dragging }
-    } = this.props
-    const head = dragging && (
+    const { tabStore: { sources } } = this.props
+    const head = (
       <h3>
         {sources.length} tab{sources.length > 1 && 's'}
       </h3>
     )
-    const content = dragging && sources.map((tab) => (
+    const content = sources.map((tab) => (
       <DraggableTab key={tab.id} tab={tab} faked />
     ))
     return (

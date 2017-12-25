@@ -7,9 +7,13 @@ import { ItemTypes, getBackground } from 'libs'
 
 const tabSource = {
   beginDrag (props, monitor, component) {
-    const { tab, dragStore: { dragStart } } = props
+    const {
+      tab,
+      dragStore: { dragStart },
+      tabStore: { sources }
+    } = props
     dragStart(tab)
-    return { id: props.tab.id }
+    return { sources }
   },
   endDrag (props, monitor, component) {
     props.dragStore.dragEnd()
@@ -23,6 +27,7 @@ const tabTarget = {
   }
 }
 
+@inject('tabStore')
 @inject('dragStore')
 @observer
 @DropTarget(
@@ -62,7 +67,7 @@ export default class DraggableTab extends React.Component {
           ...this.props.style
         }}
       >
-        <Tab {...this.props} />
+        <Tab isOver={isOver} {...this.props} />
       </div>
     ))
   }
