@@ -27,7 +27,6 @@ const tabTarget = {
 }
 
 @inject('dragStore')
-@observer
 @DropTarget(
   ItemTypes.TAB,
   tabTarget,
@@ -45,6 +44,7 @@ const tabTarget = {
     isDragging: monitor.isDragging()
   })
 )
+@observer
 export default class DraggableTab extends React.Component {
   componentDidMount () {
     const { connectDragPreview } = this.props

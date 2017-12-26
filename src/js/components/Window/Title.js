@@ -7,7 +7,6 @@ import { dropTargetColor, highlightColor } from 'libs/colors'
 import { ItemTypes } from 'libs'
 
 @inject('dragStore')
-@observer
 @DropTarget(
   ItemTypes.TAB,
   {
@@ -20,6 +19,7 @@ import { ItemTypes } from 'libs'
     isOver: monitor.isOver()
   })
 )
+@observer
 export default class Title extends React.Component {
   render () {
     const {

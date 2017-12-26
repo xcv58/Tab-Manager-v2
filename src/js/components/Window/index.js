@@ -8,7 +8,6 @@ import DraggableTab from 'components/Tab/DraggableTab'
 import { ItemTypes } from 'libs'
 
 @inject('dragStore')
-@observer
 @DropTarget(
   ItemTypes.TAB,
   {
@@ -26,6 +25,7 @@ import { ItemTypes } from 'libs'
     isOver: monitor.isOver({ shallow: true })
   })
 )
+@observer
 export default class Window extends React.Component {
   getBoundingClientRect = () => {
     if (this.node) {
