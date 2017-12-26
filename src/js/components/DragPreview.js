@@ -1,6 +1,5 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import DraggableTab from 'components/Tab/DraggableTab'
 import { focusedColor } from 'libs/colors'
 
 @inject('tabStore')

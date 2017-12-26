@@ -1,5 +1,3 @@
-import { highlightBorderColor } from 'libs/colors'
-
 export const popupURL = chrome.runtime.getURL('popup.html')
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
