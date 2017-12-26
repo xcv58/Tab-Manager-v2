@@ -50,7 +50,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "clean-webpack-plugin": "^0.1.17",
     "codecov": "^3.0.0",
-    "copy-webpack-plugin": "^4.3.0",
+    "copy-webpack-plugin": "^4.3.1",
     "coveralls": "^3.0.0",
     "css-loader": "^0.28.7",
     "enzyme": "^3.2.0",
