@@ -2,7 +2,6 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
-import { borderColor } from 'libs/colors'
 import { ItemTypes } from 'libs'
 import Preview from 'components/Preview'
 
@@ -56,9 +55,7 @@ export default class DraggableTab extends React.Component {
     const {
       connectDragSource, connectDropTarget, isDragging, isOver
     } = this.props
-    const style = {
-      borderBottom: `1px solid ${borderColor}`
-    }
+    const style = {}
     if (isDragging) {
       style.display = 'none'
     }

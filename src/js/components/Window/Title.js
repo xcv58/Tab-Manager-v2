@@ -3,10 +3,8 @@ import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { dropTargetColor, highlightColor, borderColor } from 'libs/colors'
+import { dropTargetColor, highlightColor } from 'libs/colors'
 import { ItemTypes } from 'libs'
-
-const borderBottom = `1px solid ${borderColor}`
 
 @inject('dragStore')
 @observer
@@ -30,7 +28,6 @@ export default class Title extends React.Component {
     } = this.props
     const { length } = tabs
     const style = {
-      borderBottom,
       display: 'flex',
       paddingLeft: '0.5rem',
       paddingRight: 4,
