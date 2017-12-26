@@ -31,9 +31,9 @@ if (fileSystem.existsSync(secretsPath)) {
 
 const imgDir = path.join(__dirname, 'src/img')
 const images = fileSystem
-.readdirSync(imgDir)
-.filter(x => x.endsWith('.png'))
-.map(x => path.join(imgDir, x))
+  .readdirSync(imgDir)
+  .filter(x => x.endsWith('.png'))
+  .map(x => path.join(imgDir, x))
 
 const HtmlFiles = [
   'popup',

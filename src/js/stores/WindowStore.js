@@ -16,11 +16,11 @@ export default class WindowsStore {
   @computed
   get tabCount () {
     return this.windows
-    .map(
-      x => x.tabs.length
-    ).reduce(
-      (acc, cur) => acc + cur, 0
-    )
+      .map(
+        x => x.tabs.length
+      ).reduce(
+        (acc, cur) => acc + cur, 0
+      )
   }
 
   @computed
@@ -73,9 +73,9 @@ export default class WindowsStore {
         this.lastFocusedWindowId = await getLastFocusedWindowId()
 
         this.windows = windows
-        .filter(notSelfPopup)
-        .map((win) => new Window(win, this.store))
-        .sort(windowComparator)
+          .filter(notSelfPopup)
+          .map((win) => new Window(win, this.store))
+          .sort(windowComparator)
 
         this.focusLastActiveTab()
 
