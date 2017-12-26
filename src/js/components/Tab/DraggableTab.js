@@ -71,7 +71,7 @@ export default class DraggableTab extends React.Component {
         }}
       >
         {preview}
-        <Tab isOver={isOver} {...this.props} />
+        <Tab {...this.props} />
       </div>
     ))
   }

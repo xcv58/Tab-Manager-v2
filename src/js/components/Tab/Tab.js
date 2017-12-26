@@ -56,15 +56,12 @@ export default class Tab extends React.Component {
 
   getStyle = () => {
     const {
-      isOver,
-      tab: {
-        active, isFocused, isMatched, isSelected, shouldHighlight
-      }
-    } = this.props
+      active, isFocused, isMatched, isSelected, shouldHighlight
+    } = this.props.tab
     return Object.assign(
       {},
       tabStyle,
-      !isOver && (active || shouldHighlight) && highlightStyle,
+      (active || shouldHighlight) && highlightStyle,
       isSelected && selectedStyle,
       isFocused && focusedStyle,
       !isMatched && notMatchStyle
