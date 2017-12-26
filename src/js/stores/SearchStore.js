@@ -130,9 +130,8 @@ export default class SearchStore {
     if (!this.focusedTab) {
       return
     }
-    chrome.tabs.get(this.focusedTab, (tab) => {
-      this.store.tabStore.select(tab)
-    })
+    const { tabStore: { select }, windowStore: { tabs } } = this.store
+    select(tabs.find((x) => x.id === this.focusedTab))
   }
 
   @action
