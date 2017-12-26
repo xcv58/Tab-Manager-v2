@@ -126,7 +126,3 @@ export const getToolbarAutoHide = async () => {
 export const ItemTypes = {
   TAB: 'tab'
 }
-
-export const getBackground = (before) => `
-  linear-gradient(to ${before ? 'bottom' : 'top'}, ${highlightBorderColor}, white, white, white)
-`

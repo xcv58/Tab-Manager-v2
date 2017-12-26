@@ -13,14 +13,11 @@ export default class DragPreview extends React.Component {
         {sources.length} tab{sources.length > 1 && 's'}
       </h3>
     )
-    const content = sources.map((tab) => (
-      <DraggableTab key={tab.id} tab={tab} faked />
-    ))
     return (
       <div
         id='dragPreview'
         style={{
-          width: '64%',
+          width: '10rem',
           position: 'fixed',
           background: focusedColor,
           textAlign: 'center',
@@ -28,7 +25,6 @@ export default class DragPreview extends React.Component {
           left: 2048
         }}>
         {head}
-        {content}
       </div>
     )
   }

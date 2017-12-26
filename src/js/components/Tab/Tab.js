@@ -43,8 +43,16 @@ const getTargetValue = (lValue, rValue) => {
 
 @observer
 export default class Tab extends React.Component {
-  onMouseEnter = () => this.props.tab.hover()
-  onMouseLeave = () => this.props.tab.unhover()
+  onMouseEnter = () => {
+    if (!this.props.faked) {
+      this.props.tab.hover()
+    }
+  }
+  onMouseLeave = () => {
+    if (!this.props.faked) {
+      this.props.tab.unhover()
+    }
+  }
 
   getStyle = () => {
     const {
@@ -53,7 +61,6 @@ export default class Tab extends React.Component {
         active, isFocused, isMatched, isSelected, shouldHighlight
       }
     } = this.props
-    console.log(isOver)
     return Object.assign(
       {},
       tabStyle,

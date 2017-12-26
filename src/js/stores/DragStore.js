@@ -11,7 +11,6 @@ export default class DragStore {
 
   @action
   dragStart = (tab) => {
-    this.store.searchStore.defocusTab()
     this.store.tabStore.selection.set(tab.id, tab)
   }
 

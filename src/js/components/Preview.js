@@ -1,0 +1,20 @@
+import React from 'react'
+import { inject, observer } from 'mobx-react'
+import Tab from 'components/Tab/Tab'
+import { focusedColor } from 'libs/colors'
+
+@inject('tabStore')
+@observer
+export default class Preview extends React.Component {
+  render () {
+    const { tabStore: { sources } } = this.props
+    const content = sources.map((tab) => (
+      <Tab key={tab.id} tab={tab} faked />
+    ))
+    return (
+      <div style={{ background: focusedColor }}>
+        {content}
+      </div>
+    )
+  }
+}

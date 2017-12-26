@@ -59,15 +59,7 @@ export default class TabStore {
 
   @computed
   get sources () {
-    return this.selection.values()
-    .map(
-      ({
-        active, audible, autoDiscardable, discarded, height, highlighted, iconUrl, id, incognito, index, isHovered, mutedInfo, pinned, selected, status, title, url, width, windowId
-      }) => ({
-        active, audible, autoDiscardable, discarded, height, highlighted, iconUrl, id, incognito, index, isHovered, mutedInfo, pinned, selected, status, title, url, width, windowId
-      })
-    )
-    .sort((a, b) => {
+    return this.selection.values().sort((a, b) => {
       if (a.windowId === b.windowId) {
         return a.index - b.index
       }

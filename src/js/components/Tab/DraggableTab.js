@@ -3,20 +3,20 @@ import { inject, observer } from 'mobx-react'
 import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
 import { borderColor } from 'libs/colors'
-import { ItemTypes, getBackground } from 'libs'
+import { ItemTypes } from 'libs'
+import Preview from 'components/Preview'
 
 const tabSource = {
   beginDrag (props, monitor, component) {
-    const {
-      tab,
-      dragStore: { dragStart },
-      tabStore: { sources }
-    } = props
+    const { tab, dragStore: { dragStart } } = props
     dragStart(tab)
-    return { sources }
+    return {}
   },
   endDrag (props, monitor, component) {
     props.dragStore.dragEnd()
+  },
+  isDragging (props, monitor) {
+    return props.tab.isSelected
   }
 }
 
@@ -27,7 +27,6 @@ const tabTarget = {
   }
 }
 
-@inject('tabStore')
 @inject('dragStore')
 @observer
 @DropTarget(
@@ -43,7 +42,8 @@ const tabTarget = {
   tabSource,
   (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
-    connectDragPreview: connect.dragPreview()
+    connectDragPreview: connect.dragPreview(),
+    isDragging: monitor.isDragging()
   })
 )
 export default class DraggableTab extends React.Component {
@@ -53,13 +53,16 @@ export default class DraggableTab extends React.Component {
   }
 
   render () {
-    const { connectDragSource, connectDropTarget, isOver } = this.props
+    const {
+      connectDragSource, connectDropTarget, isDragging, isOver
+    } = this.props
     const style = {
       borderBottom: `1px solid ${borderColor}`
     }
-    if (isOver) {
-      style.background = getBackground(true)
+    if (isDragging) {
+      style.display = 'none'
     }
+    const preview = isOver && (<Preview />)
     return connectDropTarget(connectDragSource(
       <div
         style={{
@@ -67,6 +70,7 @@ export default class DraggableTab extends React.Component {
           ...this.props.style
         }}
       >
+        {preview}
         <Tab isOver={isOver} {...this.props} />
       </div>
     ))

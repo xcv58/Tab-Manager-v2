@@ -3,8 +3,9 @@ import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
 import FlipMove from 'react-flip-move'
 import Title from './Title'
+import Preview from 'components/Preview'
 import DraggableTab from 'components/Tab/DraggableTab'
-import { ItemTypes, getBackground } from 'libs'
+import { ItemTypes } from 'libs'
 
 @inject('dragStore')
 @observer
@@ -44,10 +45,7 @@ export default class Window extends React.Component {
     ))
     const style = { width }
     const dropIndicator = isOver && (
-      <div style={{
-        background: getBackground(true),
-        height: '2.5rem'
-      }} />
+      <Preview />
     )
     return connectDropTarget(
       <div ref={(el) => { this.node = el || this.node }}
