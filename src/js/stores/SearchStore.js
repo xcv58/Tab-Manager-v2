@@ -5,6 +5,12 @@ import { activateTab } from 'libs'
 export default class SearchStore {
   constructor (store) {
     this.store = store
+    this.init()
+  }
+
+  init = async () => {
+    const { query } = await chrome.storage.local.get({ query: this.query })
+    this.query = query
   }
 
   @observable query = ''
@@ -86,12 +92,13 @@ export default class SearchStore {
   }
 
   @action
-  search = (value) => {
-    this.query = value
+  search = (query) => {
+    this.query = query
     if (!this.matchedSet.has(this.focusedTab)) {
       this.focusedTab = null
       this.findFocusedTab()
     }
+    chrome.storage.local.set({ query })
   }
 
   @action
