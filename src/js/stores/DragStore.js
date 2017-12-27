@@ -1,5 +1,4 @@
 import { action, observable } from 'mobx'
-import { moveTabs } from 'libs'
 import actions from 'libs/actions'
 
 export default class DragStore {
@@ -32,6 +31,7 @@ export default class DragStore {
 
   @action
   drop = async (tab, before = true) => {
+    const { moveTabs, getAllWindows } = this.store.windowStore
     this.dropped = true
     const { windowId } = tab
     const win = await chrome.windows.get(windowId, { populate: true })
@@ -43,6 +43,7 @@ export default class DragStore {
     }
     await moveTabs(this.store.tabStore.sources, windowId, index)
     this.clear()
+    getAllWindows()
   }
 
   @action

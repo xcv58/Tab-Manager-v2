@@ -1,4 +1,4 @@
-import { computed, observable } from 'mobx'
+import { action, computed, observable } from 'mobx'
 import Tab from './Tab'
 
 export default class Window {
@@ -26,5 +26,23 @@ export default class Window {
     this.tabs.some(
       this.store.tabStore.isTabSelected
     )
+  }
+
+  @action
+  add = (tab, index) => {
+    if (index < 0 || index > this.tabs.length) {
+      throw new Error(`[Window-Store.add] get invalid index: "${index}"!`)
+    }
+    this.tabs.splice(index, 0, tab)
+  }
+
+  @action
+  remove = (tab) => {
+    const index = this.tabs.findIndex(x => x.id === tab.id)
+    if (index !== -1) {
+      this.tabs.splice(index, 1)
+    } else {
+      throw new Error(`[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`)
+    }
   }
 }

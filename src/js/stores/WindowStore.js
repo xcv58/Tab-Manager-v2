@@ -1,5 +1,7 @@
 import { action, computed, observable } from 'mobx'
-import { getLastFocusedWindowId, notSelfPopup, windowComparator } from 'libs'
+import {
+  moveTabs, getLastFocusedWindowId, notSelfPopup, windowComparator
+} from 'libs'
 import Window from './Window'
 
 export default class WindowsStore {
@@ -64,6 +66,30 @@ export default class WindowsStore {
     if (tab) {
       this.store.searchStore.focus(tab)
     }
+  }
+
+  getTargetWindow = (windowId) => {
+    const win = this.windows.find(
+      (win) => win.id === windowId
+    )
+    if (!win) {
+      throw new Error(`getTargetWindow canot find window for windowId: ${windowId}!`)
+    }
+    return win
+  }
+
+  @action
+  moveTabs = async (tabs, windowId, from = 0) => {
+    const targetWindow = this.getTargetWindow(windowId)
+    tabs.map(
+      (tab, i) => {
+        const index = from + (from !== -1 ? i : 0)
+        const sourceWindow = this.getTargetWindow(tab.windowId)
+        sourceWindow.remove(tab)
+        targetWindow.add(tab, index)
+      }
+    )
+    await moveTabs(tabs, windowId, from)
   }
 
   getAllWindows = () => {
