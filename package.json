@@ -36,8 +36,8 @@
     "rebound": "^0.0.15"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^3.3.1",
-    "@storybook/addon-links": "^3.3.1",
+    "@storybook/addon-actions": "^3.2.17",
+    "@storybook/addon-links": "^3.2.17",
     "@storybook/react": "^3.2.17",
     "ava": "^0.24.0",
     "babel-core": "7.0.0-bridge.0",
@@ -64,7 +64,7 @@
     "sinon-chrome": "^2.2.1",
     "standard": "^11.0.0-beta.0",
     "style-loader": "^0.19.1",
-    "uglifyjs-webpack-plugin": "^1.1.5",
+    "uglifyjs-webpack-plugin": "^1.1.4",
     "webpack": "^3.10.0",
     "webpack-bundle-analyzer": "^2.9.1",
     "webpack-dev-server": "^2.9.7",
