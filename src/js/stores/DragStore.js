@@ -31,10 +31,9 @@ export default class DragStore {
 
   @action
   drop = async (tab, before = true) => {
-    const { moveTabs, getAllWindows } = this.store.windowStore
-    this.dropped = true
+    const { moveTabs, getAllWindows, getTargetWindow } = this.store.windowStore
     const { windowId } = tab
-    const win = await chrome.windows.get(windowId, { populate: true })
+    const win = getTargetWindow(windowId)
     const targetIndex = tab.index + (before ? 0 : 1)
     const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
     if (index !== targetIndex) {
@@ -43,7 +42,8 @@ export default class DragStore {
     }
     await moveTabs(this.store.tabStore.sources, windowId, index)
     this.clear()
-    getAllWindows()
+    setTimeout(getAllWindows, 500)
+    this.dropped = true
   }
 
   @action
