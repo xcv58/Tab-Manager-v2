@@ -2,9 +2,7 @@ import React from 'react'
 
 const urlStyle = {
   opacity: 0.3,
-  fontSize: '0.7rem',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis'
+  fontSize: '0.7rem'
 }
 
 export default class Url extends React.Component {

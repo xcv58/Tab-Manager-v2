@@ -139,9 +139,8 @@ export default class Tab extends React.Component {
           <Icon {...this.props} />
           <div onClick={activate}
             style={{
-              overflow: 'hidden',
-              flex: '1 1 auto',
-              textOverflow: 'ellipsis'
+              overflow: 'auto',
+              flex: '1 1 auto'
             }}>
             {this.getHighlightNode(title)}
             <Url {...this.props} getHighlightNode={this.getHighlightNode} />
