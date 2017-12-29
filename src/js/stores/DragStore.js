@@ -37,7 +37,7 @@ export default class DragStore {
     const targetIndex = tab.index + (before ? 0 : 1)
     const index = this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
     if (index !== targetIndex) {
-      const tabs = this.getUnselectedTabs(win.tabs)
+      const tabs = this.getUnselectedTabs(win.tabs).slice(0, targetIndex - 1)
       await moveTabs(tabs, windowId, 0)
     }
     await moveTabs(this.store.tabStore.sources, windowId, index)
