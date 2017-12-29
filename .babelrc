@@ -1,16 +1,20 @@
 {
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
         "targets": { "chrome": 60 }
       }
     ],
-    "react",
-    "stage-2"
+    "@babel/preset-react",
+    "@babel/preset-stage-2",
   ],
   "plugins": [
-    "transform-decorators-legacy",
+    "@babel/plugin-proposal-decorators",
+    [
+      "@babel/plugin-proposal-class-properties",
+      { "loose" : true }
+    ],
     [
       "module-resolver", {
         "root": [ "./src", "./src/js" ]

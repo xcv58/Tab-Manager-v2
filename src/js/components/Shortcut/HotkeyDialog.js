@@ -8,7 +8,7 @@ import Help from './Help'
 import { withStyles } from 'material-ui/styles'
 import Fade from 'material-ui/transitions/Fade'
 
-export const styles = (theme: Object) => ({
+export const styles = (theme) => ({
   paper: {
     width: '100%'
   }
