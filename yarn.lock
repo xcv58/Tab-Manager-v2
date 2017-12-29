@@ -245,7 +245,7 @@
     "@babel/helper-remap-async-to-generator" "7.0.0-beta.36"
     "@babel/plugin-syntax-async-generators" "7.0.0-beta.36"
 
-"@babel/plugin-proposal-class-properties@7.0.0-beta.36":
+"@babel/plugin-proposal-class-properties@7.0.0-beta.36", "@babel/plugin-proposal-class-properties@^7.0.0-beta.36":
   version "7.0.0-beta.36"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-class-properties/-/plugin-proposal-class-properties-7.0.0-beta.36.tgz#be236de98ff7ccdf650b7282e8e1f5bda808017d"
   dependencies:
