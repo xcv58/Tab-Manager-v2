@@ -138,6 +138,7 @@ export default class Tab extends React.Component {
           {pin}
           <Icon {...this.props} />
           <div onClick={activate}
+            className='tab-title-url'
             style={{
               overflow: 'auto',
               flex: '1 1 auto'
