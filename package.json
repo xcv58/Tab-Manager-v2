@@ -13,7 +13,7 @@
     "lint": "standard",
     "lintfix": "yarn lint -- --fix",
     "start": "node utils/webserver.js",
-    "test": "yarn lint && yarn ava",
+    "test": "yarn lint",
     "test-watch": "yarn ava --watch",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -c .storybook -o .out"
