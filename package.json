@@ -46,7 +46,7 @@
     "@storybook/addon-links": "^3.3.3",
     "@storybook/react": "^3.3.3",
     "ava": "^0.24.0",
-    "babel-core": "^7.0.0-0",
+    "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "8.1.2",
     "babel-loader": "^7.1.2",
     "babel-plugin-module-resolver": "^3.0.0",
