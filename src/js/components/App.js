@@ -49,6 +49,7 @@ const theme = createMuiTheme({
 export default class App extends React.Component {
   componentDidMount () {
     const { getAllWindows, updateAllWindows } = this.props.windowStore
+    getAllWindows()
     chrome.windows.onCreated.addListener(updateAllWindows)
     chrome.windows.onRemoved.addListener(updateAllWindows)
     chrome.windows.onFocusChanged.addListener(updateAllWindows)
@@ -60,7 +61,6 @@ export default class App extends React.Component {
     chrome.tabs.onReplaced.addListener(updateAllWindows)
     chrome.tabs.onActivated.addListener(updateAllWindows)
     this.props.shortcutStore.didMount(this)
-    getAllWindows()
   }
 
   componentWillUnmount () {
