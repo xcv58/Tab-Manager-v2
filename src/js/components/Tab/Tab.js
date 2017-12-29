@@ -18,6 +18,7 @@ const tabStyle = {
   boxShadow: `-${indicatorWidth} 0px white`
 }
 const highlightStyle = {
+  boxShadow: `-${indicatorWidth} 0px ${highlightColor}`,
   backgroundColor: highlightColor
 }
 const selectedStyle = {
