@@ -55,14 +55,19 @@ export default class WindowsStore {
     this.store.tabStore.selectAll(this.tabs)
   }
 
+  @computed
+  get lastFocusedWindow () {
+    return this.windows.find(x => x.lastFocused)
+  }
+
   focusLastActiveTab = () => {
-    if (this.windows.length <= 0) {
+    if (!this.lastFocusedWindow) {
       return
     }
     if (this.store.searchStore.focusedWinIndex !== -1) {
       return
     }
-    const tab = this.windows[0].tabs.find(x => x.active)
+    const tab = this.lastFocusedWindow.tabs.find(x => x.active)
     if (tab) {
       this.store.searchStore.focus(tab)
     }
