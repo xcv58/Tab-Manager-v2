@@ -4,3 +4,4 @@ build
 build.zip
 secrets.*.js
 *.lcov
+coverage

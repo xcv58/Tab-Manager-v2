@@ -1,33 +1,31 @@
+/* global expect, test */
 import React from 'react'
-import test from 'ava'
 import { shallow } from 'test'
 import { CircularProgress } from 'material-ui/Progress'
 import Loading from '../Loading'
 
-test.cb('Loading should show Loading... first then CircularProgress', t => {
+test('adds 1 + 2 to equal 3', () => {
   const el = shallow(<Loading />)
-  t.is(el.text(), 'Loading...')
+  expect(el.text()).toBe('Loading...')
   setTimeout(() => {
     // The setState in componentDidMount doesn't work
     el.setState(el.state())
-    t.is(el.find(CircularProgress).length, 1)
-    t.end()
+    expect(el.find(CircularProgress).length).toBe(1)
   }, 1000)
 })
 
-test('Loading should clear timer before unmount', t => {
+test('Loading should clear timer before unmount', () => {
   const el = shallow(<Loading />)
-  t.is(el.instance().timer._idleTimeout, 100)
+  expect(el.instance().timer).toBeTruthy()
   el.instance().componentWillUnmount()
-  t.is(el.instance().timer._idleTimeout, -1)
+  expect(el.instance().timer).toBeNull()
 })
 
-test.cb('Loading should not clear timer if there is no timer', t => {
+test('Loading should not clear timer if there is no timer', () => {
   const el = shallow(<Loading />)
-  t.is(el.text(), 'Loading...')
+  expect(el.text()).toBe('Loading...')
   setTimeout(() => {
     el.instance().componentWillUnmount()
-    t.is(el.instance().timer, null)
-    t.end()
+    expect(el.instance().timer).toBeNull()
   }, 1000)
 })

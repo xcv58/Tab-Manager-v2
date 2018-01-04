@@ -14,6 +14,7 @@ export default class Loading extends Component {
   componentWillUnmount () {
     if (this.timer) {
       clearTimeout(this.timer)
+      this.timer = null
     }
   }
 
