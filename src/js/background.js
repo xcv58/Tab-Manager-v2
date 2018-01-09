@@ -14,7 +14,7 @@ class Background {
       [actions.createWindow]: this.createWindow
     }
     Object.assign(this.actionMap, this.tabHistory.actionMap)
-    this.browserAction()
+    // this.browserAction()
   }
 
   browserAction = () => {
