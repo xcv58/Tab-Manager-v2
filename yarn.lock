@@ -7788,9 +7788,9 @@ react-event-listener@^0.5.0, react-event-listener@^0.5.1:
     prop-types "^15.6.0"
     warning "^3.0.0"
 
-react-flip-move@^2.10.0:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/react-flip-move/-/react-flip-move-2.10.0.tgz#70978ed2ca4a6b94d01fe7a230970460f9127b67"
+react-flip-move@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/react-flip-move/-/react-flip-move-3.0.1.tgz#7bb5351c6e1d9778baf748cc5292aa98250c3401"
 
 react-fuzzy@^0.5.1:
   version "0.5.1"
@@ -8001,9 +8001,9 @@ realpath-native@^1.0.0:
   dependencies:
     util.promisify "^1.0.0"
 
-rebound@^0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/rebound/-/rebound-0.0.15.tgz#b7796972cd3e6eca37fd1477217e64c77bb122de"
+rebound@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/rebound/-/rebound-0.1.0.tgz#0638c61a93666bb515a58a03e1cfb34021e88b72"
 
 recast@^0.12.6:
   version "0.12.9"
