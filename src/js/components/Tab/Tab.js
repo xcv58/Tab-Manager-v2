@@ -1,7 +1,9 @@
 import React from 'react'
 import { observer } from 'mobx-react'
+import Tooltip from 'material-ui/Tooltip'
 import Icon from './Icon'
 import Url from './Url'
+import TabTooltip from './TabTooltip'
 import { match } from 'fuzzy'
 import {
   focusedColor, highlightColor, highlightBorderColor
@@ -137,15 +139,16 @@ export default class Tab extends React.Component {
         }}>
           {pin}
           <Icon {...this.props} />
-          <div onClick={activate}
-            className='tab-title-url'
-            style={{
-              overflow: 'auto',
-              flex: '1 1 auto'
-            }}>
-            {this.getHighlightNode(title)}
-            <Url {...this.props} getHighlightNode={this.getHighlightNode} />
-          </div>
+          <Tooltip
+            enterDelay={300}
+            leaveDelay={300}
+            title={<TabTooltip {...this.props} />}
+          >
+            <div onClick={activate}>
+              {this.getHighlightNode(title)}
+              <Url {...this.props} getHighlightNode={this.getHighlightNode} />
+            </div>
+          </Tooltip>
         </div>
       </div>
     )
