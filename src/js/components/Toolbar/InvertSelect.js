@@ -11,9 +11,11 @@ export default class InvertSelect extends React.Component {
     const { invertSelect } = this.props.searchStore
     return (
       <Tooltip title={`Inverse select tabs`}>
-        <IconButton onClick={invertSelect} >
-          <Flip />
-        </IconButton>
+        <div>
+          <IconButton onClick={invertSelect} >
+            <Flip />
+          </IconButton>
+        </div>
       </Tooltip>
     )
   }

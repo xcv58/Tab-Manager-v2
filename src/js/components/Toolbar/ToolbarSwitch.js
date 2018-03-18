@@ -9,7 +9,7 @@ export default class ToolbarSwitch extends React.Component {
   render () {
     const { toolbarAutoHide, toggleAutoHide } = this.props.userStore
     return (
-      <Tooltip title={'Always show toolbar'}>
+      <Tooltip title={'Always show toolbar'} placement='left'>
         <Switch
           checked={!toolbarAutoHide}
           onChange={toggleAutoHide}
