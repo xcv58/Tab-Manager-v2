@@ -8,6 +8,7 @@ const { plugins } = config
 webpack(
   {
     ...config,
+    mode: 'production',
     plugins: [
       ...plugins,
       new UglifyJSPlugin()
