@@ -22,7 +22,7 @@ config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
 
 delete config.chromeExtensionBoilerplate
 
-const compiler = webpack(config)
+const compiler = webpack({ ...config, mode: 'development' })
 
 const server = new WebpackDevServer(compiler, {
   hot: true,
