@@ -19,17 +19,18 @@ export default class Loading extends Component {
   }
 
   render () {
-    if (!this.state.tooLong) {
-      return 'Loading...'
-    }
     return (
-      <div style={{
-        display: 'flex',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
-        <CircularProgress size={128} />
+      <div id='spinner'>
+        <div className='la-ball-spin la-dark la-3x'>
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+        </div>
       </div>
     )
   }
