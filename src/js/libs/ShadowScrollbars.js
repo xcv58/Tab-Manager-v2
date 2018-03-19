@@ -3,21 +3,23 @@ import { Scrollbars } from 'react-custom-scrollbars'
 import { SpringSystem } from 'rebound'
 import css from 'dom-css'
 
-const shadowTopStyle = {
+const shadowStyle = {
+  pointerEvents: 'none',
   position: 'absolute',
-  top: 0,
   left: 0,
   right: 0,
-  height: 10,
+  height: '1.5rem'
+}
+
+const shadowTopStyle = {
+  ...shadowStyle,
+  top: 0,
   background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 100%)'
 }
 
 const shadowBottomStyle = {
-  position: 'absolute',
+  ...shadowStyle,
   bottom: 0,
-  left: 0,
-  right: 0,
-  height: 10,
   background: 'linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 100%)'
 }
 
@@ -87,14 +89,14 @@ export default class ShadowScrollbars extends Component {
         ref={(node) => { this.node = node || this.node }}
         style={containerStyle}
       >
-        <div ref={(shadowTop) => { this.shadowTop = shadowTop || this.shadowTop }}
-          style={shadowTopStyle} />
-        <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
-          style={shadowBottomStyle} />
         <Scrollbars
           ref={(scrollbars) => { this.scrollbars = scrollbars }}
           onUpdate={this.onUpdate}
           {...props} />
+        <div ref={(shadowTop) => { this.shadowTop = shadowTop || this.shadowTop }}
+          style={shadowTopStyle} />
+        <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
+          style={shadowBottomStyle} />
       </div>
     )
   }
