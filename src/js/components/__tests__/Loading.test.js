@@ -1,31 +1,15 @@
 /* global expect, test */
 import React from 'react'
 import { shallow } from 'test'
-import { CircularProgress } from 'material-ui/Progress'
 import Loading from '../Loading'
 
-test('adds 1 + 2 to equal 3', () => {
+test('Loading should render divs', () => {
   const el = shallow(<Loading />)
-  expect(el.text()).toBe('Loading...')
-  setTimeout(() => {
-    // The setState in componentDidMount doesn't work
-    el.setState(el.state())
-    expect(el.find(CircularProgress).length).toBe(1)
-  }, 1000)
-})
-
-test('Loading should clear timer before unmount', () => {
-  const el = shallow(<Loading />)
-  expect(el.instance().timer).toBeTruthy()
-  el.instance().componentWillUnmount()
-  expect(el.instance().timer).toBeNull()
-})
-
-test('Loading should not clear timer if there is no timer', () => {
-  const el = shallow(<Loading />)
-  expect(el.text()).toBe('Loading...')
-  setTimeout(() => {
-    el.instance().componentWillUnmount()
-    expect(el.instance().timer).toBeNull()
-  }, 1000)
+  expect(el.find('div').length).toBe(10)
+  const spinner = el.find({ id: 'spinner' })
+  expect(spinner.length).toBe(1)
+  const la = spinner.find({ className: 'la-ball-spin la-dark la-3x' })
+  expect(la.length).toBe(1)
+  expect(la.find('div').length).toBe(9)
+  expect(el.text()).toBe('')
 })
