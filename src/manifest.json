@@ -17,10 +17,10 @@
   "commands": {
     "TOGGLE-POPUP": {
       "suggested_key": {
-        "windows": "Ctrl+T",
+        "windows": "Alt+T",
         "mac": "MacCtrl+T",
-        "chromeos": "Ctrl+T",
-        "linux": "Ctrl+T"
+        "chromeos": "Alt+T",
+        "linux": "Alt+T"
       },
       "description": "Open or toggle Tab Manager popup window"
     },
