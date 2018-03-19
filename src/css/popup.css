@@ -20,7 +20,3 @@ body {
 #popup {
   min-width: 800px;
 }
-
-.tab-title-url::-webkit-scrollbar {
-  display: none;
-}

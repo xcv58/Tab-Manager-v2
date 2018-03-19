@@ -20,8 +20,8 @@ export default class DragPreview extends React.Component {
           position: 'fixed',
           background: focusedColor,
           textAlign: 'center',
-          top: 2048,
-          left: 2048
+          top: -512,
+          left: 4096
         }}>
         {head}
       </div>

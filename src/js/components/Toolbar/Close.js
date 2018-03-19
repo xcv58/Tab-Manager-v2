@@ -11,9 +11,11 @@ export default class Close extends React.Component {
     const { remove, tabDescription } = this.props.tabStore
     return (
       <Tooltip title={`Close ${tabDescription}`}>
-        <IconButton onClick={() => remove()}>
-          <CloseIcon />
-        </IconButton>
+        <div>
+          <IconButton onClick={() => remove()}>
+            <CloseIcon />
+          </IconButton>
+        </div>
       </Tooltip>
     )
   }

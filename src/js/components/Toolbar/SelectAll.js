@@ -23,11 +23,13 @@ export default class SelectAll extends React.Component {
     const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
     return (
       <Tooltip title={title}>
-        <Checkbox
-          checked={allTabSelected}
-          onChange={this.selectAll}
-          indeterminate={someTabSelected}
-        />
+        <div>
+          <Checkbox
+            checked={allTabSelected}
+            onChange={this.selectAll}
+            indeterminate={someTabSelected}
+          />
+        </div>
       </Tooltip>
     )
   }

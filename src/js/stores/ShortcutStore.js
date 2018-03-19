@@ -70,16 +70,19 @@ export default class ShortcutStore {
       this.App.search.focus()
     }, 'Search tab' ],
     [ 'escape', (e) => {
-      const { searchStore: { clear, typing } } = this.store
-      if (typing) {
-        e.preventDefault()
-        return this.App.search.blur()
-      }
       if (this.dialogOpen) {
         e.preventDefault()
         return this.closeDialog()
       }
-      clear()
+      const { searchStore: { clear, typing, query } } = this.store
+      if (typing) {
+        e.preventDefault()
+        return this.App.search.blur()
+      }
+      if (query) {
+        e.preventDefault()
+        return clear()
+      }
     }, () => {
       if (this.store.searchStore.typing) {
         return 'Go to tab list'

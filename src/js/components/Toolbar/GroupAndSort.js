@@ -11,9 +11,11 @@ export default class GroupAndSort extends React.Component {
     const { groupTabs } = this.props.arrangeStore
     return (
       <Tooltip title='Group & Sort Tabs' placement='left'>
-        <IconButton onClick={() => groupTabs()}>
-          <FilterList />
-        </IconButton>
+        <div>
+          <IconButton onClick={() => groupTabs()}>
+            <FilterList />
+          </IconButton>
+        </div>
       </Tooltip>
     )
   }
