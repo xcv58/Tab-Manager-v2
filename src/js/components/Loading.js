@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { CircularProgress } from 'material-ui/Progress'
 
 export default class Loading extends Component {
   state = { tooLong: false }
