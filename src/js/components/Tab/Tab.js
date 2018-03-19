@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
 import Icon from './Icon'
 import Url from './Url'
@@ -44,6 +44,7 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
+@inject('dragStore')
 @observer
 export default class Tab extends React.Component {
   onMouseEnter = () => {
@@ -110,6 +111,20 @@ export default class Tab extends React.Component {
     }
   }
 
+  renderContent = (content) => {
+    const { dragging } = this.props.dragStore
+    if (dragging) {
+      return content
+    }
+    return (
+      <Tooltip title={<TabTooltip {...this.props} />}
+        enterDelay={300}
+        leaveDelay={300}>
+        {content}
+      </Tooltip>
+    )
+  }
+
   render () {
     const { activate, title, pinned } = this.props.tab
     const style = this.getStyle()
@@ -123,6 +138,12 @@ export default class Tab extends React.Component {
         pointerEvents: 'none'
       }}>
         📌
+      </div>
+    )
+    const content = (
+      <div onClick={activate}>
+        {this.getHighlightNode(title)}
+        <Url {...this.props} getHighlightNode={this.getHighlightNode} />
       </div>
     )
     return (
@@ -139,16 +160,7 @@ export default class Tab extends React.Component {
         }}>
           {pin}
           <Icon {...this.props} />
-          <Tooltip
-            enterDelay={300}
-            leaveDelay={300}
-            title={<TabTooltip {...this.props} />}
-          >
-            <div onClick={activate}>
-              {this.getHighlightNode(title)}
-              <Url {...this.props} getHighlightNode={this.getHighlightNode} />
-            </div>
-          </Tooltip>
+          {this.renderContent(content)}
         </div>
       </div>
     )

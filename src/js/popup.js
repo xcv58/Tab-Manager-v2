@@ -7,9 +7,11 @@ import Store from 'stores'
 
 const store = new Store()
 
-render(
+const init = () => render(
   <Provider {...store}>
     <App />
   </Provider>,
   window.document.getElementById('app-container')
 )
+
+setTimeout(init, 50)
