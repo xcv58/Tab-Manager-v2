@@ -4,6 +4,7 @@ import { SpringSystem } from 'rebound'
 import css from 'dom-css'
 
 const shadowStyle = {
+  zIndex: 999,
   pointerEvents: 'none',
   position: 'absolute',
   left: 0,
