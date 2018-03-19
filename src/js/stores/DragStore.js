@@ -7,14 +7,17 @@ export default class DragStore {
   }
 
   @observable dropped = false
+  @observable dragging = false
 
   @action
   dragStart = (tab) => {
+    this.dragging = true
     this.store.tabStore.selection.set(tab.id, tab)
   }
 
   @action
   dragEnd = () => {
+    this.dragging = false
     if (!this.dropped) {
       this.clear()
     }
