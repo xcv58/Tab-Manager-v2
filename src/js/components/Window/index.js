@@ -36,7 +36,8 @@ export default class Window extends React.Component {
 
   render () {
     const {
-      connectDropTarget, isOver, win: { tabs, lastFocused }, getWindowList, dragPreview, width
+      connectDropTarget, isOver, win: { tabs, lastFocused },
+      getWindowList, dragPreview, width, left, right
     } = this.props
     const content = tabs.map(tab => (
       <DraggableTab key={tab.id}
@@ -44,7 +45,13 @@ export default class Window extends React.Component {
         {...{ getWindowList, dragPreview }}
       />
     ))
-    const style = { width, padding: '0 2px', boxSizing: 'border-box' }
+    const style = {
+      width,
+      padding: '0 2px',
+      boxSizing: 'border-box',
+      marginLeft: left && 'auto',
+      marginRight: right && 'auto'
+    }
     const dropIndicator = isOver && (
       <Preview />
     )

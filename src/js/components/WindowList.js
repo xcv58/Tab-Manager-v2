@@ -20,9 +20,11 @@ const View = (props) => {
 export default class WindowList extends React.Component {
   render () {
     const { windowStore: { windows, width } } = this.props
-    const winList = windows.map((win) => (
+    const winList = windows.map((win, i) => (
       <Window
         key={win.id}
+        left={i === 0}
+        right={i + 1 === windows.length}
         win={win}
         width={width}
         getWindowList={() => this}
