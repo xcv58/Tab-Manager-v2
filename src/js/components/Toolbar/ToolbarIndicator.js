@@ -35,12 +35,10 @@ export default class ToolbarIndicator extends React.Component {
     const {
       showToolbar, toolbarAutoHide, toolbarVisible
     } = this.props.userStore
-    if (!toolbarAutoHide) {
-      return null
-    }
     return (
       <Slide direction='up' in>
         <IconButton
+          disabled={!toolbarAutoHide}
           onFocus={showToolbar}
           onMouseEnter={showToolbar}
           onClick={this.onClick}

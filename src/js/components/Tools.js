@@ -1,7 +1,7 @@
 import React from 'react'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
-import ToolbarSwitch from 'components/Toolbar/ToolbarSwitch'
+import OpenInTab from 'components/OpenInTab'
 
 export default class Tools extends React.Component {
   render () {
@@ -14,7 +14,7 @@ export default class Tools extends React.Component {
       }}>
         <Summary />
         <Search inputRef={this.props.inputRef} />
-        <ToolbarSwitch />
+        <OpenInTab />
       </div>
     )
   }
