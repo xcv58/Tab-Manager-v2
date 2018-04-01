@@ -18,6 +18,8 @@ const View = (props) => {
 @inject('windowStore')
 @observer
 export default class WindowList extends React.Component {
+  shadowScrollbars = React.createRef()
+
   render () {
     const { windowStore: { windows, width } } = this.props
     const winList = windows.map((win, i) => (
@@ -34,7 +36,7 @@ export default class WindowList extends React.Component {
     return (
       <ShadowScrollbars
         renderView={View}
-        ref='shadowScrollbars'
+        ref={this.shadowScrollbars}
         style={{
           display: 'flex',
           flex: '1 1 auto',
