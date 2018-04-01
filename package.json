@@ -27,11 +27,11 @@
     "mobx": "^3.4.1",
     "mobx-react": "^4.3.5",
     "mousetrap": "^1.6.1",
-    "react": "^16.2.0",
+    "react": "^16.3.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-dnd": "^2.5.4",
     "react-dnd-html5-backend": "^2.5.4",
-    "react-dom": "^16.2.0",
+    "react-dom": "^16.3.0",
     "react-flip-move": "^3.0.1",
     "rebound": "^0.1.0"
   },
