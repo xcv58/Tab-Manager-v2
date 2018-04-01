@@ -9,7 +9,7 @@ const shadowStyle = {
   position: 'absolute',
   left: 0,
   right: 0,
-  height: '1.5rem'
+  height: '1.2rem'
 }
 
 const shadowTopStyle = {
