@@ -13,7 +13,7 @@ const props = {
     drop: spy()
   },
   win: { tabs },
-  getWindowList: spy(),
+  getScrollbars: spy(),
   dragPreview: 'preview node',
   width: '100%'
 }
@@ -25,6 +25,6 @@ test('Window should render correct components', () => {
   expect(el.find(Title).length).toBe(1)
   expect(el.find(FlipMove).length).toBe(1)
   expect(el.find(DraggableTab).length).toBe(tabs.length)
-  expect(el.find(DraggableTab).first().props().getWindowList).toBe(props.getWindowList)
+  expect(el.find(DraggableTab).first().props().getScrollbars).toBe(props.getScrollbars)
   expect(el.find(DraggableTab).first().props().dragPreview).toBe(props.dragPreview)
 })

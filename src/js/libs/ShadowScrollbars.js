@@ -25,14 +25,19 @@ const shadowBottomStyle = {
 }
 
 export default class ShadowScrollbars extends Component {
+  node = React.createRef()
+  scrollbarsRef = React.createRef()
+  shadowBottom = React.createRef()
+  shadowTop = React.createRef()
+
   onUpdate = (values) => {
     const { shadowTop, shadowBottom } = this
     const { scrollTop, scrollHeight, clientHeight } = values
     const shadowTopOpacity = 1 / 20 * Math.min(scrollTop, 20)
     const bottomScrollTop = scrollHeight - clientHeight
     const shadowBottomOpacity = 1 / 20 * (bottomScrollTop - Math.max(scrollTop, bottomScrollTop - 20))
-    css(shadowTop, { opacity: shadowTopOpacity })
-    css(shadowBottom, { opacity: shadowBottomOpacity })
+    css(shadowTop.current, { opacity: shadowTopOpacity })
+    css(shadowBottom.current, { opacity: shadowBottomOpacity })
   }
 
   getSpringUpdateFunc = (func) => (spring) => {
@@ -41,11 +46,15 @@ export default class ShadowScrollbars extends Component {
     }
   }
 
+  getBoundingClientRect = () => {
+    return this.node.current.getBoundingClientRect()
+  }
+
   scrollTo = ({ top = 0, left = 0 }) => {
     if (!top && !left) {
       return
     }
-    const { scrollbars } = this
+    const scrollbars = this.scrollbarsRef.current
     if (scrollbars) {
       const scrollTop = scrollbars.getScrollTop()
       const scrollLeft = scrollbars.getScrollLeft()
@@ -57,7 +66,7 @@ export default class ShadowScrollbars extends Component {
   }
 
   componentDidMount () {
-    const { scrollTop, scrollLeft } = this.scrollbars
+    const { scrollTop, scrollLeft } = this.scrollbarsRef.current
     this.springSystem = new SpringSystem()
     this.spring = this.springSystem.createSpring()
     this.spring.addListener({
@@ -87,16 +96,18 @@ export default class ShadowScrollbars extends Component {
     }
     return (
       <div
-        ref={(node) => { this.node = node || this.node }}
+        ref={this.node}
         style={containerStyle}
       >
         <Scrollbars
-          ref={(scrollbars) => { this.scrollbars = scrollbars }}
+          ref={this.scrollbarsRef}
           onUpdate={this.onUpdate}
           {...props} />
-        <div ref={(shadowTop) => { this.shadowTop = shadowTop || this.shadowTop }}
+        <div
+          ref={this.shadowTop}
           style={shadowTopStyle} />
-        <div ref={(shadowBottom) => { this.shadowBottom = shadowBottom || this.shadowBottom }}
+        <div
+          ref={this.shadowBottom}
           style={shadowBottomStyle} />
       </div>
     )

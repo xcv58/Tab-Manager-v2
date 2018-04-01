@@ -72,24 +72,26 @@ export default class App extends React.Component {
       return (<Loading />)
     }
     return (
-      <MuiThemeProvider theme={theme}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          height: '100vh'
-        }}>
-          <Slide in direction='down'>
-            <Tools inputRef={(input) => { this.search = input }} />
-          </Slide>
-          <Fade in>
-            <WindowList />
-          </Fade>
-          <Toolbar />
-          <Shortcut />
-          <DragPreview />
-        </div>
-      </MuiThemeProvider>
+      <React.StrictMode>
+        <MuiThemeProvider theme={theme}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            height: '100vh'
+          }}>
+            <Slide in direction='down'>
+              <Tools inputRef={(input) => { this.search = input }} />
+            </Slide>
+            <Fade in>
+              <WindowList />
+            </Fade>
+            <Toolbar />
+            <Shortcut />
+            <DragPreview />
+          </div>
+        </MuiThemeProvider>
+      </React.StrictMode>
     )
   }
 }

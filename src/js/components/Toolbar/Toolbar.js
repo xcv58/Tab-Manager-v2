@@ -14,7 +14,7 @@ export default class Toolbar extends React.Component {
   render () {
     const { toolbarVisible } = this.props.userStore
     return (
-      <Slide in={toolbarVisible} direction='up'>
+      <Slide in={toolbarVisible} direction='up' style={{ display: 'flex' }}>
         <div>
           <ToolbarSwitch />
           <GroupAndSort />
