@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Tooltip from 'material-ui/Tooltip'
 import Checkbox from 'material-ui/Checkbox'
+import Tooltip from 'material-ui/Tooltip'
 
 @inject('tabStore')
 @observer
