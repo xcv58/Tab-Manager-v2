@@ -31,7 +31,7 @@ export default class Window extends React.Component {
   render () {
     const {
       connectDropTarget, isOver, win: { tabs, lastFocused },
-      getScrollbars, dragPreview, width, left, right
+      getScrollbars, dragPreview, left, right
     } = this.props
     const content = tabs.map(tab => (
       <DraggableTab key={tab.id}
@@ -40,7 +40,7 @@ export default class Window extends React.Component {
       />
     ))
     const style = {
-      width,
+      minWidth: '18rem',
       padding: '0 2px',
       boxSizing: 'border-box',
       marginLeft: left && 'auto',

@@ -20,16 +20,17 @@ const View = (props) => {
 export default class WindowList extends React.Component {
   shadowScrollbars = React.createRef()
 
+  getScrollbars = () => this.shadowScrollbars.current
+
   render () {
-    const { windowStore: { windows, width } } = this.props
+    const { windowStore: { windows } } = this.props
     const winList = windows.map((win, i) => (
       <Window
         key={win.id}
         left={i === 0}
         right={i + 1 === windows.length}
         win={win}
-        width={width}
-        getScrollbars={() => this.shadowScrollbars.current}
+        getScrollbars={this.getScrollbars}
         dragPreview={() => this.dragPreview}
       />
     ))
