@@ -28,21 +28,15 @@ import { ItemTypes } from 'libs'
 )
 @observer
 export default class Window extends React.Component {
-  getBoundingClientRect = () => {
-    if (this.node) {
-      return this.node.getBoundingClientRect()
-    }
-  }
-
   render () {
     const {
       connectDropTarget, isOver, win: { tabs, lastFocused },
-      getWindowList, dragPreview, width, left, right
+      getScrollbars, dragPreview, width, left, right
     } = this.props
     const content = tabs.map(tab => (
       <DraggableTab key={tab.id}
         tab={tab}
-        {...{ getWindowList, dragPreview }}
+        {...{ getScrollbars, dragPreview }}
       />
     ))
     const style = {
@@ -57,8 +51,7 @@ export default class Window extends React.Component {
     )
     const elevation = lastFocused ? 4 : 0
     return connectDropTarget(
-      <div ref={(el) => { this.node = el || this.node }}
-        style={style}>
+      <div style={style}>
         <Paper elevation={elevation}>
           <Title {...this.props} />
           <FlipMove duration={256}

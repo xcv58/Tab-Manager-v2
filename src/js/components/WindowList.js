@@ -29,7 +29,7 @@ export default class WindowList extends React.Component {
         right={i + 1 === windows.length}
         win={win}
         width={width}
-        getWindowList={() => this}
+        getScrollbars={() => this.shadowScrollbars.current}
         dragPreview={() => this.dragPreview}
       />
     ))

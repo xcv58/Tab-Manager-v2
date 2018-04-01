@@ -47,6 +47,8 @@ const getTargetValue = (lValue, rValue) => {
 @inject('dragStore')
 @observer
 export default class Tab extends React.Component {
+  node = React.createRef()
+
   onMouseEnter = () => {
     if (!this.props.faked) {
       this.props.tab.hover()
@@ -96,15 +98,15 @@ export default class Tab extends React.Component {
       return
     }
     if (this.props.tab.isFocused) {
-      const { shadowScrollbars } = this.props.getWindowList()
-      const containmentRect = shadowScrollbars.current.node.getBoundingClientRect()
-      const { top, bottom, left, right } = this.node.getBoundingClientRect()
+      const shadowScrollbars = this.props.getScrollbars()
+      const containmentRect = shadowScrollbars.getBoundingClientRect()
+      const { top, bottom, left, right } = this.node.current.getBoundingClientRect()
       const height = bottom - top
       const topGap = top - (2 * height) - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom - height
       const leftGap = left - 2 - containmentRect.left
       const rightGap = containmentRect.right - right
-      shadowScrollbars.current.scrollTo({
+      shadowScrollbars.scrollTo({
         left: getTargetValue(leftGap, rightGap),
         top: getTargetValue(topGap, bottomGap)
       })
@@ -147,7 +149,8 @@ export default class Tab extends React.Component {
       </div>
     )
     return (
-      <div ref={(node) => { this.node = node }}
+      <div
+        ref={this.node}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         style={style}>
