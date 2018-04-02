@@ -10,8 +10,7 @@ export default class SearchStore {
 
   init = async () => {
     const { query } = await chrome.storage.local.get({ query: this.query })
-    this.query = query
-    this.doSearch()
+    this.search(query)
   }
 
   @observable query = ''
