@@ -12,6 +12,7 @@ export default class ToolbarSwitch extends React.Component {
       <Tooltip title='Always show toolbar'>
         <div>
           <Switch
+            color='primary'
             checked={!toolbarAutoHide}
             onChange={toggleAutoHide}
           />
