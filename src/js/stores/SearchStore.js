@@ -105,12 +105,12 @@ export default class SearchStore {
     if (this._handler) {
       clearTimeout(this._handler)
     }
-    this._handler = setTimeout(this.updateHighlight, delay)
+    this._handler = setTimeout(this.updateQuery, delay)
     chrome.storage.local.set({ query })
   }
 
   @action
-  updateHighlight = () => {
+  updateQuery = () => {
     this._query = this.query
   }
 
