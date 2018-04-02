@@ -77,7 +77,7 @@ export default class Tab {
 
   @computed
   get query () {
-    return this.store.searchStore.query
+    return this.store.searchStore._query
   }
 
   @computed

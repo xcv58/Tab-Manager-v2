@@ -11,9 +11,11 @@ export default class SearchStore {
   init = async () => {
     const { query } = await chrome.storage.local.get({ query: this.query })
     this.query = query
+    this.doSearch()
   }
 
   @observable query = ''
+  @observable _query = ''
   @observable focusedTab = null
   @observable typing = false
 
@@ -91,18 +93,29 @@ export default class SearchStore {
     this.focusedTab = null
   }
 
+  _handler = null
+
   @action
-  search = (query) => {
+  search = (query, delay = 300) => {
     this.query = query
     if (!this.matchedSet.has(this.focusedTab)) {
       this.focusedTab = null
       this.findFocusedTab()
     }
+    if (this._handler) {
+      clearTimeout(this._handler)
+    }
+    this._handler = setTimeout(this.updateHighlight, delay)
     chrome.storage.local.set({ query })
   }
 
   @action
-  clear = () => this.search('')
+  updateHighlight = () => {
+    this._query = this.query
+  }
+
+  @action
+  clear = () => this.search('', 0)
 
   fuzzySearch = () => {
     const tabs = this.store.windowStore.tabs
