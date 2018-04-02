@@ -33,6 +33,8 @@ const focusedStyle = {
 const notMatchStyle = {
   opacity: 0.3
 }
+const pre = `<span style='color:${highlightBorderColor}'>`
+const post = '</span>'
 
 const getTargetValue = (lValue, rValue) => {
   if (lValue < 0) {
@@ -79,10 +81,7 @@ export default class Tab extends React.Component {
     if (!isMatched || !query) {
       return text
     }
-    const result = match(query, text, {
-      pre: `<span style='color:${highlightBorderColor}'>`,
-      post: '</span>'
-    })
+    const result = match(query, text, { pre, post })
     if (!result) {
       return (
         <div>{text}</div>

@@ -25,6 +25,7 @@ export default class SelectAll extends React.Component {
       <Tooltip title={title}>
         <div>
           <Checkbox
+            color='primary'
             checked={allTabSelected}
             onChange={this.selectAll}
             indeterminate={someTabSelected}
