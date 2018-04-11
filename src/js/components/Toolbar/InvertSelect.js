@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
-import Flip from 'material-ui-icons/Flip'
+import Flip from '@material-ui/icons/Flip'
 import IconButton from 'material-ui/IconButton'
 
 @inject('searchStore')

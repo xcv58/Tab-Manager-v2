@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
-import CloseIcon from 'material-ui-icons/Close'
+import CloseIcon from '@material-ui/icons/Close'
 import IconButton from 'material-ui/IconButton'
 
 @inject('tabStore')

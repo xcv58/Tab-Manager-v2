@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
-import OpenInNew from 'material-ui-icons/OpenInNew'
+import OpenInNew from '@material-ui/icons/OpenInNew'
 import IconButton from 'material-ui/IconButton'
 
 @inject('dragStore')

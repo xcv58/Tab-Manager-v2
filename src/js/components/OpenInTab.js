@@ -1,6 +1,6 @@
 import React from 'react'
 import Tooltip from 'material-ui/Tooltip'
-import OpenInBrowser from 'material-ui-icons/OpenInBrowser'
+import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import IconButton from 'material-ui/IconButton'
 import { openInNewTab } from 'libs'
 
