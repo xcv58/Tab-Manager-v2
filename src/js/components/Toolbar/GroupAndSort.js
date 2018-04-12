@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
-import FilterList from 'material-ui-icons/FilterList'
+import FilterList from '@material-ui/icons/FilterList'
 import IconButton from 'material-ui/IconButton'
 
 @inject('arrangeStore')
