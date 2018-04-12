@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { SpringSystem } from 'rebound'
 
-export default class ShadowScrollbars extends Component {
+export default class CustomScrollbars extends Component {
   node = React.createRef()
   scrollbarsRef = React.createRef()
 

@@ -97,15 +97,15 @@ export default class Tab extends React.Component {
       return
     }
     if (this.props.tab.isFocused) {
-      const shadowScrollbars = this.props.getScrollbars()
-      const containmentRect = shadowScrollbars.getBoundingClientRect()
+      const scrollbars = this.props.getScrollbars()
+      const containmentRect = scrollbars.getBoundingClientRect()
       const { top, bottom, left, right } = this.node.current.getBoundingClientRect()
       const height = bottom - top
       const topGap = top - (2 * height) - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom - height
       const leftGap = left - 2 - containmentRect.left
       const rightGap = containmentRect.right - right
-      shadowScrollbars.scrollTo({
+      scrollbars.scrollTo({
         left: getTargetValue(leftGap, rightGap),
         top: getTargetValue(topGap, bottomGap)
       })
