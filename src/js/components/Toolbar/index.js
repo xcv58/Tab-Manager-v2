@@ -1,6 +1,5 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Paper from 'material-ui/Paper'
 import { backgroundColor } from 'libs/colors'
 import Toolbar from './Toolbar'
 import ToolbarIndicator from './ToolbarIndicator'
@@ -13,8 +12,7 @@ export default class ToolbarWrapper extends React.Component {
       lazyHideToolbar, showToolbar, toolbarVisible
     } = this.props.userStore
     return (
-      <Paper
-        elevation={8}
+      <div
         onMouseEnter={showToolbar}
         onMouseLeave={lazyHideToolbar}
         style={{
@@ -28,7 +26,7 @@ export default class ToolbarWrapper extends React.Component {
       >
         {toolbarVisible && <Toolbar />}
         <ToolbarIndicator />
-      </Paper>
+      </div>
     )
   }
 }
