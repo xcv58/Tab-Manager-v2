@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Window from 'components/Window'
-import ShadowScrollbars from 'libs/ShadowScrollbars'
+import Scrollbars from 'libs/Scrollbars'
 
 const View = (props) => {
   const { style } = props
@@ -20,9 +20,9 @@ const View = (props) => {
 @inject('windowStore')
 @observer
 export default class WindowList extends React.Component {
-  shadowScrollbars = React.createRef()
+  scrollbars = React.createRef()
 
-  getScrollbars = () => this.shadowScrollbars.current
+  getScrollbars = () => this.scrollbars.current
 
   render () {
     const { windowStore: { windows } } = this.props
@@ -37,16 +37,16 @@ export default class WindowList extends React.Component {
       />
     ))
     return (
-      <ShadowScrollbars
+      <Scrollbars
         renderView={View}
-        ref={this.shadowScrollbars}
+        ref={this.scrollbars}
         style={{
           display: 'flex',
           flex: '1 1 auto',
           height: 'fit-content'
         }}>
         {winList}
-      </ShadowScrollbars>
+      </Scrollbars>
     )
   }
 }
