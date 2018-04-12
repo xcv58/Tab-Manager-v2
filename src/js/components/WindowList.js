@@ -7,9 +7,11 @@ const View = (props) => {
   const { style } = props
   return (
     <div {...props}
+      className='scrollbar'
       style={{
         ...style,
-        display: 'flex'
+        display: 'flex',
+        overflow: 'auto'
       }}
     />
   )

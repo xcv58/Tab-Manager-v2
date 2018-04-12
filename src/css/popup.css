@@ -27,6 +27,14 @@ body {
   height: 100vh;
 }
 
+.scrollbar::-webkit-scrollbar {
+	width: 16px;
+  height: 16px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #C7C7C7;
+}
 
 /* Below are css code form load awesome */
 
