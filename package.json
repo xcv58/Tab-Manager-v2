@@ -13,8 +13,8 @@
     "precommit": "lint-staged",
     "zip": "zip -X --compression-method deflate -r build.zip build/*",
     "lint": "standard",
-    "prettier": "prettier --no-semi --single-quote --write src/**/*.js",
-    "lintfix": "yarn prettier && yarn lint --fix",
+    "prettier": "prettier --no-semi --single-quote --write",
+    "lintfix": "yarn prettier src/**/*.js && yarn lint --fix",
     "start": "node utils/webserver.js",
     "test": "yarn lint && yarn jest",
     "test-watch": "yarn jest --watch",
@@ -81,12 +81,8 @@
     "globals": ["chrome", "screen"]
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --no-semi --single-quote --write",
-      "yarn lintfix",
-      "git add"
-    ],
-    "*.{json,css,md}": ["prettier --no-semi --single-quote --write", "git add"]
+    "*.js": ["yarn prettier", "standard --fix", "git add"],
+    "*.{json,css,md}": ["yarn prettier", "git add"]
   },
   "jest": {
     "collectCoverage": true,
