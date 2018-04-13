@@ -6,7 +6,7 @@ export default class CustomScrollbars extends Component {
   node = React.createRef()
   scrollbarsRef = React.createRef()
 
-  getSpringUpdateFunc = (func) => (spring) => {
+  getSpringUpdateFunc = func => spring => {
     if (func && typeof func === 'function') {
       func(spring.getCurrentValue())
     }
@@ -59,10 +59,7 @@ export default class CustomScrollbars extends Component {
       position: 'relative'
     }
     return (
-      <div
-        ref={this.node}
-        style={containerStyle}
-      >
+      <div ref={this.node} style={containerStyle}>
         <Scrollbars ref={this.scrollbarsRef} {...props} />
       </div>
     )

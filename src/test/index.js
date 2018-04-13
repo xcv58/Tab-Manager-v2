@@ -5,6 +5,6 @@ import Adapter from 'enzyme-adapter-react-16'
 configure({ adapter: new Adapter() })
 global.chrome = chrome
 
-export const connectDropTarget = (el) => el
+export const connectDropTarget = el => el
 export * from 'enzyme'
 export * from 'sinon'

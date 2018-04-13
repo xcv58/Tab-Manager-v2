@@ -7,11 +7,12 @@ import Store from 'stores'
 
 const store = new Store()
 
-const init = () => render(
-  <Provider {...store}>
-    <App />
-  </Provider>,
-  window.document.getElementById('app-container')
-)
+const init = () =>
+  render(
+    <Provider {...store}>
+      <App />
+    </Provider>,
+    window.document.getElementById('app-container')
+  )
 
 setTimeout(init, 50)
