@@ -1,13 +1,10 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Tooltip from 'material-ui/Tooltip'
 import Icon from './Icon'
 import Url from './Url'
 import TabTooltip from './TabTooltip'
 import { match } from 'fuzzy'
-import {
-  focusedColor, highlightColor, highlightBorderColor
-} from 'libs/colors'
+import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -64,7 +61,11 @@ export default class Tab extends React.Component {
 
   getStyle = () => {
     const {
-      active, isFocused, isMatched, isSelected, shouldHighlight
+      active,
+      isFocused,
+      isMatched,
+      isSelected,
+      shouldHighlight
     } = this.props.tab
     return Object.assign(
       {},
@@ -76,20 +77,18 @@ export default class Tab extends React.Component {
     )
   }
 
-  getHighlightNode = (text) => {
-    const { tab: { isMatched, query } } = this.props
+  getHighlightNode = text => {
+    const {
+      tab: { isMatched, query }
+    } = this.props
     if (!isMatched || !query) {
       return text
     }
     const result = match(query, text, { pre, post })
     if (!result) {
-      return (
-        <div>{text}</div>
-      )
+      return <div>{text}</div>
     }
-    return (
-      <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
-    )
+    return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
   }
 
   componentDidUpdate () {
@@ -99,9 +98,14 @@ export default class Tab extends React.Component {
     if (this.props.tab.isFocused) {
       const scrollbars = this.props.getScrollbars()
       const containmentRect = scrollbars.getBoundingClientRect()
-      const { top, bottom, left, right } = this.node.current.getBoundingClientRect()
+      const {
+        top,
+        bottom,
+        left,
+        right
+      } = this.node.current.getBoundingClientRect()
       const height = bottom - top
-      const topGap = top - (2 * height) - containmentRect.top
+      const topGap = top - 2 * height - containmentRect.top
       const bottomGap = containmentRect.bottom - bottom - height
       const leftGap = left - 2 - containmentRect.left
       const rightGap = containmentRect.right - right
@@ -112,32 +116,20 @@ export default class Tab extends React.Component {
     }
   }
 
-  renderContent = (content) => {
-    const { dragging } = this.props.dragStore
-    if (dragging) {
-      return content
-    }
-    return (
-      <Tooltip title={<TabTooltip {...this.props} />}
-        enterDelay={300}
-        leaveDelay={300}>
-        {content}
-      </Tooltip>
-    )
-  }
-
   render () {
     const { activate, title, pinned } = this.props.tab
     const style = this.getStyle()
     const pin = pinned && (
-      <div style={{
-        position: 'absolute',
-        fontSize: '0.75rem',
-        width: '1rem',
-        transform: 'scaleX(-1)',
-        zIndex: 1,
-        pointerEvents: 'none'
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          fontSize: '0.75rem',
+          width: '1rem',
+          transform: 'scaleX(-1)',
+          zIndex: 1,
+          pointerEvents: 'none'
+        }}
+      >
         📌
       </div>
     )
@@ -152,17 +144,20 @@ export default class Tab extends React.Component {
         ref={this.node}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
-        style={style}>
-        <div style={{
-          display: 'flex',
-          flex: '1 1 auto',
-          overflow: 'hidden',
-          textAlign: 'left',
-          textOverflow: 'ellipsis'
-        }}>
+        style={style}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flex: '1 1 auto',
+            overflow: 'hidden',
+            textAlign: 'left',
+            textOverflow: 'ellipsis'
+          }}
+        >
           {pin}
           <Icon {...this.props} />
-          {this.renderContent(content)}
+          <TabTooltip {...this.props}>{content}</TabTooltip>
         </div>
       </div>
     )
