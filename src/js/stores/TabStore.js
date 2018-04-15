@@ -21,7 +21,7 @@ export default class TabStore {
   }
 
   @action
-  select = (tab) => {
+  select = tab => {
     const { id } = tab
     if (this.selection.has(id)) {
       this.selection.delete(id)
@@ -31,15 +31,15 @@ export default class TabStore {
   }
 
   @action
-  selectAll = (tabs) => {
+  selectAll = tabs => {
     tabs.map(tab => {
       this.selection.set(tab.id, tab)
     })
   }
 
   @action
-  invertSelect = (tabs) => {
-    tabs.forEach((tab) => {
+  invertSelect = tabs => {
+    tabs.forEach(tab => {
       const { id } = tab
       if (this.selection.has(id)) {
         this.selection.delete(id)
@@ -50,7 +50,7 @@ export default class TabStore {
   }
 
   @action
-  unselectAll = (tabs) => {
+  unselectAll = tabs => {
     if (!tabs) {
       return this.selection.clear()
     }
@@ -59,7 +59,7 @@ export default class TabStore {
 
   @computed
   get sources () {
-    return this.selection.values().sort((a, b) => {
+    return [...this.selection.values()].sort((a, b) => {
       if (a.windowId === b.windowId) {
         return a.index - b.index
       }
@@ -68,7 +68,7 @@ export default class TabStore {
   }
 
   @action
-  activate = (tab) => {
+  activate = tab => {
     activateTab(tab.id)
   }
 
@@ -100,7 +100,7 @@ export default class TabStore {
     const { focusedTab } = this.store.searchStore
     if (this.selection.size === 0 && focusedTab) {
       const tab = await chrome.tabs.get(focusedTab)
-      await togglePinTabs([ tab ])
+      await togglePinTabs([tab])
     } else {
       await togglePinTabs(this.selection.values())
       this.unselectAll()
