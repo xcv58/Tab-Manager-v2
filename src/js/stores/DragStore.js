@@ -10,7 +10,8 @@ export default class DragStore {
   @observable dragging = false
 
   @action
-  dragStart = (tab) => {
+  dragStart = tab => {
+    tab.select()
     this.dragging = true
     this.store.tabStore.selection.set(tab.id, tab)
   }
@@ -28,7 +29,7 @@ export default class DragStore {
     this.dropped = false
   }
 
-  getUnselectedTabs = (tabs) => {
+  getUnselectedTabs = tabs => {
     return tabs.filter(x => !this.store.tabStore.selection.has(x.id))
   }
 
@@ -51,7 +52,10 @@ export default class DragStore {
 
   @action
   dropToNewWindow = async () => {
-    const tabs = this.store.tabStore.sources.map(({ id, pinned }) => ({ id, pinned }))
+    const tabs = this.store.tabStore.sources.map(({ id, pinned }) => ({
+      id,
+      pinned
+    }))
     chrome.runtime.sendMessage({
       tabs,
       action: actions.createWindow
