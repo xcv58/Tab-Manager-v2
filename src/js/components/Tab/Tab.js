@@ -2,7 +2,6 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Icon from './Icon'
 import Url from './Url'
-import TabTooltip from './TabTooltip'
 import { match } from 'fuzzy'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
 
@@ -157,7 +156,7 @@ export default class Tab extends React.Component {
         >
           {pin}
           <Icon {...this.props} />
-          <TabTooltip {...this.props}>{content}</TabTooltip>
+          {content}
         </div>
       </div>
     )
