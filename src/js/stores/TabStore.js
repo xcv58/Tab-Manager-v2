@@ -84,7 +84,7 @@ export default class TabStore {
         }
       }
       chrome.tabs.remove(
-        this.selection.values().map(x => x.id),
+        [...this.selection.values()].map(x => x.id),
         this.unselectAll
       )
     } else {
@@ -102,7 +102,7 @@ export default class TabStore {
       const tab = await chrome.tabs.get(focusedTab)
       await togglePinTabs([tab])
     } else {
-      await togglePinTabs(this.selection.values())
+      await togglePinTabs([...this.selection.values()])
       this.unselectAll()
     }
   }
