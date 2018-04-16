@@ -16,7 +16,10 @@ import { ItemTypes } from 'libs'
       if (monitor.didDrop()) {
         return
       }
-      const { win: { tabs }, dragStore: { drop } } = props
+      const {
+        win: { tabs },
+        dragStore: { drop }
+      } = props
       const tab = tabs[tabs.length - 1]
       drop(tab, false)
     }
@@ -30,31 +33,36 @@ import { ItemTypes } from 'libs'
 export default class Window extends React.Component {
   render () {
     const {
-      connectDropTarget, isOver, win: { tabs, lastFocused },
-      getScrollbars, dragPreview, left, right
+      connectDropTarget,
+      isOver,
+      win: { tabs, lastFocused },
+      getScrollbars,
+      dragPreview,
+      left,
+      right
     } = this.props
     const content = tabs.map(tab => (
-      <DraggableTab key={tab.id}
+      <DraggableTab
+        key={tab.id}
         tab={tab}
         {...{ getScrollbars, dragPreview }}
       />
     ))
     const style = {
-      minWidth: '18rem',
-      padding: '0 2px',
+      minWidth: '20rem',
+      padding: '0 1px',
       boxSizing: 'border-box',
       marginLeft: left && 'auto',
       marginRight: right && 'auto'
     }
-    const dropIndicator = isOver && (
-      <Preview />
-    )
+    const dropIndicator = isOver && <Preview />
     const elevation = lastFocused ? 4 : 0
     return connectDropTarget(
       <div style={style}>
         <Paper elevation={elevation}>
           <Title {...this.props} />
-          <FlipMove duration={256}
+          <FlipMove
+            duration={256}
             easing='ease-in-out'
             appearAnimation='accordionHorizontal'
             enterAnimation='accordionHorizontal'
