@@ -6,11 +6,9 @@ import Tooltip from 'material-ui/Tooltip'
 @inject('searchStore')
 @observer
 export default class SelectAll extends React.Component {
-  selectAll = (e) => {
+  selectAll = e => {
     e.target.blur()
-    const {
-      allTabSelected, selectAll, unselectAll
-    } = this.props.searchStore
+    const { allTabSelected, selectAll, unselectAll } = this.props.searchStore
     if (allTabSelected) {
       unselectAll()
     } else {

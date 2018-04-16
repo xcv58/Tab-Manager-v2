@@ -22,9 +22,8 @@ export default class Window {
 
   @computed
   get someTabSelected () {
-    return !this.allTabSelected &&
-    this.tabs.some(
-      this.store.tabStore.isTabSelected
+    return (
+      !this.allTabSelected && this.tabs.some(this.store.tabStore.isTabSelected)
     )
   }
 
@@ -37,12 +36,14 @@ export default class Window {
   }
 
   @action
-  remove = (tab) => {
+  remove = tab => {
     const index = this.tabs.findIndex(x => x.id === tab.id)
     if (index !== -1) {
       this.tabs.splice(index, 1)
     } else {
-      throw new Error(`[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`)
+      throw new Error(
+        `[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`
+      )
     }
   }
 }

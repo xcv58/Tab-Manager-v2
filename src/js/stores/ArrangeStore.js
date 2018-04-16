@@ -2,7 +2,7 @@ import { action, computed } from 'mobx'
 import { moveTabs, tabComparator } from 'libs'
 
 const urlPattern = /.*:\/\/[^/]*/
-const getDomain = (url) => {
+const getDomain = url => {
   const matches = url.match(urlPattern)
   if (matches) {
     return matches[0]
@@ -26,7 +26,7 @@ export default class ArrangeStore {
   }
 
   @action
-  sortTabs = async (windowId) => {
+  sortTabs = async windowId => {
     const windows = []
     if (windowId) {
       const win = await chrome.windows.get(windowId, { populate: true })
@@ -40,26 +40,23 @@ export default class ArrangeStore {
 
   groupTabs = async () => {
     await Promise.all(
-      Object.entries(this.domainTabsMap).map(
-        async ([ domain, tabs ]) => {
-          if (tabs.length > 1) {
-            const sortedTabs = tabs.sort(tabComparator)
-            const { windowId, pinned } = sortedTabs[0]
-            await moveTabs(
-              sortedTabs.map(x => ({ ...x, pinned })),
-              windowId
-            )
-          }
+      Object.entries(this.domainTabsMap).map(async ([domain, tabs]) => {
+        if (tabs.length > 1) {
+          const sortedTabs = tabs.sort(tabComparator)
+          const { windowId, pinned } = sortedTabs[0]
+          await moveTabs(sortedTabs.map(x => ({ ...x, pinned })), windowId)
         }
-      )
+      })
     )
     await this.sortTabs()
   }
 
   sortInWindow = async (windows = []) => {
-    windows.map((win) => {
+    windows.map(win => {
       const sortedTabs = win.tabs.slice().sort(tabComparator)
-      const differentTabIndex = sortedTabs.map((tab, i) => tab.id !== win.tabs[i].id).findIndex(x => x)
+      const differentTabIndex = sortedTabs
+        .map((tab, i) => tab.id !== win.tabs[i].id)
+        .findIndex(x => x)
       if (differentTabIndex !== -1) {
         moveTabs(sortedTabs.slice(differentTabIndex), win.id, -1)
       }

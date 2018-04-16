@@ -8,20 +8,18 @@ import { getDescription } from 'stores/ShortcutStore'
 @observer
 export default class Help extends React.Component {
   render () {
-    const { shortcutStore: { shortcuts } } = this.props
-    const content = shortcuts.map(([ keys, _, description ], i) => (
+    const {
+      shortcutStore: { shortcuts }
+    } = this.props
+    const content = shortcuts.map(([keys, _, description], i) => (
       <TableRow key={i} hover>
         <Hotkeys keys={keys} />
-        <TableCell>
-          {getDescription(description)}
-        </TableCell>
+        <TableCell>{getDescription(description)}</TableCell>
       </TableRow>
     ))
     return (
       <Table>
-        <TableBody>
-          {content}
-        </TableBody>
+        <TableBody>{content}</TableBody>
       </Table>
     )
   }

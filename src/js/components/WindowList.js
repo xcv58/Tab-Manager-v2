@@ -3,10 +3,11 @@ import { inject, observer } from 'mobx-react'
 import Window from 'components/Window'
 import Scrollbars from 'libs/Scrollbars'
 
-const View = (props) => {
+const View = props => {
   const { style } = props
   return (
-    <div {...props}
+    <div
+      {...props}
       className='scrollbar'
       style={{
         ...style,
@@ -25,7 +26,9 @@ export default class WindowList extends React.Component {
   getScrollbars = () => this.scrollbars.current
 
   render () {
-    const { windowStore: { windows } } = this.props
+    const {
+      windowStore: { windows }
+    } = this.props
     const winList = windows.map((win, i) => (
       <Window
         key={win.id}
@@ -44,7 +47,8 @@ export default class WindowList extends React.Component {
           display: 'flex',
           flex: '1 1 auto',
           height: 'fit-content'
-        }}>
+        }}
+      >
         {winList}
       </Scrollbars>
     )

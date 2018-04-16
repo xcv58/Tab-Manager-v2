@@ -9,10 +9,7 @@ webpack(
   {
     ...config,
     mode: 'production',
-    plugins: [
-      ...plugins,
-      new UglifyJSPlugin()
-    ]
+    plugins: [...plugins, new UglifyJSPlugin()]
   },
   function (err) {
     if (err) throw err

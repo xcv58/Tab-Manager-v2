@@ -7,7 +7,10 @@ import Preview from 'components/Preview'
 
 const tabSource = {
   beginDrag (props, monitor, component) {
-    const { tab, dragStore: { dragStart } } = props
+    const {
+      tab,
+      dragStore: { dragStart }
+    } = props
     dragStart(tab)
     return {}
   },
@@ -21,29 +24,24 @@ const tabSource = {
 
 const tabTarget = {
   drop (props) {
-    const { tab, dragStore: { drop } } = props
+    const {
+      tab,
+      dragStore: { drop }
+    } = props
     drop(tab)
   }
 }
 
 @inject('dragStore')
-@DropTarget(
-  ItemTypes.TAB,
-  tabTarget,
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver({ shallow: true })
-  })
-)
-@DragSource(
-  ItemTypes.TAB,
-  tabSource,
-  (connect, monitor) => ({
-    connectDragSource: connect.dragSource(),
-    connectDragPreview: connect.dragPreview(),
-    isDragging: monitor.isDragging()
-  })
-)
+@DropTarget(ItemTypes.TAB, tabTarget, (connect, monitor) => ({
+  connectDropTarget: connect.dropTarget(),
+  isOver: monitor.isOver({ shallow: true })
+}))
+@DragSource(ItemTypes.TAB, tabSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  connectDragPreview: connect.dragPreview(),
+  isDragging: monitor.isDragging()
+}))
 @observer
 export default class DraggableTab extends React.Component {
   componentDidMount () {
@@ -53,23 +51,28 @@ export default class DraggableTab extends React.Component {
 
   render () {
     const {
-      connectDragSource, connectDropTarget, isDragging, isOver
+      connectDragSource,
+      connectDropTarget,
+      isDragging,
+      isOver
     } = this.props
     const style = {}
     if (isDragging) {
       style.display = 'none'
     }
-    const preview = isOver && (<Preview />)
-    return connectDropTarget(connectDragSource(
-      <div
-        style={{
-          ...style,
-          ...this.props.style
-        }}
-      >
-        {preview}
-        <Tab {...this.props} />
-      </div>
-    ))
+    const preview = isOver && <Preview />
+    return connectDropTarget(
+      connectDragSource(
+        <div
+          style={{
+            ...style,
+            ...this.props.style
+          }}
+        >
+          {preview}
+          <Tab {...this.props} />
+        </div>
+      )
+    )
   }
 }

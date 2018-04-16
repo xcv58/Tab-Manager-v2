@@ -9,7 +9,9 @@ import ToolbarIndicator from './ToolbarIndicator'
 export default class ToolbarWrapper extends React.Component {
   render () {
     const {
-      lazyHideToolbar, showToolbar, toolbarVisible
+      lazyHideToolbar,
+      showToolbar,
+      toolbarVisible
     } = this.props.userStore
     return (
       <div

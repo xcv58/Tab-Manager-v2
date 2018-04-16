@@ -6,7 +6,7 @@ import Tooltip from 'material-ui/Tooltip'
 @inject('tabStore')
 @observer
 export default class SelectAll extends React.Component {
-  selectAll = (e) => {
+  selectAll = e => {
     e.target.blur()
     const {
       win: { allTabSelected, tabs },

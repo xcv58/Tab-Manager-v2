@@ -16,8 +16,10 @@ export default class Icon extends React.Component {
         style={{
           width: buttonWidth,
           height: buttonWidth
-        }}>
-        <img src={iconUrl}
+        }}
+      >
+        <img
+          src={iconUrl}
           style={{
             width: iconWidth,
             height: iconWidth

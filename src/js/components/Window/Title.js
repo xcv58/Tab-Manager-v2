@@ -23,7 +23,8 @@ import { ItemTypes } from 'libs'
 export default class Title extends React.Component {
   render () {
     const {
-      connectDropTarget, isOver,
+      connectDropTarget,
+      isOver,
       win: { tabs, lastFocused }
     } = this.props
     const { length } = tabs
@@ -39,10 +40,12 @@ export default class Title extends React.Component {
     }
     const text = isOver ? 'New Window' : `${length} tab${length > 1 ? 's' : ''}`
     const title = (
-      <span style={{
-        flex: '1 1 auto',
-        width: 'max-content'
-      }}>
+      <span
+        style={{
+          flex: '1 1 auto',
+          width: 'max-content'
+        }}
+      >
         {text}
       </span>
     )

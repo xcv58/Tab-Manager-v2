@@ -2,25 +2,23 @@ export const popupURL = chrome.runtime.getURL('popup.html')
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
   await Promise.all(
-    tabs.map(
-      async ({ id, pinned }, i) => {
-        const index = from + (from !== -1 ? i : 0)
-        await chrome.tabs.move(id, { windowId, index })
-        await chrome.tabs.update(id, { pinned })
-      }
-    )
+    tabs.map(async ({ id, pinned }, i) => {
+      const index = from + (from !== -1 ? i : 0)
+      await chrome.tabs.move(id, { windowId, index })
+      await chrome.tabs.update(id, { pinned })
+    })
   )
 }
 
-export const createWindow = async (tabs) => {
-  const [ firstTab, ...restTabs ] = tabs
+export const createWindow = async tabs => {
+  const [firstTab, ...restTabs] = tabs
   const tabId = firstTab.id
   const win = await chrome.windows.create({ tabId })
   await moveTabs(restTabs, win.id, -1)
   await chrome.windows.update(win.id, { focused: true })
 }
 
-export const activateTab = async (id) => {
+export const activateTab = async id => {
   if (!id) {
     return
   }
@@ -29,13 +27,11 @@ export const activateTab = async (id) => {
   await chrome.windows.update(tab.windowId, { focused: true })
 }
 
-export const togglePinTabs = async (tabs) => {
+export const togglePinTabs = async tabs => {
   await Promise.all(
-    (tabs || []).map(
-      async ({ id, pinned }) => {
-        await chrome.tabs.update(id, { pinned: !pinned })
-      }
-    )
+    (tabs || []).map(async ({ id, pinned }) => {
+      await chrome.tabs.update(id, { pinned: !pinned })
+    })
   )
 }
 
@@ -50,12 +46,7 @@ export const openOrTogglePopup = async () => {
 }
 
 export const openPopup = () => {
-  const {
-    availHeight,
-    availLeft,
-    availTop,
-    availWidth
-  } = screen
+  const { availHeight, availLeft, availTop, availWidth } = screen
   const width = Math.max(1024, availWidth / 2)
   const height = Math.max(768, availHeight / 2)
   const top = availTop + (availHeight - height) / 2
@@ -83,12 +74,14 @@ export const isSelfPopup = ({ type, tabs = [] }) => {
 
 export const notSelfPopup = (...args) => !isSelfPopup(...args)
 
-export const setLastFocusedWindowId = (lastFocusedWindowId) => {
+export const setLastFocusedWindowId = lastFocusedWindowId => {
   chrome.storage.local.set({ lastFocusedWindowId })
 }
 
 export const getLastFocusedWindowId = async () => {
-  const { lastFocusedWindowId } = await chrome.storage.local.get({ lastFocusedWindowId: null })
+  const { lastFocusedWindowId } = await chrome.storage.local.get({
+    lastFocusedWindowId: null
+  })
   return lastFocusedWindowId
 }
 
@@ -112,12 +105,14 @@ export const windowComparator = (a, b) => {
   return a.id - b.id
 }
 
-export const setToolbarAutoHide = async (toolbarAutoHide) => {
+export const setToolbarAutoHide = async toolbarAutoHide => {
   chrome.storage.sync.set({ toolbarAutoHide })
 }
 
 export const getToolbarAutoHide = async () => {
-  const { toolbarAutoHide } = await chrome.storage.sync.get({ toolbarAutoHide: false })
+  const { toolbarAutoHide } = await chrome.storage.sync.get({
+    toolbarAutoHide: false
+  })
   return toolbarAutoHide
 }
 

@@ -12,7 +12,7 @@ export default class InvertSelect extends React.Component {
     return (
       <Tooltip title={`Inverse select tabs`}>
         <div>
-          <IconButton onClick={invertSelect} >
+          <IconButton onClick={invertSelect}>
             <Flip />
           </IconButton>
         </div>

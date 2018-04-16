@@ -28,9 +28,11 @@ export default class TabHistory {
   reset = () => {
     const { length } = this.tabHistory
     const untouchedTabs = this.tabHistory.slice(0, this.nextTabIndex)
-    const touchedTabs = this.tabHistory.slice(this.nextTabIndex, length - 1).reverse()
+    const touchedTabs = this.tabHistory
+      .slice(this.nextTabIndex, length - 1)
+      .reverse()
     const lastTab = this.tabHistory[length - 1]
-    this.tabHistory = [ ...untouchedTabs, ...touchedTabs, lastTab ]
+    this.tabHistory = [...untouchedTabs, ...touchedTabs, lastTab]
     this.count = 0
     this.resetCountHandler = null
   }
@@ -43,7 +45,7 @@ export default class TabHistory {
     this.tabHistory.push({ tabId, windowId, ...rest })
   }
 
-  remove = (tabId) => {
+  remove = tabId => {
     const index = this.tabHistory.findIndex(x => x.tabId === tabId)
     if (index !== -1) {
       this.tabHistory.splice(index, 1)
@@ -64,7 +66,7 @@ export default class TabHistory {
     }
   }
 
-  onActivated = async (activeInfo) => {
+  onActivated = async activeInfo => {
     const { tabId, windowId } = activeInfo
     if (tabId !== this.expectedTabId) {
       const { length } = this.tabHistory
@@ -81,11 +83,11 @@ export default class TabHistory {
     this.add({ ...tab, tabId, windowId })
   }
 
-  onFocusChanged = async (windowId) => {
+  onFocusChanged = async windowId => {
     if (windowId < 0) {
       return
     }
-    const [ tab ] = await chrome.tabs.query({ active: true, windowId })
+    const [tab] = await chrome.tabs.query({ active: true, windowId })
     if (!tab) {
       return
     }
@@ -96,5 +98,5 @@ export default class TabHistory {
     setLastFocusedWindowId(windowId)
   }
 
-  onRemoved = async (tabId) => this.remove(tabId)
+  onRemoved = async tabId => this.remove(tabId)
 }

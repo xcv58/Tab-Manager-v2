@@ -12,14 +12,10 @@ const style = {
 @observer
 export default class Preview extends React.Component {
   render () {
-    const { tabStore: { sources } } = this.props
-    const content = sources.map((tab) => (
-      <Tab key={tab.id} tab={tab} faked />
-    ))
-    return (
-      <div style={style}>
-        {content}
-      </div>
-    )
+    const {
+      tabStore: { sources }
+    } = this.props
+    const content = sources.map(tab => <Tab key={tab.id} tab={tab} faked />)
+    return <div style={style}>{content}</div>
   }
 }

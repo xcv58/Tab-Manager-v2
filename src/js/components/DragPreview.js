@@ -6,7 +6,9 @@ import { focusedColor } from 'libs/colors'
 @observer
 export default class DragPreview extends React.Component {
   render () {
-    const { tabStore: { sources } } = this.props
+    const {
+      tabStore: { sources }
+    } = this.props
     const head = (
       <h3>
         {sources.length} tab{sources.length > 1 && 's'}
@@ -22,7 +24,8 @@ export default class DragPreview extends React.Component {
           textAlign: 'center',
           top: -512,
           left: 4096
-        }}>
+        }}
+      >
         {head}
       </div>
     )

@@ -35,23 +35,19 @@ const images = fileSystem
   .filter(x => x.endsWith('.png'))
   .map(x => path.join(imgDir, x))
 
-const HtmlFiles = [
-  'popup',
-  'options'
-].map(
-  (name) => new HtmlWebpackPlugin({
-    template: path.join(__dirname, 'src', `${name}.html`),
-    filename: `${name}.html`,
-    chunks: [ name ]
-  })
+const HtmlFiles = ['popup', 'options'].map(
+  name =>
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', `${name}.html`),
+      filename: `${name}.html`,
+      chunks: [name]
+    })
 )
 
-const entry = Object.assign(...[
-  'popup',
-  'options',
-  'background'
-].map(
-  (name) => ({ [name]: path.join(__dirname, 'src', 'js', `${name}.js`) }))
+const entry = Object.assign(
+  ...['popup', 'options', 'background'].map(name => ({
+    [name]: path.join(__dirname, 'src', 'js', `${name}.js`)
+  }))
 )
 
 const options = {
@@ -92,7 +88,7 @@ const options = {
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
-    new CleanWebpackPlugin([ 'build' ]),
+    new CleanWebpackPlugin(['build']),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV)
     }),
@@ -102,11 +98,13 @@ const options = {
       {
         from: 'src/manifest.json',
         transform: function (content, path) {
-          return Buffer.from(JSON.stringify({
-            description: process.env.npm_package_description,
-            version: process.env.npm_package_version,
-            ...JSON.parse(content.toString())
-          }))
+          return Buffer.from(
+            JSON.stringify({
+              description: process.env.npm_package_description,
+              version: process.env.npm_package_version,
+              ...JSON.parse(content.toString())
+            })
+          )
         }
       }
     ]),

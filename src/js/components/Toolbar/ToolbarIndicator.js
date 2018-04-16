@@ -8,22 +8,16 @@ import IconButton from 'material-ui/IconButton'
 
 const IndicatorIcon = ({ toolbarVisible }) => {
   if (toolbarVisible) {
-    return (
-      <KeyboardArrowRight />
-    )
+    return <KeyboardArrowRight />
   }
-  return (
-    <KeyboardArrowLeft />
-  )
+  return <KeyboardArrowLeft />
 }
 
 @inject('userStore')
 @observer
 export default class ToolbarIndicator extends React.Component {
   onClick = () => {
-    const {
-      hideToolbar, showToolbar, toolbarVisible
-    } = this.props.userStore
+    const { hideToolbar, showToolbar, toolbarVisible } = this.props.userStore
     if (toolbarVisible) {
       hideToolbar()
     } else {
@@ -33,7 +27,9 @@ export default class ToolbarIndicator extends React.Component {
 
   render () {
     const {
-      showToolbar, toolbarAutoHide, toolbarVisible
+      showToolbar,
+      toolbarAutoHide,
+      toolbarVisible
     } = this.props.userStore
     return (
       <Slide direction='up' in>

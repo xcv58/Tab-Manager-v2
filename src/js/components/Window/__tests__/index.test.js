@@ -6,7 +6,7 @@ import DraggableTab from 'components/Tab/DraggableTab'
 import Title from '../Title'
 import Window from '../index'
 
-const tabs = [ { id: 1 }, { id: 2 } ]
+const tabs = [{ id: 1 }, { id: 2 }]
 const props = {
   connectDropTarget,
   dragStore: {
@@ -19,12 +19,20 @@ const props = {
 }
 
 test('Window should render correct components', () => {
-  const el = shallow(
-    <Window.DecoratedComponent {...props} />
-  )
+  const el = shallow(<Window.DecoratedComponent {...props} />)
   expect(el.find(Title).length).toBe(1)
   expect(el.find(FlipMove).length).toBe(1)
   expect(el.find(DraggableTab).length).toBe(tabs.length)
-  expect(el.find(DraggableTab).first().props().getScrollbars).toBe(props.getScrollbars)
-  expect(el.find(DraggableTab).first().props().dragPreview).toBe(props.dragPreview)
+  expect(
+    el
+      .find(DraggableTab)
+      .first()
+      .props().getScrollbars
+  ).toBe(props.getScrollbars)
+  expect(
+    el
+      .find(DraggableTab)
+      .first()
+      .props().dragPreview
+  ).toBe(props.dragPreview)
 })

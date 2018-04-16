@@ -1,14 +1,11 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Dialog, {
-  DialogContent,
-  DialogTitle
-} from 'material-ui/Dialog'
+import Dialog, { DialogContent, DialogTitle } from 'material-ui/Dialog'
 import Help from './Help'
 import { withStyles } from 'material-ui/styles'
 import Fade from 'material-ui/transitions/Fade'
 
-export const styles = (theme) => ({
+export const styles = theme => ({
   paper: {
     width: '100%'
   }
@@ -20,10 +17,7 @@ class HotkeyDialog extends React.Component {
   render () {
     const {
       classes,
-      shortcutStore: {
-        dialogOpen,
-        closeDialog
-      }
+      shortcutStore: { dialogOpen, closeDialog }
     } = this.props
     return (
       <Dialog
@@ -33,9 +27,7 @@ class HotkeyDialog extends React.Component {
         onEscapeKeyUp={closeDialog}
         onBackdropClick={closeDialog}
       >
-        <DialogTitle>
-          Keyboard shortcuts
-        </DialogTitle>
+        <DialogTitle>Keyboard shortcuts</DialogTitle>
         <DialogContent>
           <Help />
         </DialogContent>

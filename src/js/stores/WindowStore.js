@@ -1,6 +1,9 @@
 import { action, computed, observable } from 'mobx'
 import {
-  moveTabs, getLastFocusedWindowId, notSelfPopup, windowComparator
+  moveTabs,
+  getLastFocusedWindowId,
+  notSelfPopup,
+  windowComparator
 } from 'libs'
 import Window from './Window'
 
@@ -18,16 +21,13 @@ export default class WindowsStore {
   @computed
   get tabCount () {
     return this.windows
-      .map(
-        x => x.tabs.length
-      ).reduce(
-        (acc, cur) => acc + cur, 0
-      )
+      .map(x => x.tabs.length)
+      .reduce((acc, cur) => acc + cur, 0)
   }
 
   @computed
   get tabs () {
-    return [].concat(...(this.windows.map(x => x.tabs.slice())))
+    return [].concat(...this.windows.map(x => x.tabs.slice()))
   }
 
   @action
@@ -58,12 +58,12 @@ export default class WindowsStore {
     this.store.searchStore.firstTab()
   }
 
-  getTargetWindow = (windowId) => {
-    const win = this.windows.find(
-      (win) => win.id === windowId
-    )
+  getTargetWindow = windowId => {
+    const win = this.windows.find(win => win.id === windowId)
     if (!win) {
-      throw new Error(`getTargetWindow canot find window for windowId: ${windowId}!`)
+      throw new Error(
+        `getTargetWindow canot find window for windowId: ${windowId}!`
+      )
     }
     return win
   }
@@ -71,32 +71,27 @@ export default class WindowsStore {
   @action
   moveTabs = async (tabs, windowId, from = 0) => {
     const targetWindow = this.getTargetWindow(windowId)
-    tabs.map(
-      (tab, i) => {
-        const index = from + (from !== -1 ? i : 0)
-        const sourceWindow = this.getTargetWindow(tab.windowId)
-        sourceWindow.remove(tab)
-        targetWindow.add(tab, index)
-      }
-    )
+    tabs.map((tab, i) => {
+      const index = from + (from !== -1 ? i : 0)
+      const sourceWindow = this.getTargetWindow(tab.windowId)
+      sourceWindow.remove(tab)
+      targetWindow.add(tab, index)
+    })
     await moveTabs(tabs, windowId, from)
   }
 
   getAllWindows = () => {
-    chrome.windows.getAll(
-      { populate: true },
-      async (windows = []) => {
-        this.lastFocusedWindowId = await getLastFocusedWindowId()
+    chrome.windows.getAll({ populate: true }, async (windows = []) => {
+      this.lastFocusedWindowId = await getLastFocusedWindowId()
 
-        this.windows = windows
-          .filter(notSelfPopup)
-          .map((win) => new Window(win, this.store))
-          .sort(windowComparator)
+      this.windows = windows
+        .filter(notSelfPopup)
+        .map(win => new Window(win, this.store))
+        .sort(windowComparator)
 
-        this.focusLastActiveTab()
+      this.focusLastActiveTab()
 
-        this.initialLoading = false
-      }
-    )
+      this.initialLoading = false
+    })
   }
 }

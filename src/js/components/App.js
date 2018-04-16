@@ -69,19 +69,25 @@ export default class App extends React.Component {
 
   render () {
     if (this.props.windowStore.initialLoading) {
-      return (<Loading />)
+      return <Loading />
     }
     return (
       <React.StrictMode>
         <MuiThemeProvider theme={theme}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            height: '100vh'
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              height: '100vh'
+            }}
+          >
             <Slide in direction='down'>
-              <Tools inputRef={(input) => { this.search = input }} />
+              <Tools
+                inputRef={input => {
+                  this.search = input
+                }}
+              />
             </Slide>
             <Fade in>
               <WindowList />

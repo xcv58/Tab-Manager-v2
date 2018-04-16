@@ -15,7 +15,7 @@ const fakeButtonStyle = {
 @inject('windowStore')
 @observer
 export default class Summary extends React.Component {
-  onFocus = (e) => {
+  onFocus = e => {
     e.target.blur()
   }
 
@@ -30,7 +30,9 @@ export default class Summary extends React.Component {
   }
 
   render () {
-    const { windowStore: { tabCount, windows } } = this.props
+    const {
+      windowStore: { tabCount, windows }
+    } = this.props
     const opacity = this.getOpacity()
     const style = { ...fakeButtonStyle, opacity }
     return (

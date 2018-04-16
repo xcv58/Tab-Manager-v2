@@ -9,7 +9,7 @@ import store from '../.storybook/mock-store'
 store.windowStore.getAllWindows()
 const tabs = store.windowStore.windows[0].tabs
 
-const tabProps = (props) => {
+const tabProps = props => {
   const tab = tabs[Math.floor(Math.random() * tabs.length)]
   Object.assign(tab, props)
   return {
@@ -21,18 +21,12 @@ const tabProps = (props) => {
 }
 
 storiesOf('Tab', module)
-  .add('DraggableTab', () => (
-    <DraggableTab {...tabProps({ pinned: false })} />
-  ))
-  .add('Tab', () => (
-    <Tab {...tabProps({ pinned: false })} />
-  ))
+  .add('DraggableTab', () => <DraggableTab {...tabProps({ pinned: false })} />)
+  .add('Tab', () => <Tab {...tabProps({ pinned: false })} />)
   .add('Pinned DraggableTab', () => (
     <DraggableTab {...tabProps({ pinned: true })} />
   ))
-  .add('Pinned Tab', () => (
-    <Tab {...tabProps({ pinned: true })} />
-  ))
+  .add('Pinned Tab', () => <Tab {...tabProps({ pinned: true })} />)
 
 const iconStory = storiesOf('Icon', module)
 ;[
@@ -44,7 +38,7 @@ const iconStory = storiesOf('Icon', module)
   'flags',
   'history',
   'settings'
-].map((x) => {
+].map(x => {
   iconStory.add(`Chrome Icon ${x}`, () => (
     <Icon {...tabProps()} url={`chrome://${x}`} />
   ))

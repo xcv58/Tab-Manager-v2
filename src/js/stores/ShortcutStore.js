@@ -2,7 +2,7 @@ import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
 
-export const getDescription = (description) => {
+export const getDescription = description => {
   if (typeof description === 'string') {
     return description
   }
@@ -22,7 +22,8 @@ export default class ShortcutStore {
   @observable dialogOpen = false
   closeHandle = null
 
-  @observable inputShortcutSet = new Set([
+  @observable
+  inputShortcutSet = new Set([
     'escape',
     'enter',
     'ctrl+enter',
@@ -46,108 +47,191 @@ export default class ShortcutStore {
     'shift+ctrl+g'
   ])
 
-  @observable shortcuts = [
-    [ 'ctrl+s', (event) => {
-      event.preventDefault()
-      this.store.arrangeStore.sortTabs()
-    }, 'Sort tabs' ],
-    [ 'shift+ctrl+s', (event) => {
-      event.preventDefault()
-      this.store.arrangeStore.groupTabs()
-    }, 'Group and sort tabs' ],
-    [ [ 'backspace', 'ctrl+d' ], (e) => {
-      this.store.tabStore.remove()
-    }, 'Close tab' ],
-    [ [ 'enter', 'ctrl+enter' ], (e) => {
-      this.store.searchStore.enter()
-    }, 'Go to tab' ],
-    [ [ 'p', 'ctrl+p' ], (e) => {
-      e.preventDefault()
-      this.store.tabStore.togglePin()
-    }, 'Toogle pin' ],
-    [ '/', (event) => {
-      event.preventDefault()
-      this.App.search.focus()
-    }, 'Search tab' ],
-    [ 'escape', (e) => {
-      if (this.dialogOpen) {
+  @observable
+  shortcuts = [
+    [
+      'ctrl+s',
+      event => {
+        event.preventDefault()
+        this.store.arrangeStore.sortTabs()
+      },
+      'Sort tabs'
+    ],
+    [
+      'shift+ctrl+s',
+      event => {
+        event.preventDefault()
+        this.store.arrangeStore.groupTabs()
+      },
+      'Group and sort tabs'
+    ],
+    [
+      ['backspace', 'ctrl+d'],
+      e => {
+        this.store.tabStore.remove()
+      },
+      'Close tab'
+    ],
+    [
+      ['enter', 'ctrl+enter'],
+      e => {
+        this.store.searchStore.enter()
+      },
+      'Go to tab'
+    ],
+    [
+      ['p', 'ctrl+p'],
+      e => {
         e.preventDefault()
-        return this.closeDialog()
-      }
-      const { searchStore: { clear, typing, query } } = this.store
-      if (typing) {
-        e.preventDefault()
-        return this.App.search.blur()
-      }
-      if (query) {
-        e.preventDefault()
-        return clear()
-      }
-    }, () => {
-      if (this.store.searchStore.typing) {
-        return 'Go to tab list'
-      }
-      if (this.dialogOpen) {
-        return `
+        this.store.tabStore.togglePin()
+      },
+      'Toogle pin'
+    ],
+    [
+      '/',
+      event => {
+        event.preventDefault()
+        this.App.search.focus()
+      },
+      'Search tab'
+    ],
+    [
+      'escape',
+      e => {
+        if (this.dialogOpen) {
+          e.preventDefault()
+          return this.closeDialog()
+        }
+        const {
+          searchStore: { clear, typing, query }
+        } = this.store
+        if (typing) {
+          e.preventDefault()
+          return this.App.search.blur()
+        }
+        if (query) {
+          e.preventDefault()
+          return clear()
+        }
+      },
+      () => {
+        if (this.store.searchStore.typing) {
+          return 'Go to tab list'
+        }
+        if (this.dialogOpen) {
+          return `
           Close hotkey dialog;
           Go to tab list if typing in search box;
           Clear search text if search box is not focused.
         `
+        }
+        return 'Clear search text'
       }
-      return 'Clear search text'
-    } ],
-    [ [ 'h', 'left', 'ctrl+h' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.left()
-    }, 'Left tab' ],
-    [ [ 'l', 'right', 'ctrl+l' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.right()
-    }, 'Right tab' ],
-    [ [ 'j', 'down', 'ctrl+j' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.down()
-    }, 'Next tab' ],
-    [ [ 'k', 'up', 'ctrl+k' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.up()
-    }, 'Previous tab' ],
-    [ [ 'g g', 'ctrl+g' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.firstTab()
-    }, 'First tab' ],
-    [ [ 'shift+g', 'shift+ctrl+g' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.lastTab()
-    }, 'Last tab' ],
-    [ [ 'x', 'ctrl+x' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.select()
-    }, 'Select tab' ],
-    [ [ '* m', 'ctrl+m' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.selectAll()
-    }, 'Select all matched tab' ],
-    [ [ '* u', 'i', 'ctrl+u' ], (e) => {
-      e.preventDefault()
-      this.store.searchStore.invertSelect()
-    }, 'Invert select tabs' ],
-    [ [ '* a', 'ctrl+8' ], (e) => {
-      e.preventDefault()
-      this.store.windowStore.selectAll()
-    }, 'Select all tab' ],
-    [ [ '* n', 'ctrl+n' ], (e) => {
-      e.preventDefault()
-      this.store.tabStore.unselectAll()
-    }, 'Unselect all tab' ],
-    [ [ 'ctrl+o' ], (e) => {
-      e.preventDefault()
-      openInNewTab()
-    }, 'Open this window in new tab' ],
-    [ [ '?', 'ctrl+/' ], (e) => {
-      e.preventDefault()
-      this.openDialog()
-    }, 'Open keyboard shortcut help' ]
+    ],
+    [
+      ['h', 'left', 'ctrl+h'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.left()
+      },
+      'Left tab'
+    ],
+    [
+      ['l', 'right', 'ctrl+l'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.right()
+      },
+      'Right tab'
+    ],
+    [
+      ['j', 'down', 'ctrl+j'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.down()
+      },
+      'Next tab'
+    ],
+    [
+      ['k', 'up', 'ctrl+k'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.up()
+      },
+      'Previous tab'
+    ],
+    [
+      ['g g', 'ctrl+g'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.firstTab()
+      },
+      'First tab'
+    ],
+    [
+      ['shift+g', 'shift+ctrl+g'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.lastTab()
+      },
+      'Last tab'
+    ],
+    [
+      ['x', 'ctrl+x'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.select()
+      },
+      'Select tab'
+    ],
+    [
+      ['* m', 'ctrl+m'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.selectAll()
+      },
+      'Select all matched tab'
+    ],
+    [
+      ['* u', 'i', 'ctrl+u'],
+      e => {
+        e.preventDefault()
+        this.store.searchStore.invertSelect()
+      },
+      'Invert select tabs'
+    ],
+    [
+      ['* a', 'ctrl+8'],
+      e => {
+        e.preventDefault()
+        this.store.windowStore.selectAll()
+      },
+      'Select all tab'
+    ],
+    [
+      ['* n', 'ctrl+n'],
+      e => {
+        e.preventDefault()
+        this.store.tabStore.unselectAll()
+      },
+      'Unselect all tab'
+    ],
+    [
+      ['ctrl+o'],
+      e => {
+        e.preventDefault()
+        openInNewTab()
+      },
+      'Open this window in new tab'
+    ],
+    [
+      ['?', 'ctrl+/'],
+      e => {
+        e.preventDefault()
+        this.openDialog()
+      },
+      'Open keyboard shortcut help'
+    ]
   ]
 
   @action
@@ -162,15 +246,15 @@ export default class ShortcutStore {
     if (contentEditable === 'true') {
       return true
     }
-    return [ 'INPUT', 'SELECT', 'TEXTAREA' ].includes(tagName)
+    return ['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)
   }
 
   @action
-  didMount = (App) => {
+  didMount = App => {
     this.App = App
     Mousetrap.prototype.stopCallback = this.stopCallback
-    this.shortcuts.map(
-      ([ key, func, description ]) => Mousetrap.bind(key, (e, combo) => {
+    this.shortcuts.map(([key, func, description]) =>
+      Mousetrap.bind(key, (e, combo) => {
         this.combo = `${combo}: ${getDescription(description)}`
         this.openToast()
         func(e)
@@ -178,8 +262,7 @@ export default class ShortcutStore {
     )
   }
 
-  @action
-  willUnmount = () => Mousetrap.reset()
+  @action willUnmount = () => Mousetrap.reset()
 
   @action
   clearCombo = () => {

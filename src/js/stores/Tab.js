@@ -92,7 +92,7 @@ export default class Tab {
       this.iconUrl = FAV_ICONS[host] || this.iconUrl
     } else if (url.startsWith(CHROME_EXTENSION_PREFIX)) {
       const { icons } = await chrome.management.get(host)
-      this.iconUrl = ([ ...icons ].pop() || {}).url || this.iconUrl
+      this.iconUrl = ([...icons].pop() || {}).url || this.iconUrl
     } else {
       this.iconUrl = favIconUrl || this.iconUrl
     }

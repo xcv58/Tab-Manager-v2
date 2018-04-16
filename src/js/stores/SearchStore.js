@@ -30,19 +30,21 @@ export default class SearchStore {
 
   @computed
   get matchedWindows () {
-    return this.store.windowStore.windows.map((win) => {
-      const tabs = win.tabs.filter(x => this.matchedSet.has(x.id))
-      if (tabs.length) {
-        return { ...win, tabs }
-      }
-      return null
-    }).filter(x => x)
+    return this.store.windowStore.windows
+      .map(win => {
+        const tabs = win.tabs.filter(x => this.matchedSet.has(x.id))
+        if (tabs.length) {
+          return { ...win, tabs }
+        }
+        return null
+      })
+      .filter(x => x)
   }
 
   @computed
   get focusedWinIndex () {
-    return this.matchedWindows.findIndex(
-      (win) => win.tabs.find((tab) => tab.id === this.focusedTab)
+    return this.matchedWindows.findIndex(win =>
+      win.tabs.find(tab => tab.id === this.focusedTab)
     )
   }
 
@@ -59,21 +61,19 @@ export default class SearchStore {
     if (!this.focusedWindow) {
       return -1
     }
-    return this.focusedWindow.tabs.findIndex((tab) => tab.id === this.focusedTab)
+    return this.focusedWindow.tabs.findIndex(tab => tab.id === this.focusedTab)
   }
 
   @computed
   get allTabSelected () {
-    return this.matchedTabs.every(
-      this.store.tabStore.isTabSelected
-    )
+    return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
 
   @computed
   get someTabSelected () {
-    return !this.allTabSelected &&
-    this.matchedTabs.some(
-      this.store.tabStore.isTabSelected
+    return (
+      !this.allTabSelected &&
+      this.matchedTabs.some(this.store.tabStore.isTabSelected)
     )
   }
 
@@ -113,8 +113,7 @@ export default class SearchStore {
     this._query = this.query
   }
 
-  @action
-  clear = () => this.search('', 0)
+  @action clear = () => this.search('', 0)
 
   fuzzySearch = () => {
     const tabs = this.store.windowStore.tabs
@@ -128,11 +127,8 @@ export default class SearchStore {
     return tabs.filter(x => set.has(x.id))
   }
 
-  getMatchedIds = (tabs, field) => filter(
-    this.query,
-    tabs,
-    { extract: (x) => x[field] }
-  ).map(x => x.original.id)
+  getMatchedIds = (tabs, field) =>
+    filter(this.query, tabs, { extract: x => x[field] }).map(x => x.original.id)
 
   @action
   enter = () => {
@@ -140,7 +136,7 @@ export default class SearchStore {
   }
 
   @action
-  focus = (tab) => {
+  focus = tab => {
     this.focusedTab = tab.id
   }
 
@@ -149,8 +145,11 @@ export default class SearchStore {
     if (!this.focusedTab) {
       return
     }
-    const { tabStore: { select }, windowStore: { tabs } } = this.store
-    select(tabs.find((x) => x.id === this.focusedTab))
+    const {
+      tabStore: { select },
+      windowStore: { tabs }
+    } = this.store
+    select(tabs.find(x => x.id === this.focusedTab))
   }
 
   @action
@@ -168,21 +167,20 @@ export default class SearchStore {
     this.store.tabStore.unselectAll()
   }
 
-  @action
-  left = () => this.jumpToHorizontalTab(-1)
+  @action left = () => this.jumpToHorizontalTab(-1)
 
-  @action
-  right = () => this.jumpToHorizontalTab(1)
+  @action right = () => this.jumpToHorizontalTab(1)
 
-  jumpInSameWin = (direction) => {
+  jumpInSameWin = direction => {
     if (this.jumpOrFocusTab(direction)) {
       const { tabs } = this.focusedWindow
       const { length } = tabs
-      this.focusedTab = tabs[(this.focusedTabIndex + direction + length) % length].id
+      this.focusedTab =
+        tabs[(this.focusedTabIndex + direction + length) % length].id
     }
   }
 
-  jumpToHorizontalTab = (direction) => {
+  jumpToHorizontalTab = direction => {
     if (this.jumpOrFocusTab(direction)) {
       const windows = this.matchedWindows
       const { length } = windows
@@ -193,7 +191,7 @@ export default class SearchStore {
     }
   }
 
-  jumpOrFocusTab = (direction) => {
+  jumpOrFocusTab = direction => {
     if (!this.focusedTab) {
       this.findFocusedTab()
       return
@@ -212,22 +210,18 @@ export default class SearchStore {
   }
 
   jumpToWin = (tab, win) => {
-    const delta = win.tabs.map((t) => Math.abs(t.index - tab.index))
+    const delta = win.tabs.map(t => Math.abs(t.index - tab.index))
     const target = delta.indexOf(Math.min(...delta))
     this.focusedTab = win.tabs[target].id
   }
 
-  @action
-  up = () => this.jumpInSameWin(-1)
+  @action up = () => this.jumpInSameWin(-1)
 
-  @action
-  down = () => this.jumpInSameWin(1)
+  @action down = () => this.jumpInSameWin(1)
 
-  @action
-  lastTab = () => this.jumpToTab(-1)
+  @action lastTab = () => this.jumpToTab(-1)
 
-  @action
-  firstTab = () => this.jumpToTab(0)
+  @action firstTab = () => this.jumpToTab(0)
 
   findFocusedTab = (step = 1) => {
     const { length } = this.matchedTabs
@@ -238,7 +232,7 @@ export default class SearchStore {
       const index = this.matchedTabs.findIndex(x => x.id === this.focusedTab)
       this.jumpToTab(index + step)
     } else {
-      const index = (length + ((step - 1) / 2)) % length
+      const index = (length + (step - 1) / 2) % length
       this.jumpToTab(index)
     }
   }

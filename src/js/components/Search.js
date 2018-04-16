@@ -5,12 +5,14 @@ import Input from 'material-ui/Input'
 @inject('searchStore')
 @observer
 export default class Search extends React.Component {
-  onChange = (e) => {
+  onChange = e => {
     this.props.searchStore.search(e.target.value)
   }
 
   onFocus = () => {
-    const { searchStore: { search, query, startType } } = this.props
+    const {
+      searchStore: { search, query, startType }
+    } = this.props
     search(query)
     startType()
   }
@@ -20,7 +22,10 @@ export default class Search extends React.Component {
   }
 
   render () {
-    const { inputRef, searchStore: { query } } = this.props
+    const {
+      inputRef,
+      searchStore: { query }
+    } = this.props
     return (
       <Input
         fullWidth
