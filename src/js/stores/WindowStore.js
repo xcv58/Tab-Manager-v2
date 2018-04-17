@@ -7,6 +7,8 @@ import {
 } from 'libs'
 import Window from './Window'
 
+const DEBOUNCE_INTERVAL = 2000
+
 export default class WindowsStore {
   constructor (store) {
     this.store = store
@@ -16,6 +18,7 @@ export default class WindowsStore {
   @observable initialLoading = true
   @observable lastFocusedWindowId = null
 
+  lastCallTime = 0
   updateHandler = null
 
   @computed
@@ -31,11 +34,30 @@ export default class WindowsStore {
   }
 
   @action
+  removeTabs = ids => {
+    const set = new Set(ids)
+    this.windows.forEach(win => win.removeTabs(set))
+    for (let index = 0; index < this.windows.length;) {
+      if (this.windows[index].tabs.length === 0) {
+        this.windows.splice(index, 1)
+      } else {
+        index++
+      }
+    }
+  }
+
+  @action
   updateAllWindows = () => {
+    const time = Date.now()
     if (this.updateHandler != null) {
       clearTimeout(this.updateHandler)
     }
-    this.updateHandler = setTimeout(this.getAllWindows, 50)
+    if (time - this.lastCallTime < DEBOUNCE_INTERVAL) {
+      this.updateHandler = setTimeout(this.getAllWindows, DEBOUNCE_INTERVAL)
+    } else {
+      this.getAllWindows()
+    }
+    this.lastCallTime = time
   }
 
   @action
@@ -92,6 +114,7 @@ export default class WindowsStore {
       this.focusLastActiveTab()
 
       this.initialLoading = false
+      this.updateHandler = null
     })
   }
 }

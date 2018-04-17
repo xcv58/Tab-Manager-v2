@@ -83,14 +83,14 @@ export default class TabStore {
           break
         }
       }
-      chrome.tabs.remove(
-        [...this.selection.values()].map(x => x.id),
-        this.unselectAll
-      )
+      const ids = [...this.selection.values()].map(x => x.id)
+      this.store.windowStore.removeTabs(ids)
+      chrome.tabs.remove(ids, this.unselectAll)
     } else {
       if (focusedTab) {
         down()
         chrome.tabs.remove(focusedTab)
+        this.store.windowStore.removeTabs([focusedTab])
       }
     }
   }
