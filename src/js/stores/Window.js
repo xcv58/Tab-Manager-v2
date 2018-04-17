@@ -46,4 +46,17 @@ export default class Window {
       )
     }
   }
+
+  @action
+  removeTabs = set => {
+    for (let index = 0; index < this.tabs.length;) {
+      const id = this.tabs[index].id
+      if (set.has(id)) {
+        this.tabs.splice(index, 1)
+        set.delete(id)
+      } else {
+        index++
+      }
+    }
+  }
 }

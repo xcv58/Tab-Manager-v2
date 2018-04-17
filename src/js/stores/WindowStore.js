@@ -31,6 +31,12 @@ export default class WindowsStore {
   }
 
   @action
+  removeTabs = ids => {
+    const set = new Set(ids)
+    this.windows.forEach(win => win.removeTabs(set))
+  }
+
+  @action
   updateAllWindows = () => {
     if (this.updateHandler != null) {
       clearTimeout(this.updateHandler)
@@ -81,7 +87,9 @@ export default class WindowsStore {
   }
 
   getAllWindows = () => {
+    console.log('getAllWindows')
     chrome.windows.getAll({ populate: true }, async (windows = []) => {
+      console.log('getAllWindows get', windows)
       this.lastFocusedWindowId = await getLastFocusedWindowId()
 
       this.windows = windows
