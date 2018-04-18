@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
@@ -77,11 +77,21 @@
   },
   "standard": {
     "parser": "babel-eslint",
-    "globals": ["chrome", "screen"]
+    "globals": [
+      "chrome",
+      "screen"
+    ]
   },
   "lint-staged": {
-    "*.js": ["yarn prettier", "standard --fix", "git add"],
-    "*.{json,css,md}": ["yarn prettier", "git add"]
+    "*.js": [
+      "yarn prettier",
+      "standard --fix",
+      "git add"
+    ],
+    "*.{json,css,md}": [
+      "yarn prettier",
+      "git add"
+    ]
   },
   "jest": {
     "collectCoverage": true,
