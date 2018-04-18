@@ -7,7 +7,7 @@ import {
 } from 'libs'
 import Window from './Window'
 
-const DEBOUNCE_INTERVAL = 2000
+const DEBOUNCE_INTERVAL = 1000
 
 export default class WindowsStore {
   constructor (store) {
