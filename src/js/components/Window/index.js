@@ -61,15 +61,17 @@ export default class Window extends React.Component {
       <div style={style}>
         <Paper elevation={elevation}>
           <Title {...this.props} />
-          <FlipMove
-            duration={256}
-            easing='ease-in-out'
-            appearAnimation='accordionHorizontal'
-            enterAnimation='accordionHorizontal'
-            leaveAnimation='accordionHorizontal'
-          >
-            {content}
-          </FlipMove>
+          <React.unstable_AsyncMode>
+            <FlipMove
+              duration={256}
+              easing='ease-in-out'
+              appearAnimation='accordionHorizontal'
+              enterAnimation='accordionHorizontal'
+              leaveAnimation='accordionHorizontal'
+            >
+              {content}
+            </FlipMove>
+          </React.unstable_AsyncMode>
           {dropIndicator}
         </Paper>
       </div>
