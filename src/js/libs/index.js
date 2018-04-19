@@ -45,13 +45,16 @@ export const openOrTogglePopup = async () => {
   chrome.windows.update(winId, { focused: true })
 }
 
+export const MAX_WIDTH = 1024
+export const MAX_HEIGHT = 768
+export const getInt = number => Math.floor(number)
+
 export const openPopup = () => {
   const { availHeight, availLeft, availTop, availWidth } = screen
-  const width = Math.max(1024, availWidth / 2)
-  const height = Math.max(768, availHeight / 2)
-  const top = availTop + (availHeight - height) / 2
-  const left = availLeft + (availWidth - width) / 2
-
+  const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
+  const height = getInt(Math.max(MAX_HEIGHT, availHeight / 2))
+  const top = getInt(availTop + (availHeight - height) / 2)
+  const left = getInt(availLeft + (availWidth - width) / 2)
   chrome.windows.create({
     top,
     left,
