@@ -75,6 +75,9 @@ export default class TabStore {
   @action
   remove = () => {
     const { down, focusedTab } = this.store.searchStore
+    const { suspend, resume, removeTabs } = this.store.windowStore
+    let ids = []
+    suspend()
     if (this.selection.size > 0) {
       while (this.selection.has(this.store.searchStore.focusedTab)) {
         down()
@@ -83,16 +86,18 @@ export default class TabStore {
           break
         }
       }
-      const ids = [...this.selection.values()].map(x => x.id)
-      this.store.windowStore.removeTabs(ids)
-      chrome.tabs.remove(ids, this.unselectAll)
+      ids = [...this.selection.values()].map(x => x.id)
     } else {
       if (focusedTab) {
         down()
-        chrome.tabs.remove(focusedTab)
-        this.store.windowStore.removeTabs([focusedTab])
+        ids.push(focusedTab)
       }
     }
+    removeTabs(ids)
+    chrome.tabs.remove(ids, () => {
+      resume()
+      this.unselectAll()
+    })
   }
 
   @action
