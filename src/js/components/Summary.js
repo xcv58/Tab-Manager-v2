@@ -38,12 +38,12 @@ export default class Summary extends React.Component {
     } = this.props
     const opacity = this.getOpacity()
     const style = { ...fakeButtonStyle, opacity }
-    const size = selection.size
+    const selected = selection.size
     return (
       <button style={style} onFocus={this.onFocus}>
         {windows.length} {getNoun('window', windows.length)}
         , {tabCount} {getNoun('tab', tabCount)}
-        , {size} {getNoun('tab', size)} selected
+        , {selected} {getNoun('tab', selected)} selected
       </button>
     )
   }
