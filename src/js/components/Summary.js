@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import { getNoun } from 'libs'
 
 const fakeButtonStyle = {
   position: 'fixed',
@@ -12,6 +13,7 @@ const fakeButtonStyle = {
 }
 
 @inject('searchStore')
+@inject('tabStore')
 @inject('windowStore')
 @observer
 export default class Summary extends React.Component {
@@ -31,14 +33,17 @@ export default class Summary extends React.Component {
 
   render () {
     const {
-      windowStore: { tabCount, windows }
+      windowStore: { tabCount, windows },
+      tabStore: { selection }
     } = this.props
     const opacity = this.getOpacity()
     const style = { ...fakeButtonStyle, opacity }
+    const selected = selection.size
     return (
       <button style={style} onFocus={this.onFocus}>
-        {windows.length} window{windows.length > 1 && 's'}
-        , {tabCount} tab{tabCount > 1 && 's'}
+        {windows.length} {getNoun('window', windows.length)}
+        , {tabCount} {getNoun('tab', tabCount)}
+        , {selected} {getNoun('tab', selected)} selected
       </button>
     )
   }
