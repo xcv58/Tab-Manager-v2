@@ -16,6 +16,6 @@ export default class Preview extends React.Component {
       tabStore: { sources }
     } = this.props
     const content = sources.map(tab => <Tab key={tab.id} tab={tab} faked />)
-    return <div style={style}>{content}</div>
+    return <div style={{ ...style, ...this.props.style }}>{content}</div>
   }
 }

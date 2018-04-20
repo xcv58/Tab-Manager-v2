@@ -4,7 +4,7 @@ import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { ItemTypes } from 'libs'
+import { ItemTypes, getNoun } from 'libs'
 
 const style = {
   display: 'flex',
@@ -47,7 +47,7 @@ export default class Title extends React.Component {
       win: { tabs }
     } = this.props
     const { length } = tabs
-    const text = `${length} tab` + (length > 1 ? 's' : '')
+    const text = `${length} ${getNoun('tab', length)}`
     const title = (
       <span
         style={{

@@ -1,11 +1,12 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
+import Paper from 'material-ui/Paper'
 import Preview from 'components/Preview'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
-import { ItemTypes } from 'libs'
+import { ItemTypes, getNoun } from 'libs'
 import { dropTargetColor, droppedColor } from 'libs/colors'
 
 const style = {
@@ -17,6 +18,7 @@ const style = {
 }
 
 @inject('dragStore')
+@inject('tabStore')
 @DropTarget(
   ItemTypes.TAB,
   {
@@ -36,9 +38,18 @@ const style = {
 @observer
 export default class Tools extends React.Component {
   render () {
-    const { connectDropTarget, isOver, canDrop } = this.props
+    const {
+      connectDropTarget,
+      isOver,
+      canDrop,
+      tabStore: { selection }
+    } = this.props
+    const size = selection.size
     if (canDrop) {
       const backgroundColor = isOver ? droppedColor : dropTargetColor
+      const text = isOver
+        ? `Open below ${getNoun('tab', size)}`
+        : 'Drop here to open'
       return connectDropTarget(
         <div
           style={{
@@ -49,16 +60,16 @@ export default class Tools extends React.Component {
             zIndex: 9
           }}
         >
-          Drop here to open in new window
-          <div
+          {text} in New Window
+          <Paper
+            elevation={8}
             style={{
               position: 'absolute',
-              top: '3rem',
-              backgroundColor: 'white'
+              top: '3rem'
             }}
           >
-            {isOver && <Preview />}
-          </div>
+            {isOver && <Preview style={{ opacity: 1 }} />}
+          </Paper>
         </div>
       )
     }

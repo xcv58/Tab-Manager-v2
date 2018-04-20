@@ -1,5 +1,12 @@
 export const popupURL = chrome.runtime.getURL('popup.html')
 
+export const getNoun = (noun, size) => {
+  if (size <= 1) {
+    return noun
+  }
+  return noun + 's'
+}
+
 export const moveTabs = async (tabs, windowId, from = 0) => {
   await Promise.all(
     tabs.map(async ({ id, pinned }, i) => {
