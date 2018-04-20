@@ -68,7 +68,15 @@ export default class Tools extends React.Component {
               top: '3rem'
             }}
           >
-            {isOver && <Preview style={{ opacity: 1 }} />}
+            {isOver && (
+              <Preview
+                style={{
+                  opacity: 1,
+                  maxWidth: '80vw',
+                  minWidth: '20rem'
+                }}
+              />
+            )}
           </Paper>
         </div>
       )
