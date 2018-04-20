@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
+import Preview from 'components/Preview'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
@@ -44,10 +45,20 @@ export default class Tools extends React.Component {
             ...style,
             backgroundColor,
             fontSize: '200%',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            zIndex: 9
           }}
         >
           Drop here to open in new window
+          <div
+            style={{
+              position: 'absolute',
+              top: '3rem',
+              backgroundColor: 'white'
+            }}
+          >
+            {isOver && <Preview />}
+          </div>
         </div>
       )
     }
