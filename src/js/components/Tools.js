@@ -4,8 +4,8 @@ import { DropTarget } from 'react-dnd'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
-import { dropTargetColor, droppedColor } from 'libs/colors'
 import { ItemTypes } from 'libs'
+import { dropTargetColor, droppedColor } from 'libs/colors'
 
 const style = {
   display: 'flex',
