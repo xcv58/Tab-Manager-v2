@@ -14,6 +14,20 @@ export default class WindowsStore {
     this.store = store
   }
 
+  didMount = () => {
+    this.getAllWindows()
+    // chrome.windows.onCreated.addListener(this.updateAllWindows)
+    // chrome.windows.onRemoved.addListener(this.updateAllWindows)
+    chrome.windows.onFocusChanged.addListener(this.updateAllWindows)
+    // chrome.tabs.onCreated.addListener(this.updateAllWindows)
+    chrome.tabs.onUpdated.addListener(this.updateAllWindows)
+    chrome.tabs.onMoved.addListener(this.updateAllWindows)
+    chrome.tabs.onDetached.addListener(this.updateAllWindows)
+    chrome.tabs.onRemoved.addListener(this.updateAllWindows)
+    chrome.tabs.onReplaced.addListener(this.updateAllWindows)
+    chrome.tabs.onActivated.addListener(this.updateAllWindows)
+  }
+
   @observable windows = []
   @observable initialLoading = true
   @observable lastFocusedWindowId = null
