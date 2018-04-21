@@ -39,7 +39,8 @@ export default class Window extends React.Component {
       getScrollbars,
       dragPreview,
       left,
-      right
+      right,
+      width
     } = this.props
     const content = tabs.map(tab => (
       <DraggableTab
@@ -49,6 +50,7 @@ export default class Window extends React.Component {
       />
     ))
     const style = {
+      width,
       minWidth: '20rem',
       padding: '0 1px',
       boxSizing: 'border-box',
