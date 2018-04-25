@@ -24,9 +24,10 @@ export default class WindowsStore {
     chrome.tabs.onUpdated.addListener(this.updateAllWindows)
     chrome.tabs.onMoved.addListener(this.updateAllWindows)
     chrome.tabs.onDetached.addListener(this.updateAllWindows)
-    chrome.tabs.onRemoved.addListener(this.updateAllWindows)
     chrome.tabs.onReplaced.addListener(this.updateAllWindows)
     chrome.tabs.onActivated.addListener(this.updateAllWindows)
+
+    chrome.tabs.onRemoved.addListener(this.onRemoved)
   }
 
   @observable windows = []
@@ -57,6 +58,10 @@ export default class WindowsStore {
         index++
       }
     }
+  }
+
+  onRemoved = (id, { windowId, isWindowClosing }) => {
+    this.removeTabs([id])
   }
 
   suspend = () => {
