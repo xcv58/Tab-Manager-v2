@@ -48,22 +48,22 @@ const getTargetValue = (lValue, rValue) => {
 export default class Tab extends React.Component {
   node = React.createRef()
 
-  onMouseEnter = () => {
+  isActionable = () => {
     const {
       faked,
       dragStore: { dragging }
     } = this.props
-    if (!faked && !dragging) {
+    return !faked && !dragging
+  }
+
+  onMouseEnter = () => {
+    if (this.isActionable()) {
       this.props.tab.hover()
     }
   }
 
   onMouseLeave = () => {
-    const {
-      faked,
-      dragStore: { dragging }
-    } = this.props
-    if (!faked && !dragging) {
+    if (this.isActionable()) {
       this.props.tab.unhover()
     }
   }
