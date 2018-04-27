@@ -7,11 +7,11 @@ import Tooltip from 'material-ui/Tooltip'
 export default class TabTooltip extends React.Component {
   render () {
     const {
-      onMouseLeave,
       children,
       faked,
-      tab: { title, url, isHovered },
-      dragStore: { dragging }
+      onMouseLeave,
+      dragStore: { dragging },
+      tab: { title, url, isHovered }
     } = this.props
     if (faked || dragging || !isHovered) {
       return children
