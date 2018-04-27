@@ -10,7 +10,6 @@ export default class TabTooltip extends React.Component {
     const {
       children,
       faked,
-      onMouseLeave,
       dragStore: { dragging },
       hoverStore: { hovered },
       tab: { title, url, isHovered }
@@ -21,6 +20,7 @@ export default class TabTooltip extends React.Component {
     const tooltip = (
       <div
         style={{
+          userSelect: 'text',
           whiteSpace: 'normal',
           wordBreak: 'break-all',
           wordWrap: 'break-word',
@@ -32,7 +32,7 @@ export default class TabTooltip extends React.Component {
       </div>
     )
     return (
-      <Tooltip open title={tooltip} onMouseLeave={onMouseLeave}>
+      <Tooltip open title={tooltip}>
         {children}
       </Tooltip>
     )

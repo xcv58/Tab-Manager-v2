@@ -166,9 +166,7 @@ export default class Tab extends React.Component {
         >
           {pin}
           <Icon {...this.props} />
-          <TabTooltip {...this.props} onMouseLeave={this.onMouseLeave}>
-            {content}
-          </TabTooltip>
+          <TabTooltip {...this.props}>{content}</TabTooltip>
         </div>
       </div>
     )
