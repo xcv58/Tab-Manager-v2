@@ -1,24 +1,21 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
 
+@inject('dragStore')
 @observer
 export default class TabTooltip extends React.Component {
-  state = { open: false }
-
-  handleTooltipClose = () => {
-    this.setState({ open: false })
-  }
-
-  handleTooltipOpen = () => {
-    const { dragging } = this.props.dragStore
-    if (!dragging) {
-      this.setState({ open: true })
-    }
-  }
-
   render () {
-    const { title, url } = this.props.tab
+    const {
+      onMouseLeave,
+      children,
+      faked,
+      tab: { title, url, isHovered },
+      dragStore: { dragging }
+    } = this.props
+    if (faked || dragging || !isHovered) {
+      return children
+    }
     const tooltip = (
       <div
         style={{
@@ -33,15 +30,8 @@ export default class TabTooltip extends React.Component {
       </div>
     )
     return (
-      <Tooltip
-        title={tooltip}
-        onClose={this.handleTooltipClose}
-        onOpen={this.handleTooltipOpen}
-        open={this.state.open}
-        enterDelay={300}
-        leaveDelay={300}
-      >
-        {this.props.children}
+      <Tooltip open title={tooltip} onMouseLeave={onMouseLeave}>
+        {children}
       </Tooltip>
     )
   }

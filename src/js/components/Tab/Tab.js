@@ -1,9 +1,10 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react'
 import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
+import TabTooltip from './TabTooltip'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -42,7 +43,6 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
-@inject('dragStore')
 @observer
 export default class Tab extends React.Component {
   node = React.createRef()
@@ -52,6 +52,7 @@ export default class Tab extends React.Component {
       this.props.tab.hover()
     }
   }
+
   onMouseLeave = () => {
     if (!this.props.faked) {
       this.props.tab.unhover()
@@ -156,7 +157,9 @@ export default class Tab extends React.Component {
         >
           {pin}
           <Icon {...this.props} />
-          {content}
+          <TabTooltip {...this.props} onMouseLeave={this.onMouseLeave}>
+            {content}
+          </TabTooltip>
         </div>
       </div>
     )
