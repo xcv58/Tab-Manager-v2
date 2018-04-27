@@ -4,6 +4,7 @@ import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
+import TabTooltip from './TabTooltip'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -47,13 +48,22 @@ const getTargetValue = (lValue, rValue) => {
 export default class Tab extends React.Component {
   node = React.createRef()
 
+  isActionable = () => {
+    const {
+      faked,
+      dragStore: { dragging }
+    } = this.props
+    return !faked && !dragging
+  }
+
   onMouseEnter = () => {
-    if (!this.props.faked) {
+    if (this.isActionable()) {
       this.props.tab.hover()
     }
   }
+
   onMouseLeave = () => {
-    if (!this.props.faked) {
+    if (this.isActionable()) {
       this.props.tab.unhover()
     }
   }
@@ -156,7 +166,7 @@ export default class Tab extends React.Component {
         >
           {pin}
           <Icon {...this.props} />
-          {content}
+          <TabTooltip {...this.props}>{content}</TabTooltip>
         </div>
       </div>
     )

@@ -5,6 +5,7 @@ import ArrangeStore from 'stores/ArrangeStore'
 import DragStore from 'stores/DragStore'
 import ShortcutStore from 'stores/ShortcutStore'
 import UserStore from 'stores/UserStore'
+import HoverStore from 'stores/HoverStore'
 
 export default class Store {
   constructor () {
@@ -15,5 +16,6 @@ export default class Store {
     this.dragStore = new DragStore(this)
     this.shortcutStore = new ShortcutStore(this)
     this.userStore = new UserStore(this)
+    this.hoverStore = new HoverStore(this)
   }
 }

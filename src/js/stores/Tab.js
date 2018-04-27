@@ -30,7 +30,6 @@ export default class Tab {
     this.setUrlIcon()
   }
 
-  @observable isHovered = false
   @observable iconUrl = empty
 
   @action
@@ -52,13 +51,10 @@ export default class Tab {
 
   @action
   hover = () => {
-    this.isHovered = true
+    this.store.hoverStore.hover(this.id)
   }
 
-  @action
-  unhover = () => {
-    this.isHovered = false
-  }
+  @action unhover = () => this.store.hoverStore.unhover()
 
   @computed
   get isMatched () {
@@ -78,6 +74,11 @@ export default class Tab {
   @computed
   get query () {
     return this.store.searchStore._query
+  }
+
+  @computed
+  get isHovered () {
+    return this.id === this.store.hoverStore.hoveredTabId
   }
 
   @computed
