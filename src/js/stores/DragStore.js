@@ -11,6 +11,7 @@ export default class DragStore {
   @action
   dragStart = tab => {
     tab.select()
+    tab.unhover()
     this.dragging = true
     this.store.tabStore.selection.set(tab.id, tab)
   }

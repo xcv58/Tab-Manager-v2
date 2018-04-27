@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
@@ -43,18 +43,27 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
+@inject('dragStore')
 @observer
 export default class Tab extends React.Component {
   node = React.createRef()
 
   onMouseEnter = () => {
-    if (!this.props.faked) {
+    const {
+      faked,
+      dragStore: { dragging }
+    } = this.props
+    if (!faked && !dragging) {
       this.props.tab.hover()
     }
   }
 
   onMouseLeave = () => {
-    if (!this.props.faked) {
+    const {
+      faked,
+      dragStore: { dragging }
+    } = this.props
+    if (!faked && !dragging) {
       this.props.tab.unhover()
     }
   }

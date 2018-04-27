@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
 
 @inject('dragStore')
+@inject('hoverStore')
 @observer
 export default class TabTooltip extends React.Component {
   render () {
@@ -11,9 +12,10 @@ export default class TabTooltip extends React.Component {
       faked,
       onMouseLeave,
       dragStore: { dragging },
+      hoverStore: { hovered },
       tab: { title, url, isHovered }
     } = this.props
-    if (faked || dragging || !isHovered) {
+    if (faked || dragging || !isHovered || !hovered) {
       return children
     }
     const tooltip = (
