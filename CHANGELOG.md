@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.1"></a>
+
+## [0.6.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.5.8...v0.6.1) (2018-04-27)
+
+### Features
+
+* Add selectable tooltip without performance issue ([#150](https://github.com/xcv58/Tab-Manager-v2/issues/150)) ([13f5d72](https://github.com/xcv58/Tab-Manager-v2/commit/13f5d72))
+* use equal width for window ([#146](https://github.com/xcv58/Tab-Manager-v2/issues/146)) ([b40e758](https://github.com/xcv58/Tab-Manager-v2/commit/b40e758))
+* Use Use custom onRemoved to fix removed tabs jump back issue ([#149](https://github.com/xcv58/Tab-Manager-v2/issues/149)) ([9a201e0](https://github.com/xcv58/Tab-Manager-v2/commit/9a201e0))
+
 <a name="0.6.0"></a>
 
 # [0.6.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.5.9...v0.6.0) (2018-04-21)
