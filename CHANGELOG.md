@@ -9,8 +9,8 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 * Add selectable tooltip without performance issue ([#150](https://github.com/xcv58/Tab-Manager-v2/issues/150)) ([13f5d72](https://github.com/xcv58/Tab-Manager-v2/commit/13f5d72))
-* use equal width for window ([#146](https://github.com/xcv58/Tab-Manager-v2/issues/146)) ([b40e758](https://github.com/xcv58/Tab-Manager-v2/commit/b40e758))
-* Use Use custom onRemoved to fix removed tabs jump back issue ([#149](https://github.com/xcv58/Tab-Manager-v2/issues/149)) ([9a201e0](https://github.com/xcv58/Tab-Manager-v2/commit/9a201e0))
+* Use equal width for window ([#146](https://github.com/xcv58/Tab-Manager-v2/issues/146)) ([b40e758](https://github.com/xcv58/Tab-Manager-v2/commit/b40e758))
+* Use custom `onRemoved` to fix removed tabs jump back issue ([#149](https://github.com/xcv58/Tab-Manager-v2/issues/149)) ([9a201e0](https://github.com/xcv58/Tab-Manager-v2/commit/9a201e0))
 
 <a name="0.6.0"></a>
 
