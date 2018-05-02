@@ -155,6 +155,7 @@ export default class Tab extends React.Component {
       <div
         ref={this.node}
         onMouseEnter={this.onMouseEnter}
+        onMouseOver={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         style={style}
       >
