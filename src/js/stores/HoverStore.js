@@ -15,6 +15,9 @@ export default class HoverStore {
 
   @action
   hover = id => {
+    if (this.hoveredTabId === id) {
+      return
+    }
     this.hoveredTabId = id
     this.hovered = false
     if (this.hoverHandler != null) {

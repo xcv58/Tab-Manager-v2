@@ -67,6 +67,11 @@ export default class Tab {
   }
 
   @computed
+  get urlCount () {
+    return this.store.windowStore.urlCountMap[this.url] || 0
+  }
+
+  @computed
   get isFocused () {
     return this.id === this.store.searchStore.focusedTab
   }

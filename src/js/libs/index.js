@@ -129,3 +129,5 @@ export const getToolbarAutoHide = async () => {
 export const ItemTypes = {
   TAB: 'tab'
 }
+
+export const SHOW_DUPLICATED_TAB = true

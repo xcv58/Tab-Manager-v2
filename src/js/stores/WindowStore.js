@@ -124,6 +124,15 @@ export default class WindowsStore {
     return this.windows.find(x => x.lastFocused)
   }
 
+  @computed
+  get urlCountMap () {
+    return this.tabs.reduce((acc, tab) => {
+      const { url } = tab
+      acc[url] = (acc[url] || 0) + 1
+      return acc
+    }, {})
+  }
+
   focusLastActiveTab = () => {
     if (!this.lastFocusedWindow) {
       return
