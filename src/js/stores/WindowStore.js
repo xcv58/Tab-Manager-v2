@@ -72,6 +72,7 @@ export default class WindowsStore {
     const tab = this.tabs.find(x => x.id === tabId)
     if (tab) {
       Object.assign(tab, newTab)
+      tab.setUrlIcon()
     }
   }
 
