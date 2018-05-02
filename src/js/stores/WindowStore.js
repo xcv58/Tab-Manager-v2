@@ -3,10 +3,12 @@ import {
   moveTabs,
   getLastFocusedWindowId,
   notSelfPopup,
-  windowComparator
+  windowComparator,
+  isSelfPopup
 } from 'libs'
 import actions from 'libs/actions'
 import Window from './Window'
+import Tab from './Tab'
 
 const DEBOUNCE_INTERVAL = 1000
 
@@ -18,13 +20,14 @@ export default class WindowsStore {
   didMount = () => {
     this.getAllWindows()
     // chrome.windows.onCreated.addListener(this.updateAllWindows)
+    chrome.windows.onFocusChanged.addListener(this.onFocusChanged)
     // chrome.windows.onRemoved.addListener(this.updateAllWindows)
-    chrome.windows.onFocusChanged.addListener(this.updateAllWindows)
-    // chrome.tabs.onCreated.addListener(this.updateAllWindows)
+
     chrome.tabs.onMoved.addListener(this.updateAllWindows)
     chrome.tabs.onDetached.addListener(this.updateAllWindows)
     chrome.tabs.onReplaced.addListener(this.updateAllWindows)
 
+    chrome.tabs.onCreated.addListener(this.onCreated)
     chrome.tabs.onUpdated.addListener(this.onUpdated)
     chrome.tabs.onActivated.addListener(this.onActivated)
     chrome.tabs.onRemoved.addListener(this.onRemoved)
@@ -72,6 +75,29 @@ export default class WindowsStore {
     }
   }
 
+  onFocusChanged = windowId => {
+    if (windowId <= 0) {
+      return
+    }
+    chrome.windows.get(windowId, { populate: true }, win => {
+      if (win && !isSelfPopup(win)) {
+        this.lastFocusedWindowId = windowId
+      }
+    })
+  }
+
+  @action
+  onCreated = tab => {
+    const { index, windowId } = tab
+    const win = this.windows.find(x => x.id === windowId)
+    if (!win) {
+      this.windows.push(new Window({ id: windowId, tabs: [tab] }, this.store))
+    } else {
+      win.tabs.splice(index, 0, new Tab(tab, this.store))
+    }
+  }
+
+  @action
   onActivated = ({ tabId, windowId }) => {
     this.lastFocusedWindowId = windowId
     const win = this.windows.find(x => x.id === windowId)
