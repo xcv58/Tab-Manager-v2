@@ -5,6 +5,7 @@ import Url from './Url'
 import { match } from 'fuzzy'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
 import TabTooltip from './TabTooltip'
+import CloseButton from './CloseButton'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -67,6 +68,8 @@ export default class Tab extends React.Component {
       this.props.tab.unhover()
     }
   }
+
+  componentWillUnmount = this.onMouseLeave
 
   getStyle = () => {
     const {
@@ -152,6 +155,7 @@ export default class Tab extends React.Component {
       <div
         ref={this.node}
         onMouseEnter={this.onMouseEnter}
+        onMouseOver={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         style={style}
       >
@@ -167,6 +171,7 @@ export default class Tab extends React.Component {
           {pin}
           <Icon {...this.props} />
           <TabTooltip {...this.props}>{content}</TabTooltip>
+          <CloseButton {...this.props} />
         </div>
       </div>
     )
