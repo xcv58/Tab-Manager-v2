@@ -5,9 +5,10 @@ import IconButton from 'material-ui/IconButton'
 import { withTheme } from 'material-ui/styles'
 import { backgroundColor } from 'libs/colors'
 
+@withTheme()
 @inject('dragStore')
 @observer
-class CloseButton extends React.Component {
+export default class CloseButton extends React.Component {
   render () {
     const {
       theme,
@@ -33,5 +34,3 @@ class CloseButton extends React.Component {
     )
   }
 }
-
-export default withTheme()(CloseButton)

@@ -5,9 +5,10 @@ import CloseIcon from '@material-ui/icons/Close'
 import IconButton from 'material-ui/IconButton'
 import { withTheme } from 'material-ui/styles'
 
+@withTheme()
 @inject('tabStore')
 @observer
-class Close extends React.Component {
+export default class Close extends React.Component {
   render () {
     const { remove, tabDescription } = this.props.tabStore
     return (
@@ -26,5 +27,3 @@ class Close extends React.Component {
     )
   }
 }
-
-export default withTheme()(Close)
