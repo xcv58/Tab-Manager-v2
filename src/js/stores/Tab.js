@@ -31,6 +31,7 @@ export default class Tab {
   }
 
   @observable iconUrl = empty
+  @observable active = false
 
   @action
   activate = () => {

@@ -25,8 +25,8 @@ export default class WindowsStore {
     chrome.tabs.onMoved.addListener(this.updateAllWindows)
     chrome.tabs.onDetached.addListener(this.updateAllWindows)
     chrome.tabs.onReplaced.addListener(this.updateAllWindows)
-    chrome.tabs.onActivated.addListener(this.updateAllWindows)
 
+    chrome.tabs.onActivated.addListener(this.onActivated)
     chrome.tabs.onRemoved.addListener(this.onRemoved)
   }
 
@@ -62,6 +62,23 @@ export default class WindowsStore {
 
   onRemoved = (id, { windowId, isWindowClosing }) => {
     this.removeTabs([id])
+  }
+
+  onActivated = ({ tabId, windowId }) => {
+    this.lastFocusedWindowId = windowId
+    const win = this.windows.find(x => x.id === windowId)
+    if (!win) {
+      return
+    }
+    win.tabs.forEach(tab => {
+      if (tab.active && tab.id !== tabId) {
+        tab.active = false
+      }
+    })
+    const tab = win.tabs.find(x => x.id === tabId)
+    if (tab) {
+      tab.active = true
+    }
   }
 
   suspend = () => {
@@ -178,7 +195,7 @@ export default class WindowsStore {
         .map(win => new Window(win, this.store))
         .sort(windowComparator)
 
-      this.focusLastActiveTab()
+      // this.focusLastActiveTab()
 
       this.initialLoading = false
       this.updateHandler = null
