@@ -35,7 +35,13 @@ export default class DragStore {
 
   @action
   drop = async (tab, before = true) => {
-    const { moveTabs, getTargetWindow } = this.store.windowStore
+    const {
+      moveTabs,
+      getTargetWindow,
+      suspend,
+      resume
+    } = this.store.windowStore
+    suspend()
     const { windowId } = tab
     const win = getTargetWindow(windowId)
     const targetIndex = tab.index + (before ? 0 : 1)
@@ -47,6 +53,7 @@ export default class DragStore {
     await moveTabs(this.store.tabStore.sources, windowId, index)
     this.clear()
     this.dropped = true
+    resume()
   }
 
   @action
