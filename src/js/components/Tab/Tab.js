@@ -27,9 +27,6 @@ const selectedStyle = {
   backgroundColor: focusedColor,
   boxShadow: `-${indicatorWidth} 0px ${focusedColor}`
 }
-const focusedStyle = {
-  borderLeft: `${indicatorWidth} ${highlightBorderColor} solid`
-}
 const notMatchStyle = {
   opacity: 0.3
 }
@@ -88,7 +85,11 @@ export default class Tab extends React.Component {
       tabStyle,
       (active || shouldHighlight) && highlightStyle,
       isSelected && selectedStyle,
-      isFocused && focusedStyle,
+      isFocused && {
+        borderLeft: `${indicatorWidth} ${
+          this.props.theme.palette.secondary.main
+        } solid`
+      },
       !isMatched && notMatchStyle,
       urlCount > 1 &&
         SHOW_DUPLICATED_TAB && { color: this.props.theme.palette.error.light }
