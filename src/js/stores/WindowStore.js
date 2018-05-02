@@ -21,11 +21,11 @@ export default class WindowsStore {
     // chrome.windows.onRemoved.addListener(this.updateAllWindows)
     chrome.windows.onFocusChanged.addListener(this.updateAllWindows)
     // chrome.tabs.onCreated.addListener(this.updateAllWindows)
-    chrome.tabs.onUpdated.addListener(this.updateAllWindows)
     chrome.tabs.onMoved.addListener(this.updateAllWindows)
     chrome.tabs.onDetached.addListener(this.updateAllWindows)
     chrome.tabs.onReplaced.addListener(this.updateAllWindows)
 
+    chrome.tabs.onUpdated.addListener(this.onUpdated)
     chrome.tabs.onActivated.addListener(this.onActivated)
     chrome.tabs.onRemoved.addListener(this.onRemoved)
   }
@@ -62,6 +62,14 @@ export default class WindowsStore {
 
   onRemoved = (id, { windowId, isWindowClosing }) => {
     this.removeTabs([id])
+  }
+
+  @action
+  onUpdated = (tabId, changeInfo, newTab) => {
+    const tab = this.tabs.find(x => x.id === tabId)
+    if (tab) {
+      Object.assign(tab, newTab)
+    }
   }
 
   onActivated = ({ tabId, windowId }) => {
