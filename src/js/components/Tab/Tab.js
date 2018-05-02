@@ -146,7 +146,7 @@ export default class Tab extends React.Component {
       </div>
     )
     const content = (
-      <div onClick={activate} style={{ overflow: 'hidden', flex: 1 }}>
+      <div onClick={activate}>
         {this.getHighlightNode(title)}
         <Url {...this.props} getHighlightNode={this.getHighlightNode} />
       </div>

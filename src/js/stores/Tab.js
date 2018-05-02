@@ -58,8 +58,6 @@ export default class Tab {
 
   @action
   remove = () => {
-    const { removeTabs } = this.store.windowStore
-    removeTabs([this.id])
     chrome.tabs.remove(this.id)
   }
 
