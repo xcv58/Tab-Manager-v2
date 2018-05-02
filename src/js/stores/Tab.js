@@ -56,6 +56,13 @@ export default class Tab {
 
   @action unhover = () => this.store.hoverStore.unhover()
 
+  @action
+  remove = () => {
+    const { removeTabs } = this.store.windowStore
+    removeTabs([this.id])
+    chrome.tabs.remove(this.id)
+  }
+
   @computed
   get isMatched () {
     return this.store.searchStore.matchedSet.has(this.id)

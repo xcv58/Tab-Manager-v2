@@ -32,7 +32,7 @@ export default class TabTooltip extends React.Component {
       </div>
     )
     return (
-      <Tooltip open title={tooltip}>
+      <Tooltip open title={tooltip} style={{ overflow: 'hidden', flex: 1 }}>
         {children}
       </Tooltip>
     )

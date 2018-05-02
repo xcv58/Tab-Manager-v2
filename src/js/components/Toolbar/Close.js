@@ -3,16 +3,22 @@ import { inject, observer } from 'mobx-react'
 import Tooltip from 'material-ui/Tooltip'
 import CloseIcon from '@material-ui/icons/Close'
 import IconButton from 'material-ui/IconButton'
+import { withTheme } from 'material-ui/styles'
 
 @inject('tabStore')
 @observer
-export default class Close extends React.Component {
+class Close extends React.Component {
   render () {
     const { remove, tabDescription } = this.props.tabStore
     return (
       <Tooltip title={`Close ${tabDescription}`}>
         <div>
-          <IconButton onClick={() => remove()}>
+          <IconButton
+            onClick={() => remove()}
+            style={{
+              color: this.props.theme.palette.secondary.main
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </div>
@@ -20,3 +26,5 @@ export default class Close extends React.Component {
     )
   }
 }
+
+export default withTheme()(Close)
