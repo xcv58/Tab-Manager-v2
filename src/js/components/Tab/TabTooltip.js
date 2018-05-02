@@ -12,7 +12,7 @@ export default class TabTooltip extends React.Component {
       faked,
       dragStore: { dragging },
       hoverStore: { hovered },
-      tab: { title, url, isHovered }
+      tab: { title, url, isHovered, urlCount }
     } = this.props
     if (faked || dragging || !isHovered || !hovered) {
       return children
@@ -27,6 +27,7 @@ export default class TabTooltip extends React.Component {
           maxWidth: '20rem'
         }}
       >
+        {urlCount > 1 && <p>There is duplicated tab!</p>}
         <p>{title}</p>
         <p>{url}</p>
       </div>

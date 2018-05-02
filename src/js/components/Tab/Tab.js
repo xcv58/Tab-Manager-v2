@@ -3,7 +3,9 @@ import { inject, observer } from 'mobx-react'
 import Icon from './Icon'
 import Url from './Url'
 import { match } from 'fuzzy'
+import { withTheme } from 'material-ui/styles'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
+import { SHOW_DUPLICATED_TAB } from 'libs'
 import TabTooltip from './TabTooltip'
 import CloseButton from './CloseButton'
 
@@ -44,6 +46,7 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
+@withTheme()
 @inject('dragStore')
 @observer
 export default class Tab extends React.Component {
@@ -77,7 +80,8 @@ export default class Tab extends React.Component {
       isFocused,
       isMatched,
       isSelected,
-      shouldHighlight
+      shouldHighlight,
+      urlCount
     } = this.props.tab
     return Object.assign(
       {},
@@ -85,7 +89,9 @@ export default class Tab extends React.Component {
       (active || shouldHighlight) && highlightStyle,
       isSelected && selectedStyle,
       isFocused && focusedStyle,
-      !isMatched && notMatchStyle
+      !isMatched && notMatchStyle,
+      urlCount > 1 &&
+        SHOW_DUPLICATED_TAB && { color: this.props.theme.palette.error.light }
     )
   }
 
