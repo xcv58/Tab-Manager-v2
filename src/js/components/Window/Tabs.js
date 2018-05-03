@@ -7,7 +7,9 @@ import DraggableTab from 'components/Tab/DraggableTab'
 @observer
 export default class Tabs extends React.Component {
   componentDidMount () {
-    window.requestAnimationFrame(this.props.windowStore.windowMounted)
+    if (this.props.windowStore.initialLoading) {
+      window.requestAnimationFrame(this.props.windowStore.windowMounted)
+    }
   }
 
   render () {
