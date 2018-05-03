@@ -96,7 +96,7 @@ export default class WindowsStore {
     if (!win) {
       this.windows.push(new Window({ id: windowId, tabs: [tab] }, this.store))
     } else {
-      win.tabs.splice(index, 0, new Tab(tab, this.store))
+      win.add(new Tab(tab, this.store, win), index)
     }
   }
 

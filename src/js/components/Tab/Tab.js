@@ -51,7 +51,8 @@ export default class Tab extends React.Component {
   node = React.createRef()
 
   componentDidMount () {
-    if (this.props.windowStore.initialLoading) {
+    const { faked } = this.props
+    if (!faked) {
       window.requestAnimationFrame(this.props.tab.mounted)
     }
   }
