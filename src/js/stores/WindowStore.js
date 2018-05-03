@@ -67,6 +67,7 @@ export default class WindowsStore {
 
   onRemoved = (id, { windowId, isWindowClosing }) => {
     this.removeTabs([id])
+    this.store.tabStore.selection.delete(id)
   }
 
   @action
