@@ -50,12 +50,7 @@ export default class Tab extends React.Component {
   node = React.createRef()
 
   componentDidMount () {
-    const {
-      tab: { mounted }
-    } = this.props
-    window.requestAnimationFrame(() => {
-      mounted()
-    })
+    window.requestAnimationFrame(this.props.tab.mounted)
   }
   isActionable = () => {
     const {
