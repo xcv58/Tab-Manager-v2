@@ -38,6 +38,8 @@ export default class WindowsStore {
   @observable windows = []
   @observable initialLoading = true
   @observable lastFocusedWindowId = null
+  @observable showWindowList = false
+  @observable renderedWindowIndex = 1
 
   lastCallTime = 0
   updateHandler = null
@@ -171,6 +173,20 @@ export default class WindowsStore {
   @action
   selectAll = () => {
     this.store.tabStore.selectAll(this.tabs)
+  }
+
+  @action
+  windowListMounted = () => {
+    this.showWindowList = true
+    this.windowMounted()
+  }
+
+  @action
+  windowMounted = index => {
+    const win = this.windows.find(x => !x.showTabs)
+    if (win) {
+      win.showTabs = true
+    }
   }
 
   @computed

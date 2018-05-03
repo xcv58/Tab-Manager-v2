@@ -2,12 +2,12 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
 import Paper from 'material-ui/Paper'
-import FlipMove from 'react-flip-move'
 import Title from './Title'
+import Tabs from './Tabs'
 import Preview from 'components/Preview'
-import DraggableTab from 'components/Tab/DraggableTab'
 import { ItemTypes } from 'libs'
 
+@inject('windowStore')
 @inject('dragStore')
 @DropTarget(
   ItemTypes.TAB,
@@ -35,20 +35,12 @@ export default class Window extends React.Component {
     const {
       connectDropTarget,
       isOver,
-      win: { tabs, lastFocused },
-      getScrollbars,
-      dragPreview,
+      win: { lastFocused, showTabs },
       left,
       right,
       width
     } = this.props
-    const content = tabs.map(tab => (
-      <DraggableTab
-        key={tab.id}
-        tab={tab}
-        {...{ getScrollbars, dragPreview }}
-      />
-    ))
+
     const style = {
       width,
       minWidth: '20rem',
@@ -63,15 +55,7 @@ export default class Window extends React.Component {
       <div style={style}>
         <Paper elevation={elevation}>
           <Title {...this.props} />
-          <FlipMove
-            duration={256}
-            easing='ease-in-out'
-            appearAnimation='accordionHorizontal'
-            enterAnimation='accordionHorizontal'
-            leaveAnimation='accordionHorizontal'
-          >
-            {content}
-          </FlipMove>
+          {showTabs && <Tabs {...this.props} />}
           {dropIndicator}
         </Paper>
       </div>

@@ -6,10 +6,12 @@ export default class Window {
     this.store = store
     Object.assign(this, win)
     this.tabs = win.tabs.map(tab => new Tab(tab, store))
+    this.showTabs = !this.store.windowStore.initialLoading
   }
 
   @observable tabs = []
   @observable id
+  @observable showTabs
 
   @computed
   get lastFocused () {

@@ -25,22 +25,28 @@ export default class WindowList extends React.Component {
 
   getScrollbars = () => this.scrollbars.current
 
+  componentDidMount () {
+    this.props.windowStore.windowListMounted()
+  }
+
   render () {
     const {
-      windowStore: { windows }
+      windowStore: { windows, showWindowList }
     } = this.props
     const width = 100 / Math.min(4, windows.length) + '%'
-    const winList = windows.map((win, i) => (
-      <Window
-        key={win.id}
-        left={i === 0}
-        right={i + 1 === windows.length}
-        win={win}
-        width={width}
-        getScrollbars={this.getScrollbars}
-        dragPreview={() => this.dragPreview}
-      />
-    ))
+    const winList =
+      showWindowList &&
+      windows.map((win, i) => (
+        <Window
+          key={win.id}
+          left={i === 0}
+          right={i + 1 === windows.length}
+          win={win}
+          width={width}
+          getScrollbars={this.getScrollbars}
+          dragPreview={() => this.dragPreview}
+        />
+      ))
     return (
       <Scrollbars
         renderView={View}
