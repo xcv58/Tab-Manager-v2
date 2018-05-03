@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.3"></a>
+
+## [0.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.6.1...v0.6.3) (2018-05-03)
+
+### Bug Fixes
+
+* Optimize performance in various ways ([#157](https://github.com/xcv58/Tab-Manager-v2/issues/157)) ([10e7d00](https://github.com/xcv58/Tab-Manager-v2/commit/10e7d00)), closes [#93](https://github.com/xcv58/Tab-Manager-v2/issues/93)
+
+### Features
+
+* Highlight duplicated tabs ([#156](https://github.com/xcv58/Tab-Manager-v2/issues/156)) ([d766fc3](https://github.com/xcv58/Tab-Manager-v2/commit/d766fc3)), closes [#151](https://github.com/xcv58/Tab-Manager-v2/issues/151)
+* Add inline close button ([#155](https://github.com/xcv58/Tab-Manager-v2/issues/155)) ([9444bc4](https://github.com/xcv58/Tab-Manager-v2/commit/9444bc4))
+
 <a name="0.6.2"></a>
 
 ## [0.6.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.4.9...v0.6.2) (2018-05-02)
