@@ -23,15 +23,16 @@ export default class WindowsStore {
     chrome.windows.onFocusChanged.addListener(this.onFocusChanged)
     // chrome.windows.onRemoved.addListener(this.updateAllWindows)
 
-    chrome.tabs.onMoved.addListener(this.updateAllWindows)
-    chrome.tabs.onAttached.addListener(this.updateAllWindows)
-    chrome.tabs.onDetached.addListener(this.updateAllWindows)
-    chrome.tabs.onReplaced.addListener(this.updateAllWindows)
-
     chrome.tabs.onCreated.addListener(this.onCreated)
     chrome.tabs.onUpdated.addListener(this.onUpdated)
     chrome.tabs.onActivated.addListener(this.onActivated)
     chrome.tabs.onRemoved.addListener(this.onRemoved)
+
+    // Move tabs related functions, use `updateAllWindows` to keep clean.
+    chrome.tabs.onMoved.addListener(this.updateAllWindows)
+    chrome.tabs.onAttached.addListener(this.updateAllWindows)
+    chrome.tabs.onDetached.addListener(this.updateAllWindows)
+    chrome.tabs.onReplaced.addListener(this.updateAllWindows)
   }
 
   @observable windows = []
