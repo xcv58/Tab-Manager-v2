@@ -28,6 +28,7 @@ export default class Tab {
     this.store = store
     Object.assign(this, tab)
     this.win = win
+    this.mounted = this.win.tabMounted
     this.setUrlIcon()
     this.showTab = !this.store.windowStore.initialLoading
   }
@@ -38,11 +39,6 @@ export default class Tab {
   @observable url
   @observable id
   @observable showTab
-
-  @action
-  mounted = () => {
-    this.win.tabMounted()
-  }
 
   @action
   activate = () => {

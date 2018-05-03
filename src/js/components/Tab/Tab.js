@@ -52,6 +52,7 @@ export default class Tab extends React.Component {
   componentDidMount () {
     window.requestAnimationFrame(this.props.tab.mounted)
   }
+
   isActionable = () => {
     const {
       faked,
