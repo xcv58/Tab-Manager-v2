@@ -49,6 +49,14 @@ const getTargetValue = (lValue, rValue) => {
 export default class Tab extends React.Component {
   node = React.createRef()
 
+  componentDidMount () {
+    const {
+      tab: { mounted }
+    } = this.props
+    window.requestAnimationFrame(() => {
+      mounted()
+    })
+  }
   isActionable = () => {
     const {
       faked,

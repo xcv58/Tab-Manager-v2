@@ -186,6 +186,7 @@ export default class WindowsStore {
     const win = this.windows.find(x => !x.showTabs)
     if (win) {
       win.showTabs = true
+      win.tabMounted()
     }
   }
 

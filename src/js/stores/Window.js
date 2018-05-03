@@ -5,13 +5,21 @@ export default class Window {
   constructor (win, store) {
     this.store = store
     Object.assign(this, win)
-    this.tabs = win.tabs.map(tab => new Tab(tab, store))
+    this.tabs = win.tabs.map(tab => new Tab(tab, store, this))
     this.showTabs = !this.store.windowStore.initialLoading
   }
 
   @observable tabs = []
   @observable id
   @observable showTabs
+
+  @action
+  tabMounted = () => {
+    const tab = this.tabs.find(x => !x.showTab)
+    if (tab) {
+      tab.showTab = true
+    }
+  }
 
   @computed
   get lastFocused () {
