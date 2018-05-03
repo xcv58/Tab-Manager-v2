@@ -24,6 +24,7 @@ export default class WindowsStore {
     // chrome.windows.onRemoved.addListener(this.updateAllWindows)
 
     chrome.tabs.onMoved.addListener(this.updateAllWindows)
+    chrome.tabs.onAttached.addListener(this.updateAllWindows)
     chrome.tabs.onDetached.addListener(this.updateAllWindows)
     chrome.tabs.onReplaced.addListener(this.updateAllWindows)
 
