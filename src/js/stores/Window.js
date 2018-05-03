@@ -9,6 +9,7 @@ export default class Window {
   }
 
   @observable tabs = []
+  @observable id
 
   @computed
   get lastFocused () {
