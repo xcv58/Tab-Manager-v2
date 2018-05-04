@@ -7,6 +7,7 @@ import InvertSelect from './InvertSelect'
 import NewWindow from './NewWindow'
 import GroupAndSort from './GroupAndSort'
 import ToolbarSwitch from './ToolbarSwitch'
+import Settings from './Settings'
 
 @inject('userStore')
 @observer
@@ -17,6 +18,7 @@ export default class Toolbar extends React.Component {
       <Slide in={toolbarVisible} direction='up' style={{ display: 'flex' }}>
         <div>
           <ToolbarSwitch />
+          <Settings />
           <GroupAndSort />
           <SelectAll />
           <InvertSelect />

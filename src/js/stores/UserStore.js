@@ -1,5 +1,4 @@
 import { action, observable } from 'mobx'
-import { getToolbarAutoHide, setToolbarAutoHide } from 'libs'
 
 export default class UserStore {
   constructor (store) {
@@ -7,19 +6,49 @@ export default class UserStore {
     this.init()
   }
 
-  @observable toolbarAutoHide = false
-  @observable toolbarVisible = false
+  @observable toolbarAutoHide
+  @observable showDuplicatedTab
+
+  @observable toolbarVisible
+
+  @observable dialogOpen = false
+
+  @action
+  openDialog = () => {
+    this.dialogOpen = true
+  }
+
+  @action
+  closeDialog = () => {
+    this.dialogOpen = false
+  }
+
   hideToolbarHandler = null
 
   init = async () => {
-    this.toolbarAutoHide = await getToolbarAutoHide()
+    const result = await chrome.storage.sync.get({
+      toolbarAutoHide: false,
+      showDuplicatedTab: true
+    })
+    Object.assign(this, result)
     this.toolbarVisible = !this.toolbarAutoHide
+  }
+
+  save = () => {
+    const { showDuplicatedTab, toolbarAutoHide } = this
+    chrome.storage.sync.set({ showDuplicatedTab, toolbarAutoHide })
+  }
+
+  @action
+  toggleShowDuplicatedTab = () => {
+    this.showDuplicatedTab = !this.showDuplicatedTab
+    this.save()
   }
 
   @action
   toggleAutoHide = () => {
     this._clearHideToolbarHandler()
-    setToolbarAutoHide(!this.toolbarAutoHide)
+    chrome.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
     this.init()
   }
 

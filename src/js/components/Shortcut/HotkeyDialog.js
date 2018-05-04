@@ -24,7 +24,7 @@ class HotkeyDialog extends React.Component {
         open={dialogOpen}
         classes={classes}
         transition={Fade}
-        onEscapeKeyUp={closeDialog}
+        onClose={closeDialog}
         onBackdropClick={closeDialog}
       >
         <DialogTitle>Keyboard shortcuts</DialogTitle>

@@ -115,19 +115,6 @@ export const windowComparator = (a, b) => {
   return a.id - b.id
 }
 
-export const setToolbarAutoHide = async toolbarAutoHide => {
-  chrome.storage.sync.set({ toolbarAutoHide })
-}
-
-export const getToolbarAutoHide = async () => {
-  const { toolbarAutoHide } = await chrome.storage.sync.get({
-    toolbarAutoHide: false
-  })
-  return toolbarAutoHide
-}
-
 export const ItemTypes = {
   TAB: 'tab'
 }
-
-export const SHOW_DUPLICATED_TAB = true
