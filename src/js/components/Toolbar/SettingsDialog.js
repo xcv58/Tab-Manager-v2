@@ -23,7 +23,9 @@ class SettingsDialog extends React.Component {
       highlightDuplicatedTab,
       toggleHighlightDuplicatedTab,
       showTabTooltip,
-      toggleShowTabTooltip
+      toggleShowTabTooltip,
+      preserveSearch,
+      togglePreserveSearch
     } = this.props.userStore
     return (
       <Dialog
@@ -36,6 +38,16 @@ class SettingsDialog extends React.Component {
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>
           <FormGroup>
+            <FormControlLabel
+              label='Preserve Search'
+              control={
+                <Switch
+                  color='primary'
+                  checked={preserveSearch}
+                  onChange={togglePreserveSearch}
+                />
+              }
+            />
             <FormControlLabel
               label='Highlight Duplicated Tabs'
               control={

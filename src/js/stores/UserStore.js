@@ -10,15 +10,18 @@ export default class UserStore {
     const result = await chrome.storage.sync.get({
       toolbarAutoHide: false,
       highlightDuplicatedTab: true,
-      showTabTooltip: true
+      showTabTooltip: true,
+      preserveSearch: true
     })
     Object.assign(this, result)
     this.toolbarVisible = !this.toolbarAutoHide
+    this.store.searchStore.init()
   }
 
   @observable toolbarAutoHide
   @observable highlightDuplicatedTab
   @observable showTabTooltip
+  @observable preserveSearch
 
   @observable dialogOpen = false
 
@@ -36,11 +39,17 @@ export default class UserStore {
   }
 
   save = () => {
-    const { highlightDuplicatedTab, toolbarAutoHide, showTabTooltip } = this
+    const {
+      highlightDuplicatedTab,
+      toolbarAutoHide,
+      showTabTooltip,
+      preserveSearch
+    } = this
     chrome.storage.sync.set({
       highlightDuplicatedTab,
       toolbarAutoHide,
-      showTabTooltip
+      showTabTooltip,
+      preserveSearch
     })
   }
 
@@ -53,6 +62,12 @@ export default class UserStore {
   @action
   toggleShowTabTooltip = () => {
     this.showTabTooltip = !this.showTabTooltip
+    this.save()
+  }
+
+  @action
+  togglePreserveSearch = () => {
+    this.preserveSearch = !this.preserveSearch
     this.save()
   }
 

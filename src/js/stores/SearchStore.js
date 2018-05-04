@@ -5,12 +5,13 @@ import { activateTab } from 'libs'
 export default class SearchStore {
   constructor (store) {
     this.store = store
-    this.init()
   }
 
   init = async () => {
-    const { query } = await chrome.storage.local.get({ query: this.query })
-    this.search(query)
+    if (this.store.userStore.preserveSearch) {
+      const { query } = await chrome.storage.local.get({ query: this.query })
+      this.search(query)
+    }
   }
 
   @observable query = ''
@@ -105,7 +106,9 @@ export default class SearchStore {
       clearTimeout(this._handler)
     }
     this._handler = setTimeout(this.updateQuery, delay)
-    chrome.storage.local.set({ query })
+    if (this.store.userStore.preserveSearch) {
+      chrome.storage.local.set({ query })
+    }
   }
 
   @action
