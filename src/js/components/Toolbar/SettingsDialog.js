@@ -21,7 +21,9 @@ class SettingsDialog extends React.Component {
       dialogOpen,
       closeDialog,
       highlightDuplicatedTab,
-      toggleHighlightDuplicatedTab
+      toggleHighlightDuplicatedTab,
+      showTabTooltip,
+      toggleShowTabTooltip
     } = this.props.userStore
     return (
       <Dialog
@@ -35,6 +37,7 @@ class SettingsDialog extends React.Component {
         <DialogContent>
           <FormGroup>
             <FormControlLabel
+              label='Highlight Duplicated Tabs'
               control={
                 <Switch
                   color='primary'
@@ -42,7 +45,16 @@ class SettingsDialog extends React.Component {
                   onChange={toggleHighlightDuplicatedTab}
                 />
               }
-              label='Highlight Duplicated Tabs'
+            />
+            <FormControlLabel
+              label='Show Tab Tooltip'
+              control={
+                <Switch
+                  color='primary'
+                  checked={showTabTooltip}
+                  onChange={toggleShowTabTooltip}
+                />
+              }
             />
           </FormGroup>
         </DialogContent>

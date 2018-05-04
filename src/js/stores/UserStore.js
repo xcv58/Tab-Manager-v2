@@ -6,12 +6,24 @@ export default class UserStore {
     this.init()
   }
 
+  init = async () => {
+    const result = await chrome.storage.sync.get({
+      toolbarAutoHide: false,
+      highlightDuplicatedTab: true,
+      showTabTooltip: true
+    })
+    Object.assign(this, result)
+    this.toolbarVisible = !this.toolbarAutoHide
+  }
+
   @observable toolbarAutoHide
   @observable highlightDuplicatedTab
-
-  @observable toolbarVisible
+  @observable showTabTooltip
 
   @observable dialogOpen = false
+
+  @observable toolbarVisible
+  hideToolbarHandler = null
 
   @action
   openDialog = () => {
@@ -23,25 +35,24 @@ export default class UserStore {
     this.dialogOpen = false
   }
 
-  hideToolbarHandler = null
-
-  init = async () => {
-    const result = await chrome.storage.sync.get({
-      toolbarAutoHide: false,
-      highlightDuplicatedTab: true
-    })
-    Object.assign(this, result)
-    this.toolbarVisible = !this.toolbarAutoHide
-  }
-
   save = () => {
-    const { highlightDuplicatedTab, toolbarAutoHide } = this
-    chrome.storage.sync.set({ highlightDuplicatedTab, toolbarAutoHide })
+    const { highlightDuplicatedTab, toolbarAutoHide, showTabTooltip } = this
+    chrome.storage.sync.set({
+      highlightDuplicatedTab,
+      toolbarAutoHide,
+      showTabTooltip
+    })
   }
 
   @action
   toggleHighlightDuplicatedTab = () => {
     this.highlightDuplicatedTab = !this.highlightDuplicatedTab
+    this.save()
+  }
+
+  @action
+  toggleShowTabTooltip = () => {
+    this.showTabTooltip = !this.showTabTooltip
     this.save()
   }
 
