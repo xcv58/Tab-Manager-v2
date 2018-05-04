@@ -1,18 +1,10 @@
 import React from 'react'
-import {
-  connectDropTarget,
-  spy,
-  shallow,
-  stub,
-  it,
-  describe,
-  expect
-} from 'test'
+import { connectDropTarget, spy, shallow, it, describe, expect } from 'test'
 import Paper from 'material-ui/Paper'
 import Title from '../Title'
 import Tabs from '../Tabs'
 import Preview from 'components/Preview'
-import Window, { windowTarget, tabDropCollect } from '../index'
+import Window, { windowTarget } from '../index'
 import { createMuiTheme } from 'material-ui/styles'
 
 const theme = createMuiTheme()
@@ -123,25 +115,5 @@ describe('windowTarget', () => {
     ).toBeUndefined()
     expect(dragStore.drop.callCount).toBe(1)
     expect(dragStore.drop.args[0]).toEqual(['t', false])
-  })
-})
-
-describe('tabDropCollect', () => {
-  const dropTarget = stub().returns('dropTarget')
-  const canDrop = stub().returns('canDrop')
-  const getItem = stub().returns([])
-  const isOver = stub().returns('isOver')
-  expect(tabDropCollect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
-    connectDropTarget: 'dropTarget',
-    canDrop: 'canDrop',
-    isDragging: true,
-    isOver: 'isOver'
-  })
-  getItem.returns('')
-  expect(tabDropCollect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
-    connectDropTarget: 'dropTarget',
-    canDrop: 'canDrop',
-    isDragging: false,
-    isOver: 'isOver'
   })
 })
