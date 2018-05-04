@@ -8,34 +8,34 @@ import Preview from 'components/Preview'
 import { ItemTypes } from 'libs'
 import { withTheme } from 'material-ui/styles'
 
+export const windowTarget = {
+  canDrop (props, monitor) {
+    return props.win.canDrop
+  },
+  drop (props, monitor) {
+    if (monitor.didDrop()) {
+      return
+    }
+    const {
+      win: { tabs },
+      dragStore: { drop }
+    } = props
+    const tab = tabs[tabs.length - 1]
+    drop(tab, false)
+  }
+}
+
+export const collect = (connect, monitor) => ({
+  connectDropTarget: connect.dropTarget(),
+  canDrop: monitor.canDrop(),
+  isDragging: !!monitor.getItem(),
+  isOver: monitor.isOver({ shallow: true })
+})
+
 @withTheme()
 @inject('windowStore')
 @inject('dragStore')
-@DropTarget(
-  ItemTypes.TAB,
-  {
-    canDrop (props, monitor) {
-      return props.win.canDrop
-    },
-    drop (props, monitor) {
-      if (monitor.didDrop()) {
-        return
-      }
-      const {
-        win: { tabs },
-        dragStore: { drop }
-      } = props
-      const tab = tabs[tabs.length - 1]
-      drop(tab, false)
-    }
-  },
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    canDrop: monitor.canDrop(),
-    isDragging: !!monitor.getItem(),
-    isOver: monitor.isOver({ shallow: true })
-  })
-)
+@DropTarget(ItemTypes.TAB, windowTarget, collect)
 @observer
 export default class Window extends React.Component {
   render () {

@@ -8,3 +8,5 @@ global.chrome = chrome
 export const connectDropTarget = el => el
 export * from 'enzyme'
 export * from 'sinon'
+
+export const { describe, it, test, expect } = global

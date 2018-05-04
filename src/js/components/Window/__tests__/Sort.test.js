@@ -1,6 +1,5 @@
-/* global expect, test */
 import React from 'react'
-import { spy, shallow } from 'test'
+import { spy, shallow, expect, test } from 'test'
 import Tooltip from 'material-ui/Tooltip'
 import SortIcon from '@material-ui/icons/Sort'
 import IconButton from 'material-ui/IconButton'
