@@ -11,8 +11,7 @@ node_js:
   - "8"
 script:
   - yarn test
-  - yarn deploy
-  - rm -rf ./node_modules/.cache
+  - yarn deploy && rm -rf ./node_modules/.cache
   - ls -l build/* build.zip
   - sha256sum build/* build.zip | tee SHA256SUMS.txt
   - cat build/* | sha256sum | tee -a SHA256SUMS.txt
