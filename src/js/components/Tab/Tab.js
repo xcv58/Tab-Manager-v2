@@ -5,7 +5,6 @@ import Url from './Url'
 import { match } from 'fuzzy'
 import { withTheme } from 'material-ui/styles'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
-import { SHOW_DUPLICATED_TAB } from 'libs'
 import TabTooltip from './TabTooltip'
 import CloseButton from './CloseButton'
 
@@ -44,6 +43,7 @@ const getTargetValue = (lValue, rValue) => {
 }
 
 @withTheme()
+@inject('userStore')
 @inject('windowStore')
 @inject('dragStore')
 @observer
@@ -80,6 +80,7 @@ export default class Tab extends React.Component {
   componentWillUnmount = this.onMouseLeave
 
   getStyle = () => {
+    const { highlightDuplicatedTab } = this.props.userStore
     const {
       active,
       isFocused,
@@ -100,7 +101,9 @@ export default class Tab extends React.Component {
       },
       !isMatched && notMatchStyle,
       urlCount > 1 &&
-        SHOW_DUPLICATED_TAB && { color: this.props.theme.palette.error.light },
+        highlightDuplicatedTab && {
+        color: this.props.theme.palette.error.light
+      },
       this.props.style
     )
   }

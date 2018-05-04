@@ -1,5 +1,4 @@
 import { action, observable } from 'mobx'
-import { getToolbarAutoHide, setToolbarAutoHide } from 'libs'
 
 export default class UserStore {
   constructor (store) {
@@ -7,19 +6,75 @@ export default class UserStore {
     this.init()
   }
 
-  @observable toolbarAutoHide = false
-  @observable toolbarVisible = false
+  init = async () => {
+    const result = await chrome.storage.sync.get({
+      toolbarAutoHide: false,
+      highlightDuplicatedTab: true,
+      showTabTooltip: true,
+      preserveSearch: true
+    })
+    Object.assign(this, result)
+    this.toolbarVisible = !this.toolbarAutoHide
+    this.store.searchStore.init()
+  }
+
+  @observable toolbarAutoHide
+  @observable highlightDuplicatedTab
+  @observable showTabTooltip
+  @observable preserveSearch
+
+  @observable dialogOpen = false
+
+  @observable toolbarVisible
   hideToolbarHandler = null
 
-  init = async () => {
-    this.toolbarAutoHide = await getToolbarAutoHide()
-    this.toolbarVisible = !this.toolbarAutoHide
+  @action
+  openDialog = () => {
+    this.dialogOpen = true
+  }
+
+  @action
+  closeDialog = () => {
+    this.dialogOpen = false
+  }
+
+  save = () => {
+    const {
+      highlightDuplicatedTab,
+      toolbarAutoHide,
+      showTabTooltip,
+      preserveSearch
+    } = this
+    chrome.storage.sync.set({
+      highlightDuplicatedTab,
+      toolbarAutoHide,
+      showTabTooltip,
+      preserveSearch
+    })
+  }
+
+  @action
+  toggleHighlightDuplicatedTab = () => {
+    this.highlightDuplicatedTab = !this.highlightDuplicatedTab
+    this.save()
+  }
+
+  @action
+  toggleShowTabTooltip = () => {
+    this.showTabTooltip = !this.showTabTooltip
+    this.save()
+  }
+
+  @action
+  togglePreserveSearch = () => {
+    this.preserveSearch = !this.preserveSearch
+    this.save()
   }
 
   @action
   toggleAutoHide = () => {
     this._clearHideToolbarHandler()
-    setToolbarAutoHide(!this.toolbarAutoHide)
+    chrome.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
     this.init()
   }
 

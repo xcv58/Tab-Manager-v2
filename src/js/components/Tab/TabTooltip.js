@@ -4,6 +4,7 @@ import Tooltip from 'material-ui/Tooltip'
 
 @inject('dragStore')
 @inject('hoverStore')
+@inject('userStore')
 @observer
 export default class TabTooltip extends React.Component {
   render () {
@@ -12,9 +13,10 @@ export default class TabTooltip extends React.Component {
       faked,
       dragStore: { dragging },
       hoverStore: { hovered },
+      userStore: { showTabTooltip },
       tab: { title, url, isHovered, urlCount }
     } = this.props
-    if (faked || dragging || !isHovered || !hovered) {
+    if (faked || dragging || !isHovered || !hovered || !showTabTooltip) {
       return children
     }
     const tooltip = (
