@@ -12,7 +12,7 @@ import Paper from 'material-ui/Paper'
 import Title from '../Title'
 import Tabs from '../Tabs'
 import Preview from 'components/Preview'
-import Window, { windowTarget, collect } from '../index'
+import Window, { windowTarget, tabDropCollect } from '../index'
 import { createMuiTheme } from 'material-ui/styles'
 
 const theme = createMuiTheme()
@@ -126,19 +126,19 @@ describe('windowTarget', () => {
   })
 })
 
-describe('collect', () => {
+describe('tabDropCollect', () => {
   const dropTarget = stub().returns('dropTarget')
   const canDrop = stub().returns('canDrop')
   const getItem = stub().returns([])
   const isOver = stub().returns('isOver')
-  expect(collect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
+  expect(tabDropCollect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
     connectDropTarget: 'dropTarget',
     canDrop: 'canDrop',
     isDragging: true,
     isOver: 'isOver'
   })
   getItem.returns('')
-  expect(collect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
+  expect(tabDropCollect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
     connectDropTarget: 'dropTarget',
     canDrop: 'canDrop',
     isDragging: false,

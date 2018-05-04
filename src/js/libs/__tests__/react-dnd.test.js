@@ -1,7 +1,7 @@
 import { stub, describe, it, expect } from 'test'
-import { collect } from 'libs/react-dnd'
+import { tabDropCollect } from 'libs/react-dnd'
 
-describe('collect', () => {
+describe('tabDropCollect', () => {
   const dropTarget = stub().returns('dropTarget')
   const canDrop = stub().returns('canDrop')
   const getItem = stub().returns([])
@@ -14,14 +14,16 @@ describe('collect', () => {
   }
 
   it('return isDragging based on monitor.getItem()', () => {
-    expect(collect({ dropTarget }, { canDrop, getItem, isOver })).toEqual(
-      expected
-    )
+    expect(
+      tabDropCollect({ dropTarget }, { canDrop, getItem, isOver })
+    ).toEqual(expected)
   })
 
   it('return correct result', () => {
     getItem.returns('')
-    expect(collect({ dropTarget }, { canDrop, getItem, isOver })).toEqual({
+    expect(
+      tabDropCollect({ dropTarget }, { canDrop, getItem, isOver })
+    ).toEqual({
       ...expected,
       isDragging: false
     })

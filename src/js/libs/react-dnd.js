@@ -2,7 +2,7 @@ export const ItemTypes = {
   TAB: 'tab'
 }
 
-export const collect = (connect, monitor) => ({
+export const tabDropCollect = (connect, monitor) => ({
   connectDropTarget: connect.dropTarget(),
   canDrop: monitor.canDrop(),
   isDragging: !!monitor.getItem(),

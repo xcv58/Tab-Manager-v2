@@ -5,7 +5,7 @@ import Paper from 'material-ui/Paper'
 import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
-import { ItemTypes, collect } from 'libs/react-dnd'
+import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
 
 export const windowTarget = {
@@ -28,7 +28,7 @@ export const windowTarget = {
 @withTheme()
 @inject('windowStore')
 @inject('dragStore')
-@DropTarget(ItemTypes.TAB, windowTarget, collect)
+@DropTarget(ItemTypes.TAB, windowTarget, tabDropCollect)
 @observer
 export default class Window extends React.Component {
   render () {
