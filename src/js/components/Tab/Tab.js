@@ -100,7 +100,8 @@ export default class Tab extends React.Component {
       },
       !isMatched && notMatchStyle,
       urlCount > 1 &&
-        SHOW_DUPLICATED_TAB && { color: this.props.theme.palette.error.light }
+        SHOW_DUPLICATED_TAB && { color: this.props.theme.palette.error.light },
+      this.props.style
     )
   }
 

@@ -4,6 +4,7 @@ import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
 import { ItemTypes } from 'libs'
 import Preview from 'components/Preview'
+import { withTheme } from 'material-ui/styles'
 
 const tabSource = {
   beginDrag (props, monitor, component) {
@@ -23,6 +24,9 @@ const tabSource = {
 }
 
 const tabTarget = {
+  canDrop (props) {
+    return props.tab.win.canDrop
+  },
   drop (props) {
     const {
       tab,
@@ -32,9 +36,12 @@ const tabTarget = {
   }
 }
 
+@withTheme()
 @inject('dragStore')
 @DropTarget(ItemTypes.TAB, tabTarget, (connect, monitor) => ({
   connectDropTarget: connect.dropTarget(),
+  canDrop: monitor.canDrop(),
+  isDraggingTarget: !!monitor.getItem(),
   isOver: monitor.isOver({ shallow: true })
 }))
 @DragSource(ItemTypes.TAB, tabSource, (connect, monitor) => ({
@@ -55,13 +62,20 @@ export default class DraggableTab extends React.Component {
       connectDragSource,
       connectDropTarget,
       isDragging,
+      canDrop,
+      isDraggingTarget,
+      theme,
       isOver
     } = this.props
     const style = {}
     if (isDragging) {
       style.display = 'none'
     }
-    const preview = isOver && <Preview />
+    const tabStyle = {}
+    if (isDraggingTarget && isOver && !canDrop) {
+      tabStyle.backgroundColor = theme.palette.error.light
+    }
+    const preview = canDrop && isOver && <Preview />
     return connectDropTarget(
       connectDragSource(
         <div
@@ -71,7 +85,7 @@ export default class DraggableTab extends React.Component {
           }}
         >
           {preview}
-          {showTab && <Tab {...this.props} />}
+          {showTab && <Tab {...this.props} style={tabStyle} />}
         </div>
       )
     )
