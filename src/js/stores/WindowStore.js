@@ -97,7 +97,7 @@ export default class WindowsStore {
     if (!win) {
       this.windows.push(new Window({ id: windowId, tabs: [tab] }, this.store))
     } else {
-      win.tabs.splice(index, 0, new Tab(tab, this.store))
+      win.add(new Tab(tab, this.store, win), index)
     }
   }
 
@@ -174,6 +174,15 @@ export default class WindowsStore {
     this.store.tabStore.selectAll(this.tabs)
   }
 
+  @action
+  windowMounted = () => {
+    const win = this.windows.find(x => !x.showTabs)
+    if (win) {
+      win.showTabs = true
+      win.tabMounted()
+    }
+  }
+
   @computed
   get lastFocusedWindow () {
     return this.windows.find(x => x.lastFocused)
@@ -235,6 +244,9 @@ export default class WindowsStore {
 
       // this.focusLastActiveTab()
 
+      if (this.initialLoading) {
+        this.windowMounted()
+      }
       this.initialLoading = false
       this.updateHandler = null
     })

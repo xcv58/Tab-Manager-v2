@@ -51,6 +51,7 @@ export default class DraggableTab extends React.Component {
 
   render () {
     const {
+      tab: { showTab },
       connectDragSource,
       connectDropTarget,
       isDragging,
@@ -70,7 +71,7 @@ export default class DraggableTab extends React.Component {
           }}
         >
           {preview}
-          <Tab {...this.props} />
+          {showTab && <Tab {...this.props} />}
         </div>
       )
     )

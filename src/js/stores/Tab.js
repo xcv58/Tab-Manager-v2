@@ -24,10 +24,13 @@ const CHROME_PREFIX = 'chrome://'
 const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
 export default class Tab {
-  constructor (tab, store) {
+  constructor (tab, store, win) {
     this.store = store
     Object.assign(this, tab)
+    this.win = win
+    this.mounted = this.win.tabMounted
     this.setUrlIcon()
+    this.showTab = !this.store.windowStore.initialLoading
   }
 
   @observable iconUrl = empty
@@ -35,6 +38,7 @@ export default class Tab {
   @observable title
   @observable url
   @observable id
+  @observable showTab
 
   @action
   activate = () => {

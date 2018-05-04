@@ -44,10 +44,18 @@ const getTargetValue = (lValue, rValue) => {
 }
 
 @withTheme()
+@inject('windowStore')
 @inject('dragStore')
 @observer
 export default class Tab extends React.Component {
   node = React.createRef()
+
+  componentDidMount () {
+    const { faked } = this.props
+    if (!faked) {
+      window.requestAnimationFrame(this.props.tab.mounted)
+    }
+  }
 
   isActionable = () => {
     const {
