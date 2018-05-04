@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.0"></a>
+
+# [0.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.6.3...v0.7.0) (2018-05-04)
+
+### Bug Fixes
+
+* Removed tab(s) show up during drag & drop ([#159](https://github.com/xcv58/Tab-Manager-v2/issues/159)) ([3ca2ab9](https://github.com/xcv58/Tab-Manager-v2/commit/3ca2ab9))
+
+### Features
+
+* Add Settings to preserve search, highlight duplicated tabs, show tooltip for tab ([#163](https://github.com/xcv58/Tab-Manager-v2/issues/163)) ([4753a00](https://github.com/xcv58/Tab-Manager-v2/commit/4753a00))
+* Async render window/tab to make first render smooth ([#158](https://github.com/xcv58/Tab-Manager-v2/issues/158)) ([979c9da](https://github.com/xcv58/Tab-Manager-v2/commit/979c9da))
+* Disable drop for popup and devtools window ([#162](https://github.com/xcv58/Tab-Manager-v2/issues/162)) ([35b7d95](https://github.com/xcv58/Tab-Manager-v2/commit/35b7d95))
+
 <a name="0.6.3"></a>
 
 ## [0.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.6.1...v0.6.3) (2018-05-03)
