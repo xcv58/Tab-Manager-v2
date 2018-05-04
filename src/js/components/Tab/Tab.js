@@ -80,7 +80,7 @@ export default class Tab extends React.Component {
   componentWillUnmount = this.onMouseLeave
 
   getStyle = () => {
-    const { showDuplicatedTab } = this.props.userStore
+    const { highlightDuplicatedTab } = this.props.userStore
     const {
       active,
       isFocused,
@@ -101,7 +101,9 @@ export default class Tab extends React.Component {
       },
       !isMatched && notMatchStyle,
       urlCount > 1 &&
-        showDuplicatedTab && { color: this.props.theme.palette.error.light },
+        highlightDuplicatedTab && {
+        color: this.props.theme.palette.error.light
+      },
       this.props.style
     )
   }

@@ -7,7 +7,7 @@ export default class UserStore {
   }
 
   @observable toolbarAutoHide
-  @observable showDuplicatedTab
+  @observable highlightDuplicatedTab
 
   @observable toolbarVisible
 
@@ -28,20 +28,20 @@ export default class UserStore {
   init = async () => {
     const result = await chrome.storage.sync.get({
       toolbarAutoHide: false,
-      showDuplicatedTab: true
+      highlightDuplicatedTab: true
     })
     Object.assign(this, result)
     this.toolbarVisible = !this.toolbarAutoHide
   }
 
   save = () => {
-    const { showDuplicatedTab, toolbarAutoHide } = this
-    chrome.storage.sync.set({ showDuplicatedTab, toolbarAutoHide })
+    const { highlightDuplicatedTab, toolbarAutoHide } = this
+    chrome.storage.sync.set({ highlightDuplicatedTab, toolbarAutoHide })
   }
 
   @action
-  toggleShowDuplicatedTab = () => {
-    this.showDuplicatedTab = !this.showDuplicatedTab
+  toggleHighlightDuplicatedTab = () => {
+    this.highlightDuplicatedTab = !this.highlightDuplicatedTab
     this.save()
   }
 

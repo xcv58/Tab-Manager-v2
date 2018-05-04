@@ -20,8 +20,8 @@ class SettingsDialog extends React.Component {
     const {
       dialogOpen,
       closeDialog,
-      showDuplicatedTab,
-      toggleShowDuplicatedTab
+      highlightDuplicatedTab,
+      toggleHighlightDuplicatedTab
     } = this.props.userStore
     return (
       <Dialog
@@ -38,8 +38,8 @@ class SettingsDialog extends React.Component {
               control={
                 <Switch
                   color='primary'
-                  checked={showDuplicatedTab}
-                  onChange={toggleShowDuplicatedTab}
+                  checked={highlightDuplicatedTab}
+                  onChange={toggleHighlightDuplicatedTab}
                 />
               }
               label='Highlight Duplicated Tabs'
