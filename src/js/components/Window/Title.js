@@ -4,7 +4,9 @@ import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { ItemTypes, getNoun } from 'libs'
+import { getNoun } from 'libs'
+import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
+import { withTheme } from 'material-ui/styles'
 
 const style = {
   display: 'flex',
@@ -17,10 +19,14 @@ const style = {
   lineHeight: '2.5rem'
 }
 
+@withTheme()
 @inject('dragStore')
 @DropTarget(
   ItemTypes.TAB,
   {
+    canDrop (props, monitor) {
+      return props.win.canDrop
+    },
     drop (props, monitor) {
       if (monitor.didDrop()) {
         return
@@ -33,10 +39,7 @@ const style = {
       drop(tab, true)
     }
   },
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver()
-  })
+  tabDropCollect
 )
 @observer
 export default class Title extends React.Component {
@@ -44,6 +47,9 @@ export default class Title extends React.Component {
     const {
       connectDropTarget,
       isOver,
+      canDrop,
+      isDragging,
+      theme,
       win: { tabs }
     } = this.props
     const { length } = tabs
@@ -58,10 +64,14 @@ export default class Title extends React.Component {
         {text}
       </span>
     )
-    const preview = isOver && <Preview />
+    let backgroundColor = 'unset'
+    if (isDragging && isOver && !canDrop) {
+      backgroundColor = theme.palette.error.light
+    }
+    const preview = canDrop && isOver && <Preview />
     return connectDropTarget(
       <div>
-        <div style={style}>
+        <div style={{ ...style, backgroundColor }}>
           {title}
           <SelectAll {...this.props} />
           <Sort {...this.props} />

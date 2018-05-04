@@ -1,6 +1,5 @@
-/* global expect, test */
 import React from 'react'
-import { shallow } from 'test'
+import { shallow, expect, test } from 'test'
 import Loading from '../Loading'
 
 test('Loading should render divs', () => {

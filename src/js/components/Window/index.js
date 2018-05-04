@@ -5,36 +5,39 @@ import Paper from 'material-ui/Paper'
 import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
-import { ItemTypes } from 'libs'
+import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
+import { withTheme } from 'material-ui/styles'
 
+export const windowTarget = {
+  canDrop (props, monitor) {
+    return props.win.canDrop
+  },
+  drop (props, monitor) {
+    if (monitor.didDrop()) {
+      return
+    }
+    const {
+      win: { tabs },
+      dragStore: { drop }
+    } = props
+    const tab = tabs[tabs.length - 1]
+    drop(tab, false)
+  }
+}
+
+@withTheme()
 @inject('windowStore')
 @inject('dragStore')
-@DropTarget(
-  ItemTypes.TAB,
-  {
-    drop (props, monitor) {
-      if (monitor.didDrop()) {
-        return
-      }
-      const {
-        win: { tabs },
-        dragStore: { drop }
-      } = props
-      const tab = tabs[tabs.length - 1]
-      drop(tab, false)
-    }
-  },
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver({ shallow: true })
-  })
-)
+@DropTarget(ItemTypes.TAB, windowTarget, tabDropCollect)
 @observer
 export default class Window extends React.Component {
   render () {
     const {
       connectDropTarget,
       isOver,
+      isDragging,
+      canDrop,
+      theme,
       win: { lastFocused, showTabs },
       left,
       right,
@@ -49,7 +52,10 @@ export default class Window extends React.Component {
       marginLeft: left && 'auto',
       marginRight: right && 'auto'
     }
-    const dropIndicator = isOver && <Preview />
+    if (isDragging && isOver && !canDrop) {
+      style.backgroundColor = theme.palette.error.light
+    }
+    const dropIndicator = canDrop && isOver && <Preview />
     const elevation = lastFocused ? 4 : 0
     return connectDropTarget(
       <div style={style}>

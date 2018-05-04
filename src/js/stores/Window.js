@@ -12,6 +12,7 @@ export default class Window {
   @observable tabs = []
   @observable id
   @observable showTabs
+  @observable type
 
   @action
   tabMounted = () => {
@@ -24,6 +25,11 @@ export default class Window {
   @computed
   get lastFocused () {
     return this.id === this.store.windowStore.lastFocusedWindowId
+  }
+
+  @computed
+  get canDrop () {
+    return !['popup', 'devtools'].includes(this.type)
   }
 
   @computed
