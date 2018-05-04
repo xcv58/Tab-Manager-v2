@@ -5,7 +5,7 @@ import Paper from 'material-ui/Paper'
 import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
-import { ItemTypes } from 'libs'
+import { ItemTypes, collect } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
 
 export const windowTarget = {
@@ -24,13 +24,6 @@ export const windowTarget = {
     drop(tab, false)
   }
 }
-
-export const collect = (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  canDrop: monitor.canDrop(),
-  isDragging: !!monitor.getItem(),
-  isOver: monitor.isOver({ shallow: true })
-})
 
 @withTheme()
 @inject('windowStore')

@@ -4,7 +4,8 @@ import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { ItemTypes, getNoun } from 'libs'
+import { getNoun } from 'libs'
+import { ItemTypes, collect } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
 
 const style = {
@@ -38,12 +39,7 @@ const style = {
       drop(tab, true)
     }
   },
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    canDrop: monitor.canDrop(),
-    isDragging: !!monitor.getItem(),
-    isOver: monitor.isOver()
-  })
+  collect
 )
 @observer
 export default class Title extends React.Component {

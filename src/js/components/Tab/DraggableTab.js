@@ -2,7 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
-import { ItemTypes } from 'libs'
+import { ItemTypes, collect } from 'libs/react-dnd'
 import Preview from 'components/Preview'
 import { withTheme } from 'material-ui/styles'
 
@@ -38,12 +38,7 @@ const tabTarget = {
 
 @withTheme()
 @inject('dragStore')
-@DropTarget(ItemTypes.TAB, tabTarget, (connect, monitor) => ({
-  connectDropTarget: connect.dropTarget(),
-  canDrop: monitor.canDrop(),
-  isDraggingTarget: !!monitor.getItem(),
-  isOver: monitor.isOver({ shallow: true })
-}))
+@DropTarget(ItemTypes.TAB, tabTarget, collect)
 @DragSource(ItemTypes.TAB, tabSource, (connect, monitor) => ({
   connectDragSource: connect.dragSource(),
   connectDragPreview: connect.dragPreview(),

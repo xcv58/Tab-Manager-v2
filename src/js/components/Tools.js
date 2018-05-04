@@ -6,7 +6,8 @@ import Preview from 'components/Preview'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
-import { ItemTypes, getNoun } from 'libs'
+import { getNoun } from 'libs'
+import { ItemTypes } from 'libs/react-dnd'
 import { dropTargetColor, droppedColor } from 'libs/colors'
 
 const style = {
