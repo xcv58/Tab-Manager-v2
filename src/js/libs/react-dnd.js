@@ -12,25 +12,22 @@ export const tabDropCollect = (connect, monitor) => ({
 })
 
 const getWindowTarget = (begin = false) => {
-  return {
-    canDrop (props, monitor) {
-      return props.win.canDrop
-    },
-    drop (props, monitor) {
-      if (monitor.didDrop()) {
-        return
-      }
-      const {
-        win: { tabs },
-        dragStore: { drop }
-      } = props
-      const func = begin ? findFirstVisibleOrFirstTab : findLastVisibleOrLastTab
-      const tab = func(tabs)
-      if (tab) {
-        drop(tab, begin)
-      }
+  const canDrop = props => props.win.canDrop
+  const drop = (props, monitor) => {
+    if (monitor.didDrop()) {
+      return
+    }
+    const {
+      win: { tabs },
+      dragStore: { drop }
+    } = props
+    const func = begin ? findFirstVisibleOrFirstTab : findLastVisibleOrLastTab
+    const tab = func(tabs)
+    if (tab) {
+      drop(tab, begin)
     }
   }
+  return { canDrop, drop }
 }
 
 export const titleTarget = getWindowTarget(true)
