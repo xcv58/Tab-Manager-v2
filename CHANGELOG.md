@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.1"></a>
+
+## [0.8.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.8.0...v0.8.1) (2018-05-06)
+
+### Bug Fixes
+
+* Add `Ctrl+,` to toggle Settings ([#166](https://github.com/xcv58/Tab-Manager-v2/issues/166)) ([025c09c](https://github.com/xcv58/Tab-Manager-v2/commit/025c09c))
+* Add Show Shortcut Hint option ([#165](https://github.com/xcv58/Tab-Manager-v2/issues/165)) ([1eb8548](https://github.com/xcv58/Tab-Manager-v2/commit/1eb8548))
+* Reduce bundle size ([#167](https://github.com/xcv58/Tab-Manager-v2/issues/167)) ([8384ef0](https://github.com/xcv58/Tab-Manager-v2/commit/8384ef0))
+
 <a name="0.8.0"></a>
 
 # [0.8.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.7.0...v0.8.0) (2018-05-06)
