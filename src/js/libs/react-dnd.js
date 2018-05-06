@@ -11,20 +11,23 @@ export const tabDropCollect = (connect, monitor) => ({
   isOver: monitor.isOver({ shallow: true })
 })
 
+const canDrop = props => props.win.canDrop
+
+const getTargetTab = (tabs, begin) => {
+  if (begin) {
+    return findFirstVisibleOrFirstTab(tabs)
+  }
+  return findLastVisibleOrLastTab(tabs)
+}
+
 const getWindowTarget = (begin = false) => {
-  const canDrop = props => props.win.canDrop
   const drop = (props, monitor) => {
     if (monitor.didDrop()) {
       return
     }
-    const {
-      win: { tabs },
-      dragStore: { drop }
-    } = props
-    const func = begin ? findFirstVisibleOrFirstTab : findLastVisibleOrLastTab
-    const tab = func(tabs)
+    const tab = getTargetTab(props.win.tabs, begin)
     if (tab) {
-      drop(tab, begin)
+      props.dragStore.drop(tab, begin)
     }
   }
   return { canDrop, drop }
