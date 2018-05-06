@@ -35,7 +35,7 @@ const images = fileSystem
   .filter(x => x.endsWith('.png'))
   .map(x => path.join(imgDir, x))
 
-const HtmlFiles = ['popup', 'options'].map(
+const HtmlFiles = ['popup'].map(
   name =>
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', `${name}.html`),
@@ -45,7 +45,7 @@ const HtmlFiles = ['popup', 'options'].map(
 )
 
 const entry = Object.assign(
-  ...['popup', 'options', 'background'].map(name => ({
+  ...['popup', 'background'].map(name => ({
     [name]: path.join(__dirname, 'src', 'js', `${name}.js`)
   }))
 )
