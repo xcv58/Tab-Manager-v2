@@ -234,6 +234,14 @@ export default class ShortcutStore {
         this.openDialog()
       },
       'Open keyboard shortcut help'
+    ],
+    [
+      'ctrl+,',
+      event => {
+        event.preventDefault()
+        this.store.userStore.toggleDialog()
+      },
+      'Toggle Settings'
     ]
   ]
 
