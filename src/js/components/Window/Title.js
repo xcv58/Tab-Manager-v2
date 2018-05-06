@@ -4,7 +4,7 @@ import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { getNoun } from 'libs'
+import { getNoun, findFirstVisibleOrFirstTab } from 'libs'
 import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
 
@@ -36,7 +36,7 @@ const style = {
         win: { tabs },
         dragStore: { drop }
       } = props
-      const tab = tabs.find(x => x.isVisible)
+      const tab = findFirstVisibleOrFirstTab(tabs)
       if (tab) {
         drop(tab, true)
       }

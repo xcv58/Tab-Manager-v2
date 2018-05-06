@@ -7,6 +7,7 @@ import Tabs from './Tabs'
 import Preview from 'components/Preview'
 import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
+import { findLastVisibleOrLastTab } from 'libs'
 
 export const windowTarget = {
   canDrop (props, monitor) {
@@ -20,16 +21,10 @@ export const windowTarget = {
       win: { tabs },
       dragStore: { drop }
     } = props
-    let index = tabs.length - 1
-    let tab = tabs[index]
-    while (index >= 0) {
-      if (tabs[index].isVisible) {
-        tab = tabs[index]
-        break
-      }
-      index--
+    const tab = findLastVisibleOrLastTab(tabs)
+    if (tab) {
+      drop(tab, false)
     }
-    drop(tab, false)
   }
 }
 

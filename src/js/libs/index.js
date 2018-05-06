@@ -120,3 +120,24 @@ export const ItemTypes = {
 }
 
 export const TOOLTIP_DELAY = 300
+
+export const findFirstVisibleOrFirstTab = (tabs = []) =>
+  findVisibleTab(tabs, 0, 1)
+
+export const findLastVisibleOrLastTab = (tabs = []) =>
+  findVisibleTab(tabs, tabs.length - 1, -1)
+
+export const findVisibleTab = (tabs = [], index, delta) => {
+  if (tabs.length <= 0) {
+    return null
+  }
+  let tab = tabs[index]
+  while (index < tabs.length && index >= 0) {
+    if (tabs[index].isVisible) {
+      tab = tabs[index]
+      break
+    }
+    index += delta
+  }
+  return tab
+}
