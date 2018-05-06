@@ -53,10 +53,14 @@ export default class Title extends React.Component {
       canDrop,
       isDragging,
       theme,
-      win: { tabs, onTitleClick }
+      win: { tabs, onTitleClick, invisibleTabs }
     } = this.props
     const { length } = tabs
     const text = `${length} ${getNoun('tab', length)}`
+    const invisibleLength = invisibleTabs.length
+    const invisibleIndicator =
+      invisibleLength > 0 &&
+      `${invisibleLength} invisible ${getNoun('tab', invisibleLength)}`
     const title = (
       <span
         style={{
@@ -64,7 +68,7 @@ export default class Title extends React.Component {
           width: 'max-content'
         }}
       >
-        {text}
+        {text} {invisibleIndicator}
       </span>
     )
     let backgroundColor = 'unset'

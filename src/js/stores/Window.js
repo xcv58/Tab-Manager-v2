@@ -38,6 +38,11 @@ export default class Window {
   }
 
   @computed
+  get invisibleTabs () {
+    return this.tabs.filter(x => !x.isVisible)
+  }
+
+  @computed
   get disableSelectAll () {
     return this.matchedTabs.length === 0
   }
