@@ -1,5 +1,5 @@
-import { stub, describe, it, expect } from 'test'
-import { tabDropCollect } from 'libs/react-dnd'
+import { stub, describe, it, expect, spy } from 'test'
+import { tabDropCollect, windowTarget, titleTarget } from 'libs/react-dnd'
 
 describe('tabDropCollect', () => {
   const dropTarget = stub().returns('dropTarget')
@@ -27,5 +27,73 @@ describe('tabDropCollect', () => {
       ...expected,
       isDragging: false
     })
+  })
+})
+
+describe('windowTarget && titleTarget', () => {
+  it('canDrop return props.win.canDrop', () => {
+    expect(windowTarget.canDrop({ win: { canDrop: true } })).toBe(true)
+    expect(windowTarget.canDrop({ win: { canDrop: false } })).toBe(false)
+    expect(titleTarget.canDrop({ win: { canDrop: true } })).toBe(true)
+    expect(titleTarget.canDrop({ win: { canDrop: false } })).toBe(false)
+  })
+
+  it('drop return if monitor.didDrop', () => {
+    expect(
+      windowTarget.drop(
+        {},
+        {
+          didDrop () {
+            return true
+          }
+        }
+      )
+    ).toBeUndefined()
+    expect(
+      titleTarget.drop(
+        {},
+        {
+          didDrop () {
+            return true
+          }
+        }
+      )
+    ).toBeUndefined()
+  })
+
+  it('drop should call dragStore.drop if not didDrop', () => {
+    const dragStore = { drop: spy() }
+    expect(
+      windowTarget.drop(
+        {
+          win: { tabs: ['a', 'b', 'c', 'z'] },
+          dragStore
+        },
+        {
+          didDrop () {
+            return false
+          }
+        }
+      )
+    ).toBeUndefined()
+    expect(dragStore.drop.callCount).toBe(1)
+    expect(dragStore.drop.args[0]).toEqual(['z', false])
+
+    dragStore.drop = spy()
+    expect(
+      titleTarget.drop(
+        {
+          win: { tabs: ['a', 'b', 'c', 't'] },
+          dragStore
+        },
+        {
+          didDrop () {
+            return false
+          }
+        }
+      )
+    ).toBeUndefined()
+    expect(dragStore.drop.callCount).toBe(1)
+    expect(dragStore.drop.args[0]).toEqual(['a', true])
   })
 })

@@ -4,7 +4,7 @@ import Paper from 'material-ui/Paper'
 import Title from '../Title'
 import Tabs from '../Tabs'
 import Preview from 'components/Preview'
-import Window, { windowTarget } from '../index'
+import Window from '../index'
 import { createMuiTheme } from 'material-ui/styles'
 
 const theme = createMuiTheme()
@@ -76,44 +76,5 @@ describe('Window', () => {
       <Window.DecoratedComponent {...props} win={{ lastFocused: true }} />
     )
     expect(el.find(Paper).props().elevation).toBe(4)
-  })
-})
-
-describe('windowTarget', () => {
-  it('canDrop return props.win.canDrop', () => {
-    expect(windowTarget.canDrop({ win: { canDrop: true } })).toBe(true)
-    expect(windowTarget.canDrop({ win: { canDrop: false } })).toBe(false)
-  })
-
-  it('drop return if monitor.didDrop', () => {
-    expect(
-      windowTarget.drop(
-        {},
-        {
-          didDrop () {
-            return true
-          }
-        }
-      )
-    ).toBeUndefined()
-  })
-
-  it('drop should call dragStore.drop if not didDrop', () => {
-    const dragStore = { drop: spy() }
-    expect(
-      windowTarget.drop(
-        {
-          win: { tabs: ['t'] },
-          dragStore
-        },
-        {
-          didDrop () {
-            return false
-          }
-        }
-      )
-    ).toBeUndefined()
-    expect(dragStore.drop.callCount).toBe(1)
-    expect(dragStore.drop.args[0]).toEqual(['t', false])
   })
 })
