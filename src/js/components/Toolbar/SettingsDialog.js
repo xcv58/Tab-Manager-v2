@@ -25,7 +25,9 @@ class SettingsDialog extends React.Component {
       showTabTooltip,
       toggleShowTabTooltip,
       preserveSearch,
-      togglePreserveSearch
+      togglePreserveSearch,
+      showUnmatchedTab,
+      toggleShowUnmatchedTab
     } = this.props.userStore
     return (
       <Dialog
@@ -65,6 +67,16 @@ class SettingsDialog extends React.Component {
                   color='primary'
                   checked={showTabTooltip}
                   onChange={toggleShowTabTooltip}
+                />
+              }
+            />
+            <FormControlLabel
+              label='Show Unmatched Tab'
+              control={
+                <Switch
+                  color='primary'
+                  checked={showUnmatchedTab}
+                  onChange={toggleShowUnmatchedTab}
                 />
               }
             />

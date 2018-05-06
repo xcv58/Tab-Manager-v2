@@ -5,7 +5,7 @@ import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
 import { getNoun } from 'libs'
-import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
+import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
 
 const style = {
@@ -20,27 +20,9 @@ const style = {
 }
 
 @withTheme()
+@inject('userStore')
 @inject('dragStore')
-@DropTarget(
-  ItemTypes.TAB,
-  {
-    canDrop (props, monitor) {
-      return props.win.canDrop
-    },
-    drop (props, monitor) {
-      if (monitor.didDrop()) {
-        return
-      }
-      const {
-        win: { tabs },
-        dragStore: { drop }
-      } = props
-      const tab = tabs[0]
-      drop(tab, true)
-    }
-  },
-  tabDropCollect
-)
+@DropTarget(ItemTypes.TAB, titleTarget, tabDropCollect)
 @observer
 export default class Title extends React.Component {
   render () {
@@ -50,10 +32,13 @@ export default class Title extends React.Component {
       canDrop,
       isDragging,
       theme,
-      win: { tabs }
+      win: { tabs, onTitleClick, invisibleTabs }
     } = this.props
     const { length } = tabs
     const text = `${length} ${getNoun('tab', length)}`
+    const invisibleLength = invisibleTabs.length
+    const invisibleIndicator =
+      invisibleLength > 0 && `/ ${invisibleLength} hidden`
     const title = (
       <span
         style={{
@@ -61,7 +46,7 @@ export default class Title extends React.Component {
           width: 'max-content'
         }}
       >
-        {text}
+        {text} {invisibleIndicator}
       </span>
     )
     let backgroundColor = 'unset'
@@ -72,9 +57,11 @@ export default class Title extends React.Component {
     return connectDropTarget(
       <div>
         <div style={{ ...style, backgroundColor }}>
-          {title}
-          <SelectAll {...this.props} />
-          <Sort {...this.props} />
+          <div onClick={onTitleClick}>{title}</div>
+          <div>
+            <SelectAll {...this.props} />
+            <Sort {...this.props} />
+          </div>
         </div>
         {preview}
       </div>

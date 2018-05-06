@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Checkbox from 'material-ui/Checkbox'
 import Tooltip from 'material-ui/Tooltip'
+import { TOOLTIP_DELAY } from 'libs'
 
 @inject('searchStore')
 @observer
@@ -20,7 +21,7 @@ export default class SelectAll extends React.Component {
     const { allTabSelected, someTabSelected } = this.props.searchStore
     const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
     return (
-      <Tooltip title={title}>
+      <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
         <div>
           <Checkbox
             color='primary'

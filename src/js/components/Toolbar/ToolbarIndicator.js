@@ -34,6 +34,9 @@ export default class ToolbarIndicator extends React.Component {
     return (
       <Slide direction='up' in>
         <IconButton
+          style={{
+            opacity: toolbarAutoHide ? 1 : 0.2
+          }}
           disabled={!toolbarAutoHide}
           onFocus={showToolbar}
           onMouseEnter={showToolbar}
