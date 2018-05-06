@@ -9,13 +9,13 @@ export default class SelectAll extends React.Component {
   selectAll = e => {
     e.target.blur()
     const {
-      win: { allTabSelected, tabs },
+      win: { allTabSelected, matchedTabs },
       tabStore: { selectAll, unselectAll }
     } = this.props
     if (allTabSelected) {
-      unselectAll(tabs)
+      unselectAll(matchedTabs)
     } else {
-      selectAll(tabs)
+      selectAll(matchedTabs)
     }
   }
 

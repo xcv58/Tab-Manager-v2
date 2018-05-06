@@ -33,8 +33,13 @@ export default class Window {
   }
 
   @computed
+  get matchedTabs () {
+    return this.tabs.filter(x => x.isMatched)
+  }
+
+  @computed
   get allTabSelected () {
-    return this.tabs.every(this.store.tabStore.isTabSelected)
+    return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
 
   @computed

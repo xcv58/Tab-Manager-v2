@@ -73,11 +73,17 @@ export default class Title extends React.Component {
     }
     const preview = canDrop && isOver && <Preview />
     return connectDropTarget(
-      <div>
+      <div
+        onClick={() => {
+          console.log('123')
+        }}
+      >
         <div style={{ ...style, backgroundColor }}>
-          {title}
-          <SelectAll {...this.props} />
-          <Sort {...this.props} />
+          <div>{title}</div>
+          <div>
+            <SelectAll {...this.props} />
+            <Sort {...this.props} />
+          </div>
         </div>
         {preview}
       </div>
