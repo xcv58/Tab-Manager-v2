@@ -5,28 +5,8 @@ import Paper from 'material-ui/Paper'
 import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
-import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
+import { ItemTypes, tabDropCollect, windowTarget } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
-import { findLastVisibleOrLastTab } from 'libs'
-
-export const windowTarget = {
-  canDrop (props, monitor) {
-    return props.win.canDrop
-  },
-  drop (props, monitor) {
-    if (monitor.didDrop()) {
-      return
-    }
-    const {
-      win: { tabs },
-      dragStore: { drop }
-    } = props
-    const tab = findLastVisibleOrLastTab(tabs)
-    if (tab) {
-      drop(tab, false)
-    }
-  }
-}
 
 @withTheme()
 @inject('windowStore')

@@ -4,8 +4,8 @@ import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
-import { getNoun, findFirstVisibleOrFirstTab } from 'libs'
-import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
+import { getNoun } from 'libs'
+import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
 
 const style = {
@@ -22,28 +22,7 @@ const style = {
 @withTheme()
 @inject('userStore')
 @inject('dragStore')
-@DropTarget(
-  ItemTypes.TAB,
-  {
-    canDrop (props, monitor) {
-      return props.win.canDrop
-    },
-    drop (props, monitor) {
-      if (monitor.didDrop()) {
-        return
-      }
-      const {
-        win: { tabs },
-        dragStore: { drop }
-      } = props
-      const tab = findFirstVisibleOrFirstTab(tabs)
-      if (tab) {
-        drop(tab, true)
-      }
-    }
-  },
-  tabDropCollect
-)
+@DropTarget(ItemTypes.TAB, titleTarget, tabDropCollect)
 @observer
 export default class Title extends React.Component {
   render () {
