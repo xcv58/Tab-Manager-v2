@@ -27,7 +27,9 @@ class SettingsDialog extends React.Component {
       preserveSearch,
       togglePreserveSearch,
       showUnmatchedTab,
-      toggleShowUnmatchedTab
+      toggleShowUnmatchedTab,
+      showShortcutHint,
+      toggleShowShortcutHint
     } = this.props.userStore
     return (
       <Dialog
@@ -77,6 +79,16 @@ class SettingsDialog extends React.Component {
                   color='primary'
                   checked={showUnmatchedTab}
                   onChange={toggleShowUnmatchedTab}
+                />
+              }
+            />
+            <FormControlLabel
+              label='Show Shortcut Hint'
+              control={
+                <Switch
+                  color='primary'
+                  checked={showShortcutHint}
+                  onChange={toggleShowShortcutHint}
                 />
               }
             />
