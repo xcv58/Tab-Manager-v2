@@ -103,11 +103,15 @@ export default class ShortcutStore {
           return this.closeDialog()
         }
         const {
-          searchStore: { clear, typing, query }
+          searchStore: { clear, typing, query },
+          userStore: { dialogOpen }
         } = this.store
         if (typing) {
           e.preventDefault()
           return this.App.search.blur()
+        }
+        if (dialogOpen) {
+          return e.preventDefault()
         }
         if (query) {
           e.preventDefault()
@@ -119,11 +123,10 @@ export default class ShortcutStore {
           return 'Go to tab list'
         }
         if (this.dialogOpen) {
-          return `
-          Close hotkey dialog;
-          Go to tab list if typing in search box;
-          Clear search text if search box is not focused.
-        `
+          return 'Escape'
+        }
+        if (this.store.userStore.dialogOpen) {
+          return 'Dismiss settings dialog'
         }
         return 'Clear search text'
       }
