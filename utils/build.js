@@ -9,7 +9,18 @@ webpack(
   {
     ...config,
     mode: 'production',
-    plugins: [...plugins, new UglifyJSPlugin()]
+    plugins: [
+      ...plugins,
+      new UglifyJSPlugin({
+        uglifyOptions: {
+          ecma: 8,
+          toplevel: true,
+          output: {
+            comments: false
+          }
+        }
+      })
+    ]
   },
   function (err) {
     if (err) throw err
