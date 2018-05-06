@@ -85,14 +85,10 @@ export default class Tab extends React.Component {
       active,
       isFocused,
       isMatched,
-      isVisible,
       isSelected,
       shouldHighlight,
       urlCount
     } = this.props.tab
-    if (!isVisible) {
-      return { display: 'none' }
-    }
     return Object.assign(
       {},
       tabStyle,
@@ -152,7 +148,10 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { activate, title, pinned } = this.props.tab
+    const { activate, title, pinned, isVisible } = this.props.tab
+    if (!isVisible) {
+      return null
+    }
     const style = this.getStyle()
     const pin = pinned && (
       <div
