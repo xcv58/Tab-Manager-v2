@@ -59,8 +59,7 @@ export default class Title extends React.Component {
     const text = `${length} ${getNoun('tab', length)}`
     const invisibleLength = invisibleTabs.length
     const invisibleIndicator =
-      invisibleLength > 0 &&
-      `${invisibleLength} invisible ${getNoun('tab', invisibleLength)}`
+      invisibleLength > 0 && `/ ${invisibleLength} hidden`
     const title = (
       <span
         style={{

@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS = {
   showTabTooltip: true,
   preserveSearch: true
 }
+
 export default class UserStore {
   constructor (store) {
     this.store = store
@@ -47,20 +48,6 @@ export default class UserStore {
         ...Object.keys(DEFAULT_SETTINGS).map(key => ({ [key]: this[key] }))
       )
     )
-    // const {
-    //   showUnmatchedTab,
-    //   highlightDuplicatedTab,
-    //   toolbarAutoHide,
-    //   showTabTooltip,
-    //   preserveSearch
-    // } = this
-    // chrome.storage.sync.set({
-    //   showUnmatchedTab,
-    //   highlightDuplicatedTab,
-    //   toolbarAutoHide,
-    //   showTabTooltip,
-    //   preserveSearch
-    // })
   }
 
   @action
