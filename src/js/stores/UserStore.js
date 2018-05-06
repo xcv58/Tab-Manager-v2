@@ -44,6 +44,11 @@ export default class UserStore {
     this.dialogOpen = false
   }
 
+  @action
+  toggleDialog = () => {
+    this.dialogOpen = !this.dialogOpen
+  }
+
   save = () => {
     chrome.storage.sync.set(
       Object.assign(
