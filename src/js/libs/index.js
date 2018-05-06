@@ -118,3 +118,5 @@ export const windowComparator = (a, b) => {
 export const ItemTypes = {
   TAB: 'tab'
 }
+
+export const TOOLTIP_DELAY = 300

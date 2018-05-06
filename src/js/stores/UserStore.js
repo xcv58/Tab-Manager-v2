@@ -1,5 +1,12 @@
 import { action, observable } from 'mobx'
 
+const DEFAULT_SETTINGS = {
+  showUnmatchedTab: true,
+  toolbarAutoHide: false,
+  highlightDuplicatedTab: true,
+  showTabTooltip: true,
+  preserveSearch: true
+}
 export default class UserStore {
   constructor (store) {
     this.store = store
@@ -7,17 +14,13 @@ export default class UserStore {
   }
 
   init = async () => {
-    const result = await chrome.storage.sync.get({
-      toolbarAutoHide: false,
-      highlightDuplicatedTab: true,
-      showTabTooltip: true,
-      preserveSearch: true
-    })
+    const result = await chrome.storage.sync.get(DEFAULT_SETTINGS)
     Object.assign(this, result)
     this.toolbarVisible = !this.toolbarAutoHide
     this.store.searchStore.init()
   }
 
+  @observable showUnmatchedTab
   @observable toolbarAutoHide
   @observable highlightDuplicatedTab
   @observable showTabTooltip
@@ -39,18 +42,25 @@ export default class UserStore {
   }
 
   save = () => {
-    const {
-      highlightDuplicatedTab,
-      toolbarAutoHide,
-      showTabTooltip,
-      preserveSearch
-    } = this
-    chrome.storage.sync.set({
-      highlightDuplicatedTab,
-      toolbarAutoHide,
-      showTabTooltip,
-      preserveSearch
-    })
+    chrome.storage.sync.set(
+      Object.assign(
+        ...Object.keys(DEFAULT_SETTINGS).map(key => ({ [key]: this[key] }))
+      )
+    )
+    // const {
+    //   showUnmatchedTab,
+    //   highlightDuplicatedTab,
+    //   toolbarAutoHide,
+    //   showTabTooltip,
+    //   preserveSearch
+    // } = this
+    // chrome.storage.sync.set({
+    //   showUnmatchedTab,
+    //   highlightDuplicatedTab,
+    //   toolbarAutoHide,
+    //   showTabTooltip,
+    //   preserveSearch
+    // })
   }
 
   @action
@@ -68,6 +78,12 @@ export default class UserStore {
   @action
   togglePreserveSearch = () => {
     this.preserveSearch = !this.preserveSearch
+    this.save()
+  }
+
+  @action
+  toggleShowUnmatchedTab = () => {
+    this.showUnmatchedTab = !this.showUnmatchedTab
     this.save()
   }
 

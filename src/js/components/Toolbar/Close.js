@@ -4,6 +4,7 @@ import Tooltip from 'material-ui/Tooltip'
 import CloseIcon from '@material-ui/icons/Close'
 import IconButton from 'material-ui/IconButton'
 import { withTheme } from 'material-ui/styles'
+import { TOOLTIP_DELAY } from 'libs'
 
 @withTheme()
 @inject('tabStore')
@@ -12,7 +13,7 @@ export default class Close extends React.Component {
   render () {
     const { remove, tabDescription } = this.props.tabStore
     return (
-      <Tooltip title={`Close ${tabDescription}`}>
+      <Tooltip title={`Close ${tabDescription}`} enterDelay={TOOLTIP_DELAY}>
         <div>
           <IconButton
             onClick={() => remove()}

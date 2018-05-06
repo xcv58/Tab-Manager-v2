@@ -75,6 +75,11 @@ export default class Tab {
   }
 
   @computed
+  get isVisible () {
+    return this.isMatched || this.store.userStore.showUnmatchedTab
+  }
+
+  @computed
   get urlCount () {
     return this.store.windowStore.urlCountMap[this.url] || 0
   }

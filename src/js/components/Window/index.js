@@ -20,7 +20,15 @@ export const windowTarget = {
       win: { tabs },
       dragStore: { drop }
     } = props
-    const tab = tabs[tabs.length - 1]
+    let index = tabs.length - 1
+    let tab = tabs[index]
+    while (index >= 0) {
+      if (tabs[index].isVisible) {
+        tab = tabs[index]
+        break
+      }
+      index--
+    }
     drop(tab, false)
   }
 }

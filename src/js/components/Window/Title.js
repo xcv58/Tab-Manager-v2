@@ -20,6 +20,7 @@ const style = {
 }
 
 @withTheme()
+@inject('userStore')
 @inject('dragStore')
 @DropTarget(
   ItemTypes.TAB,
@@ -35,8 +36,10 @@ const style = {
         win: { tabs },
         dragStore: { drop }
       } = props
-      const tab = tabs[0]
-      drop(tab, true)
+      const tab = tabs.find(x => x.isVisible)
+      if (tab) {
+        drop(tab, true)
+      }
     }
   },
   tabDropCollect

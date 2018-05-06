@@ -85,10 +85,14 @@ export default class Tab extends React.Component {
       active,
       isFocused,
       isMatched,
+      isVisible,
       isSelected,
       shouldHighlight,
       urlCount
     } = this.props.tab
+    if (!isVisible) {
+      return { display: 'none' }
+    }
     return Object.assign(
       {},
       tabStyle,
