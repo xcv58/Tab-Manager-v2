@@ -10,6 +10,8 @@
 [![codecov](https://codecov.io/gh/xcv58/Tab-Manager-v2/branch/master/graph/badge.svg)](https://codecov.io/gh/xcv58/Tab-Manager-v2)
 [![Coverage Status](https://coveralls.io/repos/github/xcv58/Tab-Manager-v2/badge.svg?branch=coverage)](https://coveralls.io/github/xcv58/Tab-Manager-v2?branch=coverage)
 
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 [![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
 
 Chrome Web Store: https://xcv58.xyz/tabs
