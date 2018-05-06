@@ -63,36 +63,21 @@ describe('windowTarget && titleTarget', () => {
 
   it('drop should call dragStore.drop if not didDrop', () => {
     const dragStore = { drop: spy() }
-    expect(
-      windowTarget.drop(
-        {
-          win: { tabs: ['a', 'b', 'c', 'z'] },
-          dragStore
-        },
-        {
-          didDrop () {
-            return false
-          }
-        }
-      )
-    ).toBeUndefined()
+    const props = {
+      win: { tabs: ['a', 'b', 'c', 'z'] },
+      dragStore
+    }
+    const monitor = {
+      didDrop () {
+        return false
+      }
+    }
+    expect(windowTarget.drop(props, monitor)).toBeUndefined()
     expect(dragStore.drop.callCount).toBe(1)
     expect(dragStore.drop.args[0]).toEqual(['z', false])
 
     dragStore.drop = spy()
-    expect(
-      titleTarget.drop(
-        {
-          win: { tabs: ['a', 'b', 'c', 't'] },
-          dragStore
-        },
-        {
-          didDrop () {
-            return false
-          }
-        }
-      )
-    ).toBeUndefined()
+    expect(titleTarget.drop(props, monitor)).toBeUndefined()
     expect(dragStore.drop.callCount).toBe(1)
     expect(dragStore.drop.args[0]).toEqual(['a', true])
   })
