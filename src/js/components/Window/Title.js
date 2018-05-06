@@ -53,7 +53,7 @@ export default class Title extends React.Component {
       canDrop,
       isDragging,
       theme,
-      win: { tabs }
+      win: { tabs, onTitleClick }
     } = this.props
     const { length } = tabs
     const text = `${length} ${getNoun('tab', length)}`
@@ -73,13 +73,9 @@ export default class Title extends React.Component {
     }
     const preview = canDrop && isOver && <Preview />
     return connectDropTarget(
-      <div
-        onClick={() => {
-          console.log('123')
-        }}
-      >
+      <div>
         <div style={{ ...style, backgroundColor }}>
-          <div>{title}</div>
+          <div onClick={onTitleClick}>{title}</div>
           <div>
             <SelectAll {...this.props} />
             <Sort {...this.props} />

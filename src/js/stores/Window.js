@@ -22,6 +22,11 @@ export default class Window {
     }
   }
 
+  @action
+  onTitleClick = () => {
+    chrome.windows.update(this.id, { focused: true })
+  }
+
   @computed
   get lastFocused () {
     return this.id === this.store.windowStore.lastFocusedWindowId
@@ -33,13 +38,21 @@ export default class Window {
   }
 
   @computed
+  get disableSelectAll () {
+    return this.matchedTabs.length === 0
+  }
+
+  @computed
   get matchedTabs () {
     return this.tabs.filter(x => x.isMatched)
   }
 
   @computed
   get allTabSelected () {
-    return this.matchedTabs.every(this.store.tabStore.isTabSelected)
+    return (
+      !this.disableSelectAll &&
+      this.matchedTabs.every(this.store.tabStore.isTabSelected)
+    )
   }
 
   @computed
