@@ -13,7 +13,7 @@ webpack(
       ...plugins,
       new UglifyJSPlugin({
         uglifyOptions: {
-          ecma: 8,
+          ecma: 6,
           toplevel: true,
           output: {
             comments: false
