@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.0"></a>
+
+# [0.8.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.7.0...v0.8.0) (2018-05-06)
+
+### Features
+
+* Add Show Unmatched Tab option ([#164](https://github.com/xcv58/Tab-Manager-v2/issues/164)) ([633bd61](https://github.com/xcv58/Tab-Manager-v2/commit/633bd61))
+
 <a name="0.7.0"></a>
 
 # [0.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.6.3...v0.7.0) (2018-05-04)
