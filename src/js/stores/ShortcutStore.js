@@ -274,6 +274,9 @@ export default class ShortcutStore {
 
   @action
   openToast = () => {
+    if (!this.store.userStore.showShortcutHint) {
+      return
+    }
     if (this.closeHandle) {
       clearTimeout(this.closeHandle)
     }

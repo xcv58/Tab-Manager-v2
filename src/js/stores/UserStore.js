@@ -1,6 +1,7 @@
 import { action, observable } from 'mobx'
 
 const DEFAULT_SETTINGS = {
+  showShortcutHint: true,
   showUnmatchedTab: true,
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
@@ -21,6 +22,7 @@ export default class UserStore {
     this.store.searchStore.init()
   }
 
+  @observable showShortcutHint
   @observable showUnmatchedTab
   @observable toolbarAutoHide
   @observable highlightDuplicatedTab
@@ -53,6 +55,12 @@ export default class UserStore {
   @action
   toggleHighlightDuplicatedTab = () => {
     this.highlightDuplicatedTab = !this.highlightDuplicatedTab
+    this.save()
+  }
+
+  @action
+  toggleShowShortcutHint = () => {
+    this.showShortcutHint = !this.showShortcutHint
     this.save()
   }
 
