@@ -30,7 +30,8 @@ export default class Window extends React.Component {
     const style = {
       width,
       minWidth: '20rem',
-      padding: '0 1px',
+      minHeight: 'fit-content',
+      padding: '0 1px 3rem 0',
       boxSizing: 'border-box',
       marginLeft: left && 'auto',
       marginRight: right && 'auto'
