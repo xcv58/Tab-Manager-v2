@@ -112,6 +112,9 @@ export const windowComparator = (a, b) => {
   if (a.alwaysOnTop !== b.alwaysOnTop) {
     return b.alwaysOnTop ? 1 : -1
   }
+  if (a.tabs.length !== b.tabs.length) {
+    return a.tabs.length - b.tabs.length
+  }
   return a.id - b.id
 }
 

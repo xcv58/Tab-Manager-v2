@@ -9,6 +9,7 @@ import {
 import actions from 'libs/actions'
 import Window from './Window'
 import Tab from './Tab'
+import Column from './Column'
 
 const DEBOUNCE_INTERVAL = 1000
 
@@ -36,6 +37,7 @@ export default class WindowsStore {
   }
 
   @observable windows = []
+  @observable columns = []
   @observable initialLoading = true
   @observable lastFocusedWindowId = null
 
@@ -230,6 +232,23 @@ export default class WindowsStore {
     await moveTabs(tabs, windowId, from)
   }
 
+  @action
+  getColumns () {
+    const max = this.windows.reduce((acc, cur) => Math.max(acc, cur.length), 12)
+    return this.windows.reduce(
+      (acc, cur) => {
+        const column = acc[acc.length - 1]
+        if (column.length + cur.length <= max) {
+          column.add(cur)
+        } else {
+          acc.push(new Column(this.store, cur))
+        }
+        return acc
+      },
+      [new Column(this.store)]
+    )
+  }
+
   getAllWindows = () => {
     if (this.batching) {
       return
@@ -243,6 +262,7 @@ export default class WindowsStore {
         .sort(windowComparator)
 
       // this.focusLastActiveTab()
+      this.columns = this.getColumns()
 
       if (this.initialLoading) {
         this.windowMounted()

@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Window from 'components/Window'
+import Column from 'components/Window/Column'
 import Scrollbars from 'libs/Scrollbars'
 
 const View = props => {
@@ -27,15 +27,15 @@ export default class WindowList extends React.Component {
 
   render () {
     const {
-      windowStore: { windows }
+      windowStore: { columns }
     } = this.props
-    const width = 100 / Math.min(4, windows.length) + '%'
-    const winList = windows.map((win, i) => (
-      <Window
-        key={win.id}
+    const width = 100 / Math.min(4, columns.length) + '%'
+    const winList = columns.map((column, i) => (
+      <Column
+        key={i}
         left={i === 0}
-        right={i + 1 === windows.length}
-        win={win}
+        right={i + 1 === columns.length}
+        column={column}
         width={width}
         getScrollbars={this.getScrollbars}
         dragPreview={() => this.dragPreview}
