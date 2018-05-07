@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.2"></a>
+
+## [0.8.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.8.1...v0.8.2) (2018-05-07)
+
+### Bug Fixes
+
+* Can not drop to the end of window with a lot of tabs ([72442b8](https://github.com/xcv58/Tab-Manager-v2/commit/72442b8))
+
 <a name="0.8.1"></a>
 
 ## [0.8.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.8.0...v0.8.1) (2018-05-06)
