@@ -30,7 +30,7 @@ export default class Columns extends React.Component {
       windowStore: { columns }
     } = this.props
     const width = 100 / Math.min(4, columns.length) + '%'
-    const winList = columns.map((column, i) => (
+    const list = columns.map((column, i) => (
       <Column
         key={i}
         left={i === 0}
@@ -51,7 +51,7 @@ export default class Columns extends React.Component {
           height: 'fit-content'
         }}
       >
-        {winList}
+        {list}
       </Scrollbars>
     )
   }

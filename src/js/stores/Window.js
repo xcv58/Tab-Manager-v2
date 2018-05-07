@@ -30,7 +30,6 @@ export default class Window {
   @computed
   get length () {
     const { length } = this.tabs
-    // return length
     return length > 0 ? length + 2 : length
   }
 

@@ -18,13 +18,12 @@ export default class Column extends React.Component {
       width,
       minWidth: '20rem',
       height: 'fit-content',
-      padding: '0 1px 3rem 0',
+      padding: 0,
       boxSizing: 'border-box',
       marginLeft: left && 'auto',
       marginRight: right && 'auto'
     }
-    console.log('Column: ', windows.length)
-    const w = windows.map(win => (
+    const windowList = windows.map(win => (
       <Window
         key={win.id}
         win={win}
@@ -33,6 +32,6 @@ export default class Column extends React.Component {
         dragPreview={dragPreview}
       />
     ))
-    return <div style={style}>{w}</div>
+    return <div style={style}>{windowList}</div>
   }
 }
