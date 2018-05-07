@@ -277,10 +277,11 @@ export default class WindowsStore {
         .sort(windowComparator)
 
       // this.focusLastActiveTab()
-      this.updateColumns()
 
       if (this.initialLoading) {
         this.windowMounted()
+      } else {
+        this.updateColumns()
       }
       this.initialLoading = false
       this.updateHandler = null
