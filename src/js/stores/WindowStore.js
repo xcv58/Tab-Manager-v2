@@ -65,6 +65,7 @@ export default class WindowsStore {
         index++
       }
     }
+    this.updateColumns()
   }
 
   onRemoved = (id, { windowId, isWindowClosing }) => {
@@ -101,6 +102,7 @@ export default class WindowsStore {
     } else {
       win.add(new Tab(tab, this.store, win), index)
     }
+    this.updateColumns()
   }
 
   @action
@@ -233,9 +235,9 @@ export default class WindowsStore {
   }
 
   @action
-  getColumns () {
+  updateColumns () {
     const max = this.windows.reduce((acc, cur) => Math.max(acc, cur.length), 12)
-    return this.windows.reduce(
+    this.columns = this.windows.reduce(
       (acc, cur) => {
         const column = acc[acc.length - 1]
         if (column.length + cur.length <= max) {
@@ -262,7 +264,7 @@ export default class WindowsStore {
         .sort(windowComparator)
 
       // this.focusLastActiveTab()
-      this.columns = this.getColumns()
+      this.updateColumns()
 
       if (this.initialLoading) {
         this.windowMounted()
