@@ -1,5 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
+import FlipMove from 'react-flip-move'
 import Window from 'components/Window'
 
 @observer
@@ -32,6 +33,18 @@ export default class Column extends React.Component {
         dragPreview={dragPreview}
       />
     ))
-    return <div style={style}>{windowList}</div>
+    return (
+      <div style={style}>
+        <FlipMove
+          duration={255}
+          easing='ease-in-out'
+          appearAnimation='accordionHorizontal'
+          enterAnimation='accordionHorizontal'
+          leaveAnimation='accordionHorizontal'
+        >
+          {windowList}
+        </FlipMove>
+      </div>
+    )
   }
 }
