@@ -38,9 +38,9 @@ export default class Column extends React.Component {
         <FlipMove
           duration={255}
           easing='ease-in-out'
-          appearAnimation='accordionHorizontal'
-          enterAnimation='accordionHorizontal'
-          leaveAnimation='accordionHorizontal'
+          appearAnimation='accordionVertical'
+          enterAnimation='accordionVertical'
+          leaveAnimation='accordionVertical'
         >
           {windowList}
         </FlipMove>
