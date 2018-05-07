@@ -19,6 +19,9 @@ export default class HoverStore {
       return
     }
     this.hoveredTabId = id
+    if (!this.store.userStore.showTabTooltip) {
+      return
+    }
     this.hovered = false
     if (this.hoverHandler != null) {
       clearTimeout(this.hoverHandler)
