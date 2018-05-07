@@ -61,6 +61,7 @@ export default class Columns extends React.Component {
         <ReactResizeDetector
           handleHeight
           refreshMode='throttle'
+          refreshRate={300}
           onResize={this.onResize}
         />
       </Scrollbars>
