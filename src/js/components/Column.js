@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import Window from './index'
+import Window from 'components/Window'
 
 @observer
 export default class Column extends React.Component {

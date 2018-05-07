@@ -3,7 +3,7 @@ import { inject, observer } from 'mobx-react'
 import Fade from 'material-ui/transitions/Fade'
 import Slide from 'material-ui/transitions/Slide'
 import Loading from 'components/Loading'
-import WindowList from 'components/WindowList'
+import Columns from 'components/Columns'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import Tools from 'components/Tools'
@@ -79,7 +79,7 @@ export default class App extends React.Component {
               />
             </Slide>
             <Fade in>
-              <WindowList />
+              <Columns />
             </Fade>
             <Toolbar />
             <Shortcut />

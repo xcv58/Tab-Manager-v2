@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Column from 'components/Window/Column'
+import Column from 'components/Column'
 import Scrollbars from 'libs/Scrollbars'
 
 const View = props => {
@@ -20,7 +20,7 @@ const View = props => {
 
 @inject('windowStore')
 @observer
-export default class WindowList extends React.Component {
+export default class Columns extends React.Component {
   scrollbars = React.createRef()
 
   getScrollbars = () => this.scrollbars.current

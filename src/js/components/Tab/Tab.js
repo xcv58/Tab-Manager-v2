@@ -137,9 +137,9 @@ export default class Tab extends React.Component {
       } = this.node.current.getBoundingClientRect()
       const height = bottom - top
       const topGap = top - 2 * height - containmentRect.top
-      const bottomGap = containmentRect.bottom - bottom - height
-      const leftGap = left - 2 - containmentRect.left
-      const rightGap = containmentRect.right - right
+      const bottomGap = containmentRect.bottom - bottom - 2 * height - 4
+      const leftGap = left - 4 - containmentRect.left
+      const rightGap = containmentRect.right - right - 32
       scrollbars.scrollTo({
         left: getTargetValue(leftGap, rightGap),
         top: getTargetValue(topGap, bottomGap)
