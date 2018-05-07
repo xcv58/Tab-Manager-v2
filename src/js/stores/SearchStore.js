@@ -30,12 +30,47 @@ export default class SearchStore {
   }
 
   @computed
+  get matchedColumns () {
+    return this.store.windowStore.columns.filter(column => {
+      if (column.matchedTabs.length) {
+        return column
+      }
+      return null
+    })
+  }
+
+  @computed
+  get focusedColIndex () {
+    return this.matchedColumns.findIndex(column =>
+      column.matchedTabs.find(tab => tab.id === this.focusedTab)
+    )
+  }
+
+  @computed
+  get focusedColumn () {
+    if (this.focusedColIndex === -1) {
+      return null
+    }
+    return this.matchedColumns[this.focusedColIndex]
+  }
+
+  @computed
+  get focusedColTabIndex () {
+    if (!this.focusedColumn) {
+      return -1
+    }
+    return this.focusedColumn.matchedTabs.findIndex(
+      tab => tab.id === this.focusedTab
+    )
+  }
+
+  @computed
   get matchedWindows () {
     return this.store.windowStore.windows
       .map(win => {
-        const tabs = win.tabs.filter(x => this.matchedSet.has(x.id))
-        if (tabs.length) {
-          return { ...win, tabs }
+        const { matchedTabs } = win
+        if (matchedTabs.length) {
+          return { ...win, tabs: matchedTabs }
         }
         return null
       })
@@ -174,6 +209,15 @@ export default class SearchStore {
 
   @action right = () => this.jumpToHorizontalTab(1)
 
+  jumpInSameCol = direction => {
+    if (this.jumpOrFocusTab(direction)) {
+      const { matchedTabs } = this.focusedColumn
+      const { length } = matchedTabs
+      this.focusedTab =
+        matchedTabs[(this.focusedColTabIndex + direction + length) % length].id
+    }
+  }
+
   jumpInSameWin = direction => {
     if (this.jumpOrFocusTab(direction)) {
       const { tabs } = this.focusedWindow
@@ -185,11 +229,11 @@ export default class SearchStore {
 
   jumpToHorizontalTab = direction => {
     if (this.jumpOrFocusTab(direction)) {
-      const windows = this.matchedWindows
-      const { length } = windows
-      this.jumpToWin(
-        this.focusedWindow.tabs[this.focusedTabIndex],
-        windows[(this.focusedWinIndex + length + direction) % length]
+      const columns = this.matchedColumns
+      const { length } = columns
+      this.jumpToColumn(
+        this.focusedColumn.getVisibleIndex(this.focusedTab),
+        columns[(this.focusedColIndex + length + direction) % length]
       )
     }
   }
@@ -218,9 +262,13 @@ export default class SearchStore {
     this.focusedTab = win.tabs[target].id
   }
 
-  @action up = () => this.jumpInSameWin(-1)
+  jumpToColumn = (index, column) => {
+    this.focusedTab = column.getTabIdForIndex(index)
+  }
 
-  @action down = () => this.jumpInSameWin(1)
+  @action up = () => this.jumpInSameCol(-1)
+
+  @action down = () => this.jumpInSameCol(1)
 
   @action lastTab = () => this.jumpToTab(-1)
 
