@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Column from 'components/Column'
 import Scrollbars from 'libs/Scrollbars'
+import ReactResizeDetector from 'react-resize-detector'
 
 const View = props => {
   const { style } = props
@@ -24,6 +25,11 @@ export default class Columns extends React.Component {
   scrollbars = React.createRef()
 
   getScrollbars = () => this.scrollbars.current
+
+  onResize = () => {
+    const { height } = this.getScrollbars().getBoundingClientRect()
+    this.props.windowStore.updateHeight(height)
+  }
 
   render () {
     const {
@@ -52,6 +58,11 @@ export default class Columns extends React.Component {
         }}
       >
         {list}
+        <ReactResizeDetector
+          handleHeight
+          refreshMode='throttle'
+          onResize={this.onResize}
+        />
       </Scrollbars>
     )
   }

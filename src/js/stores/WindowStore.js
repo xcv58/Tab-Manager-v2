@@ -41,6 +41,8 @@ export default class WindowsStore {
   @observable initialLoading = true
   @observable lastFocusedWindowId = null
 
+  height = 600
+
   lastCallTime = 0
   updateHandler = null
   batching = false
@@ -235,8 +237,19 @@ export default class WindowsStore {
   }
 
   @action
+  updateHeight (height) {
+    if (this.height !== height) {
+      this.height = height
+      this.updateColumns()
+    }
+  }
+
+  @action
   updateColumns () {
-    const max = this.windows.reduce((acc, cur) => Math.max(acc, cur.length), 15)
+    const max = this.windows.reduce(
+      (acc, cur) => Math.max(acc, cur.length),
+      Math.ceil(this.height / 35)
+    )
     this.columns = this.windows.reduce(
       (acc, cur) => {
         const column = acc[acc.length - 1]
