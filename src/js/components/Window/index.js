@@ -37,7 +37,7 @@ export default class Window extends React.Component {
     const dropIndicator = canDrop && isOver && <Preview />
     const elevation = lastFocused ? 16 : 2
     return connectDropTarget(
-      <div style={style} className='window'>
+      <div style={style}>
         <Paper elevation={elevation}>
           <Title {...this.props} />
           {showTabs && <Tabs {...this.props} />}

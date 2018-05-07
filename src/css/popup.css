@@ -46,14 +46,6 @@ body {
   background: #607d8b;
 }
 
-.scrollbar {
-  display: block;
-  -moz-column-width: 13em;
-  -webkit-column-width: 13em;
-  -moz-column-gap: 1em;
-  -webkit-column-gap: 1em;
-}
-
 /* Below are css code form load awesome */
 
 /*!
