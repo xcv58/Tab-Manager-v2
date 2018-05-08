@@ -177,10 +177,7 @@ export default class WindowsStore {
     this.lastCallTime = time
   }
 
-  @action
-  selectAll = () => {
-    this.store.tabStore.selectAll(this.tabs)
-  }
+  @action selectAll = () => this.store.tabStore.selectAll(this.tabs)
 
   @action
   windowMounted = () => {
@@ -203,16 +200,6 @@ export default class WindowsStore {
       acc[url] = (acc[url] || 0) + 1
       return acc
     }, {})
-  }
-
-  focusLastActiveTab = () => {
-    if (!this.lastFocusedWindow) {
-      return
-    }
-    if (this.store.searchStore.focusedWinIndex !== -1) {
-      return
-    }
-    this.store.searchStore.firstTab()
   }
 
   getTargetWindow = windowId => {
@@ -277,8 +264,6 @@ export default class WindowsStore {
         .filter(notSelfPopup)
         .map(win => new Window(win, this.store))
         .sort(windowComparator)
-
-      // this.focusLastActiveTab()
 
       if (this.initialLoading) {
         this.windowMounted()
