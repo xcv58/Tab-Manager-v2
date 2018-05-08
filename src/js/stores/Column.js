@@ -43,7 +43,7 @@ export default class Column {
   @action
   getTabIdForIndex = index => {
     const delta = []
-    let preHeight = 0
+    let preHeight = 1
     for (let i = 0; i < this.windows.length; i++) {
       const win = this.windows[i]
       for (let j = 0; j < win.matchedTabs.length; j++) {
@@ -57,7 +57,7 @@ export default class Column {
 
   @action
   getVisibleIndex = tabId => {
-    let preHeight = 0
+    let preHeight = 1
     for (let i = 0; i < this.windows.length; i++) {
       const win = this.windows[i]
       for (let j = 0; j < win.matchedTabs.length; j++) {
