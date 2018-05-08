@@ -32,6 +32,16 @@ export default class Column {
     this.windows.push(win)
   }
 
+  clearWindow = () => {
+    for (let index = 0; index < this.windows.length;) {
+      if (this.windows[index].tabs.length === 0) {
+        this.windows.splice(index, 1)
+      } else {
+        index++
+      }
+    }
+  }
+
   @action
   getTabIdForIndex = index => {
     const delta = []

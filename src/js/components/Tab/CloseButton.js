@@ -9,19 +9,26 @@ import { backgroundColor } from 'libs/colors'
 @inject('dragStore')
 @observer
 export default class CloseButton extends React.Component {
+  onClick = () => {
+    const { removing, remove } = this.props.tab
+    if (!removing) {
+      remove()
+    }
+  }
+
   render () {
     const {
       theme,
       faked,
       dragStore: { dragging },
-      tab: { isHovered, remove }
+      tab: { isHovered }
     } = this.props
     if (faked || dragging || !isHovered) {
       return null
     }
     return (
       <IconButton
-        onClick={remove}
+        onClick={this.onClick}
         style={{
           position: 'absolute',
           right: 0,

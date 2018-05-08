@@ -39,6 +39,7 @@ export default class Tab {
   @observable url
   @observable id
   @observable showTab
+  @observable removing = false
 
   @action
   activate = () => {
@@ -66,6 +67,8 @@ export default class Tab {
 
   @action
   remove = () => {
+    this.removing = true
+    this.store.windowStore.removeTabs([this.id])
     chrome.tabs.remove(this.id)
   }
 

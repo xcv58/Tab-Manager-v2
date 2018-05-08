@@ -67,12 +67,21 @@ export default class WindowsStore {
         index++
       }
     }
-    this.updateColumns()
+    this.columns.forEach(x => x.clearWindow())
+    for (let index = 0; index < this.columns.length;) {
+      if (this.columns[index].length === 0) {
+        this.columns.splice(index, 1)
+      } else {
+        index++
+      }
+    }
   }
 
+  @action
   onRemoved = (id, { windowId, isWindowClosing }) => {
     this.removeTabs([id])
     this.store.tabStore.selection.delete(id)
+    this.clearWindow()
   }
 
   @action
