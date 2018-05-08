@@ -60,13 +60,6 @@ export default class WindowsStore {
   }
 
   clearWindow = () => {
-    for (let index = 0; index < this.windows.length;) {
-      if (this.windows[index].tabs.length === 0) {
-        this.windows.splice(index, 1)
-      } else {
-        index++
-      }
-    }
     this.columns.forEach(x => x.clearWindow())
     for (let index = 0; index < this.columns.length;) {
       if (this.columns[index].length === 0) {
@@ -259,7 +252,7 @@ export default class WindowsStore {
       (acc, cur) => Math.max(acc, cur.length),
       Math.ceil(this.height / 35)
     )
-    this.columns = this.windows.reduce(
+    this.columns = this.windows.filter(x => x.length > 0).reduce(
       (acc, cur) => {
         const column = acc[acc.length - 1]
         if (column.length + cur.length <= max) {
