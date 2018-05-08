@@ -1,10 +1,8 @@
 import { action, computed, observable } from 'mobx'
-// import Tab from './Tab'
 
 export default class Column {
   constructor (store, win) {
     this.store = store
-    // this.showTabs = !this.store.windowStore.initialLoading
     if (win) {
       this.windows.push(win)
     }
