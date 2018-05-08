@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.9.0"></a>
+
+# [0.9.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.8.2...v0.9.0) (2018-05-08)
+
+### Features
+
+* Add Masonry view ([#168](https://github.com/xcv58/Tab-Manager-v2/issues/168)) ([175262e](https://github.com/xcv58/Tab-Manager-v2/commit/175262e)), closes [#148](https://github.com/xcv58/Tab-Manager-v2/issues/148)
+
 <a name="0.8.2"></a>
 
 ## [0.8.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.8.1...v0.8.2) (2018-05-07)
