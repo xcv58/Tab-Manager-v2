@@ -8773,6 +8773,15 @@ react-reconciler@^0.7.0:
     object-assign "^4.1.1"
     prop-types "^15.6.0"
 
+react-resize-detector@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-2.3.0.tgz#57bad1ae26a28a62a2ddb678ba6ffdf8fa2b599c"
+  dependencies:
+    lodash.debounce "^4.0.8"
+    lodash.throttle "^4.1.1"
+    prop-types "^15.6.0"
+    resize-observer-polyfill "^1.5.0"
+
 react-scrollbar-size@^2.0.2:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/react-scrollbar-size/-/react-scrollbar-size-2.1.0.tgz#105e797135cab92b1f9e16f00071db7f29f80754"
@@ -9268,6 +9277,10 @@ requires-port@1.0.x, requires-port@1.x.x, requires-port@^1.0.0:
 reselect@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/reselect/-/reselect-3.0.1.tgz#efdaa98ea7451324d092b2b2163a6a1d7a9a2147"
+
+resize-observer-polyfill@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.0.tgz#660ff1d9712a2382baa2cad450a4716209f9ca69"
 
 resolve-cwd@^2.0.0:
   version "2.0.0"

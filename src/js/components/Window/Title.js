@@ -4,6 +4,7 @@ import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from './SelectAll'
 import Sort from './Sort'
+import Divider from 'material-ui/Divider'
 import { getNoun } from 'libs'
 import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
 import { withTheme } from 'material-ui/styles'
@@ -63,6 +64,7 @@ export default class Title extends React.Component {
             <Sort {...this.props} />
           </div>
         </div>
+        <Divider />
         {preview}
       </div>
     )

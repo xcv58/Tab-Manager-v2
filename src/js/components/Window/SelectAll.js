@@ -6,7 +6,7 @@ import Tooltip from 'material-ui/Tooltip'
 @inject('tabStore')
 @observer
 export default class SelectAll extends React.Component {
-  selectAll = e => {
+  onChange = e => {
     e.target.blur()
     const {
       win: { allTabSelected, matchedTabs },
@@ -28,7 +28,7 @@ export default class SelectAll extends React.Component {
           color='primary'
           disabled={disableSelectAll}
           checked={allTabSelected}
-          onChange={this.selectAll}
+          onChange={this.onChange}
           indeterminate={someTabSelected || disableSelectAll}
         />
       </Tooltip>

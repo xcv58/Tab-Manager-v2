@@ -21,26 +21,21 @@ export default class Window extends React.Component {
       isDragging,
       canDrop,
       theme,
-      win: { lastFocused, showTabs },
-      left,
-      right,
-      width
+      win: { lastFocused, showTabs }
     } = this.props
 
     const style = {
-      width,
+      width: '100%',
       minWidth: '20rem',
-      minHeight: 'fit-content',
-      padding: '0 1px 3rem 0',
-      boxSizing: 'border-box',
-      marginLeft: left && 'auto',
-      marginRight: right && 'auto'
+      height: 'fit-content',
+      padding: '2px 2px 2rem 2px',
+      boxSizing: 'border-box'
     }
     if (isDragging && isOver && !canDrop) {
       style.backgroundColor = theme.palette.error.light
     }
     const dropIndicator = canDrop && isOver && <Preview />
-    const elevation = lastFocused ? 4 : 0
+    const elevation = lastFocused ? 16 : 2
     return connectDropTarget(
       <div style={style}>
         <Paper elevation={elevation}>

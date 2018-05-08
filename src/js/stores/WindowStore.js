@@ -9,6 +9,7 @@ import {
 import actions from 'libs/actions'
 import Window from './Window'
 import Tab from './Tab'
+import Column from './Column'
 
 const DEBOUNCE_INTERVAL = 1000
 
@@ -36,8 +37,11 @@ export default class WindowsStore {
   }
 
   @observable windows = []
+  @observable columns = []
   @observable initialLoading = true
   @observable lastFocusedWindowId = null
+
+  height = 600
 
   lastCallTime = 0
   updateHandler = null
@@ -56,18 +60,21 @@ export default class WindowsStore {
   }
 
   clearWindow = () => {
-    for (let index = 0; index < this.windows.length;) {
-      if (this.windows[index].tabs.length === 0) {
-        this.windows.splice(index, 1)
+    this.columns.forEach(x => x.clearWindow())
+    for (let index = 0; index < this.columns.length;) {
+      if (this.columns[index].length === 0) {
+        this.columns.splice(index, 1)
       } else {
         index++
       }
     }
   }
 
+  @action
   onRemoved = (id, { windowId, isWindowClosing }) => {
     this.removeTabs([id])
     this.store.tabStore.selection.delete(id)
+    this.clearWindow()
   }
 
   @action
@@ -99,6 +106,7 @@ export default class WindowsStore {
     } else {
       win.add(new Tab(tab, this.store, win), index)
     }
+    this.updateColumns()
   }
 
   @action
@@ -169,10 +177,7 @@ export default class WindowsStore {
     this.lastCallTime = time
   }
 
-  @action
-  selectAll = () => {
-    this.store.tabStore.selectAll(this.tabs)
-  }
+  @action selectAll = () => this.store.tabStore.selectAll(this.tabs)
 
   @action
   windowMounted = () => {
@@ -195,16 +200,6 @@ export default class WindowsStore {
       acc[url] = (acc[url] || 0) + 1
       return acc
     }, {})
-  }
-
-  focusLastActiveTab = () => {
-    if (!this.lastFocusedWindow) {
-      return
-    }
-    if (this.store.searchStore.focusedWinIndex !== -1) {
-      return
-    }
-    this.store.searchStore.firstTab()
   }
 
   getTargetWindow = windowId => {
@@ -230,6 +225,34 @@ export default class WindowsStore {
     await moveTabs(tabs, windowId, from)
   }
 
+  @action
+  updateHeight (height) {
+    if (this.height !== height) {
+      this.height = height
+      this.updateColumns()
+    }
+  }
+
+  @action
+  updateColumns () {
+    const max = this.windows.reduce(
+      (acc, cur) => Math.max(acc, cur.length),
+      Math.ceil(this.height / 35)
+    )
+    this.columns = this.windows.filter(x => x.length > 0).reduce(
+      (acc, cur) => {
+        const column = acc[acc.length - 1]
+        if (column.length + cur.length <= max) {
+          column.add(cur)
+        } else {
+          acc.push(new Column(this.store, cur))
+        }
+        return acc
+      },
+      [new Column(this.store)]
+    )
+  }
+
   getAllWindows = () => {
     if (this.batching) {
       return
@@ -242,10 +265,10 @@ export default class WindowsStore {
         .map(win => new Window(win, this.store))
         .sort(windowComparator)
 
-      // this.focusLastActiveTab()
-
       if (this.initialLoading) {
         this.windowMounted()
+      } else {
+        this.updateColumns()
       }
       this.initialLoading = false
       this.updateHandler = null

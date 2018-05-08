@@ -43,21 +43,6 @@ describe('Window', () => {
     )
   })
 
-  it('render correct margin based on left & right', () => {
-    let el = shallow(<Window.DecoratedComponent {...props} left />)
-    expect(el.find('div').props().style.marginLeft).toBe('auto')
-    expect(el.find('div').props().style.marginRight).toBeUndefined()
-    el = shallow(<Window.DecoratedComponent {...props} right />)
-    expect(el.find('div').props().style.marginLeft).toBeUndefined()
-    expect(el.find('div').props().style.marginRight).toBe('auto')
-    el = shallow(<Window.DecoratedComponent {...props} left right />)
-    expect(el.find('div').props().style.marginLeft).toBe('auto')
-    expect(el.find('div').props().style.marginRight).toBe('auto')
-    el = shallow(<Window.DecoratedComponent {...props} />)
-    expect(el.find('div').props().style.marginLeft).toBeUndefined()
-    expect(el.find('div').props().style.marginRight).toBeUndefined()
-  })
-
   it('render Preview based on canDrop & isOver', () => {
     let el = shallow(<Window.DecoratedComponent {...props} />)
     expect(el.find(Preview).length).toBe(0)
@@ -71,10 +56,10 @@ describe('Window', () => {
 
   it('render correct elevation based on lastFocused', () => {
     let el = shallow(<Window.DecoratedComponent {...props} />)
-    expect(el.find(Paper).props().elevation).toBe(0)
+    expect(el.find(Paper).props().elevation).toBe(2)
     el = shallow(
       <Window.DecoratedComponent {...props} win={{ lastFocused: true }} />
     )
-    expect(el.find(Paper).props().elevation).toBe(4)
+    expect(el.find(Paper).props().elevation).toBe(16)
   })
 })
