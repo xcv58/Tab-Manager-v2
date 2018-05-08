@@ -65,42 +65,6 @@ export default class SearchStore {
   }
 
   @computed
-  get matchedWindows () {
-    return this.store.windowStore.windows
-      .map(win => {
-        const { matchedTabs } = win
-        if (matchedTabs.length) {
-          return { ...win, tabs: matchedTabs }
-        }
-        return null
-      })
-      .filter(x => x)
-  }
-
-  @computed
-  get focusedWinIndex () {
-    return this.matchedWindows.findIndex(win =>
-      win.tabs.find(tab => tab.id === this.focusedTab)
-    )
-  }
-
-  @computed
-  get focusedWindow () {
-    if (this.focusedWinIndex === -1) {
-      return null
-    }
-    return this.matchedWindows[this.focusedWinIndex]
-  }
-
-  @computed
-  get focusedTabIndex () {
-    if (!this.focusedWindow) {
-      return -1
-    }
-    return this.focusedWindow.tabs.findIndex(tab => tab.id === this.focusedTab)
-  }
-
-  @computed
   get allTabSelected () {
     return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
@@ -218,15 +182,6 @@ export default class SearchStore {
     }
   }
 
-  jumpInSameWin = direction => {
-    if (this.jumpOrFocusTab(direction)) {
-      const { tabs } = this.focusedWindow
-      const { length } = tabs
-      this.focusedTab =
-        tabs[(this.focusedTabIndex + direction + length) % length].id
-    }
-  }
-
   jumpToHorizontalTab = direction => {
     if (this.jumpOrFocusTab(direction)) {
       const columns = this.matchedColumns
@@ -243,9 +198,13 @@ export default class SearchStore {
       this.findFocusedTab()
       return
     }
-    const windows = this.matchedWindows
-    const { length } = windows
-    if (length <= 1 || this.focusedWinIndex < 0 || this.focusedTabIndex < 0) {
+    const columns = this.matchedColumns
+    const { length } = columns
+    if (
+      length <= 1 ||
+      this.focusedColIndex < 0 ||
+      this.focusedColTabIndex < 0
+    ) {
       this.findFocusedTab(direction)
       return
     }
@@ -254,12 +213,6 @@ export default class SearchStore {
       return
     }
     return true
-  }
-
-  jumpToWin = (tab, win) => {
-    const delta = win.tabs.map(t => Math.abs(t.index - tab.index))
-    const target = delta.indexOf(Math.min(...delta))
-    this.focusedTab = win.tabs[target].id
   }
 
   jumpToColumn = (index, column) => {
