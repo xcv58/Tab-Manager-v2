@@ -28,7 +28,7 @@ export default class Window extends React.Component {
       width: '100%',
       minWidth: '20rem',
       height: 'fit-content',
-      padding: '2px 2px 30.5px 2px',
+      padding: '2px 2px 32px 2px',
       boxSizing: 'border-box'
     }
     if (isDragging && isOver && !canDrop) {

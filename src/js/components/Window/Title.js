@@ -59,7 +59,7 @@ export default class Title extends React.Component {
       <div>
         <div style={{ ...style, backgroundColor }}>
           <div onClick={onTitleClick}>{title}</div>
-          <div>
+          <div style={{ lineHeight: '1rem' }}>
             <SelectAll {...this.props} />
             <Sort {...this.props} />
           </div>
