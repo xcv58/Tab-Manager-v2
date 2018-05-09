@@ -7,7 +7,7 @@
     "jest": "jest",
     "build": "node utils/build.js",
     "codecov": "codecov",
-    "coveralls": "cat .coverage/lcov.info | coveralls",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy": "NODE_ENV=production yarn build && yarn zip",
     "release": "standard-version",
     "precommit": "lint-staged",
