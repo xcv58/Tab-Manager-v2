@@ -1,7 +1,7 @@
 import React from 'react'
 import { spy, shallow, expect, describe, it } from 'test'
 import IconButton from 'material-ui/IconButton'
-import Icon from '../Icon'
+import Icon from 'components/Tab/Icon'
 
 const props = {
   tab: { focus: spy(), select: spy(), iconUrl: 'url' }

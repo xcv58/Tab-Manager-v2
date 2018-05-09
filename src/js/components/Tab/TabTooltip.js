@@ -20,11 +20,13 @@ export default class TabTooltip extends React.Component {
     const tooltip = (
       <div
         style={{
+          fontSize: '1rem',
+          lineHeight: '1.2rem',
           userSelect: 'text',
           whiteSpace: 'normal',
           wordBreak: 'break-all',
           wordWrap: 'break-word',
-          maxWidth: '20rem'
+          maxWidth: '90vw'
         }}
       >
         {urlCount > 1 && <p>There is duplicated tab!</p>}
