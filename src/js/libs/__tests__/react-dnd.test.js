@@ -1,5 +1,11 @@
 import { stub, describe, it, expect, spy } from 'test'
-import { tabDropCollect, windowTarget, titleTarget } from 'libs/react-dnd'
+import {
+  tabDropCollect,
+  windowTarget,
+  titleTarget,
+  tabSource,
+  tabTarget
+} from 'libs/react-dnd'
 
 describe('tabDropCollect', () => {
   const dropTarget = stub().returns('dropTarget')
@@ -80,5 +86,53 @@ describe('windowTarget && titleTarget', () => {
     expect(titleTarget.drop(props, monitor)).toBeUndefined()
     expect(dragStore.drop.callCount).toBe(1)
     expect(dragStore.drop.args[0]).toEqual(['a', true])
+  })
+})
+
+describe('tabTarget', () => {
+  it('canDrop return tab.win.canDrop', () => {
+    let props = { tab: { win: { canDrop: true } } }
+    expect(tabTarget.canDrop(props)).toBe(true)
+    props = { tab: { win: { canDrop: false } } }
+    expect(tabTarget.canDrop(props)).toBe(false)
+  })
+
+  it('call drop with tab', () => {
+    const drop = spy()
+    const props = {
+      tab: { id: 1 },
+      dragStore: { drop }
+    }
+    tabTarget.drop(props)
+    expect(drop.callCount).toBe(1)
+    expect(drop.args[0]).toEqual([props.tab])
+  })
+})
+
+describe('tabSource', () => {
+  it('beginDrag call ', () => {
+    const dragStart = spy()
+    const props = {
+      tab: { id: 1 },
+      dragStore: { dragStart }
+    }
+    tabSource.beginDrag(props)
+    expect(dragStart.callCount).toBe(1)
+    expect(dragStart.args[0]).toEqual([props.tab])
+  })
+
+  it('endDrag call props.dragStore.dragEnd', () => {
+    const dragEnd = spy()
+    const props = { dragStore: { dragEnd } }
+    tabSource.endDrag(props)
+    expect(dragEnd.callCount).toBe(1)
+    expect(dragEnd.args[0]).toEqual([])
+  })
+
+  it('isDragging return props.tab.isSelected', () => {
+    let props = { tab: { isSelected: true } }
+    expect(tabSource.isDragging(props)).toBe(true)
+    props = { tab: { isSelected: false } }
+    expect(tabSource.isDragging(props)).toBe(false)
   })
 })

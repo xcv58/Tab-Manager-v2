@@ -2,39 +2,9 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
-import { ItemTypes, tabDropCollect } from 'libs/react-dnd'
+import { ItemTypes, tabDropCollect, tabSource, tabTarget } from 'libs/react-dnd'
 import Preview from 'components/Preview'
 import { withTheme } from 'material-ui/styles'
-
-const tabSource = {
-  beginDrag (props, monitor, component) {
-    const {
-      tab,
-      dragStore: { dragStart }
-    } = props
-    dragStart(tab)
-    return {}
-  },
-  endDrag (props, monitor, component) {
-    props.dragStore.dragEnd()
-  },
-  isDragging (props, monitor) {
-    return props.tab.isSelected
-  }
-}
-
-const tabTarget = {
-  canDrop (props) {
-    return props.tab.win.canDrop
-  },
-  drop (props) {
-    const {
-      tab,
-      dragStore: { drop }
-    } = props
-    drop(tab)
-  }
-}
 
 @withTheme()
 @inject('dragStore')
