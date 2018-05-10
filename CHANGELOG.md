@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.9.2"></a>
+
+## [0.9.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.9.1...v0.9.2) (2018-05-10)
+
+### Bug Fixes
+
+* Batch close tabs cause lag and inconsistent UI ([#171](https://github.com/xcv58/Tab-Manager-v2/issues/171)) ([ca06845](https://github.com/xcv58/Tab-Manager-v2/commit/ca06845))
+* Organize windows based on 1.6 \* height instead of the longest window ([20e70f8](https://github.com/xcv58/Tab-Manager-v2/commit/20e70f8))
+
 <a name="0.9.1"></a>
 
 ## [0.9.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.9.0...v0.9.1) (2018-05-09)
