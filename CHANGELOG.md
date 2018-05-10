@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.9.1"></a>
+
+## [0.9.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.9.0...v0.9.1) (2018-05-09)
+
+### Bug Fixes
+
+* Fix horizontal navigation align issue ([#170](https://github.com/xcv58/Tab-Manager-v2/issues/170)) ([2181819](https://github.com/xcv58/Tab-Manager-v2/commit/2181819))
+
 <a name="0.9.0"></a>
 
 # [0.9.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.8.2...v0.9.0) (2018-05-08)
