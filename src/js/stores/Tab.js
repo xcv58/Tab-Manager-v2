@@ -79,6 +79,9 @@ export default class Tab {
 
   @computed
   get isVisible () {
+    if (this.removing) {
+      return false
+    }
     return this.isMatched || this.store.userStore.showUnmatchedTab
   }
 
