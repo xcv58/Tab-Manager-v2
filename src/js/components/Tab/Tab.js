@@ -126,7 +126,8 @@ export default class Tab extends React.Component {
     if (this.props.faked) {
       return
     }
-    if (this.props.tab.isFocused) {
+    const { isFocused, isVisible } = this.props.tab
+    if (isFocused && isVisible) {
       const scrollbars = this.props.getScrollbars()
       const containmentRect = scrollbars.getBoundingClientRect()
       const {
