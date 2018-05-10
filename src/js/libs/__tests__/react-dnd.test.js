@@ -87,6 +87,25 @@ describe('windowTarget && titleTarget', () => {
     expect(dragStore.drop.callCount).toBe(1)
     expect(dragStore.drop.args[0]).toEqual(['a', true])
   })
+
+  it('drop should do nothing if no tab', () => {
+    const dragStore = { drop: spy() }
+    const props = {
+      win: { tabs: [] },
+      dragStore
+    }
+    const monitor = {
+      didDrop () {
+        return false
+      }
+    }
+    expect(windowTarget.drop(props, monitor)).toBeUndefined()
+    expect(dragStore.drop.callCount).toBe(0)
+
+    dragStore.drop = spy()
+    expect(titleTarget.drop(props, monitor)).toBeUndefined()
+    expect(dragStore.drop.callCount).toBe(0)
+  })
 })
 
 describe('tabTarget', () => {
