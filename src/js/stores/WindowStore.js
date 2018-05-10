@@ -235,10 +235,7 @@ export default class WindowsStore {
 
   @action
   updateColumns () {
-    const max = this.windows.reduce(
-      (acc, cur) => Math.max(acc, cur.length),
-      Math.ceil(this.height / 35)
-    )
+    const max = Math.ceil(this.height / 35 * 1.6)
     this.columns = this.windows.filter(x => x.length > 0).reduce(
       (acc, cur) => {
         const column = acc[acc.length - 1]
