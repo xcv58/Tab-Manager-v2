@@ -39,6 +39,7 @@ export default class ShortcutStore {
     'shift+ctrl+s',
     'ctrl+x',
     'ctrl+d',
+    'ctrl+r',
     'ctrl+g',
     'ctrl+8',
     'ctrl+m',
@@ -82,7 +83,6 @@ export default class ShortcutStore {
     [
       ['r', 'ctrl+r'],
       e => {
-        console.log('r')
         this.store.tabStore.reload()
       },
       'Reload tab'
