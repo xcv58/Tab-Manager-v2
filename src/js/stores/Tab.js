@@ -54,6 +54,11 @@ export default class Tab {
   }
 
   @action
+  reload = () => {
+    chrome.tabs.reload(this.id)
+  }
+
+  @action
   focus = () => {
     this.store.searchStore.focus(this)
   }

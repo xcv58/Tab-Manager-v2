@@ -97,6 +97,21 @@ export default class TabStore {
   }
 
   @action
+  reload = () => {
+    const { focusedTab } = this.store.searchStore
+    const { tabs } = this.store.windowStore
+    let tabsToReload = []
+    if (this.selection.size > 0) {
+      tabsToReload = tabs.filter(x => x.isSelected)
+    } else {
+      if (focusedTab) {
+        tabsToReload = tabs.filter(x => x.isFocused)
+      }
+    }
+    tabsToReload.forEach(x => x.reload())
+  }
+
+  @action
   togglePin = async () => {
     const { focusedTab } = this.store.searchStore
     if (this.selection.size === 0 && focusedTab) {

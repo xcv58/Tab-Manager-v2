@@ -80,6 +80,14 @@ export default class ShortcutStore {
       'Go to tab'
     ],
     [
+      ['r', 'ctrl+r'],
+      e => {
+        console.log('r')
+        this.store.tabStore.reload()
+      },
+      'Reload tab'
+    ],
+    [
       ['p', 'ctrl+p'],
       e => {
         e.preventDefault()
