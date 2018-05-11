@@ -1,8 +1,9 @@
 import React from 'react'
 import { shallow, expect, describe, it } from 'test'
 import IconButton from 'material-ui/IconButton'
+import Checkbox from 'material-ui/Checkbox'
 import Tooltip from 'material-ui/Tooltip'
-import Icon from '../Icon'
+import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 
 const props = {
@@ -15,7 +16,10 @@ const props = {
 
 describe('Icon', () => {
   it('should render correct components', () => {
-    const el = shallow(<Icon {...props} />)
+    let el = shallow(<Icon {...props} />)
+    expect(el.find(Checkbox).length).toBe(1)
+
+    el = shallow(<Icon {...props} tab={{ ...props.tab, isHovered: false }} />)
     expect(el.find(IconButton).length).toBe(1)
     expect(el.find('img').length).toBe(1)
   })
