@@ -9,11 +9,11 @@ import { TOOLTIP_DELAY } from 'libs'
 @observer
 export default class Reload extends React.Component {
   render () {
-    const { reload } = this.props.tabStore
+    const { reload, hasFocusedOrSelectedTab } = this.props.tabStore
     return (
       <Tooltip title='Reload select tab(s)' enterDelay={TOOLTIP_DELAY}>
         <div>
-          <IconButton onClick={reload}>
+          <IconButton onClick={reload} disabled={!hasFocusedOrSelectedTab}>
             <Refresh />
           </IconButton>
         </div>
