@@ -114,7 +114,7 @@ export default class TabStore {
         tabsToReload = tabs.filter(x => x.isFocused)
       }
     }
-    this.unselectAll()
+    // this.unselectAll()
     tabsToReload.forEach(x => x.reload())
   }
 
