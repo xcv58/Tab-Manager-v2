@@ -93,16 +93,6 @@ class SettingsDialog extends React.Component {
             <FormGroup>
               <FormHelperText>Individual Tab</FormHelperText>
               <FormControlLabel
-                label='Show Tab Tooltip'
-                control={
-                  <Switch
-                    color='primary'
-                    checked={showTabTooltip}
-                    onChange={toggleShowTabTooltip}
-                  />
-                }
-              />
-              <FormControlLabel
                 label='Show URL'
                 control={
                   <Switch
@@ -112,10 +102,20 @@ class SettingsDialog extends React.Component {
                   />
                 }
               />
+              <FormControlLabel
+                label='Show Tab Tooltip'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={showTabTooltip}
+                    onChange={toggleShowTabTooltip}
+                  />
+                }
+              />
               <Divider />
             </FormGroup>
             <FormGroup>
-              <FormHelperText>Individual Tab</FormHelperText>
+              <FormHelperText>Others</FormHelperText>
               <FormControlLabel
                 label='Show Shortcut Hint'
                 control={
