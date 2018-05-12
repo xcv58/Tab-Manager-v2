@@ -8,6 +8,7 @@ import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import Tools from 'components/Tools'
 import DragPreview from 'components/DragPreview'
+import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles'
 import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
@@ -84,6 +85,7 @@ export default class App extends React.Component {
             <Toolbar />
             <Shortcut />
             <DragPreview />
+            <SettingsDialog />
           </div>
         </MuiThemeProvider>
       </React.StrictMode>

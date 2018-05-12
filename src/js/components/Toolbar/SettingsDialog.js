@@ -29,7 +29,9 @@ class SettingsDialog extends React.Component {
       showUnmatchedTab,
       toggleShowUnmatchedTab,
       showShortcutHint,
-      toggleShowShortcutHint
+      toggleShowShortcutHint,
+      toolbarAutoHide,
+      toggleAutoHide
     } = this.props.userStore
     return (
       <Dialog
@@ -89,6 +91,16 @@ class SettingsDialog extends React.Component {
                   color='primary'
                   checked={showShortcutHint}
                   onChange={toggleShowShortcutHint}
+                />
+              }
+            />
+            <FormControlLabel
+              label='Always Show Toolbar'
+              control={
+                <Switch
+                  color='primary'
+                  checked={!toolbarAutoHide}
+                  onChange={toggleAutoHide}
                 />
               }
             />
