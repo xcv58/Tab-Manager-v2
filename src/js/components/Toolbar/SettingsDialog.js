@@ -1,8 +1,14 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Dialog, { DialogContent, DialogTitle } from 'material-ui/Dialog'
+import Divider from 'material-ui/Divider'
 import { withStyles } from 'material-ui/styles'
-import { FormGroup, FormControlLabel } from 'material-ui/Form'
+import {
+  FormControl,
+  FormGroup,
+  FormControlLabel,
+  FormHelperText
+} from 'material-ui/Form'
 import Fade from 'material-ui/transitions/Fade'
 import Switch from 'material-ui/Switch'
 
@@ -31,7 +37,9 @@ class SettingsDialog extends React.Component {
       showShortcutHint,
       toggleShowShortcutHint,
       toolbarAutoHide,
-      toggleAutoHide
+      toggleAutoHide,
+      showUrl,
+      toggleShowUrl
     } = this.props.userStore
     return (
       <Dialog
@@ -43,68 +51,93 @@ class SettingsDialog extends React.Component {
       >
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>
-          <FormGroup>
-            <FormControlLabel
-              label='Preserve Search'
-              control={
-                <Switch
-                  color='primary'
-                  checked={preserveSearch}
-                  onChange={togglePreserveSearch}
-                />
-              }
-            />
-            <FormControlLabel
-              label='Highlight Duplicated Tabs'
-              control={
-                <Switch
-                  color='primary'
-                  checked={highlightDuplicatedTab}
-                  onChange={toggleHighlightDuplicatedTab}
-                />
-              }
-            />
-            <FormControlLabel
-              label='Show Tab Tooltip'
-              control={
-                <Switch
-                  color='primary'
-                  checked={showTabTooltip}
-                  onChange={toggleShowTabTooltip}
-                />
-              }
-            />
-            <FormControlLabel
-              label='Show Unmatched Tab'
-              control={
-                <Switch
-                  color='primary'
-                  checked={showUnmatchedTab}
-                  onChange={toggleShowUnmatchedTab}
-                />
-              }
-            />
-            <FormControlLabel
-              label='Show Shortcut Hint'
-              control={
-                <Switch
-                  color='primary'
-                  checked={showShortcutHint}
-                  onChange={toggleShowShortcutHint}
-                />
-              }
-            />
-            <FormControlLabel
-              label='Always Show Toolbar'
-              control={
-                <Switch
-                  color='primary'
-                  checked={!toolbarAutoHide}
-                  onChange={toggleAutoHide}
-                />
-              }
-            />
-          </FormGroup>
+          <FormControl>
+            <FormGroup>
+              <FormHelperText>Search</FormHelperText>
+              <FormControlLabel
+                label='Preserve Search'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={preserveSearch}
+                    onChange={togglePreserveSearch}
+                  />
+                }
+              />
+              <Divider />
+            </FormGroup>
+            <FormGroup>
+              <FormHelperText>Views</FormHelperText>
+              <FormControlLabel
+                label='Highlight Duplicated Tabs'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={highlightDuplicatedTab}
+                    onChange={toggleHighlightDuplicatedTab}
+                  />
+                }
+              />
+              <FormControlLabel
+                label='Show Unmatched Tab'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={showUnmatchedTab}
+                    onChange={toggleShowUnmatchedTab}
+                  />
+                }
+              />
+              <Divider />
+            </FormGroup>
+            <FormGroup>
+              <FormHelperText>Individual Tab</FormHelperText>
+              <FormControlLabel
+                label='Show URL'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={showUrl}
+                    onChange={toggleShowUrl}
+                  />
+                }
+              />
+              <FormControlLabel
+                label='Show Tab Tooltip'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={showTabTooltip}
+                    onChange={toggleShowTabTooltip}
+                  />
+                }
+              />
+              <Divider />
+            </FormGroup>
+            <FormGroup>
+              <FormHelperText>Others</FormHelperText>
+              <FormControlLabel
+                label='Show Shortcut Hint'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={showShortcutHint}
+                    onChange={toggleShowShortcutHint}
+                  />
+                }
+              />
+              <FormControlLabel
+                label='Always Show Toolbar'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={!toolbarAutoHide}
+                    onChange={toggleAutoHide}
+                  />
+                }
+              />
+            </FormGroup>
+          </FormControl>
         </DialogContent>
       </Dialog>
     )
