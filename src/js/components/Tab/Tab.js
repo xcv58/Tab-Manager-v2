@@ -4,9 +4,9 @@ import { match } from 'fuzzy'
 import { withTheme } from 'material-ui/styles'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
 import Icon from 'components/Tab/Icon'
-import Url from 'components/Tab/Url'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
+import TabContent from 'components/Tab/TabContent'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -149,8 +149,7 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { activate, title, pinned, isVisible } = this.props.tab
-    const { showUrl } = this.props.userStore
+    const { pinned, isVisible } = this.props.tab
     if (!isVisible) {
       return null
     }
@@ -167,14 +166,6 @@ export default class Tab extends React.Component {
         }}
       >
         📌
-      </div>
-    )
-    const content = (
-      <div onClick={activate} style={{ flex: 1 }}>
-        {this.getHighlightNode(title)}
-        {showUrl && (
-          <Url {...this.props} getHighlightNode={this.getHighlightNode} />
-        )}
       </div>
     )
     return (
@@ -197,7 +188,9 @@ export default class Tab extends React.Component {
         >
           {pin}
           <Icon {...this.props} />
-          <TabTooltip {...this.props}>{content}</TabTooltip>
+          <TabTooltip {...this.props}>
+            <TabContent {...this.props} />
+          </TabTooltip>
           <TabTools {...this.props} />
         </div>
       </div>

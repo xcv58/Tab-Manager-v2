@@ -1,10 +1,12 @@
 import React from 'react'
+import { observer } from 'mobx-react'
 
 const urlStyle = {
   opacity: 0.3,
   fontSize: '0.7rem'
 }
 
+@observer
 export default class Url extends React.Component {
   getUrlStyle = () =>
     Object.assign(
