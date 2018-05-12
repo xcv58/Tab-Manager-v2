@@ -8,7 +8,6 @@ import Close from './Close'
 import InvertSelect from './InvertSelect'
 import NewWindow from './NewWindow'
 import GroupAndSort from './GroupAndSort'
-import ToolbarSwitch from './ToolbarSwitch'
 import Settings from './Settings'
 import Help from './Help'
 
@@ -22,7 +21,6 @@ export default class Toolbar extends React.Component {
     return (
       <Slide in={toolbarVisible} direction='up' style={{ display: 'flex' }}>
         <div>
-          <ToolbarSwitch />
           <Settings />
           <Help />
           <div
