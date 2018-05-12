@@ -8,7 +8,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { backgroundColor } from 'libs/colors'
 import { withStyles } from 'material-ui/styles'
 
-const style = theme => ({
+const styles = theme => ({
   menu: {
     zIndex: theme.zIndex.tooltip + 1
   }
@@ -16,7 +16,7 @@ const style = theme => ({
 
 const DIVIDER = { divider: true }
 
-@withStyles(style)
+@withStyles(styles)
 @inject('dragStore')
 @observer
 export default class TabMenu extends React.Component {
