@@ -65,19 +65,19 @@ export default class Tab extends React.Component {
     return !faked && !dragging
   }
 
-  hover = () => {
+  onMouseEnter = () => {
     if (this.isActionable()) {
       this.props.tab.hover()
     }
   }
 
-  unhover = () => {
+  onMouseLeave = () => {
     if (this.isActionable()) {
       this.props.tab.unhover()
     }
   }
 
-  componentWillUnmount = this.unhover
+  componentWillUnmount = this.onMouseEnter
 
   getStyle = () => {
     const { highlightDuplicatedTab } = this.props.userStore
@@ -180,9 +180,9 @@ export default class Tab extends React.Component {
     return (
       <div
         ref={this.node}
-        onMouseEnter={this.hover}
-        onMouseOver={this.hover}
-        onMouseLeave={this.unhover}
+        onMouseEnter={this.onMouseEnter}
+        onMouseOver={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
         style={style}
       >
         <div
