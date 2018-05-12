@@ -17,21 +17,11 @@ export default class CloseButton extends React.Component {
   }
 
   render () {
-    const {
-      theme,
-      faked,
-      dragStore: { dragging },
-      tab: { isHovered }
-    } = this.props
-    if (faked || dragging || !isHovered) {
-      return null
-    }
+    const { theme } = this.props
     return (
       <IconButton
         onClick={this.onClick}
         style={{
-          position: 'absolute',
-          right: 0,
           color: theme.palette.secondary.main,
           backgroundColor
         }}

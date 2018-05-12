@@ -6,7 +6,7 @@ import { match } from 'fuzzy'
 import { withTheme } from 'material-ui/styles'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
 import TabTooltip from './TabTooltip'
-import CloseButton from './CloseButton'
+import TabTools from './TabTools'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -198,7 +198,7 @@ export default class Tab extends React.Component {
           {pin}
           <Icon {...this.props} />
           <TabTooltip {...this.props}>{content}</TabTooltip>
-          <CloseButton {...this.props} />
+          <TabTools {...this.props} />
         </div>
       </div>
     )

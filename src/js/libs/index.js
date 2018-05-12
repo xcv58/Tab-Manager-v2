@@ -144,3 +144,13 @@ export const findVisibleTab = (tabs = [], index, delta) => {
   }
   return tab
 }
+
+const urlPattern = /.*:\/\/[^/]*/
+
+export const getDomain = url => {
+  const matches = url.match(urlPattern)
+  if (matches) {
+    return matches[0]
+  }
+  return url
+}

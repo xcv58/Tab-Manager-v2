@@ -1,15 +1,6 @@
 import { action, computed } from 'mobx'
 import { moveTabs, tabComparator } from 'libs'
 
-const urlPattern = /.*:\/\/[^/]*/
-const getDomain = url => {
-  const matches = url.match(urlPattern)
-  if (matches) {
-    return matches[0]
-  }
-  return url
-}
-
 export default class ArrangeStore {
   constructor (store) {
     this.store = store
@@ -18,7 +9,7 @@ export default class ArrangeStore {
   @computed
   get domainTabsMap () {
     return this.store.windowStore.tabs.reduce((acc, tab) => {
-      const domain = getDomain(tab.url)
+      const { domain } = tab
       acc[domain] = acc[domain] || []
       acc[domain].push(tab)
       return acc
@@ -36,6 +27,15 @@ export default class ArrangeStore {
       windows.push(...allWindows)
     }
     await this.sortInWindow(windows)
+  }
+
+  @action
+  groupTab = async tab => {
+    const { domain } = tab
+    const tabs = this.domainTabsMap[domain]
+    const sortedTabs = tabs.sort(tabComparator)
+    const { windowId } = tab
+    await moveTabs(sortedTabs, windowId, 0)
   }
 
   groupTabs = async () => {
