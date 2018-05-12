@@ -99,6 +99,9 @@ export const tabComparator = (a, b) => {
   if (a.pinned ^ b.pinned) {
     return b.pinned ? 1 : -1
   }
+  if (a.domain !== b.domain) {
+    return a.domain.localeCompare(b.domain)
+  }
   if (a.title !== b.title) {
     return a.title.localeCompare(b.title)
   }

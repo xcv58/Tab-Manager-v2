@@ -7,9 +7,9 @@ import {
   isSelfPopup
 } from 'libs'
 import actions from 'libs/actions'
-import Window from './Window'
-import Tab from './Tab'
-import Column from './Column'
+import Window from 'stores/Window'
+import Tab from 'stores/Tab'
+import Column from 'stores/Column'
 
 const DEBOUNCE_INTERVAL = 1000
 

@@ -1,5 +1,6 @@
 import { action, computed } from 'mobx'
 import { moveTabs, tabComparator } from 'libs'
+import Window from 'stores/Window'
 
 export default class ArrangeStore {
   constructor (store) {
@@ -26,7 +27,7 @@ export default class ArrangeStore {
       const allWindows = await chrome.windows.getAll({ populate: true })
       windows.push(...allWindows)
     }
-    await this.sortInWindow(windows)
+    await this.sortInWindow(windows.map(win => new Window(win, this.store)))
   }
 
   @action
@@ -54,7 +55,7 @@ export default class ArrangeStore {
 
   sortInWindow = async (windows = []) => {
     windows.map(win => {
-      const sortedTabs = win.tabs.slice().sort(tabComparator)
+      const sortedTabs = win.tabs.sort(tabComparator)
       const differentTabIndex = sortedTabs
         .map((tab, i) => tab.id !== win.tabs[i].id)
         .findIndex(x => x)
