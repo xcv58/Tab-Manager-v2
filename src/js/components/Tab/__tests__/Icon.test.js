@@ -5,20 +5,14 @@ import IconButton from 'material-ui/IconButton'
 import Icon from 'components/Tab/Icon'
 
 const props = {
-  tab: { focus: spy(), select: spy(), iconUrl: 'url', isHovered: false }
+  tab: { focus: spy(), select: spy(), iconUrl: 'url' }
 }
 
 describe('Icon', () => {
-  it('should render IconButton if not hovered', () => {
-    const el = shallow(<Icon {...props} />)
+  it('should render correct component', () => {
+    const el = shallow(<Icon {...props} />).dive()
     expect(el.find(IconButton).length).toBe(1)
     expect(el.find('img').length).toBe(1)
-  })
-
-  it('should render Checkbox if hovered', () => {
-    const el = shallow(
-      <Icon {...props} tab={{ ...props.tab, isHovered: true }} />
-    )
     expect(el.find(Checkbox).length).toBe(1)
     expect(el.find(Checkbox).props().onChange).toBe(props.tab.select)
   })
