@@ -2,7 +2,6 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Toolbar from './Toolbar'
 import ToolbarIndicator from './ToolbarIndicator'
-import SettingsDialog from './SettingsDialog'
 
 @inject('userStore')
 @observer
@@ -28,7 +27,6 @@ export default class ToolbarWrapper extends React.Component {
       >
         {toolbarVisible && <Toolbar />}
         <ToolbarIndicator />
-        <SettingsDialog />
       </div>
     )
   }
