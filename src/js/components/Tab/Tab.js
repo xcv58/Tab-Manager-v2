@@ -1,12 +1,12 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Icon from './Icon'
-import Url from './Url'
 import { match } from 'fuzzy'
 import { withTheme } from 'material-ui/styles'
 import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
-import TabTooltip from './TabTooltip'
-import TabTools from './TabTools'
+import Icon from 'components/Tab/Icon'
+import Url from 'components/Tab/Url'
+import TabTooltip from 'components/Tab/TabTooltip'
+import TabTools from 'components/Tab/TabTools'
 
 const indicatorWidth = '2px'
 const tabStyle = {
