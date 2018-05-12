@@ -150,6 +150,7 @@ export default class Tab extends React.Component {
 
   render () {
     const { activate, title, pinned, isVisible } = this.props.tab
+    const { showUrl } = this.props.userStore
     if (!isVisible) {
       return null
     }
@@ -171,7 +172,9 @@ export default class Tab extends React.Component {
     const content = (
       <div onClick={activate} style={{ flex: 1 }}>
         {this.getHighlightNode(title)}
-        <Url {...this.props} getHighlightNode={this.getHighlightNode} />
+        {showUrl && (
+          <Url {...this.props} getHighlightNode={this.getHighlightNode} />
+        )}
       </div>
     )
     return (
@@ -188,6 +191,7 @@ export default class Tab extends React.Component {
             flex: '1 1 auto',
             overflow: 'hidden',
             textAlign: 'left',
+            alignItems: 'center',
             textOverflow: 'ellipsis'
           }}
         >

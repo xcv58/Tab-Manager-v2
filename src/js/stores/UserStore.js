@@ -6,7 +6,8 @@ const DEFAULT_SETTINGS = {
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
   showTabTooltip: true,
-  preserveSearch: true
+  preserveSearch: true,
+  showUrl: true
 }
 
 export default class UserStore {
@@ -28,6 +29,7 @@ export default class UserStore {
   @observable highlightDuplicatedTab
   @observable showTabTooltip
   @observable preserveSearch
+  @observable showUrl
 
   @observable dialogOpen = false
 
@@ -84,6 +86,12 @@ export default class UserStore {
   @action
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
+    this.save()
+  }
+
+  @action
+  toggleShowUrl = () => {
+    this.showUrl = !this.showUrl
     this.save()
   }
 
