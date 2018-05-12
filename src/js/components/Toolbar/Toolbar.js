@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-react'
 import { withTheme } from 'material-ui/styles'
 import Slide from 'material-ui/transitions/Slide'
 import SelectAll from './SelectAll'
+import Reload from './Reload'
 import Close from './Close'
 import InvertSelect from './InvertSelect'
 import NewWindow from './NewWindow'
@@ -36,6 +37,7 @@ export default class Toolbar extends React.Component {
           <SelectAll />
           <InvertSelect />
           <NewWindow />
+          <Reload />
           <Close />
         </div>
       </Slide>

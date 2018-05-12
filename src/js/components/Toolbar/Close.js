@@ -11,15 +11,22 @@ import { TOOLTIP_DELAY } from 'libs'
 @observer
 export default class Close extends React.Component {
   render () {
-    const { remove, tabDescription } = this.props.tabStore
+    const {
+      remove,
+      tabDescription,
+      hasFocusedOrSelectedTab
+    } = this.props.tabStore
+    const style = {}
+    if (hasFocusedOrSelectedTab) {
+      style.color = this.props.theme.palette.secondary.main
+    }
     return (
       <Tooltip title={`Close ${tabDescription}`} enterDelay={TOOLTIP_DELAY}>
         <div>
           <IconButton
             onClick={() => remove()}
-            style={{
-              color: this.props.theme.palette.secondary.main
-            }}
+            style={style}
+            disabled={!hasFocusedOrSelectedTab}
           >
             <CloseIcon />
           </IconButton>

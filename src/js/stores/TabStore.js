@@ -20,6 +20,12 @@ export default class TabStore {
     return 'selected tabs'
   }
 
+  @computed
+  get hasFocusedOrSelectedTab () {
+    const { focusedTab } = this.store.searchStore
+    return this.selection.size > 0 || focusedTab !== null
+  }
+
   @action
   select = tab => {
     const { id } = tab
@@ -94,6 +100,22 @@ export default class TabStore {
     }
     this.unselectAll()
     tabsToRemove.forEach(x => x.remove())
+  }
+
+  @action
+  reload = () => {
+    const { focusedTab } = this.store.searchStore
+    const { tabs } = this.store.windowStore
+    let tabsToReload = []
+    if (this.selection.size > 0) {
+      tabsToReload = tabs.filter(x => x.isSelected)
+    } else {
+      if (focusedTab) {
+        tabsToReload = tabs.filter(x => x.isFocused)
+      }
+    }
+    this.unselectAll()
+    tabsToReload.forEach(x => x.reload())
   }
 
   @action
