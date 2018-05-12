@@ -16,10 +16,12 @@ const props = {
 
 describe('Icon', () => {
   it('should render correct components', () => {
-    let el = shallow(<Icon {...props} />)
+    let el = shallow(<Icon {...props} />).dive()
     expect(el.find(Checkbox).length).toBe(1)
 
-    el = shallow(<Icon {...props} tab={{ ...props.tab, isHovered: false }} />)
+    el = shallow(
+      <Icon {...props} tab={{ ...props.tab, isHovered: false }} />
+    ).dive()
     expect(el.find(IconButton).length).toBe(1)
     expect(el.find('img').length).toBe(1)
   })

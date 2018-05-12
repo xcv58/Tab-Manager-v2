@@ -6,10 +6,9 @@ import Divider from 'material-ui/Divider'
 import Popover from 'material-ui/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { backgroundColor } from 'libs/colors'
-import { getNoun } from 'libs'
 import { withStyles } from 'material-ui/styles'
 
-const style = theme => ({
+const styles = theme => ({
   menu: {
     zIndex: theme.zIndex.tooltip + 1
   }
@@ -17,7 +16,7 @@ const style = theme => ({
 
 const DIVIDER = { divider: true }
 
-@withStyles(style)
+@withStyles(styles)
 @inject('dragStore')
 @observer
 export default class TabMenu extends React.Component {
@@ -46,21 +45,7 @@ export default class TabMenu extends React.Component {
       pinned,
       togglePin
     } = this.props.tab
-    const otherDomains = sameDomainTabs.length - 1
-    const options = []
-    if (otherDomains > 0) {
-      options.push(
-        {
-          label: `Group ${otherDomains} same domain ${getNoun(
-            'tab',
-            otherDomains
-          )} to the left/top most`,
-          onClick: groupTab
-        },
-        DIVIDER
-      )
-    }
-    options.push(
+    const options = [
       {
         label: pinned ? 'Unpin Tab' : 'Pin Tab',
         onClick: togglePin
@@ -69,7 +54,15 @@ export default class TabMenu extends React.Component {
         label: 'Remove',
         onClick: remove
       }
-    )
+    ]
+    if (sameDomainTabs.length > 1) {
+      options.push(DIVIDER, {
+        label: `Group ${
+          sameDomainTabs.length
+        } same domain tabs to the left/top most`,
+        onClick: groupTab
+      })
+    }
     return options
   }
 

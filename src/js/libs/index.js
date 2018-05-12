@@ -11,8 +11,8 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   await Promise.all(
     tabs.map(async ({ id, pinned }, i) => {
       const index = from + (from !== -1 ? i : 0)
-      await chrome.tabs.move(id, { windowId, index })
       await chrome.tabs.update(id, { pinned })
+      await chrome.tabs.move(id, { windowId, index })
     })
   )
 }
@@ -99,11 +99,14 @@ export const tabComparator = (a, b) => {
   if (a.pinned ^ b.pinned) {
     return b.pinned ? 1 : -1
   }
-  if (a.url !== b.url) {
-    return a.url.localeCompare(b.url)
+  if (a.domain !== b.domain) {
+    return a.domain.localeCompare(b.domain)
   }
   if (a.title !== b.title) {
     return a.title.localeCompare(b.title)
+  }
+  if (a.url !== b.url) {
+    return a.url.localeCompare(b.url)
   }
   return a.index - b.index
 }
@@ -112,9 +115,9 @@ export const windowComparator = (a, b) => {
   if (a.alwaysOnTop !== b.alwaysOnTop) {
     return b.alwaysOnTop ? 1 : -1
   }
-  if (a.tabs.length !== b.tabs.length) {
-    return a.tabs.length - b.tabs.length
-  }
+  // if (a.tabs.length !== b.tabs.length) {
+  //   return a.tabs.length - b.tabs.length
+  // }
   return a.id - b.id
 }
 
