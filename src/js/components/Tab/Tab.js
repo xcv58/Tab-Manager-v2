@@ -77,7 +77,7 @@ export default class Tab extends React.Component {
     }
   }
 
-  componentWillUnmount = this.onMouseEnter
+  componentWillUnmount = this.onMouseLeave
 
   getStyle = () => {
     const { highlightDuplicatedTab } = this.props.userStore
