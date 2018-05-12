@@ -33,9 +33,10 @@ export default class ArrangeStore {
   groupTab = async tab => {
     const { domain } = tab
     const tabs = this.domainTabsMap[domain]
+    const pinned = tabs.reduce((acc, cur) => acc || cur.pinned, false)
     const sortedTabs = tabs.sort(tabComparator)
     const { windowId } = tab
-    await moveTabs(sortedTabs, windowId, 0)
+    await moveTabs(sortedTabs.map(x => ({ ...x, pinned })), windowId, 0)
   }
 
   groupTabs = async () => {

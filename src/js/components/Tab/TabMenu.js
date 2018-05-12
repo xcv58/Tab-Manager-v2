@@ -6,7 +6,6 @@ import Divider from 'material-ui/Divider'
 import Popover from 'material-ui/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { backgroundColor } from 'libs/colors'
-import { getNoun } from 'libs'
 import { withStyles } from 'material-ui/styles'
 
 const style = theme => ({
@@ -46,15 +45,13 @@ export default class TabMenu extends React.Component {
       pinned,
       togglePin
     } = this.props.tab
-    const otherDomains = sameDomainTabs.length - 1
     const options = []
-    if (otherDomains > 0) {
+    if (sameDomainTabs.length > 1) {
       options.push(
         {
-          label: `Group ${otherDomains} same domain ${getNoun(
-            'tab',
-            otherDomains
-          )} to the left/top most`,
+          label: `Group ${
+            sameDomainTabs.length
+          } same domain tabs to the left/top most`,
           onClick: groupTab
         },
         DIVIDER
