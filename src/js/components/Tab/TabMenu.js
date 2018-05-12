@@ -45,19 +45,7 @@ export default class TabMenu extends React.Component {
       pinned,
       togglePin
     } = this.props.tab
-    const options = []
-    if (sameDomainTabs.length > 1) {
-      options.push(
-        {
-          label: `Group ${
-            sameDomainTabs.length
-          } same domain tabs to the left/top most`,
-          onClick: groupTab
-        },
-        DIVIDER
-      )
-    }
-    options.push(
+    const options = [
       {
         label: pinned ? 'Unpin Tab' : 'Pin Tab',
         onClick: togglePin
@@ -66,7 +54,15 @@ export default class TabMenu extends React.Component {
         label: 'Remove',
         onClick: remove
       }
-    )
+    ]
+    if (sameDomainTabs.length > 1) {
+      options.push(DIVIDER, {
+        label: `Group ${
+          sameDomainTabs.length
+        } same domain tabs to the left/top most`,
+        onClick: groupTab
+      })
+    }
     return options
   }
 
