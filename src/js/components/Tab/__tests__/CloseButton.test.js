@@ -20,19 +20,6 @@ describe('CloseButton', () => {
     expect(el.find(CloseIcon).length).toBe(1)
   })
 
-  it('should render null', () => {
-    let el = shallow(<CloseButton.wrappedComponent {...props} faked />)
-    expect(el.getElement()).toBe(null)
-    el = shallow(
-      <CloseButton.wrappedComponent {...props} dragStore={{ dragging: true }} />
-    )
-    expect(el.getElement()).toBe(null)
-    el = shallow(
-      <CloseButton.wrappedComponent {...props} tab={{ isHovered: false }} />
-    )
-    expect(el.getElement()).toBe(null)
-  })
-
   it('should has onClick', () => {
     const remove = spy()
     props.tab.remove = remove

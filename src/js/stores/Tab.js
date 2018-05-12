@@ -1,4 +1,5 @@
 import { action, computed, observable } from 'mobx'
+import { getDomain, togglePinTabs } from 'libs'
 import bookmarks from 'img/chrome/bookmarks.png'
 import chromeIcon from 'img/chrome/chrome.png'
 import crashes from 'img/chrome/crashes.png'
@@ -74,6 +75,16 @@ export default class Tab {
     chrome.tabs.remove(this.id)
   }
 
+  @action
+  groupTab = () => {
+    this.store.arrangeStore.groupTab(this)
+  }
+
+  @action
+  togglePin = () => {
+    togglePinTabs([this])
+  }
+
   @computed
   get isMatched () {
     return this.store.searchStore.matchedSet.has(this.id)
@@ -85,6 +96,16 @@ export default class Tab {
       return false
     }
     return this.isMatched || this.store.userStore.showUnmatchedTab
+  }
+
+  @computed
+  get domain () {
+    return getDomain(this.url)
+  }
+
+  @computed
+  get sameDomainTabs () {
+    return this.store.arrangeStore.domainTabsMap[this.domain]
   }
 
   @computed
