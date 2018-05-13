@@ -8,15 +8,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* Add refresh button & shortcut to refresh tab ([#178](https://github.com/xcv58/Tab-Manager-v2/issues/178)) ([151f44f](https://github.com/xcv58/Tab-Manager-v2/commit/151f44f))
-* Add show Url option ([#180](https://github.com/xcv58/Tab-Manager-v2/issues/180)) ([7fbb638](https://github.com/xcv58/Tab-Manager-v2/commit/7fbb638))
 * Tune sort by different criteria ([#183](https://github.com/xcv58/Tab-Manager-v2/issues/183)) ([03e51f8](https://github.com/xcv58/Tab-Manager-v2/commit/03e51f8))
 * Turn off transparency when hover toolbar ([#179](https://github.com/xcv58/Tab-Manager-v2/issues/179)) ([8b9fc92](https://github.com/xcv58/Tab-Manager-v2/commit/8b9fc92))
 
 ### Features
 
+* Add refresh button & shortcut to refresh tab ([#178](https://github.com/xcv58/Tab-Manager-v2/issues/178)) ([151f44f](https://github.com/xcv58/Tab-Manager-v2/commit/151f44f))
+* Add show Url option ([#180](https://github.com/xcv58/Tab-Manager-v2/issues/180)) ([7fbb638](https://github.com/xcv58/Tab-Manager-v2/commit/7fbb638))
 * Add close other duplicated tabs in TabMenu ([#184](https://github.com/xcv58/Tab-Manager-v2/issues/184)) ([eedb0f6](https://github.com/xcv58/Tab-Manager-v2/commit/eedb0f6))
-* Add menu for each tab to group tabs of the same domain ([ef706b8](https://github.com/xcv58/Tab-Manager-v2/commit/ef706b8))
 * Add menu for each tab to group tabs of the same domain ([#181](https://github.com/xcv58/Tab-Manager-v2/issues/181)) ([417c9a9](https://github.com/xcv58/Tab-Manager-v2/commit/417c9a9))
 
 <a name="0.9.3"></a>
