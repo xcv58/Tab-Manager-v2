@@ -202,6 +202,12 @@ export default class WindowsStore {
     }, {})
   }
 
+  @action
+  closeDuplicatedTab = tab => {
+    const { id, url } = tab
+    this.tabs.filter(x => x.url === url && x.id !== id).forEach(x => x.remove())
+  }
+
   getTargetWindow = windowId => {
     const win = this.windows.find(win => win.id === windowId)
     if (!win) {

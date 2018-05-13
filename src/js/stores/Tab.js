@@ -69,6 +69,9 @@ export default class Tab {
   @action unhover = () => this.store.hoverStore.unhover()
 
   @action
+  closeDuplicatedTab = () => this.store.windowStore.closeDuplicatedTab(this)
+
+  @action
   remove = () => {
     this.removing = true
     this.store.windowStore.removeTabs([this.id])

@@ -7,6 +7,7 @@ import Popover from 'material-ui/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { backgroundColor } from 'libs/colors'
 import { withStyles } from 'material-ui/styles'
+import { getNoun } from 'libs'
 
 const styles = theme => ({
   menu: {
@@ -43,7 +44,9 @@ export default class TabMenu extends React.Component {
       groupTab,
       sameDomainTabs,
       pinned,
-      togglePin
+      togglePin,
+      urlCount,
+      closeDuplicatedTab
     } = this.props.tab
     const options = [
       {
@@ -57,10 +60,17 @@ export default class TabMenu extends React.Component {
     ]
     if (sameDomainTabs.length > 1) {
       options.push(DIVIDER, {
-        label: `Group ${
-          sameDomainTabs.length
-        } same domain tabs to the left/top most`,
+        label: `Group ${sameDomainTabs.length} same domain tabs to this window`,
         onClick: groupTab
+      })
+    }
+    if (urlCount > 1) {
+      options.push(DIVIDER, {
+        label: `Close other ${urlCount - 1} duplicated ${getNoun(
+          'tab',
+          urlCount - 1
+        )}`,
+        onClick: closeDuplicatedTab
       })
     }
     return options

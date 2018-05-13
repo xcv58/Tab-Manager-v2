@@ -1,12 +1,11 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { match } from 'fuzzy'
 import { withTheme } from 'material-ui/styles'
-import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
+import { focusedColor, highlightColor } from 'libs/colors'
 import Icon from 'components/Tab/Icon'
-import Url from 'components/Tab/Url'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
+import TabContent from 'components/Tab/TabContent'
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -29,8 +28,6 @@ const selectedStyle = {
 const notMatchStyle = {
   opacity: 0.3
 }
-const pre = `<span style='color:${highlightBorderColor}'>`
-const post = '</span>'
 
 const getTargetValue = (lValue, rValue) => {
   if (lValue < 0) {
@@ -108,20 +105,6 @@ export default class Tab extends React.Component {
     )
   }
 
-  getHighlightNode = text => {
-    const {
-      tab: { isMatched, query }
-    } = this.props
-    if (!isMatched || !query) {
-      return text
-    }
-    const result = match(query, text, { pre, post })
-    if (!result) {
-      return <div>{text}</div>
-    }
-    return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
-  }
-
   componentDidUpdate () {
     if (this.props.faked) {
       return
@@ -149,8 +132,7 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { activate, title, pinned, isVisible } = this.props.tab
-    const { showUrl } = this.props.userStore
+    const { pinned, isVisible } = this.props.tab
     if (!isVisible) {
       return null
     }
@@ -167,14 +149,6 @@ export default class Tab extends React.Component {
         }}
       >
         📌
-      </div>
-    )
-    const content = (
-      <div onClick={activate} style={{ flex: 1 }}>
-        {this.getHighlightNode(title)}
-        {showUrl && (
-          <Url {...this.props} getHighlightNode={this.getHighlightNode} />
-        )}
       </div>
     )
     return (
@@ -197,7 +171,9 @@ export default class Tab extends React.Component {
         >
           {pin}
           <Icon {...this.props} />
-          <TabTooltip {...this.props}>{content}</TabTooltip>
+          <TabTooltip {...this.props}>
+            <TabContent {...this.props} />
+          </TabTooltip>
           <TabTools {...this.props} />
         </div>
       </div>
