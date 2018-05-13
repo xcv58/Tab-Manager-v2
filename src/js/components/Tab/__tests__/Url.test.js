@@ -4,7 +4,8 @@ import Url from 'components/Tab/Url'
 
 const getHighlightNode = spy()
 const props = {
-  tab: { url: 'url', shouldHighlight: false },
+  tab: { url: 'url' },
+  className: 'className',
   getHighlightNode
 }
 
@@ -12,21 +13,7 @@ describe('Url', () => {
   it('render correct components', () => {
     const el = shallow(<Url {...props} />)
     expect(el.find('div').length).toBe(1)
-  })
-
-  it('render correct style based on shouldHighlight', () => {
-    let el = shallow(<Url {...props} />)
-    expect(el.find('div').props().style).toEqual({
-      opacity: 0.3,
-      fontSize: '0.7rem'
-    })
-    el = shallow(
-      <Url {...props} tab={{ ...props.tab, shouldHighlight: true }} />
-    )
-    expect(el.find('div').props().style).toEqual({
-      opacity: 1,
-      fontSize: '0.7rem'
-    })
+    expect(el.find('div').props().className).toBe(props.className)
   })
 
   it('render getHighlightNode(url) as children', () => {
