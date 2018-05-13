@@ -7,20 +7,26 @@ import Sort from './Sort'
 import Divider from 'material-ui/Divider'
 import { getNoun } from 'libs'
 import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
-import { withTheme } from 'material-ui/styles'
+import { withStyles } from 'material-ui/styles'
+import classNames from 'classnames'
 
-const style = {
-  display: 'flex',
-  paddingLeft: '0.5rem',
-  paddingRight: 4,
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  fontSize: '1.5rem',
-  fontWeight: 'bold',
-  lineHeight: '2.5rem'
-}
+const styles = theme => ({
+  root: {
+    display: 'flex',
+    paddingLeft: '0.5rem',
+    paddingRight: 4,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    lineHeight: '2.5rem'
+  },
+  error: {
+    backgroundColor: theme.palette.error.light
+  }
+})
 
-@withTheme()
+@withStyles(styles)
 @inject('userStore')
 @inject('dragStore')
 @DropTarget(ItemTypes.TAB, titleTarget, tabDropCollect)
@@ -28,11 +34,11 @@ const style = {
 export default class Title extends React.Component {
   render () {
     const {
+      classes,
       connectDropTarget,
       isOver,
       canDrop,
       isDragging,
-      theme,
       win: { tabs, onTitleClick, invisibleTabs }
     } = this.props
     const { length } = tabs
@@ -50,14 +56,14 @@ export default class Title extends React.Component {
         {text} {invisibleIndicator}
       </span>
     )
-    let backgroundColor = 'unset'
+    let className = classes.root
     if (isDragging && isOver && !canDrop) {
-      backgroundColor = theme.palette.error.light
+      className = classNames(className, classes.error)
     }
     const preview = canDrop && isOver && <Preview />
     return connectDropTarget(
       <div>
-        <div style={{ ...style, backgroundColor }}>
+        <div className={className}>
           <div onClick={onTitleClick}>{title}</div>
           <div style={{ lineHeight: '1rem' }}>
             <SelectAll {...this.props} />
