@@ -2,9 +2,10 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
 import Preview from 'components/Preview'
-import SelectAll from './SelectAll'
-import Sort from './Sort'
+import SelectAll from 'components/Window/SelectAll'
+import Sort from 'components/Window/Sort'
 import Divider from 'material-ui/Divider'
+import ButtonBase from 'material-ui/ButtonBase'
 import { getNoun } from 'libs'
 import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
 import { withStyles } from 'material-ui/styles'
@@ -23,6 +24,12 @@ const styles = theme => ({
   },
   error: {
     backgroundColor: theme.palette.error.light
+  },
+  title: {
+    flex: 1
+  },
+  tools: {
+    lineHeight: '1rem'
   }
 })
 
@@ -64,8 +71,15 @@ export default class Title extends React.Component {
     return connectDropTarget(
       <div>
         <div className={className}>
-          <div onClick={onTitleClick}>{title}</div>
-          <div style={{ lineHeight: '1rem' }}>
+          <ButtonBase
+            focusRipple
+            component='div'
+            className={classes.title}
+            onClick={onTitleClick}
+          >
+            {title}
+          </ButtonBase>
+          <div className={classes.tools}>
             <SelectAll {...this.props} />
             <Sort {...this.props} />
           </div>
