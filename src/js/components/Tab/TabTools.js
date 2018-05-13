@@ -19,8 +19,9 @@ export default class TabTools extends React.Component {
       <div
         style={{
           display: 'flex',
-          position: 'absolute',
-          right: 0
+          justifySelf: 'flex-end'
+          // position: 'absolute',
+          // right: 0
         }}
       >
         <TabMenu {...this.props} />
