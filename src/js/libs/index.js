@@ -35,8 +35,16 @@ export const activateTab = async id => {
 }
 
 export const togglePinTabs = async tabs => {
+  const sortTabs = (tabs || []).sort((a, b) => {
+    if (a.windowId !== b.windowId) {
+      return 0
+    }
+    return a.index - b.index
+  })
+  const pinnedTabs = sortTabs.filter(x => x.pinned).reverse()
+  const unpinnedTabs = sortTabs.filter(x => !x.pinned)
   await Promise.all(
-    (tabs || []).map(async ({ id, pinned }) => {
+    [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
       await chrome.tabs.update(id, { pinned: !pinned })
     })
   )
