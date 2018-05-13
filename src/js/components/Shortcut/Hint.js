@@ -14,7 +14,7 @@ export default class Hint extends React.Component {
           vertical: 'bottom',
           horizontal: 'center'
         }}
-        transition={Fade}
+        TransitionComponent={Fade}
         open={toastOpen}
         message={combo}
       />
