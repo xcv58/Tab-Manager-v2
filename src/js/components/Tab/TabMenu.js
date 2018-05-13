@@ -60,9 +60,7 @@ export default class TabMenu extends React.Component {
     ]
     if (sameDomainTabs.length > 1) {
       options.push(DIVIDER, {
-        label: `Group ${
-          sameDomainTabs.length
-        } same domain tabs to the left/top most`,
+        label: `Group ${sameDomainTabs.length} same domain tabs to this window`,
         onClick: groupTab
       })
     }
