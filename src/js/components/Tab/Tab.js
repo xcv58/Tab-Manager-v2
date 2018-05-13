@@ -1,8 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { match } from 'fuzzy'
 import { withTheme } from 'material-ui/styles'
-import { focusedColor, highlightColor, highlightBorderColor } from 'libs/colors'
+import { focusedColor, highlightColor } from 'libs/colors'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
@@ -29,8 +28,6 @@ const selectedStyle = {
 const notMatchStyle = {
   opacity: 0.3
 }
-const pre = `<span style='color:${highlightBorderColor}'>`
-const post = '</span>'
 
 const getTargetValue = (lValue, rValue) => {
   if (lValue < 0) {
@@ -106,20 +103,6 @@ export default class Tab extends React.Component {
       },
       this.props.style
     )
-  }
-
-  getHighlightNode = text => {
-    const {
-      tab: { isMatched, query }
-    } = this.props
-    if (!isMatched || !query) {
-      return text
-    }
-    const result = match(query, text, { pre, post })
-    if (!result) {
-      return <div>{text}</div>
-    }
-    return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
   }
 
   componentDidUpdate () {

@@ -118,14 +118,14 @@ export default class SearchStore {
   @action clear = () => this.search('', 0)
 
   fuzzySearch = () => {
-    const tabs = this.store.windowStore.tabs
+    const { tabs } = this.store.windowStore
     if (!this.query) {
       return tabs
     }
-    const set = new Set([
-      ...this.getMatchedIds(tabs, 'title'),
-      ...this.getMatchedIds(tabs, 'url')
-    ])
+    const set = new Set(this.getMatchedIds(tabs, 'title'))
+    if (this.store.userStore.showUrl) {
+      this.getMatchedIds(tabs, 'url').forEach(x => set.add(x))
+    }
     return tabs.filter(x => set.has(x.id))
   }
 
