@@ -202,10 +202,31 @@ export default class WindowsStore {
     }, {})
   }
 
+  @computed
+  get duplicatedTabs () {
+    return this.tabs.filter(tab => this.urlCountMap[tab.url] > 1)
+  }
+
   @action
   closeDuplicatedTab = tab => {
     const { id, url } = tab
     this.tabs.filter(x => x.url === url && x.id !== id).forEach(x => x.remove())
+  }
+
+  @action
+  cleanDuplicatedTabs = () => {
+    const tabMap = this.duplicatedTabs.reduce((acc, tab) => {
+      const { url } = tab
+      if (acc[url]) {
+        acc[url].push(tab)
+      } else {
+        acc[url] = [tab]
+      }
+      return acc
+    }, {})
+    Object.values(tabMap).map(tabs => {
+      tabs.slice(1).forEach(x => x.remove())
+    })
   }
 
   getTargetWindow = windowId => {
