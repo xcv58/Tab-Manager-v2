@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.11.0"></a>
+
+# [0.11.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.10.0...v0.11.0) (2018-05-14)
+
+### Bug Fixes
+
+* Add Ripple effect for Tab & Window Title ([#186](https://github.com/xcv58/Tab-Manager-v2/issues/186)) ([e010870](https://github.com/xcv58/Tab-Manager-v2/commit/e010870))
+* Toggle pin will keep the order of tabs ([ca194fa](https://github.com/xcv58/Tab-Manager-v2/commit/ca194fa))
+
+### Features
+
+* Add Auto Focus Search Box option ([#188](https://github.com/xcv58/Tab-Manager-v2/issues/188)) ([cac74f6](https://github.com/xcv58/Tab-Manager-v2/commit/cac74f6))
+
 <a name="0.10.0"></a>
 
 # [0.10.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.9.3...v0.10.0) (2018-05-13)
