@@ -245,7 +245,7 @@ export default class WindowsStore {
     this.columns = this.windows.filter(x => x.length > 0).reduce(
       (acc, cur) => {
         const column = acc[acc.length - 1]
-        if (column.length + cur.length <= max) {
+        if (column.length === 0 || column.length + cur.length <= max) {
           column.add(cur)
         } else {
           acc.push(new Column(this.store, cur))
