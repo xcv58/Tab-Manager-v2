@@ -39,7 +39,9 @@ class SettingsDialog extends React.Component {
       toolbarAutoHide,
       toggleAutoHide,
       showUrl,
-      toggleShowUrl
+      toggleShowUrl,
+      autoFocusSearch,
+      toggleAutoFocusSearch
     } = this.props.userStore
     return (
       <Dialog
@@ -61,6 +63,16 @@ class SettingsDialog extends React.Component {
                     color='primary'
                     checked={preserveSearch}
                     onChange={togglePreserveSearch}
+                  />
+                }
+              />
+              <FormControlLabel
+                label='Auto Focus Search Box'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={autoFocusSearch}
+                    onChange={toggleAutoFocusSearch}
                   />
                 }
               />
