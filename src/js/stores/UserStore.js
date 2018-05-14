@@ -7,7 +7,8 @@ const DEFAULT_SETTINGS = {
   highlightDuplicatedTab: true,
   showTabTooltip: true,
   preserveSearch: true,
-  showUrl: true
+  showUrl: true,
+  autoFocusSearch: false
 }
 
 export default class UserStore {
@@ -30,6 +31,7 @@ export default class UserStore {
   @observable showTabTooltip
   @observable preserveSearch
   @observable showUrl
+  @observable autoFocusSearch
 
   @observable dialogOpen = false
 
@@ -86,6 +88,12 @@ export default class UserStore {
   @action
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
+    this.save()
+  }
+
+  @action
+  toggleAutoFocusSearch = () => {
+    this.autoFocusSearch = !this.autoFocusSearch
     this.save()
   }
 

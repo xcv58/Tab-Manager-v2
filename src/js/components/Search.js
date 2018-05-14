@@ -2,6 +2,7 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Input from 'material-ui/Input'
 
+@inject('userStore')
 @inject('searchStore')
 @observer
 export default class Search extends React.Component {
@@ -24,11 +25,13 @@ export default class Search extends React.Component {
   render () {
     const {
       inputRef,
-      searchStore: { query }
+      searchStore: { query },
+      userStore: { autoFocusSearch }
     } = this.props
     return (
       <Input
         fullWidth
+        autoFocus={autoFocusSearch}
         inputProps={{ ref: inputRef }}
         placeholder='Search your tab title...'
         onChange={this.onChange}
