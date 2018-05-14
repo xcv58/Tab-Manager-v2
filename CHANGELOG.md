@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.11.1"></a>
+
+## [0.11.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.11.0...v0.11.1) (2018-05-14)
+
+### Bug Fixes
+
+* Show empty column if the first window is too large ([2251ced](https://github.com/xcv58/Tab-Manager-v2/commit/2251ced))
+
 <a name="0.11.0"></a>
 
 # [0.11.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.10.0...v0.11.0) (2018-05-14)
