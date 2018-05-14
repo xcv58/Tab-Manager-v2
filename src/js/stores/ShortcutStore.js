@@ -74,6 +74,14 @@ export default class ShortcutStore {
       'Close tab'
     ],
     [
+      ['* c', 'ctrl+shift+c'],
+      e => {
+        e.preventDefault()
+        this.store.windowStore.cleanDuplicatedTabs()
+      },
+      'Clean duplicated tabs'
+    ],
+    [
       ['enter', 'ctrl+enter'],
       e => {
         this.store.searchStore.enter()

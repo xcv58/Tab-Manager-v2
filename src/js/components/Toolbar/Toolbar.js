@@ -1,42 +1,37 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { withTheme } from 'material-ui/styles'
 import Slide from 'material-ui/transitions/Slide'
-import SelectAll from './SelectAll'
-import Reload from './Reload'
-import Close from './Close'
-import InvertSelect from './InvertSelect'
-import NewWindow from './NewWindow'
-import GroupAndSort from './GroupAndSort'
-import Settings from './Settings'
-import Help from './Help'
+import SelectAll from 'components/Toolbar/SelectAll'
+import Reload from 'components/Toolbar/Reload'
+import Close from 'components/Toolbar/Close'
+import InvertSelect from 'components/Toolbar/InvertSelect'
+import NewWindow from 'components/Toolbar/NewWindow'
+import GroupAndSort from 'components/Toolbar/GroupAndSort'
+import Settings from 'components/Toolbar/Settings'
+import Help from 'components/Toolbar/Help'
+import RemoveDuplicated from 'components/Toolbar/RemoveDuplicated'
+import VerticalDivider from 'components/Toolbar/VerticalDivider'
 
-@withTheme()
 @inject('userStore')
 @observer
 export default class Toolbar extends React.Component {
   render () {
-    const { theme } = this.props
     const { toolbarVisible } = this.props.userStore
     return (
       <Slide in={toolbarVisible} direction='up' style={{ display: 'flex' }}>
         <div>
           <Settings />
           <Help />
-          <div
-            style={{
-              margin: `0 ${theme.spacing.unit}px`,
-              backgroundColor: theme.palette.divider,
-              height: '89%',
-              width: 1
-            }}
-          />
+          <VerticalDivider />
           <GroupAndSort />
           <SelectAll />
           <InvertSelect />
           <NewWindow />
+          <VerticalDivider />
           <Reload />
+          <RemoveDuplicated />
           <Close />
+          <VerticalDivider />
         </div>
       </Slide>
     )
