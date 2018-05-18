@@ -1,14 +1,10 @@
 {
   "name": "Tab Manager v2",
   "background": {
-    "scripts": [ "background.js" ],
+    "scripts": ["background.js"],
     "persistent": false
   },
-  "permissions": [
-    "management",
-    "storage",
-    "tabs"
-  ],
+  "permissions": ["management", "storage", "tabs"],
   "browser_action": {
     "default_popup": "popup.html",
     "default_title": "Tab Manager v2",
@@ -48,10 +44,10 @@
     "48": "icon-48.png",
     "128": "icon-128.png"
   },
-  "web_accessible_resources": [
-    "*.css"
-  ],
+  "web_accessible_resources": ["*.css"],
   "manifest_version": 2,
   "minimum_chrome_version": "60.0.3112",
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "offline_enabled": true,
+  "content_security_policy":
+    "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
