@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.13.0"></a>
+
+# [0.13.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.12.0...v0.13.0) (2018-05-18)
+
+### Features
+
+* Enable offline support ([76fe4cb](https://github.com/xcv58/Tab-Manager-v2/commit/76fe4cb))
+
 <a name="0.12.0"></a>
 
 # [0.12.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.11.1...v0.12.0) (2018-05-14)
