@@ -15,4 +15,4 @@ const init = () =>
     window.document.getElementById('app-container')
   )
 
-setTimeout(init, 50)
+init()

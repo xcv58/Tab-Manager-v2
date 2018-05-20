@@ -22,6 +22,7 @@
     "build-storybook": "build-storybook -c .storybook -o .out"
   },
   "dependencies": {
+    "@material-ui/core": "^1.0.0",
     "@material-ui/icons": "^1.0.0-beta.43",
     "chrome-extension-async": "^3.2.4",
     "fuzzy": "^0.1.3",
