@@ -1,7 +1,7 @@
 import React from 'react'
 import { spy, shallow, expect, describe, it } from 'test'
-import Tooltip from 'material-ui/Tooltip'
-import Checkbox from 'material-ui/Checkbox'
+import Tooltip from '@material-ui/core/Tooltip'
+import Checkbox from '@material-ui/core/Checkbox'
 import SelectAll from 'components/Window/SelectAll'
 
 const id = 'id'

@@ -4,7 +4,7 @@ import { DragSource, DropTarget } from 'react-dnd'
 import Tab from './Tab'
 import { ItemTypes, tabDropCollect, tabSource, tabTarget } from 'libs/react-dnd'
 import Preview from 'components/Preview'
-import { withTheme } from 'material-ui/styles'
+import { withTheme } from '@material-ui/core/styles'
 
 @withTheme()
 @inject('dragStore')

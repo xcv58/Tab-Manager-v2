@@ -1,5 +1,5 @@
 import React from 'react'
-import { TableCell } from 'material-ui/Table'
+import TableCell from '@material-ui/core/TableCell'
 
 export default ({ keys }) => {
   let content = keys

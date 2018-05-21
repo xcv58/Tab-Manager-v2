@@ -1,7 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
-import Paper from 'material-ui/Paper'
+import Paper from '@material-ui/core/Paper'
 import Preview from 'components/Preview'
 import Search from 'components/Search'
 import Summary from 'components/Summary'

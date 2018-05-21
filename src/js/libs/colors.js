@@ -1,4 +1,6 @@
-import { blue, green, pink } from 'material-ui/colors'
+import blue from '@material-ui/core/colors/blue'
+import green from '@material-ui/core/colors/green'
+import pink from '@material-ui/core/colors/pink'
 
 export const dropTargetColor = green[100]
 export const droppedColor = green[300]

@@ -1,12 +1,12 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { DropTarget } from 'react-dnd'
-import Paper from 'material-ui/Paper'
+import Paper from '@material-ui/core/Paper'
 import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
 import { ItemTypes, tabDropCollect, windowTarget } from 'libs/react-dnd'
-import { withTheme } from 'material-ui/styles'
+import { withTheme } from '@material-ui/core/styles'
 
 @withTheme()
 @inject('windowStore')

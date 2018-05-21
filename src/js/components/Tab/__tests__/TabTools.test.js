@@ -1,6 +1,6 @@
 import React from 'react'
 import { shallow, expect, describe, it } from 'test'
-import { createMuiTheme } from 'material-ui/styles'
+import { createMuiTheme } from '@material-ui/core/styles'
 import TabTools from 'components/Tab/TabTools'
 import CloseButton from 'components/Tab/CloseButton'
 import TabMenu from 'components/Tab/TabMenu'

@@ -1,9 +1,9 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Tooltip from 'material-ui/Tooltip'
+import Tooltip from '@material-ui/core/Tooltip'
 import CloseIcon from '@material-ui/icons/Close'
-import IconButton from 'material-ui/IconButton'
-import { withTheme } from 'material-ui/styles'
+import IconButton from '@material-ui/core/IconButton'
+import { withTheme } from '@material-ui/core/styles'
 import { TOOLTIP_DELAY } from 'libs'
 
 @withTheme()

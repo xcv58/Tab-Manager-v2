@@ -1,16 +1,16 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Dialog, { DialogContent, DialogTitle } from 'material-ui/Dialog'
-import Divider from 'material-ui/Divider'
-import { withStyles } from 'material-ui/styles'
-import {
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  FormHelperText
-} from 'material-ui/Form'
-import Fade from 'material-ui/transitions/Fade'
-import Switch from 'material-ui/Switch'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import Divider from '@material-ui/core/Divider'
+import FormControl from '@material-ui/core/FormControl'
+import FormGroup from '@material-ui/core/FormGroup'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import FormHelperText from '@material-ui/core/FormHelperText'
+import Fade from '@material-ui/core/Fade'
+import Switch from '@material-ui/core/Switch'
+import { withStyles } from '@material-ui/core/styles'
 
 export const styles = theme => ({
   paper: {

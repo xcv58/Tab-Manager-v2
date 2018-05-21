@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Input from 'material-ui/Input'
+import Input from '@material-ui/core/Input'
 
 @inject('userStore')
 @inject('searchStore')

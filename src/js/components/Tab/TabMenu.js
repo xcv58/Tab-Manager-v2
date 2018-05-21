@@ -1,12 +1,12 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import IconButton from 'material-ui/IconButton'
-import { MenuItem } from 'material-ui/Menu'
-import Divider from 'material-ui/Divider'
-import Popover from 'material-ui/Popover'
+import IconButton from '@material-ui/core/IconButton'
+import MenuItem from '@material-ui/core/MenuItem'
+import Divider from '@material-ui/core/Divider'
+import Popover from '@material-ui/core/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { backgroundColor } from 'libs/colors'
-import { withStyles } from 'material-ui/styles'
+import { withStyles } from '@material-ui/core/styles'
 import { getNoun } from 'libs'
 
 const styles = theme => ({

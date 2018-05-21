@@ -1,8 +1,8 @@
 import React from 'react'
 import { spy, shallow, expect, describe, it } from 'test'
 import CloseIcon from '@material-ui/icons/Close'
-import IconButton from 'material-ui/IconButton'
-import { createMuiTheme } from 'material-ui/styles'
+import IconButton from '@material-ui/core/IconButton'
+import { createMuiTheme } from '@material-ui/core/styles'
 import CloseButton from 'components/Tab/CloseButton'
 
 const theme = createMuiTheme()

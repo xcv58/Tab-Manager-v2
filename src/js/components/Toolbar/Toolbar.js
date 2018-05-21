@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Slide from 'material-ui/transitions/Slide'
+import Slide from '@material-ui/core/Slide'
 import SelectAll from 'components/Toolbar/SelectAll'
 import Reload from 'components/Toolbar/Reload'
 import Close from 'components/Toolbar/Close'

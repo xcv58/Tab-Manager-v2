@@ -1,6 +1,10 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Table, { TableBody, TableCell, TableRow } from 'material-ui/Table'
+import Table from '@material-ui/core/Table'
+import TableHead from '@material-ui/core/TableHead'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@material-ui/core/TableRow'
 import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
 
@@ -19,6 +23,12 @@ export default class Help extends React.Component {
     ))
     return (
       <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Hotkeys</TableCell>
+            <TableCell>Action</TableCell>
+          </TableRow>
+        </TableHead>
         <TableBody>{content}</TableBody>
       </Table>
     )
