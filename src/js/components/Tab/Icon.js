@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import Checkbox from 'material-ui/Checkbox'
-import IconButton from 'material-ui/IconButton'
-import { withStyles } from 'material-ui/styles'
+import Checkbox from '@material-ui/core/Checkbox'
+import IconButton from '@material-ui/core/IconButton'
+import { withStyles } from '@material-ui/core/styles'
 
 const buttonWidth = '2.5rem'
 const iconWidth = '1.5rem'

@@ -3,7 +3,7 @@ import { connectDropTarget, spy, shallow, it, describe, expect } from 'test'
 import Column from 'components/Column'
 import FlipMove from 'react-flip-move'
 import Window from 'components/Window'
-import { createMuiTheme } from 'material-ui/styles'
+import { createMuiTheme } from '@material-ui/core/styles'
 
 const theme = createMuiTheme()
 const windows = [{ id: 1 }, { id: 2 }]

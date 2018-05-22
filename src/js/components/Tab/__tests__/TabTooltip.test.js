@@ -1,8 +1,8 @@
 import React from 'react'
 import { shallow, expect, describe, it } from 'test'
-import IconButton from 'material-ui/IconButton'
-import Checkbox from 'material-ui/Checkbox'
-import Tooltip from 'material-ui/Tooltip'
+import IconButton from '@material-ui/core/IconButton'
+import Checkbox from '@material-ui/core/Checkbox'
+import Tooltip from '@material-ui/core/Tooltip'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 

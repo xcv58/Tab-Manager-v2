@@ -1,6 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { withTheme } from 'material-ui/styles'
+import { withTheme } from '@material-ui/core/styles'
 import { focusedColor, highlightColor } from 'libs/colors'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'

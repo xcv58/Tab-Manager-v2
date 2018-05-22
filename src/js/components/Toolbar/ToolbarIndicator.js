@@ -1,10 +1,10 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Fade from 'material-ui/transitions/Fade'
-import Slide from 'material-ui/transitions/Slide'
+import Fade from '@material-ui/core/Fade'
+import Slide from '@material-ui/core/Slide'
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import IconButton from 'material-ui/IconButton'
+import IconButton from '@material-ui/core/IconButton'
 
 const IndicatorIcon = ({ toolbarVisible }) => {
   if (toolbarVisible) {

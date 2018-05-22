@@ -1,8 +1,8 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Tooltip from 'material-ui/Tooltip'
+import Tooltip from '@material-ui/core/Tooltip'
 import FilterList from '@material-ui/icons/FilterList'
-import IconButton from 'material-ui/IconButton'
+import IconButton from '@material-ui/core/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 
 @inject('arrangeStore')

@@ -1,8 +1,8 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import Tooltip from 'material-ui/Tooltip'
+import Tooltip from '@material-ui/core/Tooltip'
 import SortIcon from '@material-ui/icons/Sort'
-import IconButton from 'material-ui/IconButton'
+import IconButton from '@material-ui/core/IconButton'
 
 @inject('arrangeStore')
 @observer

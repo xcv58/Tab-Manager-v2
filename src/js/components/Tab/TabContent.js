@@ -3,8 +3,8 @@ import { inject, observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'
-import { withStyles } from 'material-ui/styles'
-import ButtonBase from 'material-ui/ButtonBase'
+import { withStyles } from '@material-ui/core/styles'
+import ButtonBase from '@material-ui/core/ButtonBase'
 import Url from 'components/Tab/Url'
 
 const pre = `<span style='color:${highlightBorderColor}'>`
