@@ -36,7 +36,7 @@ const theme = createMuiTheme({
       }
     },
     MuiTooltip: {
-      root: {
+      tooltip: {
         display: 'inline-flex'
       }
     }
