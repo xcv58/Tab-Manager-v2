@@ -1,11 +1,13 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import { withTheme } from '@material-ui/core/styles'
+import { withStyles } from '@material-ui/core/styles'
 import { focusedColor, highlightColor } from 'libs/colors'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
+
+const styles = theme => ({})
 
 const indicatorWidth = '2px'
 const tabStyle = {
@@ -39,7 +41,7 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
-@withTheme()
+@withStyles(styles, { withTheme: true })
 @inject('userStore')
 @inject('windowStore')
 @inject('dragStore')
