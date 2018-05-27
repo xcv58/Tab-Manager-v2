@@ -117,4 +117,4 @@ if (env.NODE_ENV === 'development') {
   options.devtool = 'cheap-module-eval-source-map'
 }
 
-module.exports = options
+module.exports = () => options
