@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import CloseButton from 'components/Tab/CloseButton'
+import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
 
 @inject('dragStore')
@@ -24,6 +25,7 @@ export default class TabTools extends React.Component {
           // right: 0
         }}
       >
+        <DragHandle {...this.props} />
         <TabMenu {...this.props} />
         <CloseButton {...this.props} />
       </div>
