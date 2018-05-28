@@ -47,7 +47,7 @@
     "@babel/preset-stage-2": "^7.0.0-beta.49",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "8.2.3",
-    "babel-jest": "^23.0.0",
+    "babel-jest": "^23.0.1",
     "babel-loader": "^8.0.0-beta",
     "babel-plugin-module-resolver": "^3.1.1",
     "babel-preset-env": "^1.7.0",
@@ -63,9 +63,9 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^0.14.3",
-    "jest": "^23.0.0",
+    "jest": "^23.0.1",
     "lint-staged": "^7.1.2",
-    "prettier": "1.12.1",
+    "prettier": "1.13.0",
     "regenerator-runtime": "^0.11.1",
     "sinon": "^5.0.10",
     "sinon-chrome": "^2.3.1",
@@ -80,11 +80,21 @@
   },
   "standard": {
     "parser": "babel-eslint",
-    "globals": ["chrome", "screen"]
+    "globals": [
+      "chrome",
+      "screen"
+    ]
   },
   "lint-staged": {
-    "*.js": ["yarn prettier", "standard --fix", "git add"],
-    "*.{json,css,md}": ["yarn prettier", "git add"]
+    "*.js": [
+      "yarn prettier",
+      "standard --fix",
+      "git add"
+    ],
+    "*.{json,css,md}": [
+      "yarn prettier",
+      "git add"
+    ]
   },
   "jest": {
     "collectCoverage": true,
