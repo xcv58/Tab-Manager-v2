@@ -5,7 +5,6 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Divider from '@material-ui/core/Divider'
 import Popover from '@material-ui/core/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
-import { backgroundColor } from 'libs/colors'
 import { withStyles } from '@material-ui/core/styles'
 import { getNoun } from 'libs'
 
@@ -96,7 +95,7 @@ export default class TabMenu extends React.Component {
     )
     return (
       <div>
-        <IconButton style={{ backgroundColor }} onClick={this.handleClick}>
+        <IconButton onClick={this.handleClick}>
           <MoreVertIcon />
         </IconButton>
         <Popover
