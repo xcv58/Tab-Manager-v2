@@ -38,7 +38,6 @@ export default class ShortcutStore {
     'ctrl+s',
     'shift+ctrl+s',
     'ctrl+x',
-    'ctrl+d',
     'ctrl+r',
     'ctrl+g',
     'ctrl+8',
@@ -67,7 +66,7 @@ export default class ShortcutStore {
       'Group and sort tabs'
     ],
     [
-      ['backspace', 'ctrl+d'],
+      ['backspace', 'd d'],
       e => {
         this.store.tabStore.remove()
       },
