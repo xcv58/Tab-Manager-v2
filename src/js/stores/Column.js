@@ -40,6 +40,13 @@ export default class Column {
     }
   }
 
+  getHeight = (tab, j) => {
+    if (this.store.userStore.showUnmatchedTab) {
+      return tab.index
+    }
+    return j
+  }
+
   @action
   getTabIdForIndex = index => {
     const delta = []
@@ -47,9 +54,11 @@ export default class Column {
     for (let i = 0; i < this.windows.length; i++) {
       const win = this.windows[i]
       for (let j = 0; j < win.matchedTabs.length; j++) {
-        delta.push(Math.abs(win.matchedTabs[j].index + preHeight - index))
+        delta.push(
+          Math.abs(this.getHeight(win.matchedTabs[j], j) + preHeight - index)
+        )
       }
-      preHeight += win.length
+      preHeight += win.visibleLength
     }
     const target = delta.indexOf(Math.min(...delta))
     return this.matchedTabs[target].id
@@ -63,10 +72,10 @@ export default class Column {
       for (let j = 0; j < win.matchedTabs.length; j++) {
         const tab = win.matchedTabs[j]
         if (tab.id === tabId) {
-          return tab.index + preHeight
+          return this.getHeight(tab, j) + preHeight
         }
       }
-      preHeight += win.length
+      preHeight += win.visibleLength
     }
     return 0
   }

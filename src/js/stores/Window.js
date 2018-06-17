@@ -34,6 +34,12 @@ export default class Window {
   }
 
   @computed
+  get visibleLength () {
+    const { length } = this.tabs.filter(x => x.isVisible)
+    return length + 2
+  }
+
+  @computed
   get lastFocused () {
     return this.id === this.store.windowStore.lastFocusedWindowId
   }
