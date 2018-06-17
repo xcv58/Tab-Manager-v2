@@ -9,7 +9,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { getNoun } from 'libs'
 
 const styles = theme => ({
-  menu: {
+  root: {
     zIndex: theme.zIndex.tooltip + 1
   }
 })
@@ -106,7 +106,7 @@ export default class TabMenu extends React.Component {
             horizontal: 'left'
           }}
           onClose={this.handleClose}
-          className={classes.menu}
+          className={classes.root}
           PaperProps={{
             style: {
               minWidth: 200
