@@ -173,12 +173,15 @@ export default class SearchStore {
 
   @action right = () => this.jumpToHorizontalTab(1)
 
-  jumpInSameCol = direction => {
+  jumpInSameCol = (direction, side = false) => {
     if (this.jumpOrFocusTab(direction)) {
       const { matchedTabs } = this.focusedColumn
       const { length } = matchedTabs
-      this.focusedTab =
-        matchedTabs[(this.focusedColTabIndex + direction + length) % length].id
+      let index = this.focusedColTabIndex + direction + length
+      if (side) {
+        index = direction * (length - 1)
+      }
+      this.focusedTab = matchedTabs[index % length].id
     }
   }
 
@@ -223,9 +226,9 @@ export default class SearchStore {
 
   @action down = () => this.jumpInSameCol(1)
 
-  @action lastTab = () => this.jumpToTab(-1)
+  @action firstTab = () => this.jumpInSameCol(0, true)
 
-  @action firstTab = () => this.jumpToTab(0)
+  @action lastTab = () => this.jumpInSameCol(1, true)
 
   findFocusedTab = (step = 1) => {
     const { length } = this.matchedTabs
