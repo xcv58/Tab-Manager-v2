@@ -8,10 +8,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-- gg/G will move focus in current column ([9ae2c77](https://github.com/xcv58/Tab-Manager-v2/commit/9ae2c77))
-- Horizontal doesn't work if window is too thin ([15bd9c6](https://github.com/xcv58/Tab-Manager-v2/commit/15bd9c6))
-- Horizontal navigation does not work as expected when unmatched tab(s) is hidden ([5a0e0c4](https://github.com/xcv58/Tab-Manager-v2/commit/5a0e0c4))
-- Use d d instead of ctrl+d to close tab(s) ([7d4222a](https://github.com/xcv58/Tab-Manager-v2/commit/7d4222a))
+- Remove management permission ([3999b6a](https://github.com/xcv58/Tab-Manager-v2/commit/3999b6a))
 
 <a name="0.14.1"></a>
 
