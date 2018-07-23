@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.14.2"></a>
+
+## [0.14.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.0...v0.14.2) (2018-07-23)
+
+### Bug Fixes
+
+- gg/G will move focus in current column ([9ae2c77](https://github.com/xcv58/Tab-Manager-v2/commit/9ae2c77))
+- Horizontal doesn't work if window is too thin ([15bd9c6](https://github.com/xcv58/Tab-Manager-v2/commit/15bd9c6))
+- Horizontal navigation does not work as expected when unmatched tab(s) is hidden ([5a0e0c4](https://github.com/xcv58/Tab-Manager-v2/commit/5a0e0c4))
+- Use d d instead of ctrl+d to close tab(s) ([7d4222a](https://github.com/xcv58/Tab-Manager-v2/commit/7d4222a))
+
 <a name="0.14.1"></a>
 
 ## [0.14.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.0...v0.14.1) (2018-06-17)
