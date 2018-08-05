@@ -1,7 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Fade from '@material-ui/core/Fade'
-import Slide from '@material-ui/core/Slide'
 import Loading from 'components/Loading'
 import Columns from 'components/Columns'
 import Shortcut from 'components/Shortcut'
@@ -72,13 +71,11 @@ export default class App extends React.Component {
               height: '100vh'
             }}
           >
-            <Slide in direction='down'>
-              <Tools
-                inputRef={input => {
-                  this.search = input
-                }}
-              />
-            </Slide>
+            <Tools
+              inputRef={input => {
+                this.search = input
+              }}
+            />
             <Fade in>
               <Columns />
             </Fade>
