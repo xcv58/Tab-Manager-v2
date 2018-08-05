@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.14.3"></a>
+
+## [0.14.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.2...v0.14.3) (2018-07-23)
+
+<a name="0.14.2"></a>
+
+## [0.14.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.0...v0.14.2) (2018-07-23)
+
+### Bug Fixes
+
+- Remove management permission ([3999b6a](https://github.com/xcv58/Tab-Manager-v2/commit/3999b6a))
+
 <a name="0.14.1"></a>
 
 ## [0.14.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.0...v0.14.1) (2018-06-17)
