@@ -104,6 +104,7 @@
     ]
   },
   "jest": {
+    "testURL": "http://localhost/",
     "collectCoverage": true,
     "coverageDirectory": "./coverage/"
   }
