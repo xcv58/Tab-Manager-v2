@@ -35,7 +35,7 @@
     "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "^16.4.2",
     "react-flip-move": "^3.0.1",
-    "react-resize-detector": "^3.1.0",
+    "react-resize-detector": "^3.1.1",
     "rebound": "^0.1.0"
   },
   "devDependencies": {
@@ -78,9 +78,9 @@
     "sinon-chrome": "^2.3.1",
     "standard": "^11.0.1",
     "standard-version": "^4.4.0",
-    "style-loader": "^0.21.0",
+    "style-loader": "^0.22.0",
     "uglifyjs-webpack-plugin": "^1.2.7",
-    "webpack": "^4.16.4",
+    "webpack": "^4.16.5",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-dev-server": "^3.1.5",
     "write-file-webpack-plugin": "^4.2.0"
