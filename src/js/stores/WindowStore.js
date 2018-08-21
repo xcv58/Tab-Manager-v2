@@ -36,10 +36,14 @@ export default class WindowsStore {
     chrome.tabs.onReplaced.addListener(this.updateAllWindows)
   }
 
-  @observable windows = []
-  @observable columns = []
-  @observable initialLoading = true
-  @observable lastFocusedWindowId = null
+  @observable
+  windows = []
+  @observable
+  columns = []
+  @observable
+  initialLoading = true
+  @observable
+  lastFocusedWindowId = null
 
   height = 600
 
@@ -177,7 +181,8 @@ export default class WindowsStore {
     this.lastCallTime = time
   }
 
-  @action selectAll = () => this.store.tabStore.selectAll(this.tabs)
+  @action
+  selectAll = () => this.store.tabStore.selectAll(this.tabs)
 
   @action
   windowMounted = () => {
@@ -262,7 +267,7 @@ export default class WindowsStore {
 
   @action
   updateColumns () {
-    const max = Math.ceil(this.height / 35 * 1.6)
+    const max = Math.ceil((this.height / 35) * 1.0)
     this.columns = this.windows.filter(x => x.length > 0).reduce(
       (acc, cur) => {
         const column = acc[acc.length - 1]
