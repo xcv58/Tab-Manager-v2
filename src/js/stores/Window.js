@@ -9,10 +9,14 @@ export default class Window {
     this.showTabs = !this.store.windowStore.initialLoading
   }
 
-  @observable tabs = []
-  @observable id
-  @observable showTabs
-  @observable type
+  @observable
+  tabs = []
+  @observable
+  id
+  @observable
+  showTabs
+  @observable
+  type
 
   @action
   tabMounted = () => {

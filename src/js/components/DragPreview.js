@@ -11,7 +11,8 @@ export default class DragPreview extends React.Component {
     } = this.props
     const head = (
       <h3>
-        {sources.length} tab{sources.length > 1 && 's'}
+        {sources.length} tab
+        {sources.length > 1 && 's'}
       </h3>
     )
     return (

@@ -28,7 +28,7 @@ export default class Summary extends React.Component {
     if (!typing) {
       return 1
     }
-    return 1 - Math.atan(query.length + 1) / Math.PI * 1.2
+    return 1 - (Math.atan(query.length + 1) / Math.PI) * 1.2
   }
 
   render () {
@@ -41,9 +41,9 @@ export default class Summary extends React.Component {
     const selected = selection.size
     return (
       <button style={style} onFocus={this.onFocus}>
-        {windows.length} {getNoun('window', windows.length)}
-        , {tabCount} {getNoun('tab', tabCount)}
-        , {selected} {getNoun('tab', selected)} selected
+        {windows.length} {getNoun('window', windows.length)}, {tabCount}{' '}
+        {getNoun('tab', tabCount)}, {selected} {getNoun('tab', selected)}{' '}
+        selected
       </button>
     )
   }

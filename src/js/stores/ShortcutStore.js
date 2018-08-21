@@ -17,9 +17,12 @@ export default class ShortcutStore {
     this.store = store
   }
 
-  @observable combo = null
-  @observable toastOpen = false
-  @observable dialogOpen = false
+  @observable
+  combo = null
+  @observable
+  toastOpen = false
+  @observable
+  dialogOpen = false
   closeHandle = null
 
   @observable
@@ -288,7 +291,8 @@ export default class ShortcutStore {
     )
   }
 
-  @action willUnmount = () => Mousetrap.reset()
+  @action
+  willUnmount = () => Mousetrap.reset()
 
   @action
   clearCombo = () => {

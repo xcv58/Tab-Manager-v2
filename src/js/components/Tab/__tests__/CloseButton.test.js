@@ -31,13 +31,11 @@ describe('CloseButton', () => {
     const remove = spy()
     props.tab.remove = remove
     const el = shallow(<CloseButton.wrappedComponent {...props} />)
-    el
-      .find(IconButton)
+    el.find(IconButton)
       .props()
       .onClick()
     expect(remove.callCount).toBe(1)
-    el
-      .find(IconButton)
+    el.find(IconButton)
       .props()
       .onClick()
     expect(remove.callCount).toBe(2)
@@ -48,13 +46,11 @@ describe('CloseButton', () => {
     props.tab.remove = remove
     props.tab.removing = true
     const el = shallow(<CloseButton.wrappedComponent {...props} />)
-    el
-      .find(IconButton)
+    el.find(IconButton)
       .props()
       .onClick()
     expect(remove.callCount).toBe(0)
-    el
-      .find(IconButton)
+    el.find(IconButton)
       .props()
       .onClick()
     expect(remove.callCount).toBe(0)

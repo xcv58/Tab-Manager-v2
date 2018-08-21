@@ -14,10 +14,14 @@ export default class SearchStore {
     }
   }
 
-  @observable query = ''
-  @observable _query = ''
-  @observable focusedTab = null
-  @observable typing = false
+  @observable
+  query = ''
+  @observable
+  _query = ''
+  @observable
+  focusedTab = null
+  @observable
+  typing = false
 
   @computed
   get matchedTabs () {
@@ -115,7 +119,8 @@ export default class SearchStore {
     this._query = this.query
   }
 
-  @action clear = () => this.search('', 0)
+  @action
+  clear = () => this.search('', 0)
 
   fuzzySearch = () => {
     const { tabs } = this.store.windowStore
@@ -169,9 +174,11 @@ export default class SearchStore {
     this.store.tabStore.unselectAll()
   }
 
-  @action left = () => this.jumpToHorizontalTab(-1)
+  @action
+  left = () => this.jumpToHorizontalTab(-1)
 
-  @action right = () => this.jumpToHorizontalTab(1)
+  @action
+  right = () => this.jumpToHorizontalTab(1)
 
   jumpInSameCol = (direction, side = false) => {
     if (this.jumpOrFocusTab(direction)) {
@@ -222,13 +229,17 @@ export default class SearchStore {
     this.focusedTab = column.getTabIdForIndex(index)
   }
 
-  @action up = () => this.jumpInSameCol(-1)
+  @action
+  up = () => this.jumpInSameCol(-1)
 
-  @action down = () => this.jumpInSameCol(1)
+  @action
+  down = () => this.jumpInSameCol(1)
 
-  @action firstTab = () => this.jumpInSameCol(0, true)
+  @action
+  firstTab = () => this.jumpInSameCol(0, true)
 
-  @action lastTab = () => this.jumpInSameCol(1, true)
+  @action
+  lastTab = () => this.jumpInSameCol(1, true)
 
   findFocusedTab = (step = 1) => {
     const { length } = this.matchedTabs

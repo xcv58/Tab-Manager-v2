@@ -14,7 +14,7 @@
     "zip": "zip -X --compression-method deflate -r build.zip build/*",
     "lint": "standard",
     "prettier": "prettier --no-semi --single-quote --write",
-    "lintfix": "yarn prettier src/**/*.js && yarn lint --fix",
+    "lintfix": "yarn prettier 'src/**/*.js' && yarn lint --fix",
     "start": "node utils/webserver.js",
     "test": "yarn lint && yarn jest",
     "test-watch": "yarn jest --watch",
