@@ -2,15 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="0.14.4"></a>
-## [0.14.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.3...v0.14.4) (2018-08-07)
+<a name="0.14.5"></a>
 
+## [0.14.5](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.4...v0.14.5) (2018-08-21)
 
 ### Bug Fixes
 
-* Upgrade packages ([#218](https://github.com/xcv58/Tab-Manager-v2/issues/218)) ([08a9da3](https://github.com/xcv58/Tab-Manager-v2/commit/08a9da3))
+- Change the column max height to 1.0 ([#221](https://github.com/xcv58/Tab-Manager-v2/issues/221)) ([093815c](https://github.com/xcv58/Tab-Manager-v2/commit/093815c))
+- Upgrade babel & packages ([af62b49](https://github.com/xcv58/Tab-Manager-v2/commit/af62b49))
 
+<a name="0.14.4"></a>
 
+## [0.14.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.3...v0.14.4) (2018-08-07)
+
+### Bug Fixes
+
+- Upgrade packages ([#218](https://github.com/xcv58/Tab-Manager-v2/issues/218)) ([08a9da3](https://github.com/xcv58/Tab-Manager-v2/commit/08a9da3))
 
 <a name="0.14.3"></a>
 
