@@ -5,8 +5,10 @@ export default class DragStore {
     this.store = store
   }
 
-  @observable dropped = false
-  @observable dragging = false
+  @observable
+  dropped = false
+  @observable
+  dragging = false
 
   @action
   dragStart = tab => {

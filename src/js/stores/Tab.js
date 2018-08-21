@@ -34,13 +34,20 @@ export default class Tab {
     this.showTab = !this.store.windowStore.initialLoading
   }
 
-  @observable iconUrl = empty
-  @observable active = false
-  @observable title
-  @observable url
-  @observable id
-  @observable showTab
-  @observable removing = false
+  @observable
+  iconUrl = empty
+  @observable
+  active = false
+  @observable
+  title
+  @observable
+  url
+  @observable
+  id
+  @observable
+  showTab
+  @observable
+  removing = false
 
   @action
   activate = () => {
@@ -54,7 +61,8 @@ export default class Tab {
     this.store.tabStore.select(this)
   }
 
-  @action reload = () => chrome.tabs.reload(this.id)
+  @action
+  reload = () => chrome.tabs.reload(this.id)
 
   @action
   focus = () => {
@@ -66,7 +74,8 @@ export default class Tab {
     this.store.hoverStore.hover(this.id)
   }
 
-  @action unhover = () => this.store.hoverStore.unhover()
+  @action
+  unhover = () => this.store.hoverStore.unhover()
 
   @action
   closeDuplicatedTab = () => this.store.windowStore.closeDuplicatedTab(this)

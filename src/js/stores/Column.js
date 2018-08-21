@@ -8,7 +8,8 @@ export default class Column {
     }
   }
 
-  @observable windows = []
+  @observable
+  windows = []
 
   @computed
   get length () {

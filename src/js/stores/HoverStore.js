@@ -9,9 +9,11 @@ export default class HoverStore {
 
   hoverHandler = null
 
-  @observable hoveredTabId = null
+  @observable
+  hoveredTabId = null
   // Hovered long enough with the delay
-  @observable hovered = false
+  @observable
+  hovered = false
 
   @action
   hover = id => {

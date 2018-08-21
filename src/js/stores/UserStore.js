@@ -24,18 +24,28 @@ export default class UserStore {
     this.store.searchStore.init()
   }
 
-  @observable showShortcutHint
-  @observable showUnmatchedTab
-  @observable toolbarAutoHide
-  @observable highlightDuplicatedTab
-  @observable showTabTooltip
-  @observable preserveSearch
-  @observable showUrl
-  @observable autoFocusSearch
+  @observable
+  showShortcutHint
+  @observable
+  showUnmatchedTab
+  @observable
+  toolbarAutoHide
+  @observable
+  highlightDuplicatedTab
+  @observable
+  showTabTooltip
+  @observable
+  preserveSearch
+  @observable
+  showUrl
+  @observable
+  autoFocusSearch
 
-  @observable dialogOpen = false
+  @observable
+  dialogOpen = false
 
-  @observable toolbarVisible
+  @observable
+  toolbarVisible
   hideToolbarHandler = null
 
   @action

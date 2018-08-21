@@ -6,7 +6,8 @@ export default class TabStore {
     this.store = store
   }
 
-  @observable selection = observable.map()
+  @observable
+  selection = observable.map()
 
   @computed
   get tabDescription () {
