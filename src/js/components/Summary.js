@@ -1,5 +1,6 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
+import Paper from '@material-ui/core/Paper'
 import { getNoun } from 'libs'
 
 const fakeButtonStyle = {
@@ -40,11 +41,13 @@ export default class Summary extends React.Component {
     const style = { ...fakeButtonStyle, opacity }
     const selected = selection.size
     return (
-      <button style={style} onFocus={this.onFocus}>
-        {windows.length} {getNoun('window', windows.length)}, {tabCount}{' '}
-        {getNoun('tab', tabCount)}, {selected} {getNoun('tab', selected)}{' '}
-        selected
-      </button>
+      <Paper>
+        <button style={style} onFocus={this.onFocus}>
+          {windows.length} {getNoun('window', windows.length)}, {tabCount}{' '}
+          {getNoun('tab', tabCount)}, {selected} {getNoun('tab', selected)}{' '}
+          selected
+        </button>
+      </Paper>
     )
   }
 }

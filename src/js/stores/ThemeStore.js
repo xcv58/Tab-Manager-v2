@@ -31,6 +31,7 @@ const overrides = {
 }
 
 const app = {
+  textColor: 'black',
   backgroundColor: 'white',
   test: {
     danger: 'white'
@@ -39,11 +40,20 @@ const app = {
 
 const theme = { overrides, app }
 
-const darkTheme = merge({}, theme, {
-  app: {
-    backgroundColor: '#202123'
+const darkTheme = merge(
+  {
+    palette: {
+      type: 'dark'
+    }
+  },
+  theme,
+  {
+    // app: {
+    //   textColor: 'white',
+    //   backgroundColor: '#202123'
+    // }
   }
-})
+)
 
 export default class ThemeStore {
   constructor (store) {

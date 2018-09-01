@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Fade from '@material-ui/core/Fade'
+import Paper from '@material-ui/core/Paper'
 import Loading from 'components/Loading'
 import Columns from 'components/Columns'
 import Shortcut from 'components/Shortcut'
@@ -8,23 +9,9 @@ import Toolbar from 'components/Toolbar'
 import Tools from 'components/Tools'
 import DragPreview from 'components/DragPreview'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
-import { MuiThemeProvider, withStyles } from '@material-ui/core/styles'
+import { MuiThemeProvider } from '@material-ui/core/styles'
 import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
-
-const styles = theme => {
-  return {
-    root: {
-      backgroundColor: theme.app.test.danger
-    }
-  }
-}
-
-let CustomCheckbox = props => {
-  console.log(props)
-  return <div className={props.classes.root}>123</div>
-}
-CustomCheckbox = withStyles(styles)(CustomCheckbox)
 
 @DragDropContext(HTML5Backend)
 @inject('windowStore')
@@ -45,13 +32,13 @@ export default class App extends React.Component {
     if (this.props.windowStore.initialLoading) {
       return <Loading />
     }
-    const { muiTheme, theme } = this.props.themeStore
+    const { muiTheme } = this.props.themeStore
     return (
       <React.StrictMode>
         <MuiThemeProvider theme={muiTheme}>
-          <div
+          <Paper
             style={{
-              backgroundColor: theme.app.backgroundColor,
+              // backgroundColor: theme.app.backgroundColor,
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
@@ -66,12 +53,11 @@ export default class App extends React.Component {
             <Fade in>
               <Columns />
             </Fade>
-            <CustomCheckbox />
             <Toolbar />
             <Shortcut />
             <DragPreview />
             <SettingsDialog />
-          </div>
+          </Paper>
         </MuiThemeProvider>
       </React.StrictMode>
     )

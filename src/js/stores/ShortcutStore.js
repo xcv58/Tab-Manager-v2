@@ -247,6 +247,14 @@ export default class ShortcutStore {
       'Open this window in new tab'
     ],
     [
+      ['ctrl+i'],
+      e => {
+        e.preventDefault()
+        this.store.userStore.toggleDarkTheme()
+      },
+      'Toggle dark theme'
+    ],
+    [
       ['?', 'ctrl+/'],
       e => {
         e.preventDefault()
