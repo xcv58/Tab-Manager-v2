@@ -6,6 +6,7 @@ import DragStore from 'stores/DragStore'
 import ShortcutStore from 'stores/ShortcutStore'
 import UserStore from 'stores/UserStore'
 import HoverStore from 'stores/HoverStore'
+import ThemeStore from 'stores/ThemeStore'
 
 export default class Store {
   constructor () {
@@ -17,5 +18,6 @@ export default class Store {
     this.userStore = new UserStore(this)
     this.hoverStore = new HoverStore(this)
     this.searchStore = new SearchStore(this)
+    this.themeStore = new ThemeStore(this)
   }
 }

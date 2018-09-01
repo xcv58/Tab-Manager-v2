@@ -8,43 +8,28 @@ import Toolbar from 'components/Toolbar'
 import Tools from 'components/Tools'
 import DragPreview from 'components/DragPreview'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { MuiThemeProvider, withStyles } from '@material-ui/core/styles'
 import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 
-const theme = createMuiTheme({
-  overrides: {
-    MuiIconButton: {
-      root: {
-        height: '2.5rem',
-        width: '2.5rem'
-      }
-    },
-    MuiSwitch: {
-      root: {
-        width: '3.5rem'
-      }
-    },
-    MuiSnackbarContent: {
-      root: {
-        fontSize: '1.5rem',
-        padding: '0 2rem',
-        justifyContent: 'center',
-        textTransform: 'capitalize',
-        backgroundColor: 'rgba(0, 0, 0, 0.618)'
-      }
-    },
-    MuiTooltip: {
-      tooltip: {
-        display: 'inline-flex'
-      }
+const styles = theme => {
+  return {
+    root: {
+      backgroundColor: theme.app.test.danger
     }
   }
-})
+}
+
+let CustomCheckbox = props => {
+  console.log(props)
+  return <div className={props.classes.root}>123</div>
+}
+CustomCheckbox = withStyles(styles)(CustomCheckbox)
 
 @DragDropContext(HTML5Backend)
 @inject('windowStore')
 @inject('shortcutStore')
+@inject('themeStore')
 @observer
 export default class App extends React.Component {
   componentDidMount () {
@@ -60,11 +45,13 @@ export default class App extends React.Component {
     if (this.props.windowStore.initialLoading) {
       return <Loading />
     }
+    const { muiTheme, theme } = this.props.themeStore
     return (
       <React.StrictMode>
-        <MuiThemeProvider theme={theme}>
+        <MuiThemeProvider theme={muiTheme}>
           <div
             style={{
+              backgroundColor: theme.app.backgroundColor,
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
@@ -79,6 +66,7 @@ export default class App extends React.Component {
             <Fade in>
               <Columns />
             </Fade>
+            <CustomCheckbox />
             <Toolbar />
             <Shortcut />
             <DragPreview />
