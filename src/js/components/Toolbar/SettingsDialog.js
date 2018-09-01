@@ -41,7 +41,9 @@ class SettingsDialog extends React.Component {
       showUrl,
       toggleShowUrl,
       autoFocusSearch,
-      toggleAutoFocusSearch
+      toggleAutoFocusSearch,
+      darkTheme,
+      toggleDarkTheme
     } = this.props.userStore
     return (
       <Dialog
@@ -145,6 +147,16 @@ class SettingsDialog extends React.Component {
                     color='primary'
                     checked={!toolbarAutoHide}
                     onChange={toggleAutoHide}
+                  />
+                }
+              />
+              <FormControlLabel
+                label='Dark Theme'
+                control={
+                  <Switch
+                    color='primary'
+                    checked={darkTheme}
+                    onChange={toggleDarkTheme}
                   />
                 }
               />

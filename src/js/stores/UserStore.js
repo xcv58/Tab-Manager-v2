@@ -8,7 +8,8 @@ const DEFAULT_SETTINGS = {
   showTabTooltip: true,
   preserveSearch: true,
   showUrl: true,
-  autoFocusSearch: false
+  autoFocusSearch: false,
+  darkTheme: false
 }
 
 export default class UserStore {
@@ -46,6 +47,10 @@ export default class UserStore {
 
   @observable
   toolbarVisible
+
+  @observable
+  darkTheme = false
+
   hideToolbarHandler = null
 
   @action
@@ -117,6 +122,12 @@ export default class UserStore {
   toggleAutoHide = () => {
     this._clearHideToolbarHandler()
     chrome.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
+    this.init()
+  }
+
+  @action
+  toggleDarkTheme = () => {
+    chrome.storage.sync.set({ darkTheme: !this.darkTheme })
     this.init()
   }
 
