@@ -39,12 +39,11 @@ const app = {
 
 const theme = { overrides, app }
 
-const darkTheme = {
-  overrides,
-  app: merge({}, app, {
+const darkTheme = merge({}, theme, {
+  app: {
     backgroundColor: '#202123'
-  })
-}
+  }
+})
 
 export default class ThemeStore {
   constructor (store) {
