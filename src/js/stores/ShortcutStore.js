@@ -122,14 +122,15 @@ export default class ShortcutStore {
         }
         const {
           searchStore: { clear, typing, query },
-          userStore: { dialogOpen }
+          userStore: { dialogOpen, closeDialog }
         } = this.store
         if (typing) {
           e.preventDefault()
           return this.App.search.blur()
         }
         if (dialogOpen) {
-          return e.preventDefault()
+          e.preventDefault()
+          return closeDialog()
         }
         if (query) {
           e.preventDefault()
