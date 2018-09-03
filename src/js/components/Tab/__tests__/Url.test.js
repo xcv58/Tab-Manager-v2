@@ -1,6 +1,7 @@
 import React from 'react'
 import { spy, stub, shallow, expect, describe, it } from 'test'
 import Url from 'components/Tab/Url'
+import Typography from '@material-ui/core/Typography'
 
 const getHighlightNode = spy()
 const props = {
@@ -12,8 +13,8 @@ const props = {
 describe('Url', () => {
   it('render correct components', () => {
     const el = shallow(<Url {...props} />)
-    expect(el.find('div').length).toBe(1)
-    expect(el.find('div').props().className).toBe(props.className)
+    expect(el.find(Typography).length).toBe(1)
+    expect(el.find(Typography).props().className).toBe(props.className)
   })
 
   it('render getHighlightNode(url) as children', () => {
