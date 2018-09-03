@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'
 import { withStyles } from '@material-ui/core/styles'
 import ButtonBase from '@material-ui/core/ButtonBase'
+import Typography from '@material-ui/core/Typography'
 import Url from 'components/Tab/Url'
 
 const pre = `<span style='color:${highlightBorderColor}'>`
@@ -65,7 +66,9 @@ export default class TabContent extends React.Component {
         onClick={activate}
         component='div'
       >
-        <div className={classes.text}>{this.getHighlightNode(title)}</div>
+        <Typography className={classes.text}>
+          {this.getHighlightNode(title)}
+        </Typography>
         {showUrl && (
           <Url
             {...this.props}

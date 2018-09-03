@@ -5,6 +5,7 @@ import Preview from 'components/Preview'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import Divider from '@material-ui/core/Divider'
+import Typography from '@material-ui/core/Typography'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import { getNoun } from 'libs'
 import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
@@ -54,14 +55,15 @@ export default class Title extends React.Component {
     const invisibleIndicator =
       invisibleLength > 0 && `/ ${invisibleLength} hidden`
     const title = (
-      <span
+      <Typography
+        variant='headline'
         style={{
           flex: '1 1 auto',
           width: 'max-content'
         }}
       >
         {text} {invisibleIndicator}
-      </span>
+      </Typography>
     )
     let className = classes.root
     if (isDragging && isOver && !canDrop) {

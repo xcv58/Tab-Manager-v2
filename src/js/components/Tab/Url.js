@@ -1,4 +1,5 @@
 import React from 'react'
+import Typography from '@material-ui/core/Typography'
 
 export default class Url extends React.Component {
   render () {
@@ -7,6 +8,8 @@ export default class Url extends React.Component {
       className,
       getHighlightNode
     } = this.props
-    return <div className={className}>{getHighlightNode(url)}</div>
+    return (
+      <Typography className={className}>{getHighlightNode(url)}</Typography>
+    )
   }
 }
