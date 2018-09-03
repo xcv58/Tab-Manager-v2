@@ -1,6 +1,7 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Snackbar from '@material-ui/core/Snackbar'
+import Typography from '@material-ui/core/Typography'
 import Fade from '@material-ui/core/Fade'
 
 @inject('shortcutStore')
@@ -16,7 +17,7 @@ export default class Hint extends React.Component {
         }}
         TransitionComponent={Fade}
         open={toastOpen}
-        message={combo}
+        message={<Typography variant='title'>{combo}</Typography>}
       />
     )
   }

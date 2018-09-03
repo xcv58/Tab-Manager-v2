@@ -1,35 +1,42 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
 import { withStyles } from '@material-ui/core/styles'
-import { focusedColor, highlightColor } from 'libs/colors'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
-
-const styles = theme => ({})
+import classNames from 'classnames'
 
 const indicatorWidth = '2px'
-const tabStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  whiteSpace: 'nowrap',
-  marginLeft: indicatorWidth,
-  borderLeft: `${indicatorWidth} transparent solid`,
-  boxShadow: `-${indicatorWidth} 0px white`
-}
-const highlightStyle = {
-  boxShadow: `-${indicatorWidth} 0px ${highlightColor}`,
-  backgroundColor: highlightColor
-}
-const selectedStyle = {
-  backgroundColor: focusedColor,
-  boxShadow: `-${indicatorWidth} 0px ${focusedColor}`
-}
-const notMatchStyle = {
-  opacity: 0.3
-}
+
+const styles = theme => ({
+  root: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    whiteSpace: 'nowrap',
+    marginLeft: indicatorWidth,
+    borderLeft: `${indicatorWidth} transparent solid`,
+    boxShadow: `-${indicatorWidth} 0px white`
+  },
+  highlight: {
+    boxShadow: `-${indicatorWidth} 0px ${theme.app.highlightColor}`,
+    backgroundColor: theme.app.highlightColor
+  },
+  selected: {
+    backgroundColor: theme.app.focusedColor,
+    boxShadow: `-${indicatorWidth} 0px ${theme.app.focusedColor}`
+  },
+  focused: {
+    borderLeft: `${indicatorWidth} ${theme.palette.secondary.main} solid`
+  },
+  notMatch: {
+    opacity: 0.3
+  },
+  duplicated: {
+    color: theme.palette.error.light
+  }
+})
 
 const getTargetValue = (lValue, rValue) => {
   if (lValue < 0) {
@@ -41,7 +48,7 @@ const getTargetValue = (lValue, rValue) => {
   return 0
 }
 
-@withStyles(styles, { withTheme: true })
+@withStyles(styles)
 @inject('userStore')
 @inject('windowStore')
 @inject('dragStore')
@@ -78,7 +85,7 @@ export default class Tab extends React.Component {
 
   componentWillUnmount = this.onMouseLeave
 
-  getStyle = () => {
+  getClassName = () => {
     const { highlightDuplicatedTab } = this.props.userStore
     const {
       active,
@@ -88,22 +95,14 @@ export default class Tab extends React.Component {
       shouldHighlight,
       urlCount
     } = this.props.tab
-    return Object.assign(
-      {},
-      tabStyle,
-      (active || shouldHighlight) && highlightStyle,
-      isSelected && selectedStyle,
-      isFocused && {
-        borderLeft: `${indicatorWidth} ${
-          this.props.theme.palette.secondary.main
-        } solid`
-      },
-      !isMatched && notMatchStyle,
-      urlCount > 1 &&
-        highlightDuplicatedTab && {
-        color: this.props.theme.palette.error.light
-      },
-      this.props.style
+    const { classes } = this.props
+    return classNames(
+      classes.root,
+      (active || shouldHighlight) && classes.highlight,
+      isSelected && classes.selected,
+      isFocused && classes.focused,
+      !isMatched && classes.notMatch,
+      urlCount > 1 && highlightDuplicatedTab && classes.duplicated
     )
   }
 
@@ -138,7 +137,8 @@ export default class Tab extends React.Component {
     if (!isVisible) {
       return null
     }
-    const style = this.getStyle()
+    const className = this.getClassName()
+    const { style } = this.props
     const pin = pinned && (
       <div
         style={{
@@ -160,6 +160,7 @@ export default class Tab extends React.Component {
         onMouseOver={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
         style={style}
+        className={className}
       >
         <div
           style={{
