@@ -34,6 +34,9 @@ const styles = theme => ({
   url: {
     opacity: 0.3,
     fontSize: '0.7rem'
+  },
+  duplicated: {
+    color: theme.palette.error.light
   }
 })
 
@@ -57,8 +60,10 @@ export default class TabContent extends React.Component {
 
   render () {
     const { classes } = this.props
-    const { activate, title } = this.props.tab
-    const { showUrl } = this.props.userStore
+    const { activate, title, urlCount } = this.props.tab
+    const { showUrl, highlightDuplicatedTab } = this.props.userStore
+    const duplicated =
+      urlCount > 1 && highlightDuplicatedTab && classes.duplicated
     return (
       <ButtonBase
         focusRipple
@@ -66,13 +71,13 @@ export default class TabContent extends React.Component {
         onClick={activate}
         component='div'
       >
-        <Typography className={classes.text}>
+        <Typography className={classNames(classes.text, duplicated)}>
           {this.getHighlightNode(title)}
         </Typography>
         {showUrl && (
           <Url
             {...this.props}
-            className={classNames(classes.text, classes.url)}
+            className={classNames(classes.text, classes.url, duplicated)}
             getHighlightNode={this.getHighlightNode}
           />
         )}

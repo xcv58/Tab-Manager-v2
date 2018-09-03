@@ -16,8 +16,7 @@ const styles = theme => ({
     justifyContent: 'space-between',
     whiteSpace: 'nowrap',
     marginLeft: indicatorWidth,
-    borderLeft: `${indicatorWidth} transparent solid`,
-    boxShadow: `-${indicatorWidth} 0px white`
+    borderLeft: `${indicatorWidth} transparent solid`
   },
   highlight: {
     boxShadow: `-${indicatorWidth} 0px ${theme.app.highlightColor}`,
@@ -32,9 +31,6 @@ const styles = theme => ({
   },
   notMatch: {
     opacity: 0.3
-  },
-  duplicated: {
-    color: theme.palette.error.light
   }
 })
 
@@ -49,7 +45,6 @@ const getTargetValue = (lValue, rValue) => {
 }
 
 @withStyles(styles)
-@inject('userStore')
 @inject('windowStore')
 @inject('dragStore')
 @observer
@@ -86,14 +81,12 @@ export default class Tab extends React.Component {
   componentWillUnmount = this.onMouseLeave
 
   getClassName = () => {
-    const { highlightDuplicatedTab } = this.props.userStore
     const {
       active,
       isFocused,
       isMatched,
       isSelected,
-      shouldHighlight,
-      urlCount
+      shouldHighlight
     } = this.props.tab
     const { classes } = this.props
     return classNames(
@@ -101,8 +94,7 @@ export default class Tab extends React.Component {
       (active || shouldHighlight) && classes.highlight,
       isSelected && classes.selected,
       isFocused && classes.focused,
-      !isMatched && classes.notMatch,
-      urlCount > 1 && highlightDuplicatedTab && classes.duplicated
+      !isMatched && classes.notMatch
     )
   }
 
