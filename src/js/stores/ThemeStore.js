@@ -1,6 +1,15 @@
 import { computed } from 'mobx'
 import { createMuiTheme } from '@material-ui/core/styles'
+import blue from '@material-ui/core/colors/blue'
+import green from '@material-ui/core/colors/green'
+import pink from '@material-ui/core/colors/pink'
 import merge from 'lodash.merge'
+
+export const dropTargetColor = green[100]
+export const droppedColor = green[300]
+export const highlightBorderColor = pink.A400
+export const focusedColor = blue[200]
+export const backgroundColor = 'rgba(255, 255, 255, 0.64)'
 
 const overrides = {
   MuiIconButton: {
@@ -31,11 +40,9 @@ const overrides = {
 }
 
 const app = {
-  textColor: 'black',
-  backgroundColor: 'white',
-  test: {
-    danger: 'white'
-  }
+  focusedColor: blue[200],
+  highlightBorderColor: pink.A400,
+  highlightColor: blue[50]
 }
 
 const theme = { overrides, app }
@@ -48,10 +55,11 @@ const darkTheme = merge(
   },
   theme,
   {
-    // app: {
-    //   textColor: 'white',
-    //   backgroundColor: '#202123'
-    // }
+    app: {
+      focusedColor: '#292B2E',
+      highlightBorderColor: pink.A400,
+      highlightColor: '#323639'
+    }
   }
 )
 

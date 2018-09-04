@@ -46,11 +46,11 @@ body {
 }
 
 .toolbar {
-  background-color: rgba(255, 255, 255, 0.64);
+  opacity: 0.4;
 }
 
 .toolbar:hover {
-  background-color: rgba(255, 255, 255, 1);
+  opacity: 1;
 }
 
 /* Below are css code form load awesome */
