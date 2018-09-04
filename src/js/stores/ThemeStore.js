@@ -42,8 +42,7 @@ const overrides = {
 const app = {
   focusedColor: blue[200],
   highlightBorderColor: pink.A400,
-  highlightColor: blue[50],
-  backgroundColor: 'rgba(255, 255, 255, 0.64)'
+  highlightColor: blue[50]
 }
 
 const theme = { overrides, app }
@@ -56,10 +55,11 @@ const darkTheme = merge(
   },
   theme,
   {
-    // app: {
-    //   textColor: 'white',
-    //   backgroundColor: '#202123'
-    // }
+    app: {
+      focusedColor: '#292B2E',
+      highlightBorderColor: pink.A400,
+      highlightColor: '#323639'
+    }
   }
 )
 
