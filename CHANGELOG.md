@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.15.0"></a>
+
+# [0.15.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.5...v0.15.0) (2018-09-05)
+
+### Bug Fixes
+
+- Esc doesn't dismiss Settings dialog ([64ec9af](https://github.com/xcv58/Tab-Manager-v2/commit/64ec9af))
+
+### Features
+
+- Add Dark Theme ([#223](https://github.com/xcv58/Tab-Manager-v2/issues/223)) ([91acd6c](https://github.com/xcv58/Tab-Manager-v2/commit/91acd6c))
+
 <a name="0.14.5"></a>
 
 ## [0.14.5](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.4...v0.14.5) (2018-08-21)
