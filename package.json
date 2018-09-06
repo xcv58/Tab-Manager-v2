@@ -36,7 +36,7 @@
     "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "^16.4.2",
     "react-flip-move": "^3.0.1",
-    "react-resize-detector": "^3.1.1",
+    "react-resize-detector": "^3.1.2",
     "rebound": "^0.1.0"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "coveralls": "^3.0.2",
     "css-loader": "^1.0.0",
     "enzyme": "^3.6.0",
-    "enzyme-adapter-react-16": "^1.4.0",
+    "enzyme-adapter-react-16": "^1.5.0",
     "file-loader": "^2.0.0",
     "fs-extra": "^7.0.0",
     "html-loader": "^0.5.5",
@@ -84,7 +84,7 @@
     "webpack": "^4.17.2",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-dev-server": "^3.1.7",
-    "write-file-webpack-plugin": "^4.2.0"
+    "write-file-webpack-plugin": "^4.4.0"
   },
   "standard": {
     "parser": "babel-eslint",
