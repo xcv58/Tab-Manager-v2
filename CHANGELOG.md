@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.16.0"></a>
+
+# [0.16.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.15.0...v0.16.0) (2018-09-09)
+
+### Features
+
+- Always show close button and make it smaller ([5b2ea17](https://github.com/xcv58/Tab-Manager-v2/commit/5b2ea17)), closes [#224](https://github.com/xcv58/Tab-Manager-v2/issues/224)
+
 <a name="0.15.0"></a>
 
 # [0.15.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.5...v0.15.0) (2018-09-05)
