@@ -1,7 +1,6 @@
 import React from 'react'
 import { shallow, expect, describe, it } from 'test'
 import TabTools from 'components/Tab/TabTools'
-import CloseButton from 'components/Tab/CloseButton'
 import TabMenu from 'components/Tab/TabMenu'
 
 const classes = { root: 'root' }
@@ -18,7 +17,6 @@ describe('TabTools', () => {
     expect(el.find('div').length).toBe(1)
     expect(el.find('div').props().className).toBe(classes.root)
     expect(el.find(TabMenu).length).toBe(1)
-    expect(el.find(CloseButton).length).toBe(1)
   })
 
   it('should render null', () => {

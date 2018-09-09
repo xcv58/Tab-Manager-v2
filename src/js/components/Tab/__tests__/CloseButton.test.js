@@ -7,6 +7,7 @@ import CloseButton from 'components/Tab/CloseButton'
 
 const theme = createMuiTheme()
 const props = {
+  classes: { icon: {} },
   theme,
   faked: false,
   dragStore: { dragging: false },

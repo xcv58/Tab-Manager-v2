@@ -5,6 +5,7 @@ import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
+import CloseButton from 'components/Tab/CloseButton'
 import classNames from 'classnames'
 
 const indicatorWidth = '2px'
@@ -170,6 +171,7 @@ export default class Tab extends React.Component {
             <TabContent {...this.props} />
           </TabTooltip>
           <TabTools {...this.props} />
+          <CloseButton {...this.props} />
         </div>
       </div>
     )

@@ -1,6 +1,5 @@
 import React from 'react'
 import { inject, observer } from 'mobx-react'
-import CloseButton from 'components/Tab/CloseButton'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
 import { withStyles } from '@material-ui/core/styles'
@@ -30,7 +29,6 @@ export default class TabTools extends React.Component {
       <div className={classes.root}>
         <DragHandle {...this.props} />
         <TabMenu {...this.props} />
-        <CloseButton {...this.props} />
       </div>
     )
   }
