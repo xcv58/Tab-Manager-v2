@@ -5,7 +5,7 @@ import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
-import CloseButton from 'components/Tab/CloseButton'
+import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
 
 const indicatorWidth = '2px'
@@ -76,6 +76,13 @@ export default class Tab extends React.Component {
   onMouseLeave = () => {
     if (this.isActionable()) {
       this.props.tab.unhover()
+    }
+  }
+
+  onRemove = () => {
+    const { removing, remove } = this.props.tab
+    if (!removing) {
+      remove()
     }
   }
 
@@ -171,7 +178,10 @@ export default class Tab extends React.Component {
             <TabContent {...this.props} />
           </TabTooltip>
           <TabTools {...this.props} />
-          <CloseButton {...this.props} />
+          <CloseButton
+            onClick={this.onRemove}
+            disabled={this.props.tab.removing}
+          />
         </div>
       </div>
     )

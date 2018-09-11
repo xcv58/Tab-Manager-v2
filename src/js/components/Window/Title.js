@@ -7,6 +7,7 @@ import Sort from 'components/Window/Sort'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
 import ButtonBase from '@material-ui/core/ButtonBase'
+import CloseButton from 'components/CloseButton'
 import { getNoun } from 'libs'
 import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
 import { withStyles } from '@material-ui/core/styles'
@@ -16,7 +17,6 @@ const styles = theme => ({
   root: {
     display: 'flex',
     paddingLeft: '0.5rem',
-    paddingRight: 4,
     justifyContent: 'space-between',
     alignItems: 'center',
     fontSize: '1.5rem',
@@ -84,6 +84,7 @@ export default class Title extends React.Component {
           <div className={classes.tools}>
             <SelectAll {...this.props} />
             <Sort {...this.props} />
+            <CloseButton onClick={this.props.win.remove} />
           </div>
         </div>
         <Divider />

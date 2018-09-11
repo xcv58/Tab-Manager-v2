@@ -115,4 +115,9 @@ export default class Window {
       }
     }
   }
+
+  @action
+  remove = () => {
+    chrome.windows.remove(this.id)
+  }
 }
