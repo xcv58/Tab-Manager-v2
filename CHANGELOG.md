@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.17.0"></a>
+# [0.17.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.16.0...v0.17.0) (2018-09-13)
+
+
+### Bug Fixes
+
+* Add theme toggle button on main page ([8741e27](https://github.com/xcv58/Tab-Manager-v2/commit/8741e27)), closes [#227](https://github.com/xcv58/Tab-Manager-v2/issues/227)
+
+
+### Features
+
+* Add close button for Window ([98e27bf](https://github.com/xcv58/Tab-Manager-v2/commit/98e27bf)), closes [#226](https://github.com/xcv58/Tab-Manager-v2/issues/226)
+
+
+
 <a name="0.16.0"></a>
 
 # [0.16.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.15.0...v0.16.0) (2018-09-09)
