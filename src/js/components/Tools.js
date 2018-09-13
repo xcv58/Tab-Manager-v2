@@ -6,6 +6,7 @@ import Preview from 'components/Preview'
 import Search from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
+import ThemeToggle from 'components/ThemeToggle'
 import { getNoun } from 'libs'
 import { ItemTypes } from 'libs/react-dnd'
 import { dropTargetColor, droppedColor } from 'libs/colors'
@@ -86,6 +87,7 @@ export default class Tools extends React.Component {
       <div style={style}>
         <Summary />
         <Search inputRef={this.props.inputRef} />
+        <ThemeToggle />
         <OpenInTab />
       </div>
     )
