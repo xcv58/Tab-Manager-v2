@@ -84,7 +84,7 @@ export default class Title extends React.Component {
           <div className={classes.tools}>
             <SelectAll {...this.props} />
             <Sort {...this.props} />
-            <CloseButton onClick={this.props.win.remove} />
+            <CloseButton onClick={this.props.win.close} />
           </div>
         </div>
         <Divider />
