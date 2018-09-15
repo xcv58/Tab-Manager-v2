@@ -2,30 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="0.17.1"></a>
-## [0.17.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.17.0...v0.17.1) (2018-09-13)
+<a name="0.18.0"></a>
 
-
-### Bug Fixes
-
-* chrome.management.get is not a function ([3be1389](https://github.com/xcv58/Tab-Manager-v2/commit/3be1389))
-
-
-
-<a name="0.17.0"></a>
-# [0.17.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.16.0...v0.17.0) (2018-09-13)
-
+# [0.18.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.5...v0.18.0) (2018-09-15)
 
 ### Bug Fixes
 
-* Add theme toggle button on main page ([8741e27](https://github.com/xcv58/Tab-Manager-v2/commit/8741e27)), closes [#227](https://github.com/xcv58/Tab-Manager-v2/issues/227)
-
+- Add theme toggle button on main page ([8741e27](https://github.com/xcv58/Tab-Manager-v2/commit/8741e27)), closes [#227](https://github.com/xcv58/Tab-Manager-v2/issues/227)
+- chrome.management.get is not a function ([3be1389](https://github.com/xcv58/Tab-Manager-v2/commit/3be1389))
+- Drag & drop tab will close the original window ([#230](https://github.com/xcv58/Tab-Manager-v2/issues/230)) ([8bfd344](https://github.com/xcv58/Tab-Manager-v2/commit/8bfd344))
+- Esc doesn't dismiss Settings dialog ([64ec9af](https://github.com/xcv58/Tab-Manager-v2/commit/64ec9af))
 
 ### Features
 
-* Add close button for Window ([98e27bf](https://github.com/xcv58/Tab-Manager-v2/commit/98e27bf)), closes [#226](https://github.com/xcv58/Tab-Manager-v2/issues/226)
+- Add close button for Window ([98e27bf](https://github.com/xcv58/Tab-Manager-v2/commit/98e27bf)), closes [#226](https://github.com/xcv58/Tab-Manager-v2/issues/226)
+- Add Dark Theme ([#223](https://github.com/xcv58/Tab-Manager-v2/issues/223)) ([91acd6c](https://github.com/xcv58/Tab-Manager-v2/commit/91acd6c))
+- Always show close button and make it smaller ([5b2ea17](https://github.com/xcv58/Tab-Manager-v2/commit/5b2ea17)), closes [#224](https://github.com/xcv58/Tab-Manager-v2/issues/224)
 
+<a name="0.17.1"></a>
 
+## [0.17.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.17.0...v0.17.1) (2018-09-13)
+
+### Bug Fixes
+
+- chrome.management.get is not a function ([3be1389](https://github.com/xcv58/Tab-Manager-v2/commit/3be1389))
+
+<a name="0.17.0"></a>
+
+# [0.17.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.16.0...v0.17.0) (2018-09-13)
+
+### Bug Fixes
+
+- Add theme toggle button on main page ([8741e27](https://github.com/xcv58/Tab-Manager-v2/commit/8741e27)), closes [#227](https://github.com/xcv58/Tab-Manager-v2/issues/227)
+
+### Features
+
+- Add close button for Window ([98e27bf](https://github.com/xcv58/Tab-Manager-v2/commit/98e27bf)), closes [#226](https://github.com/xcv58/Tab-Manager-v2/issues/226)
 
 <a name="0.16.0"></a>
 
