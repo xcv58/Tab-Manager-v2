@@ -133,7 +133,8 @@ export default class Tab extends React.Component {
   }
 
   render () {
-    const { pinned, isVisible } = this.props.tab
+    const { tab } = this.props
+    const { pinned, isVisible } = tab
     if (!isVisible) {
       return null
     }
@@ -173,11 +174,11 @@ export default class Tab extends React.Component {
           }}
         >
           {pin}
-          <Icon {...this.props} />
-          <TabTooltip {...this.props}>
-            <TabContent {...this.props} />
+          <Icon tab={tab} />
+          <TabTooltip faked={this.props.faked} tab={tab}>
+            <TabContent tab={tab} />
           </TabTooltip>
-          <TabTools {...this.props} />
+          <TabTools faked={this.props.faked} tab={tab} />
           <CloseButton
             onClick={this.onRemove}
             disabled={this.props.tab.removing}
