@@ -14,13 +14,9 @@ export const backgroundColor = 'rgba(255, 255, 255, 0.64)'
 const overrides = {
   MuiIconButton: {
     root: {
+      padding: 0,
       height: '2.5rem',
       width: '2.5rem'
-    }
-  },
-  MuiSwitch: {
-    root: {
-      width: '3.5rem'
     }
   },
   MuiSnackbarContent: {
@@ -45,7 +41,7 @@ const app = {
   highlightColor: blue[50]
 }
 
-const theme = { overrides, app }
+const theme = { overrides, app, typography: { useNextVariants: true } }
 
 const darkTheme = merge(
   {
