@@ -41,7 +41,7 @@ const app = {
   highlightColor: blue[50]
 }
 
-const theme = { overrides, app }
+const theme = { overrides, app, typography: { useNextVariants: true } }
 
 const darkTheme = merge(
   {

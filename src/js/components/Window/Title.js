@@ -56,7 +56,7 @@ export default class Title extends React.Component {
       invisibleLength > 0 && `/ ${invisibleLength} hidden`
     const title = (
       <Typography
-        variant='headline'
+        variant='h5'
         style={{
           flex: '1 1 auto',
           width: 'max-content'

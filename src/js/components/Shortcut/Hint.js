@@ -17,7 +17,7 @@ export default class Hint extends React.Component {
         }}
         TransitionComponent={Fade}
         open={toastOpen}
-        message={<Typography variant='title'>{combo}</Typography>}
+        message={<Typography variant='h6'>{combo}</Typography>}
       />
     )
   }
