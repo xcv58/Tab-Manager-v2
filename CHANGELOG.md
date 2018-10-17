@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.18.1"></a>
+
+## [0.18.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.0...v0.18.1) (2018-10-17)
+
+### Bug Fixes
+
+- Crash after close some tabs ([#237](https://github.com/xcv58/Tab-Manager-v2/issues/237)) ([04c318a](https://github.com/xcv58/Tab-Manager-v2/commit/04c318a))
+
 <a name="0.18.0"></a>
 
 # [0.18.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.5...v0.18.0) (2018-09-15)
