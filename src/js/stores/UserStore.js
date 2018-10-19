@@ -19,10 +19,11 @@ export default class UserStore {
   }
 
   init = async () => {
-    const result = await chrome.storage.sync.get(DEFAULT_SETTINGS)
-    Object.assign(this, result)
-    this.toolbarVisible = !this.toolbarAutoHide
-    this.store.searchStore.init()
+    chrome.storage.sync.get(DEFAULT_SETTINGS, result => {
+      Object.assign(this, result)
+      this.toolbarVisible = !this.toolbarAutoHide
+      this.store.searchStore.init()
+    })
   }
 
   @observable
