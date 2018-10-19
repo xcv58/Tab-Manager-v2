@@ -13,7 +13,9 @@ const View = props => {
       style={{
         ...style,
         display: 'flex',
-        overflow: 'auto'
+        overflow: 'auto',
+        marginRight: 0,
+        marginBotton: 0
       }}
     />
   )
