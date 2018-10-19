@@ -97,10 +97,14 @@ export const setLastFocusedWindowId = lastFocusedWindowId => {
 }
 
 export const getLastFocusedWindowId = async () => {
-  const { lastFocusedWindowId } = await chrome.storage.local.get({
-    lastFocusedWindowId: null
-  })
-  return lastFocusedWindowId
+  try {
+    const { lastFocusedWindowId } = await chrome.storage.local.get({
+      lastFocusedWindowId: null
+    })
+    return lastFocusedWindowId
+  } catch (e) {
+    return null
+  }
 }
 
 export const tabComparator = (a, b) => {
