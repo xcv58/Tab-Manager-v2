@@ -8,21 +8,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-- Add theme toggle button on main page ([8741e27](https://github.com/xcv58/Tab-Manager-v2/commit/8741e27)), closes [#227](https://github.com/xcv58/Tab-Manager-v2/issues/227)
-- Change the column max height to 1.0 ([#221](https://github.com/xcv58/Tab-Manager-v2/issues/221)) ([093815c](https://github.com/xcv58/Tab-Manager-v2/commit/093815c))
-- chrome.management.get is not a function ([3be1389](https://github.com/xcv58/Tab-Manager-v2/commit/3be1389))
-- Crash after close some tabs ([#237](https://github.com/xcv58/Tab-Manager-v2/issues/237)) ([04c318a](https://github.com/xcv58/Tab-Manager-v2/commit/04c318a))
-- Drag & drop tab will close the original window ([#230](https://github.com/xcv58/Tab-Manager-v2/issues/230)) ([8bfd344](https://github.com/xcv58/Tab-Manager-v2/commit/8bfd344))
-- Esc doesn't dismiss Settings dialog ([64ec9af](https://github.com/xcv58/Tab-Manager-v2/commit/64ec9af))
-- Upgrade babel & packages ([af62b49](https://github.com/xcv58/Tab-Manager-v2/commit/af62b49))
-- Upgrade packages ([#218](https://github.com/xcv58/Tab-Manager-v2/issues/218)) ([08a9da3](https://github.com/xcv58/Tab-Manager-v2/commit/08a9da3))
 - Windows has overlap at the right edge ([d54a77d](https://github.com/xcv58/Tab-Manager-v2/commit/d54a77d))
-
-### Features
-
-- Add close button for Window ([98e27bf](https://github.com/xcv58/Tab-Manager-v2/commit/98e27bf)), closes [#226](https://github.com/xcv58/Tab-Manager-v2/issues/226)
-- Add Dark Theme ([#223](https://github.com/xcv58/Tab-Manager-v2/issues/223)) ([91acd6c](https://github.com/xcv58/Tab-Manager-v2/commit/91acd6c))
-- Always show close button and make it smaller ([5b2ea17](https://github.com/xcv58/Tab-Manager-v2/commit/5b2ea17)), closes [#224](https://github.com/xcv58/Tab-Manager-v2/issues/224)
+- Try to eliminate crash on Windows ([8e8d7a1](https://github.com/xcv58/Tab-Manager-v2/commit/8e8d7a1))
 
 <a name="0.18.1"></a>
 
