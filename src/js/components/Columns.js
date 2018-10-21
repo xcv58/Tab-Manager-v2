@@ -33,6 +33,10 @@ export default class Columns extends React.Component {
     this.props.windowStore.updateHeight(height)
   }
 
+  renderEmptyTrack = props => (
+    <div {...props} style={{ ...props.style, display: 'none' }} />
+  )
+
   render () {
     const {
       windowStore: { columns }
@@ -52,6 +56,8 @@ export default class Columns extends React.Component {
     return (
       <Scrollbars
         renderView={View}
+        renderTrackHorizontal={this.renderEmptyTrack}
+        renderTrackVertical={this.renderEmptyTrack}
         ref={this.scrollbars}
         style={{
           display: 'flex',

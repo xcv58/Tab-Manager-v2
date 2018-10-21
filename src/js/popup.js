@@ -7,12 +7,13 @@ import Store from 'stores'
 
 const store = new Store()
 
-const init = () =>
+const init = () => {
   render(
     <Provider {...store}>
       <App />
     </Provider>,
     window.document.getElementById('app-container')
   )
+}
 
 init()
