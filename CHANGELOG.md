@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.18.3"></a>
+
+## [0.18.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.1...v0.18.3) (2018-10-24)
+
+### Bug Fixes
+
+- Double scrollbar thumb on Windows ([#238](https://github.com/xcv58/Tab-Manager-v2/issues/238)) ([5a45411](https://github.com/xcv58/Tab-Manager-v2/commit/5a45411))
+- Windows has overlap at the right edge ([d54a77d](https://github.com/xcv58/Tab-Manager-v2/commit/d54a77d))
+
 <a name="0.18.2"></a>
 
 ## [0.18.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.14.3...v0.18.2) (2018-10-19)
