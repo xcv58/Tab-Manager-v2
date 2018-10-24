@@ -9,7 +9,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - Double scrollbar thumb on Windows ([#238](https://github.com/xcv58/Tab-Manager-v2/issues/238)) ([5a45411](https://github.com/xcv58/Tab-Manager-v2/commit/5a45411))
-- Windows has overlap at the right edge ([d54a77d](https://github.com/xcv58/Tab-Manager-v2/commit/d54a77d))
 
 <a name="0.18.2"></a>
 
