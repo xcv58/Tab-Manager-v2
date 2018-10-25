@@ -21,19 +21,19 @@
     "build-storybook": "build-storybook -c .storybook -o .out"
   },
   "dependencies": {
-    "@material-ui/core": "3.3.0",
+    "@material-ui/core": "3.3.1",
     "@material-ui/icons": "^3.0.1",
     "chrome-extension-async": "^3.3.0",
     "fuzzy": "^0.1.3",
     "lodash.merge": "^4.6.1",
-    "mobx": "^5.5.1",
-    "mobx-react": "^5.3.4",
+    "mobx": "^5.5.2",
+    "mobx-react": "^5.3.5",
     "mousetrap": "^1.6.2",
-    "react": "^16.5.2",
+    "react": "^16.6.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^5.0.1",
-    "react-dom": "^16.5.2",
+    "react-dom": "^16.6.0",
     "react-flip-move": "^3.0.3",
     "react-resize-detector": "^3.1.3",
     "rebound": "^0.1.0"
@@ -80,7 +80,7 @@
     "standard-version": "^4.4.0",
     "style-loader": "^0.23.1",
     "uglifyjs-webpack-plugin": "^1.3.0",
-    "webpack": "^4.22.0",
+    "webpack": "^4.23.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-dev-server": "^3.1.10",
     "write-file-webpack-plugin": "^4.4.1"
