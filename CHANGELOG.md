@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.18.4"></a>
+
+## [0.18.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.0...v0.18.4) (2019-01-11)
+
+### Bug Fixes
+
+- Can't save setting caused by chrome-extension-async issue ([93e9caf](https://github.com/xcv58/Tab-Manager-v2/commit/93e9caf))
+- Crash after close some tabs ([#237](https://github.com/xcv58/Tab-Manager-v2/issues/237)) ([04c318a](https://github.com/xcv58/Tab-Manager-v2/commit/04c318a))
+- Double scrollbar thumb on Windows ([#238](https://github.com/xcv58/Tab-Manager-v2/issues/238)) ([5a45411](https://github.com/xcv58/Tab-Manager-v2/commit/5a45411))
+- Windows has overlap at the right edge ([d54a77d](https://github.com/xcv58/Tab-Manager-v2/commit/d54a77d))
+
 <a name="0.18.3"></a>
 
 ## [0.18.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.1...v0.18.3) (2018-10-24)
