@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.18.6"></a>
+
+## [0.18.6](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.3...v0.18.6) (2019-01-27)
+
+### Bug Fixes
+
+- Can't save setting caused by chrome-extension-async issue ([93e9caf](https://github.com/xcv58/Tab-Manager-v2/commit/93e9caf))
+- Tune the tab sort criteria ([e5f7991](https://github.com/xcv58/Tab-Manager-v2/commit/e5f7991))
+
 <a name="0.18.4"></a>
 
 ## [0.18.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.0...v0.18.4) (2019-01-11)
