@@ -2682,10 +2682,10 @@ chownr@^1.0.1, chownr@^1.1.1:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-1.1.1.tgz#54726b8b8fff4df053c42187e801fb4412df1494"
   integrity sha512-j38EvO5+LHX84jlo6h4UzmOwi0UgW61WRyPtJz4qaadK5eY3BTS5TY/S1Stc3Uk2lIM6TPevAlULiEJwie860g==
 
-chrome-extension-async@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/chrome-extension-async/-/chrome-extension-async-3.3.0.tgz#bdfc4badfdd76cbf05e7701bb362d7cdd8fdd414"
-  integrity sha512-TkYZDOlNDcDomyfY8FRVVuhmdHUVyrA7Q7rx6OmFLBSjfVYbIAI+pNUcx9qWBogW48oMSb7eQMPg7kwub3XAvg==
+chrome-extension-async@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/chrome-extension-async/-/chrome-extension-async-3.3.1.tgz#f383cf99f2b211daeedadd84f75c7ec56cd9cedd"
+  integrity sha512-xaShXHU03KiY5nv8t15Os61l8EJLEB7m0ADQcFUH/WkIgr4c+srTUNv8FQv/Iycvmf2Jguz9qJCUYdNANwn5bA==
 
 chrome-trace-event@^1.0.0:
   version "1.0.0"

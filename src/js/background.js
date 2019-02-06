@@ -1,4 +1,4 @@
-import './chrome-extension-async'
+import 'chrome-extension-async'
 import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup } from 'libs'
