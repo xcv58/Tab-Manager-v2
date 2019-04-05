@@ -268,18 +268,20 @@ export default class WindowsStore {
   @action
   updateColumns () {
     const max = Math.ceil((this.height / 35) * 1.0)
-    this.columns = this.windows.filter(x => x.length > 0).reduce(
-      (acc, cur) => {
-        const column = acc[acc.length - 1]
-        if (column.length === 0 || column.length + cur.length <= max) {
-          column.add(cur)
-        } else {
-          acc.push(new Column(this.store, cur))
-        }
-        return acc
-      },
-      [new Column(this.store)]
-    )
+    this.columns = this.windows
+      .filter(x => x.length > 0)
+      .reduce(
+        (acc, cur) => {
+          const column = acc[acc.length - 1]
+          if (column.length === 0 || column.length + cur.length <= max) {
+            column.add(cur)
+          } else {
+            acc.push(new Column(this.store, cur))
+          }
+          return acc
+        },
+        [new Column(this.store)]
+      )
   }
 
   getAllWindows = () => {
