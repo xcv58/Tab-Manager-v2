@@ -14,11 +14,10 @@ import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 
 @DragDropContext(HTML5Backend)
-@inject('windowStore')
-@inject('shortcutStore')
-@inject('themeStore')
 @observer
-export default class App extends React.Component {
+class App extends React.Component<any, {}> {
+  search: any
+
   componentDidMount () {
     this.props.windowStore.didMount(this)
     this.props.shortcutStore.didMount(this)
@@ -46,7 +45,7 @@ export default class App extends React.Component {
             }}
           >
             <Tools
-              inputRef={input => {
+              inputRef={(input: any) => {
                 this.search = input
               }}
             />
@@ -63,3 +62,8 @@ export default class App extends React.Component {
     )
   }
 }
+
+export default inject((stores: any) => {
+  const { windowStore, shortcutStore, themeStore } = stores
+  return { windowStore, shortcutStore, themeStore }
+})(App)

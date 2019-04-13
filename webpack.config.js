@@ -7,8 +7,18 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WriteFilePlugin = require('write-file-webpack-plugin')
 
-// load the secrets
-const alias = {}
+const srcPath = subdir => {
+  return path.join(__dirname, 'src/js', subdir)
+}
+
+const alias = {
+  background: srcPath('background'),
+  components: srcPath('components'),
+  libs: srcPath('libs'),
+  stores: srcPath('stores'),
+  svgIcons: srcPath('svgIcons'),
+  img: path.join(__dirname, 'src/img')
+}
 
 const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js')
 
@@ -74,8 +84,8 @@ const options = {
         exclude: /node_modules/
       },
       {
-        test: /\.(js|jsx)$/,
-        loader: 'babel-loader',
+        test: /\.(js|ts)x?$/,
+        use: 'ts-loader',
         exclude: /node_modules/
       }
     ]
@@ -84,7 +94,7 @@ const options = {
     alias,
     extensions: fileExtensions
       .map(extension => '.' + extension)
-      .concat(['.jsx', '.js', '.css'])
+      .concat(['.css', '.jsx', '.js', '.tsx', 'ts'])
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
