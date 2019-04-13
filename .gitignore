@@ -5,3 +5,4 @@ build.zip
 secrets.*.js
 *.lcov
 coverage
+yarn-error.log

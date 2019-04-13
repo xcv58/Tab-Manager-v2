@@ -1,4 +1,4 @@
-import { findLastVisibleOrLastTab, findFirstVisibleOrFirstTab } from 'libs'
+import { findLastVisibleOrLastTab, findFirstVisibleOrFirstTab } from './index'
 
 export const ItemTypes = {
   TAB: 'tab'

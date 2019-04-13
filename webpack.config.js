@@ -94,7 +94,7 @@ const options = {
     alias,
     extensions: fileExtensions
       .map(extension => '.' + extension)
-      .concat(['.css', '.tsx', 'ts', '.jsx', '.js'])
+      .concat(['.css', '.jsx', '.js', '.tsx', 'ts'])
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
