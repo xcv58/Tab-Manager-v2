@@ -66,7 +66,7 @@ export default class TabStore {
 
   @computed
   get sources () {
-    return [...this.selection.values()].sort((a, b) => {
+    return Array.from(this.selection.values()).sort((a, b) => {
       if (a.windowId === b.windowId) {
         return a.index - b.index
       }
