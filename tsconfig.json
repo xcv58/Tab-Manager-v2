@@ -5,7 +5,11 @@
     "outDir": "./build/",
     "baseUrl": "./src/js",
     "paths": {
-      "*": ["*"]
+      "*": ["*"],
+      "@material-ui/core": ["./material-ui/src"],
+      "@material-ui/core/*": ["./material-ui/src/*"],
+      "@material-ui/lab": ["./material-ui-lab/src"],
+      "@material-ui/lab/*": ["./material-ui-lab/src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -13,6 +17,7 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "module": "es6",
+    "moduleResolution": "node",
     "target": "es5",
     "jsx": "react",
     "allowJs": true
