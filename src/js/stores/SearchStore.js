@@ -208,13 +208,7 @@ export default class SearchStore {
       this.findFocusedTab()
       return
     }
-    const columns = this.matchedColumns
-    const { length } = columns
-    if (
-      length <= 1 ||
-      this.focusedColIndex < 0 ||
-      this.focusedColTabIndex < 0
-    ) {
+    if (this.focusedColIndex < 0 || this.focusedColTabIndex < 0) {
       this.findFocusedTab(direction)
       return
     }
