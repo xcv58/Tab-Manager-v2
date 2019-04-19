@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [0.18.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.6...v0.18.7) (2019-04-19)
 
+### Bug Fixes
+
+- Fix gg/G for first/last tab in column ([1826f62](https://github.com/xcv58/Tab-Manager-v2/commit/1826f62))
+
 <a name="0.18.6"></a>
 
 ## [0.18.6](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.3...v0.18.6) (2019-01-27)
