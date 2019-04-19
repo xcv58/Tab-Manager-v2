@@ -3,6 +3,9 @@ const webpack = require('webpack')
 const config = require('../webpack.config')()
 const env = require('./env')
 const path = require('path')
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
+
+const smp = new SpeedMeasurePlugin()
 
 const options = config.chromeExtensionBoilerplate || {}
 const excludeEntriesToHotReload = options.notHotReload || []
@@ -22,9 +25,10 @@ config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
 
 delete config.chromeExtensionBoilerplate
 
-const compiler = webpack({ ...config, mode: 'development' })
+const compiler = webpack(smp.wrap({ ...config, mode: 'development' }))
 
 const server = new WebpackDevServer(compiler, {
+  stats: 'minimal',
   hot: true,
   disableHostCheck: true,
   contentBase: path.join(__dirname, '../build'),

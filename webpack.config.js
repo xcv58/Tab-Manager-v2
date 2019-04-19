@@ -6,6 +6,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WriteFilePlugin = require('write-file-webpack-plugin')
+// const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+// const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 
 const srcPath = subdir => {
   return path.join(__dirname, 'src/js', subdir)
@@ -71,22 +74,33 @@ const options = {
       {
         test: /\.css$/,
         loader: 'style-loader!css-loader',
+        include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
       },
       {
         test: new RegExp(`\\.(${fileExtensions.join('|')})$`),
         loader: 'file-loader?name=[name].[ext]',
+        include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
       },
       {
         test: /\.html$/,
         loader: 'html-loader',
+        include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
       },
       {
         test: /\.(js|ts)x?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+              experimentalWatchApi: true
+            }
+          }
+        ],
+        include: path.resolve(__dirname, 'src')
       }
     ]
   },
@@ -119,6 +133,11 @@ const options = {
       }
     ]),
     ...HtmlFiles,
+    // new ForkTsCheckerWebpackPlugin({
+    //   tsconfig: path.join(__dirname, 'tsconfig.json')
+    // }),
+    // new HardSourceWebpackPlugin(),
+    new ProgressBarPlugin(),
     new WriteFilePlugin()
   ]
 }
