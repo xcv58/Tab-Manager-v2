@@ -10,7 +10,7 @@ const style = {
 
 @inject('tabStore')
 @observer
-export default class Preview extends React.Component {
+export default class Preview extends React.Component<any> {
   render () {
     const {
       tabStore: { sources }

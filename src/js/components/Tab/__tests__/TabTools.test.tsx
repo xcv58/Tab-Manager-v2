@@ -1,5 +1,5 @@
 import React from 'react'
-import { shallow, expect, describe, it } from 'test'
+import { shallow } from 'enzyme'
 import TabTools from 'components/Tab/TabTools'
 import TabMenu from 'components/Tab/TabMenu'
 

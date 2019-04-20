@@ -1,5 +1,6 @@
 import React from 'react'
-import { spy, shallow, expect, describe, it } from 'test'
+import { spy } from 'sinon'
+import { shallow } from 'enzyme'
 import CloseIcon from '@material-ui/icons/Close'
 import IconButton from '@material-ui/core/IconButton'
 import CloseButton from 'components/CloseButton'

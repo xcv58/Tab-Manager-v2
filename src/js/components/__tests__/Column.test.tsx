@@ -1,5 +1,7 @@
 import React from 'react'
-import { connectDropTarget, spy, shallow, it, describe, expect } from 'test'
+import { connectDropTarget } from 'test'
+import { spy } from 'sinon'
+import { shallow } from 'enzyme'
 import Column from 'components/Column'
 import FlipMove from 'react-flip-move'
 import Window from 'components/Window'

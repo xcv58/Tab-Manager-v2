@@ -1,9 +1,10 @@
 import React from 'react'
-import { spy, shallow, expect, test } from 'test'
+import { spy } from 'sinon'
+import { shallow } from 'enzyme'
 import Tooltip from '@material-ui/core/Tooltip'
 import SortIcon from '@material-ui/icons/Sort'
 import IconButton from '@material-ui/core/IconButton'
-import Sort from '../Sort'
+import Sort from 'components/Window/Sort'
 
 const id = 'id'
 const sortTabs = spy()

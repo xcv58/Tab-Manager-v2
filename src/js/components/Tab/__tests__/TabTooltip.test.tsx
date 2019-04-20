@@ -1,5 +1,5 @@
 import React from 'react'
-import { shallow, expect, describe, it } from 'test'
+import { shallow } from 'enzyme'
 import IconButton from '@material-ui/core/IconButton'
 import Checkbox from '@material-ui/core/Checkbox'
 import Tooltip from '@material-ui/core/Tooltip'

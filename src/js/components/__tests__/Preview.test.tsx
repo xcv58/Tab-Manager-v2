@@ -1,5 +1,5 @@
 import React from 'react'
-import { shallow, it, describe, expect } from 'test'
+import { shallow } from 'enzyme'
 import Tab from 'components/Tab/Tab'
 import Preview from 'components/Preview'
 

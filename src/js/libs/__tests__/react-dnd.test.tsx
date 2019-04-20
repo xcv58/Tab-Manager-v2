@@ -1,11 +1,11 @@
-import { stub, describe, it, expect, spy } from 'test'
+import { spy, stub } from 'sinon'
 import {
   tabDropCollect,
   windowTarget,
   titleTarget,
   tabSource,
   tabTarget
-} from 'libs/react-dnd'
+} from '../react-dnd'
 
 describe('tabDropCollect', () => {
   const dropTarget = stub().returns('dropTarget')

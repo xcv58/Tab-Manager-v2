@@ -1,10 +1,12 @@
 import React from 'react'
-import { connectDropTarget, spy, shallow, it, describe, expect } from 'test'
+import { connectDropTarget } from 'test'
+import { spy } from 'sinon'
+import { shallow } from 'enzyme'
 import Paper from '@material-ui/core/Paper'
-import Title from '../Title'
-import Tabs from '../Tabs'
+import Title from 'components/Window/Title'
+import Tabs from 'components/Window/Tabs'
 import Preview from 'components/Preview'
-import Window from '../index'
+import Window from 'components/Window'
 import { createMuiTheme } from '@material-ui/core/styles'
 
 const theme = createMuiTheme()

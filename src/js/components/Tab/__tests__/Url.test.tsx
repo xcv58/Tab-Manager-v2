@@ -1,5 +1,6 @@
 import React from 'react'
-import { spy, stub, shallow, expect, describe, it } from 'test'
+import { spy, stub } from 'sinon'
+import { shallow } from 'enzyme'
 import Url from 'components/Tab/Url'
 import Typography from '@material-ui/core/Typography'
 

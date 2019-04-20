@@ -1,13 +1,7 @@
 import React from 'react'
-import {
-  connectDropTarget,
-  spy,
-  stub,
-  shallow,
-  it,
-  describe,
-  expect
-} from 'test'
+import { connectDropTarget } from 'test'
+import { spy, stub } from 'sinon'
+import { shallow } from 'enzyme'
 import FlipMove from 'react-flip-move'
 import DraggableTab from 'components/Tab/DraggableTab'
 import Tabs from 'components/Window/Tabs'
