@@ -13,7 +13,9 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - run: yarn test
+      - run: yarn lint
+      - run: yarn lint:ts
+      - run: yarn jest
       - run: yarn deploy
       - run: ls -l build/* build.zip
       - run: sha256sum build/* build.zip | tee SHA256SUMS.txt
