@@ -6,7 +6,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('searchStore')
 @observer
-export default class SelectAll extends React.Component {
+class SelectAll extends React.Component {
   selectAll = e => {
     e.target.blur()
     const { allTabSelected, selectAll, unselectAll } = this.props.searchStore
@@ -34,3 +34,5 @@ export default class SelectAll extends React.Component {
     )
   }
 }
+
+export default SelectAll

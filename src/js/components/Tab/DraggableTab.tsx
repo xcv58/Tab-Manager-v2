@@ -15,7 +15,7 @@ import { withTheme } from '@material-ui/core/styles'
   isDragging: monitor.isDragging()
 }))
 @observer
-export default class DraggableTab extends React.Component {
+class DraggableTab extends React.Component {
   componentDidMount () {
     const { connectDragPreview } = this.props
     connectDragPreview(document.getElementById('dragPreview'))
@@ -56,3 +56,5 @@ export default class DraggableTab extends React.Component {
     )
   }
 }
+
+export default DraggableTab

@@ -10,10 +10,6 @@ const styles = theme => ({
   }
 })
 
-@withStyles(styles)
-export default class VerticalDivider extends React.Component {
-  render () {
-    const { classes } = this.props
-    return <div className={classes.root} />
-  }
-}
+export default withStyles(styles)(({ classes }) => (
+  <div className={classes.root} />
+))

@@ -39,7 +39,7 @@ const styles = theme => ({
 @inject('dragStore')
 @DropTarget(ItemTypes.TAB, titleTarget, tabDropCollect)
 @observer
-export default class Title extends React.Component {
+class Title extends React.Component {
   render () {
     const {
       classes,
@@ -93,3 +93,5 @@ export default class Title extends React.Component {
     )
   }
 }
+
+export default Title

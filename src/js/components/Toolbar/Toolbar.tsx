@@ -14,7 +14,7 @@ import VerticalDivider from 'components/Toolbar/VerticalDivider'
 
 @inject('userStore')
 @observer
-export default class Toolbar extends React.Component {
+class Toolbar extends React.Component {
   render () {
     const { toolbarVisible } = this.props.userStore
     return (
@@ -37,3 +37,5 @@ export default class Toolbar extends React.Component {
     )
   }
 }
+
+export default Toolbar

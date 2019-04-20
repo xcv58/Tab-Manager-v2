@@ -6,7 +6,7 @@ import IconButton from '@material-ui/core/IconButton'
 
 @inject('arrangeStore')
 @observer
-export default class Sort extends React.Component {
+class Sort extends React.Component {
   render () {
     const {
       win: { id },
@@ -21,3 +21,5 @@ export default class Sort extends React.Component {
     )
   }
 }
+
+export default Sort

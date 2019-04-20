@@ -6,7 +6,7 @@ import Fade from '@material-ui/core/Fade'
 
 @inject('shortcutStore')
 @observer
-export default class Hint extends React.Component {
+class Hint extends React.Component {
   render () {
     const { combo, toastOpen } = this.props.shortcutStore
     return (
@@ -22,3 +22,5 @@ export default class Hint extends React.Component {
     )
   }
 }
+
+export default Hint

@@ -10,7 +10,7 @@ import { getDescription } from 'stores/ShortcutStore'
 
 @inject('shortcutStore')
 @observer
-export default class Help extends React.Component {
+class Help extends React.Component {
   render () {
     const {
       shortcutStore: { shortcuts }
@@ -34,3 +34,5 @@ export default class Help extends React.Component {
     )
   }
 }
+
+export default Help

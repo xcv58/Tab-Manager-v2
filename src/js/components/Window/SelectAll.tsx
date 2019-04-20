@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 
 @inject('tabStore')
 @observer
-export default class SelectAll extends React.Component {
+class SelectAll extends React.Component {
   onChange = e => {
     e.target.blur()
     const {
@@ -35,3 +35,5 @@ export default class SelectAll extends React.Component {
     )
   }
 }
+
+export default SelectAll

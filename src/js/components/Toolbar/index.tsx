@@ -5,7 +5,7 @@ import ToolbarIndicator from './ToolbarIndicator'
 
 @inject('userStore')
 @observer
-export default class ToolbarWrapper extends React.Component {
+class ToolbarWrapper extends React.Component {
   render () {
     const {
       lazyHideToolbar,
@@ -31,3 +31,5 @@ export default class ToolbarWrapper extends React.Component {
     )
   }
 }
+
+export default ToolbarWrapper

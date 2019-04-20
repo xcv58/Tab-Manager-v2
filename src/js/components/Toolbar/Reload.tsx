@@ -7,7 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('tabStore')
 @observer
-export default class Reload extends React.Component {
+class Reload extends React.Component {
   render () {
     const { reload, hasFocusedOrSelectedTab } = this.props.tabStore
     return (
@@ -21,3 +21,5 @@ export default class Reload extends React.Component {
     )
   }
 }
+
+export default Reload

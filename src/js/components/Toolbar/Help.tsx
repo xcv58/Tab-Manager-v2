@@ -7,7 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('shortcutStore')
 @observer
-export default class HelpComponent extends React.Component {
+class HelpComponent extends React.Component {
   render () {
     const { openDialog } = this.props.shortcutStore
     return (
@@ -21,3 +21,5 @@ export default class HelpComponent extends React.Component {
     )
   }
 }
+
+export default HelpComponent

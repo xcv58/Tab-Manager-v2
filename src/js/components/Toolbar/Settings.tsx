@@ -7,7 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('userStore')
 @observer
-export default class SettingsComponent extends React.Component {
+class SettingsComponent extends React.Component {
   render () {
     const { openDialog } = this.props.userStore
     return (
@@ -21,3 +21,5 @@ export default class SettingsComponent extends React.Component {
     )
   }
 }
+
+export default SettingsComponent

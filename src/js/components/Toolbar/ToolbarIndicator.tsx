@@ -15,7 +15,7 @@ const IndicatorIcon = ({ toolbarVisible }) => {
 
 @inject('userStore')
 @observer
-export default class ToolbarIndicator extends React.Component {
+class ToolbarIndicator extends React.Component {
   onClick = () => {
     const { hideToolbar, showToolbar, toolbarVisible } = this.props.userStore
     if (toolbarVisible) {
@@ -50,3 +50,5 @@ export default class ToolbarIndicator extends React.Component {
     )
   }
 }
+
+export default ToolbarIndicator

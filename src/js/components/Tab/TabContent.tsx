@@ -43,7 +43,7 @@ const styles = theme => ({
 @withStyles(styles)
 @inject('userStore')
 @observer
-export default class TabContent extends React.Component {
+class TabContent extends React.Component {
   getHighlightNode = text => {
     const {
       tab: { isMatched, query }
@@ -85,3 +85,5 @@ export default class TabContent extends React.Component {
     )
   }
 }
+
+export default TabContent

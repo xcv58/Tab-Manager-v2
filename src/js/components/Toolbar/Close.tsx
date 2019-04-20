@@ -9,7 +9,7 @@ import { TOOLTIP_DELAY } from 'libs'
 @withTheme()
 @inject('tabStore')
 @observer
-export default class Close extends React.Component {
+class Close extends React.Component {
   render () {
     const {
       remove,
@@ -35,3 +35,5 @@ export default class Close extends React.Component {
     )
   }
 }
+
+export default Close

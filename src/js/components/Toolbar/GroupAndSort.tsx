@@ -7,7 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('arrangeStore')
 @observer
-export default class GroupAndSort extends React.Component {
+class GroupAndSort extends React.Component {
   render () {
     const { groupTabs } = this.props.arrangeStore
     return (
@@ -21,3 +21,5 @@ export default class GroupAndSort extends React.Component {
     )
   }
 }
+
+export default GroupAndSort

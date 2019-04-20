@@ -5,7 +5,7 @@ import DraggableTab from 'components/Tab/DraggableTab'
 
 @inject('windowStore')
 @observer
-export default class Tabs extends React.Component {
+class Tabs extends React.Component {
   componentDidMount () {
     window.requestAnimationFrame(this.props.windowStore.windowMounted)
   }
@@ -36,3 +36,5 @@ export default class Tabs extends React.Component {
     )
   }
 }
+
+export default Tabs
