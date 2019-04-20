@@ -49,6 +49,8 @@ export default class Tab {
   @observable
   removing = false
 
+  favIconUrl: string
+
   @action
   activate = () => {
     this.focus()
@@ -152,12 +154,15 @@ export default class Tab {
 
   setUrlIcon = async () => {
     const { url, favIconUrl } = this
+    if (!url) {
+      return
+    }
     const { host } = new window.URL(url)
     if (url.startsWith(CHROME_PREFIX)) {
       this.iconUrl = FAV_ICONS[host] || this.iconUrl
     } else if (url.startsWith(CHROME_EXTENSION_PREFIX)) {
       const { icons } = await chrome.management.get(host)
-      this.iconUrl = ([...icons].pop() || {}).url || this.iconUrl
+      this.iconUrl = ([...(icons || [])].pop() || {}).url || this.iconUrl
     } else {
       this.iconUrl = favIconUrl || this.iconUrl
     }
