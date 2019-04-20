@@ -4,21 +4,16 @@ import Settings from '@material-ui/icons/SettingsSharp'
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
+import UserStore from 'stores/UserStore'
 
-@inject('userStore')
-@observer
-class SettingsComponent extends React.Component {
-  render () {
-    return (
-      <Tooltip title='Settings' enterDelay={TOOLTIP_DELAY}>
-        <div>
-          <IconButton onClick={this.props.userStore.openDialog}>
-            <Settings />
-          </IconButton>
-        </div>
-      </Tooltip>
-    )
-  }
-}
+const SettingsComponent = ({ userStore }: { userStore: UserStore }) => (
+  <Tooltip title='Settings' enterDelay={TOOLTIP_DELAY}>
+    <div>
+      <IconButton onClick={userStore.openDialog}>
+        <Settings />
+      </IconButton>
+    </div>
+  </Tooltip>
+)
 
-export default SettingsComponent
+export default inject('userStore')(observer(SettingsComponent))
