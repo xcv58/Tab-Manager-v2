@@ -9,11 +9,10 @@ import { TOOLTIP_DELAY } from 'libs'
 @observer
 class HelpComponent extends React.Component {
   render () {
-    const { openDialog } = this.props.shortcutStore
     return (
       <Tooltip title='Show shortcut hints' enterDelay={TOOLTIP_DELAY}>
         <div>
-          <IconButton onClick={openDialog}>
+          <IconButton onClick={this.props.shortcutStore.openDialog}>
             <Help />
           </IconButton>
         </div>

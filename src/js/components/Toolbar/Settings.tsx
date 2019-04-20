@@ -9,11 +9,10 @@ import { TOOLTIP_DELAY } from 'libs'
 @observer
 class SettingsComponent extends React.Component {
   render () {
-    const { openDialog } = this.props.userStore
     return (
       <Tooltip title='Settings' enterDelay={TOOLTIP_DELAY}>
         <div>
-          <IconButton onClick={openDialog}>
+          <IconButton onClick={this.props.userStore.openDialog}>
             <Settings />
           </IconButton>
         </div>
