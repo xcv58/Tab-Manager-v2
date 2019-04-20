@@ -7,7 +7,7 @@ import LightbulbFull from 'svgIcons/LightbulbFull'
 
 @inject('userStore')
 @observer
-export default class ThemeToggle extends React.Component {
+class ThemeToggle extends React.Component {
   render () {
     const { darkTheme, toggleDarkTheme } = this.props.userStore
     return (
@@ -19,3 +19,5 @@ export default class ThemeToggle extends React.Component {
     )
   }
 }
+
+export default ThemeToggle

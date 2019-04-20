@@ -19,7 +19,7 @@ const DIVIDER = { divider: true }
 @withStyles(styles)
 @inject('dragStore')
 @observer
-export default class TabMenu extends React.Component {
+class TabMenu extends React.Component {
   state = {
     anchorEl: null
   }
@@ -119,3 +119,5 @@ export default class TabMenu extends React.Component {
     )
   }
 }
+
+export default TabMenu

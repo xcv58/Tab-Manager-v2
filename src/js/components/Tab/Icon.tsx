@@ -31,7 +31,7 @@ const styles = () => ({
 
 @withStyles(styles)
 @observer
-export default class Icon extends React.Component {
+class Icon extends React.Component {
   render () {
     const { classes } = this.props
     const { focus, select, iconUrl, isSelected } = this.props.tab
@@ -50,3 +50,5 @@ export default class Icon extends React.Component {
     )
   }
 }
+
+export default Icon

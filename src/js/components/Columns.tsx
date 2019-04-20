@@ -23,7 +23,7 @@ const View = props => {
 
 @inject('windowStore')
 @observer
-export default class Columns extends React.Component {
+class Columns extends React.Component {
   scrollbars = React.createRef()
 
   getScrollbars = () => this.scrollbars.current
@@ -76,3 +76,5 @@ export default class Columns extends React.Component {
     )
   }
 }
+
+export default Columns

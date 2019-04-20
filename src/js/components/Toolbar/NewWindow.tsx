@@ -8,7 +8,7 @@ import { TOOLTIP_DELAY } from 'libs'
 @inject('dragStore')
 @inject('tabStore')
 @observer
-export default class NewWindow extends React.Component {
+class NewWindow extends React.Component {
   render () {
     const { dropToNewWindow } = this.props.dragStore
     const { selection, tabDescription } = this.props.tabStore
@@ -29,3 +29,5 @@ export default class NewWindow extends React.Component {
     )
   }
 }
+
+export default NewWindow

@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input'
 @inject('userStore')
 @inject('searchStore')
 @observer
-export default class Search extends React.Component {
+class Search extends React.Component {
   onChange = e => {
     this.props.searchStore.search(e.target.value)
   }
@@ -42,3 +42,5 @@ export default class Search extends React.Component {
     )
   }
 }
+
+export default Search

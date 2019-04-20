@@ -14,7 +14,7 @@ const styles = theme => ({
 })
 
 @withStyles(styles)
-export default class CloseButton extends React.Component {
+class CloseButton extends React.Component {
   static defaultProps = {
     disabled: false
   }
@@ -28,3 +28,5 @@ export default class CloseButton extends React.Component {
     )
   }
 }
+
+export default CloseButton

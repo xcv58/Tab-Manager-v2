@@ -4,7 +4,7 @@ import FlipMove from 'react-flip-move'
 import Window from 'components/Window'
 
 @observer
-export default class Column extends React.Component {
+class Column extends React.Component {
   render () {
     const {
       column: { windows },
@@ -48,3 +48,5 @@ export default class Column extends React.Component {
     )
   }
 }
+
+export default Column

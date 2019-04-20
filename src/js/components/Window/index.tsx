@@ -13,7 +13,7 @@ import { withTheme } from '@material-ui/core/styles'
 @inject('dragStore')
 @DropTarget(ItemTypes.TAB, windowTarget, tabDropCollect)
 @observer
-export default class Window extends React.Component {
+class Window extends React.Component {
   render () {
     const {
       connectDropTarget,
@@ -47,3 +47,5 @@ export default class Window extends React.Component {
     )
   }
 }
+
+export default Window

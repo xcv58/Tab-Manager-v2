@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 @inject('dragStore')
 @inject('hoverStore')
 @observer
-export default class TabTooltip extends React.Component {
+class TabTooltip extends React.Component {
   render () {
     const {
       children,
@@ -41,3 +41,5 @@ export default class TabTooltip extends React.Component {
     )
   }
 }
+
+export default TabTooltip

@@ -4,7 +4,7 @@ import { focusedColor } from 'libs/colors'
 
 @inject('tabStore')
 @observer
-export default class DragPreview extends React.Component {
+class DragPreview extends React.Component {
   render () {
     const {
       tabStore: { sources }
@@ -32,3 +32,5 @@ export default class DragPreview extends React.Component {
     )
   }
 }
+
+export default DragPreview

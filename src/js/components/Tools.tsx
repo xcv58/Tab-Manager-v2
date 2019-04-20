@@ -38,7 +38,7 @@ const style = {
   })
 )
 @observer
-export default class Tools extends React.Component {
+class Tools extends React.Component {
   render () {
     const {
       connectDropTarget,
@@ -93,3 +93,5 @@ export default class Tools extends React.Component {
     )
   }
 }
+
+export default Tools

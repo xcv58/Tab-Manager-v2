@@ -49,7 +49,7 @@ const getTargetValue = (lValue, rValue) => {
 @inject('windowStore')
 @inject('dragStore')
 @observer
-export default class Tab extends React.Component {
+class Tab extends React.Component {
   node = React.createRef()
 
   componentDidMount () {
@@ -188,3 +188,5 @@ export default class Tab extends React.Component {
     )
   }
 }
+
+export default Tab

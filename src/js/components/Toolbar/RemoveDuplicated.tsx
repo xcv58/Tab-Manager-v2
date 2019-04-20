@@ -7,7 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('windowStore')
 @observer
-export default class RemoveDuplicated extends React.Component {
+class RemoveDuplicated extends React.Component {
   render () {
     const { cleanDuplicatedTabs, duplicatedTabs } = this.props.windowStore
     return (
@@ -24,3 +24,5 @@ export default class RemoveDuplicated extends React.Component {
     )
   }
 }
+
+export default RemoveDuplicated

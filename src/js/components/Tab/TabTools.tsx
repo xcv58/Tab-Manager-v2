@@ -14,7 +14,7 @@ const styles = theme => ({
 @withStyles(styles)
 @inject('dragStore')
 @observer
-export default class TabTools extends React.Component {
+class TabTools extends React.Component {
   render () {
     const {
       classes,
@@ -33,3 +33,5 @@ export default class TabTools extends React.Component {
     )
   }
 }
+
+export default TabTools

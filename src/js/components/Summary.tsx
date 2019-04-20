@@ -18,7 +18,7 @@ const fakeButtonStyle = {
 @inject('tabStore')
 @inject('windowStore')
 @observer
-export default class Summary extends React.Component {
+class Summary extends React.Component {
   onFocus = e => {
     e.target.blur()
   }
@@ -52,3 +52,5 @@ export default class Summary extends React.Component {
     )
   }
 }
+
+export default Summary

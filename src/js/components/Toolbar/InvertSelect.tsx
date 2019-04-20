@@ -7,7 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 
 @inject('searchStore')
 @observer
-export default class InvertSelect extends React.Component {
+class InvertSelect extends React.Component {
   render () {
     const { invertSelect } = this.props.searchStore
     return (
@@ -21,3 +21,5 @@ export default class InvertSelect extends React.Component {
     )
   }
 }
+
+export default InvertSelect

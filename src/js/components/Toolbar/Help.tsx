@@ -4,20 +4,16 @@ import Help from '@material-ui/icons/Help'
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
+import ShortcutStore from 'stores/ShortcutStore'
 
-@inject('shortcutStore')
-@observer
-export default class HelpComponent extends React.Component {
-  render () {
-    const { openDialog } = this.props.shortcutStore
-    return (
-      <Tooltip title='Show shortcut hints' enterDelay={TOOLTIP_DELAY}>
-        <div>
-          <IconButton onClick={openDialog}>
-            <Help />
-          </IconButton>
-        </div>
-      </Tooltip>
-    )
-  }
-}
+const HelpComponent = ({ shortcutStore }: { shortcutStore: ShortcutStore }) => (
+  <Tooltip title='Show shortcut hints' enterDelay={TOOLTIP_DELAY}>
+    <div>
+      <IconButton onClick={shortcutStore.openDialog}>
+        <Help />
+      </IconButton>
+    </div>
+  </Tooltip>
+)
+
+export default inject('shortcutStore')(observer(HelpComponent))
