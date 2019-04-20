@@ -4,6 +4,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'mobx-react'
 import Store from 'stores'
+import '../css/popup.css'
 
 const store = new Store()
 

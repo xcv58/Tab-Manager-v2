@@ -9,6 +9,7 @@ const WriteFilePlugin = require('write-file-webpack-plugin')
 // const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const srcPath = subdir => {
   return path.join(__dirname, 'src/js', subdir)
@@ -53,7 +54,10 @@ const HtmlFiles = ['popup'].map(
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', `${name}.html`),
       filename: `${name}.html`,
-      chunks: [name]
+      chunks: [name],
+      minify: {
+        collapseWhitespace: true
+      }
     })
 )
 
@@ -73,7 +77,18 @@ const options = {
     rules: [
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader',
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it uses publicPath in webpackOptions.output
+              hmr: process.env.NODE_ENV === 'development',
+              reloadAll: true
+            }
+          },
+          'css-loader'
+        ],
         include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
       },
@@ -112,13 +127,16 @@ const options = {
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
-    new CleanWebpackPlugin(['build']),
+    new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css'
+    }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV)
     }),
     new CopyWebpackPlugin([
       ...images,
-      { from: 'src/css/popup.css' },
       {
         from: 'src/manifest.json',
         transform: function (content, path) {
