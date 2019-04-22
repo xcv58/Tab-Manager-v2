@@ -51,6 +51,7 @@
     "@types/react-flip-move": "^2.9.12",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",
+    "babel-eslint": "^10.0.1",
     "clean-webpack-plugin": "^2.0.1",
     "codecov": "^3.3.0",
     "copy-webpack-plugin": "^5.0.2",
