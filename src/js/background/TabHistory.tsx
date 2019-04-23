@@ -1,13 +1,13 @@
-import { activateTab, popupURL, setLastFocusedWindowId } from 'libs'
+import { activateTab, popupURL, setLastFocusedWindowId, browser } from 'libs'
 import actions from 'libs/actions'
 
 export default class TabHistory {
   constructor (background) {
     this.root = background
     const { onActivated, onFocusChanged, onRemoved } = this
-    chrome.tabs.onActivated.addListener(onActivated)
-    chrome.tabs.onRemoved.addListener(onRemoved)
-    chrome.windows.onFocusChanged.addListener(onFocusChanged)
+    browser.tabs.onActivated.addListener(onActivated)
+    browser.tabs.onRemoved.addListener(onRemoved)
+    browser.windows.onFocusChanged.addListener(onFocusChanged)
     this.actionMap = {
       [actions.lastActiveTab]: this.activateTab
     }
@@ -79,7 +79,7 @@ export default class TabHistory {
       }
     }
     this.expectedTabId = null
-    const tab = await chrome.tabs.get(tabId)
+    const tab = await browser.tabs.get(tabId)
     this.add({ ...tab, tabId, windowId })
   }
 
@@ -87,7 +87,7 @@ export default class TabHistory {
     if (windowId < 0) {
       return
     }
-    const [tab] = await chrome.tabs.query({ active: true, windowId })
+    const [tab] = await browser.tabs.query({ active: true, windowId })
     if (!tab) {
       return
     }

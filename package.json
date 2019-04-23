@@ -24,7 +24,6 @@
   "dependencies": {
     "@material-ui/core": "3.9.3",
     "@material-ui/icons": "^3.0.2",
-    "chrome-extension-async": "^3.3.2",
     "fuzzy": "^0.1.3",
     "lodash.merge": "^4.6.1",
     "mobx": "^5.9.4",
@@ -37,7 +36,8 @@
     "react-dom": "^16.8.6",
     "react-flip-move": "^3.0.3",
     "react-resize-detector": "^4.1.3",
-    "rebound": "^0.1.0"
+    "rebound": "^0.1.0",
+    "webextension-polyfill": "^0.4.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.83",
@@ -98,7 +98,6 @@
     ],
     "parser": "babel-eslint",
     "globals": [
-      "chrome",
       "screen"
     ]
   },

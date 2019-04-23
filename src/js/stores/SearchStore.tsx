@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx'
 import { filter } from 'fuzzy'
-import { activateTab } from 'libs'
+import { activateTab, browser } from 'libs'
 
 export default class SearchStore {
   constructor (store) {
@@ -9,7 +9,7 @@ export default class SearchStore {
 
   init = async () => {
     if (this.store.userStore.preserveSearch) {
-      const { query } = await chrome.storage.local.get({ query: this.query })
+      const { query } = await browser.storage.local.get({ query: this.query })
       this.search(query)
     }
   }
@@ -110,7 +110,7 @@ export default class SearchStore {
     }
     this._handler = setTimeout(this.updateQuery, delay)
     if (this.store.userStore.preserveSearch) {
-      chrome.storage.local.set({ query })
+      browser.storage.local.set({ query })
     }
   }
 

@@ -1,4 +1,8 @@
-export const popupURL = chrome.runtime.getURL('popup.html')
+import browser from 'webextension-polyfill'
+
+export { browser }
+
+export const popupURL = browser.runtime.getURL('popup.html')
 
 export const getNoun = (noun, size) => {
   if (size <= 1) {
@@ -11,8 +15,8 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   await Promise.all(
     tabs.map(async ({ id, pinned }, i) => {
       const index = from + (from !== -1 ? i : 0)
-      await chrome.tabs.update(id, { pinned })
-      await chrome.tabs.move(id, { windowId, index })
+      await browser.tabs.update(id, { pinned })
+      await browser.tabs.move(id, { windowId, index })
     })
   )
 }
@@ -20,18 +24,18 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
 export const createWindow = async tabs => {
   const [firstTab, ...restTabs] = tabs
   const tabId = firstTab.id
-  const win = await chrome.windows.create({ tabId })
+  const win = await browser.windows.create({ tabId })
   await moveTabs(restTabs, win.id, -1)
-  await chrome.windows.update(win.id, { focused: true })
+  await browser.windows.update(win.id, { focused: true })
 }
 
 export const activateTab = async id => {
   if (!id) {
     return
   }
-  const tab = await chrome.tabs.get(id)
-  await chrome.tabs.update(tab.id, { selected: true })
-  await chrome.windows.update(tab.windowId, { focused: true })
+  const tab = await browser.tabs.get(id)
+  await browser.tabs.update(tab.id, { selected: true })
+  await browser.windows.update(tab.windowId, { focused: true })
 }
 
 export const togglePinTabs = async tabs => {
@@ -45,19 +49,19 @@ export const togglePinTabs = async tabs => {
   const unpinnedTabs = sortTabs.filter(x => !x.pinned)
   await Promise.all(
     [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
-      await chrome.tabs.update(id, { pinned: !pinned })
+      await browser.tabs.update(id, { pinned: !pinned })
     })
   )
 }
 
 export const openOrTogglePopup = async () => {
-  const windows = await chrome.windows.getAll({ populate: true })
+  const windows = await browser.windows.getAll({ populate: true })
   const win = windows.find(isSelfPopup)
   if (!win) {
     return openPopup()
   }
   const winId = win.focused ? await getLastFocusedWindowId() : win.id
-  chrome.windows.update(winId, { focused: true })
+  browser.windows.update(winId, { focused: true })
 }
 
 export const MAX_WIDTH = 1024
@@ -70,7 +74,7 @@ export const openPopup = () => {
   const height = getInt(Math.max(MAX_HEIGHT, availHeight / 2))
   const top = getInt(availTop + (availHeight - height) / 2)
   const left = getInt(availLeft + (availWidth - width) / 2)
-  chrome.windows.create({
+  browser.windows.create({
     top,
     left,
     height,
@@ -81,7 +85,7 @@ export const openPopup = () => {
   })
 }
 
-export const openInNewTab = () => chrome.tabs.create({ url: popupURL })
+export const openInNewTab = () => browser.tabs.create({ url: popupURL })
 
 export const isSelfPopup = ({ type, tabs = [] }) => {
   if (type === 'popup' && tabs.length === 1) {
@@ -93,12 +97,12 @@ export const isSelfPopup = ({ type, tabs = [] }) => {
 export const notSelfPopup = (...args) => !isSelfPopup(...args)
 
 export const setLastFocusedWindowId = lastFocusedWindowId => {
-  chrome.storage.local.set({ lastFocusedWindowId })
+  browser.storage.local.set({ lastFocusedWindowId })
 }
 
 export const getLastFocusedWindowId = async () => {
   try {
-    const { lastFocusedWindowId } = await chrome.storage.local.get({
+    const { lastFocusedWindowId } = await browser.storage.local.get({
       lastFocusedWindowId: null
     })
     return lastFocusedWindowId

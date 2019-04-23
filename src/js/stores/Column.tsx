@@ -1,7 +1,10 @@
 import { action, computed, observable } from 'mobx'
+import Store from 'stores'
 
 export default class Column {
-  constructor (store, win) {
+  store: Store
+
+  constructor (store: Store, win?: Object) {
     this.store = store
     if (win) {
       this.windows.push(win)

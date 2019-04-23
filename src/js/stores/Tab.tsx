@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { getDomain, togglePinTabs } from 'libs'
+import { getDomain, togglePinTabs, browser } from 'libs'
 import bookmarks from 'img/chrome/bookmarks.png'
 import chromeIcon from 'img/chrome/chrome.png'
 import crashes from 'img/chrome/crashes.png'
@@ -64,7 +64,7 @@ export default class Tab {
   }
 
   @action
-  reload = () => chrome.tabs.reload(this.id)
+  reload = () => browser.tabs.reload(this.id)
 
   @action
   focus = () => {
@@ -86,7 +86,7 @@ export default class Tab {
   remove = () => {
     this.removing = true
     this.store.windowStore.removeTabs([this.id])
-    chrome.tabs.remove(this.id)
+    browser.tabs.remove(this.id)
   }
 
   @action
@@ -161,7 +161,7 @@ export default class Tab {
     if (url.startsWith(CHROME_PREFIX)) {
       this.iconUrl = FAV_ICONS[host] || this.iconUrl
     } else if (url.startsWith(CHROME_EXTENSION_PREFIX)) {
-      const { icons } = await chrome.management.get(host)
+      const { icons } = await browser.management.get(host)
       this.iconUrl = ([...(icons || [])].pop() || {}).url || this.iconUrl
     } else {
       this.iconUrl = favIconUrl || this.iconUrl

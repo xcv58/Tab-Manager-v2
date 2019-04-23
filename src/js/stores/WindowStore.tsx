@@ -1,5 +1,6 @@
 import { action, computed, observable } from 'mobx'
 import {
+  browser,
   moveTabs,
   getLastFocusedWindowId,
   notSelfPopup,
@@ -10,30 +11,33 @@ import actions from 'libs/actions'
 import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Column from 'stores/Column'
+import Store from 'stores'
 
 const DEBOUNCE_INTERVAL = 1000
 
 export default class WindowsStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }
 
   didMount = () => {
     this.getAllWindows()
-    // chrome.windows.onCreated.addListener(this.updateAllWindows)
-    chrome.windows.onFocusChanged.addListener(this.onFocusChanged)
-    // chrome.windows.onRemoved.addListener(this.updateAllWindows)
+    // browser.windows.onCreated.addListener(this.updateAllWindows)
+    browser.windows.onFocusChanged.addListener(this.onFocusChanged)
+    // browser.windows.onRemoved.addListener(this.updateAllWindows)
 
-    chrome.tabs.onCreated.addListener(this.onCreated)
-    chrome.tabs.onUpdated.addListener(this.onUpdated)
-    chrome.tabs.onActivated.addListener(this.onActivated)
-    chrome.tabs.onRemoved.addListener(this.onRemoved)
+    browser.tabs.onCreated.addListener(this.onCreated)
+    browser.tabs.onUpdated.addListener(this.onUpdated)
+    browser.tabs.onActivated.addListener(this.onActivated)
+    browser.tabs.onRemoved.addListener(this.onRemoved)
 
     // Move tabs related functions, use `updateAllWindows` to keep clean.
-    chrome.tabs.onMoved.addListener(this.updateAllWindows)
-    chrome.tabs.onAttached.addListener(this.updateAllWindows)
-    chrome.tabs.onDetached.addListener(this.updateAllWindows)
-    chrome.tabs.onReplaced.addListener(this.updateAllWindows)
+    browser.tabs.onMoved.addListener(this.updateAllWindows)
+    browser.tabs.onAttached.addListener(this.updateAllWindows)
+    browser.tabs.onDetached.addListener(this.updateAllWindows)
+    browser.tabs.onReplaced.addListener(this.updateAllWindows)
   }
 
   @observable
@@ -90,15 +94,14 @@ export default class WindowsStore {
     }
   }
 
-  onFocusChanged = windowId => {
+  onFocusChanged = async windowId => {
     if (windowId <= 0) {
       return
     }
-    chrome.windows.get(windowId, { populate: true }, win => {
-      if (win && !isSelfPopup(win)) {
-        this.lastFocusedWindowId = windowId
-      }
-    })
+    const win = await browser.windows.get(windowId, { populate: true })
+    if (win && !isSelfPopup(win)) {
+      this.lastFocusedWindowId = windowId
+    }
   }
 
   @action
@@ -151,20 +154,19 @@ export default class WindowsStore {
   }
 
   @action
-  createNewWindow = tabs => {
+  createNewWindow = async tabs => {
     this.suspend()
     this.removeTabs(tabs.map(x => x.id))
     const win = new Window({ tabs: [] }, this.store)
     win.tabs = tabs
     this.windows.push(win)
     this.clearWindow()
-    chrome.runtime.sendMessage(
-      {
-        tabs: tabs.map(({ id, pinned }) => ({ id, pinned })),
-        action: actions.createWindow
-      },
-      this.resume
-    )
+
+    await browser.runtime.sendMessage({
+      tabs: tabs.map(({ id, pinned }) => ({ id, pinned })),
+      action: actions.createWindow
+    })
+    this.resume()
   }
 
   @action
@@ -284,25 +286,24 @@ export default class WindowsStore {
       )
   }
 
-  getAllWindows = () => {
+  getAllWindows = async () => {
     if (this.batching) {
       return
     }
-    chrome.windows.getAll({ populate: true }, async (windows = []) => {
-      this.lastFocusedWindowId = await getLastFocusedWindowId()
+    const windows = await browser.windows.getAll({ populate: true })
+    this.lastFocusedWindowId = await getLastFocusedWindowId()
 
-      this.windows = windows
-        .filter(notSelfPopup)
-        .map(win => new Window(win, this.store))
-        .sort(windowComparator)
+    this.windows = windows
+      .filter(notSelfPopup)
+      .map(win => new Window(win, this.store))
+      .sort(windowComparator)
 
-      if (this.initialLoading) {
-        this.windowMounted()
-      } else {
-        this.updateColumns()
-      }
-      this.initialLoading = false
-      this.updateHandler = null
-    })
+    if (this.initialLoading) {
+      this.windowMounted()
+    } else {
+      this.updateColumns()
+    }
+    this.initialLoading = false
+    this.updateHandler = null
   }
 }

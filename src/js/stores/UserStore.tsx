@@ -1,4 +1,5 @@
 import { action, observable } from 'mobx'
+import { browser } from 'libs'
 
 const DEFAULT_SETTINGS = {
   showShortcutHint: true,
@@ -19,11 +20,10 @@ export default class UserStore {
   }
 
   init = async () => {
-    chrome.storage.sync.get(DEFAULT_SETTINGS, result => {
-      Object.assign(this, result)
-      this.toolbarVisible = !this.toolbarAutoHide
-      this.store.searchStore.init()
-    })
+    const result = await browser.storage.sync.get(DEFAULT_SETTINGS)
+    Object.assign(this, result)
+    this.toolbarVisible = !this.toolbarAutoHide
+    this.store.searchStore.init()
   }
 
   @observable
@@ -70,7 +70,7 @@ export default class UserStore {
   }
 
   save = () => {
-    chrome.storage.sync.set(
+    browser.storage.sync.set(
       Object.assign(
         ...Object.keys(DEFAULT_SETTINGS).map(key => ({ [key]: this[key] }))
       )
@@ -122,13 +122,13 @@ export default class UserStore {
   @action
   toggleAutoHide = () => {
     this._clearHideToolbarHandler()
-    chrome.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
+    browser.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
     this.init()
   }
 
   @action
   toggleDarkTheme = () => {
-    chrome.storage.sync.set({ darkTheme: !this.darkTheme })
+    browser.storage.sync.set({ darkTheme: !this.darkTheme })
     this.init()
   }
 

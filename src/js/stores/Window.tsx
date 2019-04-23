@@ -1,5 +1,6 @@
 import { action, computed, observable } from 'mobx'
 import Tab from './Tab'
+import { browser } from 'libs'
 
 export default class Window {
   constructor (win, store) {
@@ -28,7 +29,7 @@ export default class Window {
 
   @action
   onTitleClick = () => {
-    chrome.windows.update(this.id, { focused: true })
+    browser.windows.update(this.id, { focused: true })
   }
 
   @computed
@@ -118,6 +119,6 @@ export default class Window {
 
   @action
   close = () => {
-    chrome.windows.remove(this.id)
+    browser.windows.remove(this.id)
   }
 }
