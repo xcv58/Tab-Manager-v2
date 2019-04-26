@@ -1,8 +1,11 @@
 import { action, computed } from 'mobx'
 import { moveTabs, tabComparator, browser } from 'libs'
 import Window from 'stores/Window'
+import Store from 'stores'
 
 export default class ArrangeStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }
@@ -18,7 +21,7 @@ export default class ArrangeStore {
   }
 
   @action
-  sortTabs = async windowId => {
+  sortTabs = async (windowId?: string) => {
     const windows = []
     if (windowId) {
       const win = await browser.windows.get(windowId, { populate: true })

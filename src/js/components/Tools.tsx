@@ -10,6 +10,7 @@ import ThemeToggle from 'components/ThemeToggle'
 import { getNoun } from 'libs'
 import { ItemTypes } from 'libs/react-dnd'
 import { dropTargetColor, droppedColor } from 'libs/colors'
+import SyncButton from './SyncButton'
 
 const style = {
   display: 'flex',
@@ -87,6 +88,7 @@ class Tools extends React.Component {
       <div style={style}>
         <Summary />
         <Search inputRef={this.props.inputRef} />
+        <SyncButton />
         <ThemeToggle />
         <OpenInTab />
       </div>

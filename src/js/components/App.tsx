@@ -2,7 +2,6 @@ import React from 'react'
 import { inject, observer } from 'mobx-react'
 import Fade from '@material-ui/core/Fade'
 import Paper from '@material-ui/core/Paper'
-import Loading from 'components/Loading'
 import Columns from 'components/Columns'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
@@ -28,9 +27,6 @@ class App extends React.Component<any, {}> {
   }
 
   render () {
-    if (this.props.windowStore.initialLoading) {
-      return <Loading />
-    }
     const { muiTheme } = this.props.themeStore
     return (
       <React.StrictMode>

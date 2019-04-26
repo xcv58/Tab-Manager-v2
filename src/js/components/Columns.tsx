@@ -3,6 +3,8 @@ import { inject, observer } from 'mobx-react'
 import Column from 'components/Column'
 import Scrollbars from 'libs/Scrollbars'
 import ReactResizeDetector from 'react-resize-detector'
+import Loading from './Loading'
+import WindowsStore from 'stores/WindowStore'
 
 const View = props => {
   const { style } = props
@@ -23,7 +25,9 @@ const View = props => {
 
 @inject('windowStore')
 @observer
-class Columns extends React.Component {
+class Columns extends React.Component<{
+  windowStore: WindowsStore
+}> {
   scrollbars = React.createRef()
 
   getScrollbars = () => this.scrollbars.current
@@ -39,8 +43,11 @@ class Columns extends React.Component {
 
   render () {
     const {
-      windowStore: { columns }
+      windowStore: { columns, initialLoading }
     } = this.props
+    if (initialLoading) {
+      return <Loading />
+    }
     const width = 100 / Math.min(4, columns.length) + '%'
     const list = columns.map((column, i) => (
       <Column

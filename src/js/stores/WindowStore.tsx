@@ -286,10 +286,12 @@ export default class WindowsStore {
       )
   }
 
-  getAllWindows = async () => {
-    if (this.batching) {
-      return
-    }
+  syncAllWindows = () => {
+    this.initialLoading = true
+    this.loadAllWindows()
+  }
+
+  loadAllWindows = async () => {
     const windows = await browser.windows.getAll({ populate: true })
     this.lastFocusedWindowId = await getLastFocusedWindowId()
 
@@ -305,5 +307,12 @@ export default class WindowsStore {
     }
     this.initialLoading = false
     this.updateHandler = null
+  }
+
+  getAllWindows = () => {
+    if (this.batching) {
+      return
+    }
+    return this.loadAllWindows()
   }
 }

@@ -1,6 +1,7 @@
 import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
+import Store from 'stores'
 
 export const getDescription = description => {
   if (typeof description === 'string') {
@@ -13,6 +14,8 @@ export const getDescription = description => {
 }
 
 export default class ShortcutStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }
@@ -96,6 +99,13 @@ export default class ShortcutStore {
         this.store.tabStore.reload()
       },
       'Reload tab'
+    ],
+    [
+      ['s'],
+      () => {
+        this.store.windowStore.syncAllWindows()
+      },
+      'Sync all windows'
     ],
     [
       ['p', 'ctrl+p'],
