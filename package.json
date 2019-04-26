@@ -10,7 +10,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy": "yarn build && yarn zip",
     "release": "standard-version",
-    "zip": "zip -X --compression-method deflate -r build.zip build/*",
+    "zip": "zip -X --compression-method deflate -r --junk-paths build.zip build/*",
     "lint:ts": "standard --parser typescript-eslint-parser --plugin typescript ./**/*.tsx",
     "lint": "standard",
     "prettier": "prettier --no-semi --single-quote --write",
