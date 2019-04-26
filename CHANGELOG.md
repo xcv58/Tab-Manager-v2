@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.19.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.7...v0.19.0) (2019-04-26)
+
+### Bug Fixes
+
+- Crash issue in set icon for tab ([c867d50](https://github.com/xcv58/Tab-Manager-v2/commit/c867d50))
+
+### Features
+
+- Add sync button and `s` as shortcut to reload data for all winodws ([4d83b71](https://github.com/xcv58/Tab-Manager-v2/commit/4d83b71)), closes [#248](https://github.com/xcv58/Tab-Manager-v2/issues/248)
+
 ## [0.18.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.6...v0.18.7) (2019-04-19)
 
 ### Bug Fixes
