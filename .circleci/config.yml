@@ -62,7 +62,7 @@ workflows:
       - build-test:
           filters:
             tags:
-              ignore: /^tmp.*/
+              only: /^v.*/
       - upload:
           requires:
             - build-test
@@ -70,7 +70,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              ignore: /^tmp.*/
+              only: /^v.*/
       - hold-publish:
           type: approval
           requires:
@@ -79,7 +79,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              ignore: /^tmp.*/
+              only: /^v.*/
       - publish:
           requires:
             - hold-publish
@@ -87,4 +87,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              ignore: /^tmp.*/
+              only: /^v.*/
