@@ -64,19 +64,12 @@ workflows:
           requires:
             - build-test
           # filters:
-          #   branches:
-          #     ignore: /.*/
           #   tags:
           #     only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
       - hold-publish:
           type: approval
           requires:
-           - build-test
-          # filters:
-          #   branches:
-          #     ignore: /.*/
-          #   tags:
-          #     only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+           - upload
       - publish:
           requires:
             - hold-publish
