@@ -6,3 +6,4 @@ secrets.*.js
 *.lcov
 coverage
 yarn-error.log
+.env
