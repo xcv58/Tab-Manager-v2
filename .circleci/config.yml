@@ -33,6 +33,7 @@ jobs:
       - store_artifacts:
           path: dist
           destination: dist
+
   upload:
     docker:
       - image: circleci/node:10
@@ -43,6 +44,16 @@ jobs:
       - *save_yarn_cache
       - run: yarn deploy
       - run: yarn upload
+
+  publish:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - *restore_yarn_cache
+      - run: yarn install
+      - *save_yarn_cache
+      - run: yarn publish-extension
 
 workflows:
   version: 2
@@ -57,3 +68,15 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+      - hold-publish:
+          type: approval
+          requires:
+           - build-test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+      - publish:
+          requires:
+            - hold-publish
