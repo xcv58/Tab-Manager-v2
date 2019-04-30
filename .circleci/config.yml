@@ -64,10 +64,10 @@ workflows:
           requires:
             - build-test
           filters:
-            tags:
-              only: /^v.*/
             branches:
               ignore: /.*/
+            tags:
+              only: /^v.*/
       - hold-publish:
           type: approval
           requires:
