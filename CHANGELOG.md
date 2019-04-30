@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.0...v0.19.1) (2019-04-30)
+
+### Bug Fixes
+
+- Auto release on CI ([#251](https://github.com/xcv58/Tab-Manager-v2/issues/251)) ([cf03e9b](https://github.com/xcv58/Tab-Manager-v2/commit/cf03e9b))
+
 # [0.19.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.7...v0.19.0) (2019-04-26)
 
 ### Bug Fixes
