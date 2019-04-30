@@ -1,18 +1,27 @@
 version: 2
+references:
+  yarn_key: &yarn_key
+    v1-dependencies-{{ checksum "yarn.lock" }}
+
+  save_yarn_cache: &save_yarn_cache
+    save_cache:
+      key: *yarn_key
+      paths:
+        - node_modules
+
+  restore_yarn_cache: &restore_yarn_cache
+    restore_cache:
+      key: *yarn_key
+
 jobs:
-  build:
+  build-test:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "yarn.lock" }}
+      - *restore_yarn_cache
       - run: yarn install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "yarn.lock" }}
+      - *save_yarn_cache
       - run: yarn lint
       - run: yarn lint:ts
       - run: yarn jest
@@ -24,3 +33,25 @@ jobs:
       - store_artifacts:
           path: dist
           destination: dist
+  upload:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - *restore_yarn_cache
+      - run: yarn install
+      - *save_yarn_cache
+      - run: yarn deploy
+      - run: yanr upload
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build-test
+      - upload:
+          requires:
+            - build-test
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
