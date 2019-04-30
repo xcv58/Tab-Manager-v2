@@ -59,7 +59,10 @@ workflows:
   version: 2
   build:
     jobs:
-      - build-test
+      - build-test:
+          filters:
+            tags:
+              ignore: /^tmp.*/
       - upload:
           requires:
             - build-test
@@ -72,6 +75,16 @@ workflows:
           type: approval
           requires:
            - upload
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              ignore: /^tmp.*/
       - publish:
           requires:
             - hold-publish
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              ignore: /^tmp.*/
