@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.1...v0.19.2) (2019-05-02)
+
+### Bug Fixes
+
+- Remove appear animation to make the UI feel fast ([4c4b02a](https://github.com/xcv58/Tab-Manager-v2/commit/4c4b02a))
+
 ## [0.19.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.0...v0.19.1) (2019-04-30)
 
 ### Bug Fixes
