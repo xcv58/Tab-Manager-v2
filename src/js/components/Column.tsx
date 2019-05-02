@@ -38,7 +38,6 @@ class Column extends React.Component {
         <FlipMove
           duration={255}
           easing='ease-in-out'
-          appearAnimation='accordionVertical'
           enterAnimation='accordionVertical'
           leaveAnimation='accordionVertical'
         >

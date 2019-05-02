@@ -27,7 +27,6 @@ class Tabs extends React.Component {
       <FlipMove
         duration={255}
         easing='ease-in-out'
-        appearAnimation='accordionHorizontal'
         enterAnimation='accordionHorizontal'
         leaveAnimation='accordionHorizontal'
       >
