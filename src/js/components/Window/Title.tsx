@@ -12,6 +12,7 @@ import { getNoun } from 'libs'
 import { ItemTypes, tabDropCollect, titleTarget } from 'libs/react-dnd'
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames'
+import Reload from './Reload'
 
 const styles = theme => ({
   root: {
@@ -47,7 +48,7 @@ class Title extends React.Component {
       isOver,
       canDrop,
       isDragging,
-      win: { tabs, onTitleClick, invisibleTabs }
+      win: { tabs, onTitleClick, invisibleTabs, reload }
     } = this.props
     const { length } = tabs
     const text = `${length} ${getNoun('tab', length)}`
@@ -84,6 +85,7 @@ class Title extends React.Component {
           <div className={classes.tools}>
             <SelectAll {...this.props} />
             <Sort {...this.props} />
+            <Reload {...{ reload }} />
             <CloseButton onClick={this.props.win.close} />
           </div>
         </div>

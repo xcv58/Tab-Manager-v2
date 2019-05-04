@@ -13,7 +13,7 @@ class Sort extends React.Component {
       arrangeStore: { sortTabs }
     } = this.props
     return (
-      <Tooltip title='Sort Tabs'>
+      <Tooltip title='Sort tabs'>
         <IconButton onClick={() => sortTabs(id)}>
           <SortIcon />
         </IconButton>

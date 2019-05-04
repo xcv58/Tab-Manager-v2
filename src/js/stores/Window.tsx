@@ -118,6 +118,11 @@ export default class Window {
   }
 
   @action
+  reload = () => {
+    this.tabs.forEach(tab => tab.reload())
+  }
+
+  @action
   close = () => {
     browser.windows.remove(this.id)
   }
