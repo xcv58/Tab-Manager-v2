@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.19.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.2...v0.19.3) (2019-05-04)
+
+### Bug Fixes
+
+- Add reload button for individual window ([35774e6](https://github.com/xcv58/Tab-Manager-v2/commit/35774e6))
+
 ## [0.19.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.1...v0.19.2) (2019-05-02)
 
 ### Bug Fixes
