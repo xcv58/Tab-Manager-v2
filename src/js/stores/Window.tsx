@@ -1,9 +1,12 @@
 import { action, computed, observable } from 'mobx'
 import Tab from './Tab'
 import { browser } from 'libs'
+import Store from 'stores'
 
 export default class Window {
-  constructor (win, store) {
+  store: Store
+
+  constructor (win, store: Store) {
     this.store = store
     Object.assign(this, win)
     this.tabs = win.tabs.map(tab => new Tab(tab, store, this))
@@ -11,7 +14,7 @@ export default class Window {
   }
 
   @observable
-  tabs = []
+  tabs: Tab[] = []
   @observable
   id
   @observable

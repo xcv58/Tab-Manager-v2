@@ -9,6 +9,8 @@ import extensions from 'img/chrome/extensions.png'
 import flags from 'img/chrome/flags.png'
 import history from 'img/chrome/history.png'
 import settings from 'img/chrome/settings.png'
+import Store from 'stores'
+import Window from './Window'
 
 const FAV_ICONS = {
   bookmarks,
@@ -25,7 +27,11 @@ const CHROME_PREFIX = 'chrome://'
 const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
 export default class Tab {
-  constructor (tab, store, win) {
+  store: Store
+  win: Window
+  mounted: () => void
+
+  constructor (tab, store: Store, win: Window) {
     this.store = store
     Object.assign(this, tab)
     this.win = win
