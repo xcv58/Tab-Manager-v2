@@ -1,6 +1,12 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### [0.19.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.3...v0.19.4) (2019-05-05)
+
+### Bug Fixes
+
+- Update the tab title to include how many windows/tabs ([f929d7e](https://github.com/xcv58/Tab-Manager-v2/commit/f929d7e))
 
 ## [0.19.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.2...v0.19.3) (2019-05-04)
 
