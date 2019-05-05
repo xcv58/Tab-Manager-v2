@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { inject, observer } from 'mobx-react'
 import Typography from '@material-ui/core/Typography'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import { getNoun } from 'libs'
+
+const Title = ({ title }) => {
+  useEffect(() => {
+    document.title = `Tab Manager v2: ${title}`
+  }, [title])
+  return title
+}
 
 const fakeButtonStyle = {
   position: 'fixed',
@@ -41,11 +48,14 @@ class Summary extends React.Component {
     const opacity = this.getOpacity()
     const style = { ...fakeButtonStyle, opacity }
     const selected = selection.size
+    const title = `${windows.length} ${getNoun(
+      'window',
+      windows.length
+    )}, ${tabCount} ${getNoun('tab', tabCount)}`
     return (
       <ButtonBase style={style} onFocus={this.onFocus}>
         <Typography>
-          {windows.length} {getNoun('window', windows.length)}, {tabCount}{' '}
-          {getNoun('tab', tabCount)}, {selected} {getNoun('tab', selected)}{' '}
+          <Title {...{ title }} />, {selected} {getNoun('tab', selected)}{' '}
           selected
         </Typography>
       </ButtonBase>
