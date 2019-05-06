@@ -12,7 +12,7 @@
     "release": "standard-version",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build.zip",
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/webstore publish",
-    "publish:firefox": "node -r dotenv/config ./node_modules/.bin/web-ext sign --api-key=${WEB_EXT_API_KEY} --api-secret=${WEB_EXT_API_SECRET} --source-dir build --id=\"${WEB_EXT_ID}\"",
+    "publish:firefox": "web-ext sign --source-dir build --channel=listed || echo 'Publish to Mozilla Add-ons may failed because https://github.com/mozilla/web-ext/issues/804'",
     "publish-extension": "yarn publish:chrome && yarn publish:firefox",
     "zip": "zip -X --compression-method deflate -r --junk-paths build.zip build/*",
     "lint:ts": "standard --parser typescript-eslint-parser --plugin typescript ./**/*.tsx",
