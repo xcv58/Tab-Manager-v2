@@ -34,17 +34,6 @@ jobs:
           path: dist
           destination: dist
 
-  upload:
-    docker:
-      - image: circleci/node:10
-    steps:
-      - checkout
-      - *restore_yarn_cache
-      - run: yarn install
-      - *save_yarn_cache
-      - run: yarn deploy
-      - run: yarn upload
-
   publish:
     docker:
       - image: circleci/node:10
@@ -53,6 +42,8 @@ jobs:
       - *restore_yarn_cache
       - run: yarn install
       - *save_yarn_cache
+      - run: yarn deploy
+      - run: yarn upload:chrome
       - run: yarn publish-extension
 
 workflows:
@@ -63,26 +54,7 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - upload:
-          requires:
-            - build-test
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
-      - hold-publish:
-          type: approval
-          requires:
-           - upload
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
       - publish:
-          requires:
-            - hold-publish
           filters:
             branches:
               ignore: /.*/

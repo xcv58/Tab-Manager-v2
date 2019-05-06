@@ -10,7 +10,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "deploy": "yarn build && yarn zip",
     "release": "standard-version",
-    "upload": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build.zip",
+    "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build.zip",
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/webstore publish",
     "publish:firefox": "node -r dotenv/config ./node_modules/.bin/web-ext sign --api-key=${WEB_EXT_API_KEY} --api-secret=${WEB_EXT_API_SECRET} --source-dir build --id=\"${WEB_EXT_ID}\"",
     "publish-extension": "yarn publish:chrome && yarn publish:firefox",
