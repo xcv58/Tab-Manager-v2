@@ -302,6 +302,7 @@ export default class WindowsStore {
 
     if (this.initialLoading) {
       this.windowMounted()
+      this.updateColumns()
     } else {
       this.updateColumns()
     }
