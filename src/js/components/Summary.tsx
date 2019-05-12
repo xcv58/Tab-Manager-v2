@@ -6,7 +6,7 @@ import { getNoun } from 'libs'
 
 const Title = ({ title }) => {
   useEffect(() => {
-    document.title = `Tab Manager v2: ${title}`
+    document.title = `${title} - Tab Manager v2`
   }, [title])
   return title
 }
