@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.6...v0.19.7) (2019-05-12)
+
+### Bug Fixes
+
+- Make the windows/tabs information at the left most of the html page title ([86fa2ea](https://github.com/xcv58/Tab-Manager-v2/commit/86fa2ea))
+
 ### [0.19.6](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.5...v0.19.6) (2019-05-07)
 
 ### Bug Fixes
