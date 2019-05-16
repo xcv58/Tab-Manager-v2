@@ -22,10 +22,10 @@
     },
     "LAST-ACTIVE-TAB": {
       "suggested_key": {
-        "windows": "Ctrl+B",
-        "mac": "MacCtrl+B",
-        "chromeos": "Ctrl+B",
-        "linux": "Ctrl+B"
+        "windows": "Alt+B",
+        "mac": "Alt+B",
+        "chromeos": "Alt+B",
+        "linux": "Alt+B"
       },
       "description": "Switch to next tab (recently used order)"
     },
