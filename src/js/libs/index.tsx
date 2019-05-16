@@ -80,7 +80,6 @@ export const openPopup = () => {
     height,
     width,
     url: popupURL,
-    focused: true,
     type: 'popup'
   })
 }
