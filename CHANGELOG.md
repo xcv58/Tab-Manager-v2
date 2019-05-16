@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.8](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.7...v0.19.8) (2019-05-16)
+
+### Bug Fixes
+
+- Click/Enter to open a tab within the extension doesn't work in Firefox ([a3689ab](https://github.com/xcv58/Tab-Manager-v2/commit/a3689ab))
+- Open popup via the keyboard (Alt-T) doesn't work in Firefox ([9930549](https://github.com/xcv58/Tab-Manager-v2/commit/9930549))
+- Update the shortcut for last active tab Ctrl+B -> Alt+B ([483f589](https://github.com/xcv58/Tab-Manager-v2/commit/483f589))
+
 ### [0.19.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.6...v0.19.7) (2019-05-12)
 
 ### Bug Fixes
