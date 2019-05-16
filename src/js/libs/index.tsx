@@ -34,7 +34,7 @@ export const activateTab = async id => {
     return
   }
   const tab = await browser.tabs.get(id)
-  await browser.tabs.update(tab.id, { selected: true })
+  await browser.tabs.update(tab.id, { active: true })
   await browser.windows.update(tab.windowId, { focused: true })
 }
 
