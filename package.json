@@ -44,10 +44,10 @@
     "webextension-polyfill": "^0.4.0"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.85",
+    "@types/chrome": "^0.0.86",
     "@types/jasmine": "^3.3.12",
     "@types/jest": "^24.0.13",
-    "@types/react": "^16.8.17",
+    "@types/react": "^16.8.18",
     "@types/react-custom-scrollbars": "^4.0.5",
     "@types/react-dnd": "^3.0.2",
     "@types/react-dnd-html5-backend": "^3.0.2",
@@ -93,7 +93,7 @@
     "typescript": "^3.4.5",
     "typescript-eslint-parser": "^22.0.0",
     "web-ext": "^3.0.0",
-    "webpack": "^4.31.0",
+    "webpack": "^4.32.0",
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-dev-server": "^3.4.1",
     "write-file-webpack-plugin": "^4.5.0"
