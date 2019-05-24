@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "0.19.9",
+  "version": "0.20.0",
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",

@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.20.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.4...v0.20.0) (2019-05-24)
+
+### Bug Fixes
+
+- Add reload button for individual window ([35774e6](https://github.com/xcv58/Tab-Manager-v2/commit/35774e6))
+- Auto release on CI ([#251](https://github.com/xcv58/Tab-Manager-v2/issues/251)) ([cf03e9b](https://github.com/xcv58/Tab-Manager-v2/commit/cf03e9b))
+- Click/Enter to open a tab within the extension doesn't work in Firefox ([a3689ab](https://github.com/xcv58/Tab-Manager-v2/commit/a3689ab))
+- Close tab after sync all tabs leads to zombie tab ([9199fad](https://github.com/xcv58/Tab-Manager-v2/commit/9199fad))
+- Crash issue in set icon for tab ([c867d50](https://github.com/xcv58/Tab-Manager-v2/commit/c867d50))
+- Make the windows/tabs information at the left most of the html page title ([86fa2ea](https://github.com/xcv58/Tab-Manager-v2/commit/86fa2ea))
+- Open popup via the keyboard (Alt-T) doesn't work in Firefox ([9930549](https://github.com/xcv58/Tab-Manager-v2/commit/9930549))
+- Remove appear animation to make the UI feel fast ([4c4b02a](https://github.com/xcv58/Tab-Manager-v2/commit/4c4b02a))
+- Tune the tab sort criteria ([e5f7991](https://github.com/xcv58/Tab-Manager-v2/commit/e5f7991))
+- Update the shortcut for last active tab Ctrl+B -> Alt+B ([483f589](https://github.com/xcv58/Tab-Manager-v2/commit/483f589))
+- Update the tab title to include how many windows/tabs ([f929d7e](https://github.com/xcv58/Tab-Manager-v2/commit/f929d7e))
+- Upgrade material-ui@4.0.0 ([f099aa4](https://github.com/xcv58/Tab-Manager-v2/commit/f099aa4))
+
+### Features
+
+- Add sync button and `s` as shortcut to reload data for all winodws ([4d83b71](https://github.com/xcv58/Tab-Manager-v2/commit/4d83b71)), closes [#248](https://github.com/xcv58/Tab-Manager-v2/issues/248)
+
 ### [0.19.9](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.8...v0.19.9) (2019-05-24)
 
 ### Bug Fixes
