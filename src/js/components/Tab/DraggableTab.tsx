@@ -6,7 +6,6 @@ import { ItemTypes, tabDropCollect, tabSource, tabTarget } from 'libs/react-dnd'
 import Preview from 'components/Preview'
 import { withTheme } from '@material-ui/core/styles'
 
-@withTheme()
 @inject('dragStore')
 @DropTarget(ItemTypes.TAB, tabTarget, tabDropCollect)
 @DragSource(ItemTypes.TAB, tabSource, (connect, monitor) => ({
@@ -57,4 +56,4 @@ class DraggableTab extends React.Component {
   }
 }
 
-export default DraggableTab
+export default withTheme(DraggableTab)

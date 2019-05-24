@@ -12,7 +12,7 @@ import Fade from '@material-ui/core/Fade'
 import Switch from '@material-ui/core/Switch'
 import { withStyles } from '@material-ui/core/styles'
 
-export const styles = theme => ({
+export const styles = () => ({
   paper: {
     width: '100%'
   }

@@ -6,7 +6,6 @@ import IconButton from '@material-ui/core/IconButton'
 import { withTheme } from '@material-ui/core/styles'
 import { TOOLTIP_DELAY } from 'libs'
 
-@withTheme()
 @inject('tabStore')
 @observer
 class Close extends React.Component {
@@ -36,4 +35,4 @@ class Close extends React.Component {
   }
 }
 
-export default Close
+export default withTheme(Close)

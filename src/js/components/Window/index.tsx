@@ -8,7 +8,6 @@ import Preview from 'components/Preview'
 import { ItemTypes, tabDropCollect, windowTarget } from 'libs/react-dnd'
 import { withTheme } from '@material-ui/core/styles'
 
-@withTheme()
 @inject('windowStore')
 @inject('dragStore')
 @DropTarget(ItemTypes.TAB, windowTarget, tabDropCollect)
@@ -48,4 +47,4 @@ class Window extends React.Component {
   }
 }
 
-export default Window
+export default withTheme(Window)

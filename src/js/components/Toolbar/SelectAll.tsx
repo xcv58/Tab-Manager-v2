@@ -28,6 +28,7 @@ class SelectAll extends React.Component {
             checked={allTabSelected}
             onChange={this.selectAll}
             indeterminate={someTabSelected}
+            inputProps={{ 'aria-label': title }}
           />
         </div>
       </Tooltip>

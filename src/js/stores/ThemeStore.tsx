@@ -14,9 +14,7 @@ export const backgroundColor = 'rgba(255, 255, 255, 0.64)'
 const overrides = {
   MuiIconButton: {
     root: {
-      padding: 0,
-      height: '2.5rem',
-      width: '2.5rem'
+      padding: 9
     }
   },
   MuiSnackbarContent: {
