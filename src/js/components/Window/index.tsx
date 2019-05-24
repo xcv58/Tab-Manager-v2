@@ -47,4 +47,7 @@ class Window extends React.Component {
   }
 }
 
+// This export is for testing
+export { Window }
+
 export default withTheme(Window)

@@ -6,7 +6,7 @@ import Paper from '@material-ui/core/Paper'
 import Title from 'components/Window/Title'
 import Tabs from 'components/Window/Tabs'
 import Preview from 'components/Preview'
-import Window from 'components/Window'
+import { Window } from 'components/Window'
 import { createMuiTheme } from '@material-ui/core/styles'
 
 const theme = createMuiTheme()
