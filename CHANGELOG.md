@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.9](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.8...v0.19.9) (2019-05-24)
+
+### Bug Fixes
+
+- Upgrade material-ui@4.0.0 ([f099aa4](https://github.com/xcv58/Tab-Manager-v2/commit/f099aa4))
+
 ### [0.19.8](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.7...v0.19.8) (2019-05-16)
 
 ### Bug Fixes
