@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.9...v0.20.1) (2019-06-11)
+
+### Bug Fixes
+
+- Stale window count ([2ef2005](https://github.com/xcv58/Tab-Manager-v2/commit/2ef2005))
+
 ## [0.20.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.18.4...v0.20.0) (2019-05-24)
 
 ### Bug Fixes
