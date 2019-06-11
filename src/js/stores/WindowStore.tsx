@@ -76,6 +76,13 @@ export default class WindowsStore {
         index++
       }
     }
+    for (let index = 0; index < this.windows.length;) {
+      if (this.windows[index].length === 0) {
+        this.windows.splice(index, 1)
+      } else {
+        index++
+      }
+    }
   }
 
   @action
