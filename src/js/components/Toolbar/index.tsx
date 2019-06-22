@@ -1,35 +1,28 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Toolbar from './Toolbar'
 import ToolbarIndicator from './ToolbarIndicator'
+import { useStore } from 'components/StoreContext'
 
-@inject('userStore')
-@observer
-class ToolbarWrapper extends React.Component {
-  render () {
-    const {
-      lazyHideToolbar,
-      showToolbar,
-      toolbarVisible
-    } = this.props.userStore
-    return (
-      <div
-        className='toolbar'
-        onMouseEnter={showToolbar}
-        onMouseLeave={lazyHideToolbar}
-        style={{
-          display: 'flex',
-          width: 'fit-content',
-          position: 'fixed',
-          bottom: 0,
-          right: 0
-        }}
-      >
-        {toolbarVisible && <Toolbar />}
-        <ToolbarIndicator />
-      </div>
-    )
-  }
-}
+export default observer(() => {
+  const { userStore } = useStore()
 
-export default ToolbarWrapper
+  const { lazyHideToolbar, showToolbar, toolbarVisible } = userStore
+  return (
+    <div
+      className='toolbar'
+      onMouseEnter={showToolbar}
+      onMouseLeave={lazyHideToolbar}
+      style={{
+        display: 'flex',
+        width: 'fit-content',
+        position: 'fixed',
+        bottom: 0,
+        right: 0
+      }}
+    >
+      {toolbarVisible && <Toolbar />}
+      <ToolbarIndicator />
+    </div>
+  )
+})

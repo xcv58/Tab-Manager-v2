@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Typography from '@material-ui/core/Typography'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import { getNoun } from 'libs'
+import { useStore } from './StoreContext'
 
 const Title = ({ title }) => {
   useEffect(() => {
@@ -21,46 +22,22 @@ const fakeButtonStyle = {
   border: 'none'
 }
 
-@inject('searchStore')
-@inject('tabStore')
-@inject('windowStore')
-@observer
-class Summary extends React.Component {
-  onFocus = e => {
-    e.target.blur()
-  }
-
-  getOpacity = () => {
-    const {
-      searchStore: { typing, query }
-    } = this.props
-    if (!typing) {
-      return 1
-    }
-    return 1 - (Math.atan(query.length + 1) / Math.PI) * 1.2
-  }
-
-  render () {
-    const {
-      windowStore: { tabCount, windows },
-      tabStore: { selection }
-    } = this.props
-    const opacity = this.getOpacity()
-    const style = { ...fakeButtonStyle, opacity }
-    const selected = selection.size
-    const title = `${windows.length} ${getNoun(
-      'window',
-      windows.length
-    )}, ${tabCount} ${getNoun('tab', tabCount)}`
-    return (
-      <ButtonBase style={style} onFocus={this.onFocus}>
-        <Typography>
-          <Title {...{ title }} />, {selected} {getNoun('tab', selected)}{' '}
-          selected
-        </Typography>
-      </ButtonBase>
-    )
-  }
-}
-
-export default Summary
+export default observer(() => {
+  const { searchStore, tabStore, windowStore } = useStore()
+  const { windows, tabCount } = windowStore
+  const { typing, query } = searchStore
+  const opacity = typing ? 1 - (Math.atan(query.length + 1) / Math.PI) * 1.2 : 1
+  const style = { ...fakeButtonStyle, opacity }
+  const selected = tabStore.selection.size
+  const title = `${windows.length} ${getNoun(
+    'window',
+    windows.length
+  )}, ${tabCount} ${getNoun('tab', tabCount)}`
+  return (
+    <ButtonBase style={style} onFocus={e => e.target.blur()}>
+      <Typography>
+        <Title {...{ title }} />, {selected} {getNoun('tab', selected)} selected
+      </Typography>
+    </ButtonBase>
+  )
+})

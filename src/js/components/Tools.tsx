@@ -1,5 +1,5 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import { DropTarget } from 'react-dnd'
 import Paper from '@material-ui/core/Paper'
 import Preview from 'components/Preview'
@@ -11,6 +11,7 @@ import { getNoun } from 'libs'
 import { ItemTypes } from 'libs/react-dnd'
 import { dropTargetColor, droppedColor } from 'libs/colors'
 import SyncButton from './SyncButton'
+import { useStore } from './StoreContext'
 
 const style = {
   display: 'flex',
@@ -20,8 +21,6 @@ const style = {
   padding: '0 4px'
 }
 
-@inject('dragStore')
-@inject('tabStore')
 @DropTarget(
   ItemTypes.TAB,
   {
@@ -38,7 +37,6 @@ const style = {
     isOver: monitor.isOver()
   })
 )
-@observer
 class Tools extends React.Component {
   render () {
     const {
@@ -96,4 +94,7 @@ class Tools extends React.Component {
   }
 }
 
-export default Tools
+export default observer(props => {
+  const { dragStore, tabStore } = useStore()
+  return <Tools {...{ dragStore, tabStore }} {...props} />
+})

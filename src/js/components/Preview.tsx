@@ -1,23 +1,17 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tab from 'components/Tab/Tab'
 import { focusedColor } from 'libs/colors'
+import { useStore } from './StoreContext'
 
 const style = {
   opacity: 0.5,
   background: focusedColor
 }
 
-@inject('tabStore')
-@observer
-class Preview extends React.Component<any> {
-  render () {
-    const {
-      tabStore: { sources }
-    } = this.props
-    const content = sources.map(tab => <Tab key={tab.id} tab={tab} faked />)
-    return <div style={{ ...style, ...this.props.style }}>{content}</div>
-  }
-}
-
-export default Preview
+export default observer(props => {
+  const { tabStore } = useStore()
+  const { sources } = tabStore
+  const content = sources.map(tab => <Tab key={tab.id} tab={tab} faked />)
+  return <div style={{ ...style, ...props.style }}>{content}</div>
+})
