@@ -1,5 +1,5 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'
@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import Typography from '@material-ui/core/Typography'
 import Url from 'components/Tab/Url'
+import { useStore } from 'components/StoreContext'
 
 const pre = `<span style='color:${highlightBorderColor}'>`
 const post = '</span>'
@@ -40,14 +41,15 @@ const styles = theme => ({
   }
 })
 
-@withStyles(styles)
-@inject('userStore')
-@observer
-class TabContent extends React.Component {
-  getHighlightNode = text => {
+const TabContent = observer(props => {
+  const { userStore } = useStore()
+  const { classes } = props
+  const { activate, title, urlCount } = props.tab
+  const { showUrl, highlightDuplicatedTab } = userStore
+  const getHighlightNode = text => {
     const {
       tab: { isMatched, query }
-    } = this.props
+    } = props
     if (!isMatched || !query) {
       return text
     }
@@ -57,33 +59,27 @@ class TabContent extends React.Component {
     }
     return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
   }
+  const duplicated =
+    urlCount > 1 && highlightDuplicatedTab && classes.duplicated
+  return (
+    <ButtonBase
+      focusRipple
+      className={classes.ripple}
+      onClick={activate}
+      component='div'
+    >
+      <Typography className={classNames(classes.text, duplicated)}>
+        {getHighlightNode(title)}
+      </Typography>
+      {showUrl && (
+        <Url
+          {...props}
+          className={classNames(classes.text, classes.url, duplicated)}
+          getHighlightNode={getHighlightNode}
+        />
+      )}
+    </ButtonBase>
+  )
+})
 
-  render () {
-    const { classes } = this.props
-    const { activate, title, urlCount } = this.props.tab
-    const { showUrl, highlightDuplicatedTab } = this.props.userStore
-    const duplicated =
-      urlCount > 1 && highlightDuplicatedTab && classes.duplicated
-    return (
-      <ButtonBase
-        focusRipple
-        className={classes.ripple}
-        onClick={activate}
-        component='div'
-      >
-        <Typography className={classNames(classes.text, duplicated)}>
-          {this.getHighlightNode(title)}
-        </Typography>
-        {showUrl && (
-          <Url
-            {...this.props}
-            className={classNames(classes.text, classes.url, duplicated)}
-            getHighlightNode={this.getHighlightNode}
-          />
-        )}
-      </ButtonBase>
-    )
-  }
-}
-
-export default TabContent
+export default withStyles(styles)(TabContent)

@@ -27,39 +27,41 @@ class App extends React.Component<any, {}> {
   }
 
   render () {
-    const { muiTheme } = this.props.themeStore
     return (
-      <React.StrictMode>
-        <MuiThemeProvider theme={muiTheme}>
-          <Paper
-            style={{
-              // backgroundColor: theme.app.backgroundColor,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              height: '100vh'
-            }}
-          >
-            <Tools
-              inputRef={(input: any) => {
-                this.search = input
-              }}
-            />
-            <Fade in>
-              <Columns />
-            </Fade>
-            <Toolbar />
-            <Shortcut />
-            <DragPreview />
-            <SettingsDialog />
-          </Paper>
-        </MuiThemeProvider>
-      </React.StrictMode>
+      <Paper
+        style={{
+          // backgroundColor: theme.app.backgroundColor,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          height: '100vh'
+        }}
+      >
+        <Tools
+          inputRef={(input: any) => {
+            this.search = input
+          }}
+        />
+        <Fade in>
+          <Columns />
+        </Fade>
+        <Toolbar />
+        <Shortcut />
+        <DragPreview />
+        <SettingsDialog />
+      </Paper>
     )
   }
 }
 
 export default observer(() => {
   const { windowStore, shortcutStore, themeStore } = useStore()
-  return <App {...{ windowStore, shortcutStore, themeStore }} />
+  const { muiTheme } = themeStore
+  return (
+    <MuiThemeProvider theme={muiTheme}>
+      <React.StrictMode>
+        <App {...{ windowStore, shortcutStore, themeStore }} />
+      </React.StrictMode>
+    </MuiThemeProvider>
+  )
 })

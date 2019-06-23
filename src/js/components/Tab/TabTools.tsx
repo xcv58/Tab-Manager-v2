@@ -1,37 +1,34 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
 import { withStyles } from '@material-ui/core/styles'
+import { useStore } from 'components/StoreContext'
 
-const styles = theme => ({
+const styles = () => ({
   root: {
     display: 'flex',
     justifySelf: 'flex-end'
   }
 })
 
-@withStyles(styles)
-@inject('dragStore')
-@observer
-class TabTools extends React.Component {
-  render () {
-    const {
-      classes,
-      faked,
-      dragStore: { dragging },
-      tab: { isHovered }
-    } = this.props
-    if (faked || dragging || !isHovered) {
-      return null
-    }
-    return (
-      <div className={classes.root}>
-        <DragHandle {...this.props} />
-        <TabMenu {...this.props} />
-      </div>
-    )
+const TabTools = observer(props => {
+  const { dragStore } = useStore()
+  const {
+    classes,
+    faked,
+    tab: { isHovered }
+  } = props
+  const { dragging } = dragStore
+  if (faked || dragging || !isHovered) {
+    return null
   }
-}
+  return (
+    <div className={classes.root}>
+      <DragHandle {...props} />
+      <TabMenu {...props} />
+    </div>
+  )
+})
 
-export default TabTools
+export default withStyles(styles)(TabTools)
