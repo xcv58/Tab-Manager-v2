@@ -26,14 +26,16 @@ const props = {
 
 describe('Tabs', () => {
   it('render correct components', () => {
-    const el = shallow(<Tabs.wrappedComponent {...props} />)
+    const el = shallow(<Tabs {...props} />)
     expect(el.find(FlipMove).length).toBe(1)
     expect(el.find(DraggableTab).length).toBe(2)
   })
 
   it('call requestAnimationFrame with windowStore.windowMounted', () => {
     const requestAnimationFrame = stub(window, 'requestAnimationFrame')
-    shallow(<Tabs.wrappedComponent {...props} />)
+    const el = shallow(<Tabs {...props} />)
+    // TODO: trigger useEffect, it's blocked by https://github.com/airbnb/enzyme/issues/2086
+    el.update()
     expect(requestAnimationFrame.callCount).toBe(1)
     expect(requestAnimationFrame.args[0]).toEqual([windowMounted])
   })
