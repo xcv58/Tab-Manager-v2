@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
@@ -37,8 +37,8 @@
     "mousetrap": "^1.6.3",
     "react": "^16.8.6",
     "react-custom-scrollbars": "^4.2.1",
-    "react-dnd": "^7.6.0",
-    "react-dnd-html5-backend": "^7.6.0",
+    "react-dnd": "7.4.5",
+    "react-dnd-html5-backend": "^7.4.4",
     "react-dom": "^16.8.6",
     "react-flip-move": "^3.0.3",
     "react-resize-detector": "^4.2.0",
