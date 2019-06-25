@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.1...v0.20.2) (2019-06-25)
+
+### Bug Fixes
+
+- Incorrect drag preview when drag tab(s) ([0b12874](https://github.com/xcv58/Tab-Manager-v2/commit/0b12874))
+
 ### [0.20.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.19.9...v0.20.1) (2019-06-11)
 
 ### Bug Fixes
