@@ -111,7 +111,8 @@
     ],
     "parser": "babel-eslint",
     "globals": [
-      "screen"
+      "screen",
+      "HTMLInputElement"
     ]
   },
   "lint-staged": {

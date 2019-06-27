@@ -1,3 +1,4 @@
+import { MutableRefObject } from 'react'
 import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
@@ -15,6 +16,7 @@ export const getDescription = description => {
 
 export default class ShortcutStore {
   store: Store
+  searchEl: MutableRefObject<HTMLInputElement>
 
   constructor (store) {
     this.store = store
@@ -119,7 +121,7 @@ export default class ShortcutStore {
       '/',
       event => {
         event.preventDefault()
-        this.App.search.focus()
+        this.searchEl.current.focus()
       },
       'Search tab'
     ],
@@ -136,7 +138,7 @@ export default class ShortcutStore {
         } = this.store
         if (typing) {
           e.preventDefault()
-          return this.App.search.blur()
+          return this.searchEl.current.blur()
         }
         if (dialogOpen) {
           e.preventDefault()
@@ -298,8 +300,8 @@ export default class ShortcutStore {
   }
 
   @action
-  didMount = App => {
-    this.App = App
+  didMount = searchEl => {
+    this.searchEl = searchEl
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.shortcuts.map(([key, func, description]) =>
       Mousetrap.bind(key, (e, combo) => {

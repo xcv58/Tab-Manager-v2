@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { MutableRefObject } from 'react'
 import { observer } from 'mobx-react-lite'
 import Input from '@material-ui/core/Input'
 import { useStore } from './StoreContext'
 
-export default observer(({ inputRef }) => {
+export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
+export default observer(({ inputRef }: InputRefProps) => {
   const { userStore, searchStore } = useStore()
   return (
     <Input
