@@ -17,6 +17,7 @@ import { withTheme } from '@material-ui/core/styles'
 class DraggableTab extends React.Component {
   componentDidMount () {
     const { connectDragPreview } = this.props
+    console.log('connectDragPreview:')
     connectDragPreview(document.getElementById('dragPreview'))
   }
 

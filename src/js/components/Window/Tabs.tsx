@@ -1,39 +1,31 @@
-import React from 'react'
-import { inject, observer } from 'mobx-react'
+import React, { useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 import FlipMove from 'react-flip-move'
 import DraggableTab from 'components/Tab/DraggableTab'
+import { useStore } from 'components/StoreContext'
 
-@inject('windowStore')
-@observer
-class Tabs extends React.Component {
-  componentDidMount () {
-    window.requestAnimationFrame(this.props.windowStore.windowMounted)
-  }
+export default observer(props => {
+  const { windowStore } = useStore()
+  useEffect(() => {
+    window.requestAnimationFrame(windowStore.windowMounted)
+  }, [])
 
-  render () {
-    const {
-      win: { tabs },
-      getScrollbars,
-      dragPreview
-    } = this.props
-    const tabsView = tabs.map(tab => (
-      <DraggableTab
-        key={tab.id}
-        tab={tab}
-        {...{ getScrollbars, dragPreview }}
-      />
-    ))
-    return (
-      <FlipMove
-        duration={255}
-        easing='ease-in-out'
-        enterAnimation='accordionHorizontal'
-        leaveAnimation='accordionHorizontal'
-      >
-        {tabsView}
-      </FlipMove>
-    )
-  }
-}
-
-export default Tabs
+  const {
+    win: { tabs },
+    getScrollbars,
+    dragPreview
+  } = props
+  const tabsView = tabs.map(tab => (
+    <DraggableTab key={tab.id} tab={tab} {...{ getScrollbars, dragPreview }} />
+  ))
+  return (
+    <FlipMove
+      duration={255}
+      easing='ease-in-out'
+      enterAnimation='accordionHorizontal'
+      leaveAnimation='accordionHorizontal'
+    >
+      {tabsView}
+    </FlipMove>
+  )
+})

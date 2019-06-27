@@ -1,24 +1,17 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Sync from '@material-ui/icons/Sync'
-import WindowsStore from 'stores/WindowStore'
+import { useStore } from './StoreContext'
 
-@inject('windowStore')
-@observer
-class SyncButton extends React.Component<{
-  windowStore: WindowsStore
-}> {
-  render () {
-    return (
-      <Tooltip title='Sync All Windows' placement='left'>
-        <IconButton onClick={this.props.windowStore.syncAllWindows}>
-          <Sync />
-        </IconButton>
-      </Tooltip>
-    )
-  }
-}
-
-export default SyncButton
+export default observer(() => {
+  const { windowStore } = useStore()
+  return (
+    <Tooltip title='Sync All Windows' placement='left'>
+      <IconButton onClick={windowStore.syncAllWindows}>
+        <Sync />
+      </IconButton>
+    </Tooltip>
+  )
+})

@@ -1,25 +1,21 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import SortIcon from '@material-ui/icons/Sort'
 import IconButton from '@material-ui/core/IconButton'
+import { useStore } from 'components/StoreContext'
 
-@inject('arrangeStore')
-@observer
-class Sort extends React.Component {
-  render () {
-    const {
-      win: { id },
-      arrangeStore: { sortTabs }
-    } = this.props
-    return (
-      <Tooltip title='Sort tabs'>
-        <IconButton onClick={() => sortTabs(id)}>
-          <SortIcon />
-        </IconButton>
-      </Tooltip>
-    )
-  }
-}
-
-export default Sort
+export default observer(props => {
+  const { arrangeStore } = useStore()
+  const {
+    win: { id }
+  } = props
+  const { sortTabs } = arrangeStore
+  return (
+    <Tooltip title='Sort tabs'>
+      <IconButton onClick={() => sortTabs(id)}>
+        <SortIcon />
+      </IconButton>
+    </Tooltip>
+  )
+})

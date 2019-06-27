@@ -5,13 +5,16 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Tooltip from '@material-ui/core/Tooltip'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
+import * as StoreContext from 'components/StoreContext'
 
 const props = {
   children: 'children',
   faked: false,
-  dragStore: { dragging: false },
-  hoverStore: { hovered: true },
   tab: { title: 'title', url: 'url', isHovered: true, urlCount: 1 }
+}
+const mockStore = {
+  dragStore: { dragging: false },
+  hoverStore: { hovered: true }
 }
 
 describe('Icon', () => {
@@ -28,10 +31,12 @@ describe('Icon', () => {
 })
 
 describe('TabTooltip', () => {
+  beforeEach(() => {
+    jest.spyOn(StoreContext, 'useStore').mockImplementation(() => mockStore)
+  })
+
   it('should render correct components', () => {
-    const el = shallow(
-      <TabTooltip.wrappedComponent.wrappedComponent {...props} />
-    )
+    const el = shallow(<TabTooltip {...props} />)
     expect(el.find(Tooltip).length).toBe(1)
     expect(el.find(Tooltip).props().open).toBe(true)
     const title = shallow(el.find(Tooltip).props().title)
@@ -40,10 +45,7 @@ describe('TabTooltip', () => {
 
   it('should render duplicated alert', () => {
     const el = shallow(
-      <TabTooltip.wrappedComponent.wrappedComponent
-        {...props}
-        tab={{ ...props.tab, urlCount: 2 }}
-      />
+      <TabTooltip {...props} tab={{ ...props.tab, urlCount: 2 }} />
     )
     const title = shallow(el.find(Tooltip).props().title)
     expect(title.text()).toBe(
@@ -52,30 +54,26 @@ describe('TabTooltip', () => {
   })
 
   it('should render null', () => {
-    let el = shallow(
-      <TabTooltip.wrappedComponent.wrappedComponent {...props} faked />
-    )
+    let el = shallow(<TabTooltip {...props} faked />)
+    expect(el.getElement()).toBe(null)
+
     expect(el.getElement()).toBe(null)
     el = shallow(
-      <TabTooltip.wrappedComponent.wrappedComponent
-        {...props}
-        dragStore={{ dragging: true }}
-      />
+      <TabTooltip {...props} tab={{ ...props.tab, isHovered: false }} />
     )
     expect(el.getElement()).toBe(null)
-    el = shallow(
-      <TabTooltip.wrappedComponent.wrappedComponent
-        {...props}
-        hoverStore={{ hovered: false }}
-      />
-    )
+
+    jest.spyOn(StoreContext, 'useStore').mockImplementation(() => ({
+      ...mockStore,
+      dragStore: { dragging: true }
+    }))
+    el = shallow(<TabTooltip {...props} dragStore={{ dragging: true }} />)
     expect(el.getElement()).toBe(null)
-    el = shallow(
-      <TabTooltip.wrappedComponent.wrappedComponent
-        {...props}
-        tab={{ ...props.tab, isHovered: false }}
-      />
-    )
-    expect(el.getElement()).toBe(null)
+
+    jest.spyOn(StoreContext, 'useStore').mockImplementation(() => ({
+      ...mockStore,
+      hoverStore: { hovered: true }
+    }))
+    el = shallow(<TabTooltip {...props} hoverStore={{ hovered: false }} />)
   })
 })

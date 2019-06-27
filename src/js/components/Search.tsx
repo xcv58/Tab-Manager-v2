@@ -1,46 +1,24 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Input from '@material-ui/core/Input'
+import { useStore } from './StoreContext'
 
-@inject('userStore')
-@inject('searchStore')
-@observer
-class Search extends React.Component {
-  onChange = e => {
-    this.props.searchStore.search(e.target.value)
-  }
-
-  onFocus = () => {
-    const {
-      searchStore: { search, query, startType }
-    } = this.props
-    search(query)
-    startType()
-  }
-
-  onBlur = () => {
-    this.props.searchStore.stopType()
-  }
-
-  render () {
-    const {
-      inputRef,
-      searchStore: { query },
-      userStore: { autoFocusSearch }
-    } = this.props
-    return (
-      <Input
-        fullWidth
-        autoFocus={autoFocusSearch}
-        inputProps={{ ref: inputRef }}
-        placeholder='Search your tab title...'
-        onChange={this.onChange}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        value={query}
-      />
-    )
-  }
-}
-
-export default Search
+export default observer(({ inputRef }) => {
+  const { userStore, searchStore } = useStore()
+  return (
+    <Input
+      fullWidth
+      autoFocus={userStore.autoFocusSearch}
+      inputProps={{ ref: inputRef }}
+      placeholder='Search your tab title...'
+      onChange={e => searchStore.search(e.target.value)}
+      onFocus={() => {
+        const { search, query, startType } = searchStore
+        search(query)
+        startType()
+      }}
+      onBlur={() => searchStore.stopType()}
+      value={searchStore.query}
+    />
+  )
+})

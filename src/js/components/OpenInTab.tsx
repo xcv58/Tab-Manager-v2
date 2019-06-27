@@ -4,14 +4,10 @@ import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
 import IconButton from '@material-ui/core/IconButton'
 import { openInNewTab } from 'libs'
 
-export default class OpenInTab extends React.Component {
-  render () {
-    return (
-      <Tooltip title='Open in new tab' placement='left'>
-        <IconButton onClick={openInNewTab}>
-          <OpenInBrowser />
-        </IconButton>
-      </Tooltip>
-    )
-  }
-}
+export default () => (
+  <Tooltip title='Open in new tab' placement='left'>
+    <IconButton onClick={openInNewTab}>
+      <OpenInBrowser />
+    </IconButton>
+  </Tooltip>
+)

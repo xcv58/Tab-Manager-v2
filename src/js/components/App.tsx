@@ -1,5 +1,5 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Fade from '@material-ui/core/Fade'
 import Paper from '@material-ui/core/Paper'
 import Columns from 'components/Columns'
@@ -11,9 +11,9 @@ import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import { DragDropContext } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
+import { useStore } from './StoreContext'
 
 @DragDropContext(HTML5Backend)
-@observer
 class App extends React.Component<any, {}> {
   search: any
 
@@ -27,39 +27,41 @@ class App extends React.Component<any, {}> {
   }
 
   render () {
-    const { muiTheme } = this.props.themeStore
     return (
-      <React.StrictMode>
-        <MuiThemeProvider theme={muiTheme}>
-          <Paper
-            style={{
-              // backgroundColor: theme.app.backgroundColor,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              height: '100vh'
-            }}
-          >
-            <Tools
-              inputRef={(input: any) => {
-                this.search = input
-              }}
-            />
-            <Fade in>
-              <Columns />
-            </Fade>
-            <Toolbar />
-            <Shortcut />
-            <DragPreview />
-            <SettingsDialog />
-          </Paper>
-        </MuiThemeProvider>
-      </React.StrictMode>
+      <Paper
+        style={{
+          // backgroundColor: theme.app.backgroundColor,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          height: '100vh'
+        }}
+      >
+        <Tools
+          inputRef={(input: any) => {
+            this.search = input
+          }}
+        />
+        <Fade in>
+          <Columns />
+        </Fade>
+        <Toolbar />
+        <Shortcut />
+        <DragPreview />
+        <SettingsDialog />
+      </Paper>
     )
   }
 }
 
-export default inject((stores: any) => {
-  const { windowStore, shortcutStore, themeStore } = stores
-  return { windowStore, shortcutStore, themeStore }
-})(App)
+export default observer(() => {
+  const { windowStore, shortcutStore, themeStore } = useStore()
+  const { muiTheme } = themeStore
+  return (
+    <MuiThemeProvider theme={muiTheme}>
+      <React.StrictMode>
+        <App {...{ windowStore, shortcutStore, themeStore }} />
+      </React.StrictMode>
+    </MuiThemeProvider>
+  )
+})

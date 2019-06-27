@@ -1,25 +1,22 @@
 import React from 'react'
-import { inject, observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import FilterList from '@material-ui/icons/FilterList'
 import IconButton from '@material-ui/core/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
+import { useStore } from 'components/StoreContext'
 
-@inject('arrangeStore')
-@observer
-class GroupAndSort extends React.Component {
-  render () {
-    const { groupTabs } = this.props.arrangeStore
-    return (
-      <Tooltip title='Group & Sort Tabs' enterDelay={TOOLTIP_DELAY}>
-        <div>
-          <IconButton onClick={() => groupTabs()}>
-            <FilterList />
-          </IconButton>
-        </div>
-      </Tooltip>
-    )
-  }
-}
+export default observer(() => {
+  const { arrangeStore } = useStore()
 
-export default GroupAndSort
+  const { groupTabs } = arrangeStore
+  return (
+    <Tooltip title='Group & Sort Tabs' enterDelay={TOOLTIP_DELAY}>
+      <div>
+        <IconButton onClick={() => groupTabs()}>
+          <FilterList />
+        </IconButton>
+      </div>
+    </Tooltip>
+  )
+})
