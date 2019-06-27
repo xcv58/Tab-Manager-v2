@@ -259,6 +259,7 @@ export default class WindowsStore {
     tabs.map((tab, i) => {
       const index = from + (from !== -1 ? i : 0)
       const sourceWindow = this.getTargetWindow(tab.windowId)
+      console.log('remove tab: ', tab, ' from: ', sourceWindow)
       sourceWindow.remove(tab)
       targetWindow.add(tab, index)
     })

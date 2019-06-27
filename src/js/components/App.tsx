@@ -9,11 +9,12 @@ import Tools from 'components/Tools'
 import DragPreview from 'components/DragPreview'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { MuiThemeProvider } from '@material-ui/core/styles'
-import { DragDropContext } from 'react-dnd'
+// import { DragDropContext } from 'react-dnd'
+import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { useStore } from './StoreContext'
 
-@DragDropContext(HTML5Backend)
+// @DragDropContext(HTML5Backend)
 class App extends React.Component<any, {}> {
   search: any
 
@@ -60,7 +61,9 @@ export default observer(() => {
   return (
     <MuiThemeProvider theme={muiTheme}>
       <React.StrictMode>
-        <App {...{ windowStore, shortcutStore, themeStore }} />
+        <DndProvider backend={HTML5Backend}>
+          <App {...{ windowStore, shortcutStore, themeStore }} />
+        </DndProvider>
       </React.StrictMode>
     </MuiThemeProvider>
   )
