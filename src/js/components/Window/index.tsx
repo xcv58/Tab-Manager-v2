@@ -49,8 +49,8 @@ const Window = observer(props => {
   return (
     <div ref={drop} style={style}>
       <Paper elevation={elevation}>
-        <Title {...this.props} />
-        {showTabs && <Tabs {...this.props} />}
+        <Title {...props} />
+        {showTabs && <Tabs {...props} />}
         {dropIndicator}
       </Paper>
     </div>
