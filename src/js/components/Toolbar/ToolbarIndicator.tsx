@@ -14,43 +14,31 @@ const IndicatorIcon = ({ toolbarVisible }) => {
   return <KeyboardArrowLeft />
 }
 
-class ToolbarIndicator extends React.Component {
-  onClick = () => {
-    const { hideToolbar, showToolbar, toolbarVisible } = this.props.userStore
-    if (toolbarVisible) {
-      hideToolbar()
-    } else {
-      showToolbar()
-    }
-  }
-
-  render () {
-    const {
-      showToolbar,
-      toolbarAutoHide,
-      toolbarVisible
-    } = this.props.userStore
-    return (
-      <Slide direction='up' in>
-        <IconButton
-          style={{
-            opacity: toolbarAutoHide ? 1 : 0.2
-          }}
-          disabled={!toolbarAutoHide}
-          onFocus={showToolbar}
-          onMouseEnter={showToolbar}
-          onClick={this.onClick}
-        >
-          <Fade in>
-            <IndicatorIcon {...{ toolbarVisible }} />
-          </Fade>
-        </IconButton>
-      </Slide>
-    )
-  }
-}
-
 export default observer(() => {
   const { userStore } = useStore()
-  return <ToolbarIndicator {...{ userStore }} />
+  const { showToolbar, toolbarAutoHide, toolbarVisible } = userStore
+  return (
+    <Slide direction='up' in>
+      <IconButton
+        style={{
+          opacity: toolbarAutoHide ? 1 : 0.2
+        }}
+        disabled={!toolbarAutoHide}
+        onFocus={showToolbar}
+        onMouseEnter={showToolbar}
+        onClick={() => {
+          const { hideToolbar, showToolbar } = userStore
+          if (toolbarVisible) {
+            hideToolbar()
+          } else {
+            showToolbar()
+          }
+        }}
+      >
+        <Fade in>
+          <IndicatorIcon {...{ toolbarVisible }} />
+        </Fade>
+      </IconButton>
+    </Slide>
+  )
 })

@@ -44,13 +44,12 @@ const App = observer(() => {
 })
 
 export default observer(() => {
-  const { windowStore, shortcutStore, themeStore } = useStore()
-  const { muiTheme } = themeStore
+  const { themeStore } = useStore()
   return (
-    <MuiThemeProvider theme={muiTheme}>
+    <MuiThemeProvider theme={themeStore.muiTheme}>
       <React.StrictMode>
         <DndProvider backend={HTML5Backend}>
-          <App {...{ windowStore, shortcutStore, themeStore }} />
+          <App />
         </DndProvider>
       </React.StrictMode>
     </MuiThemeProvider>
