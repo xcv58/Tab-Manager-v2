@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
 import { withStyles } from '@material-ui/core/styles'

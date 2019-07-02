@@ -2,7 +2,6 @@ import React from 'react'
 import { connectDropTarget } from 'test'
 import { spy, stub } from 'sinon'
 import { shallow } from 'enzyme'
-import FlipMove from 'react-flip-move'
 import DraggableTab from 'components/Tab/DraggableTab'
 import Tabs from 'components/Window/Tabs'
 
@@ -27,7 +26,6 @@ const props = {
 describe('Tabs', () => {
   it('render correct components', () => {
     const el = shallow(<Tabs {...props} />)
-    expect(el.find(FlipMove).length).toBe(1)
     expect(el.find(DraggableTab).length).toBe(2)
   })
 

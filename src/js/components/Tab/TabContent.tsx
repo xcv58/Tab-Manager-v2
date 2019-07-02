@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'

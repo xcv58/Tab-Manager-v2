@@ -1,9 +1,9 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
-import { DropTarget } from 'react-dnd'
+import { observer } from 'mobx-react'
+import { useDrop } from 'react-dnd'
 import Paper from '@material-ui/core/Paper'
 import Preview from 'components/Preview'
-import Search from 'components/Search'
+import Search, { InputRefProps } from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
@@ -21,80 +21,67 @@ const style = {
   padding: '0 4px'
 }
 
-@DropTarget(
-  ItemTypes.TAB,
-  {
-    drop (props) {
-      props.dragStore.dropToNewWindow()
+export default observer((props: InputRefProps) => {
+  const { dragStore, tabStore } = useStore()
+  const [dropProps, drop] = useDrop({
+    accept: ItemTypes.TAB,
+    drop: () => {
+      dragStore.dropToNewWindow()
     },
-    canDrop () {
-      return true
+    canDrop: () => true,
+    collect: monitor => {
+      return {
+        canDrop: monitor.canDrop(),
+        isOver: monitor.isOver()
+      }
     }
-  },
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    canDrop: monitor.canDrop(),
-    isOver: monitor.isOver()
   })
-)
-class Tools extends React.Component {
-  render () {
-    const {
-      connectDropTarget,
-      isOver,
-      canDrop,
-      tabStore: { selection }
-    } = this.props
-    const size = selection.size
-    if (canDrop) {
-      const backgroundColor = isOver ? droppedColor : dropTargetColor
-      const text = isOver
-        ? `Open below ${getNoun('tab', size)}`
-        : 'Drop here to open'
-      return connectDropTarget(
-        <div
+  const { canDrop, isOver } = dropProps
+  const size = tabStore.selection.size
+  if (canDrop) {
+    const backgroundColor = isOver ? droppedColor : dropTargetColor
+    const text = isOver
+      ? `Open below ${getNoun('tab', size)}`
+      : 'Drop here to open'
+    return (
+      <div
+        ref={drop}
+        style={{
+          ...style,
+          backgroundColor,
+          fontSize: '200%',
+          justifyContent: 'center',
+          zIndex: 9
+        }}
+      >
+        {text} in New Window
+        <Paper
+          elevation={8}
           style={{
-            ...style,
-            backgroundColor,
-            fontSize: '200%',
-            justifyContent: 'center',
-            zIndex: 9
+            position: 'absolute',
+            top: '3rem'
           }}
         >
-          {text} in New Window
-          <Paper
-            elevation={8}
-            style={{
-              position: 'absolute',
-              top: '3rem'
-            }}
-          >
-            {isOver && (
-              <Preview
-                style={{
-                  opacity: 1,
-                  maxWidth: '80vw',
-                  minWidth: '20rem'
-                }}
-              />
-            )}
-          </Paper>
-        </div>
-      )
-    }
-    return (
-      <div style={style}>
-        <Summary />
-        <Search inputRef={this.props.inputRef} />
-        <SyncButton />
-        <ThemeToggle />
-        <OpenInTab />
+          {isOver && (
+            <Preview
+              style={{
+                opacity: 1,
+                maxWidth: '80vw',
+                minWidth: '20rem'
+              }}
+            />
+          )}
+        </Paper>
       </div>
     )
   }
-}
-
-export default observer(props => {
-  const { dragStore, tabStore } = useStore()
-  return <Tools {...{ dragStore, tabStore }} {...props} />
+  return (
+    <div style={style}>
+      <Summary />
+      <Search inputRef={props.inputRef} />
+      <SyncButton />
+      <ThemeToggle />
+      <OpenInTab />
+    </div>
+  )
 })

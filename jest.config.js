@@ -6,11 +6,13 @@ module.exports = {
   },
   roots: ['<rootDir>/src/js'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest'
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.js$': 'ts-jest'
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(t|j)sx?$',
   moduleDirectories: ['node_modules', 'src', 'src/js'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  transformIgnorePatterns: ['<rootDir>/node_modules/(?!(react-dnd|dnd-core))'],
   moduleNameMapper: {
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': 'babel-jest'
   },

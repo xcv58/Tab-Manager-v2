@@ -1,6 +1,9 @@
 import { action, observable } from 'mobx'
+import Store from 'stores'
 
 export default class DragStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }

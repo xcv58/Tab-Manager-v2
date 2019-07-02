@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import Tab from 'components/Tab/Tab'
 import { focusedColor } from 'libs/colors'
 import { useStore } from './StoreContext'

@@ -13,20 +13,13 @@ const styles = theme => ({
   }
 })
 
-@withStyles(styles)
-class CloseButton extends React.Component {
-  static defaultProps = {
-    disabled: false
-  }
-
-  render () {
-    const { classes, onClick, disabled } = this.props
-    return (
-      <IconButton {...{ onClick, disabled }} className={classes.icon}>
-        <CloseIcon />
-      </IconButton>
-    )
-  }
+const CloseButton = props => {
+  const { classes, onClick, disabled } = props
+  return (
+    <IconButton {...{ onClick, disabled }} className={classes.icon}>
+      <CloseIcon />
+    </IconButton>
+  )
 }
 
-export default CloseButton
+export default withStyles(styles)(CloseButton)
