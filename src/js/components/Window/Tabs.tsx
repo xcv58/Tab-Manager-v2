@@ -11,11 +11,10 @@ export default observer(props => {
 
   const {
     win: { tabs },
-    getScrollbars,
-    dragPreview
+    getScrollbars
   } = props
   const tabsView = tabs.map(tab => (
-    <DraggableTab key={tab.id} tab={tab} {...{ getScrollbars, dragPreview }} />
+    <DraggableTab key={tab.id} tab={tab} {...{ getScrollbars }} />
   ))
   // TODO: The FlipMove will lead to zombie tabs after drag tab(s) to another window
   return <>{tabsView}</>

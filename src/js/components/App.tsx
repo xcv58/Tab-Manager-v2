@@ -6,12 +6,12 @@ import Columns from 'components/Columns'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import Tools from 'components/Tools'
-import DragPreview from 'components/DragPreview'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { useStore } from './StoreContext'
+import DragLayer from './DragLayer'
 
 const App = observer(() => {
   const searchEl = useRef<HTMLInputElement>(null)
@@ -37,8 +37,8 @@ const App = observer(() => {
       </Fade>
       <Toolbar />
       <Shortcut />
-      <DragPreview />
       <SettingsDialog />
+      <DragLayer />
     </Paper>
   )
 })

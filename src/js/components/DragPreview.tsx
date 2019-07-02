@@ -14,14 +14,11 @@ export default observer(() => {
   )
   return (
     <div
-      id='dragPreview'
       style={{
-        width: '10rem',
-        position: 'fixed',
+        opacity: 0.6,
+        width: '8rem',
         background: focusedColor,
-        textAlign: 'center',
-        top: -512,
-        left: 4096
+        textAlign: 'center'
       }}
     >
       {head}

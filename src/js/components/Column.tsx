@@ -8,8 +8,7 @@ export default observer(props => {
     left,
     right,
     width,
-    getScrollbars,
-    dragPreview
+    getScrollbars
   } = props
 
   const style = {
@@ -27,7 +26,6 @@ export default observer(props => {
       win={win}
       width={width}
       getScrollbars={getScrollbars}
-      dragPreview={dragPreview}
     />
   ))
   return <div style={style}>{windowList}</div>
