@@ -3,7 +3,6 @@ import { connectDropTarget } from 'test'
 import { spy } from 'sinon'
 import { shallow } from 'enzyme'
 import Column from 'components/Column'
-import FlipMove from 'react-flip-move'
 import Window from 'components/Window'
 import { createMuiTheme } from '@material-ui/core/styles'
 
@@ -27,7 +26,6 @@ describe('Column', () => {
   it('render correct components', () => {
     const el = shallow(<Column {...props} />)
     expect(el.find('div').length).toBe(1)
-    expect(el.find(FlipMove).length).toBe(1)
     expect(el.find(Window).length).toBe(2)
   })
 
