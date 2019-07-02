@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import Fade from '@material-ui/core/Fade'
 import Paper from '@material-ui/core/Paper'
 import Columns from 'components/Columns'

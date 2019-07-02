@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import Tooltip from '@material-ui/core/Tooltip'
 import OpenInNew from '@material-ui/icons/OpenInNew'
 import IconButton from '@material-ui/core/IconButton'

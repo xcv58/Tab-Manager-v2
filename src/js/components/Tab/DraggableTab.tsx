@@ -1,6 +1,5 @@
 import React from 'react'
-// import { inject, observer } from 'mobx-react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import { useDrag, DragPreviewImage, useDrop } from 'react-dnd'
 import Tab from './Tab'
 import { ItemTypes } from 'libs/react-dnd'

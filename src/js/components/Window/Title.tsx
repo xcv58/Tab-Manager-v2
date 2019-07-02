@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
 import Preview from 'components/Preview'
 import SelectAll from 'components/Window/SelectAll'

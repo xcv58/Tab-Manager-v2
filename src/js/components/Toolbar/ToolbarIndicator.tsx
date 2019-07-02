@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import Fade from '@material-ui/core/Fade'
 import Slide from '@material-ui/core/Slide'
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'

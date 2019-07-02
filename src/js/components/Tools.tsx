@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react-lite'
+import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
 import Paper from '@material-ui/core/Paper'
 import Preview from 'components/Preview'
