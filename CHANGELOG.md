@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.2...v0.20.3) (2019-07-04)
+
+### Bug Fixes
+
+- Drag preview has stale view ([4fe312f](https://github.com/xcv58/Tab-Manager-v2/commit/4fe312f))
+- Tab Icon and checkbox have different size and hover icon will make tab content jump ([31838a5](https://github.com/xcv58/Tab-Manager-v2/commit/31838a5))
+
 ### [0.20.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.1...v0.20.2) (2019-06-25)
 
 ### Bug Fixes
