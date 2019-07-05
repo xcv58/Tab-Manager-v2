@@ -376,15 +376,15 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@material-ui/core@4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.1.1.tgz#11e703f3d44d84750c9b829f13bb08ad8949e12a"
-  integrity sha512-dZVuVFqKnG3uf+s32U5wMTAXYBGBM6e2LF4fz4ud9woaYcthRiEFJTg2idt0j1jBMg99gqLuznR5+A9TCQbgxQ==
+"@material-ui/core@4.1.3":
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-4.1.3.tgz#0f8ffae88ac668399fbfc66efa1ed37c4ce29a7d"
+  integrity sha512-cSrI3yZ2L1XVi5IyO0/dPGUq1FaDBKTL9ygDOlvojD6bGuD/Qu17dCFAD8/mHV4CPNQMJYUKLYyOmqtDYdEB9g==
   dependencies:
     "@babel/runtime" "^7.2.0"
-    "@material-ui/styles" "^4.1.1"
-    "@material-ui/system" "^4.2.0"
-    "@material-ui/types" "^4.1.0"
+    "@material-ui/styles" "^4.1.2"
+    "@material-ui/system" "^4.3.0"
+    "@material-ui/types" "^4.1.1"
     "@material-ui/utils" "^4.1.0"
     "@types/react-transition-group" "^2.0.16"
     clsx "^1.0.2"
@@ -407,7 +407,7 @@
   dependencies:
     "@babel/runtime" "^7.2.0"
 
-"@material-ui/styles@^4.1.1":
+"@material-ui/styles@^4.1.2":
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/@material-ui/styles/-/styles-4.1.2.tgz#f22cb0d8f60a5e4a4b92f1ffb4b56f825ff89034"
   integrity sha512-IRwhGI3OzxMKIDXnYl/vi9FD/i5ZktVP2m/5PIf/HVdvhqUZGIzqR2OB/9f3W1hc+kKKExdOPlpZpVihIsJWkA==
@@ -431,7 +431,7 @@
     prop-types "^15.7.2"
     warning "^4.0.1"
 
-"@material-ui/system@^4.2.0":
+"@material-ui/system@^4.3.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@material-ui/system/-/system-4.3.0.tgz#6812049bf9257f8936c5de8f18b7142a67048247"
   integrity sha512-VQh3mWZSmzm1JR7Ci35AHKwOhhxHHMrBWCdP4mh7UAwSdjWBE6s2Y9Y0iJiqMoEsHP64vU3W1JpsW2AgkUeHsQ==
@@ -441,7 +441,7 @@
     prop-types "^15.7.2"
     warning "^4.0.1"
 
-"@material-ui/types@^4.1.0", "@material-ui/types@^4.1.1":
+"@material-ui/types@^4.1.1":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@material-ui/types/-/types-4.1.1.tgz#b65e002d926089970a3271213a3ad7a21b17f02b"
   integrity sha512-AN+GZNXytX9yxGi0JOfxHrRTbhFybjUJ05rnsBVjcB+16e466Z0Xe5IxawuOayVZgTBNDxmPKo5j4V6OnMtaSQ==
@@ -10740,10 +10740,10 @@ react-dnd@*:
     invariant "^2.1.0"
     shallowequal "^1.1.0"
 
-react-dnd@9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-9.0.0.tgz#4249948ac5e18e3791b45fe48c20711aa32cc19e"
-  integrity sha512-35OIbmSLN8XSGWaRM0rr7clAUzCdYz3nNE0R4s0LOPJ/GwysyfDkwHKLS78EH41Z/e93rqu0LFZg2rMmNt69Uw==
+react-dnd@9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-9.0.1.tgz#ebe5d893e43a0faa2b004c15c46d87545502663c"
+  integrity sha512-i8K4tofoF+nB/GAcROiDv5Q5oiQaoiD1xDK6/3OCC9plU/53eO1sTwiUl7I2upyzzyBvmGYVJ8HwiBx6rEZhog==
   dependencies:
     "@types/hoist-non-react-statics" "^3.3.1"
     "@types/shallowequal" "^1.1.1"
