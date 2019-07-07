@@ -8,7 +8,7 @@
     "build": "NODE_ENV=production node utils/build.js",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "deploy": "yarn build && yarn zip",
+    "deploy": "yarn build && yarn zip && ls -lh build.zip",
     "release": "standard-version",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build.zip",
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/webstore publish",
