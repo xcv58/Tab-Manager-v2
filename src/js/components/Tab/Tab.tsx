@@ -75,10 +75,6 @@ const Tab = observer(props => {
     shouldHighlight
   } = tab
 
-  if (!isVisible) {
-    return null
-  }
-
   const className = classNames(
     classes.root,
     (active || shouldHighlight) && classes.highlight,
@@ -136,6 +132,7 @@ const Tab = observer(props => {
   }, [faked, isFocused, isVisible])
 
   const pin = pinned && PIN
+
   return (
     <div
       ref={node}
@@ -167,4 +164,11 @@ const Tab = observer(props => {
   )
 })
 
-export default withStyles(styles)(Tab)
+export default withStyles(styles)(
+  observer(props => {
+    if (!props.tab.isVisible) {
+      return null
+    }
+    return <Tab {...props} />
+  })
+)
