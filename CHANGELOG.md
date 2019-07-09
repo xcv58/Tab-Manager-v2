@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.3...v0.20.4) (2019-07-09)
+
+### Bug Fixes
+
+- Bring back the tab add/change/close animation ([4a146d2](https://github.com/xcv58/Tab-Manager-v2/commit/4a146d2))
+
 ### [0.20.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.2...v0.20.3) (2019-07-04)
 
 ### Bug Fixes
