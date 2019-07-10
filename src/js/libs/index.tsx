@@ -2,7 +2,15 @@ import browser from 'webextension-polyfill'
 
 export { browser }
 
-export const popupURL = browser.runtime.getURL('popup.html')
+// The not_popup=1 query indicate current page is not opened by browser_action.
+// Because the browser_action can only open without any query params.
+export const popupURL = browser.runtime.getURL('popup.html') + '?not_popup=1'
+
+const closeIfCurrentTabIsPopup = () => {
+  if (window.location.href !== popupURL) {
+    window.close()
+  }
+}
 
 export const getNoun = (noun, size) => {
   if (size <= 1) {
@@ -36,6 +44,7 @@ export const activateTab = async id => {
   const tab = await browser.tabs.get(id)
   await browser.tabs.update(tab.id, { active: true })
   await browser.windows.update(tab.windowId, { focused: true })
+  closeIfCurrentTabIsPopup()
 }
 
 export const togglePinTabs = async tabs => {
@@ -84,7 +93,10 @@ export const openPopup = () => {
   })
 }
 
-export const openInNewTab = () => browser.tabs.create({ url: popupURL })
+export const openInNewTab = () => {
+  browser.tabs.create({ url: popupURL })
+  closeIfCurrentTabIsPopup()
+}
 
 export const isSelfPopup = ({ type, tabs = [] }) => {
   if (type === 'popup' && tabs.length === 1) {
