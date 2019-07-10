@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.21.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.4...v0.21.0) (2019-07-10)
+
+### Features
+
+- Close popup window after open a tab or open the tab manager in new tab. (This feature for Firefox only, Chrome supports this naturally) ([5a30065](https://github.com/xcv58/Tab-Manager-v2/commit/5a30065))
+
 ### [0.20.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.3...v0.20.4) (2019-07-09)
 
 ### Bug Fixes
