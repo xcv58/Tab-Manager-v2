@@ -11,6 +11,7 @@ export default class HoverStore {
 
   @observable
   hoveredTabId = null
+
   // Hovered long enough with the delay
   @observable
   hovered = false

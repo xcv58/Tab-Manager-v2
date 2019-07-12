@@ -16,6 +16,7 @@ export const getDescription = description => {
 
 export default class ShortcutStore {
   store: Store
+
   searchEl: MutableRefObject<HTMLInputElement>
 
   constructor (store) {
@@ -24,10 +25,13 @@ export default class ShortcutStore {
 
   @observable
   combo = null
+
   @observable
   toastOpen = false
+
   @observable
   dialogOpen = false
+
   closeHandle = null
 
   @observable

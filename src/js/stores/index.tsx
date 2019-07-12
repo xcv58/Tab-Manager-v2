@@ -10,13 +10,21 @@ import ThemeStore from 'stores/ThemeStore'
 
 export default class Store {
   windowStore: WindowStore
+
   tabStore: TabStore
+
   arrangeStore: ArrangeStore
+
   dragStore: DragStore
+
   shortcutStore: ShortcutStore
+
   userStore: UserStore
+
   hoverStore: HoverStore
+
   searchStore: SearchStore
+
   themeStore: ThemeStore
 
   constructor () {

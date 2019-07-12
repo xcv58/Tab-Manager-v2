@@ -4,6 +4,7 @@ import { SpringSystem } from 'rebound'
 
 export default class CustomScrollbars extends Component {
   node = React.createRef()
+
   scrollbarsRef = React.createRef()
 
   getSpringUpdateFunc = func => spring => {

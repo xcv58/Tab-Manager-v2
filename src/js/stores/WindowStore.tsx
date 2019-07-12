@@ -42,17 +42,22 @@ export default class WindowsStore {
 
   @observable
   windows = []
+
   @observable
   columns = []
+
   @observable
   initialLoading = true
+
   @observable
   lastFocusedWindowId = null
 
   height = 600
 
   lastCallTime = 0
+
   updateHandler = null
+
   batching = false
 
   @computed

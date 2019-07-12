@@ -14,8 +14,11 @@ export default class TabHistory {
   }
 
   tabHistory = []
+
   count = 0
+
   resetCountHandler = null
+
   expectedTabId = null
 
   resetCount = () => {

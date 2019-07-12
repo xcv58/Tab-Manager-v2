@@ -28,7 +28,9 @@ const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
 export default class Tab {
   store: Store
+
   win: Window
+
   mounted: () => void
 
   constructor (tab, store: Store, win: Window) {
@@ -42,16 +44,22 @@ export default class Tab {
 
   @observable
   iconUrl = empty
+
   @observable
   active = false
+
   @observable
   title
+
   @observable
   url
+
   @observable
   id
+
   @observable
   showTab
+
   @observable
   removing = false
 

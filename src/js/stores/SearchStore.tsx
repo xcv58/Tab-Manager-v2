@@ -16,10 +16,13 @@ export default class SearchStore {
 
   @observable
   query = ''
+
   @observable
   _query = ''
+
   @observable
   focusedTab = null
+
   @observable
   typing = false
 

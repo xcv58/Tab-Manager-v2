@@ -10,6 +10,7 @@ export default class DragStore {
 
   @observable
   dropped = false
+
   @observable
   dragging = false
 

@@ -28,18 +28,25 @@ export default class UserStore {
 
   @observable
   showShortcutHint
+
   @observable
   showUnmatchedTab
+
   @observable
   toolbarAutoHide
+
   @observable
   highlightDuplicatedTab
+
   @observable
   showTabTooltip
+
   @observable
   preserveSearch
+
   @observable
   showUrl
+
   @observable
   autoFocusSearch
 

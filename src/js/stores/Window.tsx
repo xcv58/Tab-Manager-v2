@@ -15,10 +15,13 @@ export default class Window {
 
   @observable
   tabs: Tab[] = []
+
   @observable
   id
+
   @observable
   showTabs
+
   @observable
   type
 
