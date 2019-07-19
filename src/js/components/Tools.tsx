@@ -12,6 +12,7 @@ import { ItemTypes } from 'libs/react-dnd'
 import { dropTargetColor, droppedColor } from 'libs/colors'
 import SyncButton from './SyncButton'
 import { useStore } from './StoreContext'
+import CommandPalette from './CommandPalette'
 
 const style = {
   display: 'flex',
@@ -81,6 +82,7 @@ export default observer((props: InputRefProps) => {
       <Search inputRef={props.inputRef} />
       <SyncButton />
       <ThemeToggle />
+      <CommandPalette />
       <OpenInTab />
     </div>
   )

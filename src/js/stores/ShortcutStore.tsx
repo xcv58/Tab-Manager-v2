@@ -14,6 +14,12 @@ export const getDescription = description => {
   return 'Unknow description'
 }
 
+const preventDefault = event => {
+  if (event && event.preventDefault) {
+    event.preventDefault()
+  }
+}
+
 export default class ShortcutStore {
   store: Store
 
@@ -64,7 +70,7 @@ export default class ShortcutStore {
     [
       'ctrl+s',
       event => {
-        event.preventDefault()
+        preventDefault(event)
         this.store.arrangeStore.sortTabs()
       },
       'Sort tabs'
@@ -72,36 +78,36 @@ export default class ShortcutStore {
     [
       'shift+ctrl+s',
       event => {
-        event.preventDefault()
+        preventDefault(event)
         this.store.arrangeStore.groupTabs()
       },
       'Group and sort tabs'
     ],
     [
       ['backspace', 'd d'],
-      e => {
+      () => {
         this.store.tabStore.remove()
       },
       'Close tab'
     ],
     [
       ['* c', 'ctrl+shift+c'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.windowStore.cleanDuplicatedTabs()
       },
       'Clean duplicated tabs'
     ],
     [
       ['enter', 'ctrl+enter'],
-      e => {
+      () => {
         this.store.searchStore.enter()
       },
       'Go to tab'
     ],
     [
       ['r', 'ctrl+r'],
-      e => {
+      () => {
         this.store.tabStore.reload()
       },
       'Reload tab'
@@ -115,8 +121,8 @@ export default class ShortcutStore {
     ],
     [
       ['p', 'ctrl+p'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.tabStore.togglePin()
       },
       'Toogle pin'
@@ -124,16 +130,19 @@ export default class ShortcutStore {
     [
       '/',
       event => {
-        event.preventDefault()
+        preventDefault(event)
         this.searchEl.current.focus()
       },
       'Search tab'
     ],
     [
       'escape',
-      e => {
+      event => {
+        if (!event) {
+          return
+        }
         if (this.dialogOpen) {
-          e.preventDefault()
+          event.preventDefault()
           return this.closeDialog()
         }
         const {
@@ -141,15 +150,15 @@ export default class ShortcutStore {
           userStore: { dialogOpen, closeDialog }
         } = this.store
         if (typing) {
-          e.preventDefault()
+          event.preventDefault()
           return this.searchEl.current.blur()
         }
         if (dialogOpen) {
-          e.preventDefault()
+          event.preventDefault()
           return closeDialog()
         }
         if (query) {
-          e.preventDefault()
+          event.preventDefault()
           return clear()
         }
       },
@@ -168,112 +177,112 @@ export default class ShortcutStore {
     ],
     [
       ['h', 'left', 'ctrl+h'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.left()
       },
       'Left tab'
     ],
     [
       ['l', 'right', 'ctrl+l'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.right()
       },
       'Right tab'
     ],
     [
       ['j', 'down', 'ctrl+j'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.down()
       },
       'Next tab'
     ],
     [
       ['k', 'up', 'ctrl+k'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.up()
       },
       'Previous tab'
     ],
     [
       ['g g', 'ctrl+g'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.firstTab()
       },
       'First tab'
     ],
     [
       ['shift+g', 'shift+ctrl+g'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.lastTab()
       },
       'Last tab'
     ],
     [
       ['x', 'ctrl+x'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.select()
       },
       'Select tab'
     ],
     [
       ['* m', 'ctrl+m'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.selectAll()
       },
       'Select all matched tab'
     ],
     [
       ['* u', 'i', 'ctrl+u'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.searchStore.invertSelect()
       },
       'Invert select tabs'
     ],
     [
       ['* a', 'ctrl+8'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.windowStore.selectAll()
       },
       'Select all tab'
     ],
     [
       ['* n', 'ctrl+n'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.tabStore.unselectAll()
       },
       'Unselect all tab'
     ],
     [
       ['ctrl+o'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         openInNewTab()
       },
       'Open this window in new tab'
     ],
     [
       ['ctrl+i'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.store.userStore.toggleDarkTheme()
       },
       'Toggle dark theme'
     ],
     [
       ['?', 'ctrl+/'],
-      e => {
-        e.preventDefault()
+      event => {
+        preventDefault(event)
         this.openDialog()
       },
       'Open keyboard shortcut help'
@@ -281,7 +290,7 @@ export default class ShortcutStore {
     [
       'ctrl+,',
       event => {
-        event.preventDefault()
+        preventDefault(event)
         this.store.userStore.toggleDialog()
       },
       'Toggle Settings'
@@ -307,6 +316,14 @@ export default class ShortcutStore {
   didMount = searchEl => {
     this.searchEl = searchEl
     Mousetrap.prototype.stopCallback = this.stopCallback
+    this.resume()
+  }
+
+  @action
+  willUnmount = () => Mousetrap.reset()
+
+  @action
+  resume = () => {
     this.shortcuts.map(([key, func, description]) =>
       Mousetrap.bind(key, (e, combo) => {
         this.combo = `${combo}: ${getDescription(description)}`
@@ -317,7 +334,7 @@ export default class ShortcutStore {
   }
 
   @action
-  willUnmount = () => Mousetrap.reset()
+  pause = this.willUnmount
 
   @action
   clearCombo = () => {
