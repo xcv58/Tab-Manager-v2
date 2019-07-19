@@ -14,16 +14,33 @@ const trigger = (
   </Tooltip>
 )
 
+const Shortcut = ({ shortcut }) => <kbd className='shortcut'>{shortcut}</kbd>
+
+const Command = props => {
+  const { shortcut } = props
+  const shortcuts = Array.isArray(shortcut) ? (
+    shortcut.map(x => <Shortcut key={x} shortcut={x} />)
+  ) : (
+    <Shortcut shortcut={shortcut} />
+  )
+  return (
+    <div className='item'>
+      {props.highlight ? (
+        <span dangerouslySetInnerHTML={{ __html: props.highlight }} />
+      ) : (
+        <span>{props.name}</span>
+      )}
+      {shortcuts}
+    </div>
+  )
+}
+
 export default observer(() => {
   const { shortcutStore } = useStore()
   const { shortcuts, pause, resume } = shortcutStore
-  const commands = shortcuts.map(([key, command, description]) => {
+  const commands = shortcuts.map(([shortcut, command, description]) => {
     const name = typeof description === 'function' ? description() : description
-    return {
-      name,
-      shortcut: key,
-      command
-    }
+    return { name, shortcut, command }
   })
   return (
     <ReactCommandPalette
@@ -32,6 +49,8 @@ export default observer(() => {
       trigger={trigger}
       onAfterOpen={pause}
       onRequestClose={resume}
+      renderCommand={Command}
+      maxDisplayed={commands.length}
     />
   )
 })
