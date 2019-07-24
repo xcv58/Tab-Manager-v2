@@ -46,19 +46,22 @@ export default class Tab {
   iconUrl = empty
 
   @observable
-  active = false
+  active: boolean = false
 
   @observable
-  title
+  pinned: boolean
 
   @observable
-  url
+  title: string
+
+  @observable
+  url: string
 
   @observable
   id
 
   @observable
-  showTab
+  showTab: boolean
 
   @observable
   removing = false

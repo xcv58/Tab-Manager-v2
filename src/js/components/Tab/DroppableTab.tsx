@@ -4,12 +4,13 @@ import { useDrop } from 'react-dnd'
 import Tab from './Tab'
 import { ItemTypes } from 'libs/react-dnd'
 import Preview from 'components/Preview'
-import { withTheme } from '@material-ui/core/styles'
 import { useStore } from 'components/StoreContext'
+import { useTheme } from '@material-ui/styles'
 
-const DroppableTab = observer(props => {
-  const { tab, theme } = props
+export default observer(props => {
+  const { tab } = props
   const { showTab } = tab
+  const theme = useTheme()
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -37,5 +38,3 @@ const DroppableTab = observer(props => {
     </div>
   )
 })
-
-export default withTheme(DroppableTab)
