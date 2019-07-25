@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.2](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.1...v0.21.2) (2019-07-25)
+
+### Bug Fixes
+
+- Toggle pin does not update on UI ([b7bb1d7](https://github.com/xcv58/Tab-Manager-v2/commit/b7bb1d7))
+
 ### [0.21.1](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.0...v0.21.1) (2019-07-21)
 
 ## [0.21.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.20.4...v0.21.0) (2019-07-10)
