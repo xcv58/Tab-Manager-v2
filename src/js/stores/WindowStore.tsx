@@ -163,6 +163,7 @@ export default class WindowsStore {
     const set = new Set(ids)
     this.windows.forEach(win => win.removeTabs(set))
     this.clearWindow()
+    this.updateColumns()
   }
 
   @action
