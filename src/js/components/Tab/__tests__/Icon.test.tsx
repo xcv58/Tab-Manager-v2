@@ -11,7 +11,7 @@ const props = {
 
 describe('Icon', () => {
   it('should render correct component', () => {
-    const el = shallow(<Icon {...props} />).dive()
+    const el = shallow(<Icon {...props} />)
     expect(el.find(IconButton).length).toBe(1)
     expect(el.find('img').length).toBe(1)
     expect(el.find(Checkbox).length).toBe(1)

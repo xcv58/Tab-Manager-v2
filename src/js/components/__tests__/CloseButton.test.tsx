@@ -11,14 +11,14 @@ const props = {
 
 describe('CloseButton', () => {
   it('should render correct components', () => {
-    const el = shallow(<CloseButton {...props} />).dive()
+    const el = shallow(<CloseButton {...props} />)
     expect(el.find(IconButton).length).toBe(1)
     expect(el.find(CloseIcon).length).toBe(1)
   })
 
   it('should call onClick', () => {
     const onClick = spy()
-    const el = shallow(<CloseButton onClick={onClick} />).dive()
+    const el = shallow(<CloseButton onClick={onClick} />)
     el.find(IconButton)
       .props()
       .onClick()
