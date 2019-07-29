@@ -3,16 +3,17 @@ import { observer } from 'mobx-react'
 import Tooltip from '@material-ui/core/Tooltip'
 import CloseIcon from '@material-ui/icons/Close'
 import IconButton from '@material-ui/core/IconButton'
-import { withTheme } from '@material-ui/core/styles'
+import { useTheme } from '@material-ui/styles'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
-const Close = observer(props => {
+export default observer(props => {
+  const theme = useTheme()
   const { tabStore } = useStore()
   const { remove, tabDescription, hasFocusedOrSelectedTab } = tabStore
   const style = {}
   if (hasFocusedOrSelectedTab) {
-    style.color = props.theme.palette.secondary.main
+    style.color = theme.palette.secondary.main
   }
   return (
     <Tooltip title={`Close ${tabDescription}`} enterDelay={TOOLTIP_DELAY}>
@@ -28,5 +29,3 @@ const Close = observer(props => {
     </Tooltip>
   )
 })
-
-export default withTheme(Close)

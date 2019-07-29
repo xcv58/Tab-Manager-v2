@@ -5,20 +5,20 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Divider from '@material-ui/core/Divider'
 import Popover from '@material-ui/core/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
-import { withStyles } from '@material-ui/core/styles'
 import { getNoun } from 'libs'
+import { makeStyles } from '@material-ui/styles'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     zIndex: theme.zIndex.tooltip + 1
   }
-})
+}))
 
 const DIVIDER = { divider: true }
 
-const TabMenu = observer(props => {
+export default observer(props => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const { classes } = props
+  const classes = useStyles()
   const handleClick = event => {
     setAnchorEl(event.currentTarget)
   }
@@ -105,5 +105,3 @@ const TabMenu = observer(props => {
     </div>
   )
 })
-
-export default withStyles(styles)(TabMenu)

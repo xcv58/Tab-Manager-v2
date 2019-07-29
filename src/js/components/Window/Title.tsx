@@ -10,12 +10,12 @@ import ButtonBase from '@material-ui/core/ButtonBase'
 import CloseButton from 'components/CloseButton'
 import { getNoun } from 'libs'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/styles'
 import classNames from 'classnames'
 import Reload from './Reload'
 import { useStore } from 'components/StoreContext'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
     paddingLeft: '0.5rem',
@@ -34,10 +34,11 @@ const styles = theme => ({
   tools: {
     lineHeight: '1rem'
   }
-})
+}))
 
-const Title = observer(props => {
-  const { classes, win } = props
+export default observer(props => {
+  const classes = useStyles()
+  const { win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -105,5 +106,3 @@ const Title = observer(props => {
     </div>
   )
 })
-
-export default withStyles(styles)(Title)

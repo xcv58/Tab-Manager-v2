@@ -26,7 +26,7 @@
     "build-storybook": "build-storybook -c .storybook -o .out"
   },
   "dependencies": {
-    "@material-ui/core": "4.2.1",
+    "@material-ui/core": "4.3.0",
     "@material-ui/icons": "^4.2.1",
     "classnames": "^2.2.6",
     "fuzzy": "^0.1.3",

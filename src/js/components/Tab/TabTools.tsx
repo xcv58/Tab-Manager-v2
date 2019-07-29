@@ -2,20 +2,20 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/styles'
 import { useStore } from 'components/StoreContext'
 
-const styles = () => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     justifySelf: 'flex-end'
   }
-})
+}))
 
-const TabTools = observer(props => {
+export default observer(props => {
   const { dragStore } = useStore()
+  const classes = useStyles()
   const {
-    classes,
     faked,
     tab: { isHovered }
   } = props
@@ -30,5 +30,3 @@ const TabTools = observer(props => {
     </div>
   )
 })
-
-export default withStyles(styles)(TabTools)

@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/styles'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import Typography from '@material-ui/core/Typography'
 import Url from 'components/Tab/Url'
@@ -12,7 +12,7 @@ import { useStore } from 'components/StoreContext'
 const pre = `<span style='color:${highlightBorderColor}'>`
 const post = '</span>'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   ripple: {
     flex: 1,
     height: '35px',
@@ -39,11 +39,11 @@ const styles = theme => ({
   duplicated: {
     color: theme.palette.error.light
   }
-})
+}))
 
-const TabContent = observer(props => {
+export default observer(props => {
   const { userStore } = useStore()
-  const { classes } = props
+  const classes = useStyles()
   const { activate, title, urlCount } = props.tab
   const { showUrl, highlightDuplicatedTab } = userStore
   const getHighlightNode = text => {
@@ -81,5 +81,3 @@ const TabContent = observer(props => {
     </ButtonBase>
   )
 })
-
-export default withStyles(styles)(TabContent)

@@ -1,17 +1,17 @@
 import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
-import { withStyles } from '@material-ui/core/styles'
 import Icon from 'components/Tab/Icon'
 import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
+import { makeStyles } from '@material-ui/styles'
 import { useStore } from 'components/StoreContext'
 
 const indicatorWidth = '2px'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -34,7 +34,7 @@ const styles = theme => ({
   notMatch: {
     opacity: 0.3
   }
-})
+}))
 
 const getTargetValue = (lValue, rValue) => {
   if (lValue < 0) {
@@ -64,7 +64,8 @@ const PIN = (
 const Tab = observer(props => {
   const node = useRef(null)
   const { dragStore } = useStore()
-  const { faked, tab, classes, style } = props
+  const { faked, tab, style } = props
+  const classes = useStyles()
   const {
     active,
     isFocused,
@@ -164,11 +165,9 @@ const Tab = observer(props => {
   )
 })
 
-export default withStyles(styles)(
-  observer(props => {
-    if (!props.tab.isVisible) {
-      return null
-    }
-    return <Tab {...props} />
-  })
-)
+export default observer(props => {
+  if (!props.tab.isVisible) {
+    return null
+  }
+  return <Tab {...props} />
+})
