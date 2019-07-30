@@ -6,12 +6,13 @@ import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
-import { withTheme } from '@material-ui/core/styles'
 import { useStore } from 'components/StoreContext'
+import { useTheme } from '@material-ui/styles'
 
 const Window = observer(props => {
+  const theme = useTheme()
   const { dragStore } = useStore()
-  const { theme, win } = props
+  const { win } = props
   const { lastFocused, showTabs } = win
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -60,4 +61,4 @@ const Window = observer(props => {
 // This export is for testing
 export { Window }
 
-export default withTheme(Window)
+export default Window

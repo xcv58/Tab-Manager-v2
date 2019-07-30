@@ -20,28 +20,28 @@ describe('TabTools', () => {
   })
 
   it('should render correct components', () => {
-    const el = shallow(<TabTools {...props} />).dive()
+    const el = shallow(<TabTools {...props} />)
     expect(el.find('div').length).toBe(1)
     expect(
       el
         .find('div')
         .props()
-        .className.endsWith('root')
+        .className.includes('root')
     ).toBe(true)
     expect(el.find(TabMenu).length).toBe(1)
   })
 
   it('should render null', () => {
-    let el = shallow(<TabTools {...props} faked />).dive()
+    let el = shallow(<TabTools {...props} faked />)
     expect(el.getElement()).toBe(null)
 
-    el = shallow(<TabTools {...props} tab={{ isHovered: false }} />).dive()
+    el = shallow(<TabTools {...props} tab={{ isHovered: false }} />)
     expect(el.getElement()).toBe(null)
 
     jest
       .spyOn(StoreContext, 'useStore')
       .mockImplementation(() => ({ dragStore: { dragging: true } }))
-    el = shallow(<TabTools {...props} />).dive()
+    el = shallow(<TabTools {...props} />)
     expect(el.getElement()).toBe(null)
   })
 })

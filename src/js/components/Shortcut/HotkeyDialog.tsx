@@ -4,17 +4,18 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import Help from './Help'
-import { withStyles } from '@material-ui/core/styles'
 import Fade from '@material-ui/core/Fade'
 import { useStore } from 'components/StoreContext'
+import { makeStyles } from '@material-ui/styles'
 
-export const styles = () => ({
+const useStyles = makeStyles({
   paper: {
     width: '100%'
   }
 })
 
-const HotkeyDialog = observer(({ classes }) => {
+export default observer(props => {
+  const classes = useStyles()
   const { shortcutStore } = useStore()
   const { dialogOpen, closeDialog } = shortcutStore
   return (
@@ -32,5 +33,3 @@ const HotkeyDialog = observer(({ classes }) => {
     </Dialog>
   )
 })
-
-export default withStyles(styles)(HotkeyDialog)

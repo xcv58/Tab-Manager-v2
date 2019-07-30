@@ -19,12 +19,10 @@ const mockStore = {
 
 describe('Icon', () => {
   it('should render correct components', () => {
-    let el = shallow(<Icon {...props} />).dive()
+    let el = shallow(<Icon {...props} />)
     expect(el.find(Checkbox).length).toBe(1)
 
-    el = shallow(
-      <Icon {...props} tab={{ ...props.tab, isHovered: false }} />
-    ).dive()
+    el = shallow(<Icon {...props} tab={{ ...props.tab, isHovered: false }} />)
     expect(el.find(IconButton).length).toBe(1)
     expect(el.find('img').length).toBe(1)
   })

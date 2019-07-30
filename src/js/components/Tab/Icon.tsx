@@ -2,12 +2,12 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/styles'
 
 const buttonWidth = '39px'
 const iconWidth = '1.5rem'
 
-const styles = () => ({
+const useStyles = makeStyles(() => ({
   root: {
     '&:hover $icon': {
       display: 'none'
@@ -27,10 +27,10 @@ const styles = () => ({
   checkbox: {
     display: 'none'
   }
-})
+}))
 
-const Icon = observer(props => {
-  const { classes } = props
+export default observer(props => {
+  const classes = useStyles()
   const { focus, select, iconUrl, isSelected } = props.tab
   return (
     <div className={classes.root}>
@@ -46,5 +46,3 @@ const Icon = observer(props => {
     </div>
   )
 })
-
-export default withStyles(styles)(Icon)
