@@ -38,10 +38,15 @@ const Command = props => {
 export default observer(() => {
   const { shortcutStore } = useStore()
   const { shortcuts, pause, resume } = shortcutStore
-  const commands = shortcuts.map(([shortcut, command, description]) => {
-    const name = typeof description === 'function' ? description() : description
-    return { name, shortcut, command }
-  })
+  const commands = shortcuts
+    .map(([shortcut, command, name]) => {
+      if (typeof name !== 'string') {
+        return
+      }
+      return { name, shortcut, command }
+    })
+    .filter(x => x)
+    .sort((a, b) => a.name.localeCompare(b.name))
   return (
     <ReactCommandPalette
       closeOnSelect
