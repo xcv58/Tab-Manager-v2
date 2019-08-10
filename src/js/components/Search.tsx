@@ -1,15 +1,16 @@
 import React, { MutableRefObject } from 'react'
 import { observer } from 'mobx-react'
-import Input from '@material-ui/core/Input'
 import { useStore } from './StoreContext'
+import { TextField } from '@material-ui/core'
 
 export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
 
 export default observer(({ inputRef }: InputRefProps) => {
   const { userStore, searchStore } = useStore()
   return (
-    <Input
+    <TextField
       fullWidth
+      type='search'
       autoFocus={userStore.autoFocusSearch}
       inputProps={{ ref: inputRef }}
       placeholder='Search your tab title...'
