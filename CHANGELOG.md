@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.5](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.4...v0.21.5) (2019-08-10)
+
+### Bug Fixes
+
+- Make lazy loading for Tools only instead of the entire view ([fd1c89c](https://github.com/xcv58/Tab-Manager-v2/commit/fd1c89c))
+
 ### [0.21.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.3...v0.21.4) (2019-08-10)
 
 ### Bug Fixes
