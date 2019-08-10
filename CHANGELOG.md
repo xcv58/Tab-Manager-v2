@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.3...v0.21.4) (2019-08-10)
+
+### Bug Fixes
+
+- Auto Focus Search Box option doesn't work ([f959bbb](https://github.com/xcv58/Tab-Manager-v2/commit/f959bbb))
+- Sort command by name in Command Palette ([8510d06](https://github.com/xcv58/Tab-Manager-v2/commit/8510d06))
+
+### Features
+
+- Add a clear button for search box ([9edf863](https://github.com/xcv58/Tab-Manager-v2/commit/9edf863))
+
 ### [0.21.3](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.2...v0.21.3) (2019-07-28)
 
 ### Bug Fixes
