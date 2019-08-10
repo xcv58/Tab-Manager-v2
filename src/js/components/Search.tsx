@@ -4,6 +4,7 @@ import Input from '@material-ui/core/Input'
 import { useStore } from './StoreContext'
 
 export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
+
 export default observer(({ inputRef }: InputRefProps) => {
   const { userStore, searchStore } = useStore()
   return (

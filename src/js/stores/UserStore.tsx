@@ -24,7 +24,11 @@ export default class UserStore {
     Object.assign(this, result)
     this.toolbarVisible = !this.toolbarAutoHide
     this.store.searchStore.init()
+    this.loaded = true
   }
+
+  @observable
+  loaded = false
 
   @observable
   showShortcutHint

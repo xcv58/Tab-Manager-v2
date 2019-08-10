@@ -12,15 +12,19 @@ import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { useStore } from './StoreContext'
 import DragLayer from './DragLayer'
+import Loading from './Loading'
 
 const App = observer(() => {
   const searchEl = useRef<HTMLInputElement>(null)
-  const { windowStore, shortcutStore } = useStore()
+  const { windowStore, shortcutStore, userStore } = useStore()
   useEffect(() => {
     windowStore.didMount()
     shortcutStore.didMount(searchEl)
     return () => shortcutStore.willUnmount()
   }, [])
+  if (!userStore.loaded) {
+    return <Loading />
+  }
   return (
     <Paper
       style={{
