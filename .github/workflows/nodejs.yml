@@ -1,6 +1,8 @@
 name: Node CI
 
-on: [push]
+on:
+  schedule:
+  - cron:  0 0 * * *
 
 jobs:
   build:
@@ -13,8 +15,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: 10.x
-    - name: yarn install, build, and test
+    - name: yarn install, upgrade, build, and test
       run: |
         yarn
+        yarn upgrade --latest
         yarn build --if-present
         yarn test
