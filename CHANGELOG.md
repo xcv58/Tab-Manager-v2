@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.6](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.5...v0.21.6) (2019-08-11)
+
+### Bug Fixes
+
+- The clear button not appear on Windows ([a5fb3ec](https://github.com/xcv58/Tab-Manager-v2/commit/a5fb3ec))
+
 ### [0.21.5](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.4...v0.21.5) (2019-08-10)
 
 ### Bug Fixes
