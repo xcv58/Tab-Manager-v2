@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.6...v0.21.7) (2019-08-12)
+
+### Bug Fixes
+
+- Click clear button to clear search text will keep focus on the search box ([9d065b3](https://github.com/xcv58/Tab-Manager-v2/commit/9d065b3))
+
 ### [0.21.6](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.5...v0.21.6) (2019-08-11)
 
 ### Bug Fixes
