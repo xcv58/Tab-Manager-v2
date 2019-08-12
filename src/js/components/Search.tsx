@@ -12,7 +12,6 @@ export default observer(({ inputRef }: InputRefProps) => {
   return (
     <Input
       fullWidth
-      // disableUnderline
       autoFocus={userStore.autoFocusSearch}
       inputProps={{ ref: inputRef }}
       placeholder='Search your tab title...'
@@ -26,7 +25,12 @@ export default observer(({ inputRef }: InputRefProps) => {
       endAdornment={
         query && (
           <InputAdornment position='end'>
-            <CloseButton onClick={clear} />
+            <CloseButton
+              onClick={() => {
+                inputRef.current.focus()
+                clear()
+              }}
+            />
           </InputAdornment>
         )
       }
