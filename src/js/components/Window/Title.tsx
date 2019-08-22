@@ -98,7 +98,7 @@ export default observer(props => {
           <SelectAll {...props} />
           <Sort {...props} />
           <Reload {...{ reload }} />
-          <CloseButton onClick={props.win.close} />
+          <CloseButton onClick={() => props.win.close()} />
         </div>
       </div>
       <Divider />

@@ -11,7 +11,7 @@ export default observer(() => {
   return (
     <Tooltip title='Settings' enterDelay={TOOLTIP_DELAY}>
       <div>
-        <IconButton onClick={userStore.openDialog}>
+        <IconButton onClick={() => userStore.openDialog()}>
           <Settings />
         </IconButton>
       </div>

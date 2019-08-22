@@ -10,7 +10,7 @@ export default observer(() => {
   const { searchStore } = useStore()
   const { invertSelect } = searchStore
   return (
-    <Tooltip title={`Inverse select tabs`} enterDelay={TOOLTIP_DELAY}>
+    <Tooltip title='Inverse select tabs' enterDelay={TOOLTIP_DELAY}>
       <div>
         <IconButton onClick={invertSelect}>
           <Flip />

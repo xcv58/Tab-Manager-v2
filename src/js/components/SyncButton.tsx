@@ -9,7 +9,7 @@ export default observer(() => {
   const { windowStore } = useStore()
   return (
     <Tooltip title='Sync All Windows' placement='left'>
-      <IconButton onClick={windowStore.syncAllWindows}>
+      <IconButton onClick={() => windowStore.syncAllWindows()}>
         <Sync />
       </IconButton>
     </Tooltip>

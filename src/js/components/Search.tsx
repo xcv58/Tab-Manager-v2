@@ -9,6 +9,16 @@ export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
 export default observer(({ inputRef }: InputRefProps) => {
   const { userStore, searchStore } = useStore()
   const { search, query, startType, stopType, clear } = searchStore
+  const endAdornment = query && (
+    <InputAdornment position='end'>
+      <CloseButton
+        onClick={() => {
+          inputRef.current.focus()
+          clear()
+        }}
+      />
+    </InputAdornment>
+  )
   return (
     <Input
       fullWidth
@@ -22,18 +32,7 @@ export default observer(({ inputRef }: InputRefProps) => {
       }}
       onBlur={() => stopType()}
       value={query}
-      endAdornment={
-        query && (
-          <InputAdornment position='end'>
-            <CloseButton
-              onClick={() => {
-                inputRef.current.focus()
-                clear()
-              }}
-            />
-          </InputAdornment>
-        )
-      }
+      endAdornment={endAdornment}
     />
   )
 })
