@@ -101,7 +101,8 @@ export default class ShortcutStore {
     [
       ['enter', 'ctrl+enter'],
       () => {
-        this.store.searchStore.enter()
+        // Use ButtonBase's focus state + keyboard event to support enter/space to go to the tab.
+        // this.store.searchStore.enter()
       },
       'Go to tab'
     ],
