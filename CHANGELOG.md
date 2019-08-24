@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.8](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.7...v0.21.8) (2019-08-24)
+
+### Bug Fixes
+
+- Enter/Space jump to stale tab instead of current selected tab ([9f91586](https://github.com/xcv58/Tab-Manager-v2/commit/9f91586))
+
 ### [0.21.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.6...v0.21.7) (2019-08-12)
 
 ### Bug Fixes
