@@ -9,7 +9,7 @@ import classNames from 'classnames'
 import { makeStyles } from '@material-ui/styles'
 import { useStore } from 'components/StoreContext'
 
-const indicatorWidth = '2px'
+export const indicatorWidth = 2
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -18,18 +18,18 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'space-between',
     whiteSpace: 'nowrap',
     marginLeft: indicatorWidth,
-    borderLeft: `${indicatorWidth} transparent solid`
+    borderLeft: `${indicatorWidth}px transparent solid`
   },
   highlight: {
-    boxShadow: `-${indicatorWidth} 0px ${theme.app.highlightColor}`,
+    boxShadow: `-${indicatorWidth}px 0px ${theme.app.highlightColor}`,
     backgroundColor: theme.app.highlightColor
   },
   selected: {
     backgroundColor: theme.app.focusedColor,
-    boxShadow: `-${indicatorWidth} 0px ${theme.app.focusedColor}`
+    boxShadow: `-${indicatorWidth}px 0px ${theme.app.focusedColor}`
   },
   focused: {
-    borderLeft: `${indicatorWidth} ${theme.palette.secondary.main} solid`
+    borderLeft: `${indicatorWidth}px ${theme.palette.secondary.main} solid`
   },
   notMatch: {
     opacity: 0.3
