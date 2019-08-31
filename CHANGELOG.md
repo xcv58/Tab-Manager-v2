@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.9](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.8...v0.21.9) (2019-08-31)
+
+### Bug Fixes
+
+- Move window select button to left, align with select tab button ([89bf756](https://github.com/xcv58/Tab-Manager-v2/commit/89bf756))
+
 ### [0.21.8](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.7...v0.21.8) (2019-08-24)
 
 ### Bug Fixes
