@@ -14,11 +14,12 @@ import { makeStyles } from '@material-ui/styles'
 import classNames from 'classnames'
 import Reload from './Reload'
 import { useStore } from 'components/StoreContext'
+import { indicatorWidth } from 'components/Tab/Tab'
 
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
-    paddingLeft: '0.5rem',
+    paddingLeft: indicatorWidth * 2,
     justifyContent: 'space-between',
     alignItems: 'center',
     fontSize: '1.5rem',
@@ -86,6 +87,9 @@ export default observer(props => {
   return (
     <div ref={drop}>
       <div className={className}>
+        <div className={classes.tools}>
+          <SelectAll {...props} />
+        </div>
         <ButtonBase
           focusRipple
           component='div'
@@ -95,10 +99,9 @@ export default observer(props => {
           {title}
         </ButtonBase>
         <div className={classes.tools}>
-          <SelectAll {...props} />
           <Sort {...props} />
           <Reload {...{ reload }} />
-          <CloseButton onClick={props.win.close} />
+          <CloseButton onClick={() => props.win.close()} />
         </div>
       </div>
       <Divider />

@@ -23,7 +23,7 @@ const style = {
 }
 
 export default observer((props: InputRefProps) => {
-  const { dragStore, tabStore } = useStore()
+  const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
     drop: () => {
@@ -39,6 +39,9 @@ export default observer((props: InputRefProps) => {
   })
   const { canDrop, isOver } = dropProps
   const size = tabStore.selection.size
+  if (!userStore.loaded) {
+    return 'loading...'
+  }
   if (canDrop) {
     const backgroundColor = isOver ? droppedColor : dropTargetColor
     const text = isOver

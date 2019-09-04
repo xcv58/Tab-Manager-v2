@@ -1,27 +1,38 @@
 import React, { MutableRefObject } from 'react'
 import { observer } from 'mobx-react'
 import { useStore } from './StoreContext'
-import { TextField } from '@material-ui/core'
+import { Input, InputAdornment } from '@material-ui/core'
+import CloseButton from './CloseButton'
 
 export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
 
 export default observer(({ inputRef }: InputRefProps) => {
   const { userStore, searchStore } = useStore()
+  const { search, query, startType, stopType, clear } = searchStore
+  const endAdornment = query && (
+    <InputAdornment position='end'>
+      <CloseButton
+        onClick={() => {
+          inputRef.current.focus()
+          clear()
+        }}
+      />
+    </InputAdornment>
+  )
   return (
-    <TextField
+    <Input
       fullWidth
-      type='search'
       autoFocus={userStore.autoFocusSearch}
       inputProps={{ ref: inputRef }}
       placeholder='Search your tab title...'
-      onChange={e => searchStore.search(e.target.value)}
+      onChange={e => search(e.target.value)}
       onFocus={() => {
-        const { search, query, startType } = searchStore
         search(query)
         startType()
       }}
-      onBlur={() => searchStore.stopType()}
-      value={searchStore.query}
+      onBlur={() => stopType()}
+      value={query}
+      endAdornment={endAdornment}
     />
   )
 })

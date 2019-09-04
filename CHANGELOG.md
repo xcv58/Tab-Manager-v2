@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.9](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.8...v0.21.9) (2019-08-31)
+
+### Bug Fixes
+
+- Move window select button to left, align with select tab button ([89bf756](https://github.com/xcv58/Tab-Manager-v2/commit/89bf756))
+
+### [0.21.8](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.7...v0.21.8) (2019-08-24)
+
+### Bug Fixes
+
+- Enter/Space jump to stale tab instead of current selected tab ([9f91586](https://github.com/xcv58/Tab-Manager-v2/commit/9f91586))
+
+### [0.21.7](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.6...v0.21.7) (2019-08-12)
+
+### Bug Fixes
+
+- Click clear button to clear search text will keep focus on the search box ([9d065b3](https://github.com/xcv58/Tab-Manager-v2/commit/9d065b3))
+
+### [0.21.6](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.5...v0.21.6) (2019-08-11)
+
+### Bug Fixes
+
+- The clear button not appear on Windows ([a5fb3ec](https://github.com/xcv58/Tab-Manager-v2/commit/a5fb3ec))
+
+### [0.21.5](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.4...v0.21.5) (2019-08-10)
+
+### Bug Fixes
+
+- Make lazy loading for Tools only instead of the entire view ([fd1c89c](https://github.com/xcv58/Tab-Manager-v2/commit/fd1c89c))
+
 ### [0.21.4](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.3...v0.21.4) (2019-08-10)
 
 ### Bug Fixes

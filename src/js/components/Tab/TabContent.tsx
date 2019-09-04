@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
@@ -44,7 +44,8 @@ const useStyles = makeStyles(theme => ({
 export default observer(props => {
   const { userStore } = useStore()
   const classes = useStyles()
-  const { activate, title, urlCount } = props.tab
+  const { activate, title, urlCount, focus, isFocused } = props.tab
+  const buttonRef = useRef(null)
   const { showUrl, highlightDuplicatedTab } = userStore
   const getHighlightNode = text => {
     const {
@@ -59,12 +60,18 @@ export default observer(props => {
     }
     return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
   }
+  useEffect(() => {
+    if (isFocused) {
+      buttonRef.current.focus()
+    }
+  }, [isFocused])
   const duplicated =
     urlCount > 1 && highlightDuplicatedTab && classes.duplicated
   return (
     <ButtonBase
-      focusRipple
       className={classes.ripple}
+      buttonRef={buttonRef}
+      onFocusVisible={focus}
       onClick={activate}
       component='div'
     >
