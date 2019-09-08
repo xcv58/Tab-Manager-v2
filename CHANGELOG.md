@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.10](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.9...v0.21.10) (2019-09-08)
+
+### Bug Fixes
+
+- Lose focus of search box during typing ([2195efc](https://github.com/xcv58/Tab-Manager-v2/commit/2195efc))
+
 ### [0.21.9](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.8...v0.21.9) (2019-08-31)
 
 ### Bug Fixes
