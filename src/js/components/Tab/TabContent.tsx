@@ -61,8 +61,9 @@ export default observer(props => {
     return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
   }
   useEffect(() => {
-    if (isFocused) {
-      buttonRef.current.focus()
+    const button = buttonRef.current
+    if (!isFocused && document.activeElement === button) {
+      button.blur()
     }
   }, [isFocused])
   const duplicated =
