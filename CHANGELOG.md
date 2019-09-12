@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.11](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.10...v0.21.11) (2019-09-12)
+
+### Bug Fixes
+
+- Hit enter would trigger both focused element and activate selected tab ([04a042d](https://github.com/xcv58/Tab-Manager-v2/commit/04a042d))
+
 ### [0.21.10](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.9...v0.21.10) (2019-09-08)
 
 ### Bug Fixes
