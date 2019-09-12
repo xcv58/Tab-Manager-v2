@@ -108,6 +108,7 @@
     "parser": "babel-eslint",
     "globals": [
       "screen",
+      "HTMLElement",
       "HTMLInputElement"
     ]
   },

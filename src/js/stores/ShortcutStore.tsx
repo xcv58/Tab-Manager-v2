@@ -101,6 +101,13 @@ export default class ShortcutStore {
     [
       ['enter', 'ctrl+enter'],
       () => {
+        const { activeElement } = document
+        if (
+          activeElement instanceof HTMLElement &&
+          activeElement.tabIndex >= 0
+        ) {
+          return
+        }
         this.store.searchStore.enter()
       },
       'Go to tab'
