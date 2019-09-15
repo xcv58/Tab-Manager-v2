@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.12](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.11...v0.21.12) (2019-09-15)
+
+### Features
+
+- Add Ctrl+g shortcut to group the same domain tabs to current window ([cbdd814](https://github.com/xcv58/Tab-Manager-v2/commit/cbdd814))
+
 ### [0.21.11](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.10...v0.21.11) (2019-09-12)
 
 ### Bug Fixes
