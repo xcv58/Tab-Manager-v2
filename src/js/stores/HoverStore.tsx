@@ -1,8 +1,11 @@
 import { action, observable } from 'mobx'
+import Store from 'stores'
 
 const HOVERED_DELAY = 896.4
 
 export default class HoverStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }

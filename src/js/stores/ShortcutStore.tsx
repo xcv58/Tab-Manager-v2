@@ -215,7 +215,7 @@ export default class ShortcutStore {
       'Previous tab'
     ],
     [
-      ['g g', 'ctrl+g'],
+      ['g g'],
       event => {
         preventDefault(event)
         this.store.searchStore.firstTab()
@@ -229,6 +229,14 @@ export default class ShortcutStore {
         this.store.searchStore.lastTab()
       },
       'Last tab'
+    ],
+    [
+      ['ctrl+g'],
+      event => {
+        preventDefault(event)
+        this.store.searchStore.groupTab()
+      },
+      'Group same domain tabs to this window'
     ],
     [
       ['x', 'ctrl+x'],

@@ -7,8 +7,9 @@ import Popover from '@material-ui/core/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { getNoun } from 'libs'
 import { makeStyles } from '@material-ui/styles'
+import { Theme } from '@material-ui/core'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     zIndex: theme.zIndex.tooltip + 1
   }
@@ -16,9 +17,13 @@ const useStyles = makeStyles(theme => ({
 
 const DIVIDER = { divider: true }
 
+type Option = { divider?: boolean } & { disabled?: boolean } & {
+  label?: string
+} & { onClick?: () => void }
+
 export default observer(props => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const classes = useStyles()
+  const classes = useStyles(props)
   const handleClick = event => {
     setAnchorEl(event.currentTarget)
   }
@@ -40,7 +45,7 @@ export default observer(props => {
     urlCount,
     closeDuplicatedTab
   } = props.tab
-  const options = [
+  const options: Option[] = [
     {
       label: pinned ? 'Unpin Tab' : 'Pin Tab',
       onClick: togglePin

@@ -1,7 +1,11 @@
 import { action, computed, observable } from 'mobx'
 import { activateTab, togglePinTabs, browser } from 'libs'
+import Store from 'stores'
+import Tab from './Tab'
 
 export default class TabStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }
@@ -57,7 +61,7 @@ export default class TabStore {
   }
 
   @action
-  unselectAll = tabs => {
+  unselectAll = (tabs?: Tab[]) => {
     if (!tabs) {
       return this.selection.clear()
     }

@@ -4,6 +4,7 @@ import blue from '@material-ui/core/colors/blue'
 import green from '@material-ui/core/colors/green'
 import pink from '@material-ui/core/colors/pink'
 import merge from 'lodash.merge'
+import Store from 'stores'
 
 export const dropTargetColor = green[100]
 export const droppedColor = green[300]
@@ -58,6 +59,8 @@ const darkTheme = merge(
 )
 
 export default class ThemeStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }
