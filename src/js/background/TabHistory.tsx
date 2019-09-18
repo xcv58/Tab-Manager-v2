@@ -1,7 +1,12 @@
 import { activateTab, popupURL, setLastFocusedWindowId, browser } from 'libs'
 import actions from 'libs/actions'
+import { Background } from '../background'
 
 export default class TabHistory {
+  root: Background
+
+  actionMap: { [key: string]: () => void }
+
   constructor (background) {
     this.root = background
     const { onActivated, onFocusChanged, onRemoved } = this
@@ -65,7 +70,7 @@ export default class TabHistory {
     if (this.tabHistory.length > 1) {
       const { tabId } = this.tabHistory[this.nextTabIndex]
       this.expectedTabId = tabId
-      activateTab(tabId)
+      activateTab(tabId, true)
     }
   }
 
