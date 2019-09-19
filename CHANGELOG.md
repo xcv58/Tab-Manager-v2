@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.13](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.12...v0.21.13) (2019-09-19)
+
+### Bug Fixes
+
+- Firefox publish pipeline ([47b3378](https://github.com/xcv58/Tab-Manager-v2/commit/47b3378))
+- Remove backspace to close tab shortcut ([9c680a5](https://github.com/xcv58/Tab-Manager-v2/commit/9c680a5))
+- The Ctrl+B does not work ([7879089](https://github.com/xcv58/Tab-Manager-v2/commit/7879089))
+
 ### [0.21.12](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.11...v0.21.12) (2019-09-15)
 
 ### Features
