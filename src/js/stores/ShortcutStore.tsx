@@ -84,7 +84,7 @@ export default class ShortcutStore {
       'Group and sort tabs'
     ],
     [
-      ['backspace', 'd d'],
+      ['d d'],
       () => {
         this.store.tabStore.remove()
       },
