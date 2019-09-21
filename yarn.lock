@@ -2555,10 +2555,10 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-codecov@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/codecov/-/codecov-3.5.0.tgz#3d0748932f9cb41e1ad7f21fa346ef1b2b1bed47"
-  integrity sha512-/OsWOfIHaQIr7aeZ4pY0UC1PZT6kimoKFOFYFNb6wxo3iw12nRrh+mNGH72rnXxNsq6SGfesVPizm/6Q3XqcFQ==
+codecov@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/codecov/-/codecov-3.6.1.tgz#f39fc49413445555f81f8e3ca5730992843b4517"
+  integrity sha512-IUJB6WG47nWK7o50etF8jBadxdMw7DmoQg05yIljstXFBGB6clOZsIj6iD4P82T2YaIU3qq+FFu8K9pxgkCJDQ==
   dependencies:
     argv "^0.0.2"
     ignore-walk "^3.0.1"
@@ -3729,16 +3729,16 @@ dispensary@0.37.0:
     source-map-support "~0.5.4"
     yargs "~13.2.0"
 
-dnd-core@^9.3.4:
-  version "9.3.4"
-  resolved "https://registry.yarnpkg.com/dnd-core/-/dnd-core-9.3.4.tgz#56b5fdc165aa7d102506d3d5a08ec1fa789e0775"
-  integrity sha512-sDzBiGXgpj9bQhs8gtPWFIKMg4WY8ywI9RI81rRAUWI4oNj/Sm/ztjS67UjCvMa+fWoQ2WNIV3U9oDqeBN0+2g==
+dnd-core@^9.4.0:
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/dnd-core/-/dnd-core-9.4.0.tgz#ccf605d36887f18cdde8fd5576ca3145d2e69fa8"
+  integrity sha512-Kg+8VwU8s7TgdR/BUYGUHrvFiS+5ePMZ0Q0XD7p+cFVJvgKqykBaeQDuaziuauFMPm8QxtnUy8Pncey9flXW3Q==
   dependencies:
     "@types/asap" "^2.0.0"
     "@types/invariant" "^2.2.30"
     asap "^2.0.6"
     invariant "^2.2.4"
-    redux "^4.0.1"
+    redux "^4.0.4"
 
 dns-equal@^1.0.0:
   version "1.0.0"
@@ -10273,10 +10273,10 @@ react-axe@^3.3.0:
     axe-core "^3.3.2"
     requestidlecallback "^0.3.0"
 
-react-command-palette@^0.3.1-0:
-  version "0.3.1-0"
-  resolved "https://registry.yarnpkg.com/react-command-palette/-/react-command-palette-0.3.1-0.tgz#b0b5c02a6d221b870f8d2fcb14569d71a7d6b857"
-  integrity sha512-XSW3eLYoBKvAuRI9G1Zy+6J0tLl2qA7ohNvkWeDoo4hEaOVtsnFvBS3bvF46eKYrffNcZIGPegL6dsKpG06k2g==
+react-command-palette@^0.3.2-0:
+  version "0.3.2-0"
+  resolved "https://registry.yarnpkg.com/react-command-palette/-/react-command-palette-0.3.2-0.tgz#b2f89aaafea98d18161a041c94d07b5f38801f41"
+  integrity sha512-JIzWjlxJFrproUo89ZeXizO5m7hDO9QhvyzWGIHG38xgqPjm6jeMfLP1Hl6XTiSD7IVwIKt/f/bDEGD0rl3zBw==
   dependencies:
     fast-deep-equal "^2.0.1"
     fuzzysort "^1.1.4"
@@ -10293,21 +10293,21 @@ react-custom-scrollbars@^4.2.1:
     prop-types "^15.5.10"
     raf "^3.1.0"
 
-react-dnd-html5-backend@^9.3.4:
-  version "9.3.4"
-  resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-9.3.4.tgz#5d1f5ac608206d7b294b7407b9e1a336589eedd7"
-  integrity sha512-s+Xu0j7fHV9bLMSaOCuX76baQKcZfycAx0EzDmkxcFXPBiiFlI8l6rzwURdSJCjNcvLYXd8MLb4VkSNSq5ISZQ==
+react-dnd-html5-backend@^9.4.0:
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-9.4.0.tgz#5b1d192f57d103298657cde1fe0eabdbf2726311"
+  integrity sha512-gehPwLp505F6RoFkQiDX7Q4mbpbyfyT0TbIoZop/m4vkBw6yUE/QLrnxBQdNpDPSwL/9XkZxxd/PrbeMCQ+WrQ==
   dependencies:
-    dnd-core "^9.3.4"
+    dnd-core "^9.4.0"
 
-react-dnd@9.3.4:
-  version "9.3.4"
-  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-9.3.4.tgz#ebab4b5b430b72f3580c058a29298054e1f9d2b8"
-  integrity sha512-UUtyoHFRrryMxVMEGYa3EdZIdibnys/ax7ZRs6CKpETHlnJQOFhHE3rpI+ManvKS0o3MFc1DZ+aoudAFtrOvFA==
+react-dnd@9.4.0:
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-9.4.0.tgz#eec87035c6360fb33a44932326b3369af011a41c"
+  integrity sha512-jnLF8qKowCKTqSddfCiLx5+sb+HxO1qgdiAgbBeL8yuo5tRYNtKxZYn7+wVwNoyZuWEuM1Gw/Wsdhr+yb2RELQ==
   dependencies:
     "@types/hoist-non-react-statics" "^3.3.1"
     "@types/shallowequal" "^1.1.1"
-    dnd-core "^9.3.4"
+    dnd-core "^9.4.0"
     hoist-non-react-statics "^3.3.0"
     shallowequal "^1.1.0"
 
@@ -10564,7 +10564,7 @@ redent@^2.0.0:
     indent-string "^3.0.0"
     strip-indent "^2.0.0"
 
-redux@^4.0.1:
+redux@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.4.tgz#4ee1aeb164b63d6a1bcc57ae4aa0b6e6fa7a3796"
   integrity sha512-vKv4WdiJxOWKxK0yRoaK3Y4pxxB0ilzVx6dszU2W8wLxlb2yikRph4iV/ymtdJ6ZxpBLFbyrxklnT5yBbQSl3Q==
@@ -12671,10 +12671,10 @@ ts-jest@^24.1.0:
     semver "^5.5"
     yargs-parser "10.x"
 
-ts-loader@6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-6.1.0.tgz#999cb0a7644f9c7c6c0901802dce50ceb0a76e5b"
-  integrity sha512-7JedeOu2rsYHQDEr2fwmMozABwbQTZXEaEMZPSIWG7gpzRefOLJCqwdazcegHtyaxp04PeEgs/b0m08WMpnIzQ==
+ts-loader@6.1.1:
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-6.1.1.tgz#f30c68aa1ce59fa266f0bb70a36959ca68f40ddc"
+  integrity sha512-AoOek8ZWJlWwTRH5ttNmZPBRcASUJZc8wc8E/2PGOXef96H97J8KaLXaW/zUnvyFjvCoRBhTGh9ZIMKL1arcCA==
   dependencies:
     chalk "^2.3.0"
     enhanced-resolve "^4.0.0"
@@ -13156,10 +13156,10 @@ webidl-conversions@^4.0.2:
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
   integrity sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==
 
-webpack-bundle-analyzer@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-3.5.0.tgz#c82130a490a05f9267aa5956871aef574dff5074"
-  integrity sha512-NzueflueLSJxWGzDlMq5oUV+P8Qoq6yiaQlXGCbDYUpHEKlmzWdPLBJ4k/B6HTdAP/vHM8ply1Fx08mDnY+S8Q==
+webpack-bundle-analyzer@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/webpack-bundle-analyzer/-/webpack-bundle-analyzer-3.5.1.tgz#84aabb1547178d842ebb4ccc7324084b6c3b0ea9"
+  integrity sha512-CDdaT3TTu4F9X3tcDq6PNJOiNGgREOM0WdN2vVAoUUn+M6NLB5kJ543HImCWbrDwOpbpGARSwU8r+u0Pl367kA==
   dependencies:
     acorn "^6.0.7"
     acorn-walk "^6.1.1"
