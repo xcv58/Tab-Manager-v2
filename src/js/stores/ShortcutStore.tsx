@@ -247,6 +247,22 @@ export default class ShortcutStore {
       'Select tab'
     ],
     [
+      ['shift+x'],
+      event => {
+        preventDefault(event)
+        this.store.searchStore.selectWindow()
+      },
+      'Toggle Select Window'
+    ],
+    [
+      ['alt+d'],
+      event => {
+        preventDefault(event)
+        this.store.searchStore.closeWindow()
+      },
+      'Close window'
+    ],
+    [
       ['* m', 'ctrl+m'],
       event => {
         preventDefault(event)

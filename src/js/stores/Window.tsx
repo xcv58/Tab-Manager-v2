@@ -132,4 +132,15 @@ export default class Window {
   close = () => {
     browser.windows.remove(this.id)
   }
+
+  @action
+  toggleSelectAll = () => {
+    const { allTabSelected, matchedTabs } = this
+    const { selectAll, unselectAll } = this.store.tabStore
+    if (allTabSelected) {
+      unselectAll(matchedTabs)
+    } else {
+      selectAll(matchedTabs)
+    }
+  }
 }

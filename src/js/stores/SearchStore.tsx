@@ -166,6 +166,34 @@ export default class SearchStore {
   }
 
   @action
+  closeWindow = () => {
+    if (!this.focusedTab) {
+      return
+    }
+    const {
+      windowStore: { tabs }
+    } = this.store
+    const tab = tabs.find(x => x.id === this.focusedTab)
+    if (tab) {
+      tab.win.close()
+    }
+  }
+
+  @action
+  selectWindow = () => {
+    if (!this.focusedTab) {
+      return
+    }
+    const {
+      windowStore: { tabs }
+    } = this.store
+    const tab = tabs.find(x => x.id === this.focusedTab)
+    if (tab) {
+      tab.win.toggleSelectAll()
+    }
+  }
+
+  @action
   groupTab = () => {
     const tab = this.store.windowStore.tabs.find(x => x.id === this.focusedTab)
     if (tab) {
