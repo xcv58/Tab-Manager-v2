@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.14](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.13...v0.21.14) (2019-09-23)
+
+### Features
+
+- Add Shift+X to select focused window, Alt+D to close focused window ([bdfe751](https://github.com/xcv58/Tab-Manager-v2/commit/bdfe751))
+
 ### [0.21.13](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.12...v0.21.13) (2019-09-19)
 
 ### Bug Fixes
