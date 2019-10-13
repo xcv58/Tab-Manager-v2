@@ -20,6 +20,11 @@ const preventDefault = event => {
   }
 }
 
+const hasFocusedElement = () => {
+  const { activeElement } = document
+  return activeElement instanceof HTMLElement && activeElement.tabIndex >= 0
+}
+
 export default class ShortcutStore {
   store: Store
 
@@ -101,14 +106,9 @@ export default class ShortcutStore {
     [
       ['enter', 'ctrl+enter'],
       () => {
-        const { activeElement } = document
-        if (
-          activeElement instanceof HTMLElement &&
-          activeElement.tabIndex >= 0
-        ) {
-          return
+        if (!hasFocusedElement()) {
+          this.store.searchStore.enter()
         }
-        this.store.searchStore.enter()
       },
       'Go to tab'
     ],
@@ -243,6 +243,16 @@ export default class ShortcutStore {
       event => {
         preventDefault(event)
         this.store.searchStore.select()
+      },
+      'Select tab'
+    ],
+    [
+      ['space'],
+      event => {
+        if (!hasFocusedElement()) {
+          preventDefault(event)
+          this.store.searchStore.select()
+        }
       },
       'Select tab'
     ],
