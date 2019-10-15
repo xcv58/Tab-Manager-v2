@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.15](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.14...v0.21.15) (2019-10-15)
+
+### Features
+
+- Press space to select/unselect tab ([e02ae11](https://github.com/xcv58/Tab-Manager-v2/commit/e02ae11))
+
 ### [0.21.14](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.13...v0.21.14) (2019-09-23)
 
 ### Features
