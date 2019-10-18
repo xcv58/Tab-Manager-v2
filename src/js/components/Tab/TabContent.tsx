@@ -8,6 +8,7 @@ import ButtonBase from '@material-ui/core/ButtonBase'
 import Typography from '@material-ui/core/Typography'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/StoreContext'
+import Tooltip from '@material-ui/core/Tooltip'
 
 const pre = `<span style='color:${highlightBorderColor}'>`
 const post = '</span>'
@@ -38,13 +39,30 @@ const useStyles = makeStyles(theme => ({
   },
   duplicated: {
     color: theme.palette.error.light
+  },
+  tooltip: {
+    fontSize: '1rem',
+    lineHeight: '1.2rem',
+    userSelect: 'text',
+    whiteSpace: 'normal',
+    wordBreak: 'break-all',
+    wordWrap: 'break-word'
   }
 }))
 
 export default observer(props => {
-  const { userStore } = useStore()
+  const { hoverStore, dragStore, userStore } = useStore()
   const classes = useStyles()
-  const { activate, title, urlCount, focus, isFocused } = props.tab
+  const { faked } = props
+  const {
+    activate,
+    title,
+    url,
+    urlCount,
+    focus,
+    isFocused,
+    isHovered
+  } = props.tab
   const buttonRef = useRef(null)
   const { showUrl, highlightDuplicatedTab } = userStore
   const getHighlightNode = text => {
@@ -68,6 +86,17 @@ export default observer(props => {
   }, [isFocused])
   const duplicated =
     urlCount > 1 && highlightDuplicatedTab && classes.duplicated
+
+  const { dragging } = dragStore
+  const { hovered } = hoverStore
+  const open = !(faked || dragging || !isHovered || !hovered)
+  const tooltip = (
+    <div className={classes.tooltip}>
+      <p>{title}</p>
+      <p style={{ opacity: 0.8 }}>{url}</p>
+      {urlCount > 1 && <p>There is duplicated tab!</p>}
+    </div>
+  )
   return (
     <ButtonBase
       className={classes.ripple}
@@ -76,16 +105,20 @@ export default observer(props => {
       onClick={activate}
       component='div'
     >
-      <Typography className={classNames(classes.text, duplicated)}>
-        {getHighlightNode(title)}
-      </Typography>
-      {showUrl && (
-        <Url
-          {...props}
-          className={classNames(classes.text, classes.url, duplicated)}
-          getHighlightNode={getHighlightNode}
-        />
-      )}
+      <Tooltip {...{ open, title: tooltip }}>
+        <div className={classes.text}>
+          <Typography className={classNames(classes.text, duplicated)}>
+            {getHighlightNode(title)}
+          </Typography>
+          {showUrl && (
+            <Url
+              {...props}
+              className={classNames(classes.text, classes.url, duplicated)}
+              getHighlightNode={getHighlightNode}
+            />
+          )}
+        </div>
+      </Tooltip>
     </ButtonBase>
   )
 })

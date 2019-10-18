@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import Icon from 'components/Tab/Icon'
-import TabTooltip from 'components/Tab/TabTooltip'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
@@ -155,9 +154,7 @@ const Tab = observer(props => {
       >
         {pin}
         <Icon tab={tab} />
-        <TabTooltip faked={faked} tab={tab}>
-          <TabContent tab={tab} />
-        </TabTooltip>
+        <TabContent {...{ faked, tab }} />
         <TabTools faked={faked} tab={tab} />
         <CloseButton onClick={onRemove} disabled={tab.removing} />
       </div>
