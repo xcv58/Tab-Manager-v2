@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.15...v1.0.0) (2019-10-18)
+
+### Bug Fixes
+
+- Tab Tooltip disappear ([e181cd3](https://github.com/xcv58/Tab-Manager-v2/commit/e181cd3))
+
 ### [0.21.15](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.14...v0.21.15) (2019-10-15)
 
 ### Features
