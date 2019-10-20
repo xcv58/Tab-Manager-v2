@@ -5,6 +5,7 @@ import green from '@material-ui/core/colors/green'
 import pink from '@material-ui/core/colors/pink'
 import merge from 'lodash.merge'
 import Store from 'stores'
+import { grey700 } from 'libs/colors'
 
 export const dropTargetColor = green[100]
 export const droppedColor = green[300]
@@ -29,7 +30,12 @@ const overrides = {
   },
   MuiTooltip: {
     tooltip: {
-      display: 'inline-flex'
+      display: 'inline-flex',
+      backgroundColor: grey700,
+      borderRadius: '.5rem',
+      fontSize: '1rem',
+      lineHeight: '1.5rem',
+      maxWidth: '32rem'
     }
   }
 }

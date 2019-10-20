@@ -41,7 +41,6 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.error.light
   },
   tooltip: {
-    fontSize: '1rem',
     lineHeight: '1.2rem',
     userSelect: 'text',
     whiteSpace: 'normal',
@@ -98,27 +97,25 @@ export default observer(props => {
     </div>
   )
   return (
-    <ButtonBase
-      className={classes.ripple}
-      buttonRef={buttonRef}
-      onFocusVisible={focus}
-      onClick={activate}
-      component='div'
-    >
-      <Tooltip {...{ open, title: tooltip }}>
-        <div className={classes.text}>
-          <Typography className={classNames(classes.text, duplicated)}>
-            {getHighlightNode(title)}
-          </Typography>
-          {showUrl && (
-            <Url
-              {...props}
-              className={classNames(classes.text, classes.url, duplicated)}
-              getHighlightNode={getHighlightNode}
-            />
-          )}
-        </div>
-      </Tooltip>
-    </ButtonBase>
+    <Tooltip {...{ open, title: tooltip }} interactive>
+      <ButtonBase
+        className={classes.ripple}
+        buttonRef={buttonRef}
+        onFocusVisible={focus}
+        onClick={activate}
+        component='div'
+      >
+        <Typography className={classNames(classes.text, duplicated)}>
+          {getHighlightNode(title)}
+        </Typography>
+        {showUrl && (
+          <Url
+            {...props}
+            className={classNames(classes.text, classes.url, duplicated)}
+            getHighlightNode={getHighlightNode}
+          />
+        )}
+      </ButtonBase>
+    </Tooltip>
   )
 })
