@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, StrictMode } from 'react'
 import { observer } from 'mobx-react'
 import Fade from '@material-ui/core/Fade'
 import Paper from '@material-ui/core/Paper'
@@ -46,12 +46,12 @@ const App = observer(() => {
 export default observer(() => {
   const { themeStore } = useStore()
   return (
-    <MuiThemeProvider theme={themeStore.muiTheme}>
-      <React.StrictMode>
+    <StrictMode>
+      <MuiThemeProvider theme={themeStore.muiTheme}>
         <DndProvider backend={HTML5Backend}>
           <App />
         </DndProvider>
-      </React.StrictMode>
-    </MuiThemeProvider>
+      </MuiThemeProvider>
+    </StrictMode>
   )
 })
