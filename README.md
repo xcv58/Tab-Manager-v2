@@ -14,11 +14,11 @@
 
 Chrome Web Store: https://xcv58.xyz/tabs
 
-Firefox Add-ons: https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2/?src=search
+Firefox Add-ons: https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2
 
-Tab Manager v2 is Chrome Extension that helps you manage your Chrome tabs easily. It's a forked version of https://github.com/joshperry/Tab-Manager. The Tab Manager v2 is rewritten by React, MobX with ES2017, and has different features with original Tab Manager.
+Tab Manager v2 is Chrome Extension that helps you manage your Chrome tabs easily. It's a forked version of https://github.com/joshperry/Tab-Manager.
 
-There is a Storybook [Live Preview](https://tabs.xcv58.org).
+The Tab Manager v2 is completely rewritten by React, MobX, TypeScript, and has different features with original Tab Manager.
 
 # Usage
 
