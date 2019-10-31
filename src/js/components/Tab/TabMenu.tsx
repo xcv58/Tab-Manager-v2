@@ -6,14 +6,7 @@ import Divider from '@material-ui/core/Divider'
 import Popover from '@material-ui/core/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { getNoun } from 'libs'
-import { makeStyles } from '@material-ui/styles'
-import { Theme } from '@material-ui/core'
-
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    zIndex: theme.zIndex.tooltip + 1
-  }
-}))
+import { useTheme } from '@material-ui/core'
 
 const DIVIDER = { divider: true }
 
@@ -23,7 +16,7 @@ type Option = { divider?: boolean } & { disabled?: boolean } & {
 
 export default observer(props => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const classes = useStyles(props)
+  const theme = useTheme()
   const handleClick = event => {
     setAnchorEl(event.currentTarget)
   }
@@ -98,7 +91,7 @@ export default observer(props => {
           horizontal: 'left'
         }}
         onClose={handleClose}
-        className={classes.root}
+        style={{ zIndex: theme.zIndex.tooltip + 1 }}
         PaperProps={{
           style: {
             minWidth: 200

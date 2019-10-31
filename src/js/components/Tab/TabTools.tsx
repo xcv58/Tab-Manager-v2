@@ -14,7 +14,7 @@ const useStyles = makeStyles(() => ({
 
 export default observer(props => {
   const { dragStore } = useStore()
-  const classes = useStyles()
+  const classes = useStyles(props)
   const {
     faked,
     tab: { isHovered }
