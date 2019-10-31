@@ -1,5 +1,6 @@
 import { action, observable } from 'mobx'
 import { browser } from 'libs'
+import Store from 'stores'
 
 const DEFAULT_SETTINGS = {
   showShortcutHint: true,
@@ -14,6 +15,8 @@ const DEFAULT_SETTINGS = {
 }
 
 export default class UserStore {
+  store: Store
+
   constructor (store) {
     this.store = store
     this.init()

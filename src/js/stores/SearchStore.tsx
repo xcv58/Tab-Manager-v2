@@ -1,8 +1,11 @@
 import { action, computed, observable } from 'mobx'
 import { filter } from 'fuzzy'
 import { activateTab, browser } from 'libs'
+import Store from 'stores'
 
 export default class SearchStore {
+  store: Store
+
   constructor (store) {
     this.store = store
   }
@@ -160,6 +163,42 @@ export default class SearchStore {
       windowStore: { tabs }
     } = this.store
     select(tabs.find(x => x.id === this.focusedTab))
+  }
+
+  @action
+  closeWindow = () => {
+    if (!this.focusedTab) {
+      return
+    }
+    const {
+      windowStore: { tabs }
+    } = this.store
+    const tab = tabs.find(x => x.id === this.focusedTab)
+    if (tab) {
+      tab.win.close()
+    }
+  }
+
+  @action
+  selectWindow = () => {
+    if (!this.focusedTab) {
+      return
+    }
+    const {
+      windowStore: { tabs }
+    } = this.store
+    const tab = tabs.find(x => x.id === this.focusedTab)
+    if (tab) {
+      tab.win.toggleSelectAll()
+    }
+  }
+
+  @action
+  groupTab = () => {
+    const tab = this.store.windowStore.tabs.find(x => x.id === this.focusedTab)
+    if (tab) {
+      tab.groupTab()
+    }
   }
 
   @action

@@ -2,7 +2,12 @@ import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
-class Background {
+export class Background {
+  tabHistory: TabHistory
+  actionMap: {
+    [key: string]: Function
+  }
+
   constructor () {
     this.tabHistory = new TabHistory(this)
     browser.runtime.onMessage.addListener(this.onMessage)

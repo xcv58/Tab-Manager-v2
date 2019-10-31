@@ -37,14 +37,16 @@ export const createWindow = async tabs => {
   await browser.windows.update(win.id, { focused: true })
 }
 
-export const activateTab = async id => {
+export const activateTab = async (id, isBackground) => {
   if (!id) {
     return
   }
   const tab = await browser.tabs.get(id)
   await browser.tabs.update(tab.id, { active: true })
   await browser.windows.update(tab.windowId, { focused: true })
-  closeIfCurrentTabIsPopup()
+  if (!isBackground) {
+    closeIfCurrentTabIsPopup()
+  }
 }
 
 export const togglePinTabs = async tabs => {

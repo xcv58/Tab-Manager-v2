@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.0.0...v1.0.1) (2019-10-21)
+
+### Bug Fixes
+
+- Optimize style for the ordinary tooltip and tab tooltip ([2511647](https://github.com/xcv58/Tab-Manager-v2/commit/2511647))
+
+## [1.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.15...v1.0.0) (2019-10-18)
+
+### Bug Fixes
+
+- Tab Tooltip disappear ([e181cd3](https://github.com/xcv58/Tab-Manager-v2/commit/e181cd3))
+
+### [0.21.15](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.14...v0.21.15) (2019-10-15)
+
+### Features
+
+- Press space to select/unselect tab ([e02ae11](https://github.com/xcv58/Tab-Manager-v2/commit/e02ae11))
+
+### [0.21.14](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.13...v0.21.14) (2019-09-23)
+
+### Features
+
+- Add Shift+X to select focused window, Alt+D to close focused window ([bdfe751](https://github.com/xcv58/Tab-Manager-v2/commit/bdfe751))
+
+### [0.21.13](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.12...v0.21.13) (2019-09-19)
+
+### Bug Fixes
+
+- Firefox publish pipeline ([47b3378](https://github.com/xcv58/Tab-Manager-v2/commit/47b3378))
+- Remove backspace to close tab shortcut ([9c680a5](https://github.com/xcv58/Tab-Manager-v2/commit/9c680a5))
+- The Ctrl+B does not work ([7879089](https://github.com/xcv58/Tab-Manager-v2/commit/7879089))
+
+### [0.21.12](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.11...v0.21.12) (2019-09-15)
+
+### Features
+
+- Add Ctrl+g shortcut to group the same domain tabs to current window ([cbdd814](https://github.com/xcv58/Tab-Manager-v2/commit/cbdd814))
+
+### [0.21.11](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.10...v0.21.11) (2019-09-12)
+
+### Bug Fixes
+
+- Hit enter would trigger both focused element and activate selected tab ([04a042d](https://github.com/xcv58/Tab-Manager-v2/commit/04a042d))
+
+### [0.21.10](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.9...v0.21.10) (2019-09-08)
+
+### Bug Fixes
+
+- Lose focus of search box during typing ([2195efc](https://github.com/xcv58/Tab-Manager-v2/commit/2195efc))
+
 ### [0.21.9](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.8...v0.21.9) (2019-08-31)
 
 ### Bug Fixes

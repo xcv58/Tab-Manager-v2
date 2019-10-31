@@ -20,6 +20,11 @@ const preventDefault = event => {
   }
 }
 
+const hasFocusedElement = () => {
+  const { activeElement } = document
+  return activeElement instanceof HTMLElement && activeElement.tabIndex >= 0
+}
+
 export default class ShortcutStore {
   store: Store
 
@@ -84,7 +89,7 @@ export default class ShortcutStore {
       'Group and sort tabs'
     ],
     [
-      ['backspace', 'd d'],
+      ['d d'],
       () => {
         this.store.tabStore.remove()
       },
@@ -101,8 +106,9 @@ export default class ShortcutStore {
     [
       ['enter', 'ctrl+enter'],
       () => {
-        // Use ButtonBase's focus state + keyboard event to support enter/space to go to the tab.
-        // this.store.searchStore.enter()
+        if (!hasFocusedElement()) {
+          this.store.searchStore.enter()
+        }
       },
       'Go to tab'
     ],
@@ -209,7 +215,7 @@ export default class ShortcutStore {
       'Previous tab'
     ],
     [
-      ['g g', 'ctrl+g'],
+      ['g g'],
       event => {
         preventDefault(event)
         this.store.searchStore.firstTab()
@@ -225,12 +231,46 @@ export default class ShortcutStore {
       'Last tab'
     ],
     [
+      ['ctrl+g'],
+      event => {
+        preventDefault(event)
+        this.store.searchStore.groupTab()
+      },
+      'Group same domain tabs to this window'
+    ],
+    [
       ['x', 'ctrl+x'],
       event => {
         preventDefault(event)
         this.store.searchStore.select()
       },
       'Select tab'
+    ],
+    [
+      ['space'],
+      event => {
+        if (!hasFocusedElement()) {
+          preventDefault(event)
+          this.store.searchStore.select()
+        }
+      },
+      'Select tab'
+    ],
+    [
+      ['shift+x'],
+      event => {
+        preventDefault(event)
+        this.store.searchStore.selectWindow()
+      },
+      'Toggle Select Window'
+    ],
+    [
+      ['alt+d'],
+      event => {
+        preventDefault(event)
+        this.store.searchStore.closeWindow()
+      },
+      'Close window'
     ],
     [
       ['* m', 'ctrl+m'],

@@ -2,11 +2,14 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import Checkbox from '@material-ui/core/Checkbox'
 import Tooltip from '@material-ui/core/Tooltip'
-import { useStore } from 'components/StoreContext'
 
 export default observer(({ win }) => {
-  const { tabStore } = useStore()
-  const { allTabSelected, someTabSelected, disableSelectAll } = win
+  const {
+    allTabSelected,
+    someTabSelected,
+    disableSelectAll,
+    toggleSelectAll
+  } = win
   const title = `${allTabSelected ? 'Unselect' : 'Select'} all tabs`
   return (
     <Tooltip title={title}>
@@ -16,13 +19,7 @@ export default observer(({ win }) => {
         checked={allTabSelected}
         onChange={e => {
           e.target.blur()
-          const { allTabSelected, matchedTabs } = win
-          const { selectAll, unselectAll } = tabStore
-          if (allTabSelected) {
-            unselectAll(matchedTabs)
-          } else {
-            selectAll(matchedTabs)
-          }
+          toggleSelectAll()
         }}
         indeterminate={someTabSelected || disableSelectAll}
       />
