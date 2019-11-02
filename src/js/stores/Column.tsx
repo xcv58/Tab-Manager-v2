@@ -16,7 +16,7 @@ export default class Column {
 
   @computed
   get length () {
-    return this.windows.reduce((acc, cur) => acc + cur.length, 0)
+    return this.windows.reduce((acc, cur) => acc + cur.visibleLength, 0)
   }
 
   @computed

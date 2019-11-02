@@ -39,15 +39,9 @@ export default class Window {
   }
 
   @computed
-  get length () {
-    const { length } = this.tabs
-    return length > 0 ? length + 2 : length
-  }
-
-  @computed
   get visibleLength () {
     const { length } = this.tabs.filter(x => x.isVisible)
-    return length + 2
+    return length ? length + 2 : length
   }
 
   @computed

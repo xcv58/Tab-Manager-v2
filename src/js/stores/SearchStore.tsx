@@ -106,11 +106,19 @@ export default class SearchStore {
 
   @action
   search = (query, delay = 300) => {
+    if (this.query === query) {
+      return
+    }
     this.query = query
     if (!this.matchedSet.has(this.focusedTab)) {
       this.focusedTab = null
       this.findFocusedTab()
     }
+    if (!this.store.userStore.showUnmatchedTab) {
+      this.store.windowStore.updateColumns()
+    }
+    // TODO: we can avoid this callback for rendering performance optimization
+    // if apply React concurrent mode.
     if (this._handler) {
       clearTimeout(this._handler)
     }

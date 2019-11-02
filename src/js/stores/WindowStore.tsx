@@ -82,7 +82,7 @@ export default class WindowsStore {
       }
     }
     for (let index = 0; index < this.windows.length;) {
-      if (this.windows[index].length === 0) {
+      if (this.windows[index].visibleLength === 0) {
         this.windows.splice(index, 1)
       } else {
         index++
@@ -284,11 +284,11 @@ export default class WindowsStore {
   updateColumns () {
     const max = Math.ceil((this.height / 35) * 1.0)
     this.columns = this.windows
-      .filter(x => x.length > 0)
+      .filter(x => x.visibleLength > 0)
       .reduce(
         (acc, cur) => {
           const column = acc[acc.length - 1]
-          if (column.length === 0 || column.length + cur.length <= max) {
+          if (column.length === 0 || column.length + cur.visibleLength <= max) {
             column.add(cur)
           } else {
             acc.push(new Column(this.store, cur))

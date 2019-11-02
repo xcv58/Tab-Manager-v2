@@ -7,7 +7,8 @@ import Tabs from './Tabs'
 import Preview from 'components/Preview'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
-import { useTheme } from '@material-ui/styles'
+import { useTheme } from '@material-ui/core'
+import { Properties } from 'csstype'
 
 const Window = observer(props => {
   const theme = useTheme()
@@ -35,7 +36,7 @@ const Window = observer(props => {
     }
   })
   const { canDrop, isOver, isDragging } = dropProps
-  const style = {
+  const style: Properties = {
     width: '100%',
     minWidth: '20rem',
     height: 'fit-content',
@@ -47,6 +48,9 @@ const Window = observer(props => {
   }
   const dropIndicator = canDrop && isOver && <Preview />
   const elevation = lastFocused ? 16 : 2
+  if (!win.visibleLength) {
+    return null
+  }
   return (
     <div ref={drop} style={style}>
       <Paper elevation={elevation}>

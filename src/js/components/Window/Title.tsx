@@ -10,7 +10,7 @@ import ButtonBase from '@material-ui/core/ButtonBase'
 import CloseButton from 'components/CloseButton'
 import { getNoun } from 'libs'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 import classNames from 'classnames'
 import Reload from './Reload'
 import { useStore } from 'components/StoreContext'
@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default observer(props => {
-  const classes = useStyles()
+  const classes = useStyles(props)
   const { win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
@@ -69,13 +69,7 @@ export default observer(props => {
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
   const title = (
-    <Typography
-      variant='h5'
-      style={{
-        flex: '1 1 auto',
-        width: 'max-content'
-      }}
-    >
+    <Typography variant='h5' style={{ flex: '1 1 auto' }}>
       {text} {invisibleIndicator}
     </Typography>
   )
