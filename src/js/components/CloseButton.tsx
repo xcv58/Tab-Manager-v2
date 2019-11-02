@@ -1,7 +1,7 @@
 import React from 'react'
 import CloseIcon from '@material-ui/icons/Close'
 import IconButton from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => {
   return {
@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => {
 })
 
 export default props => {
-  const classes = useStyles()
+  const classes = useStyles(props)
   const { onClick, disabled } = props
   return (
     <IconButton {...{ onClick, disabled }} className={classes.icon}>

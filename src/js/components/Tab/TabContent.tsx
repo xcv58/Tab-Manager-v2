@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import Typography from '@material-ui/core/Typography'
 import Url from 'components/Tab/Url'
@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 
 export default observer(props => {
   const { hoverStore, dragStore, userStore } = useStore()
-  const classes = useStyles()
+  const classes = useStyles(props)
   const { faked } = props
   const {
     activate,

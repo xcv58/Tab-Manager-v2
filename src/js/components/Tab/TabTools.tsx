@@ -2,7 +2,7 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 import { useStore } from 'components/StoreContext'
 
 const useStyles = makeStyles(() => ({

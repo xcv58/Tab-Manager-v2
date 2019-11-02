@@ -5,7 +5,7 @@ import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 import { useStore } from 'components/StoreContext'
 
 export const indicatorWidth = 2
@@ -64,7 +64,7 @@ const Tab = observer(props => {
   const node = useRef(null)
   const { dragStore } = useStore()
   const { faked, tab, style } = props
-  const classes = useStyles()
+  const classes = useStyles(props)
   const {
     active,
     isFocused,

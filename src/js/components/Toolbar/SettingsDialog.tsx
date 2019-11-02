@@ -10,7 +10,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Fade from '@material-ui/core/Fade'
 import Switch from '@material-ui/core/Switch'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 import { useStore } from 'components/StoreContext'
 
 export const useStyles = makeStyles(() => ({
@@ -20,7 +20,7 @@ export const useStyles = makeStyles(() => ({
 }))
 
 export default observer(props => {
-  const classes = useStyles()
+  const classes = useStyles(props)
   const { userStore } = useStore()
   const {
     dialogOpen,

@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Help from './Help'
 import Fade from '@material-ui/core/Fade'
 import { useStore } from 'components/StoreContext'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles({
   paper: {
@@ -15,14 +15,14 @@ const useStyles = makeStyles({
 })
 
 export default observer(props => {
-  const classes = useStyles()
+  const classes = useStyles(props)
   const { shortcutStore } = useStore()
   const { dialogOpen, closeDialog } = shortcutStore
   return (
     <Dialog
       open={dialogOpen}
       classes={classes}
-      transition={Fade}
+      TransitionComponent={Fade}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
     >

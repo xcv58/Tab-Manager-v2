@@ -2,7 +2,7 @@ import React from 'react'
 import { observer } from 'mobx-react'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 
 const buttonWidth = '39px'
 const iconWidth = '1.5rem'
@@ -30,7 +30,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 export default observer(props => {
-  const classes = useStyles()
+  const classes = useStyles(props)
   const { focus, select, iconUrl, isSelected } = props.tab
   return (
     <div className={classes.root}>
