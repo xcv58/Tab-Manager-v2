@@ -37,7 +37,7 @@ export const createWindow = async tabs => {
   await browser.windows.update(win.id, { focused: true })
 }
 
-export const activateTab = async (id, isBackground) => {
+export const activateTab = async (id, isBackground = false) => {
   if (!id) {
     return
   }
