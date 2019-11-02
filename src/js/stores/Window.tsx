@@ -10,6 +10,7 @@ export default class Window {
     this.store = store
     Object.assign(this, win)
     this.tabs = win.tabs.map(tab => new Tab(tab, store, this))
+    // TODO: Remove this when we add concurrent mode
     this.showTabs = !this.store.windowStore.initialLoading
   }
 
@@ -19,6 +20,7 @@ export default class Window {
   @observable
   id
 
+  // TODO: Remove this when we add concurrent mode
   @observable
   showTabs
 
@@ -27,6 +29,9 @@ export default class Window {
 
   @action
   tabMounted = () => {
+    this.tabs
+      .filter(x => !x.isVisible && !x.showTab)
+      .forEach(x => (x.showTab = true))
     const tab = this.tabs.find(x => !x.showTab)
     if (tab) {
       tab.showTab = true

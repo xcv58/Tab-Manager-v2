@@ -39,6 +39,7 @@ export default class Tab {
     this.win = win
     this.mounted = this.win.tabMounted
     this.setUrlIcon()
+    // TODO: Remove this when we add concurrent mode
     this.showTab = !this.store.windowStore.initialLoading
   }
 
@@ -60,6 +61,7 @@ export default class Tab {
   @observable
   id
 
+  // TODO: Remove this when we add concurrent mode
   @observable
   showTab: boolean
 
