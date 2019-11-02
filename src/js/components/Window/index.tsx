@@ -8,7 +8,7 @@ import Preview from 'components/Preview'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
 import { useTheme } from '@material-ui/core'
-import { Properties } from 'csstype'
+import { CSSProperties } from '@material-ui/styles'
 
 const Window = observer(props => {
   const theme = useTheme()
@@ -36,7 +36,7 @@ const Window = observer(props => {
     }
   })
   const { canDrop, isOver, isDragging } = dropProps
-  const style: Properties = {
+  const style: CSSProperties = {
     width: '100%',
     minWidth: '20rem',
     height: 'fit-content',
