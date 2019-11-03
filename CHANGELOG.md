@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.0.2...v1.1.0) (2019-11-03)
+
+### Bug Fixes
+
+- Some windows/tabs doesn't appear when show unmatched tab disabled ([eef4f3a](https://github.com/xcv58/Tab-Manager-v2/commit/eef4f3a))
+
+### Features
+
+- Don't show window if it has no visible tabs ([2c953ff](https://github.com/xcv58/Tab-Manager-v2/commit/2c953ff))
+
 ### [1.0.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.0.1...v1.0.2) (2019-11-01)
 
 ### Bug Fixes
