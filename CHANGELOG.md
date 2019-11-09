@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.1.0...v1.2.0) (2019-11-09)
+
+### Features
+
+- Add "Close other tabs" for each tab, use Discriminated Unions to improve type check ([d1ded8c](https://github.com/xcv58/Tab-Manager-v2/commit/d1ded8c))
+
 ## [1.1.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.0.2...v1.1.0) (2019-11-03)
 
 ### Bug Fixes
