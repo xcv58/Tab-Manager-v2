@@ -186,4 +186,9 @@ export default class Tab {
       this.iconUrl = favIconUrl || this.iconUrl
     }
   }
+
+  @action
+  closeOtherTabs = () => {
+    this.win.tabs.filter(tab => tab.id !== this.id).map(tab => tab.remove())
+  }
 }

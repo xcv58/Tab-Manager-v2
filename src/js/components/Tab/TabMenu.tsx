@@ -8,11 +8,22 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { getNoun } from 'libs'
 import { useTheme } from '@material-ui/core'
 
-const DIVIDER = { divider: true }
+interface IDivider {
+  __typename: 'DIVIDER'
+}
+type Option = {
+  __typename: 'OPTION'
+} & {
+  disabled?: boolean
+} & {
+  label: string
+} & {
+  onClick?: () => void
+}
+type OptionOrDivider = IDivider | Option
 
-type Option = { divider?: boolean } & { disabled?: boolean } & {
-  label?: string
-} & { onClick?: () => void }
+const DIVIDER: IDivider = { __typename: 'DIVIDER' }
+const OPTION: Option = { __typename: 'OPTION', label: '' }
 
 export default observer(props => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -27,9 +38,13 @@ export default observer(props => {
 
   const getOnClick = func => () => {
     handleClose()
-    func()
+    if (func) {
+      func()
+    }
   }
   const {
+    closeOtherTabs,
+    win,
     remove,
     groupTab,
     sameDomainTabs,
@@ -38,24 +53,34 @@ export default observer(props => {
     urlCount,
     closeDuplicatedTab
   } = props.tab
-  const options: Option[] = [
+  const options: OptionOrDivider[] = [
     {
-      label: pinned ? 'Unpin Tab' : 'Pin Tab',
+      ...OPTION,
+      label: pinned ? 'Unpin tab' : 'Pin tab',
       onClick: togglePin
     },
     {
-      label: 'Remove',
+      ...OPTION,
+      label: 'Close',
       onClick: remove
+    },
+    {
+      ...OPTION,
+      label: 'Close other tabs',
+      onClick: closeOtherTabs,
+      disabled: win.tabs.length <= 1
     }
   ]
   if (sameDomainTabs && sameDomainTabs.length > 1) {
     options.push(DIVIDER, {
+      ...OPTION,
       label: `Group ${sameDomainTabs.length} same domain tabs to this window`,
       onClick: groupTab
     })
   }
   if (urlCount > 1) {
     options.push(DIVIDER, {
+      ...OPTION,
       label: `Close other ${urlCount - 1} duplicated ${getNoun(
         'tab',
         urlCount - 1
@@ -64,20 +89,17 @@ export default observer(props => {
     })
   }
 
-  const content = options
-    .map(({ onClick, ...option }) => ({
-      ...option,
-      onClick: getOnClick(onClick)
-    }))
-    .map(({ label, onClick, disabled = false, divider }, i) =>
-      divider ? (
-        <Divider key={i} />
-      ) : (
-        <MenuItem key={label} disabled={disabled} onClick={onClick}>
-          {label}
-        </MenuItem>
-      )
+  const content = options.map((option, i) => {
+    if (option.__typename === 'DIVIDER') {
+      return <Divider key={i} />
+    }
+    const { label, onClick, disabled } = option
+    return (
+      <MenuItem key={label} disabled={disabled} onClick={getOnClick(onClick)}>
+        {label}
+      </MenuItem>
     )
+  })
   return (
     <div>
       <IconButton onClick={handleClick}>
