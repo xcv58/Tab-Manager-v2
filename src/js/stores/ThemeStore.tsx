@@ -1,4 +1,4 @@
-import { computed } from 'mobx'
+import { action, computed, observable } from 'mobx'
 import { createMuiTheme } from '@material-ui/core/styles'
 import blue from '@material-ui/core/colors/blue'
 import green from '@material-ui/core/colors/green'
@@ -67,13 +67,28 @@ const darkTheme = merge(
 export default class ThemeStore {
   store: Store
 
+  @observable
+  isSystemThemeDark: boolean
+
   constructor (store) {
     this.store = store
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', this.updateSystemTheme)
+    this.updateSystemTheme(mediaQuery)
+  }
+
+  @action
+  updateSystemTheme = event => {
+    this.isSystemThemeDark = event.matches
   }
 
   @computed
   get theme () {
-    return this.store.userStore.darkTheme ? darkTheme : theme
+    const { useSystemTheme } = this.store.userStore
+    if (!useSystemTheme) {
+      return this.store.userStore.darkTheme ? darkTheme : theme
+    }
+    return this.isSystemThemeDark ? darkTheme : theme
   }
 
   @computed

@@ -42,13 +42,15 @@ export default observer(props => {
     autoFocusSearch,
     toggleAutoFocusSearch,
     darkTheme,
-    toggleDarkTheme
+    toggleDarkTheme,
+    useSystemTheme,
+    toggleUseSystemTheme
   } = userStore
   return (
     <Dialog
       open={dialogOpen}
       classes={classes}
-      transition={Fade}
+      TransitionComponent={Fade}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
     >
@@ -150,9 +152,20 @@ export default observer(props => {
               }
             />
             <FormControlLabel
+              label='Use System Theme'
+              control={
+                <Switch
+                  color='primary'
+                  checked={useSystemTheme}
+                  onChange={toggleUseSystemTheme}
+                />
+              }
+            />
+            <FormControlLabel
               label='Dark Theme'
               control={
                 <Switch
+                  disabled={useSystemTheme}
                   color='primary'
                   checked={darkTheme}
                   onChange={toggleDarkTheme}

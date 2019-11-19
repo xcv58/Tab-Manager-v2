@@ -40,7 +40,11 @@ export default class ArrangeStore {
     const pinned = tabs.reduce((acc, cur) => acc || cur.pinned, false)
     const sortedTabs = tabs.sort(tabComparator)
     const { windowId } = tab
-    await moveTabs(sortedTabs.map(x => ({ ...x, pinned })), windowId, 0)
+    await moveTabs(
+      sortedTabs.map(x => ({ ...x, pinned })),
+      windowId,
+      0
+    )
   }
 
   groupTabs = async () => {
@@ -49,7 +53,10 @@ export default class ArrangeStore {
         if (tabs.length > 1) {
           const sortedTabs = tabs.sort(tabComparator)
           const { windowId, pinned } = sortedTabs[0]
-          await moveTabs(sortedTabs.map(x => ({ ...x, pinned })), windowId)
+          await moveTabs(
+            sortedTabs.map(x => ({ ...x, pinned })),
+            windowId
+          )
         }
       })
     )

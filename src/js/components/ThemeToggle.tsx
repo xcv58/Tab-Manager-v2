@@ -8,7 +8,10 @@ import { useStore } from './StoreContext'
 
 export default observer(() => {
   const { userStore } = useStore()
-  const { darkTheme, toggleDarkTheme } = userStore
+  const { darkTheme, toggleDarkTheme, useSystemTheme } = userStore
+  if (useSystemTheme) {
+    return null
+  }
   return (
     <Tooltip title='Toggle light/dark theme' placement='left'>
       <IconButton onClick={toggleDarkTheme}>

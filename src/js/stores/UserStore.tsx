@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS = {
   preserveSearch: true,
   showUrl: true,
   autoFocusSearch: false,
+  useSystemTheme: true,
   darkTheme: false
 }
 
@@ -65,6 +66,9 @@ export default class UserStore {
 
   @observable
   darkTheme = false
+
+  @observable
+  useSystemTheme = true
 
   hideToolbarHandler = null
 
@@ -142,7 +146,16 @@ export default class UserStore {
 
   @action
   toggleDarkTheme = () => {
+    if (this.useSystemTheme) {
+      return
+    }
     browser.storage.sync.set({ darkTheme: !this.darkTheme })
+    this.init()
+  }
+
+  @action
+  toggleUseSystemTheme = () => {
+    browser.storage.sync.set({ useSystemTheme: !this.useSystemTheme })
     this.init()
   }
 
