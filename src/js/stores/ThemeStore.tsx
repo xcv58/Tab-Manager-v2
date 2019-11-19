@@ -13,21 +13,23 @@ export const highlightBorderColor = pink.A400
 export const focusedColor = blue[200]
 export const backgroundColor = 'rgba(255, 255, 255, 0.64)'
 
+const MuiSnackbarContent = {
+  root: {
+    fontSize: '1.5rem',
+    padding: '0 2rem',
+    justifyContent: 'center',
+    textTransform: 'capitalize',
+    backgroundColor: 'rgba(0, 0, 0, 0.618)'
+  }
+}
+
 const overrides = {
   MuiIconButton: {
     root: {
       padding: 9
     }
   },
-  MuiSnackbarContent: {
-    root: {
-      fontSize: '1.5rem',
-      padding: '0 2rem',
-      justifyContent: 'center',
-      textTransform: 'capitalize',
-      backgroundColor: 'rgba(0, 0, 0, 0.618)'
-    }
-  },
+  MuiSnackbarContent,
   MuiTooltip: {
     tooltip: {
       display: 'inline-flex',
@@ -54,7 +56,18 @@ const darkTheme = merge(
       type: 'dark'
     }
   },
-  theme,
+  {
+    ...theme,
+    overrides: {
+      ...overrides,
+      MuiSnackbarContent: {
+        root: {
+          ...MuiSnackbarContent.root,
+          backgroundColor
+        }
+      }
+    }
+  },
   {
     app: {
       focusedColor: '#292B2E',
