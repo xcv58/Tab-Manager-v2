@@ -68,13 +68,15 @@ export default class ThemeStore {
   store: Store
 
   @observable
-  isSystemThemeDark: boolean
+  isSystemThemeDark: boolean = false
 
   constructor (store) {
     this.store = store
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', this.updateSystemTheme)
-    this.updateSystemTheme(mediaQuery)
+    if (window && window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQuery.addEventListener('change', this.updateSystemTheme)
+      this.updateSystemTheme(mediaQuery)
+    }
   }
 
   @action
