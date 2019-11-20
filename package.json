@@ -4,7 +4,7 @@
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
-    "jest": "jest",
+    "jest": "jest --maxWorkers=4",
     "build": "NODE_ENV=production node utils/build.js",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
@@ -127,6 +127,7 @@
     ]
   },
   "jest": {
+    "testEnvironment": "node",
     "testURL": "http://localhost/",
     "collectCoverage": true,
     "coverageDirectory": "./coverage/"
