@@ -1,5 +1,6 @@
 # Tab Manager v2
 
+![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 [![CircleCI](https://circleci.com/gh/xcv58/Tab-Manager-v2.svg?style=svg)](https://circleci.com/gh/xcv58/Tab-Manager-v2)
 [![Build Status](https://travis-ci.org/xcv58/Tab-Manager-v2.svg?branch=master)](https://travis-ci.org/xcv58/Tab-Manager-v2)
 [![dependencies Status](https://david-dm.org/xcv58/Tab-Manager-v2/status.svg)](https://david-dm.org/xcv58/Tab-Manager-v2)
