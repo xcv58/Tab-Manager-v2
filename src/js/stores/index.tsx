@@ -6,7 +6,6 @@ import DragStore from 'stores/DragStore'
 import ShortcutStore from 'stores/ShortcutStore'
 import UserStore from 'stores/UserStore'
 import HoverStore from 'stores/HoverStore'
-import ThemeStore from 'stores/ThemeStore'
 
 export default class Store {
   windowStore: WindowStore
@@ -25,8 +24,6 @@ export default class Store {
 
   searchStore: SearchStore
 
-  themeStore: ThemeStore
-
   constructor () {
     this.windowStore = new WindowStore(this)
     this.tabStore = new TabStore(this)
@@ -36,6 +33,5 @@ export default class Store {
     this.userStore = new UserStore(this)
     this.hoverStore = new HoverStore(this)
     this.searchStore = new SearchStore(this)
-    this.themeStore = new ThemeStore(this)
   }
 }

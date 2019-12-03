@@ -1,10 +1,7 @@
-import { action, computed, observable } from 'mobx'
-import { createMuiTheme } from '@material-ui/core/styles'
 import blue from '@material-ui/core/colors/blue'
 import green from '@material-ui/core/colors/green'
 import pink from '@material-ui/core/colors/pink'
 import merge from 'lodash.merge'
-import Store from 'stores'
 import { grey700 } from 'libs/colors'
 
 export const dropTargetColor = green[100]
@@ -48,16 +45,20 @@ const app = {
   highlightColor: blue[50]
 }
 
-const theme = { overrides, app, typography: { useNextVariants: true } }
+export const lightTheme = {
+  overrides,
+  app,
+  typography: { useNextVariants: true }
+}
 
-const darkTheme = merge(
+export const darkTheme = merge(
   {
     palette: {
       type: 'dark'
     }
   },
   {
-    ...theme,
+    ...lightTheme,
     overrides: {
       ...overrides,
       MuiSnackbarContent: {
@@ -76,38 +77,3 @@ const darkTheme = merge(
     }
   }
 )
-
-export default class ThemeStore {
-  store: Store
-
-  @observable
-  isSystemThemeDark: boolean = false
-
-  constructor (store) {
-    this.store = store
-    if (window && window.matchMedia) {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      mediaQuery.addEventListener('change', this.updateSystemTheme)
-      this.updateSystemTheme(mediaQuery)
-    }
-  }
-
-  @action
-  updateSystemTheme = event => {
-    this.isSystemThemeDark = event.matches
-  }
-
-  @computed
-  get theme () {
-    const { useSystemTheme } = this.store.userStore
-    if (!useSystemTheme) {
-      return this.store.userStore.darkTheme ? darkTheme : theme
-    }
-    return this.isSystemThemeDark ? darkTheme : theme
-  }
-
-  @computed
-  get muiTheme () {
-    return createMuiTheme(this.theme)
-  }
-}

@@ -12487,6 +12487,11 @@ urlgrey@^0.4.4:
   resolved "https://registry.yarnpkg.com/urlgrey/-/urlgrey-0.4.4.tgz#892fe95960805e85519f1cd4389f2cb4cbb7652f"
   integrity sha1-iS/pWWCAXoVRnxzUOJ8stMu3ZS8=
 
+use-system-theme@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/use-system-theme/-/use-system-theme-0.0.3.tgz#1bdf3dcd27b3a64183bedd9926f1d83a290799f9"
+  integrity sha512-QefOyLrBaAsln0f8iOhc0UEo/M6uFXxhCZ0Blz7zrvGbzfuJ+XVLzM/xgu0FWjiwkr8SKjOv0ikmR4TWYbqFOA==
+
 use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"

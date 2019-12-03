@@ -43,6 +43,7 @@
     "react-flip-move": "^3.0.4",
     "react-resize-detector": "^4.2.1",
     "rebound": "^0.1.0",
+    "use-system-theme": "^0.0.3",
     "webextension-polyfill": "^0.5.0"
   },
   "devDependencies": {
