@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.2.1...v1.2.2) (2019-12-03)
+
+### Bug Fixes
+
+- Use use-system-theme to detect system theme change and remove the ThemeStore ([b818434](https://github.com/xcv58/Tab-Manager-v2/commit/b818434199e788391b5408d46b39d503204f1759))
+
 ### [1.2.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.2.0...v1.2.1) (2019-11-21)
 
 ### Bug Fixes
