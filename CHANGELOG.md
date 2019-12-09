@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.14...v1.3.0) (2019-12-09)
+
+### Features
+
+- Add "Close other tabs" for each tab, use Discriminated Unions to improve type check ([d1ded8c](https://github.com/xcv58/Tab-Manager-v2/commit/d1ded8cd5f7dc568ec69b799839c068dd4a674d0))
+- Don't show window if it has no visible tabs ([2c953ff](https://github.com/xcv58/Tab-Manager-v2/commit/2c953ff016d2ccd3c817371e8835d8646e042ca9))
+- Press space to select/unselect tab ([e02ae11](https://github.com/xcv58/Tab-Manager-v2/commit/e02ae11f6d7e04093dcb77465038e6ef52cf4972))
+
+### Bug Fixes
+
+- Bump version for Firefox release ([866cb7b](https://github.com/xcv58/Tab-Manager-v2/commit/866cb7b848cc3f50d9636ba3983847d6bab518aa))
+- Optimize style for the ordinary tooltip and tab tooltip ([2511647](https://github.com/xcv58/Tab-Manager-v2/commit/2511647b15ea198cd1ac5c88c62c645c3d5f56aa))
+- Shortcut hint text is hard to see in dark theme ([bfd8438](https://github.com/xcv58/Tab-Manager-v2/commit/bfd84387b03d2d3113472cbab869c29d819cf131))
+- Some windows/tabs doesn't appear when show unmatched tab disabled ([eef4f3a](https://github.com/xcv58/Tab-Manager-v2/commit/eef4f3a7cbc563eeeea1347ebd1a1cf446004744))
+- Tab Tooltip disappear ([e181cd3](https://github.com/xcv58/Tab-Manager-v2/commit/e181cd367f02cf8f2ce3409b0819b882852daf1b))
+- The tab menu behinds the tab tooltip ([de22147](https://github.com/xcv58/Tab-Manager-v2/commit/de221470511049b868aef4a282de48291ff39e43))
+- Use use-system-theme to detect system theme change and remove the ThemeStore ([b818434](https://github.com/xcv58/Tab-Manager-v2/commit/b818434199e788391b5408d46b39d503204f1759))
+
 ### [1.2.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.2.1...v1.2.2) (2019-12-03)
 
 ### Bug Fixes
