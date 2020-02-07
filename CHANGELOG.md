@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.3.0...v1.3.1) (2020-02-07)
+
+### Bug Fixes
+
+- Remove unnecessary content_security_policy ([61d496f](https://github.com/xcv58/Tab-Manager-v2/commit/61d496f32168f8314042f762f8493c08970425c7))
+
 ## [1.3.0](https://github.com/xcv58/Tab-Manager-v2/compare/v0.21.14...v1.3.0) (2019-12-09)
 
 ### Features
