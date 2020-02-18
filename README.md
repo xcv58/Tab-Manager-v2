@@ -1,5 +1,14 @@
 # Tab Manager v2
 
+
+## Download links
+
+**Chrome Web Store: https://xcv58.xyz/tabs**
+
+**Firefox Add-ons: https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2**
+
+**Microsfot Edge Addons: https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb**
+
 ![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 [![CircleCI](https://circleci.com/gh/xcv58/Tab-Manager-v2.svg?style=svg)](https://circleci.com/gh/xcv58/Tab-Manager-v2)
 [![Build Status](https://travis-ci.org/xcv58/Tab-Manager-v2.svg?branch=master)](https://travis-ci.org/xcv58/Tab-Manager-v2)
@@ -13,13 +22,7 @@
 
 [![JavaScript Style Guide](https://cdn.rawgit.com/standard/standard/master/badge.svg)](https://github.com/standard/standard)
 
-Chrome Web Store: https://xcv58.xyz/tabs
-
-Firefox Add-ons: https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2
-
-Tab Manager v2 is Chrome Extension that helps you manage your Chrome tabs easily. It's a forked version of https://github.com/joshperry/Tab-Manager.
-
-The Tab Manager v2 is completely rewritten by React, MobX, TypeScript, and has different features with original Tab Manager.
+Tab Manager v2 is Chrome Extension that helps you manage your Chrome tabs easily. ~It's a forked version of https://github.com/joshperry/Tab-Manager.~ But the Tab Manager v2 is completely rewritten by React, MobX, TypeScript, and has different features with original Tab Manager.
 
 # Usage
 
