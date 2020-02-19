@@ -313,6 +313,14 @@ export default class ShortcutStore {
       'Open this window in new tab'
     ],
     [
+      ['shift+n'],
+      event => {
+        preventDefault(event)
+        this.store.dragStore.dropToNewWindow()
+      },
+      'Open selected tab(s) in a new window'
+    ],
+    [
       ['ctrl+i'],
       event => {
         preventDefault(event)
