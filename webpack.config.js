@@ -140,11 +140,15 @@ const options = {
       {
         from: 'src/manifest.json',
         transform: function (content, path) {
+          const json = JSON.parse(content.toString())
+          if (process.env.NODE_ENV === 'production') {
+            delete json.content_security_policy
+          }
           return Buffer.from(
             JSON.stringify({
               description: process.env.npm_package_description,
               version: process.env.npm_package_version,
-              ...JSON.parse(content.toString())
+              ...json
             })
           )
         }
