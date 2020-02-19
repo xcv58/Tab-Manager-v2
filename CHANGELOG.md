@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.3.1...v1.4.0) (2020-02-19)
+
+### Features
+
+- Add shift+n to open all selected tab(s) in a new window ([09861a4](https://github.com/xcv58/Tab-Manager-v2/commit/09861a4f03c9891410bd7af0eaa1521a28ad1944))
+
+### Bug Fixes
+
+- Make hotkey dialog responsive and add close button ([aa1f8fb](https://github.com/xcv58/Tab-Manager-v2/commit/aa1f8fb5e611d2090914ffbbefaaf960d5ead45e))
+- User can't select text ([0236cf0](https://github.com/xcv58/Tab-Manager-v2/commit/0236cf0282ff3c06d31e91ac171d2ab30ebb7ed5))
+
 ### [1.3.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.3.0...v1.3.1) (2020-02-07)
 
 ### Bug Fixes
