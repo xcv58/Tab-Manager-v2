@@ -3,6 +3,7 @@ import { browser } from 'libs'
 import Store from 'stores'
 
 const DEFAULT_SETTINGS = {
+  openStandalone: false,
   showShortcutHint: true,
   showUnmatchedTab: true,
   toolbarAutoHide: false,

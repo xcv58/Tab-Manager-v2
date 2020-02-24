@@ -18,11 +18,25 @@ export class Background {
       [actions.createWindow]: this.createWindow
     }
     Object.assign(this.actionMap, this.tabHistory.actionMap)
-    // this.browserAction()
+    this.browserAction()
   }
 
   browserAction = () => {
-    browser.browserAction.onClicked.addListener(openOrTogglePopup)
+    console.log('browser action:')
+    // browser.browserAction.onClicked.addListener(openOrTogglePopup)
+    browser.browserAction.onClicked.addListener(async () => {
+      const result = await browser.storage.sync.get({ openStandalone: false })
+      if (result.openStandalone) {
+        return openOrTogglePopup()
+      }
+      try {
+        browser.browserAction.openPopup()
+        // openOrTogglePopup()
+      } catch (e) {
+        console.error(e)
+        openOrTogglePopup()
+      }
+    })
   }
 
   createWindow = async (request, sender, sendResponse) => {
