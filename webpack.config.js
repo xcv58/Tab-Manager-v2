@@ -10,6 +10,8 @@ const WriteFilePlugin = require('write-file-webpack-plugin')
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const PurgecssPlugin = require('purgecss-webpack-plugin')
+const glob = require('glob-all')
 
 const srcPath = subdir => {
   return path.join(__dirname, 'src/js', subdir)
@@ -173,6 +175,14 @@ const options = {
 
 if (env.NODE_ENV === 'development') {
   options.devtool = 'cheap-module-eval-source-map'
+}
+
+if (process.env.NODE_ENV === 'production') {
+  options.plugins.push(
+    new PurgecssPlugin({
+      paths: [...glob.sync(`${__dirname}/src/**/*`, { nodir: true })]
+    })
+  )
 }
 
 module.exports = (plugins = []) => ({
