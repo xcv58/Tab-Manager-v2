@@ -40,7 +40,7 @@ export default class Tab {
     this.mounted = this.win.tabMounted
     this.setUrlIcon()
     // TODO: Remove this when we add concurrent mode
-    this.showTab = !this.store.windowStore.initialLoading
+    this.showTab = true
   }
 
   @observable

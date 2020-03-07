@@ -321,7 +321,7 @@ export default class WindowsStore {
       .sort(windowComparator)
 
     if (this.initialLoading) {
-      this.windowMounted()
+      // this.windowMounted()
       this.updateColumns()
     } else {
       this.updateColumns()

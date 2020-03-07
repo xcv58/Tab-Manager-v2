@@ -11,7 +11,7 @@ export default class Window {
     Object.assign(this, win)
     this.tabs = win.tabs.map(tab => new Tab(tab, store, this))
     // TODO: Remove this when we add concurrent mode
-    this.showTabs = !this.store.windowStore.initialLoading
+    this.showTabs = true
   }
 
   @observable
