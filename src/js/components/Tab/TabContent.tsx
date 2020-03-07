@@ -3,9 +3,6 @@ import { observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import { highlightBorderColor } from 'libs/colors'
-import { makeStyles } from '@material-ui/core'
-import ButtonBase from '@material-ui/core/ButtonBase'
-import Typography from '@material-ui/core/Typography'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/StoreContext'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -13,45 +10,8 @@ import Tooltip from '@material-ui/core/Tooltip'
 const pre = `<span style='color:${highlightBorderColor}'>`
 const post = '</span>'
 
-const useStyles = makeStyles(theme => ({
-  ripple: {
-    flex: 1,
-    height: '35px',
-    fontSize: '1rem',
-    display: 'flex',
-    overflow: 'hidden',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    '&:hover $url': {
-      opacity: 1
-    }
-  },
-  text: {
-    overflow: 'hidden',
-    width: '100%',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis'
-  },
-  url: {
-    opacity: 0.3,
-    fontSize: '0.7rem'
-  },
-  duplicated: {
-    color: theme.palette.error.light
-  },
-  tooltip: {
-    lineHeight: '1.2rem',
-    userSelect: 'text',
-    whiteSpace: 'normal',
-    wordBreak: 'break-all',
-    wordWrap: 'break-word'
-  }
-}))
-
 export default observer(props => {
   const { hoverStore, dragStore, userStore } = useStore()
-  const classes = useStyles(props)
   const { faked } = props
   const {
     activate,
@@ -83,14 +43,13 @@ export default observer(props => {
       button.blur()
     }
   }, [isFocused])
-  const duplicated =
-    urlCount > 1 && highlightDuplicatedTab && classes.duplicated
+  const duplicated = highlightDuplicatedTab && urlCount > 1
 
   const { dragging } = dragStore
   const { hovered } = hoverStore
   const open = !(faked || dragging || !isHovered || !hovered)
   const tooltip = (
-    <div className={classes.tooltip}>
+    <div className='leading-tight break-all whitespace-normal'>
       <p>{title}</p>
       <p style={{ opacity: 0.8 }}>{url}</p>
       {urlCount > 1 && <p>There is duplicated tab!</p>}
@@ -98,25 +57,28 @@ export default observer(props => {
   )
   return (
     <Tooltip {...{ open, title: tooltip }} interactive>
-      <ButtonBase
-        className={classes.ripple}
-        buttonRef={buttonRef}
-        onFocusVisible={focus}
+      <button
+        ref={buttonRef}
         onClick={activate}
-        component='div'
+        onFocus={focus}
+        className={classNames(
+          'group flex flex-col items-start flex-1 h-12 overflow-hidden text-left',
+          {
+            'text-red-400': duplicated
+          }
+        )}
       >
-        <Typography className={classNames(classes.text, duplicated)}>
-          {title}
-          {/* {getHighlightNode(title)} */}
-        </Typography>
+        <div className='w-full overflow-hidden truncate'>
+          {getHighlightNode(title)}
+        </div>
         {showUrl && (
           <Url
             {...props}
-            className={classNames(classes.text, classes.url, duplicated)}
             getHighlightNode={getHighlightNode}
+            duplicated={duplicated}
           />
         )}
-      </ButtonBase>
+      </button>
     </Tooltip>
   )
 })

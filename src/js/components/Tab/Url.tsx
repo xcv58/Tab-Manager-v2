@@ -1,11 +1,22 @@
 import React from 'react'
-import Typography from '@material-ui/core/Typography'
+import classNames from 'classnames'
 
 export default props => {
   const {
     tab: { url },
-    className,
-    getHighlightNode
+    getHighlightNode,
+    duplicated
   } = props
-  return <Typography className={className}>{getHighlightNode(url)}</Typography>
+  return (
+    <div
+      className={classNames({
+        'text-red-200': duplicated,
+        'text-gray-400': !duplicated,
+        'group-hover:text-red-400': duplicated,
+        'group-hover:text-black': !duplicated
+      })}
+    >
+      {getHighlightNode(url)}
+    </div>
+  )
 }
