@@ -16,6 +16,7 @@ export default observer(props => {
   } = props
   const tabsView = tabs.map(tab => (
     <div key={tab.id}>
+      {/* {tab.title} */}
       <DraggableTab tab={tab} {...{ getScrollbars }} />
     </div>
   ))

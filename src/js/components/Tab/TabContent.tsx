@@ -106,7 +106,8 @@ export default observer(props => {
         component='div'
       >
         <Typography className={classNames(classes.text, duplicated)}>
-          {getHighlightNode(title)}
+          {title}
+          {/* {getHighlightNode(title)} */}
         </Typography>
         {showUrl && (
           <Url

@@ -87,7 +87,14 @@ const options = {
               reloadAll: true
             }
           },
-          'css-loader'
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: [require('tailwindcss'), require('autoprefixer')]
+            }
+          }
         ],
         include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
