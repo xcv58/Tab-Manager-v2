@@ -341,11 +341,9 @@ export default class WindowsStore {
       .sort(windowComparator)
 
     if (this.initialLoading) {
-      // this.windowMounted()
-      this.updateColumns()
-    } else {
-      this.updateColumns()
+      this.windowMounted()
     }
+    this.updateColumns()
     this.initialLoading = false
     this.updateHandler = null
   }

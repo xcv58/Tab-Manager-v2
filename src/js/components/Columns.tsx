@@ -23,7 +23,6 @@ export default observer(() => {
   const getScrollbars = () => scrollbars.current
   const onResize = () => {
     const { height } = getScrollbars().getBoundingClientRect()
-    console.log('onResize', { height })
     windowStore.updateHeight(height)
   }
   const renderEmptyTrack = props => (
