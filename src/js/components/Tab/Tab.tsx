@@ -6,6 +6,7 @@ import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
 import { useStore } from 'components/StoreContext'
+import { useTheme } from 'components/ThemeContext'
 
 export const indicatorWidth = 2
 
@@ -37,6 +38,7 @@ const PIN = (
 const Tab = observer(props => {
   const node = useRef(null)
   const { dragStore } = useStore()
+  const isDarkTheme = useTheme()
   const { faked, tab, style } = props
   const {
     active,
@@ -101,13 +103,23 @@ const Tab = observer(props => {
   return (
     <div
       ref={node}
-      className={classNames('flex group border-l-2 border-transparent', {
-        'hover:bg-blue-300': isActionable,
-        'border-l-2 border-solid border-red-500': isFocused,
-        'bg-blue-300': isSelected,
-        'bg-blue-100': active || shouldHighlight,
-        'opacity-25': !isMatched
-      })}
+      className={classNames(
+        'flex group border-l-2 border-transparent',
+        {
+          'border-l-2 border-solid border-red-500': isFocused,
+          'opacity-25': !isMatched
+        },
+        !isDarkTheme && {
+          'hover:bg-blue-300': isActionable,
+          'bg-blue-100': active || shouldHighlight,
+          'bg-blue-300': isSelected
+        },
+        isDarkTheme && {
+          'hover:bg-gray-800': isActionable,
+          'bg-gray-800': active || shouldHighlight,
+          'bg-gray-900': isSelected
+        }
+      )}
       style={style}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}
