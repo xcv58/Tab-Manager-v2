@@ -1,7 +1,20 @@
 import React from 'react'
+import classNames from 'classnames'
+import { useTheme } from 'components/ThemeContext'
 
-export default () => (
-  <button className='inline-flex items-center justify-center w-8 h-8 p-4 m-2 rounded-full hover:shadow-xs hover:bg-blue-200 focus:outline-none focus:shadow-outline active:bg-blue-300'>
-    ✥
-  </button>
-)
+export default () => {
+  const isDarkTheme = useTheme()
+  return (
+    <button
+      className={classNames(
+        'inline-flex items-center justify-center w-8 h-8 p-4 m-2 rounded-full hover:shadow-xs focus:outline-none focus:shadow-outline',
+        {
+          'hover:bg-blue-200 active:bg-blue-300': !isDarkTheme,
+          'hover:bg-gray-600 active:bg-gray-800': isDarkTheme
+        }
+      )}
+    >
+      ✥
+    </button>
+  )
+}

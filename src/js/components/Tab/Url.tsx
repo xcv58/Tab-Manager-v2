@@ -12,7 +12,7 @@ export default props => {
   return (
     <div
       className={classNames(
-        'w-full overflow-hidden truncate',
+        'w-full overflow-hidden truncate text-xs',
         duplicated && 'text-red-200 group-hover:text-red-400',
         !duplicated && {
           'text-gray-500 group-hover:text-black': !isDarkTheme,

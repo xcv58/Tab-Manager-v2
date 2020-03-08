@@ -48,7 +48,7 @@ export default observer(props => {
   const { dragging } = dragStore
   const { hovered } = hoverStore
   const open = !(faked || dragging || !isHovered || !hovered)
-  const tooltip = (
+  const tooltip = open && (
     <div className='leading-tight break-all whitespace-normal'>
       <p>{title}</p>
       <p style={{ opacity: 0.8 }}>{url}</p>
