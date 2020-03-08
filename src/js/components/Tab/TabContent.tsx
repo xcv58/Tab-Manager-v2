@@ -2,12 +2,11 @@ import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
-import { highlightBorderColor } from 'libs/colors'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/StoreContext'
 import Tooltip from '@material-ui/core/Tooltip'
 
-const pre = `<span style='color:${highlightBorderColor}'>`
+const pre = '<span class=\'text-red-500\'>'
 const post = '</span>'
 
 export default observer(props => {

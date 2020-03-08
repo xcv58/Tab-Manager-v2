@@ -1,9 +1,11 @@
 import React from 'react'
+import classNames from 'classnames'
 import { observer } from 'mobx-react'
-import { focusedColor } from 'libs/colors'
 import { useStore } from './StoreContext'
+import { useTheme } from './ThemeContext'
 
 export default observer(() => {
+  const isDarkTheme = useTheme()
   const { tabStore } = useStore()
   const { sources } = tabStore
   const head = (
@@ -14,12 +16,10 @@ export default observer(() => {
   )
   return (
     <div
-      style={{
-        opacity: 0.6,
-        width: '8rem',
-        background: focusedColor,
-        textAlign: 'center'
-      }}
+      className={classNames('w-32 text-center opacity-75', {
+        'bg-blue-300': !isDarkTheme,
+        'bg-gray-900': isDarkTheme
+      })}
     >
       {head}
     </div>
