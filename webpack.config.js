@@ -169,20 +169,17 @@ const options = {
     // }),
     // new HardSourceWebpackPlugin(),
     new ProgressBarPlugin(),
-    new WriteFilePlugin()
-  ]
+    new WriteFilePlugin(),
+    // (process.env.NODE_ENV === 'production') &&
+    new PurgecssPlugin({
+      paths: () => glob.sync(`${__dirname}/src/js/**/*`, { nodir: true }),
+      defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
+    })
+  ].filter(x => !!x)
 }
 
 if (env.NODE_ENV === 'development') {
   options.devtool = 'cheap-module-eval-source-map'
-}
-
-if (process.env.NODE_ENV === 'production') {
-  options.plugins.push(
-    new PurgecssPlugin({
-      paths: [...glob.sync(`${__dirname}/src/**/*`, { nodir: true })]
-    })
-  )
 }
 
 module.exports = (plugins = []) => ({
