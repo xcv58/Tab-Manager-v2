@@ -2,6 +2,7 @@ import React from 'react'
 import { shallow } from 'enzyme'
 import TabTools from 'components/Tab/TabTools'
 import TabMenu from 'components/Tab/TabMenu'
+import DragHandle from 'components/Tab/DragHandle'
 import * as StoreContext from 'components/StoreContext'
 
 const classes = { root: 'root' }
@@ -22,13 +23,8 @@ describe('TabTools', () => {
   it('should render correct components', () => {
     const el = shallow(<TabTools {...props} />)
     expect(el.find('div').length).toBe(1)
-    expect(
-      el
-        .find('div')
-        .props()
-        .className.includes('root')
-    ).toBe(true)
     expect(el.find(TabMenu).length).toBe(1)
+    expect(el.find(DragHandle).length).toBe(1)
   })
 
   it('should render null', () => {
