@@ -14,7 +14,7 @@ export default observer(() => {
   }
   return (
     <Tooltip title='Toggle light/dark theme' placement='left'>
-      <IconButton onClick={toggleDarkTheme}>
+      <IconButton onClick={toggleDarkTheme} className='focus:outline-none'>
         {darkTheme ? <LightbulbFull /> : <LightbulbOutline />}
       </IconButton>
     </Tooltip>

@@ -19,6 +19,7 @@ export default observer(() => {
         <IconButton
           onClick={() => dropToNewWindow()}
           disabled={selection.size === 0}
+          className='focus:outline-none'
         >
           <OpenInNew />
         </IconButton>

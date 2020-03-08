@@ -22,6 +22,7 @@ export default observer(props => {
           onClick={() => remove()}
           style={style}
           disabled={!hasFocusedOrSelectedTab}
+          className='focus:outline-none'
         >
           <CloseIcon />
         </IconButton>

@@ -11,7 +11,10 @@ export default observer(() => {
   return (
     <Tooltip title='Show shortcut hints' enterDelay={TOOLTIP_DELAY}>
       <div>
-        <IconButton onClick={() => shortcutStore.openDialog()}>
+        <IconButton
+          onClick={() => shortcutStore.openDialog()}
+          className='focus:outline-none'
+        >
           <Help />
         </IconButton>
       </div>

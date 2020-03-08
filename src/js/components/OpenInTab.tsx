@@ -6,7 +6,7 @@ import { openInNewTab } from 'libs'
 
 export default () => (
   <Tooltip title='Open in new tab' placement='left'>
-    <IconButton onClick={openInNewTab}>
+    <IconButton onClick={openInNewTab} className='focus:outline-none'>
       <OpenInBrowser />
     </IconButton>
   </Tooltip>
