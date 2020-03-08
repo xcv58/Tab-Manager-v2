@@ -9,9 +9,9 @@ export default props => {
   } = props
   return (
     <div
-      className={classNames({
+      className={classNames('w-full overflow-hidden truncate', {
         'text-red-200': duplicated,
-        'text-gray-400': !duplicated,
+        'text-gray-500': !duplicated,
         'group-hover:text-red-400': duplicated,
         'group-hover:text-black': !duplicated
       })}

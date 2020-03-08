@@ -1,7 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import Window from 'components/Window'
-import FlipMove from 'react-flip-move'
 
 export default observer(props => {
   const {
@@ -12,7 +11,7 @@ export default observer(props => {
     getScrollbars
   } = props
 
-  const style = {
+  const style: any = {
     width,
     minWidth: '20rem',
     height: 'fit-content',
@@ -22,19 +21,12 @@ export default observer(props => {
     marginRight: right && 'auto'
   }
   const windowList = windows.map(win => (
-    <div key={win.id}>
-      <Window win={win} width={width} getScrollbars={getScrollbars} />
-    </div>
+    <Window
+      key={win.id}
+      win={win}
+      width={width}
+      getScrollbars={getScrollbars}
+    />
   ))
-  return (
-    <FlipMove
-      duration={255}
-      easing='ease-in-out'
-      enterAnimation='accordionVertical'
-      leaveAnimation='accordionVertical'
-      style={style}
-    >
-      {windowList}
-    </FlipMove>
-  )
+  return <div style={style}>{windowList}</div>
 })

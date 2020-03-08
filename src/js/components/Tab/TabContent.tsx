@@ -62,7 +62,7 @@ export default observer(props => {
         onClick={activate}
         onFocus={focus}
         className={classNames(
-          'group flex flex-col items-start flex-1 h-12 overflow-hidden text-left',
+          'group flex flex-col items-start flex-1 h-12 overflow-hidden text-left focus:outline-none focus:shadow-outline m-0 rounded-sm',
           {
             'text-red-400': duplicated
           }

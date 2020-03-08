@@ -11,14 +11,8 @@ const View = props => {
   return (
     <div
       {...props}
-      className='scrollbar'
-      style={{
-        ...style,
-        display: 'flex',
-        overflow: 'auto',
-        marginRight: 0,
-        marginBottom: 0
-      }}
+      className='flex mb-0 mr-0 overflow-auto scrollbar'
+      style={style}
     />
   )
 }
@@ -29,15 +23,30 @@ export default observer(() => {
   const getScrollbars = () => scrollbars.current
   const onResize = () => {
     const { height } = getScrollbars().getBoundingClientRect()
+    console.log('onResize', { height })
     windowStore.updateHeight(height)
   }
   const renderEmptyTrack = props => (
     <div {...props} style={{ ...props.style, display: 'none' }} />
   )
 
+  const resizeDetector = (
+    <ReactResizeDetector
+      handleHeight
+      refreshMode='throttle'
+      refreshOptions={{ leading: true, trailing: true }}
+      refreshRate={500}
+      onResize={onResize}
+    />
+  )
   const { columns, initialLoading } = windowStore
   if (initialLoading) {
-    return <Loading />
+    return (
+      <div ref={scrollbars}>
+        <Loading />
+        {resizeDetector}
+      </div>
+    )
   }
   const width = 100 / Math.min(4, columns.length) + '%'
   const list = columns.map((column, i) => (
@@ -63,12 +72,7 @@ export default observer(() => {
       }}
     >
       {list}
-      <ReactResizeDetector
-        handleHeight
-        refreshMode='throttle'
-        refreshRate={300}
-        onResize={onResize}
-      />
+      {resizeDetector}
     </Scrollbars>
   )
 })
