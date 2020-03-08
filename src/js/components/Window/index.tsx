@@ -9,7 +9,7 @@ import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
 import { useTheme } from '@material-ui/core'
 import { CSSProperties } from '@material-ui/styles'
-import Spinner from 'components/Spinner'
+import Loading from 'components/Loading'
 
 const Window = observer(props => {
   const theme = useTheme()
@@ -56,7 +56,7 @@ const Window = observer(props => {
     <div ref={drop} style={style}>
       <Paper elevation={elevation}>
         <Title {...props} />
-        {showTabs ? <Tabs {...props} /> : <Spinner />}
+        {showTabs ? <Tabs {...props} /> : <Loading small />}
         {dropIndicator}
       </Paper>
     </div>
