@@ -40,7 +40,6 @@
     "react-dnd": "10.0.2",
     "react-dnd-html5-backend": "^10.0.2",
     "react-dom": "^16.13.0",
-    "react-flip-move": "^3.0.4",
     "react-resize-detector": "^4.2.1",
     "rebound": "^0.1.0",
     "tailwindcss": "^1.2.0",
