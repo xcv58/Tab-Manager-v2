@@ -1,16 +1,25 @@
 import React from 'react'
+import classNames from 'classnames'
+import { useTheme } from './ThemeContext'
 
-export default () => (
-  <div id='spinner'>
-    <div className='la-ball-spin la-dark la-3x'>
-      <div />
-      <div />
-      <div />
-      <div />
-      <div />
-      <div />
-      <div />
-      <div />
+export default () => {
+  const isDarkTheme = useTheme()
+  return (
+    <div id='spinner'>
+      <div
+        className={classNames('la-ball-spin la-3x', {
+          'la-dark': !isDarkTheme
+        })}
+      >
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+      </div>
     </div>
-  </div>
-)
+  )
+}
