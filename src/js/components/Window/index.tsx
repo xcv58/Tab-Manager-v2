@@ -1,7 +1,7 @@
 import React from 'react'
+import classNames from 'classnames'
 import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
-import Paper from '@material-ui/core/Paper'
 import Title from './Title'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
@@ -38,27 +38,29 @@ const Window = observer(props => {
   })
   const { canDrop, isOver, isDragging } = dropProps
   const style: CSSProperties = {
-    width: '100%',
     minWidth: '20rem',
     height: 'fit-content',
-    padding: '2px 4px 32px 4px',
     boxSizing: 'border-box'
   }
   if (isDragging && isOver && !canDrop) {
     style.backgroundColor = theme.palette.error.light
   }
   const dropIndicator = canDrop && isOver && <Preview />
-  const elevation = lastFocused ? 16 : 2
   if (!win.visibleLength) {
     return null
   }
   return (
-    <div ref={drop} style={style}>
-      <Paper elevation={elevation}>
-        <Title {...props} />
-        {showTabs ? <Tabs {...props} /> : <Loading small />}
-        {dropIndicator}
-      </Paper>
+    <div
+      ref={drop}
+      style={style}
+      className={classNames('w-full p-1 mb-10', {
+        'shadow-2xl': lastFocused,
+        'shadow-sm': !lastFocused
+      })}
+    >
+      <Title {...props} />
+      {showTabs ? <Tabs {...props} /> : <Loading small />}
+      {dropIndicator}
     </div>
   )
 })

@@ -25,15 +25,7 @@ const App = observer(() => {
     return () => shortcutStore.willUnmount()
   }, [])
   return (
-    <Paper
-      style={{
-        // backgroundColor: theme.app.backgroundColor,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        height: '100vh'
-      }}
-    >
+    <Paper className='flex flex-col h-screen overflow-hidden'>
       <Tools inputRef={searchEl} />
       <Fade in>
         <Columns />
