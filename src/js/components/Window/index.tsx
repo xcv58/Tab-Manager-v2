@@ -50,17 +50,17 @@ const Window = observer(props => {
     return null
   }
   return (
-    <div
-      ref={drop}
-      style={style}
-      className={classNames('w-full p-1 mb-10', {
-        'shadow-2xl': lastFocused,
-        'shadow-sm': !lastFocused
-      })}
-    >
-      <Title {...props} />
-      {showTabs ? <Tabs {...props} /> : <Loading small />}
-      {dropIndicator}
+    <div ref={drop} style={style} className='w-full p-1 pb-8'>
+      <div
+        className={classNames({
+          'shadow-2xl': lastFocused,
+          'shadow-sm': !lastFocused
+        })}
+      >
+        <Title {...props} />
+        {showTabs ? <Tabs {...props} /> : <Loading small />}
+        {dropIndicator}
+      </div>
     </div>
   )
 })
