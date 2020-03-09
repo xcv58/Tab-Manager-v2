@@ -13,7 +13,7 @@ export default observer(() => {
   return (
     <Tooltip title='Group & Sort Tabs' enterDelay={TOOLTIP_DELAY}>
       <div>
-        <IconButton onClick={() => groupTabs()}>
+        <IconButton onClick={() => groupTabs()} className='focus:outline-none'>
           <FilterList />
         </IconButton>
       </div>

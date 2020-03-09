@@ -8,7 +8,7 @@ import { useStore } from './StoreContext'
 
 const trigger = (
   <Tooltip title='Command Palette'>
-    <IconButton onClick={() => {}}>
+    <IconButton onClick={() => {}} className='focus:outline-none'>
       <LiveHelpOutlined />
     </IconButton>
   </Tooltip>

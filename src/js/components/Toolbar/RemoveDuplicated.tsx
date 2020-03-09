@@ -15,6 +15,7 @@ export default observer(() => {
         <IconButton
           onClick={cleanDuplicatedTabs}
           disabled={duplicatedTabs.length === 0}
+          className='focus:outline-none'
         >
           <DeleteSweep />
         </IconButton>

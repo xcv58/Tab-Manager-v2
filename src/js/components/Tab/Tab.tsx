@@ -5,35 +5,10 @@ import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
-import { makeStyles } from '@material-ui/core'
 import { useStore } from 'components/StoreContext'
+import { useTheme } from 'components/ThemeContext'
 
 export const indicatorWidth = 2
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    whiteSpace: 'nowrap',
-    marginLeft: indicatorWidth,
-    borderLeft: `${indicatorWidth}px transparent solid`
-  },
-  highlight: {
-    boxShadow: `-${indicatorWidth}px 0px ${theme.app.highlightColor}`,
-    backgroundColor: theme.app.highlightColor
-  },
-  selected: {
-    backgroundColor: theme.app.focusedColor,
-    boxShadow: `-${indicatorWidth}px 0px ${theme.app.focusedColor}`
-  },
-  focused: {
-    borderLeft: `${indicatorWidth}px ${theme.palette.secondary.main} solid`
-  },
-  notMatch: {
-    opacity: 0.3
-  }
-}))
 
 const getTargetValue = (lValue, rValue) => {
   if (lValue < 0) {
@@ -63,8 +38,8 @@ const PIN = (
 const Tab = observer(props => {
   const node = useRef(null)
   const { dragStore } = useStore()
+  const isDarkTheme = useTheme()
   const { faked, tab, style } = props
-  const classes = useStyles(props)
   const {
     active,
     isFocused,
@@ -74,14 +49,6 @@ const Tab = observer(props => {
     pinned,
     shouldHighlight
   } = tab
-
-  const className = classNames(
-    classes.root,
-    (active || shouldHighlight) && classes.highlight,
-    isSelected && classes.selected,
-    isFocused && classes.focused,
-    !isMatched && classes.notMatch
-  )
 
   const isActionable = !faked && !dragStore.dragging
 
@@ -104,11 +71,11 @@ const Tab = observer(props => {
     }
   }
 
-  useEffect(() => {
-    if (!faked) {
-      window.requestAnimationFrame(tab.mounted)
-    }
-  }, [faked])
+  // useEffect(() => {
+  //   if (!faked) {
+  //     window.requestAnimationFrame(tab.mounted)
+  //   }
+  // }, [faked])
 
   useEffect(() => {
     if (faked) {
@@ -136,28 +103,33 @@ const Tab = observer(props => {
   return (
     <div
       ref={node}
+      className={classNames(
+        'flex group border-l-2 border-transparent',
+        {
+          'border-l-2 border-solid border-red-500': isFocused,
+          'opacity-25': !isMatched
+        },
+        !isDarkTheme && {
+          'hover:bg-blue-300': isActionable,
+          'bg-blue-100': active || shouldHighlight,
+          'bg-blue-300': isSelected
+        },
+        isDarkTheme && {
+          'hover:bg-gray-800': isActionable,
+          'bg-gray-800': active || shouldHighlight,
+          'bg-gray-900': isSelected
+        }
+      )}
+      style={style}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      style={style}
-      className={className}
     >
-      <div
-        style={{
-          display: 'flex',
-          flex: '1 1 auto',
-          overflow: 'hidden',
-          textAlign: 'left',
-          alignItems: 'center',
-          textOverflow: 'ellipsis'
-        }}
-      >
-        {pin}
-        <Icon tab={tab} />
-        <TabContent {...{ faked, tab }} />
-        <TabTools faked={faked} tab={tab} />
-        <CloseButton onClick={onRemove} disabled={tab.removing} />
-      </div>
+      {pin}
+      <Icon tab={tab} />
+      <TabContent {...{ faked, tab }} />
+      <TabTools faked={faked} tab={tab} />
+      <CloseButton onClick={onRemove} disabled={tab.removing} />
     </div>
   )
 })

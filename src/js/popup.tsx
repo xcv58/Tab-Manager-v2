@@ -1,6 +1,6 @@
 import App from 'components/App'
 import React from 'react'
-import ReactDOM, { render } from 'react-dom'
+import { render } from 'react-dom'
 import { StoreContext, store } from 'components/StoreContext'
 import '../css/popup.css'
 
@@ -13,7 +13,7 @@ const init = () => {
   )
   if (process.env.NODE_ENV !== 'production') {
     var axe = require('react-axe')
-    axe(React, ReactDOM, 1000)
+    axe(React, require('react-dom'), 1000)
   }
 }
 

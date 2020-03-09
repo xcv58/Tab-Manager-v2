@@ -110,7 +110,9 @@ export default class WindowsStore {
     if (windowId <= 0) {
       return
     }
-    const win = await browser.windows.get(windowId, { populate: true })
+    const win = await browser.windows.get(windowId, {
+      populate: true
+    })
     if (win && !isSelfPopup(win)) {
       this.lastFocusedWindowId = windowId
     }
@@ -121,7 +123,15 @@ export default class WindowsStore {
     const { index, windowId } = tab
     const win = this.windows.find(x => x.id === windowId)
     if (!win) {
-      this.windows.push(new Window({ id: windowId, tabs: [tab] }, this.store))
+      this.windows.push(
+        new Window(
+          {
+            id: windowId,
+            tabs: [tab]
+          },
+          this.store
+        )
+      )
     } else {
       win.add(new Tab(tab, this.store, win), index)
     }
@@ -170,13 +180,21 @@ export default class WindowsStore {
   createNewWindow = async tabs => {
     this.suspend()
     this.removeTabs(tabs.map(x => x.id))
-    const win = new Window({ tabs: [] }, this.store)
+    const win = new Window(
+      {
+        tabs: []
+      },
+      this.store
+    )
     win.tabs = tabs
     this.windows.push(win)
     this.clearWindow()
 
     await browser.runtime.sendMessage({
-      tabs: tabs.map(({ id, pinned }) => ({ id, pinned })),
+      tabs: tabs.map(({ id, pinned }) => ({
+        id,
+        pinned
+      })),
       action: actions.createWindow
     })
     this.resume()
@@ -281,7 +299,7 @@ export default class WindowsStore {
 
   @action
   updateHeight (height) {
-    if (this.height !== height) {
+    if (this.height !== height && Math.abs(this.height - height) > 50) {
       this.height = height
       this.updateColumns()
     }
@@ -312,7 +330,9 @@ export default class WindowsStore {
   }
 
   loadAllWindows = async () => {
-    const windows = await browser.windows.getAll({ populate: true })
+    const windows = await browser.windows.getAll({
+      populate: true
+    })
     this.lastFocusedWindowId = await getLastFocusedWindowId()
 
     this.windows = windows
@@ -322,10 +342,8 @@ export default class WindowsStore {
 
     if (this.initialLoading) {
       this.windowMounted()
-      this.updateColumns()
-    } else {
-      this.updateColumns()
     }
+    this.updateColumns()
     this.initialLoading = false
     this.updateHandler = null
   }

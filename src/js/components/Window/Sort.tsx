@@ -13,7 +13,7 @@ export default observer(props => {
   const { sortTabs } = arrangeStore
   return (
     <Tooltip title='Sort tabs'>
-      <IconButton onClick={() => sortTabs(id)}>
+      <IconButton onClick={() => sortTabs(id)} className='focus:outline-none'>
         <SortIcon />
       </IconButton>
     </Tooltip>

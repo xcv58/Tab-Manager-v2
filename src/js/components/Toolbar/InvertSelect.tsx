@@ -12,7 +12,7 @@ export default observer(() => {
   return (
     <Tooltip title='Inverse select tabs' enterDelay={TOOLTIP_DELAY}>
       <div>
-        <IconButton onClick={invertSelect}>
+        <IconButton onClick={invertSelect} className='focus:outline-none'>
           <Flip />
         </IconButton>
       </div>

@@ -10,6 +10,8 @@ const WriteFilePlugin = require('write-file-webpack-plugin')
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const PurgecssPlugin = require('purgecss-webpack-plugin')
+const glob = require('glob-all')
 
 const srcPath = subdir => {
   return path.join(__dirname, 'src/js', subdir)
@@ -87,7 +89,14 @@ const options = {
               reloadAll: true
             }
           },
-          'css-loader'
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: [require('tailwindcss'), require('autoprefixer')]
+            }
+          }
         ],
         include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
@@ -160,8 +169,13 @@ const options = {
     // }),
     // new HardSourceWebpackPlugin(),
     new ProgressBarPlugin(),
-    new WriteFilePlugin()
-  ]
+    new WriteFilePlugin(),
+    // (process.env.NODE_ENV === 'production') &&
+    new PurgecssPlugin({
+      paths: () => glob.sync(`${__dirname}/src/js/**/*`, { nodir: true }),
+      defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
+    })
+  ].filter(x => !!x)
 }
 
 if (env.NODE_ENV === 'development') {

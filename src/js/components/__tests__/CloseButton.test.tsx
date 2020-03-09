@@ -1,8 +1,6 @@
 import React from 'react'
 import { spy } from 'sinon'
 import { shallow } from 'enzyme'
-import CloseIcon from '@material-ui/icons/Close'
-import IconButton from '@material-ui/core/IconButton'
 import CloseButton from 'components/CloseButton'
 
 const props = {
@@ -12,18 +10,17 @@ const props = {
 describe('CloseButton', () => {
   it('should render correct components', () => {
     const el = shallow(<CloseButton {...props} />)
-    expect(el.find(IconButton).length).toBe(1)
-    expect(el.find(CloseIcon).length).toBe(1)
+    expect(el.find('button').length).toBe(1)
   })
 
   it('should call onClick', () => {
     const onClick = spy()
     const el = shallow(<CloseButton onClick={onClick} />)
-    el.find(IconButton)
+    el.find('button')
       .props()
       .onClick()
     expect(onClick.callCount).toBe(1)
-    el.find(IconButton)
+    el.find('button')
       .props()
       .onClick()
     expect(onClick.callCount).toBe(2)

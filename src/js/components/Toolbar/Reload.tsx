@@ -12,7 +12,11 @@ export default observer(() => {
   return (
     <Tooltip title='Reload select tab(s)' enterDelay={TOOLTIP_DELAY}>
       <div>
-        <IconButton onClick={reload} disabled={!hasFocusedOrSelectedTab}>
+        <IconButton
+          onClick={reload}
+          disabled={!hasFocusedOrSelectedTab}
+          className='focus:outline-none'
+        >
           <Refresh />
         </IconButton>
       </div>

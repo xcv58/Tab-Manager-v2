@@ -14,6 +14,7 @@ import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { useStore } from './StoreContext'
 import DragLayer from './DragLayer'
+import { ThemeContext } from './ThemeContext'
 
 const App = observer(() => {
   const searchEl = useRef<HTMLInputElement>(null)
@@ -56,7 +57,9 @@ export default observer(() => {
     <StrictMode>
       <MuiThemeProvider theme={createMuiTheme(theme)}>
         <DndProvider backend={HTML5Backend}>
-          <App />
+          <ThemeContext.Provider value={isDarkTheme}>
+            <App />
+          </ThemeContext.Provider>
         </DndProvider>
       </MuiThemeProvider>
     </StrictMode>
