@@ -8,13 +8,13 @@ import Paper from '@material-ui/core/Paper'
 import Columns from 'components/Columns'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
-import Tools from 'components/Tools'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { useStore } from './StoreContext'
 import DragLayer from './DragLayer'
 import { ThemeContext } from './ThemeContext'
+import DroppableTools from './DroppableTools'
 
 const App = observer(() => {
   const searchEl = useRef<HTMLInputElement>(null)
@@ -26,7 +26,7 @@ const App = observer(() => {
   }, [])
   return (
     <Paper className='flex flex-col h-screen overflow-hidden'>
-      <Tools inputRef={searchEl} />
+      <DroppableTools inputRef={searchEl} />
       <Fade in>
         <Columns />
       </Fade>
