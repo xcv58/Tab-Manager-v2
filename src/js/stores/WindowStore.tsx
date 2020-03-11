@@ -32,11 +32,14 @@ export default class WindowsStore {
     browser.tabs.onUpdated.addListener(this.onUpdated)
     browser.tabs.onActivated.addListener(this.onActivated)
     browser.tabs.onRemoved.addListener(this.onRemoved)
+    browser.tabs.onMoved.addListener(this.onMoved)
 
     // Move tabs related functions, use `updateAllWindows` to keep clean.
-    browser.tabs.onMoved.addListener(this.updateAllWindows)
     browser.tabs.onAttached.addListener(this.updateAllWindows)
     browser.tabs.onDetached.addListener(this.updateAllWindows)
+
+    // This event may not be relevant for or supported by browsers other than Chrome.
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onReplaced
     browser.tabs.onReplaced.addListener(this.updateAllWindows)
   }
 
@@ -153,6 +156,18 @@ export default class WindowsStore {
     const tab = win.tabs.find(x => x.id === tabId)
     if (tab) {
       tab.active = true
+    }
+  }
+
+  @action
+  onMoved = (tabId, moveInfo) => {
+    const win = this.windows.find(x => x.id === moveInfo.windowId)
+    if (!win) {
+      return this.updateAllWindows()
+    }
+    const moveResult = win.onMoved(tabId, moveInfo)
+    if (!moveResult) {
+      return this.updateAllWindows()
     }
   }
 

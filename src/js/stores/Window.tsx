@@ -3,6 +3,8 @@ import Tab from './Tab'
 import { browser } from 'libs'
 import Store from 'stores'
 
+const isValidIndex = (index, length) => index >= 0 && index < length
+
 export default class Window {
   store: Store
 
@@ -141,5 +143,29 @@ export default class Window {
     } else {
       selectAll(matchedTabs)
     }
+  }
+
+  @action
+  onMoved = (tabId, moveInfo) => {
+    const { fromIndex, toIndex } = moveInfo
+    if (
+      !(
+        isValidIndex(fromIndex, this.tabs.length) &&
+        isValidIndex(toIndex, this.tabs.length)
+      )
+    ) {
+      return false
+    }
+    const toTab = this.tabs[toIndex]
+    if (toTab.id === tabId) {
+      return true
+    }
+    const fromTab = this.tabs[fromIndex]
+    if (fromTab.id !== tabId) {
+      return false
+    }
+    this.tabs[fromIndex] = toTab
+    this.tabs[toIndex] = fromTab
+    return true
   }
 }
