@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.5.0...v1.5.1) (2020-03-11)
+
+### Bug Fixes
+
+- Add tabs.onAttached and tab.onDetached handler; Optimize the performance for close a window ([ceef047](https://github.com/xcv58/Tab-Manager-v2/commit/ceef047d5e0ab691c340f8d245e9a0daf9ea9a10))
+- Drop tab area on the bottom of window is too small ([a4d418c](https://github.com/xcv58/Tab-Manager-v2/commit/a4d418c9390cfc41cb2932903e183a5558031877))
+- Minor bug in move tabs between window and new window ([c1aade6](https://github.com/xcv58/Tab-Manager-v2/commit/c1aade636236ac20955183e9718dd7e2847d789e))
+
 ## [1.5.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.4.0...v1.5.0) (2020-03-09)
 
 ### Features
