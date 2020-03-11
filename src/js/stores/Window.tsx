@@ -3,8 +3,6 @@ import Tab from './Tab'
 import { browser } from 'libs'
 import Store from 'stores'
 
-const isValidIndex = (index, length) => index >= 0 && index < length
-
 export default class Window {
   store: Store
 
@@ -91,6 +89,13 @@ export default class Window {
     )
   }
 
+  getTab = index => {
+    if (index < 0 || index >= this.tabs.length) {
+      return null
+    }
+    return this.tabs[index]
+  }
+
   @action
   add = (tab, index) => {
     if (index < 0 || index > this.tabs.length) {
@@ -148,24 +153,42 @@ export default class Window {
   @action
   onMoved = (tabId, moveInfo) => {
     const { fromIndex, toIndex } = moveInfo
-    if (
-      !(
-        isValidIndex(fromIndex, this.tabs.length) &&
-        isValidIndex(toIndex, this.tabs.length)
-      )
-    ) {
+    const toTab = this.getTab(toIndex)
+    if (!toTab) {
       return false
     }
-    const toTab = this.tabs[toIndex]
     if (toTab.id === tabId) {
       return true
     }
-    const fromTab = this.tabs[fromIndex]
-    if (fromTab.id !== tabId) {
+    const fromTab = this.getTab(fromIndex)
+    if (!fromTab || fromTab.id !== tabId) {
       return false
     }
     this.tabs[fromIndex] = toTab
     this.tabs[toIndex] = fromTab
     return true
+  }
+
+  @action
+  onDetached = (tabId, detachInfo) => {
+    const { oldPosition } = detachInfo
+    const oldTab = this.getTab(oldPosition)
+    if (oldTab && oldTab.id === tabId) {
+      this.tabs.splice(oldPosition, 1)
+    }
+  }
+
+  @action
+  onAttched = async (tabId, attachInfo) => {
+    const { newPosition } = attachInfo
+    const tab = this.getTab(newPosition)
+    if (tab && tab.id === tabId) {
+      return
+    }
+    const tabInfo = await browser.tabs.get(tabId)
+    if (!tabInfo) {
+      return false
+    }
+    this.tabs.splice(newPosition, 0, new Tab(tabInfo, this.store, this))
   }
 }

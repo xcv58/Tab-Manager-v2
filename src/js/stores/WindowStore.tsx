@@ -33,10 +33,10 @@ export default class WindowsStore {
     browser.tabs.onActivated.addListener(this.onActivated)
     browser.tabs.onRemoved.addListener(this.onRemoved)
     browser.tabs.onMoved.addListener(this.onMoved)
+    browser.tabs.onDetached.addListener(this.onDetached)
+    browser.tabs.onAttached.addListener(this.onAttached)
 
     // Move tabs related functions, use `updateAllWindows` to keep clean.
-    browser.tabs.onAttached.addListener(this.updateAllWindows)
-    browser.tabs.onDetached.addListener(this.updateAllWindows)
 
     // This event may not be relevant for or supported by browsers other than Chrome.
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onReplaced
@@ -94,9 +94,45 @@ export default class WindowsStore {
   }
 
   @action
+  onAttached = async (tabId, attachInfo) => {
+    const { newWindowId } = attachInfo
+    const win = this.windows.find(x => x.id === newWindowId)
+    if (!win) {
+      const win = await browser.windows.get(newWindowId, {
+        populate: true
+      })
+      this.windows.splice(this.windows.length, 0, new Window(win, this.store))
+      this.clearWindow()
+      this.updateColumns()
+    } else {
+      win.onAttched(tabId, attachInfo)
+    }
+  }
+
+  @action
+  onDetached = (tabId, detachInfo) => {
+    const win = this.windows.find(x => x.id === detachInfo.oldWindowId)
+    if (!win) {
+      return this.updateAllWindows()
+    }
+    if (win.onDetached) {
+      win.onDetached(tabId, detachInfo)
+    }
+    this.clearWindow()
+  }
+
+  @action
   onRemoved = (id, { windowId, isWindowClosing }) => {
-    this.removeTabs([id])
     this.store.tabStore.selection.delete(id)
+    if (!isWindowClosing) {
+      this.removeTabs([id])
+    } else {
+      const index = this.windows.findIndex(x => x.id === windowId)
+      if (index === -1) {
+        return
+      }
+      this.windows.splice(index, 1)
+    }
     this.clearWindow()
   }
 
