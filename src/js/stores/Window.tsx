@@ -98,7 +98,7 @@ export default class Window {
 
   @action
   add = (tab, index) => {
-    if (index < 0 || index > this.tabs.length) {
+    if (index < 0 || index > this.tabs.length + 1) {
       throw new Error(`[Window-Store.add] get invalid index: "${index}"!`)
     }
     this.tabs.splice(index, 0, tab)

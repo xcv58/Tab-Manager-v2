@@ -101,9 +101,7 @@ export default class WindowsStore {
       const win = await browser.windows.get(newWindowId, {
         populate: true
       })
-      this.windows.splice(this.windows.length, 0, new Window(win, this.store))
-      this.clearWindow()
-      this.updateColumns()
+      this.windows.push(new Window(win, this.store))
     } else {
       win.onAttched(tabId, attachInfo)
     }
