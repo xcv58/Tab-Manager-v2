@@ -6,27 +6,13 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import Help from './Help'
 import Fade from '@material-ui/core/Fade'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
 import { useStore } from 'components/StoreContext'
-import { makeStyles, useTheme, Typography } from '@material-ui/core'
+import { useTheme } from '@material-ui/core'
+import CloseButton from 'components/CloseButton'
 
-const useStyles = makeStyles(theme => ({
-  paper: {
-    width: '100%'
-  },
-  closeButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500]
-  }
-}))
-
-export default observer(props => {
+export default observer(() => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
-  const classes = useStyles(props)
   const { shortcutStore } = useStore()
   const { dialogOpen, closeDialog } = shortcutStore
   return (
@@ -35,17 +21,14 @@ export default observer(props => {
       TransitionComponent={Fade}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
-      {...{ maxWidth: 'lg', classes, fullScreen }}
+      fullWidth
+      {...{ maxWidth: 'lg', fullScreen }}
     >
       <DialogTitle>
-        <Typography variant='h6'>Keyboard shortcuts</Typography>
-        <IconButton
-          aria-label='close'
-          className={classes.closeButton}
-          onClick={closeDialog}
-        >
-          <CloseIcon />
-        </IconButton>
+        <h6>Keyboard shortcuts</h6>
+        <div className='absolute top-0 right-0 p-2'>
+          <CloseButton onClick={closeDialog} />
+        </div>
       </DialogTitle>
       <DialogContent>
         <Help />

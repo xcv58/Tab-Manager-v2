@@ -10,17 +10,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Fade from '@material-ui/core/Fade'
 import Switch from '@material-ui/core/Switch'
-import { makeStyles } from '@material-ui/core'
 import { useStore } from 'components/StoreContext'
 
-export const useStyles = makeStyles(() => ({
-  paper: {
-    width: '100%'
-  }
-}))
-
-export default observer(props => {
-  const classes = useStyles(props)
+export default observer(() => {
   const { userStore } = useStore()
   const {
     dialogOpen,
@@ -49,7 +41,7 @@ export default observer(props => {
   return (
     <Dialog
       open={dialogOpen}
-      classes={classes}
+      fullWidth
       TransitionComponent={Fade}
       onClose={closeDialog}
       onBackdropClick={closeDialog}

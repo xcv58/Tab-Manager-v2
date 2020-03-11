@@ -1,7 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import Snackbar from '@material-ui/core/Snackbar'
-import Typography from '@material-ui/core/Typography'
 import Fade from '@material-ui/core/Fade'
 import { useStore } from 'components/StoreContext'
 
@@ -16,7 +15,7 @@ export default observer(() => {
       }}
       TransitionComponent={Fade}
       open={toastOpen}
-      message={<Typography variant='h6'>{combo}</Typography>}
+      message={<h6>{combo}</h6>}
     />
   )
 })

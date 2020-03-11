@@ -2,17 +2,15 @@ import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
-import Title from './Title'
+import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
 import Preview from 'components/Preview'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
-import { useTheme } from '@material-ui/core'
 import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
 
 const Window = observer(props => {
-  const theme = useTheme()
   const { dragStore } = useStore()
   const { win } = props
   const { lastFocused, showTabs } = win
@@ -42,22 +40,25 @@ const Window = observer(props => {
     height: 'fit-content',
     boxSizing: 'border-box'
   }
-  if (isDragging && isOver && !canDrop) {
-    style.backgroundColor = theme.palette.error.light
-  }
   const dropIndicator = canDrop && isOver && <Preview />
   if (!win.visibleLength) {
     return null
   }
   return (
-    <div ref={drop} style={style} className='w-full p-1 pb-8'>
+    <div
+      ref={drop}
+      style={style}
+      className={classNames('w-full p-1 pb-8', {
+        'bg-red-500': isDragging && isOver && !canDrop
+      })}
+    >
       <div
         className={classNames({
           'shadow-2xl': lastFocused,
           'shadow-sm': !lastFocused
         })}
       >
-        <Title {...props} />
+        <DroppableTitle {...props} />
         {showTabs ? <Tabs {...props} /> : <Loading small />}
         {dropIndicator}
       </div>

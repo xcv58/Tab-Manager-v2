@@ -6,7 +6,7 @@ import Url from 'components/Tab/Url'
 import { useStore } from 'components/StoreContext'
 import Tooltip from '@material-ui/core/Tooltip'
 
-const pre = '<span class=\'text-red-500\'>'
+const pre = "<span class='text-red-500'>"
 const post = '</span>'
 
 export default observer(props => {
