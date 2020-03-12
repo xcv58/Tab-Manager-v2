@@ -12,7 +12,8 @@ const DEFAULT_SETTINGS = {
   showUrl: true,
   autoFocusSearch: false,
   useSystemTheme: true,
-  darkTheme: false
+  darkTheme: false,
+  enableDragDrop: true
 }
 
 export default class UserStore {
@@ -69,6 +70,9 @@ export default class UserStore {
 
   @observable
   useSystemTheme = true
+
+  @observable
+  enableDragDrop = true
 
   hideToolbarHandler = null
 
@@ -156,6 +160,12 @@ export default class UserStore {
   @action
   toggleUseSystemTheme = () => {
     browser.storage.sync.set({ useSystemTheme: !this.useSystemTheme })
+    this.init()
+  }
+
+  @action
+  toggleEnableDragDrop = () => {
+    browser.storage.sync.set({ enableDragDrop: !this.enableDragDrop })
     this.init()
   }
 

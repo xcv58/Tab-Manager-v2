@@ -36,7 +36,9 @@ export default observer(() => {
     darkTheme,
     toggleDarkTheme,
     useSystemTheme,
-    toggleUseSystemTheme
+    toggleUseSystemTheme,
+    enableDragDrop,
+    toggleEnableDragDrop
   } = userStore
   return (
     <Dialog
@@ -116,6 +118,16 @@ export default observer(() => {
                   color='primary'
                   checked={showTabTooltip}
                   onChange={toggleShowTabTooltip}
+                />
+              }
+            />
+            <FormControlLabel
+              label='Enable Drag & Drop'
+              control={
+                <Switch
+                  color='primary'
+                  checked={enableDragDrop}
+                  onChange={toggleEnableDragDrop}
                 />
               }
             />

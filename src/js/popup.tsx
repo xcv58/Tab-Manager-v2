@@ -12,7 +12,7 @@ const init = () => {
     window.document.getElementById('app-container')
   )
   if (process.env.NODE_ENV !== 'production') {
-    require('react-axe')(React, require('react-dom'), 1000)
+    // require('react-axe')(React, require('react-dom'), 1000)
   }
 }
 
