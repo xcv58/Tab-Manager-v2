@@ -78,14 +78,14 @@ export default class WindowsStore {
   clearWindow = () => {
     this.columns.forEach(x => x.clearWindow())
     for (let index = 0; index < this.columns.length;) {
-      if (this.columns[index].length === 0) {
+      if (this.columns[index].windows.length === 0) {
         this.columns.splice(index, 1)
       } else {
         index++
       }
     }
     for (let index = 0; index < this.windows.length;) {
-      if (this.windows[index].visibleLength === 0) {
+      if (this.windows[index].tabs.length === 0) {
         this.windows.splice(index, 1)
       } else {
         index++
