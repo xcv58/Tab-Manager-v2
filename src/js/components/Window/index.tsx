@@ -13,7 +13,7 @@ import Loading from 'components/Loading'
 const Window = observer(props => {
   const { dragStore } = useStore()
   const { win } = props
-  const { lastFocused, showTabs } = win
+  const { lastFocused, showTabs, visibleLength } = win
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
     canDrop: () => win.canDrop,
@@ -59,7 +59,13 @@ const Window = observer(props => {
         })}
       >
         <DroppableTitle {...props} />
-        {showTabs ? <Tabs {...props} /> : <Loading small />}
+        {showTabs ? (
+          <Tabs {...props} />
+        ) : (
+          <div style={{ height: 42 * (visibleLength - 2) }}>
+            <Loading small />
+          </div>
+        )}
         {dropIndicator}
       </div>
     </div>
