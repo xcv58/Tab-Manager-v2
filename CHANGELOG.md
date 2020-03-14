@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.5.1...v1.5.2) (2020-03-13)
+
+### Bug Fixes
+
+- Display Tab Icon as checkbox only when hover on the icon instead of the tab ([1de65c7](https://github.com/xcv58/Tab-Manager-v2/commit/1de65c7833368334b21cc1f587ebfa70b26a29ac))
+- Don't show all tabs after clear search with show unmatched tab disabled fix [#310](https://github.com/xcv58/Tab-Manager-v2/issues/310) ([f48fc1f](https://github.com/xcv58/Tab-Manager-v2/commit/f48fc1f4235012cb19f50758f4e3d5683e736a19))
+
 ### [1.5.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.5.0...v1.5.1) (2020-03-11)
 
 ### Bug Fixes

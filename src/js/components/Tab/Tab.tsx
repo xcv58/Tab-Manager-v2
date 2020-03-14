@@ -98,34 +98,11 @@ const Tab = observer(props => {
 
   const pin = pinned && PIN
 
-  if (className) {
-    console.log(
-      { className },
-      classNames(
-        'flex group border-l-2 border-transparent',
-        {
-          'border-l-2 border-solid border-red-500': isFocused,
-          'opacity-25': !isMatched
-        },
-        !isDarkTheme && {
-          'hover:bg-blue-300': isActionable,
-          'bg-blue-100': active || shouldHighlight,
-          'bg-blue-300': isSelected
-        },
-        isDarkTheme && {
-          'hover:bg-gray-800': isActionable,
-          'bg-gray-800': active || shouldHighlight,
-          'bg-gray-900': isSelected
-        },
-        className
-      )
-    )
-  }
   return (
     <div
       ref={node}
       className={classNames(
-        'flex group border-l-2 border-transparent',
+        'flex border-l-2 border-transparent',
         {
           'border-l-2 border-solid border-red-500': isFocused,
           'opacity-25': !isMatched

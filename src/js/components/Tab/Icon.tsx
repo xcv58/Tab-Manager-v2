@@ -7,7 +7,7 @@ import IconButton from '@material-ui/core/IconButton'
 export default observer(props => {
   const { focus, select, iconUrl, isSelected } = props.tab
   return (
-    <div>
+    <div className='group'>
       <div
         className={classNames({
           hidden: isSelected,
