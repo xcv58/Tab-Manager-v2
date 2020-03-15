@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.5.2...v1.5.3) (2020-03-15)
+
+### Bug Fixes
+
+- Make the loading spinner of tabs has the same height of actual tabs ([b145745](https://github.com/xcv58/Tab-Manager-v2/commit/b145745b58b37d90dd5cba39662e72b01703f325))
+
 ### [1.5.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.5.1...v1.5.2) (2020-03-13)
 
 ### Bug Fixes
