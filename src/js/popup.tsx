@@ -6,8 +6,7 @@ import '../css/popup.css'
 
 const init = () => {
   const container = window.document.getElementById('app-container')
-  const spinner = window.document.getElementById('spinner')
-  container.removeChild(spinner)
+  container.removeChild(container.firstChild)
 
   ReactDOM.createRoot(container).render(
     <StoreContext.Provider value={store}>
