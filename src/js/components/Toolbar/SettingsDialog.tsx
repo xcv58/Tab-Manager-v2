@@ -11,6 +11,8 @@ import FormHelperText from '@material-ui/core/FormHelperText'
 import Fade from '@material-ui/core/Fade'
 import Switch from '@material-ui/core/Switch'
 import { useStore } from 'components/StoreContext'
+import Slider from '@material-ui/core/Slider'
+import FormLabel from '@material-ui/core/FormLabel'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -36,7 +38,9 @@ export default observer(() => {
     darkTheme,
     toggleDarkTheme,
     useSystemTheme,
-    toggleUseSystemTheme
+    toggleUseSystemTheme,
+    tabWidth,
+    updateTabWidth
   } = userStore
   return (
     <Dialog
@@ -48,7 +52,7 @@ export default observer(() => {
     >
       <DialogTitle>Settings</DialogTitle>
       <DialogContent>
-        <FormControl>
+        <FormControl className='w-full'>
           <FormGroup>
             <FormHelperText>Search</FormHelperText>
             <FormControlLabel
@@ -94,6 +98,18 @@ export default observer(() => {
                   onChange={toggleShowUnmatchedTab}
                 />
               }
+            />
+            <FormLabel>Tab Width</FormLabel>
+            <Slider
+              defaultValue={tabWidth}
+              step={1}
+              min={15}
+              max={50}
+              marks
+              onChange={(_, value) => updateTabWidth(value)}
+              valueLabelDisplay='auto'
+              aria-labelledby='update-tab-width'
+              aria-label='Update Tab Width'
             />
             <Divider />
           </FormGroup>

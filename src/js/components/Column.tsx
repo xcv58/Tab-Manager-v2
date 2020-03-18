@@ -1,8 +1,10 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import Window from 'components/Window'
+import { useStore } from './StoreContext'
 
 export default observer(props => {
+  const { userStore } = useStore()
   const {
     column: { windows },
     left,
@@ -13,7 +15,7 @@ export default observer(props => {
 
   const style: any = {
     width,
-    minWidth: '20rem',
+    minWidth: `${userStore.tabWidth}rem`,
     height: 'fit-content',
     padding: 0,
     boxSizing: 'border-box',

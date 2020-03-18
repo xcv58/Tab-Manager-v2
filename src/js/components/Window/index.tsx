@@ -11,7 +11,7 @@ import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
 
 const Window = observer(props => {
-  const { dragStore } = useStore()
+  const { dragStore, userStore } = useStore()
   const { win } = props
   const { lastFocused, showTabs, visibleLength } = win
   const [dropProps, drop] = useDrop({
@@ -36,7 +36,7 @@ const Window = observer(props => {
   })
   const { canDrop, isOver, isDragging } = dropProps
   const style: CSSProperties = {
-    minWidth: '20rem',
+    minWidth: `${userStore.tabWidth}rem`,
     height: 'fit-content',
     boxSizing: 'border-box'
   }
