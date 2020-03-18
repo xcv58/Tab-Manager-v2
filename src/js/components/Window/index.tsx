@@ -10,7 +10,7 @@ import { useStore } from 'components/StoreContext'
 import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
 
-const Window = observer(props => {
+export default observer(props => {
   const { dragStore, userStore } = useStore()
   const { win } = props
   const { lastFocused, showTabs, visibleLength } = win
@@ -71,8 +71,3 @@ const Window = observer(props => {
     </div>
   )
 })
-
-// This export is for testing
-export { Window }
-
-export default Window

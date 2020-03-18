@@ -166,7 +166,7 @@ export default class ShortcutStore {
         }
         if (query) {
           event.preventDefault()
-          return clear()
+          clear()
         }
       },
       () => {

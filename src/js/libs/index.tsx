@@ -130,11 +130,9 @@ export const tabComparator = (a, b) => {
   }
   if (a.domain !== b.domain) {
     return a.domain.localeCompare(b.domain)
-  }
-  if (a.url !== b.url) {
+  } else if (a.url !== b.url) {
     return a.url.localeCompare(b.url)
-  }
-  if (a.title !== b.title) {
+  } else if (a.title !== b.title) {
     return a.title.localeCompare(b.title)
   }
   return a.index - b.index
