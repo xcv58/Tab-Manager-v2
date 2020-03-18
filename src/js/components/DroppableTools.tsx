@@ -9,7 +9,7 @@ import { useStore } from './StoreContext'
 import Tools from './Tools'
 
 export default observer(props => {
-  const { dragStore, tabStore } = useStore()
+  const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
     drop: () => {
@@ -44,7 +44,7 @@ export default observer(props => {
               style={{
                 opacity: 1,
                 maxWidth: '80vw',
-                minWidth: '20rem'
+                minWidth: `${userStore.tabWidth}rem`
               }}
             />
           )}

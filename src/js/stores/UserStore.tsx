@@ -12,7 +12,8 @@ const DEFAULT_SETTINGS = {
   showUrl: true,
   autoFocusSearch: false,
   useSystemTheme: true,
-  darkTheme: false
+  darkTheme: false,
+  tabWidth: 20
 }
 
 export default class UserStore {
@@ -69,6 +70,9 @@ export default class UserStore {
 
   @observable
   useSystemTheme = true
+
+  @observable
+  tabWidth = 20
 
   hideToolbarHandler = null
 
@@ -134,6 +138,12 @@ export default class UserStore {
   @action
   toggleShowUrl = () => {
     this.showUrl = !this.showUrl
+    this.save()
+  }
+
+  @action
+  updateTabWidth = tabWidth => {
+    this.tabWidth = tabWidth
     this.save()
   }
 

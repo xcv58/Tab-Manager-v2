@@ -5,7 +5,7 @@ import { useTheme } from './ThemeContext'
 export default ({ small = false }) => {
   const isDarkTheme = useTheme()
   const containerProps = small
-    ? { className: 'flex items-center justify-center w-full h-24' }
+    ? { className: 'flex items-center justify-center w-full h-12' }
     : { id: 'spinner' }
   return (
     <div {...containerProps}>
