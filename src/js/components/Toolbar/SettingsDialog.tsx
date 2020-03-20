@@ -99,7 +99,7 @@ export default observer(() => {
                 />
               }
             />
-            <FormLabel>Tab Width</FormLabel>
+            <FormLabel>Minimum Tab Width</FormLabel>
             <Slider
               defaultValue={tabWidth}
               step={1}
