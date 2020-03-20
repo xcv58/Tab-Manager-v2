@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.0...v1.6.1) (2020-03-20)
+
+### Bug Fixes
+
+- Closing window/tab causes empty column ([a38ee4a](https://github.com/xcv58/Tab-Manager-v2/commit/a38ee4aed8e7ca06b2492c505035133a5fb77afa))
+- Reduce the max height for column ([0821a05](https://github.com/xcv58/Tab-Manager-v2/commit/0821a056d1ab44fd5ad9b12f1fae6182c0dd910f))
+
 ## [1.6.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.5.3...v1.6.0) (2020-03-19)
 
 ### Features
