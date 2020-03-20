@@ -5,7 +5,8 @@ import {
   getLastFocusedWindowId,
   notSelfPopup,
   windowComparator,
-  isSelfPopup
+  isSelfPopup,
+  TAB_HEIGHT
 } from 'libs'
 import actions from 'libs/actions'
 import Window from 'stores/Window'
@@ -78,7 +79,7 @@ export default class WindowsStore {
   clearWindow = () => {
     this.columns.forEach(x => x.clearWindow())
     for (let index = 0; index < this.columns.length;) {
-      if (this.columns[index].windows.length === 0) {
+      if (this.columns[index].length === 0) {
         this.columns.splice(index, 1)
       } else {
         index++
@@ -348,7 +349,7 @@ export default class WindowsStore {
 
   @action
   updateHeight (height) {
-    if (this.height !== height && Math.abs(this.height - height) > 50) {
+    if (this.height !== height && Math.abs(this.height - height) > TAB_HEIGHT) {
       this.height = height
       this.updateColumns()
     }
@@ -356,7 +357,7 @@ export default class WindowsStore {
 
   @action
   updateColumns () {
-    const max = Math.ceil((this.height / 35) * 1.0)
+    const max = Math.ceil((this.height / TAB_HEIGHT) * 1.0)
     this.columns = this.windows
       .filter(x => x.visibleLength > 0)
       .reduce(
