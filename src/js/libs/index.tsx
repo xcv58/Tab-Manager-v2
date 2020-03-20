@@ -2,6 +2,8 @@ import browser from 'webextension-polyfill'
 
 export { browser }
 
+export const TAB_HEIGHT = 42
+
 // The not_popup=1 query indicate current page is not opened by browser_action.
 // Because the browser_action can only open without any query params.
 export const popupURL = browser.runtime.getURL('popup.html') + '?not_popup=1'

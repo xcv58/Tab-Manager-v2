@@ -9,6 +9,7 @@ import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
 import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
+import { TAB_HEIGHT } from 'libs'
 
 export default observer(props => {
   const { dragStore, userStore } = useStore()
@@ -62,7 +63,7 @@ export default observer(props => {
         {showTabs ? (
           <Tabs {...props} />
         ) : (
-          <div style={{ height: 42 * (visibleLength - 2) }}>
+          <div style={{ height: TAB_HEIGHT * (visibleLength - 2) }}>
             <Loading small />
           </div>
         )}
