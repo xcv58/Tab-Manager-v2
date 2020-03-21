@@ -7,7 +7,7 @@ export default class CustomScrollbars extends Component {
 
   scrollbarsRef = React.createRef()
 
-  getSpringUpdateFunc = func => spring => {
+  getSpringUpdateFunc = (func) => (spring) => {
     if (func && typeof func === 'function') {
       func(spring.getCurrentValue())
     }

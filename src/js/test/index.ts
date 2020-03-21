@@ -1,1 +1,1 @@
-export const connectDropTarget = el => el
+export const connectDropTarget = (el) => el

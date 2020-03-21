@@ -17,7 +17,7 @@ export default observer(({ win }) => {
         color='primary'
         disabled={disableSelectAll}
         checked={allTabSelected}
-        onChange={e => {
+        onChange={(e) => {
           e.target.blur()
           toggleSelectAll()
         }}

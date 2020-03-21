@@ -33,7 +33,7 @@ const PIN = (
   </div>
 )
 
-const Tab = observer(props => {
+const Tab = observer((props) => {
   const node = useRef(null)
   const { dragStore } = useStore()
   const isDarkTheme = useTheme()
@@ -134,7 +134,7 @@ const Tab = observer(props => {
   )
 })
 
-export default observer(props => {
+export default observer((props) => {
   if (!props.tab.isVisible) {
     return null
   }

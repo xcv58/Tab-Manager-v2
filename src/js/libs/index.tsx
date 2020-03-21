@@ -31,7 +31,7 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   )
 }
 
-export const createWindow = async tabs => {
+export const createWindow = async (tabs) => {
   const [firstTab, ...restTabs] = tabs
   const tabId = firstTab.id
   const win = await browser.windows.create({ tabId })
@@ -51,15 +51,15 @@ export const activateTab = async (id, isBackground = false) => {
   }
 }
 
-export const togglePinTabs = async tabs => {
+export const togglePinTabs = async (tabs) => {
   const sortTabs = (tabs || []).sort((a, b) => {
     if (a.windowId !== b.windowId) {
       return 0
     }
     return a.index - b.index
   })
-  const pinnedTabs = sortTabs.filter(x => x.pinned).reverse()
-  const unpinnedTabs = sortTabs.filter(x => !x.pinned)
+  const pinnedTabs = sortTabs.filter((x) => x.pinned).reverse()
+  const unpinnedTabs = sortTabs.filter((x) => !x.pinned)
   await Promise.all(
     [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
       await browser.tabs.update(id, { pinned: !pinned })
@@ -79,7 +79,7 @@ export const openOrTogglePopup = async () => {
 
 export const MAX_WIDTH = 1024
 export const MAX_HEIGHT = 768
-export const getInt = number => Math.floor(number)
+export const getInt = (number) => Math.floor(number)
 
 export const openPopup = () => {
   const { availHeight, availLeft, availTop, availWidth } = screen
@@ -111,7 +111,7 @@ export const isSelfPopup = ({ type, tabs = [] }) => {
 
 export const notSelfPopup = (...args) => !isSelfPopup(...args)
 
-export const setLastFocusedWindowId = lastFocusedWindowId => {
+export const setLastFocusedWindowId = (lastFocusedWindowId) => {
   browser.storage.local.set({ lastFocusedWindowId })
 }
 
@@ -179,7 +179,7 @@ export const findVisibleTab = (tabs = [], index, delta) => {
 
 const urlPattern = /.*:\/\/[^/]*/
 
-export const getDomain = url => {
+export const getDomain = (url) => {
   const matches = url.match(urlPattern)
   if (matches) {
     return matches[0]

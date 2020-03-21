@@ -16,10 +16,10 @@ const trigger = (
 
 const Shortcut = ({ shortcut }) => <kbd className='shortcut'>{shortcut}</kbd>
 
-const Command = props => {
+const Command = (props) => {
   const { shortcut } = props
   const shortcuts = Array.isArray(shortcut) ? (
-    shortcut.map(x => <Shortcut key={x} shortcut={x} />)
+    shortcut.map((x) => <Shortcut key={x} shortcut={x} />)
   ) : (
     <Shortcut shortcut={shortcut} />
   )
@@ -45,7 +45,7 @@ export default observer(() => {
       }
       return { name, shortcut, command }
     })
-    .filter(x => x)
+    .filter((x) => x)
     .sort((a, b) => a.name.localeCompare(b.name))
   return (
     <ReactCommandPalette

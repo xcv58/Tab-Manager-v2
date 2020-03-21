@@ -11,7 +11,7 @@ import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
 import { TAB_HEIGHT } from 'libs'
 
-export default observer(props => {
+export default observer((props) => {
   const { dragStore, userStore } = useStore()
   const { win } = props
   const { lastFocused, showTabs, visibleLength } = win
@@ -27,7 +27,7 @@ export default observer(props => {
         dragStore.drop(tab, false)
       }
     },
-    collect: monitor => {
+    collect: (monitor) => {
       return {
         canDrop: monitor.canDrop(),
         isDragging: !!monitor.getItem(),

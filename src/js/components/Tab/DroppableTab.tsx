@@ -7,7 +7,7 @@ import { ItemTypes } from 'libs/react-dnd'
 import Preview from 'components/Preview'
 import { useStore } from 'components/StoreContext'
 
-export default observer(props => {
+export default observer((props) => {
   const { tab } = props
   const { showTab } = tab
   const { dragStore } = useStore()
@@ -17,7 +17,7 @@ export default observer(props => {
       dragStore.drop(tab)
     },
     canDrop: () => tab.win.canDrop,
-    collect: monitor => {
+    collect: (monitor) => {
       return {
         canDrop: monitor.canDrop(),
         isOver: monitor.isOver({ shallow: true })

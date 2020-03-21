@@ -53,8 +53,8 @@ export default class TabHistory {
     this.tabHistory.push({ tabId, windowId, ...rest })
   }
 
-  remove = tabId => {
-    const index = this.tabHistory.findIndex(x => x.tabId === tabId)
+  remove = (tabId) => {
+    const index = this.tabHistory.findIndex((x) => x.tabId === tabId)
     if (index !== -1) {
       this.tabHistory.splice(index, 1)
     }
@@ -74,13 +74,13 @@ export default class TabHistory {
     }
   }
 
-  onActivated = async activeInfo => {
+  onActivated = async (activeInfo) => {
     const { tabId, windowId } = activeInfo
     if (tabId !== this.expectedTabId) {
       const { length } = this.tabHistory
       if (this.resetCountHandler) {
         this.resetCount()
-        const index = this.tabHistory.findIndex(x => x.tabId === tabId)
+        const index = this.tabHistory.findIndex((x) => x.tabId === tabId)
         if (index < length - this.count) {
           this.count += 1
         }
@@ -91,7 +91,7 @@ export default class TabHistory {
     this.add({ ...tab, tabId, windowId })
   }
 
-  onFocusChanged = async windowId => {
+  onFocusChanged = async (windowId) => {
     if (windowId < 0) {
       return
     }
@@ -106,5 +106,5 @@ export default class TabHistory {
     setLastFocusedWindowId(windowId)
   }
 
-  onRemoved = async tabId => this.remove(tabId)
+  onRemoved = async (tabId) => this.remove(tabId)
 }

@@ -8,7 +8,7 @@ import classNames from 'classnames'
 import Title from './Title'
 import { useStore } from 'components/StoreContext'
 
-export default observer(props => {
+export default observer((props) => {
   const { win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
@@ -23,7 +23,7 @@ export default observer(props => {
         dragStore.drop(tab, true)
       }
     },
-    collect: monitor => {
+    collect: (monitor) => {
       return {
         canDrop: monitor.canDrop(),
         isDragging: !!monitor.getItem(),

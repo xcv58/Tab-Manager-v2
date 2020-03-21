@@ -36,12 +36,12 @@ export default class SearchStore {
 
   @computed
   get matchedSet () {
-    return new Set(this.matchedTabs.map(x => x.id))
+    return new Set(this.matchedTabs.map((x) => x.id))
   }
 
   @computed
   get matchedColumns () {
-    return this.store.windowStore.columns.filter(column => {
+    return this.store.windowStore.columns.filter((column) => {
       if (column.matchedTabs.length) {
         return column
       }
@@ -51,8 +51,8 @@ export default class SearchStore {
 
   @computed
   get focusedColIndex () {
-    return this.matchedColumns.findIndex(column =>
-      column.matchedTabs.find(tab => tab.id === this.focusedTab)
+    return this.matchedColumns.findIndex((column) =>
+      column.matchedTabs.find((tab) => tab.id === this.focusedTab)
     )
   }
 
@@ -70,7 +70,7 @@ export default class SearchStore {
       return -1
     }
     return this.focusedColumn.matchedTabs.findIndex(
-      tab => tab.id === this.focusedTab
+      (tab) => tab.id === this.focusedTab
     )
   }
 
@@ -143,13 +143,15 @@ export default class SearchStore {
     }
     const set = new Set(this.getMatchedIds(tabs, 'title'))
     if (this.store.userStore.showUrl) {
-      this.getMatchedIds(tabs, 'url').forEach(x => set.add(x))
+      this.getMatchedIds(tabs, 'url').forEach((x) => set.add(x))
     }
-    return tabs.filter(x => set.has(x.id))
+    return tabs.filter((x) => set.has(x.id))
   }
 
   getMatchedIds = (tabs, field) =>
-    filter(this.query, tabs, { extract: x => x[field] }).map(x => x.original.id)
+    filter(this.query, tabs, { extract: (x) => x[field] }).map(
+      (x) => x.original.id
+    )
 
   @action
   enter = () => {
@@ -157,7 +159,7 @@ export default class SearchStore {
   }
 
   @action
-  focus = tab => {
+  focus = (tab) => {
     this.focusedTab = tab.id
   }
 
@@ -170,7 +172,7 @@ export default class SearchStore {
       tabStore: { select },
       windowStore: { tabs }
     } = this.store
-    select(tabs.find(x => x.id === this.focusedTab))
+    select(tabs.find((x) => x.id === this.focusedTab))
   }
 
   @action
@@ -181,7 +183,7 @@ export default class SearchStore {
     const {
       windowStore: { tabs }
     } = this.store
-    const tab = tabs.find(x => x.id === this.focusedTab)
+    const tab = tabs.find((x) => x.id === this.focusedTab)
     if (tab) {
       tab.win.close()
     }
@@ -195,7 +197,7 @@ export default class SearchStore {
     const {
       windowStore: { tabs }
     } = this.store
-    const tab = tabs.find(x => x.id === this.focusedTab)
+    const tab = tabs.find((x) => x.id === this.focusedTab)
     if (tab) {
       tab.win.toggleSelectAll()
     }
@@ -203,7 +205,9 @@ export default class SearchStore {
 
   @action
   groupTab = () => {
-    const tab = this.store.windowStore.tabs.find(x => x.id === this.focusedTab)
+    const tab = this.store.windowStore.tabs.find(
+      (x) => x.id === this.focusedTab
+    )
     if (tab) {
       tab.groupTab()
     }
@@ -242,7 +246,7 @@ export default class SearchStore {
     }
   }
 
-  jumpToHorizontalTab = direction => {
+  jumpToHorizontalTab = (direction) => {
     if (this.jumpOrFocusTab(direction)) {
       const columns = this.matchedColumns
       const { length } = columns
@@ -253,7 +257,7 @@ export default class SearchStore {
     }
   }
 
-  jumpOrFocusTab = direction => {
+  jumpOrFocusTab = (direction) => {
     if (!this.focusedTab) {
       this.findFocusedTab()
       return
@@ -291,7 +295,7 @@ export default class SearchStore {
       return
     }
     if (this.focusedTab) {
-      const index = this.matchedTabs.findIndex(x => x.id === this.focusedTab)
+      const index = this.matchedTabs.findIndex((x) => x.id === this.focusedTab)
       this.jumpToTab(index + step)
     } else {
       const index = (length + (step - 1) / 2) % length

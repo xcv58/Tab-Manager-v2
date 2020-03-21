@@ -15,7 +15,7 @@ export default class DragStore {
   dragging = false
 
   @action
-  dragStart = tab => {
+  dragStart = (tab) => {
     tab.select()
     tab.unhover()
     this.dragging = true
@@ -35,8 +35,8 @@ export default class DragStore {
     this.dropped = false
   }
 
-  getUnselectedTabs = tabs => {
-    return tabs.filter(x => !this.store.tabStore.selection.has(x.id))
+  getUnselectedTabs = (tabs) => {
+    return tabs.filter((x) => !this.store.tabStore.selection.has(x.id))
   }
 
   @action

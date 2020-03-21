@@ -21,16 +21,16 @@ export default class Column {
 
   @computed
   get tabs () {
-    return [].concat(...this.windows.map(x => x.tabs.slice()))
+    return [].concat(...this.windows.map((x) => x.tabs.slice()))
   }
 
   @computed
   get matchedTabs () {
-    return [].concat(...this.windows.map(x => x.matchedTabs))
+    return [].concat(...this.windows.map((x) => x.matchedTabs))
   }
 
   @action
-  add = win => {
+  add = (win) => {
     this.windows.push(win)
   }
 
@@ -52,7 +52,7 @@ export default class Column {
   }
 
   @action
-  getTabIdForIndex = index => {
+  getTabIdForIndex = (index) => {
     const delta = []
     let preHeight = 1
     for (let i = 0; i < this.windows.length; i++) {
@@ -69,7 +69,7 @@ export default class Column {
   }
 
   @action
-  getVisibleIndex = tabId => {
+  getVisibleIndex = (tabId) => {
     let preHeight = 1
     for (let i = 0; i < this.windows.length; i++) {
       const win = this.windows[i]

@@ -15,7 +15,7 @@ export default observer(() => {
         <Checkbox
           color='primary'
           checked={allTabSelected}
-          onChange={e => {
+          onChange={(e) => {
             e.target.blur()
             const { selectAll, unselectAll } = searchStore
             if (allTabSelected) {

@@ -8,7 +8,7 @@ import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from './StoreContext'
 import Tools from './Tools'
 
-export default observer(props => {
+export default observer((props) => {
   const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -16,7 +16,7 @@ export default observer(props => {
       dragStore.dropToNewWindow()
     },
     canDrop: () => true,
-    collect: monitor => {
+    collect: (monitor) => {
       return {
         canDrop: monitor.canDrop(),
         isOver: monitor.isOver()

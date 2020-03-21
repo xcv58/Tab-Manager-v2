@@ -7,7 +7,7 @@ import { useTheme } from '@material-ui/styles'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
-export default observer(props => {
+export default observer((props) => {
   const theme = useTheme()
   const { tabStore } = useStore()
   const { remove, tabDescription, hasFocusedOrSelectedTab } = tabStore

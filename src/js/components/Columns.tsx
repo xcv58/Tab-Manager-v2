@@ -6,7 +6,7 @@ import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
 import { useStore } from './StoreContext'
 
-const View = props => {
+const View = (props) => {
   const { style } = props
   return (
     <div
@@ -25,7 +25,7 @@ export default observer(() => {
     const { height } = getScrollbars().getBoundingClientRect()
     windowStore.updateHeight(height)
   }
-  const renderEmptyTrack = props => (
+  const renderEmptyTrack = (props) => (
     <div {...props} style={{ ...props.style, display: 'none' }} />
   )
 
