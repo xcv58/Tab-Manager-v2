@@ -25,7 +25,7 @@ export default observer(({ inputRef }: InputRefProps) => {
       autoFocus={userStore.autoFocusSearch}
       inputProps={{ ref: inputRef }}
       placeholder='Search your tab title... (Press "/" to focus)'
-      onChange={e => search(e.target.value)}
+      onChange={(e) => search(e.target.value)}
       onFocus={() => {
         search(query)
         startType()

@@ -2,7 +2,7 @@ import React from 'react'
 import classNames from 'classnames'
 import { useTheme } from 'components/ThemeContext'
 
-export default props => {
+export default (props) => {
   const {
     tab: { url },
     getHighlightNode,

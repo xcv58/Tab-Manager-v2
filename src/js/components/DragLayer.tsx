@@ -30,7 +30,7 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
 
 export default () => {
   const { initialOffset, currentOffset, isDragging } = useDragLayer(
-    monitor => ({
+    (monitor) => ({
       initialOffset: monitor.getInitialSourceClientOffset(),
       currentOffset: monitor.getClientOffset(),
       isDragging: monitor.isDragging()

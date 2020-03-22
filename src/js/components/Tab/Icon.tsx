@@ -4,7 +4,7 @@ import { observer } from 'mobx-react'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 
-export default observer(props => {
+export default observer((props) => {
   const { focus, select, iconUrl, isSelected } = props.tab
   return (
     <div className='group'>

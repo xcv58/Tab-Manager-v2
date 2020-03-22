@@ -9,7 +9,7 @@ export default class Window {
   constructor (win, store: Store) {
     this.store = store
     Object.assign(this, win)
-    this.tabs = win.tabs.map(tab => new Tab(tab, store, this))
+    this.tabs = win.tabs.map((tab) => new Tab(tab, store, this))
     // TODO: Remove this when we add concurrent mode
     this.showTabs = !this.store.windowStore.initialLoading
   }
@@ -30,9 +30,9 @@ export default class Window {
   @action
   tabMounted = () => {
     this.tabs
-      .filter(x => !x.isVisible && !x.showTab)
-      .forEach(x => (x.showTab = true))
-    const tab = this.tabs.find(x => !x.showTab)
+      .filter((x) => !x.isVisible && !x.showTab)
+      .forEach((x) => (x.showTab = true))
+    const tab = this.tabs.find((x) => !x.showTab)
     if (tab) {
       tab.showTab = true
     }
@@ -45,7 +45,7 @@ export default class Window {
 
   @computed
   get visibleLength () {
-    const { length } = this.tabs.filter(x => x.isVisible)
+    const { length } = this.tabs.filter((x) => x.isVisible)
     return length ? length + 2 : length
   }
 
@@ -61,7 +61,7 @@ export default class Window {
 
   @computed
   get invisibleTabs () {
-    return this.tabs.filter(x => !x.isVisible)
+    return this.tabs.filter((x) => !x.isVisible)
   }
 
   @computed
@@ -71,7 +71,7 @@ export default class Window {
 
   @computed
   get matchedTabs () {
-    return this.tabs.filter(x => x.isMatched)
+    return this.tabs.filter((x) => x.isMatched)
   }
 
   @computed
@@ -89,7 +89,7 @@ export default class Window {
     )
   }
 
-  getTab = index => {
+  getTab = (index) => {
     if (index < 0 || index >= this.tabs.length) {
       return null
     }
@@ -105,8 +105,8 @@ export default class Window {
   }
 
   @action
-  remove = tab => {
-    const index = this.tabs.findIndex(x => x.id === tab.id)
+  remove = (tab) => {
+    const index = this.tabs.findIndex((x) => x.id === tab.id)
     if (index !== -1) {
       this.tabs.splice(index, 1)
     } else {
@@ -117,7 +117,7 @@ export default class Window {
   }
 
   @action
-  removeTabs = set => {
+  removeTabs = (set) => {
     for (let index = 0; index < this.tabs.length;) {
       const id = this.tabs[index].id
       if (set.has(id)) {
@@ -131,7 +131,7 @@ export default class Window {
 
   @action
   reload = () => {
-    this.tabs.forEach(tab => tab.reload())
+    this.tabs.forEach((tab) => tab.reload())
   }
 
   @action

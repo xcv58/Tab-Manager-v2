@@ -20,7 +20,7 @@ export default class HoverStore {
   hovered = false
 
   @action
-  hover = id => {
+  hover = (id) => {
     if (this.hoveredTabId === id) {
       return
     }

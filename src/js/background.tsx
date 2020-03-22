@@ -30,7 +30,7 @@ export class Background {
     sendResponse()
   }
 
-  onCommand = action => {
+  onCommand = (action) => {
     const func = this.actionMap[action]
     if (func && typeof func === 'function') {
       func()

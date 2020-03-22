@@ -22,7 +22,7 @@ export default observer(() => {
   )}, ${tabCount} ${getNoun('tab', tabCount)}`
   return (
     <button
-      onFocus={e => e.target.blur()}
+      onFocus={(e) => e.target.blur()}
       className={classNames(
         'fixed top-0 w-full p-0 m-auto text-sm border-none',
         {

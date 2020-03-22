@@ -6,7 +6,7 @@ import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
-export default observer(props => {
+export default observer((props) => {
   const { tab } = props
   const { dragStore } = useStore()
   const [dragProps, drag, connectDragPreview] = useDrag({
@@ -19,7 +19,7 @@ export default observer(props => {
       dragStore.dragEnd()
     },
     isDragging: () => tab.isSelected,
-    collect: monitor => {
+    collect: (monitor) => {
       return {
         isDragging: monitor.isDragging()
       }

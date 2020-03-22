@@ -3,7 +3,7 @@ import { observer } from 'mobx-react'
 import Window from 'components/Window'
 import { useStore } from './StoreContext'
 
-export default observer(props => {
+export default observer((props) => {
   const { userStore } = useStore()
   const {
     column: { windows },
@@ -22,7 +22,7 @@ export default observer(props => {
     marginLeft: left && 'auto',
     marginRight: right && 'auto'
   }
-  const windowList = windows.map(win => (
+  const windowList = windows.map((win) => (
     <Window
       key={win.id}
       win={win}

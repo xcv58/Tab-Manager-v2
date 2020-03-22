@@ -7,7 +7,7 @@ import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
 
-export default observer(props => {
+export default observer((props) => {
   const { className, win } = props
   const { tabs, onTitleClick, invisibleTabs, reload } = win
   const { length } = tabs

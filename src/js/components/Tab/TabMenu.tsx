@@ -25,10 +25,10 @@ type OptionOrDivider = IDivider | Option
 const DIVIDER: IDivider = { __typename: 'DIVIDER' }
 const OPTION: Option = { __typename: 'OPTION', label: '' }
 
-export default observer(props => {
+export default observer((props) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const theme = useTheme()
-  const handleClick = event => {
+  const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
 
@@ -36,7 +36,7 @@ export default observer(props => {
     setAnchorEl(null)
   }
 
-  const getOnClick = func => () => {
+  const getOnClick = (func) => () => {
     handleClose()
     if (func) {
       func()

@@ -5,7 +5,7 @@ import SortIcon from '@material-ui/icons/Sort'
 import IconButton from '@material-ui/core/IconButton'
 import { useStore } from 'components/StoreContext'
 
-export default observer(props => {
+export default observer((props) => {
   const { arrangeStore } = useStore()
   const {
     win: { id }

@@ -4,7 +4,7 @@ import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
 import { useStore } from 'components/StoreContext'
 
-export default observer(props => {
+export default observer((props) => {
   const { dragStore } = useStore()
   const {
     faked,

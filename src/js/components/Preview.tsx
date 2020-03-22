@@ -5,11 +5,11 @@ import Tab from 'components/Tab/Tab'
 import { useStore } from './StoreContext'
 import { useTheme } from './ThemeContext'
 
-export default observer(props => {
+export default observer((props) => {
   const isDarkTheme = useTheme()
   const { tabStore } = useStore()
   const { sources } = tabStore
-  const content = sources.map(tab => <Tab key={tab.id} tab={tab} faked />)
+  const content = sources.map((tab) => <Tab key={tab.id} tab={tab} faked />)
   return (
     <div
       className={classNames('opacity-50', {

@@ -67,17 +67,17 @@ export default class WindowsStore {
   @computed
   get tabCount () {
     return this.windows
-      .map(x => x.tabs.length)
+      .map((x) => x.tabs.length)
       .reduce((acc, cur) => acc + cur, 0)
   }
 
   @computed
   get tabs () {
-    return [].concat(...this.windows.map(x => x.tabs.slice()))
+    return [].concat(...this.windows.map((x) => x.tabs.slice()))
   }
 
   clearWindow = () => {
-    this.columns.forEach(x => x.clearWindow())
+    this.columns.forEach((x) => x.clearWindow())
     for (let index = 0; index < this.columns.length;) {
       if (this.columns[index].length === 0) {
         this.columns.splice(index, 1)
@@ -97,7 +97,7 @@ export default class WindowsStore {
   @action
   onAttached = async (tabId, attachInfo) => {
     const { newWindowId } = attachInfo
-    const win = this.windows.find(x => x.id === newWindowId)
+    const win = this.windows.find((x) => x.id === newWindowId)
     if (!win) {
       const win = await browser.windows.get(newWindowId, {
         populate: true
@@ -110,7 +110,7 @@ export default class WindowsStore {
 
   @action
   onDetached = (tabId, detachInfo) => {
-    const win = this.windows.find(x => x.id === detachInfo.oldWindowId)
+    const win = this.windows.find((x) => x.id === detachInfo.oldWindowId)
     if (!win) {
       return this.updateAllWindows()
     }
@@ -126,7 +126,7 @@ export default class WindowsStore {
     if (!isWindowClosing) {
       this.removeTabs([id])
     } else {
-      const index = this.windows.findIndex(x => x.id === windowId)
+      const index = this.windows.findIndex((x) => x.id === windowId)
       if (index === -1) {
         return
       }
@@ -137,14 +137,14 @@ export default class WindowsStore {
 
   @action
   onUpdated = (tabId, changeInfo, newTab) => {
-    const tab = this.tabs.find(x => x.id === tabId)
+    const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
       Object.assign(tab, newTab)
       tab.setUrlIcon()
     }
   }
 
-  onFocusChanged = async windowId => {
+  onFocusChanged = async (windowId) => {
     if (windowId <= 0) {
       return
     }
@@ -157,9 +157,9 @@ export default class WindowsStore {
   }
 
   @action
-  onCreated = tab => {
+  onCreated = (tab) => {
     const { index, windowId } = tab
-    const win = this.windows.find(x => x.id === windowId)
+    const win = this.windows.find((x) => x.id === windowId)
     if (!win) {
       this.windows.push(
         new Window(
@@ -179,16 +179,16 @@ export default class WindowsStore {
   @action
   onActivated = ({ tabId, windowId }) => {
     this.lastFocusedWindowId = windowId
-    const win = this.windows.find(x => x.id === windowId)
+    const win = this.windows.find((x) => x.id === windowId)
     if (!win) {
       return
     }
-    win.tabs.forEach(tab => {
+    win.tabs.forEach((tab) => {
       if (tab.active && tab.id !== tabId) {
         tab.active = false
       }
     })
-    const tab = win.tabs.find(x => x.id === tabId)
+    const tab = win.tabs.find((x) => x.id === tabId)
     if (tab) {
       tab.active = true
     }
@@ -196,7 +196,7 @@ export default class WindowsStore {
 
   @action
   onMoved = (tabId, moveInfo) => {
-    const win = this.windows.find(x => x.id === moveInfo.windowId)
+    const win = this.windows.find((x) => x.id === moveInfo.windowId)
     if (!win) {
       return this.updateAllWindows()
     }
@@ -219,17 +219,17 @@ export default class WindowsStore {
   }
 
   @action
-  removeTabs = ids => {
+  removeTabs = (ids) => {
     const set = new Set(ids)
-    this.windows.forEach(win => win.removeTabs(set))
+    this.windows.forEach((win) => win.removeTabs(set))
     this.clearWindow()
     this.updateColumns()
   }
 
   @action
-  createNewWindow = async tabs => {
+  createNewWindow = async (tabs) => {
     this.suspend()
-    this.removeTabs(tabs.map(x => x.id))
+    this.removeTabs(tabs.map((x) => x.id))
     const win = new Window(
       {
         tabs: []
@@ -271,12 +271,12 @@ export default class WindowsStore {
   windowMounted = () => {
     // TODO: Remove this when we add concurrent mode
     this.windows
-      .filter(win => !win.showTabs && win.visibleLength === 0)
-      .forEach(win => {
+      .filter((win) => !win.showTabs && win.visibleLength === 0)
+      .forEach((win) => {
         win.showTabs = true
         win.tabMounted()
       })
-    const win = this.windows.find(x => !x.showTabs)
+    const win = this.windows.find((x) => !x.showTabs)
     if (win) {
       win.showTabs = true
       win.tabMounted()
@@ -285,7 +285,7 @@ export default class WindowsStore {
 
   @computed
   get lastFocusedWindow () {
-    return this.windows.find(x => x.lastFocused)
+    return this.windows.find((x) => x.lastFocused)
   }
 
   @computed
@@ -299,13 +299,15 @@ export default class WindowsStore {
 
   @computed
   get duplicatedTabs () {
-    return this.tabs.filter(tab => this.urlCountMap[tab.url] > 1)
+    return this.tabs.filter((tab) => this.urlCountMap[tab.url] > 1)
   }
 
   @action
-  closeDuplicatedTab = tab => {
+  closeDuplicatedTab = (tab) => {
     const { id, url } = tab
-    this.tabs.filter(x => x.url === url && x.id !== id).forEach(x => x.remove())
+    this.tabs
+      .filter((x) => x.url === url && x.id !== id)
+      .forEach((x) => x.remove())
   }
 
   @action
@@ -319,13 +321,13 @@ export default class WindowsStore {
       }
       return acc
     }, {})
-    Object.values(tabMap).map(tabs => {
-      tabs.slice(1).forEach(x => x.remove())
+    Object.values(tabMap).map((tabs) => {
+      tabs.slice(1).forEach((x) => x.remove())
     })
   }
 
-  getTargetWindow = windowId => {
-    const win = this.windows.find(win => win.id === windowId)
+  getTargetWindow = (windowId) => {
+    const win = this.windows.find((win) => win.id === windowId)
     if (!win) {
       throw new Error(
         `getTargetWindow canot find window for windowId: ${windowId}!`
@@ -359,7 +361,7 @@ export default class WindowsStore {
   updateColumns () {
     const max = Math.ceil((this.height / TAB_HEIGHT) * 1.0)
     this.columns = this.windows
-      .filter(x => x.visibleLength > 0)
+      .filter((x) => x.visibleLength > 0)
       .reduce(
         (acc, cur) => {
           const column = acc[acc.length - 1]
@@ -387,7 +389,7 @@ export default class WindowsStore {
 
     this.windows = windows
       .filter(notSelfPopup)
-      .map(win => new Window(win, this.store))
+      .map((win) => new Window(win, this.store))
       .sort(windowComparator)
 
     if (this.initialLoading) {

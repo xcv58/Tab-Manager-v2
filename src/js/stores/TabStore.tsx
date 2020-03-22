@@ -32,7 +32,7 @@ export default class TabStore {
   }
 
   @action
-  select = tab => {
+  select = (tab) => {
     const { id } = tab
     if (this.selection.has(id)) {
       this.selection.delete(id)
@@ -42,14 +42,14 @@ export default class TabStore {
   }
 
   @action
-  selectAll = tabs => {
-    tabs.map(tab => {
+  selectAll = (tabs) => {
+    tabs.map((tab) => {
       this.selection.set(tab.id, tab)
     })
   }
 
   @action
-  invertSelect = tabs => {
+  invertSelect = (tabs) => {
     tabs.forEach(this.select)
   }
 
@@ -72,7 +72,7 @@ export default class TabStore {
   }
 
   @action
-  activate = tab => {
+  activate = (tab) => {
     activateTab(tab.id)
   }
 
@@ -89,15 +89,15 @@ export default class TabStore {
           break
         }
       }
-      tabsToRemove = tabs.filter(x => x.isSelected)
+      tabsToRemove = tabs.filter((x) => x.isSelected)
     } else {
       if (focusedTab) {
-        tabsToRemove = tabs.filter(x => x.isFocused)
+        tabsToRemove = tabs.filter((x) => x.isFocused)
         down()
       }
     }
     this.unselectAll()
-    tabsToRemove.forEach(x => x.remove())
+    tabsToRemove.forEach((x) => x.remove())
   }
 
   @action
@@ -106,14 +106,14 @@ export default class TabStore {
     const { tabs } = this.store.windowStore
     let tabsToReload = []
     if (this.selection.size > 0) {
-      tabsToReload = tabs.filter(x => x.isSelected)
+      tabsToReload = tabs.filter((x) => x.isSelected)
     } else {
       if (focusedTab) {
-        tabsToReload = tabs.filter(x => x.isFocused)
+        tabsToReload = tabs.filter((x) => x.isFocused)
       }
     }
     this.unselectAll()
-    tabsToReload.forEach(x => x.reload())
+    tabsToReload.forEach((x) => x.reload())
   }
 
   @action

@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 const pre = "<span class='text-red-500'>"
 const post = '</span>'
 
-export default observer(props => {
+export default observer((props) => {
   const { hoverStore, dragStore, userStore } = useStore()
   const { faked } = props
   const {
@@ -23,7 +23,7 @@ export default observer(props => {
   } = props.tab
   const buttonRef = useRef(null)
   const { showUrl, highlightDuplicatedTab } = userStore
-  const getHighlightNode = text => {
+  const getHighlightNode = (text) => {
     const {
       tab: { isMatched, query }
     } = props

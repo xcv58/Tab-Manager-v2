@@ -35,9 +35,7 @@ describe('SelectAll', () => {
   it('should call toggleSelectAll when click', () => {
     const el = shallow(<SelectAll {...props} />)
     const blur = jest.fn()
-    el.find(Checkbox)
-      .props()
-      .onChange({ target: { blur } })
+    el.find(Checkbox).props().onChange({ target: { blur } })
     expect(blur.mock.calls.length).toBe(1)
     expect(toggleSelectAll.mock.calls.length).toBe(1)
   })

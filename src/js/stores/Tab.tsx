@@ -189,6 +189,6 @@ export default class Tab {
 
   @action
   closeOtherTabs = () => {
-    this.win.tabs.filter(tab => tab.id !== this.id).map(tab => tab.remove())
+    this.win.tabs.filter((tab) => tab.id !== this.id).map((tab) => tab.remove())
   }
 }

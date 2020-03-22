@@ -4,7 +4,7 @@ import TableCell from '@material-ui/core/TableCell'
 export default ({ keys }) => {
   let content = keys
   if (typeof keys !== 'string') {
-    content = keys.map(key => <span key={key}>{key}</span>)
+    content = keys.map((key) => <span key={key}>{key}</span>)
   }
   return (
     <TableCell

@@ -47,4 +47,4 @@ const getMockedWindow = (tabNum = 10) => {
 }
 
 export const getMockedWindows = (num = 10) =>
-  [...Array(num)].map(_ => getMockedWindow(Math.round(Math.random() * 50)))
+  [...Array(num)].map((_) => getMockedWindow(Math.round(Math.random() * 50)))

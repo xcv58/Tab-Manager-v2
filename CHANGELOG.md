@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.1...v1.6.2) (2020-03-22)
+
+### Bug Fixes
+
+- Change the setting name 'Tab Width' -> 'Minimum Tab Width' ([35f97ff](https://github.com/xcv58/Tab-Manager-v2/commit/35f97ffe67f3db4d71dd16de863756dd03c6a0f0))
+
 ### [1.6.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.0...v1.6.1) (2020-03-20)
 
 ### Bug Fixes
