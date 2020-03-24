@@ -46,16 +46,16 @@ export default class WindowsStore {
   }
 
   @observable
-  windows = []
+  windows: Window[] = []
 
   @observable
-  columns = []
+  columns: Column[] = []
 
   @observable
   initialLoading = true
 
   @observable
-  lastFocusedWindowId = null
+  lastFocusedWindowId: number | null = null
 
   height = 600
 
@@ -98,10 +98,7 @@ export default class WindowsStore {
   @action
   onWindowsCreated = async (win) => {
     log.debug('windows.onCreated:', { win })
-    const window = await browser.windows.get(win.id, {
-      populate: true
-    })
-    this.windows.push(new Window(window, this.store))
+    await this.getOrCreateWinById(win.id)
     this.updateColumns()
   }
 
@@ -109,15 +106,26 @@ export default class WindowsStore {
   onAttached = async (tabId, attachInfo) => {
     log.debug('tabs.onAttached:', { tabId, attachInfo })
     const { newWindowId } = attachInfo
-    const win = this.windows.find((x) => x.id === newWindowId)
-    if (!win) {
-      const win = await browser.windows.get(newWindowId, {
-        populate: true
-      })
-      this.windows.push(new Window(win, this.store))
-    } else {
-      win.onAttched(tabId, attachInfo)
+    const win = await this.getOrCreateWinById(newWindowId)
+    win.onAttched(tabId, attachInfo)
+  }
+
+  // This method will return the window object if it appears in this.windows.
+  // Otherwise, it will create a new Window object and push it to this.windows.
+  getOrCreateWinById = async (windowId) => {
+    let win = this.windows.find((x) => x.id === windowId)
+    if (win) {
+      return win
     }
+    const winData = await browser.windows.get(windowId, {
+      populate: true
+    })
+    win = this.windows.find((x) => x.id === windowId)
+    if (!win) {
+      win = new Window(winData, this.store)
+      this.windows.push(win)
+    }
+    return win
   }
 
   @action
