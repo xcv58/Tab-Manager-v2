@@ -22,11 +22,11 @@ export default class WindowsStore {
 
   constructor (store) {
     this.store = store
+    this.getAllWindows()
   }
 
   didMount = () => {
-    this.getAllWindows()
-    // browser.windows.onCreated.addListener(this.updateAllWindows)
+    browser.windows.onCreated.addListener(this.onWindowsCreated)
     browser.windows.onFocusChanged.addListener(this.onFocusChanged)
     // browser.windows.onRemoved.addListener(this.updateAllWindows)
 
@@ -93,6 +93,16 @@ export default class WindowsStore {
         index++
       }
     }
+  }
+
+  @action
+  onWindowsCreated = async (win) => {
+    log.debug('windows.onCreated:', { win })
+    const window = await browser.windows.get(win.id, {
+      populate: true
+    })
+    this.windows.push(new Window(window, this.store))
+    this.updateColumns()
   }
 
   @action
@@ -236,27 +246,15 @@ export default class WindowsStore {
   }
 
   @action
-  createNewWindow = async (tabs) => {
-    this.suspend()
-    this.removeTabs(tabs.map((x) => x.id))
-    const win = new Window(
-      {
-        tabs: []
-      },
-      this.store
-    )
-    win.tabs = tabs
-    this.windows.push(win)
-    this.clearWindow()
-
-    await browser.runtime.sendMessage({
+  createNewWindow = (tabs) => {
+    log.debug('createNewWindow:', { tabs })
+    browser.runtime.sendMessage({
       tabs: tabs.map(({ id, pinned }) => ({
         id,
         pinned
       })),
       action: actions.createWindow
     })
-    this.resume()
   }
 
   @action
@@ -348,6 +346,7 @@ export default class WindowsStore {
 
   @action
   moveTabs = async (tabs, windowId, from = 0) => {
+    log.debug('moveTabs:', { tabs, windowId, from })
     const targetWindow = this.getTargetWindow(windowId)
     tabs.map((tab, i) => {
       const index = from + (from !== -1 ? i : 0)
