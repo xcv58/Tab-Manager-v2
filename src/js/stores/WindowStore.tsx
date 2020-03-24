@@ -9,6 +9,7 @@ import {
   TAB_HEIGHT
 } from 'libs'
 import actions from 'libs/actions'
+import log from 'loglevel'
 import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Column from 'stores/Column'
@@ -29,13 +30,13 @@ export default class WindowsStore {
     browser.windows.onFocusChanged.addListener(this.onFocusChanged)
     // browser.windows.onRemoved.addListener(this.updateAllWindows)
 
-    browser.tabs.onCreated.addListener(this.onCreated)
-    browser.tabs.onUpdated.addListener(this.onUpdated)
     browser.tabs.onActivated.addListener(this.onActivated)
-    browser.tabs.onRemoved.addListener(this.onRemoved)
-    browser.tabs.onMoved.addListener(this.onMoved)
-    browser.tabs.onDetached.addListener(this.onDetached)
     browser.tabs.onAttached.addListener(this.onAttached)
+    browser.tabs.onCreated.addListener(this.onCreated)
+    browser.tabs.onDetached.addListener(this.onDetached)
+    browser.tabs.onMoved.addListener(this.onMoved)
+    browser.tabs.onRemoved.addListener(this.onRemoved)
+    browser.tabs.onUpdated.addListener(this.onUpdated)
 
     // Move tabs related functions, use `updateAllWindows` to keep clean.
 
@@ -96,6 +97,7 @@ export default class WindowsStore {
 
   @action
   onAttached = async (tabId, attachInfo) => {
+    log.debug('tabs.onAttached:', { tabId, attachInfo })
     const { newWindowId } = attachInfo
     const win = this.windows.find((x) => x.id === newWindowId)
     if (!win) {
@@ -110,6 +112,7 @@ export default class WindowsStore {
 
   @action
   onDetached = (tabId, detachInfo) => {
+    log.debug('tabs.onDetached:', { tabId, detachInfo })
     const win = this.windows.find((x) => x.id === detachInfo.oldWindowId)
     if (!win) {
       return this.updateAllWindows()
@@ -122,6 +125,7 @@ export default class WindowsStore {
 
   @action
   onRemoved = (id, { windowId, isWindowClosing }) => {
+    log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
     this.store.tabStore.selection.delete(id)
     if (!isWindowClosing) {
       this.removeTabs([id])
@@ -137,6 +141,7 @@ export default class WindowsStore {
 
   @action
   onUpdated = (tabId, changeInfo, newTab) => {
+    log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
       Object.assign(tab, newTab)
@@ -145,6 +150,7 @@ export default class WindowsStore {
   }
 
   onFocusChanged = async (windowId) => {
+    log.debug('windows.onFocusChanged:', { windowId })
     if (windowId <= 0) {
       return
     }
@@ -158,6 +164,7 @@ export default class WindowsStore {
 
   @action
   onCreated = (tab) => {
+    log.debug('tabs.onCreated:', { tab })
     const { index, windowId } = tab
     const win = this.windows.find((x) => x.id === windowId)
     if (!win) {
@@ -178,6 +185,7 @@ export default class WindowsStore {
 
   @action
   onActivated = ({ tabId, windowId }) => {
+    log.debug('tabs.onActivate:', { tabId, windowId })
     this.lastFocusedWindowId = windowId
     const win = this.windows.find((x) => x.id === windowId)
     if (!win) {
@@ -196,6 +204,7 @@ export default class WindowsStore {
 
   @action
   onMoved = (tabId, moveInfo) => {
+    log.debug('tabs.onMoved:', { tabId, moveInfo })
     const win = this.windows.find((x) => x.id === moveInfo.windowId)
     if (!win) {
       return this.updateAllWindows()
@@ -253,6 +262,7 @@ export default class WindowsStore {
   @action
   updateAllWindows = () => {
     const time = Date.now()
+    log.debug('updateAllWindows:', { time })
     if (this.updateHandler != null) {
       clearTimeout(this.updateHandler)
     }
@@ -382,6 +392,7 @@ export default class WindowsStore {
   }
 
   loadAllWindows = async () => {
+    log.debug('loadAllWindows')
     const windows = await browser.windows.getAll({
       populate: true
     })
@@ -401,6 +412,7 @@ export default class WindowsStore {
   }
 
   getAllWindows = () => {
+    log.debug('getAllWindows:', { batching: this.batching })
     if (this.batching) {
       return
     }
