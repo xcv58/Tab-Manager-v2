@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.3...v1.6.4) (2020-03-24)
+
+### Bug Fixes
+
+- Create a new window causes duplicated window on UI ([1ae2ca7](https://github.com/xcv58/Tab-Manager-v2/commit/1ae2ca77dfb382e93510d6752d9e1c212d8da35b))
+
 ### [1.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.2...v1.6.3) (2020-03-24)
 
 ### Features
