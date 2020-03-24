@@ -9,7 +9,7 @@ import {
   TAB_HEIGHT
 } from 'libs'
 import actions from 'libs/actions'
-import log from 'loglevel'
+import log from 'libs/log'
 import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Column from 'stores/Column'
