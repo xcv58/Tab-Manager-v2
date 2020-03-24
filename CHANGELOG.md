@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.2...v1.6.3) (2020-03-24)
+
+### Features
+
+- Use React Concurrent mode ([#311](https://github.com/xcv58/Tab-Manager-v2/issues/311)) ([ff11600](https://github.com/xcv58/Tab-Manager-v2/commit/ff11600283022a2a176a83d96c11f1ba0f4608df))
+
+### Bug Fixes
+
+- Shift+N / Drag to create new window causes stale UI ([219f247](https://github.com/xcv58/Tab-Manager-v2/commit/219f247c45b56366d8be714c37ee637be73d878c))
+
 ### [1.6.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.1...v1.6.2) (2020-03-22)
 
 ### Bug Fixes
