@@ -1,5 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
+import { browser } from 'libs'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -182,6 +183,10 @@ export default observer(() => {
             />
           </FormGroup>
         </FormControl>
+        <Divider />
+        <div className='text-sm text-right opacity-75'>
+          v{browser.runtime.getManifest().version}
+        </div>
       </DialogContent>
     </Dialog>
   )
