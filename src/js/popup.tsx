@@ -1,3 +1,4 @@
+/// <reference types="webpack-env" />
 import App from 'components/App'
 import React from 'react'
 import { render } from 'react-dom'
@@ -17,3 +18,16 @@ const init = () => {
 }
 
 init()
+
+// Hot Module Replacement
+if (module.hot) {
+  module.hot.accept('components/App', () => {
+    const NewApp = require('components/App').default
+    render(
+      <StoreContext.Provider value={store}>
+        <NewApp />
+      </StoreContext.Provider>,
+      window.document.getElementById('app-container')
+    )
+  })
+}

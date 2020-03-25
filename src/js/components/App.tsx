@@ -45,10 +45,11 @@ export default observer(() => {
     (userStore.useSystemTheme && systemTheme === 'dark') ||
     (!userStore.useSystemTheme && userStore.darkTheme)
   const theme = isDarkTheme ? darkTheme : lightTheme
+  // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
     <StrictMode>
       <MuiThemeProvider theme={createMuiTheme(theme)}>
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider key={Date.now()} backend={HTML5Backend}>
           <ThemeContext.Provider value={isDarkTheme}>
             <App />
           </ThemeContext.Provider>
