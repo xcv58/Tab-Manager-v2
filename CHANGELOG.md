@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.4...v1.6.5) (2020-03-25)
+
+### Bug Fixes
+
+- Add version to settings dialog ([6d4c418](https://github.com/xcv58/Tab-Manager-v2/commit/6d4c4183d5424c22c1db5bab60a8e37ddfbd3f62))
+
 ### [1.6.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.3...v1.6.4) (2020-03-24)
 
 ### Bug Fixes
