@@ -23,6 +23,7 @@ export default observer(() => {
         style={{
           opacity: toolbarAutoHide ? 1 : 0.2
         }}
+        className='focus:outline-none'
         disabled={!toolbarAutoHide}
         onFocus={showToolbar}
         onMouseEnter={showToolbar}
