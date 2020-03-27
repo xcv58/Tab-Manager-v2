@@ -354,9 +354,12 @@ export default class ShortcutStore {
     if (this.inputShortcutSet.has(combo)) {
       return false
     }
-    const { tagName, contentEditable } = element
+    const { contentEditable, tagName, type } = element
     if (contentEditable === 'true') {
       return true
+    }
+    if (type === 'checkbox') {
+      return false
     }
     return ['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)
   }
