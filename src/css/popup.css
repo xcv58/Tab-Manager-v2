@@ -28,25 +28,6 @@ body {
   height: calc(100vh - 3rem);
 }
 
-.scrollbar::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
-}
-
-.scrollbar::-webkit-scrollbar-thumb {
-  background: #90a4ae;
-}
-
-.scrollbar::-webkit-scrollbar-thumb:horizontal:hover,
-.scrollbar::-webkit-scrollbar-thumb:vertical:hover {
-  background: #78909c;
-}
-
-.scrollbar::-webkit-scrollbar-thumb:horizontal:active,
-.scrollbar::-webkit-scrollbar-thumb:vertical:active {
-  background: #607d8b;
-}
-
 .toolbar {
   opacity: 0.4;
 }

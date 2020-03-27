@@ -9,11 +9,7 @@ import { useStore } from './StoreContext'
 const View = (props) => {
   const { style } = props
   return (
-    <div
-      {...props}
-      className='flex mb-0 mr-0 overflow-auto scrollbar'
-      style={style}
-    />
+    <div {...props} className='flex mb-0 mr-0 overflow-auto' style={style} />
   )
 }
 
