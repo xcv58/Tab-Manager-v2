@@ -186,3 +186,5 @@ export const getDomain = (url) => {
   }
   return url
 }
+
+export const isProduction = () => process.env.NODE_ENV === 'production'

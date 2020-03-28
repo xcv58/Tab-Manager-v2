@@ -1,6 +1,7 @@
 import log from 'loglevel'
+import { isProduction } from 'libs'
 
-if (process.env.NODE_ENV === 'production') {
+if (isProduction()) {
   log.setLevel('INFO')
 } else {
   log.setLevel('DEBUG')

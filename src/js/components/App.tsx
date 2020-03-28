@@ -15,6 +15,7 @@ import { useStore } from './StoreContext'
 import DragLayer from './DragLayer'
 import { ThemeContext } from './ThemeContext'
 import DroppableTools from './DroppableTools'
+import { isProduction } from 'libs'
 
 const App = observer(() => {
   const searchEl = useRef<HTMLInputElement>(null)
@@ -49,7 +50,10 @@ export default observer(() => {
   return (
     <StrictMode>
       <MuiThemeProvider theme={createMuiTheme(theme)}>
-        <DndProvider key={Date.now()} backend={HTML5Backend}>
+        <DndProvider
+          key={isProduction() ? 'dnd-provider' : Date.now()}
+          backend={HTML5Backend}
+        >
           <ThemeContext.Provider value={isDarkTheme}>
             <App />
           </ThemeContext.Provider>

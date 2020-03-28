@@ -3,6 +3,7 @@ import App from 'components/App'
 import React from 'react'
 import { render } from 'react-dom'
 import { StoreContext, store } from 'components/StoreContext'
+import { isProduction } from 'libs'
 import '../css/popup.css'
 
 const init = () => {
@@ -12,7 +13,7 @@ const init = () => {
     </StoreContext.Provider>,
     window.document.getElementById('app-container')
   )
-  if (process.env.NODE_ENV !== 'production') {
+  if (!isProduction()) {
     // require('react-axe')(React, require('react-dom'), 1000)
   }
 }
