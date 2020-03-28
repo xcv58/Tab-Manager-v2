@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.5...v1.6.6) (2020-03-28)
+
+### Bug Fixes
+
+- Remove custom scrollbar since the implementation is Non-standard and causes ugly empty space on the right [#308](https://github.com/xcv58/Tab-Manager-v2/issues/308) ([4bf0d32](https://github.com/xcv58/Tab-Manager-v2/commit/4bf0d3248c7dde846e9b5d0aa621530a716f2ec3))
+- Remove focus border for ToolbarIndicator ([1918b14](https://github.com/xcv58/Tab-Manager-v2/commit/1918b14f4e5f0f442a06b1f5ef7ce887e8649110))
+- Shortcut doesn't work when the checkbox or switch is focused ([d85f8a9](https://github.com/xcv58/Tab-Manager-v2/commit/d85f8a9194ed8c146666975d489bd335363fc391))
+
 ### [1.6.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.4...v1.6.5) (2020-03-25)
 
 ### Bug Fixes
