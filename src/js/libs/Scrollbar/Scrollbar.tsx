@@ -1,13 +1,14 @@
 import React, { useRef, useEffect } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { SpringSystem } from 'rebound'
+import log from 'libs/log'
 import { ScrollbarContext } from './useScrollbar'
 
 export default (props) => {
   const { style, scrollbarRef, ...restProps } = props
   const _scrollbarRef = useRef(null)
-  const spring = useRef(null)
-  const leftSpring = useRef(null)
+  const verticalSpring = useRef(null)
+  const horizontalSpring = useRef(null)
 
   const getSpringUpdateFunc = (func) => (spring) => {
     if (func && typeof func === 'function') {
@@ -16,36 +17,38 @@ export default (props) => {
   }
 
   const scrollTo = ({ top = 0, left = 0 }) => {
+    log.debug('scrollTo:', { top, left })
+    if (!_scrollbarRef.current) {
+      log.debug('Invalid scrollTo call, the _scrollbarRef is null')
+      return
+    }
     if (!top && !left) {
       return
     }
-    const scrollbar = _scrollbarRef.current
-    if (scrollbar) {
-      const scrollTop = scrollbar.getScrollTop()
-      const scrollLeft = scrollbar.getScrollLeft()
-      leftSpring.current.setCurrentValue(scrollLeft).setAtRest()
-      leftSpring.current.setEndValue(scrollLeft + left)
-      spring.current.setCurrentValue(scrollTop).setAtRest()
-      spring.current.setEndValue(scrollTop + top)
-    }
+    const scrollTop = _scrollbarRef.current.getScrollTop()
+    const scrollLeft = _scrollbarRef.current.getScrollLeft()
+    verticalSpring.current.setCurrentValue(scrollTop).setAtRest()
+    verticalSpring.current.setEndValue(scrollTop + top)
+    horizontalSpring.current.setCurrentValue(scrollLeft).setAtRest()
+    horizontalSpring.current.setEndValue(scrollLeft + left)
   }
 
   useEffect(() => {
-    const { scrollTop, scrollLeft } = _scrollbarRef.current
     const springSystem = new SpringSystem()
-    spring.current = springSystem.createSpring()
-    spring.current.addListener({
+    const { scrollTop, scrollLeft } = _scrollbarRef.current
+    verticalSpring.current = springSystem.createSpring()
+    verticalSpring.current.addListener({
       onSpringUpdate: getSpringUpdateFunc(scrollTop)
     })
-    leftSpring.current = springSystem.createSpring()
-    leftSpring.current.addListener({
+    horizontalSpring.current = springSystem.createSpring()
+    horizontalSpring.current.addListener({
       onSpringUpdate: getSpringUpdateFunc(scrollLeft)
     })
     return () => {
-      springSystem.deregisterSpring(spring.current)
+      springSystem.deregisterSpring(verticalSpring.current)
       springSystem.removeAllListeners()
-      spring.current.destroy()
-      leftSpring.current.destroy()
+      verticalSpring.current.destroy()
+      horizontalSpring.current.destroy()
     }
   }, [])
 
