@@ -19,7 +19,6 @@ const props = {
     tabs,
     showTabs: true
   },
-  getScrollbars: spy(),
   dragPreview: 'preview node'
 }
 

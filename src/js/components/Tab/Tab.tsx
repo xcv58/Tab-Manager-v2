@@ -7,16 +7,7 @@ import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
 import { useStore } from 'components/StoreContext'
 import { useTheme } from 'components/ThemeContext'
-
-const getTargetValue = (lValue, rValue) => {
-  if (lValue < 0) {
-    return lValue
-  }
-  if (rValue < 0) {
-    return -rValue
-  }
-  return 0
-}
+import { useScrollbar } from 'libs/Scrollbar'
 
 const PIN = (
   <div
@@ -34,7 +25,7 @@ const PIN = (
 )
 
 const Tab = observer((props) => {
-  const node = useRef(null)
+  const nodeRef = useRef(null)
   const { dragStore } = useStore()
   const isDarkTheme = useTheme()
   const { faked, tab, className } = props
@@ -75,23 +66,14 @@ const Tab = observer((props) => {
   //   }
   // }, [faked])
 
+  const { scrollToNode } = useScrollbar()
+
   useEffect(() => {
     if (faked) {
       return
     }
     if (isFocused && isVisible) {
-      const scrollbars = props.getScrollbars()
-      const containmentRect = scrollbars.getBoundingClientRect()
-      const { top, bottom, left, right } = node.current.getBoundingClientRect()
-      const height = bottom - top
-      const topGap = top - 2 * height - containmentRect.top
-      const bottomGap = containmentRect.bottom - bottom - 2 * height - 4
-      const leftGap = left - 4 - containmentRect.left
-      const rightGap = containmentRect.right - right - 32
-      scrollbars.scrollTo({
-        left: getTargetValue(leftGap, rightGap),
-        top: getTargetValue(topGap, bottomGap)
-      })
+      scrollToNode(nodeRef)
     }
     return onMouseLeave
   }, [faked, isFocused, isVisible])
@@ -100,7 +82,7 @@ const Tab = observer((props) => {
 
   return (
     <div
-      ref={node}
+      ref={nodeRef}
       className={classNames(
         'flex border-l-2 border-transparent',
         {

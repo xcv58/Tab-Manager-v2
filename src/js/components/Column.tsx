@@ -9,8 +9,7 @@ export default observer((props) => {
     column: { windows },
     left,
     right,
-    width,
-    getScrollbars
+    width
   } = props
 
   const style: any = {
@@ -23,12 +22,7 @@ export default observer((props) => {
     marginRight: right && 'auto'
   }
   const windowList = windows.map((win) => (
-    <Window
-      key={win.id}
-      win={win}
-      width={width}
-      getScrollbars={getScrollbars}
-    />
+    <Window key={win.id} win={win} width={width} />
   ))
   return <div style={style}>{windowList}</div>
 })

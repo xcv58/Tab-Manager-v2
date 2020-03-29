@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { observer } from 'mobx-react'
 import Column from 'components/Column'
-import Scrollbars from 'libs/Scrollbars'
+import Scrollbar from 'libs/Scrollbar'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
 import { useStore } from './StoreContext'
@@ -15,10 +15,9 @@ const View = (props) => {
 
 export default observer(() => {
   const { windowStore } = useStore()
-  const scrollbars = useRef(null)
-  const getScrollbars = () => scrollbars.current
+  const scrollbarRef = useRef(null)
   const onResize = () => {
-    const { height } = getScrollbars().getBoundingClientRect()
+    const { height } = scrollbarRef.current.getBoundingClientRect()
     windowStore.updateHeight(height)
   }
   const renderEmptyTrack = (props) => (
@@ -37,7 +36,7 @@ export default observer(() => {
   const { columns, initialLoading } = windowStore
   if (initialLoading) {
     return (
-      <div ref={scrollbars}>
+      <div ref={scrollbarRef}>
         <Loading />
         {resizeDetector}
       </div>
@@ -51,15 +50,14 @@ export default observer(() => {
       right={i + 1 === columns.length}
       column={column}
       width={width}
-      getScrollbars={getScrollbars}
     />
   ))
   return (
-    <Scrollbars
+    <Scrollbar
       renderView={View}
       renderTrackHorizontal={renderEmptyTrack}
       renderTrackVertical={renderEmptyTrack}
-      ref={scrollbars}
+      scrollbarRef={scrollbarRef}
       style={{
         display: 'flex',
         flex: '1 1 auto',
@@ -68,6 +66,6 @@ export default observer(() => {
     >
       {list}
       {resizeDetector}
-    </Scrollbars>
+    </Scrollbar>
   )
 })

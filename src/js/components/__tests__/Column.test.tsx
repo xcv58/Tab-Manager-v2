@@ -16,7 +16,6 @@ const props = {
   column: {
     windows
   },
-  getScrollbars: spy(),
   dragPreview: 'preview node',
   width: '100%',
   theme

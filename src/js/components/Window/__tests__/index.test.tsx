@@ -20,7 +20,6 @@ const props = {
     tabs,
     showTabs: true
   },
-  getScrollbars: spy(),
   width: '100%',
   theme
 }

@@ -10,11 +10,8 @@ export default observer((props) => {
   }, [])
 
   const {
-    win: { tabs },
-    getScrollbars
+    win: { tabs }
   } = props
-  const tabsView = tabs.map((tab) => (
-    <DraggableTab key={tab.id} tab={tab} {...{ getScrollbars }} />
-  ))
+  const tabsView = tabs.map((tab) => <DraggableTab key={tab.id} tab={tab} />)
   return <>{tabsView}</>
 })
