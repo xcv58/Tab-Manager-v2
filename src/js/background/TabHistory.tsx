@@ -1,5 +1,11 @@
-import { activateTab, popupURL, setLastFocusedWindowId, browser } from 'libs'
+import {
+  activateTab,
+  setLastFocusedWindowId,
+  browser,
+  isSelfPopupTab
+} from 'libs'
 import actions from 'libs/actions'
+import log from 'libs/log'
 import { Background } from '../background'
 
 export default class TabHistory {
@@ -92,16 +98,28 @@ export default class TabHistory {
   }
 
   onFocusChanged = async (windowId) => {
+    log.debug('onFocusChanged:', { windowId })
     if (windowId < 0) {
       return
     }
     const [tab] = await browser.tabs.query({ active: true, windowId })
     if (!tab) {
+      log.debug('onFocusChanged does nothing since no tab')
       return
     }
-    if (tab.url === popupURL) {
+    const isPopupWindow = isSelfPopupTab(tab)
+    if (isPopupWindow) {
+      log.debug('onFocusChanged ignore self popup window', {
+        tab,
+        isPopupWindow
+      })
       return
     }
+    log.debug('onFocusChanged record the window', {
+      windowId,
+      tab,
+      isPopupWindow
+    })
     this.add({ ...tab, tabId: tab.id, windowId })
     setLastFocusedWindowId(windowId)
   }

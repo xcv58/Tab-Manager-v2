@@ -102,9 +102,12 @@ export const openInNewTab = () => {
   closeIfCurrentTabIsPopup()
 }
 
+export const isSelfPopupTab = (tab) =>
+  tab.url === popupURL || tab.pendingUrl === popupURL
+
 export const isSelfPopup = ({ type, tabs = [] }) => {
   if (type === 'popup' && tabs.length === 1) {
-    return tabs[0].url === popupURL
+    return isSelfPopupTab(tabs[0])
   }
   return false
 }

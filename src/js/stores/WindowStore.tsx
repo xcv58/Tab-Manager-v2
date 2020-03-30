@@ -404,6 +404,7 @@ export default class WindowsStore {
       populate: true
     })
     this.lastFocusedWindowId = await getLastFocusedWindowId()
+    log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
 
     this.windows = windows
       .filter(notSelfPopup)
