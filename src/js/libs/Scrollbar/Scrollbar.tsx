@@ -18,8 +18,15 @@ export default (props) => {
 
   const scrollTo = ({ top = 0, left = 0 }) => {
     log.debug('scrollTo:', { top, left })
-    if (!_scrollbarRef.current) {
-      log.debug('Invalid scrollTo call, the _scrollbarRef is null')
+    if (
+      !_scrollbarRef.current ||
+      !verticalSpring.current ||
+      !horizontalSpring.current
+    ) {
+      log.debug(
+        'Invalid scrollTo call, one or more internal state are not ready:',
+        { _scrollbarRef, verticalSpring, horizontalSpring }
+      )
       return
     }
     if (!top && !left) {

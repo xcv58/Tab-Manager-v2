@@ -74,6 +74,7 @@ const Tab = observer((props) => {
     }
     if (isFocused && isVisible) {
       scrollToNode(nodeRef)
+      nodeRef.current.focus()
     }
     return onMouseLeave
   }, [faked, isFocused, isVisible])
@@ -83,10 +84,10 @@ const Tab = observer((props) => {
   return (
     <div
       ref={nodeRef}
+      tabIndex={-1}
       className={classNames(
-        'flex border-l-2 border-transparent',
+        'flex',
         {
-          'border-l-2 border-solid border-red-500': isFocused,
           'opacity-25': !isMatched
         },
         className,
