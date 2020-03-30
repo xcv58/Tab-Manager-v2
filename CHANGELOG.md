@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.6...v1.7.0) (2020-03-30)
+
+### Features
+
+- Redesign the focused tab style to native focus style instead of the left indicator ([df64689](https://github.com/xcv58/Tab-Manager-v2/commit/df64689a5889f79d83d3d949ed11aaa22443c0d9))
+
+### Bug Fixes
+
+- **deps:** pin dependencies ([1964295](https://github.com/xcv58/Tab-Manager-v2/commit/196429514771b730d64f715a21b31f1b8ba7984f))
+- The popup mode can't recognize correct last focused window because the Tab.pendingUrl since Chrome 79 ([be228c7](https://github.com/xcv58/Tab-Manager-v2/commit/be228c7cd7665670996ddcaa5b4027eb532db954))
+
 ### [1.6.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.5...v1.6.6) (2020-03-28)
 
 ### Bug Fixes
