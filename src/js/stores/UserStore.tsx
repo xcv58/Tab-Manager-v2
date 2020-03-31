@@ -13,7 +13,8 @@ const DEFAULT_SETTINGS = {
   autoFocusSearch: false,
   useSystemTheme: true,
   darkTheme: false,
-  tabWidth: 20
+  tabWidth: 20,
+  showTabIcon: true
 }
 
 export default class UserStore {
@@ -73,6 +74,9 @@ export default class UserStore {
 
   @observable
   tabWidth = 20
+
+  @observable
+  showTabIcon = true
 
   hideToolbarHandler = null
 
@@ -144,6 +148,12 @@ export default class UserStore {
   @action
   updateTabWidth = (tabWidth) => {
     this.tabWidth = tabWidth
+    this.save()
+  }
+
+  @action
+  toggleShowTabIcon = () => {
+    this.showTabIcon = !this.showTabIcon
     this.save()
   }
 

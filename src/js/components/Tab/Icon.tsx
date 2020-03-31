@@ -3,9 +3,17 @@ import classNames from 'classnames'
 import { observer } from 'mobx-react'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
+import { useStore } from 'components/StoreContext'
 
 export default observer((props) => {
+  const { userStore } = useStore()
   const { focus, select, iconUrl, isSelected } = props.tab
+  const checkbox = (
+    <Checkbox color='primary' checked={isSelected} onChange={select} />
+  )
+  if (!userStore.showTabIcon) {
+    return checkbox
+  }
   return (
     <div className='group'>
       <div
@@ -27,7 +35,7 @@ export default observer((props) => {
           'hidden group-hover:block': !isSelected
         })}
       >
-        <Checkbox color='primary' checked={isSelected} onChange={select} />
+        {checkbox}
       </div>
     </div>
   )

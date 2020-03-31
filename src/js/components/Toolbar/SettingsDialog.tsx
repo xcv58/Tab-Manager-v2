@@ -41,7 +41,9 @@ export default observer(() => {
     useSystemTheme,
     toggleUseSystemTheme,
     tabWidth,
-    updateTabWidth
+    updateTabWidth,
+    showTabIcon,
+    toggleShowTabIcon
   } = userStore
   return (
     <Dialog
@@ -116,6 +118,16 @@ export default observer(() => {
           </FormGroup>
           <FormGroup>
             <FormHelperText>Individual Tab</FormHelperText>
+            <FormControlLabel
+              label='Show Tab Icon'
+              control={
+                <Switch
+                  color='primary'
+                  checked={showTabIcon}
+                  onChange={toggleShowTabIcon}
+                />
+              }
+            />
             <FormControlLabel
               label='Show URL'
               control={
