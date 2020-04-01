@@ -26,7 +26,7 @@ const PIN = (
 
 const Tab = observer((props) => {
   const nodeRef = useRef(null)
-  const { dragStore } = useStore()
+  const { dragStore, searchStore } = useStore()
   const isDarkTheme = useTheme()
   const { faked, tab, className } = props
   const {
@@ -74,7 +74,9 @@ const Tab = observer((props) => {
     }
     if (isFocused && isVisible) {
       scrollToNode(nodeRef)
-      nodeRef.current.focus()
+      if (!searchStore.typing) {
+        nodeRef.current.focus()
+      }
     }
     return onMouseLeave
   }, [faked, isFocused, isVisible])
