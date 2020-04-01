@@ -371,6 +371,10 @@ export default class WindowsStore {
 
   @action
   updateHeight (height) {
+    log.debug('WindowsStore.updateHeight:', {
+      height,
+      'this.height': this.height
+    })
     if (this.height !== height && Math.abs(this.height - height) > TAB_HEIGHT) {
       this.height = height
       this.updateColumns()
@@ -425,6 +429,7 @@ export default class WindowsStore {
     this.updateColumns()
     this.initialLoading = false
     this.updateHandler = null
+    this.store.searchStore.setDefaultFocusedTab()
   }
 
   getAllWindows = () => {
