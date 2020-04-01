@@ -345,10 +345,18 @@ export default class ShortcutStore {
       'Toggle Settings'
     ],
     [
+      'w w',
+      (event) => {
+        preventDefault(event)
+        this.store.searchStore.toggleHideForFocusedWindow()
+      },
+      'Toggle collapse for current windows'
+    ],
+    [
       'w t',
       (event) => {
         preventDefault(event)
-        this.store.windowStore.windows.forEach((win) => win.toggleHide())
+        this.store.windowStore.toggleHideForAllWindows()
       },
       'Toggle collapse for all windows'
     ],
@@ -356,11 +364,7 @@ export default class ShortcutStore {
       'w c',
       (event) => {
         preventDefault(event)
-        this.store.windowStore.windows.forEach((win) => {
-          if (!win.hide) {
-            win.toggleHide()
-          }
-        })
+        this.store.windowStore.updateHideForAllWindows(true)
       },
       'Collapse all windows'
     ],
@@ -368,11 +372,7 @@ export default class ShortcutStore {
       'w e',
       (event) => {
         preventDefault(event)
-        this.store.windowStore.windows.forEach((win) => {
-          if (win.hide) {
-            win.toggleHide()
-          }
-        })
+        this.store.windowStore.updateHideForAllWindows(false)
       },
       'Expand all windows'
     ]

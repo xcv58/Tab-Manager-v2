@@ -14,7 +14,6 @@ import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Column from 'stores/Column'
 import Store from 'stores'
-import debounce from 'lodash.debounce'
 
 const DEBOUNCE_INTERVAL = 1000
 
@@ -381,7 +380,9 @@ export default class WindowsStore {
     }
   }
 
-  _updateColumns = () => {
+  @action
+  updateColumns = () => {
+    log.debug('updateColumns')
     const max = Math.ceil((this.height / TAB_HEIGHT) * 1.0)
     this.columns = this.windows
       .filter((x) => x.visibleLength > 0)
@@ -398,12 +399,6 @@ export default class WindowsStore {
         [new Column(this.store)]
       )
   }
-
-  @action
-  updateColumns = debounce(this._updateColumns, 500, {
-    trailing: true,
-    leading: true
-  })
 
   syncAllWindows = () => {
     this.initialLoading = true
@@ -438,5 +433,15 @@ export default class WindowsStore {
       return
     }
     return this.loadAllWindows()
+  }
+
+  updateHideForAllWindows = (hide) => {
+    this.windows.forEach((win) => (win.hide = hide))
+    this.updateColumns()
+  }
+
+  toggleHideForAllWindows = () => {
+    this.windows.forEach((win) => (win.hide = !win.hide))
+    this.updateColumns()
   }
 }
