@@ -3,6 +3,7 @@ import { filter } from 'fuzzy'
 import { activateTab, browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
+import debounce from 'lodash.debounce'
 
 export default class SearchStore {
   store: Store
@@ -23,6 +24,9 @@ export default class SearchStore {
 
   @observable
   _query = ''
+
+  @observable
+  _tabQuery = ''
 
   @observable
   focusedTab = null
@@ -103,14 +107,23 @@ export default class SearchStore {
     this.focusedTab = null
   }
 
-  _handler = null
-
   @action
-  search = (query, delay = 300) => {
+  search = (query) => {
+    log.debug('SearchStore.search:', { query, 'this.query': this.query })
     if (this.query === query) {
       return
     }
     this.query = query
+    this.updateQuery()
+    this.updateTabQuery()
+    if (this.store.userStore.preserveSearch) {
+      browser.storage.local.set({ query })
+    }
+  }
+
+  _updateQuery = () => {
+    log.debug('_updateQuery:', { _query: this._query, query: this.query })
+    this._query = this.query
     if (!this.matchedSet.has(this.focusedTab)) {
       this.focusedTab = null
       this.findFocusedTab()
@@ -118,28 +131,35 @@ export default class SearchStore {
     if (!this.store.userStore.showUnmatchedTab) {
       this.store.windowStore.updateColumns()
     }
-    // TODO: we can avoid this callback for rendering performance optimization
-    // if apply React concurrent mode.
-    if (this._handler) {
-      clearTimeout(this._handler)
-    }
-    this._handler = setTimeout(this.updateQuery, delay)
-    if (this.store.userStore.preserveSearch) {
-      browser.storage.local.set({ query })
-    }
+  }
+
+  _updateTabQuery = () => {
+    log.debug('_updateTabQuery:', {
+      _tabQuery: this._tabQuery,
+      query: this.query
+    })
+    this._tabQuery = this.query
   }
 
   @action
-  updateQuery = () => {
-    this._query = this.query
-  }
+  updateQuery = debounce(this._updateQuery, 200, {
+    leading: false,
+    trailing: true
+  })
 
   @action
-  clear = () => this.search('', 0)
+  updateTabQuery = debounce(this._updateTabQuery, 500, {
+    leading: false,
+    trailing: true
+  })
+
+  @action
+  clear = () => this.search('')
 
   fuzzySearch = () => {
+    log.debug('SearchStore.fuzzySearch:', { _query: this._query })
     const { tabs } = this.store.windowStore
-    if (!this.query) {
+    if (!this._query) {
       return tabs
     }
     const set = new Set(this.getMatchedIds(tabs, 'title'))
@@ -150,7 +170,7 @@ export default class SearchStore {
   }
 
   getMatchedIds = (tabs, field) =>
-    filter(this.query, tabs, { extract: (x) => x[field] }).map(
+    filter(this._query, tabs, { extract: (x) => x[field] }).map(
       (x) => x.original.id
     )
 
