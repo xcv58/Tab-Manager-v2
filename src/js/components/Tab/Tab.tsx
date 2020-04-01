@@ -24,7 +24,7 @@ const PIN = (
   </div>
 )
 
-const Tab = observer((props) => {
+export default observer((props) => {
   const nodeRef = useRef(null)
   const { dragStore, searchStore } = useStore()
   const isDarkTheme = useTheme()
@@ -34,7 +34,6 @@ const Tab = observer((props) => {
     isFocused,
     isMatched,
     isSelected,
-    isVisible,
     pinned,
     shouldHighlight
   } = tab
@@ -72,14 +71,14 @@ const Tab = observer((props) => {
     if (faked) {
       return
     }
-    if (isFocused && isVisible) {
+    if (isFocused) {
       scrollToNode(nodeRef)
       if (!searchStore.typing) {
         nodeRef.current.focus()
       }
     }
     return onMouseLeave
-  }, [faked, isFocused, isVisible])
+  }, [faked, isFocused])
 
   const pin = pinned && PIN
 
@@ -117,11 +116,4 @@ const Tab = observer((props) => {
       <CloseButton onClick={onRemove} disabled={tab.removing} />
     </div>
   )
-})
-
-export default observer((props) => {
-  if (!props.tab.isVisible) {
-    return null
-  }
-  return <Tab {...props} />
 })
