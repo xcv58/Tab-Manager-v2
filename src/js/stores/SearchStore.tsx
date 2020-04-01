@@ -2,6 +2,7 @@ import { action, computed, observable } from 'mobx'
 import { filter } from 'fuzzy'
 import { activateTab, browser } from 'libs'
 import Store from 'stores'
+import log from 'libs/log'
 
 export default class SearchStore {
   store: Store
@@ -310,5 +311,24 @@ export default class SearchStore {
     }
     const newIndex = (length + index) % length
     this.focusedTab = this.matchedTabs[newIndex].id
+  }
+
+  setDefaultFocusedTab = () => {
+    log.debug('setDefaultFocusedTab:', { focusedTab: this.focusedTab })
+    if (this.focusedTab) {
+      return
+    }
+    const { lastFocusedWindow } = this.store.windowStore
+    if (!lastFocusedWindow) {
+      log.debug('setDefaultFocusedTab no lastFocusedWindow:', {
+        lastFocusedWindow
+      })
+      return
+    }
+    const tab = lastFocusedWindow.tabs.find((x) => x.active)
+    log.debug('setDefaultFocusedTab active tab:', { tab })
+    if (tab) {
+      this.focus(tab)
+    }
   }
 }

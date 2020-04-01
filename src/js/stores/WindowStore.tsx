@@ -421,6 +421,7 @@ export default class WindowsStore {
     this.updateColumns()
     this.initialLoading = false
     this.updateHandler = null
+    this.store.searchStore.setDefaultFocusedTab()
   }
 
   getAllWindows = () => {
