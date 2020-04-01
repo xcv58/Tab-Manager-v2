@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.7.0...v1.7.1) (2020-04-01)
+
+### Bug Fixes
+
+- Add option to hide tab icon, fix [#196](https://github.com/xcv58/Tab-Manager-v2/issues/196) ([937c575](https://github.com/xcv58/Tab-Manager-v2/commit/937c57513863b32ec9365699a84f95e3a80c160c))
+- Lose focus of search box during typing ([9df40c0](https://github.com/xcv58/Tab-Manager-v2/commit/9df40c026561df405d49cedfdf47b8b2d2a51de4))
+
 ## [1.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.6.6...v1.7.0) (2020-03-30)
 
 ### Features
