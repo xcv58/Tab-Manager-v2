@@ -9,9 +9,11 @@ export default observer((props) => {
     window.requestAnimationFrame(windowStore.windowMounted)
   }, [])
 
-  const {
-    win: { tabs }
-  } = props
+  const { win } = props
+  if (win.hide) {
+    return null
+  }
+  const { tabs } = win
   const tabsView = tabs.map((tab) => <DraggableTab key={tab.id} tab={tab} />)
   return <>{tabsView}</>
 })

@@ -27,6 +27,9 @@ export default class Window {
   @observable
   type
 
+  @observable
+  hide = false
+
   @action
   tabMounted = () => {
     this.tabs
@@ -45,6 +48,9 @@ export default class Window {
 
   @computed
   get visibleLength () {
+    if (this.hide) {
+      return 2
+    }
     const { length } = this.tabs.filter((x) => x.isVisible)
     return length ? length + 2 : length
   }
@@ -61,16 +67,25 @@ export default class Window {
 
   @computed
   get invisibleTabs () {
+    if (this.hide) {
+      return this.tabs.length
+    }
     return this.tabs.filter((x) => !x.isVisible)
   }
 
   @computed
   get disableSelectAll () {
+    if (this.hide) {
+      return true
+    }
     return this.matchedTabs.length === 0
   }
 
   @computed
   get matchedTabs () {
+    if (this.hide) {
+      return []
+    }
     return this.tabs.filter((x) => x.isMatched)
   }
 
@@ -190,5 +205,11 @@ export default class Window {
       return false
     }
     this.tabs.splice(newPosition, 0, new Tab(tabInfo, this.store, this))
+  }
+
+  @action
+  toggleHide = () => {
+    this.hide = !this.hide
+    this.store.windowStore.updateColumns()
   }
 }

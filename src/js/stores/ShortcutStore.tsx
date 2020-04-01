@@ -343,6 +343,38 @@ export default class ShortcutStore {
         this.store.userStore.toggleDialog()
       },
       'Toggle Settings'
+    ],
+    [
+      'w t',
+      (event) => {
+        preventDefault(event)
+        this.store.windowStore.windows.forEach((win) => win.toggleHide())
+      },
+      'Toggle collapse for all windows'
+    ],
+    [
+      'w c',
+      (event) => {
+        preventDefault(event)
+        this.store.windowStore.windows.forEach((win) => {
+          if (!win.hide) {
+            win.toggleHide()
+          }
+        })
+      },
+      'Collapse all windows'
+    ],
+    [
+      'w e',
+      (event) => {
+        preventDefault(event)
+        this.store.windowStore.windows.forEach((win) => {
+          if (win.hide) {
+            win.toggleHide()
+          }
+        })
+      },
+      'Expand all windows'
     ]
   ]
 

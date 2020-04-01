@@ -6,15 +6,17 @@ import CloseButton from 'components/CloseButton'
 import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
+import HideToggle from './HideToggle'
 
 export default observer((props) => {
   const { className, win } = props
-  const { tabs, onTitleClick, invisibleTabs, reload } = win
+  const { tabs, onTitleClick, invisibleTabs, reload, hide, toggleHide } = win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
   const invisibleLength = invisibleTabs.length
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
+
   return (
     <div
       className={classNames(
@@ -35,6 +37,7 @@ export default observer((props) => {
         <Sort {...props} />
         <Reload {...{ reload }} />
         <CloseButton onClick={() => props.win.close()} />
+        <HideToggle {...{ hide, toggleHide }} />
       </div>
     </div>
   )
