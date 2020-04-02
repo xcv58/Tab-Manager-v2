@@ -5,7 +5,7 @@ import { shallow } from 'enzyme'
 import DraggableTab from 'components/Tab/DraggableTab'
 import Tabs from 'components/Window/Tabs'
 
-const tabs = [{ id: 1 }, { id: 2 }]
+const tabs = [{ id: 1, isVisible: true }, { id: 2, isVisible: true }, { id: 3 }]
 const windowMounted = spy()
 const props = {
   connectDropTarget,
@@ -26,6 +26,19 @@ describe('Tabs', () => {
   it('render correct components', () => {
     const el = shallow(<Tabs {...props} />)
     expect(el.find(DraggableTab).length).toBe(2)
+  })
+
+  it('does not render tab with isVisible = `false`', () => {
+    const el = shallow(
+      <Tabs
+        {...props}
+        win={{
+          ...props.win,
+          tabs: tabs.map((x) => ({ ...x, isVisible: false }))
+        }}
+      />
+    )
+    expect(el.find(DraggableTab).length).toBe(0)
   })
 
   it.skip('call requestAnimationFrame with windowStore.windowMounted', () => {
