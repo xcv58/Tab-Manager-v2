@@ -345,4 +345,15 @@ export default class SearchStore {
       this.focus(tab)
     }
   }
+
+  toggleHideForFocusedWindow = () => {
+    if (!this.focusedTab) {
+      return
+    }
+    const {
+      windowStore: { tabs }
+    } = this.store
+    const tab = tabs.find((x) => x.id === this.focusedTab)
+    tab.win.toggleHide()
+  }
 }

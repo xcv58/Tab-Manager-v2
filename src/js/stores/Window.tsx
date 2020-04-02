@@ -44,7 +44,15 @@ export default class Window {
   }
 
   @computed
+  get hide () {
+    return this.store.hiddenWindowStore.hiddenWindows[this.id]
+  }
+
+  @computed
   get visibleLength () {
+    if (this.hide) {
+      return 2
+    }
     const { length } = this.tabs.filter((x) => x.isVisible)
     return length ? length + 2 : length
   }
@@ -61,16 +69,25 @@ export default class Window {
 
   @computed
   get invisibleTabs () {
+    if (this.hide) {
+      return this.tabs.length
+    }
     return this.tabs.filter((x) => !x.isVisible)
   }
 
   @computed
   get disableSelectAll () {
+    if (this.hide) {
+      return true
+    }
     return this.matchedTabs.length === 0
   }
 
   @computed
   get matchedTabs () {
+    if (this.hide) {
+      return []
+    }
     return this.tabs.filter((x) => x.isMatched)
   }
 
@@ -190,5 +207,14 @@ export default class Window {
       return false
     }
     this.tabs.splice(newPosition, 0, new Tab(tabInfo, this.store, this))
+  }
+
+  @action
+  toggleHide = () => {
+    if (this.hide) {
+      this.store.hiddenWindowStore.showWindow(this.id)
+    } else {
+      this.store.hiddenWindowStore.hideWindow(this.id)
+    }
   }
 }

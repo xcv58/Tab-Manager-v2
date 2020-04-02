@@ -69,7 +69,9 @@ export default class WindowsStore {
 
   @computed
   get tabs () {
-    return [].concat(...this.windows.map((x) => x.tabs.slice()))
+    return [].concat(
+      ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
+    )
   }
 
   clearWindow = () => {
@@ -143,6 +145,7 @@ export default class WindowsStore {
     this.store.tabStore.selection.delete(id)
     if (!isWindowClosing) {
       this.removeTabs([id])
+      this.store.hiddenWindowStore.showWindow(windowId)
     } else {
       const index = this.windows.findIndex((x) => x.id === windowId)
       if (index === -1) {
@@ -358,7 +361,8 @@ export default class WindowsStore {
   }
 
   @action
-  updateColumns () {
+  updateColumns = () => {
+    log.debug('updateColumns')
     const max = Math.ceil((this.height / TAB_HEIGHT) * 1.0)
     this.columns = this.windows
       .filter((x) => x.visibleLength > 0)

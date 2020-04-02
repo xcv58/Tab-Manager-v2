@@ -8,7 +8,12 @@ export default observer((props) => {
   useEffect(() => {
     window.requestAnimationFrame(windowStore.windowMounted)
   }, [])
-  return props.win.tabs
+
+  const { win } = props
+  if (win.hide) {
+    return null
+  }
+  return win.tabs
     .filter((x) => x.isVisible)
     .map((tab) => <DraggableTab key={tab.id} tab={tab} />)
 })
