@@ -1,16 +1,16 @@
 import { action, observable } from 'mobx'
 import Store from 'stores'
+import debounce from 'lodash.debounce'
 
 const HOVERED_DELAY = 896.4
 
+// This store is for individual tab's tooltip.
 export default class HoverStore {
   store: Store
 
   constructor (store) {
     this.store = store
   }
-
-  hoverHandler = null
 
   @observable
   hoveredTabId = null
@@ -29,23 +29,17 @@ export default class HoverStore {
       return
     }
     this.hovered = false
-    if (this.hoverHandler != null) {
-      clearTimeout(this.hoverHandler)
-    }
-    this.hoverHandler = setTimeout(this.updateHovered, HOVERED_DELAY)
+    this._updateHovered()
   }
 
   @action
   unhover = () => {
-    if (this.hoverHandler != null) {
-      clearTimeout(this.hoverHandler)
-    }
+    this._updateHovered.cancel()
     this.hoveredTabId = null
     this.hovered = false
   }
 
-  @action
-  updateHovered = () => {
+  _updateHovered = debounce(() => {
     this.hovered = true
-  }
+  }, HOVERED_DELAY)
 }

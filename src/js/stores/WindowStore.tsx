@@ -14,8 +14,7 @@ import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Column from 'stores/Column'
 import Store from 'stores'
-
-const DEBOUNCE_INTERVAL = 1000
+import debounce from 'lodash.debounce'
 
 export default class WindowsStore {
   store: Store
@@ -58,10 +57,6 @@ export default class WindowsStore {
   lastFocusedWindowId: number | null = null
 
   height = 600
-
-  lastCallTime = 0
-
-  updateHandler = null
 
   batching = false
 
@@ -240,9 +235,6 @@ export default class WindowsStore {
   }
 
   resume = () => {
-    if (this.updateHandler != null) {
-      clearTimeout(this.updateHandler)
-    }
     this.batching = false
     this.getAllWindows()
   }
@@ -265,21 +257,6 @@ export default class WindowsStore {
       })),
       action: actions.createWindow
     })
-  }
-
-  @action
-  updateAllWindows = () => {
-    const time = Date.now()
-    log.debug('updateAllWindows:', { time })
-    if (this.updateHandler != null) {
-      clearTimeout(this.updateHandler)
-    }
-    if (time - this.lastCallTime < DEBOUNCE_INTERVAL) {
-      this.updateHandler = setTimeout(this.getAllWindows, DEBOUNCE_INTERVAL)
-    } else {
-      this.getAllWindows()
-    }
-    this.lastCallTime = time
   }
 
   @action
@@ -422,7 +399,6 @@ export default class WindowsStore {
     }
     this.updateColumns()
     this.initialLoading = false
-    this.updateHandler = null
     this.store.searchStore.setDefaultFocusedTab()
   }
 
@@ -433,4 +409,10 @@ export default class WindowsStore {
     }
     return this.loadAllWindows()
   }
+
+  @action
+  updateAllWindows = debounce(this.getAllWindows, 1000, {
+    leading: true,
+    trailing: true
+  })
 }

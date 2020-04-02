@@ -142,16 +142,10 @@ export default class SearchStore {
   }
 
   @action
-  updateQuery = debounce(this._updateQuery, 200, {
-    leading: false,
-    trailing: true
-  })
+  updateQuery = debounce(this._updateQuery, 200)
 
   @action
-  updateTabQuery = debounce(this._updateTabQuery, 500, {
-    leading: false,
-    trailing: true
-  })
+  updateTabQuery = debounce(this._updateTabQuery, 500)
 
   @action
   clear = () => this.search('')

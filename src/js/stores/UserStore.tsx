@@ -1,6 +1,7 @@
 import { action, observable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
+import debounce from 'lodash.debounce'
 
 const DEFAULT_SETTINGS = {
   showShortcutHint: true,
@@ -77,8 +78,6 @@ export default class UserStore {
 
   @observable
   showTabIcon = true
-
-  hideToolbarHandler = null
 
   @action
   openDialog = () => {
@@ -159,7 +158,7 @@ export default class UserStore {
 
   @action
   toggleAutoHide = () => {
-    this._clearHideToolbarHandler()
+    this._hideToolbar.cancel()
     browser.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
     this.init()
   }
@@ -184,8 +183,7 @@ export default class UserStore {
     if (!this.toolbarAutoHide) {
       return
     }
-    this._clearHideToolbarHandler()
-    this.hideToolbarHandler = setTimeout(this.hideToolbar, 500)
+    this._hideToolbar()
   }
 
   @action
@@ -193,22 +191,14 @@ export default class UserStore {
     if (!this.toolbarAutoHide) {
       return
     }
-    this._clearHideToolbarHandler()
+    this._hideToolbar.cancel()
     this.toolbarVisible = true
   }
 
   @action
   hideToolbar = () => {
-    if (!this.toolbarAutoHide) {
-      return
-    }
     this.toolbarVisible = false
   }
 
-  _clearHideToolbarHandler = () => {
-    if (this.hideToolbarHandler != null) {
-      clearTimeout(this.hideToolbarHandler)
-    }
-    this.hideToolbarHandler = null
-  }
+  _hideToolbar = debounce(this.hideToolbar, 500)
 }
