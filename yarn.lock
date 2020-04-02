@@ -5895,18 +5895,18 @@ html-escaper@^2.0.0:
   resolved "https://registry.yarnpkg.com/html-escaper/-/html-escaper-2.0.2.tgz#dfd60027da36a36dfcbe236262c00a5822681453"
   integrity sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==
 
-html-loader@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/html-loader/-/html-loader-1.0.0.tgz#40000ff27bfb4fbf087d37f8438cae0b1d8b53b1"
-  integrity sha512-acPyjP9Mo05jEbe/oejXu5gFwtKWdFewPoaVa47VCnHmRbR43jtdx/kPhPEbCBm2qWtIn+a8uTJAW4Ocnn4olw==
+html-loader@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/html-loader/-/html-loader-1.1.0.tgz#91915f4d274caa9d46d1c3dc847cd82bfc037dbd"
+  integrity sha512-zwLbEgy+i7sgIYTlxI9M7jwkn29IvdsV6f1y7a2aLv/w8l1RigVk0PFijBZLLFsdi2gvL8sf2VJhTjLlfnK8sA==
   dependencies:
-    html-minifier-terser "^5.0.4"
+    html-minifier-terser "^5.0.5"
     htmlparser2 "^4.1.0"
     loader-utils "^2.0.0"
     parse-srcset "^1.0.2"
     schema-utils "^2.6.5"
 
-html-minifier-terser@^5.0.4:
+html-minifier-terser@^5.0.5:
   version "5.0.5"
   resolved "https://registry.yarnpkg.com/html-minifier-terser/-/html-minifier-terser-5.0.5.tgz#8f12f639789f04faa9f5cf2ff9b9f65607f21f8b"
   integrity sha512-cBSFFghQh/uHcfSiL42KxxIRMF7A144+3E44xdlctIjxEmkEfCvouxNyFH2wysXk1fCGBPwtcr3hDWlGTfkDew==
