@@ -16,7 +16,6 @@ export default observer((props) => {
   const invisibleLength = invisibleTabs.length
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
-
   return (
     <div
       className={classNames(
