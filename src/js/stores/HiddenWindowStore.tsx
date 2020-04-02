@@ -2,7 +2,7 @@ import { observable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 
-export default class WindowsStore {
+export default class HiddenWindowsStore {
   store: Store
 
   constructor (store) {
