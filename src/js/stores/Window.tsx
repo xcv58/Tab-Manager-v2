@@ -27,9 +27,6 @@ export default class Window {
   @observable
   type
 
-  @observable
-  hide = false
-
   @action
   tabMounted = () => {
     this.tabs
@@ -44,6 +41,11 @@ export default class Window {
   @action
   onTitleClick = () => {
     browser.windows.update(this.id, { focused: true })
+  }
+
+  @computed
+  get hide () {
+    return this.store.hiddenWindowStore.hiddenWindows[this.id]
   }
 
   @computed
@@ -209,7 +211,10 @@ export default class Window {
 
   @action
   toggleHide = () => {
-    this.hide = !this.hide
-    this.store.windowStore.updateColumns()
+    if (this.hide) {
+      this.store.hiddenWindowStore.showWindow(this.id)
+    } else {
+      this.store.hiddenWindowStore.hideWindow(this.id)
+    }
   }
 }

@@ -33,12 +33,14 @@ export default observer((props) => {
           {text} {invisibleIndicator}
         </h5>
       </button>
-      <div>
-        <Sort {...props} />
-        <Reload {...{ reload }} />
-        <CloseButton onClick={() => props.win.close()} />
-        <HideToggle {...{ hide, toggleHide }} />
-      </div>
+      {!hide && (
+        <div>
+          <Sort {...props} />
+          <Reload {...{ reload }} />
+          <CloseButton onClick={() => props.win.close()} />
+        </div>
+      )}
+      <HideToggle {...{ hide, toggleHide }} />
     </div>
   )
 })

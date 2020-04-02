@@ -56,6 +56,9 @@ export default class WindowsStore {
   @observable
   lastFocusedWindowId: number | null = null
 
+  @observable
+  hiddenWindows = {}
+
   height = 600
 
   batching = false
@@ -411,16 +414,6 @@ export default class WindowsStore {
       return
     }
     return this.loadAllWindows()
-  }
-
-  updateHideForAllWindows = (hide) => {
-    this.windows.forEach((win) => (win.hide = hide))
-    this.updateColumns()
-  }
-
-  toggleHideForAllWindows = () => {
-    this.windows.forEach((win) => (win.hide = !win.hide))
-    this.updateColumns()
   }
 
   @action

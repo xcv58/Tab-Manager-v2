@@ -355,7 +355,7 @@ export default class ShortcutStore {
       'w t',
       (event) => {
         preventDefault(event)
-        this.store.windowStore.toggleHideForAllWindows()
+        this.store.hiddenWindowStore.toggleHideForAllWindows()
       },
       'Toggle collapse for all windows'
     ],
@@ -363,7 +363,7 @@ export default class ShortcutStore {
       'w c',
       (event) => {
         preventDefault(event)
-        this.store.windowStore.updateHideForAllWindows(true)
+        this.store.hiddenWindowStore.updateHideForAllWindows(true)
       },
       'Collapse all windows'
     ],
@@ -371,7 +371,7 @@ export default class ShortcutStore {
       'w e',
       (event) => {
         preventDefault(event)
-        this.store.windowStore.updateHideForAllWindows(false)
+        this.store.hiddenWindowStore.updateHideForAllWindows(false)
       },
       'Expand all windows'
     ]
