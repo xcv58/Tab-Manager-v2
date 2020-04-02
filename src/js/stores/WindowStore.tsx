@@ -56,9 +56,6 @@ export default class WindowsStore {
   @observable
   lastFocusedWindowId: number | null = null
 
-  @observable
-  hiddenWindows = {}
-
   height = 600
 
   batching = false
@@ -148,6 +145,7 @@ export default class WindowsStore {
     this.store.tabStore.selection.delete(id)
     if (!isWindowClosing) {
       this.removeTabs([id])
+      this.store.hiddenWindowStore.showWindow(windowId)
     } else {
       const index = this.windows.findIndex((x) => x.id === windowId)
       if (index === -1) {
