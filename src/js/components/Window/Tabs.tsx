@@ -13,7 +13,7 @@ export default observer((props) => {
   if (win.hide) {
     return null
   }
-  const { tabs } = win
-  const tabsView = tabs.map((tab) => <DraggableTab key={tab.id} tab={tab} />)
-  return <>{tabsView}</>
+  return win.tabs
+    .filter((x) => x.isVisible)
+    .map((tab) => <DraggableTab key={tab.id} tab={tab} />)
 })

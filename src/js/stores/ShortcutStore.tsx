@@ -3,6 +3,7 @@ import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
 import Store from 'stores'
+import debounce from 'lodash.debounce'
 
 export const getDescription = (description) => {
   if (typeof description === 'string') {
@@ -42,8 +43,6 @@ export default class ShortcutStore {
 
   @observable
   dialogOpen = false
-
-  closeHandle = null
 
   @observable
   inputShortcutSet = new Set([
@@ -430,17 +429,13 @@ export default class ShortcutStore {
     if (!this.store.userStore.showShortcutHint) {
       return
     }
-    if (this.closeHandle) {
-      clearTimeout(this.closeHandle)
-    }
     this.toastOpen = true
-    this.closeHandle = setTimeout(this.closeToast, 512)
+    this._closeToast()
   }
 
-  @action
-  closeToast = () => {
+  _closeToast = debounce(() => {
     this.toastOpen = false
-  }
+  }, 500)
 
   @action
   openDialog = () => {
