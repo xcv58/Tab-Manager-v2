@@ -1,4 +1,5 @@
 import browser from 'webextension-polyfill'
+import log from 'libs/log'
 
 export { browser }
 
@@ -68,8 +69,10 @@ export const togglePinTabs = async (tabs) => {
 }
 
 export const openOrTogglePopup = async () => {
+  log.debug('openOrTogglePopup')
   const windows = await browser.windows.getAll({ populate: true })
   const win = windows.find(isSelfPopup)
+  log.debug('openOrTogglePopup win:', { win })
   if (!win) {
     return openPopup()
   }
@@ -82,6 +85,7 @@ export const MAX_HEIGHT = 768
 export const getInt = (number) => Math.floor(number)
 
 export const openPopup = () => {
+  log.debug('openPopup')
   const { availHeight, availLeft, availTop, availWidth } = screen
   const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
   const height = getInt(Math.max(MAX_HEIGHT, availHeight / 2))
