@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.7.1...v1.8.0) (2020-04-03)
+
+### Features
+
+- Add collapse window button and shortcuts ([#337](https://github.com/xcv58/Tab-Manager-v2/issues/337)) ([c173b56](https://github.com/xcv58/Tab-Manager-v2/commit/c173b565ca32b268ea42fb6a242a40dfc87e8719))
+- Default to focus on the last active tab ([0445f56](https://github.com/xcv58/Tab-Manager-v2/commit/0445f56b892c1d11bf34fe1b455c5daba6f499bb))
+- Focus on window title after hide window that makes 'w w' shortcut be able to toggle window hide status ([cd1b5f7](https://github.com/xcv58/Tab-Manager-v2/commit/cd1b5f7730f1d39e95b12e7b44bc50ebad8da5b4))
+- Optimize search performance by leverage lodash.debounce ([6bcd0dc](https://github.com/xcv58/Tab-Manager-v2/commit/6bcd0dccc4f4ffe8c2a9759b668613299ada5588))
+
+### Bug Fixes
+
+- **deps:** pin dependency lodash.debounce to 4.0.8 ([#332](https://github.com/xcv58/Tab-Manager-v2/issues/332)) ([07fb368](https://github.com/xcv58/Tab-Manager-v2/commit/07fb36829aa584a94ad1ef091f46f289ea43ef64))
+- Close window via close button cause zombie window on UI ([8d1dfc0](https://github.com/xcv58/Tab-Manager-v2/commit/8d1dfc070c5fc0d62c3ccde214138a0babcbeb02))
+- Optimize performance of invisible tab ([5a87d6b](https://github.com/xcv58/Tab-Manager-v2/commit/5a87d6b6b7d1be9ad254b3b0ec84d2aef4949861))
+- Use lodash.debounce to replace custom handler/setTimeout implementation ([2ff2635](https://github.com/xcv58/Tab-Manager-v2/commit/2ff2635ba644391a08463e3c331b72bb51c2e02e))
+
 ### [1.7.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.7.0...v1.7.1) (2020-04-01)
 
 ### Bug Fixes
