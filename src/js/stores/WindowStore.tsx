@@ -403,7 +403,7 @@ export default class WindowsStore {
     }
     this.updateColumns()
     this.initialLoading = false
-    this.store.searchStore.setDefaultFocusedTab()
+    this.store.focusStore.setDefaultFocusedTab()
   }
 
   getAllWindows = () => {

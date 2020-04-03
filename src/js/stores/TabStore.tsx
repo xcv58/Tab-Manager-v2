@@ -27,7 +27,7 @@ export default class TabStore {
 
   @computed
   get hasFocusedOrSelectedTab () {
-    const { focusedTab } = this.store.searchStore
+    const { focusedTab } = this.store.focusStore
     return this.selection.size > 0 || focusedTab !== null
   }
 
@@ -78,14 +78,14 @@ export default class TabStore {
 
   @action
   remove = () => {
-    const { down, focusedTab } = this.store.searchStore
+    const { down, focusedTab } = this.store.focusStore
     const { tabs } = this.store.windowStore
     let tabsToRemove = []
     if (this.selection.size > 0) {
-      while (this.selection.has(this.store.searchStore.focusedTab)) {
+      while (this.selection.has(this.store.focusStore.focusedTab)) {
         down()
-        if (focusedTab === this.store.searchStore.focusedTab) {
-          this.store.searchStore.defocusTab()
+        if (focusedTab === this.store.focusStore.focusedTab) {
+          this.store.focusStore.defocusTab()
           break
         }
       }
@@ -102,7 +102,7 @@ export default class TabStore {
 
   @action
   reload = () => {
-    const { focusedTab } = this.store.searchStore
+    const { focusedTab } = this.store.focusStore
     const { tabs } = this.store.windowStore
     let tabsToReload = []
     if (this.selection.size > 0) {
@@ -118,7 +118,7 @@ export default class TabStore {
 
   @action
   togglePin = async () => {
-    const { focusedTab } = this.store.searchStore
+    const { focusedTab } = this.store.focusStore
     if (this.selection.size === 0 && focusedTab) {
       const tab = await browser.tabs.get(focusedTab)
       await togglePinTabs([tab])

@@ -87,7 +87,7 @@ export default class Tab {
 
   @action
   focus = () => {
-    this.store.searchStore.focus(this)
+    this.store.focusStore.focus(this)
   }
 
   @action
@@ -148,7 +148,7 @@ export default class Tab {
 
   @computed
   get isFocused () {
-    return this.id === this.store.searchStore.focusedTab
+    return this.id === this.store.focusStore.focusedTab
   }
 
   @computed

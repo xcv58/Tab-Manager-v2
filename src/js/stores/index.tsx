@@ -7,6 +7,7 @@ import ShortcutStore from 'stores/ShortcutStore'
 import UserStore from 'stores/UserStore'
 import HoverStore from 'stores/HoverStore'
 import HiddenWindowStore from 'stores/HiddenWindowStore'
+import FocusStore from 'stores/FocusStore'
 
 export default class Store {
   windowStore: WindowStore
@@ -27,6 +28,8 @@ export default class Store {
 
   hiddenWindowStore: HiddenWindowStore
 
+  focusStore: FocusStore
+
   constructor () {
     this.windowStore = new WindowStore(this)
     this.tabStore = new TabStore(this)
@@ -37,5 +40,6 @@ export default class Store {
     this.hoverStore = new HoverStore(this)
     this.searchStore = new SearchStore(this)
     this.hiddenWindowStore = new HiddenWindowStore(this)
+    this.focusStore = new FocusStore(this)
   }
 }
