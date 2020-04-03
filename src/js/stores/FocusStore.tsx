@@ -13,6 +13,9 @@ export default class FocusStore {
   @observable
   focusedTab = null
 
+  @observable
+  focusedWindowId = null
+
   @computed
   get matchedColumns () {
     return this.store.windowStore.columns.filter((column) => {
@@ -51,6 +54,7 @@ export default class FocusStore {
   @action
   defocusTab = () => {
     this.focusedTab = null
+    this.focusedWindowId = null
   }
 
   @action
@@ -219,13 +223,25 @@ export default class FocusStore {
   }
 
   toggleHideForFocusedWindow = () => {
-    if (!this.focusedTab) {
-      return
+    if (this.focusedTab) {
+      const {
+        windowStore: { tabs }
+      } = this.store
+      const tab = tabs.find((x) => x.id === this.focusedTab)
+      tab.win.toggleHide()
+    } else if (this.focusedWindowId) {
+      const win = this.store.windowStore.windows.find(
+        (x) => x.id === this.focusedWindowId
+      )
+      if (win) {
+        win.toggleHide()
+      }
     }
-    const {
-      windowStore: { tabs }
-    } = this.store
-    const tab = tabs.find((x) => x.id === this.focusedTab)
-    tab.win.toggleHide()
+  }
+
+  @action
+  focusWindow = (windowId) => {
+    this.focusedTab = null
+    this.focusedWindowId = windowId
   }
 }

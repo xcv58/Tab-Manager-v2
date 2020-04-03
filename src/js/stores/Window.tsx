@@ -44,6 +44,12 @@ export default class Window {
   }
 
   @computed
+  get isFocused () {
+    const { focusedWindowId, focusedTab } = this.store.focusStore
+    return !focusedTab && focusedWindowId === this.id
+  }
+
+  @computed
   get hide () {
     return this.store.hiddenWindowStore.hiddenWindows[this.id]
   }
@@ -215,6 +221,7 @@ export default class Window {
       this.store.hiddenWindowStore.showWindow(this.id)
     } else {
       this.store.hiddenWindowStore.hideWindow(this.id)
+      this.store.focusStore.focusWindow(this.id)
     }
   }
 }

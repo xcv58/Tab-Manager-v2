@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
@@ -9,15 +9,31 @@ import Reload from './Reload'
 import HideToggle from './HideToggle'
 
 export default observer((props) => {
+  const nodeRef = useRef(null)
   const { className, win } = props
-  const { tabs, onTitleClick, invisibleTabs, reload, hide, toggleHide } = win
+  const {
+    tabs,
+    onTitleClick,
+    invisibleTabs,
+    reload,
+    hide,
+    toggleHide,
+    isFocused
+  } = win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
   const invisibleLength = invisibleTabs.length
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
+  useEffect(() => {
+    if (isFocused) {
+      nodeRef.current.focus()
+    }
+  }, [isFocused])
   return (
     <div
+      tabIndex={-1}
+      ref={nodeRef}
       className={classNames(
         'flex justify-between items-center font-bold border-l-2 border-transparent',
         className

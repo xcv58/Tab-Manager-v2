@@ -35,7 +35,9 @@ export default class HiddenWindowsStore {
   }
 
   toggleHideForAllWindows = () => {
-    this.store.windowStore.windows.forEach((win) => win.toggleHide())
+    this.store.windowStore.windows.forEach((win) => {
+      this.hiddenWindows[win.id] = !this.hiddenWindows[win.id]
+    })
     this.store.windowStore.updateColumns()
     this.saveHiddenWindows()
   }
