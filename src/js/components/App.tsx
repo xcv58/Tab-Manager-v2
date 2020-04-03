@@ -11,7 +11,7 @@ import Toolbar from 'components/Toolbar'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
-import { useStore } from './StoreContext'
+import { StoreContext, store, useStore } from './StoreContext'
 import DragLayer from './DragLayer'
 import { ThemeContext } from './ThemeContext'
 import DroppableTools from './DroppableTools'
@@ -49,16 +49,18 @@ export default observer(() => {
   // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
     <StrictMode>
-      <MuiThemeProvider theme={createMuiTheme(theme)}>
-        <DndProvider
-          key={isProduction() ? 'dnd-provider' : Date.now()}
-          backend={HTML5Backend}
-        >
-          <ThemeContext.Provider value={isDarkTheme}>
-            <App />
-          </ThemeContext.Provider>
-        </DndProvider>
-      </MuiThemeProvider>
+      <StoreContext.Provider value={store}>
+        <MuiThemeProvider theme={createMuiTheme(theme)}>
+          <DndProvider
+            key={isProduction() ? 'dnd-provider' : Date.now()}
+            backend={HTML5Backend}
+          >
+            <ThemeContext.Provider value={isDarkTheme}>
+              <App />
+            </ThemeContext.Provider>
+          </DndProvider>
+        </MuiThemeProvider>
+      </StoreContext.Provider>
     </StrictMode>
   )
 })
