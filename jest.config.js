@@ -16,5 +16,8 @@ module.exports = {
   moduleNameMapper: {
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': 'babel-jest'
   },
-  setupFilesAfterEnv: ['<rootDir>/src/js/test/setupEnzyme.ts']
+  setupFilesAfterEnv: ['<rootDir>/src/js/test/setupEnzyme.ts'],
+  testURL: 'http://localhost/',
+  collectCoverage: true,
+  coverageDirectory: './coverage/'
 }

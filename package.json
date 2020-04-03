@@ -4,7 +4,7 @@
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
-    "jest": "jest --maxWorkers=4",
+    "jest": "jest --maxWorkers=1",
     "build": "NODE_ENV=production node utils/build.js",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
@@ -129,11 +129,5 @@
     "*.{json,css,md}": [
       "yarn prettier"
     ]
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testURL": "http://localhost/",
-    "collectCoverage": true,
-    "coverageDirectory": "./coverage/"
   }
 }
