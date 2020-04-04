@@ -5,7 +5,6 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import Divider from '@material-ui/core/Divider'
-import FormControl from '@material-ui/core/FormControl'
 import FormGroup from '@material-ui/core/FormGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormHelperText from '@material-ui/core/FormHelperText'
@@ -14,6 +13,11 @@ import Switch from '@material-ui/core/Switch'
 import { useStore } from 'components/StoreContext'
 import Slider from '@material-ui/core/Slider'
 import FormLabel from '@material-ui/core/FormLabel'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import { THEMES } from 'stores/UserStore'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -36,14 +40,12 @@ export default observer(() => {
     toggleShowUrl,
     autoFocusSearch,
     toggleAutoFocusSearch,
-    darkTheme,
-    toggleDarkTheme,
-    useSystemTheme,
-    toggleUseSystemTheme,
     tabWidth,
     updateTabWidth,
     showTabIcon,
-    toggleShowTabIcon
+    toggleShowTabIcon,
+    theme,
+    selectTheme
   } = userStore
   return (
     <Dialog
@@ -172,27 +174,23 @@ export default observer(() => {
                 />
               }
             />
-            <FormControlLabel
-              label='Use System Theme'
-              control={
-                <Switch
-                  color='primary'
-                  checked={useSystemTheme}
-                  onChange={toggleUseSystemTheme}
-                />
-              }
-            />
-            <FormControlLabel
-              label='Dark Theme'
-              control={
-                <Switch
-                  disabled={useSystemTheme}
-                  color='primary'
-                  checked={darkTheme}
-                  onChange={toggleDarkTheme}
-                />
-              }
-            />
+            <FormControl>
+              <InputLabel id='theme'>Theme</InputLabel>
+              <Select
+                id='theme'
+                value={theme}
+                onChange={(e) => {
+                  selectTheme(e.target.value)
+                }}
+                className='capitalize'
+              >
+                {THEMES.map((t) => (
+                  <MenuItem key={t} value={t} className='capitalize'>
+                    {t}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </FormGroup>
         </FormControl>
         <Divider />

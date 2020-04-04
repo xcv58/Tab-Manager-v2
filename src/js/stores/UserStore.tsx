@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx'
+import { action, observable, computed } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
@@ -17,6 +17,11 @@ const DEFAULT_SETTINGS = {
   tabWidth: 20,
   showTabIcon: true
 }
+
+const SYSTEM = 'system'
+const DARK = 'dark'
+const LIGHT = 'light'
+export const THEMES = [SYSTEM, DARK, LIGHT]
 
 export default class UserStore {
   store: Store
@@ -78,6 +83,38 @@ export default class UserStore {
 
   @observable
   showTabIcon = true
+
+  @computed
+  get theme () {
+    if (this.useSystemTheme) {
+      return SYSTEM
+    }
+    if (this.darkTheme) {
+      return DARK
+    }
+    return LIGHT
+  }
+
+  @action
+  selectTheme = (theme) => {
+    if (theme === SYSTEM) {
+      this.useSystemTheme = true
+    } else {
+      this.useSystemTheme = false
+      this.darkTheme = theme === DARK
+    }
+    browser.storage.sync.set({
+      useSystemTheme: this.useSystemTheme,
+      darkTheme: this.darkTheme
+    })
+  }
+
+  @action
+  selectNextTheme = () => {
+    const index = THEMES.findIndex((t) => t === this.theme)
+    const nextIndex = (index + 1) % THEMES.length
+    this.selectTheme(THEMES[nextIndex])
+  }
 
   @action
   openDialog = () => {

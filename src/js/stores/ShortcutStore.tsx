@@ -323,7 +323,7 @@ export default class ShortcutStore {
       ['ctrl+i'],
       (event) => {
         preventDefault(event)
-        this.store.userStore.toggleDarkTheme()
+        this.store.userStore.selectNextTheme()
       },
       'Toggle dark theme'
     ],
