@@ -6,6 +6,34 @@ import Window from './Window'
 
 type FocusedItem = Tab | Window
 
+// 1. No previous item -> just add
+// 2. Has previous item with the same left ->
+//      check the delta by Math.abs() and replace it by the smaller one
+// 3. Has previous item with different left -> just add
+const getItemsInRow = (
+  previousItem: FocusedItem,
+  item: FocusedItem,
+  baseRect
+): FocusedItem[] => {
+  const rect = item.getBoundingClientRect()
+  if (!rect) {
+    return [previousItem]
+  }
+  if (!previousItem) {
+    return [item]
+  }
+  const preRect = previousItem.getBoundingClientRect()
+  if (preRect.left !== rect.left) {
+    return [previousItem, item]
+  }
+  const preDelta = Math.abs(baseRect.top - preRect.top)
+  const curDelta = Math.abs(baseRect.top - rect.top)
+  if (curDelta < preDelta) {
+    return [item]
+  }
+  return [previousItem]
+}
+
 export default class FocusStore {
   store: Store
 
@@ -139,31 +167,8 @@ export default class FocusStore {
     const row: FocusedItem[] = []
     for (const win of windows) {
       for (const item of win.hide ? [win] : win.matchedTabs) {
-        const rect = item.getBoundingClientRect()
-        if (!rect) {
-          continue
-        }
-        log.debug('item:', item, rect)
-        // 1. No previous item -> just add
-        // 2. Has previous item with the same left ->
-        //      check the delta by Math.abs() and replace it by the smaller one
-        // 3. Has previous item with different left -> just add
-        if (!row.length) {
-          row.push(item)
-        } else {
-          const lastIndex = row.length - 1
-          const preItem = row[lastIndex]
-          const preRect = preItem.getBoundingClientRect()
-          if (preRect.left === rect.left) {
-            const preDelta = Math.abs(baseRect.top - preRect.top)
-            const curDelta = Math.abs(baseRect.top - rect.top)
-            if (curDelta < preDelta) {
-              row[lastIndex] = item
-            }
-          } else {
-            row.push(item)
-          }
-        }
+        const items = getItemsInRow(row.pop(), item, baseRect)
+        row.push(...items)
       }
     }
     return row
