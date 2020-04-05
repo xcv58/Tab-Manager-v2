@@ -47,7 +47,6 @@ export default observer(() => {
     )
   }
   const width = 100 / Math.min(4, windowStore.visibleColumn) + '%'
-  console.log('visibleColumn:', windowStore.visibleColumn, width)
   const list = windows.map((window) => (
     <Window key={window.id} width={width} win={window} />
   ))
