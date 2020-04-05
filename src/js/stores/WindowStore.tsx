@@ -12,7 +12,6 @@ import actions from 'libs/actions'
 import log from 'libs/log'
 import Window from 'stores/Window'
 import Tab from 'stores/Tab'
-import Column from 'stores/Column'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 
@@ -48,14 +47,12 @@ export default class WindowsStore {
   windows: Window[] = []
 
   @observable
-  columns: Column[] = []
-
-  @observable
   initialLoading = true
 
   @observable
   lastFocusedWindowId: number | null = null
 
+  @observable
   height = 600
 
   batching = false
@@ -74,16 +71,28 @@ export default class WindowsStore {
     )
   }
 
+  @computed
+  get visibleColumn () {
+    return this.windows
+      .filter((x) => x.visibleLength > 0)
+      .map((x) => x.visibleLength * TAB_HEIGHT)
+      .reduce((acc, cur) => {
+        if (!acc.length) {
+          acc.push(cur)
+        } else {
+          const preHeight = acc[acc.length - 1]
+          if (preHeight + cur > this.height) {
+            acc.push(cur)
+          } else {
+            acc[acc.length - 1] = preHeight + cur
+          }
+        }
+        return acc
+      }, []).length
+  }
+
   clearWindow = () => {
     log.debug('clearWindow')
-    this.columns.forEach((x) => x.clearWindow())
-    for (let index = 0; index < this.columns.length;) {
-      if (this.columns[index].length === 0) {
-        this.columns.splice(index, 1)
-      } else {
-        index++
-      }
-    }
     for (let index = 0; index < this.windows.length;) {
       if (this.windows[index].tabs.length === 0) {
         this.windows.splice(index, 1)
@@ -97,7 +106,6 @@ export default class WindowsStore {
   onWindowsCreated = async (win) => {
     log.debug('windows.onCreated:', { win })
     await this.getOrCreateWinById(win.id)
-    this.updateColumns()
   }
 
   @action
@@ -198,7 +206,6 @@ export default class WindowsStore {
     } else {
       win.add(new Tab(tab, this.store, win), index)
     }
-    this.updateColumns()
   }
 
   @action
@@ -247,7 +254,6 @@ export default class WindowsStore {
     const set = new Set(ids)
     this.windows.forEach((win) => win.removeTabs(set))
     this.clearWindow()
-    this.updateColumns()
   }
 
   @action
@@ -356,28 +362,7 @@ export default class WindowsStore {
     })
     if (this.height !== height && Math.abs(this.height - height) > TAB_HEIGHT) {
       this.height = height
-      this.updateColumns()
     }
-  }
-
-  @action
-  updateColumns = () => {
-    log.debug('updateColumns')
-    const max = Math.ceil((this.height / TAB_HEIGHT) * 1.0)
-    this.columns = this.windows
-      .filter((x) => x.visibleLength > 0)
-      .reduce(
-        (acc, cur) => {
-          const column = acc[acc.length - 1]
-          if (column.length === 0 || column.length + cur.visibleLength <= max) {
-            column.add(cur)
-          } else {
-            acc.push(new Column(this.store, cur))
-          }
-          return acc
-        },
-        [new Column(this.store)]
-      )
   }
 
   syncAllWindows = () => {
@@ -401,7 +386,6 @@ export default class WindowsStore {
     if (this.initialLoading) {
       this.windowMounted()
     }
-    this.updateColumns()
     this.initialLoading = false
     this.store.focusStore.setDefaultFocusedTab()
   }

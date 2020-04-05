@@ -13,7 +13,7 @@ import { TAB_HEIGHT } from 'libs'
 
 export default observer((props) => {
   const { dragStore, userStore } = useStore()
-  const { win } = props
+  const { win, width } = props
   const { lastFocused, showTabs, visibleLength } = win
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -38,6 +38,8 @@ export default observer((props) => {
   const { canDrop, isOver, isDragging } = dropProps
   const style: CSSProperties = {
     minWidth: `${userStore.tabWidth}rem`,
+    width,
+    breakInside: 'avoid',
     height: 'fit-content',
     boxSizing: 'border-box'
   }
@@ -49,7 +51,7 @@ export default observer((props) => {
     <div
       ref={drop}
       style={style}
-      className={classNames('w-full p-1 pb-8', {
+      className={classNames('p-1 pb-10', {
         'bg-red-500': isDragging && isOver && !canDrop
       })}
     >

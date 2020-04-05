@@ -1,15 +1,19 @@
 import React, { useRef } from 'react'
 import { observer } from 'mobx-react'
-import Column from 'components/Column'
 import Scrollbar from 'libs/Scrollbar'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
 import { useStore } from './StoreContext'
+import Window from './Window'
 
 const View = (props) => {
   const { style } = props
   return (
-    <div {...props} className='flex mb-0 mr-0 overflow-auto' style={style} />
+    <div
+      {...props}
+      className='flex flex-col flex-wrap content-start mb-0 mr-0 overflow-hidden'
+      style={style}
+    />
   )
 }
 
@@ -33,7 +37,7 @@ export default observer(() => {
       onResize={onResize}
     />
   )
-  const { columns, initialLoading } = windowStore
+  const { initialLoading, windows } = windowStore
   if (initialLoading) {
     return (
       <div ref={scrollbarRef}>
@@ -42,15 +46,10 @@ export default observer(() => {
       </div>
     )
   }
-  const width = 100 / Math.min(4, columns.length) + '%'
-  const list = columns.map((column, i) => (
-    <Column
-      key={i}
-      left={i === 0}
-      right={i + 1 === columns.length}
-      column={column}
-      width={width}
-    />
+  const width = 100 / Math.min(4, windowStore.visibleColumn) + '%'
+  console.log('visibleColumn:', windowStore.visibleColumn, width)
+  const list = windows.map((window) => (
+    <Window key={window.id} width={width} win={window} />
   ))
   return (
     <Scrollbar
