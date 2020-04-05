@@ -1,7 +1,38 @@
 import { action, computed, observable } from 'mobx'
-import { activateTab } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
+import Tab from './Tab'
+import Window from './Window'
+
+type FocusedItem = Tab | Window
+
+// 1. No previous item -> just add
+// 2. Has previous item with the same left ->
+//      check the delta by Math.abs() and replace it by the smaller one
+// 3. Has previous item with different left -> just add
+const getItemsInRow = (
+  previousItem: FocusedItem,
+  item: FocusedItem,
+  baseRect
+): FocusedItem[] => {
+  const rect = item.getBoundingClientRect()
+  if (!rect) {
+    return [previousItem]
+  }
+  if (!previousItem) {
+    return [item]
+  }
+  const preRect = previousItem.getBoundingClientRect()
+  if (preRect.left !== rect.left) {
+    return [previousItem, item]
+  }
+  const preDelta = Math.abs(baseRect.top - preRect.top)
+  const curDelta = Math.abs(baseRect.top - rect.top)
+  if (curDelta < preDelta) {
+    return [item]
+  }
+  return [previousItem]
+}
 
 export default class FocusStore {
   store: Store
@@ -10,202 +41,223 @@ export default class FocusStore {
     this.store = store
   }
 
-  @observable
-  focusedTab = null
+  @computed
+  get focusedItem (): FocusedItem | null {
+    const { windows, tabs } = this.store.windowStore
+    if (this.focusedTabId) {
+      return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
+    } else if (this.focusedWindowId) {
+      return windows.find((x) => x.id === this.focusedWindowId)
+    }
+  }
 
   @observable
   focusedWindowId = null
 
-  @computed
-  get matchedColumns () {
-    return this.store.windowStore.columns.filter((column) => {
-      if (column.matchedTabs.length) {
-        return column
-      }
-      return null
-    })
-  }
+  @observable
+  focusedTabId = null
 
-  @computed
-  get focusedColIndex () {
-    return this.matchedColumns.findIndex((column) =>
-      column.matchedTabs.find((tab) => tab.id === this.focusedTab)
-    )
-  }
-
-  @computed
-  get focusedColumn () {
-    if (this.focusedColIndex === -1) {
-      return null
+  _setFocusedItem = (item: FocusedItem) => {
+    if (item instanceof Window) {
+      this.focusedTabId = null
+      this.focusedWindowId = item.id
+    } else if (item instanceof Tab) {
+      this.focusedTabId = item.id
+      this.focusedWindowId = null
+    } else {
+      log.error(
+        'invalid input item for _setFocusedItem, it is not Window nor Tab:',
+        { item }
+      )
     }
-    return this.matchedColumns[this.focusedColIndex]
-  }
-
-  @computed
-  get focusedColTabIndex () {
-    if (!this.focusedColumn) {
-      return -1
-    }
-    return this.focusedColumn.matchedTabs.findIndex(
-      (tab) => tab.id === this.focusedTab
-    )
   }
 
   @action
-  defocusTab = () => {
-    this.focusedTab = null
+  defocus = () => {
+    this.focusedTabId = null
     this.focusedWindowId = null
   }
 
   @action
   enter = () => {
-    activateTab(this.focusedTab)
+    if (this.focusedItem) {
+      this.focusedItem.activate()
+    }
   }
 
   @action
-  focus = (tab) => {
-    this.focusedTab = tab.id
+  focus = (item: FocusedItem) => {
+    this._setFocusedItem(item)
   }
 
+  // Toggle select of focused tab, or the focused window.tabs
   @action
   select = () => {
-    if (!this.focusedTab) {
-      return
+    if (this.focusedItem) {
+      this.focusedItem.select()
     }
-    const {
-      tabStore: { select },
-      windowStore: { tabs }
-    } = this.store
-    select(tabs.find((x) => x.id === this.focusedTab))
   }
 
   @action
   closeWindow = () => {
-    if (!this.focusedTab) {
-      return
-    }
-    const {
-      windowStore: { tabs }
-    } = this.store
-    const tab = tabs.find((x) => x.id === this.focusedTab)
-    if (tab) {
-      tab.win.close()
+    if (this.focusedItem) {
+      this.focusedItem.closeWindow()
     }
   }
 
   @action
   selectWindow = () => {
-    if (!this.focusedTab) {
-      return
-    }
-    const {
-      windowStore: { tabs }
-    } = this.store
-    const tab = tabs.find((x) => x.id === this.focusedTab)
-    if (tab) {
-      tab.win.toggleSelectAll()
+    if (this.focusedItem) {
+      this.focusedItem.toggleSelectAll()
     }
   }
 
   @action
   groupTab = () => {
-    const tab = this.store.windowStore.tabs.find(
-      (x) => x.id === this.focusedTab
-    )
-    if (tab) {
-      tab.groupTab()
+    const { focusedItem } = this
+    if (!focusedItem) {
+      return
+    }
+    if (focusedItem instanceof Tab) {
+      focusedItem.groupTab()
     }
   }
 
-  @action
-  left = () => this.jumpToHorizontalTab(-1)
+  _getBaseRect = () => {
+    if (!this.focusedItem) {
+      return
+    }
+    return this.focusedItem.getBoundingClientRect()
+  }
 
-  @action
-  right = () => this.jumpToHorizontalTab(1)
-
-  jumpInSameCol = (direction, side = false) => {
-    if (this.jumpOrFocusTab(direction)) {
-      const { matchedTabs } = this.focusedColumn
-      const { length } = matchedTabs
-      let index = this.focusedColTabIndex + direction + length
-      if (side) {
-        index = direction * (length - 1)
+  _findColumn = () => {
+    const { focusedItem } = this
+    const baseRect = this._getBaseRect()
+    log.debug('_findColumn:', { focusedItem, baseRect })
+    if (!focusedItem || !baseRect) {
+      return
+    }
+    const { windows } = this.store.windowStore
+    const column = []
+    for (const win of windows) {
+      const rect = win.getBoundingClientRect()
+      if (!rect) {
+        continue
       }
-      this.focusedTab = matchedTabs[index % length].id
+      log.debug('win:', win, rect)
+      if (baseRect.left === rect.left) {
+        if (win.hide) {
+          column.push(win)
+        } else {
+          column.push(...win.matchedTabs)
+        }
+      }
     }
+    return column
   }
 
-  jumpToHorizontalTab = (direction) => {
-    if (this.jumpOrFocusTab(direction)) {
-      const columns = this.matchedColumns
-      const { length } = columns
-      this.jumpToColumn(
-        this.focusedColumn.getVisibleIndex(this.focusedTab),
-        columns[(this.focusedColIndex + length + direction) % length]
-      )
+  _findRow = () => {
+    const { focusedItem } = this
+    const baseRect = this._getBaseRect()
+    log.debug('_findRow:', { focusedItem, baseRect })
+    if (!focusedItem || !baseRect) {
+      return
     }
+    const { windows } = this.store.windowStore
+    const row: FocusedItem[] = []
+    for (const win of windows) {
+      for (const item of win.hide ? [win] : win.matchedTabs) {
+        const items = getItemsInRow(row.pop(), item, baseRect)
+        row.push(...items)
+      }
+    }
+    return row
   }
 
-  jumpOrFocusTab = (direction) => {
-    if (!this.focusedTab) {
-      this.findFocusedTab()
-      return
+  _jump = (items: FocusedItem[], direction, side = false) => {
+    if (!items) {
+      return this._focusOnFirstItem()
     }
-    if (this.focusedColIndex < 0 || this.focusedColTabIndex < 0) {
-      this.findFocusedTab(direction)
-      return
+    const index = items.findIndex((x) => x === this.focusedItem)
+    let nextIndex = index + direction + items.length
+    if (side) {
+      nextIndex = direction * (items.length - 1)
     }
-    if (!this.focusedTab) {
-      this.jumpToTab(0)
-      return
-    }
-    return true
+    this._setFocusedItem(items[nextIndex % items.length])
   }
 
-  jumpToColumn = (index, column) => {
-    this.focusedTab = column.getTabIdForIndex(index)
+  _jumpInSameCol = (direction, side = false) => {
+    const { focusedItem } = this
+    log.debug('_jumpInSameCol:', { direction, side, focusedItem })
+    if (!focusedItem) {
+      return this._focusOnFirstItem()
+    }
+    const column = this._findColumn()
+    log.debug('column:', { column })
+    this._jump(column, direction, side)
+  }
+
+  _jumpInSameRow = (direction) => {
+    const { focusedItem } = this
+    log.debug('_jumpInSameRow:', { direction, focusedItem })
+    if (!focusedItem) {
+      return this._focusOnFirstItem()
+    }
+    const row = this._findRow()
+    log.debug('row:', { row })
+    this._jump(row, direction)
   }
 
   @action
-  up = () => this.jumpInSameCol(-1)
-
-  @action
-  down = () => this.jumpInSameCol(1)
-
-  @action
-  firstTab = () => this.jumpInSameCol(0, true)
-
-  @action
-  lastTab = () => this.jumpInSameCol(1, true)
-
-  findFocusedTab = (step = 1) => {
-    const { length } = this.store.searchStore.matchedTabs
-    if (length === 0) {
-      return
-    }
-    if (this.focusedTab) {
-      const index = this.store.searchStore.matchedTabs.findIndex(
-        (x) => x.id === this.focusedTab
-      )
-      this.jumpToTab(index + step)
-    } else {
-      const index = (length + (step - 1) / 2) % length
-      this.jumpToTab(index)
-    }
+  left = () => {
+    log.debug('left')
+    this._jumpInSameRow(-1)
   }
 
-  jumpToTab = (index = 0) => {
-    const { length } = this.store.searchStore.matchedTabs
-    if (length === 0) {
-      return
+  @action
+  right = () => {
+    log.debug('right')
+    this._jumpInSameRow(1)
+  }
+
+  @action
+  up = () => {
+    log.debug('up')
+    this._jumpInSameCol(-1)
+  }
+
+  @action
+  down = () => {
+    log.debug('down')
+    this._jumpInSameCol(1)
+  }
+
+  @action
+  firstTab = () => {
+    log.debug('firstTab')
+    this._jumpInSameCol(0, true)
+  }
+
+  @action
+  lastTab = () => {
+    log.debug('lastTab')
+    this._jumpInSameCol(1, true)
+  }
+
+  _focusOnFirstItem = () => {
+    const { matchedTabs } = this.store.searchStore
+    if (matchedTabs.length) {
+      return this._setFocusedItem(matchedTabs[0])
     }
-    const newIndex = (length + index) % length
-    this.focusedTab = this.store.searchStore.matchedTabs[newIndex].id
+    const { windows } = this.store.windowStore
+    if (windows.length) {
+      this._setFocusedItem(windows[0])
+    }
   }
 
   setDefaultFocusedTab = () => {
-    log.debug('setDefaultFocusedTab:', { focusedTab: this.focusedTab })
-    if (this.focusedTab) {
+    log.debug('setDefaultFocusedTab:', { focusedItem: this.focusedItem })
+    if (this.focusedItem) {
       return
     }
     const { lastFocusedWindow } = this.store.windowStore
@@ -215,6 +267,9 @@ export default class FocusStore {
       })
       return
     }
+    if (lastFocusedWindow.hide) {
+      return this.focus(lastFocusedWindow)
+    }
     const tab = lastFocusedWindow.tabs.find((x) => x.active)
     log.debug('setDefaultFocusedTab active tab:', { tab })
     if (tab) {
@@ -223,25 +278,8 @@ export default class FocusStore {
   }
 
   toggleHideForFocusedWindow = () => {
-    if (this.focusedTab) {
-      const {
-        windowStore: { tabs }
-      } = this.store
-      const tab = tabs.find((x) => x.id === this.focusedTab)
-      tab.win.toggleHide()
-    } else if (this.focusedWindowId) {
-      const win = this.store.windowStore.windows.find(
-        (x) => x.id === this.focusedWindowId
-      )
-      if (win) {
-        win.toggleHide()
-      }
+    if (this.focusedItem) {
+      this.focusedItem.toggleHide()
     }
-  }
-
-  @action
-  focusWindow = (windowId) => {
-    this.focusedTab = null
-    this.focusedWindowId = windowId
   }
 }

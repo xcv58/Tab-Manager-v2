@@ -11,6 +11,7 @@ import history from 'img/chrome/history.png'
 import settings from 'img/chrome/settings.png'
 import Store from 'stores'
 import Window from './Window'
+import Focusable from './Focusable'
 
 const FAV_ICONS = {
   bookmarks,
@@ -26,14 +27,13 @@ const FAV_ICONS = {
 const CHROME_PREFIX = 'chrome://'
 const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
-export default class Tab {
-  store: Store
-
+export default class Tab extends Focusable {
   win: Window
 
   mounted: () => void
 
   constructor (tab, store: Store, win: Window) {
+    super(store)
     this.store = store
     Object.assign(this, tab)
     this.win = win
@@ -81,6 +81,12 @@ export default class Tab {
     this.focus()
     this.store.tabStore.select(this)
   }
+
+  @action
+  toggleHide = () => this.win.toggleHide()
+
+  @action
+  toggleSelectAll = () => this.win.toggleSelectAll()
 
   @action
   reload = () => browser.tabs.reload(this.id)
@@ -147,11 +153,6 @@ export default class Tab {
   }
 
   @computed
-  get isFocused () {
-    return this.id === this.store.focusStore.focusedTab
-  }
-
-  @computed
   get isSelected () {
     return this.store.tabStore.selection.has(this.id)
   }
@@ -191,4 +192,7 @@ export default class Tab {
   closeOtherTabs = () => {
     this.win.tabs.filter((tab) => tab.id !== this.id).map((tab) => tab.remove())
   }
+
+  @action
+  closeWindow = () => this.win.closeWindow()
 }

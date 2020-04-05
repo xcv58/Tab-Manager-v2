@@ -30,6 +30,7 @@ export default observer((props) => {
   const isDarkTheme = useTheme()
   const { faked, tab, className } = props
   const {
+    setNodeRef,
     active,
     isFocused,
     isMatched,
@@ -71,6 +72,7 @@ export default observer((props) => {
     if (faked) {
       return
     }
+    setNodeRef(nodeRef)
     if (isFocused) {
       scrollToNode(nodeRef)
       if (!searchStore.typing) {

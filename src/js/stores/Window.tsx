@@ -2,11 +2,14 @@ import { action, computed, observable } from 'mobx'
 import Tab from './Tab'
 import { browser } from 'libs'
 import Store from 'stores'
+import log from 'libs/log'
+import Focusable from './Focusable'
 
-export default class Window {
+export default class Window extends Focusable {
   store: Store
 
   constructor (win, store: Store) {
+    super(store)
     this.store = store
     Object.assign(this, win)
     this.tabs = win.tabs.map((tab) => new Tab(tab, store, this))
@@ -16,9 +19,6 @@ export default class Window {
 
   @observable
   tabs: Tab[] = []
-
-  @observable
-  id
 
   // TODO: Remove this when we add concurrent mode
   @observable
@@ -39,14 +39,8 @@ export default class Window {
   }
 
   @action
-  onTitleClick = () => {
+  activate = () => {
     browser.windows.update(this.id, { focused: true })
-  }
-
-  @computed
-  get isFocused () {
-    const { focusedWindowId, focusedTab } = this.store.focusStore
-    return !focusedTab && focusedWindowId === this.id
   }
 
   @computed
@@ -162,8 +156,11 @@ export default class Window {
     browser.windows.remove(this.id)
   }
 
+  closeWindow = this.close
+
   @action
   toggleSelectAll = () => {
+    log.debug('toggleSelectAll')
     const { allTabSelected, matchedTabs } = this
     const { selectAll, unselectAll } = this.store.tabStore
     if (allTabSelected) {
@@ -172,6 +169,8 @@ export default class Window {
       selectAll(matchedTabs)
     }
   }
+
+  select = this.toggleSelectAll
 
   @action
   onMoved = (tabId, moveInfo) => {
@@ -221,7 +220,7 @@ export default class Window {
       this.store.hiddenWindowStore.showWindow(this.id)
     } else {
       this.store.hiddenWindowStore.hideWindow(this.id)
-      this.store.focusStore.focusWindow(this.id)
+      this.store.focusStore.focus(this)
     }
   }
 }

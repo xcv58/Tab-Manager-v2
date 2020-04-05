@@ -43,16 +43,6 @@ export default class SearchStore {
   }
 
   @computed
-  get matchedColumns () {
-    return this.store.windowStore.columns.filter((column) => {
-      if (column.matchedTabs.length) {
-        return column
-      }
-      return null
-    })
-  }
-
-  @computed
   get allTabSelected () {
     return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
@@ -92,9 +82,8 @@ export default class SearchStore {
   _updateQuery = () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
     this._query = this.query
-    if (!this.matchedSet.has(this.store.focusStore.focusedTab)) {
-      this.store.focusStore.focusedTab = null
-      this.store.focusStore.findFocusedTab()
+    if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
+      this.store.focusStore.defocus()
     }
     if (!this.store.userStore.showUnmatchedTab) {
       this.store.windowStore.updateColumns()
