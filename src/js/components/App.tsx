@@ -5,7 +5,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
 import { darkTheme, lightTheme } from 'libs/themes'
 import Fade from '@material-ui/core/Fade'
 import Paper from '@material-ui/core/Paper'
-import Windows from 'components/Windows'
+import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
@@ -29,7 +29,7 @@ const App = observer(() => {
     <Paper className='flex flex-col h-screen overflow-hidden'>
       <DroppableTools inputRef={searchEl} />
       <Fade in>
-        <Windows />
+        <WinList />
       </Fade>
       <Toolbar />
       <Shortcut />

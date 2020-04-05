@@ -37,7 +37,7 @@ export default observer(() => {
       onResize={onResize}
     />
   )
-  const { initialLoading, windows } = windowStore
+  const { initialLoading, windows, visibleColumn } = windowStore
   if (initialLoading) {
     return (
       <div ref={scrollbarRef}>
@@ -46,7 +46,7 @@ export default observer(() => {
       </div>
     )
   }
-  const width = 100 / Math.min(4, windowStore.visibleColumn) + '%'
+  const width = 100 / Math.min(4, visibleColumn) + '%'
   const list = windows.map((window) => (
     <Window key={window.id} width={width} win={window} />
   ))
