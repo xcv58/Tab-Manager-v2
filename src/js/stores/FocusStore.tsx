@@ -14,7 +14,7 @@ export default class FocusStore {
   }
 
   @computed
-  get focusedItem () {
+  get focusedItem (): FocusedItem | null {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
       return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
@@ -52,7 +52,9 @@ export default class FocusStore {
 
   @action
   enter = () => {
-    this.focusedItem.activate()
+    if (this.focusedItem) {
+      this.focusedItem.activate()
+    }
   }
 
   @action
@@ -63,46 +65,22 @@ export default class FocusStore {
   // Toggle select of focused tab, or the focused window.tabs
   @action
   select = () => {
-    const { focusedItem } = this
-    if (!focusedItem) {
-      return
-    }
-    const { select } = this.store.tabStore
-    if (focusedItem instanceof Tab) {
-      select(focusedItem)
-    }
-    if (focusedItem instanceof Window) {
-      focusedItem.toggleSelectAll()
+    if (this.focusedItem) {
+      this.focusedItem.select()
     }
   }
 
-  // DONE
   @action
   closeWindow = () => {
-    const { focusedItem } = this
-    if (!focusedItem) {
-      return
-    }
-    if (focusedItem instanceof Window) {
-      focusedItem.close()
-    }
-    if (focusedItem instanceof Tab) {
-      focusedItem.win.close()
+    if (this.focusedItem) {
+      this.focusedItem.closeWindow()
     }
   }
 
   @action
   selectWindow = () => {
-    const { focusedItem } = this
-    log.debug('selectWindow:', { focusedItem })
-    if (!focusedItem) {
-      return
-    }
-    if (focusedItem instanceof Tab) {
-      focusedItem.win.toggleSelectAll()
-    }
-    if (focusedItem instanceof Window) {
-      focusedItem.toggleSelectAll()
+    if (this.focusedItem) {
+      this.focusedItem.toggleSelectAll()
     }
   }
 
@@ -295,15 +273,8 @@ export default class FocusStore {
   }
 
   toggleHideForFocusedWindow = () => {
-    const { focusedItem } = this
-    if (!focusedItem) {
-      return
-    }
-    if (focusedItem instanceof Tab) {
-      focusedItem.win.toggleHide()
-    }
-    if (focusedItem instanceof Window) {
-      focusedItem.toggleHide()
+    if (this.focusedItem) {
+      this.focusedItem.toggleHide()
     }
   }
 }

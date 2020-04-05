@@ -156,6 +156,8 @@ export default class Window extends Focusable {
     browser.windows.remove(this.id)
   }
 
+  closeWindow = this.close
+
   @action
   toggleSelectAll = () => {
     log.debug('toggleSelectAll')
@@ -167,6 +169,8 @@ export default class Window extends Focusable {
       selectAll(matchedTabs)
     }
   }
+
+  select = this.toggleSelectAll
 
   @action
   onMoved = (tabId, moveInfo) => {
