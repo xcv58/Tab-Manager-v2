@@ -39,7 +39,6 @@ export default observer((props) => {
   const style: CSSProperties = {
     minWidth: `${userStore.tabWidth}rem`,
     width,
-    breakInside: 'avoid',
     height: 'fit-content',
     boxSizing: 'border-box'
   }

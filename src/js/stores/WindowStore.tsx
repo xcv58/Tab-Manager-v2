@@ -73,22 +73,21 @@ export default class WindowsStore {
 
   @computed
   get visibleColumn () {
-    return this.windows
+    const heights = this.windows
       .filter((x) => x.visibleLength > 0)
       .map((x) => x.visibleLength * TAB_HEIGHT)
-      .reduce((acc, cur) => {
-        if (!acc.length) {
-          acc.push(cur)
-        } else {
-          const preHeight = acc[acc.length - 1]
-          if (preHeight + cur > this.height) {
-            acc.push(cur)
-          } else {
-            acc[acc.length - 1] = preHeight + cur
-          }
-        }
-        return acc
-      }, []).length
+    let count = 0
+    let preHeight = -1
+    for (const h of heights) {
+      const sum = preHeight + h
+      if (sum > this.height || preHeight === -1) {
+        preHeight = h
+        count += 1
+      } else {
+        preHeight = sum
+      }
+    }
+    return count
   }
 
   clearWindow = () => {
