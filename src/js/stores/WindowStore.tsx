@@ -87,7 +87,7 @@ export default class WindowsStore {
         preHeight = sum
       }
     }
-    return count
+    return Math.max(count, 1)
   }
 
   clearWindow = () => {
