@@ -270,7 +270,7 @@ export default class FocusStore {
     if (lastFocusedWindow.hide) {
       return this.focus(lastFocusedWindow)
     }
-    const tab = lastFocusedWindow.tabs.find((x) => x.active)
+    const tab = lastFocusedWindow.tabs.find((x) => x.active && x.isMatched)
     log.debug('setDefaultFocusedTab active tab:', { tab })
     if (tab) {
       this.focus(tab)
