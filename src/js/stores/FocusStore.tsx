@@ -17,9 +17,8 @@ export default class FocusStore {
   get focusedItem () {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
-      return tabs.find((x) => x.id === this.focusedTabId)
-    }
-    if (this.focusedWindowId) {
+      return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
+    } else if (this.focusedWindowId) {
       return windows.find((x) => x.id === this.focusedWindowId)
     }
   }

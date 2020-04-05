@@ -84,7 +84,6 @@ export default class SearchStore {
     this._query = this.query
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
-      this.store.focusStore.down()
     }
     if (!this.store.userStore.showUnmatchedTab) {
       this.store.windowStore.updateColumns()
