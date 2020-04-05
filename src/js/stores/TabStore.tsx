@@ -1,7 +1,9 @@
 import { action, computed, observable } from 'mobx'
-import { activateTab, togglePinTabs, browser } from 'libs'
+import { activateTab, togglePinTabs } from 'libs'
 import Store from 'stores'
+import log from 'libs/log'
 import Tab from './Tab'
+import Window from './Window'
 
 export default class TabStore {
   store: Store
@@ -27,8 +29,8 @@ export default class TabStore {
 
   @computed
   get hasFocusedOrSelectedTab () {
-    const { focusedTab } = this.store.focusStore
-    return this.selection.size > 0 || focusedTab !== null
+    const { focusedItem } = this.store.focusStore
+    return this.selection.size > 0 || focusedItem !== null
   }
 
   @action
@@ -85,7 +87,7 @@ export default class TabStore {
       while (this.selection.has(this.store.focusStore.focusedTabId)) {
         down()
         if (focusedTabId === this.store.focusStore.focusedTabId) {
-          this.store.focusStore.defocusTab()
+          this.store.focusStore.defocus()
           break
         }
       }
@@ -118,10 +120,15 @@ export default class TabStore {
 
   @action
   togglePin = async () => {
-    const { focusedTab } = this.store.focusStore
-    if (this.selection.size === 0 && focusedTab) {
-      const tab = await browser.tabs.get(focusedTab)
-      await togglePinTabs([tab])
+    const { focusedItem } = this.store.focusStore
+    if (this.selection.size === 0 && focusedItem) {
+      log.debug('togglePin for focusedItem:', { focusedItem })
+      if (focusedItem instanceof Tab) {
+        await togglePinTabs([focusedItem])
+      }
+      if (focusedItem instanceof Window) {
+        await togglePinTabs(focusedItem.tabs)
+      }
     } else {
       await togglePinTabs([...this.selection.values()])
       this.unselectAll()

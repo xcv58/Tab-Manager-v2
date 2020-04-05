@@ -46,7 +46,7 @@ export default class FocusStore {
   }
 
   @action
-  defocusTab = () => {
+  defocus = () => {
     this.focusedTabId = null
     this.focusedWindowId = null
   }
@@ -125,6 +125,7 @@ export default class FocusStore {
       return
     }
     const baseRect = focusedItem.getBoundingClientRect()
+    log.debug('baseRect:', { baseRect })
     if (!baseRect) {
       log.error(
         'The getBoundingClientRect returns invalid response:',
@@ -134,7 +135,6 @@ export default class FocusStore {
       return
     }
     const { windows } = this.store.windowStore
-    log.debug('All windows:', windows)
     const column = []
     for (const win of windows) {
       const rect = win.getBoundingClientRect()
@@ -146,7 +146,7 @@ export default class FocusStore {
         if (win.hide) {
           column.push(win)
         } else {
-          column.push(...win.tabs)
+          column.push(...win.matchedTabs)
         }
       }
     }
@@ -160,6 +160,7 @@ export default class FocusStore {
       return
     }
     const baseRect = focusedItem.getBoundingClientRect()
+    log.debug('baseRect:', { baseRect })
     if (!baseRect) {
       log.error(
         'The getBoundingClientRect returns invalid response:',
@@ -169,18 +170,18 @@ export default class FocusStore {
       return
     }
     const { windows } = this.store.windowStore
-    log.debug('All windows:', windows)
     const row: FocusedItem[] = []
     for (const win of windows) {
-      for (const item of win.hide ? [win] : win.tabs) {
+      for (const item of win.hide ? [win] : win.matchedTabs) {
         const rect = item.getBoundingClientRect()
         if (!rect) {
           continue
         }
         log.debug('item:', item, rect)
-        // 1. No previous item
-        // 2. Has previous item with the same left, check the Math.abs()
-        // 3. Has previous item with different left -> 1
+        // 1. No previous item -> just add
+        // 2. Has previous item with the same left ->
+        //      check the delta by Math.abs() and replace it by the smaller one
+        // 3. Has previous item with different left -> just add
         if (!row.length) {
           row.push(item)
         } else {
@@ -197,9 +198,6 @@ export default class FocusStore {
             row.push(item)
           }
         }
-        // if (Math.abs(baseRect.top - rect.top) < baseRect.height / 2) {
-        //   row.push(item)
-        // }
       }
     }
     return row
@@ -224,6 +222,7 @@ export default class FocusStore {
       return this._focusOnFirstItem()
     }
     const column = this._findColumn()
+    log.debug('column:', { column })
     this._jump(column, direction, side)
   }
 
