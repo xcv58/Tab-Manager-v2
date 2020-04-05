@@ -31,6 +31,7 @@ export default class HiddenWindowsStore {
     } else {
       this.hiddenWindows = {}
     }
+    this.store.windowStore.updateColumns()
     this.saveHiddenWindows()
   }
 

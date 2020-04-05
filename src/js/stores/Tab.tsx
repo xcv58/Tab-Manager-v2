@@ -11,6 +11,7 @@ import history from 'img/chrome/history.png'
 import settings from 'img/chrome/settings.png'
 import Store from 'stores'
 import Window from './Window'
+import Focusable from './Focusable'
 
 const FAV_ICONS = {
   bookmarks,
@@ -26,14 +27,13 @@ const FAV_ICONS = {
 const CHROME_PREFIX = 'chrome://'
 const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
-export default class Tab {
-  store: Store
-
+export default class Tab extends Focusable {
   win: Window
 
   mounted: () => void
 
   constructor (tab, store: Store, win: Window) {
+    super(store)
     this.store = store
     Object.assign(this, tab)
     this.win = win
@@ -144,11 +144,6 @@ export default class Tab {
   @computed
   get urlCount () {
     return this.store.windowStore.urlCountMap[this.url] || 0
-  }
-
-  @computed
-  get isFocused () {
-    return this.id === this.store.focusStore.focusedTab
   }
 
   @computed

@@ -78,20 +78,20 @@ export default class TabStore {
 
   @action
   remove = () => {
-    const { down, focusedTab } = this.store.focusStore
+    const { down, focusedTabId } = this.store.focusStore
     const { tabs } = this.store.windowStore
     let tabsToRemove = []
     if (this.selection.size > 0) {
-      while (this.selection.has(this.store.focusStore.focusedTab)) {
+      while (this.selection.has(this.store.focusStore.focusedTabId)) {
         down()
-        if (focusedTab === this.store.focusStore.focusedTab) {
+        if (focusedTabId === this.store.focusStore.focusedTabId) {
           this.store.focusStore.defocusTab()
           break
         }
       }
       tabsToRemove = tabs.filter((x) => x.isSelected)
     } else {
-      if (focusedTab) {
+      if (focusedTabId) {
         tabsToRemove = tabs.filter((x) => x.isFocused)
         down()
       }
@@ -102,13 +102,13 @@ export default class TabStore {
 
   @action
   reload = () => {
-    const { focusedTab } = this.store.focusStore
+    const { focusedItem } = this.store.focusStore
     const { tabs } = this.store.windowStore
     let tabsToReload = []
     if (this.selection.size > 0) {
       tabsToReload = tabs.filter((x) => x.isSelected)
     } else {
-      if (focusedTab) {
+      if (focusedItem) {
         tabsToReload = tabs.filter((x) => x.isFocused)
       }
     }

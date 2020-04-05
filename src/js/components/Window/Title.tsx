@@ -13,7 +13,7 @@ export default observer((props) => {
   const { className, win } = props
   const {
     tabs,
-    onTitleClick,
+    activate,
     invisibleTabs,
     reload,
     hide,
@@ -26,6 +26,7 @@ export default observer((props) => {
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
   useEffect(() => {
+    win.setNodeRef(nodeRef)
     if (isFocused) {
       nodeRef.current.focus()
     }
@@ -41,7 +42,7 @@ export default observer((props) => {
     >
       <SelectAll {...props} />
       <button
-        onClick={onTitleClick}
+        onClick={activate}
         className='flex-auto overflow-hidden text-base text-left rounded-sm focus:outline-none focus:shadow-outline'
       >
         <h5 className='flex-auto text-2xl'>

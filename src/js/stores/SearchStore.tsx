@@ -43,16 +43,6 @@ export default class SearchStore {
   }
 
   @computed
-  get matchedColumns () {
-    return this.store.windowStore.columns.filter((column) => {
-      if (column.matchedTabs.length) {
-        return column
-      }
-      return null
-    })
-  }
-
-  @computed
   get allTabSelected () {
     return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
