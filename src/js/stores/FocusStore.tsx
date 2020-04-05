@@ -117,20 +117,18 @@ export default class FocusStore {
     }
   }
 
-  _findColumn = () => {
-    log.debug('_findColumn:', this.focusedItem)
-    const { focusedItem } = this
-    if (!focusedItem) {
+  _getBaseRect = () => {
+    if (!this.focusedItem) {
       return
     }
-    const baseRect = focusedItem.getBoundingClientRect()
-    log.debug('baseRect:', { baseRect })
-    if (!baseRect) {
-      log.error(
-        'The getBoundingClientRect returns invalid response:',
-        focusedItem,
-        { baseRect }
-      )
+    return this.focusedItem.getBoundingClientRect()
+  }
+
+  _findColumn = () => {
+    const { focusedItem } = this
+    const baseRect = this._getBaseRect()
+    log.debug('_findColumn:', { focusedItem, baseRect })
+    if (!focusedItem || !baseRect) {
       return
     }
     const { windows } = this.store.windowStore
@@ -153,19 +151,10 @@ export default class FocusStore {
   }
 
   _findRow = () => {
-    log.debug('_findRow:', this.focusedItem)
     const { focusedItem } = this
-    if (!focusedItem) {
-      return
-    }
-    const baseRect = focusedItem.getBoundingClientRect()
-    log.debug('baseRect:', { baseRect })
-    if (!baseRect) {
-      log.error(
-        'The getBoundingClientRect returns invalid response:',
-        focusedItem,
-        { baseRect }
-      )
+    const baseRect = this._getBaseRect()
+    log.debug('_findRow:', { focusedItem, baseRect })
+    if (!focusedItem || !baseRect) {
       return
     }
     const { windows } = this.store.windowStore
