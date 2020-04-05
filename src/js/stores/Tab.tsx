@@ -83,6 +83,12 @@ export default class Tab extends Focusable {
   }
 
   @action
+  toggleHide = () => this.win.toggleHide()
+
+  @action
+  toggleSelectAll = () => this.win.toggleSelectAll()
+
+  @action
   reload = () => browser.tabs.reload(this.id)
 
   @action
@@ -186,4 +192,7 @@ export default class Tab extends Focusable {
   closeOtherTabs = () => {
     this.win.tabs.filter((tab) => tab.id !== this.id).map((tab) => tab.remove())
   }
+
+  @action
+  closeWindow = () => this.win.closeWindow()
 }
