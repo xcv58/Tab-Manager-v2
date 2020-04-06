@@ -25,6 +25,6 @@ describe('The Extension page should', () => {
   })
 
   it('have title ends with the extension name', async () => {
-    await expect(page.title()).resolves.toMatch('Tab Manager v2')
+    await expect(page.title()).resolves.toMatch(manifest.name)
   })
 })
