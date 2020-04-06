@@ -68,6 +68,10 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - integration-test:
+          filters:
+            tags:
+              only: /^v.*/
       - publish:
           requires:
             - build-test
