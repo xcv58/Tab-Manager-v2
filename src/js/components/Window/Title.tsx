@@ -26,11 +26,11 @@ export default observer((props) => {
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
   useEffect(() => {
-    win.setNodeRef(nodeRef)
     if (isFocused) {
       nodeRef.current.focus()
     }
   }, [isFocused])
+  useEffect(() => win.setNodeRef(nodeRef))
   return (
     <div
       tabIndex={-1}

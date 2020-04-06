@@ -72,7 +72,6 @@ export default observer((props) => {
     if (faked) {
       return
     }
-    setNodeRef(nodeRef)
     if (isFocused) {
       scrollToNode(nodeRef)
       if (!searchStore.typing) {
@@ -81,6 +80,7 @@ export default observer((props) => {
     }
     return onMouseLeave
   }, [faked, isFocused])
+  useEffect(() => setNodeRef(nodeRef))
 
   const pin = pinned && PIN
 
