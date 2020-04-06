@@ -72,6 +72,7 @@ workflows:
       - publish:
           requires:
             - build-test
+            - integration-test
           filters:
             branches:
               ignore: /.*/
