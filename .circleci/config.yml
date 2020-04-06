@@ -39,7 +39,7 @@ jobs:
 
   integration-test:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:10.14-browsers
     steps:
       - checkout
       - puppeteer/install
