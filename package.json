@@ -23,6 +23,7 @@
     "test": "yarn lint && yarn lint:ts && yarn jest",
     "test-watch": "yarn jest --watch",
     "test-integration": "jest -c integration_tests/jest.config.js",
+    "test-integration-ci": "yarn build && yarn test-integration --maxWorkers=1",
     "test-integration-watch": "yarn test-integration --watch",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook -c .storybook -o .out"

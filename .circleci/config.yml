@@ -25,6 +25,7 @@ jobs:
       - run: yarn lint
       - run: yarn lint:ts
       - run: yarn jest
+      - run: yarn test-integration-ci
       - run: yarn deploy
       - run: ls -l build/* build.zip
       - run: sha256sum build/* build.zip | tee SHA256SUMS.txt
