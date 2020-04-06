@@ -1,4 +1,6 @@
-version: 2
+version: 2.1
+orbs:
+  puppeteer: threetreeslight/puppeteer@0.1.2
 references:
   yarn_key: &yarn_key
     v1-dependencies-{{ checksum "yarn.lock" }}
