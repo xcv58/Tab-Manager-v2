@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  puppeteer: threetreeslight/puppeteer@0.1.2
 
 references:
   yarn_key: &yarn_key
@@ -42,7 +40,6 @@ jobs:
       - image: circleci/node:10.14-browsers
     steps:
       - checkout
-      - puppeteer/install
       - *restore_yarn_cache
       - run: yarn install
       - *save_yarn_cache
