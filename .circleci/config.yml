@@ -28,7 +28,6 @@ jobs:
       - run: yarn lint
       - run: yarn lint:ts
       - run: yarn jest
-      - run: yarn test-integration-ci
       - run: yarn deploy
       - run: ls -l build/* build.zip
       - run: sha256sum build/* build.zip | tee SHA256SUMS.txt
@@ -37,6 +36,17 @@ jobs:
       - store_artifacts:
           path: dist
           destination: dist
+
+  integration-test:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - puppeteer/install
+      - checkout
+      - *restore_yarn_cache
+      - run: yarn install
+      - *save_yarn_cache
+      - run: yarn test-integration-ci
 
   publish:
     docker:
