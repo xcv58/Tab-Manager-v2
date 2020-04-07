@@ -5,7 +5,7 @@
   "scripts": {
     "test-integration": "jest",
     "test": "jest --maxWorkers=1",
-    "test-integration-watch": "yarn test --watch"
+    "test-watch": "yarn test --watch"
   },
   "devDependencies": {
     "jest": "25.2.7",
