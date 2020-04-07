@@ -15,7 +15,7 @@ references:
       key: *yarn_key
 
   integration_yarn_key: &integration_yarn_key
-    v1-dependencies-{{ checksum "yarn.lock" }}
+    v1-dependencies-{{ checksum "integration_test/yarn.lock" }}
 
   save_integration_yarn_cache: &save_integration_yarn_cache
     save_cache:
