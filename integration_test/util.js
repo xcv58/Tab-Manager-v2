@@ -1,4 +1,4 @@
-const manifest = require('../src/manifest.json')
+export const manifest = require('../src/manifest.json')
 
 const getExtensionURL = async (browser) => {
   const extensionId = await getExtensionId(browser)
@@ -18,15 +18,13 @@ const getExtensionId = async (browser) => {
   return extensionId
 }
 
-const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
+export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 
-const ALL = async () => {
+export const ALL = async () => {
   const extensionURL = await getExtensionURL(browser)
   await page.goto(extensionURL)
 }
 
-const EACH = async () => {
+export const EACH = async () => {
   await page.bringToFront()
 }
-
-module.exports = { manifest, TAB_QUERY, ALL, EACH }

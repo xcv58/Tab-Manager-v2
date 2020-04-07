@@ -1,4 +1,4 @@
-const { TAB_QUERY, ALL, EACH } = require('./util')
+import { TAB_QUERY, ALL, EACH } from './util'
 
 describe('The Tab should', () => {
   beforeAll(ALL)
