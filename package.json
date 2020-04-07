@@ -114,7 +114,9 @@
     "globals": [
       "screen",
       "HTMLElement",
-      "HTMLInputElement"
+      "HTMLInputElement",
+      "page",
+      "browser"
     ]
   },
   "lint-staged": {

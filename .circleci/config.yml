@@ -1,4 +1,5 @@
-version: 2
+version: 2.1
+
 references:
   yarn_key: &yarn_key
     v1-dependencies-{{ checksum "yarn.lock" }}
@@ -12,6 +13,19 @@ references:
   restore_yarn_cache: &restore_yarn_cache
     restore_cache:
       key: *yarn_key
+
+  integration_yarn_key: &integration_yarn_key
+    v1-dependencies-{{ checksum "integration_test/yarn.lock" }}
+
+  save_integration_yarn_cache: &save_integration_yarn_cache
+    save_cache:
+      key: *integration_yarn_key
+      paths:
+        - integration_test/node_modules
+
+  restore_integration_yarn_cache: &restore_integration_yarn_cache
+    restore_cache:
+      key: *integration_yarn_key
 
 jobs:
   build-test:
@@ -34,6 +48,20 @@ jobs:
           path: dist
           destination: dist
 
+  integration-test:
+    docker:
+      - image: circleci/node:10.14-browsers
+    steps:
+      - checkout
+      - *restore_yarn_cache
+      - *restore_integration_yarn_cache
+      - run: yarn install
+      - run: yarn build
+      - run: cd integration_test && yarn install
+      - *save_yarn_cache
+      - *save_integration_yarn_cache
+      - run: cd integration_test && yarn test
+
   publish:
     docker:
       - image: circleci/node:10
@@ -54,9 +82,14 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - integration-test:
+          filters:
+            tags:
+              only: /^v.*/
       - publish:
           requires:
             - build-test
+            - integration-test
           filters:
             branches:
               ignore: /.*/
