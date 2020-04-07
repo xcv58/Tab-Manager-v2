@@ -3,6 +3,7 @@ import App from 'components/App'
 import React from 'react'
 import { render } from 'react-dom'
 import { isProduction } from 'libs'
+import 'mobx-react/batchingForReactDom'
 import '../css/popup.css'
 
 const init = () => {
