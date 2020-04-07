@@ -4,8 +4,7 @@ const extensionPath = path.join(__dirname, '../build')
 
 module.exports = {
   launch: {
-    // headless: process.env.HEADLESS !== 'false',
-    // Must set headless to false. Otherwise, the extension wouldn't load.
+    // Chrome Headless doesn't support extensions https://github.com/puppeteer/puppeteer/issues/659
     headless: false,
     args: [
       `--disable-extensions-except=${extensionPath}`,

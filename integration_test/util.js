@@ -18,13 +18,15 @@ const getExtensionId = async (browser) => {
   return extensionId
 }
 
-describe('The Extension page should', () => {
-  beforeAll(async () => {
-    const extensionURL = await getExtensionURL(browser)
-    await page.goto(extensionURL)
-  })
+const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 
-  it('have title ends with the extension name', async () => {
-    await expect(page.title()).resolves.toMatch(manifest.name)
-  })
-})
+const ALL = async () => {
+  const extensionURL = await getExtensionURL(browser)
+  await page.goto(extensionURL)
+}
+
+const EACH = async () => {
+  await page.bringToFront()
+}
+
+module.exports = { manifest, TAB_QUERY, ALL, EACH }
