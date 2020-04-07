@@ -7,10 +7,10 @@
     "test": "jest --maxWorkers=1",
     "test-integration-watch": "yarn test --watch"
   },
-  "dependencies": {},
   "devDependencies": {
     "jest": "25.2.7",
     "jest-puppeteer": "^4.4.0",
     "puppeteer": "^2.1.1"
-  }
+  },
+  "private": true
 }
