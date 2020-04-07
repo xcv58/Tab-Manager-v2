@@ -1,6 +1,6 @@
 const path = require('path')
 
-const extensionPath = path.join(__dirname, 'build')
+const extensionPath = path.join(__dirname, '../build')
 
 module.exports = {
   launch: {

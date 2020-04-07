@@ -1,0 +1,16 @@
+{
+  "name": "integration-test",
+  "version": "0.0.1",
+  "description": "Integration test via puppeteer",
+  "scripts": {
+    "test-integration": "jest",
+    "test": "jest --maxWorkers=1",
+    "test-integration-watch": "yarn test --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "25.2.7",
+    "jest-puppeteer": "^4.4.0",
+    "puppeteer": "^2.1.1"
+  }
+}
