@@ -9,9 +9,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
-    "babel-jest": "^25.2.6",
-    "jest": "25.2.7",
+    "@babel/preset-env": "^7.9.5",
+    "babel-jest": "^25.3.0",
+    "jest": "25.3.0",
     "jest-puppeteer": "^4.4.0",
     "puppeteer": "^2.1.1"
   },
