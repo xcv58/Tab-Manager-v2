@@ -61,6 +61,7 @@ export default (props) => {
 
   const containerStyle = {
     ...style,
+    overflow: 'hidden',
     position: 'relative'
   }
   return (

@@ -12,7 +12,7 @@ const View = (props) => {
     <div
       {...props}
       className='flex flex-col flex-wrap content-start mb-0 mr-0 overflow-hidden'
-      style={style}
+      style={{ ...style, marginRight: 0, marginBottom: 0 }}
     />
   )
 }
