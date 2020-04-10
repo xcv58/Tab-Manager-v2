@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.8.0...v1.8.1) (2020-04-10)
+
+### Bug Fixes
+
+- Add integration test with real Chromium browser, works on both CI and macOS ([#351](https://github.com/xcv58/Tab-Manager-v2/issues/351)) ([85276b1](https://github.com/xcv58/Tab-Manager-v2/commit/85276b13512860bdcb5c55c913129e92be91ea90))
+- Move focus doesn't work after tabs/windows moved ([c56c598](https://github.com/xcv58/Tab-Manager-v2/commit/c56c59849a500015990956b5faab84e62afc8707))
+- No scrollbar on Windows Firefox ([a49ea30](https://github.com/xcv58/Tab-Manager-v2/commit/a49ea30f70c4a71604beec654241542322db2fe4))
+- Put System, Dark, Light into a theme select ([522b058](https://github.com/xcv58/Tab-Manager-v2/commit/522b058ec8cecca76bd66926a5ec35beba936155))
+- Update the moving focus implementation ([#343](https://github.com/xcv58/Tab-Manager-v2/issues/343)) ([7b237a6](https://github.com/xcv58/Tab-Manager-v2/commit/7b237a6ab795ed7b5da32d1283831ae6fea6d644))
+- Upgrade mobx-react for Observer batching support ([b5db377](https://github.com/xcv58/Tab-Manager-v2/commit/b5db377f6becb537c5b6792aaea9bbaa052fce0f))
+- Use flexbox to render windows in columns to replace custom Columns implementation ([#344](https://github.com/xcv58/Tab-Manager-v2/issues/344)) ([75f6ba4](https://github.com/xcv58/Tab-Manager-v2/commit/75f6ba42003a3e426a3e290808a1a8b4a4fab78d))
+
 ## [1.8.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.7.1...v1.8.0) (2020-04-03)
 
 ### Features
