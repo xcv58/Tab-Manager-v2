@@ -6,17 +6,6 @@ import Loading from './Loading'
 import { useStore } from './StoreContext'
 import Window from './Window'
 
-const View = (props) => {
-  const { style } = props
-  return (
-    <div
-      {...props}
-      className='flex flex-col flex-wrap content-start mb-0 mr-0 overflow-hidden'
-      style={{ ...style, marginRight: 0, marginBottom: 0 }}
-    />
-  )
-}
-
 export default observer(() => {
   const { windowStore } = useStore()
   const scrollbarRef = useRef(null)
@@ -24,9 +13,6 @@ export default observer(() => {
     const { height } = scrollbarRef.current.getBoundingClientRect()
     windowStore.updateHeight(height)
   }
-  const renderEmptyTrack = (props) => (
-    <div {...props} style={{ ...props.style, display: 'none' }} />
-  )
 
   const resizeDetector = (
     <ReactResizeDetector
@@ -51,17 +37,7 @@ export default observer(() => {
     <Window key={window.id} width={width} win={window} />
   ))
   return (
-    <Scrollbar
-      renderView={View}
-      renderTrackHorizontal={renderEmptyTrack}
-      renderTrackVertical={renderEmptyTrack}
-      scrollbarRef={scrollbarRef}
-      style={{
-        display: 'flex',
-        flex: '1 1 auto',
-        height: 'fit-content'
-      }}
-    >
+    <Scrollbar scrollbarRef={scrollbarRef}>
       {list}
       {resizeDetector}
     </Scrollbar>
