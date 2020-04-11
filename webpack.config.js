@@ -13,7 +13,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const PurgecssPlugin = require('purgecss-webpack-plugin')
 const glob = require('glob-all')
 
-const srcPath = subdir => {
+const srcPath = (subdir) => {
   return path.join(__dirname, 'src/js', subdir)
 }
 
@@ -48,11 +48,11 @@ if (fileSystem.existsSync(secretsPath)) {
 const imgDir = path.join(__dirname, 'src/img')
 const images = fileSystem
   .readdirSync(imgDir)
-  .filter(x => x.endsWith('.png'))
-  .map(x => path.join(imgDir, x))
+  .filter((x) => x.endsWith('.png'))
+  .map((x) => path.join(imgDir, x))
 
 const HtmlFiles = ['popup'].map(
-  name =>
+  (name) =>
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', `${name}.html`),
       filename: `${name}.html`,
@@ -64,7 +64,7 @@ const HtmlFiles = ['popup'].map(
 )
 
 const entry = Object.assign(
-  ...['popup', 'background'].map(name => ({
+  ...['popup', 'background'].map((name) => ({
     [name]: path.join(__dirname, 'src', 'js', `${name}.tsx`)
   }))
 )
@@ -131,7 +131,7 @@ const options = {
   resolve: {
     alias,
     extensions: fileExtensions
-      .map(extension => '.' + extension)
+      .map((extension) => '.' + extension)
       .concat(['.css', '.jsx', '.js', '.tsx', 'ts'])
   },
   plugins: [
@@ -152,6 +152,7 @@ const options = {
           const json = JSON.parse(content.toString())
           if (process.env.NODE_ENV === 'production') {
             delete json.content_security_policy
+            delete json.browser_specific_settings
           }
           return Buffer.from(
             JSON.stringify({
@@ -173,9 +174,9 @@ const options = {
     // (process.env.NODE_ENV === 'production') &&
     new PurgecssPlugin({
       paths: () => glob.sync(`${__dirname}/src/js/**/*`, { nodir: true }),
-      defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || []
+      defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || []
     })
-  ].filter(x => !!x)
+  ].filter((x) => !!x)
 }
 
 if (env.NODE_ENV === 'development') {

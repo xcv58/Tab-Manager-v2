@@ -48,5 +48,10 @@
   "manifest_version": 2,
   "minimum_chrome_version": "60.0.3112",
   "offline_enabled": true,
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tab-manager-v2@xcv58.com"
+    }
+  },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
