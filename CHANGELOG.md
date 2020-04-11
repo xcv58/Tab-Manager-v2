@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.8.1...v1.8.2) (2020-04-11)
+
+### Bug Fixes
+
+- Improve the smooth scroll implementation ([4305d0c](https://github.com/xcv58/Tab-Manager-v2/commit/4305d0ca35011832fec762c314426853a6d6b0bb))
+
 ### [1.8.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.8.0...v1.8.1) (2020-04-10)
 
 ### Bug Fixes
