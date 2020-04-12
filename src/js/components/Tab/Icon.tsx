@@ -7,9 +7,19 @@ import { useStore } from 'components/StoreContext'
 
 export default observer((props) => {
   const { userStore } = useStore()
-  const { focus, select, iconUrl, isSelected } = props.tab
+  const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (
-    <Checkbox color='primary' checked={isSelected} onChange={select} />
+    <Checkbox
+      color='primary'
+      checked={isSelected}
+      onClick={(e) => {
+        if (isSelected || !e.shiftKey) {
+          select()
+        } else {
+          bulkSelect()
+        }
+      }}
+    />
   )
   if (!userStore.showTabIcon) {
     return checkbox

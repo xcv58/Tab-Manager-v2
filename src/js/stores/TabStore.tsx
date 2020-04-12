@@ -63,6 +63,41 @@ export default class TabStore {
     tabs.forEach(({ id }) => this.selection.delete(id))
   }
 
+  @action
+  bulkSelct = (tab) => {
+    log.debug('blukSelect:', tab)
+    const { tabs } = this.store.windowStore
+    let fromIndex = -1
+    let toIndex = -1
+    let index = -1
+    for (let i = 0; i < tabs.length; i++) {
+      const currentTab = tabs[i]
+      if (currentTab.id === tab.id) {
+        index = i
+        continue
+      }
+      if (!currentTab.isSelected) {
+        continue
+      }
+      if (index === -1) {
+        fromIndex = i
+      } else {
+        toIndex = toIndex === -1 ? i : toIndex
+      }
+    }
+    log.debug({ fromIndex, index, toIndex })
+    if (index === -1) {
+      return
+    }
+    if (fromIndex !== -1) {
+      return this.selectAll(tabs.slice(fromIndex + 1, index + 1))
+    }
+    if (toIndex !== -1) {
+      return this.selectAll(tabs.slice(index, toIndex))
+    }
+    this.select(tab)
+  }
+
   @computed
   get sources () {
     return Array.from(this.selection.values()).sort((a, b) => {
