@@ -1,9 +1,8 @@
 import { action, computed, observable } from 'mobx'
-import { activateTab, togglePinTabs } from 'libs'
+import { activateTab } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
 import Tab from './Tab'
-import Window from './Window'
 
 export default class TabStore {
   store: Store
@@ -25,12 +24,6 @@ export default class TabStore {
       return 'selected tab'
     }
     return 'selected tabs'
-  }
-
-  @computed
-  get hasFocusedOrSelectedTab () {
-    const { focusedItem } = this.store.focusStore
-    return this.selection.size > 0 || focusedItem !== null
   }
 
   @action
@@ -108,66 +101,10 @@ export default class TabStore {
     })
   }
 
+  // TODO: this abstraction may be useless
   @action
   activate = (tab) => {
     activateTab(tab.id)
-  }
-
-  @action
-  remove = () => {
-    const { down, focusedTabId } = this.store.focusStore
-    const { tabs } = this.store.windowStore
-    let tabsToRemove = []
-    if (this.selection.size > 0) {
-      while (this.selection.has(this.store.focusStore.focusedTabId)) {
-        down()
-        if (focusedTabId === this.store.focusStore.focusedTabId) {
-          this.store.focusStore.defocus()
-          break
-        }
-      }
-      tabsToRemove = tabs.filter((x) => x.isSelected)
-    } else {
-      if (focusedTabId) {
-        tabsToRemove = tabs.filter((x) => x.isFocused)
-        down()
-      }
-    }
-    this.unselectAll()
-    tabsToRemove.forEach((x) => x.remove())
-  }
-
-  @action
-  reload = () => {
-    const { focusedItem } = this.store.focusStore
-    const { tabs } = this.store.windowStore
-    let tabsToReload = []
-    if (this.selection.size > 0) {
-      tabsToReload = tabs.filter((x) => x.isSelected)
-    } else {
-      if (focusedItem) {
-        tabsToReload = tabs.filter((x) => x.isFocused)
-      }
-    }
-    this.unselectAll()
-    tabsToReload.forEach((x) => x.reload())
-  }
-
-  @action
-  togglePin = async () => {
-    const { focusedItem } = this.store.focusStore
-    if (this.selection.size === 0 && focusedItem) {
-      log.debug('togglePin for focusedItem:', { focusedItem })
-      if (focusedItem instanceof Tab) {
-        await togglePinTabs([focusedItem])
-      }
-      if (focusedItem instanceof Window) {
-        await togglePinTabs(focusedItem.tabs)
-      }
-    } else {
-      await togglePinTabs([...this.selection.values()])
-      this.unselectAll()
-    }
   }
 
   isTabSelected = ({ id }) => this.selection.has(id)

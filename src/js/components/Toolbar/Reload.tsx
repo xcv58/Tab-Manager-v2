@@ -7,8 +7,7 @@ import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
 export default observer(() => {
-  const { tabStore } = useStore()
-  const { reload, hasFocusedOrSelectedTab } = tabStore
+  const { hasFocusedOrSelectedTab, reload } = useStore()
   return (
     <Tooltip title='Reload select tab(s)' enterDelay={TOOLTIP_DELAY}>
       <div>

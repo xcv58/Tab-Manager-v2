@@ -7,10 +7,10 @@ import { useTheme } from '@material-ui/styles'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
-export default observer((props) => {
+export default observer(() => {
   const theme = useTheme()
-  const { tabStore } = useStore()
-  const { remove, tabDescription, hasFocusedOrSelectedTab } = tabStore
+  const { tabStore, hasFocusedOrSelectedTab, remove } = useStore()
+  const { tabDescription } = tabStore
   const style = {}
   if (hasFocusedOrSelectedTab) {
     style.color = theme.palette.secondary.main

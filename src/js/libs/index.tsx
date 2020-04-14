@@ -195,3 +195,5 @@ export const getDomain = (url) => {
 }
 
 export const isProduction = () => process.env.NODE_ENV === 'production'
+
+export const writeToClipboard = (text) => navigator.clipboard.writeText(text)

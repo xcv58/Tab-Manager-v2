@@ -90,7 +90,7 @@ export default class ShortcutStore {
     [
       ['d d'],
       () => {
-        this.store.tabStore.remove()
+        this.store.remove()
       },
       'Close tab'
     ],
@@ -114,7 +114,7 @@ export default class ShortcutStore {
     [
       ['r', 'ctrl+r'],
       () => {
-        this.store.tabStore.reload()
+        this.store.reload()
       },
       'Reload tab'
     ],
@@ -129,7 +129,7 @@ export default class ShortcutStore {
       ['p', 'ctrl+p'],
       (event) => {
         preventDefault(event)
-        this.store.tabStore.togglePin()
+        this.store.togglePin()
       },
       'Toogle pin'
     ],
@@ -374,6 +374,14 @@ export default class ShortcutStore {
         this.store.hiddenWindowStore.updateHideForAllWindows(false)
       },
       'Expand all windows'
+    ],
+    [
+      'c c',
+      (event) => {
+        preventDefault(event)
+        this.store.copyURL()
+      },
+      'Copy URL (separated by new line)'
     ]
   ]
 
