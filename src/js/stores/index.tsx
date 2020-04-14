@@ -131,12 +131,19 @@ export default class Store {
   }
 
   @action
-  copyURL = async () => {
+  copyTabsInfo = async ({ includeTitle = false, delimiter = '\n' } = {}) => {
     const tabs = this._getFocusedOrSelectedTab()
     if (!tabs || !tabs.length) {
       return
     }
-    const text = tabs.map((x) => x.url).join('\n')
+    const text = tabs
+      .map((x) => {
+        if (includeTitle) {
+          return `${x.title}\n${x.url}\n`
+        }
+        return x.url
+      })
+      .join(delimiter)
     await writeToClipboard(text)
     this.tabStore.unselectAll()
   }

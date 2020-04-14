@@ -379,9 +379,29 @@ export default class ShortcutStore {
       'c c',
       (event) => {
         preventDefault(event)
-        this.store.copyURL()
+        this.store.copyTabsInfo()
       },
-      'Copy URL (separated by new line)'
+      'Copy selected/focused tabs URL (separated by new line)'
+    ],
+    [
+      'c t',
+      (event) => {
+        preventDefault(event)
+        this.store.copyTabsInfo({
+          includeTitle: true
+        })
+      },
+      'Copy selected/focused tabs title & URL'
+    ],
+    [
+      'c ,',
+      (event) => {
+        preventDefault(event)
+        this.store.copyTabsInfo({
+          delimiter: ', '
+        })
+      },
+      'Copy selected/focused tabs URL (separated by comma `,`)'
     ]
   ]
 
