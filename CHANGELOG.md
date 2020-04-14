@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.8.2...v1.9.0) (2020-04-14)
+
+### Features
+
+- Add `c c` to copy focused/selected tabs ([266204f](https://github.com/xcv58/Tab-Manager-v2/commit/266204f20d2023ab9e8ad8191affa880459ae48b))
+- Add `c t` and `c ,` to copy tabs information in different ways ([0d8e9ff](https://github.com/xcv58/Tab-Manager-v2/commit/0d8e9ffe905a3c55d2455d0c0b4710a370f19594))
+- Add bluk select, hold Shift key and click the checkbox to select the range of tabs ([a27bcc8](https://github.com/xcv58/Tab-Manager-v2/commit/a27bcc82152457bc872060077173737de215fc2b))
+
+### Bug Fixes
+
+- Fix the position of pinned indicator ([6f293a3](https://github.com/xcv58/Tab-Manager-v2/commit/6f293a3afe5abd38dfd0ae2bcc545cea39dc545c))
+
 ### [1.8.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.8.1...v1.8.2) (2020-04-11)
 
 ### Bug Fixes
