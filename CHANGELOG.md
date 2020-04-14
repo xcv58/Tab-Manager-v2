@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.0...v1.9.1) (2020-04-14)
+
+### Bug Fixes
+
+- The pin indicator appear in Command Palette UI ([b5e5ab9](https://github.com/xcv58/Tab-Manager-v2/commit/b5e5ab9d2a6c95796cc487f276cbe1b827cf5339))
+
 ## [1.9.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.8.2...v1.9.0) (2020-04-14)
 
 ### Features
