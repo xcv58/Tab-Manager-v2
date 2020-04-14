@@ -10,7 +10,7 @@ import { useTheme } from 'components/ThemeContext'
 import { useScrollbar } from 'libs/Scrollbar'
 
 const PIN = (
-  <div className='z-10 w-0 h-0 text-xs origin-bottom-right transform -rotate-90 translate-y-4 pointer-events-none'>
+  <div className='z-auto w-0 h-0 text-xs origin-bottom-right transform -rotate-90 translate-y-4 pointer-events-none'>
     📌
   </div>
 )
