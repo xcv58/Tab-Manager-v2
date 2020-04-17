@@ -4,7 +4,7 @@ import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
-import Preview from 'components/Preview'
+import DropIndicator from 'components/DropIndicator'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
 import { CSSProperties } from '@material-ui/styles'
@@ -42,7 +42,7 @@ export default observer((props) => {
     height: 'fit-content',
     boxSizing: 'border-box'
   }
-  const dropIndicator = canDrop && isOver && <Preview />
+  const dropIndicator = canDrop && isOver && <DropIndicator />
   if (!win.visibleLength) {
     return null
   }

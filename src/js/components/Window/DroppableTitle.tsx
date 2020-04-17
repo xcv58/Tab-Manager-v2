@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
-import Preview from 'components/Preview'
+import DropIndicator from 'components/DropIndicator'
 import Divider from '@material-ui/core/Divider'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import classNames from 'classnames'
@@ -32,7 +32,7 @@ export default observer((props) => {
     }
   })
   const { isOver, canDrop, isDragging } = dropProps
-  const preview = canDrop && isOver && <Preview />
+  const preview = canDrop && isOver && <DropIndicator />
   return (
     <div ref={drop}>
       <Title

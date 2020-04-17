@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import classNames from 'classnames'
 import { observer } from 'mobx-react'
 import { useDrag } from 'react-dnd'
 import DroppableTab from './DroppableTab'
@@ -26,15 +27,11 @@ export default observer((props) => {
     }
   })
   const { isDragging } = dragProps
-  const style = {}
-  if (isDragging) {
-    style.display = 'none'
-  }
   useEffect(() => {
     connectDragPreview(getEmptyImage())
   })
   return (
-    <div ref={drag} style={{ ...style, ...props.style }}>
+    <div ref={drag} className={classNames({ 'opacity-25': isDragging })}>
       <DroppableTab {...props} />
     </div>
   )

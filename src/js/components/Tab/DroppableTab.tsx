@@ -4,7 +4,7 @@ import { observer } from 'mobx-react'
 import { useDrop } from 'react-dnd'
 import Tab from './Tab'
 import { ItemTypes } from 'libs/react-dnd'
-import Preview from 'components/Preview'
+import DropIndicator from 'components/DropIndicator'
 import { useStore } from 'components/StoreContext'
 
 export default observer((props) => {
@@ -25,7 +25,7 @@ export default observer((props) => {
     }
   })
   const { isOver, canDrop } = dropProps
-  const preview = canDrop && isOver && <Preview />
+  const preview = canDrop && isOver && <DropIndicator />
   return (
     <div ref={drop}>
       {preview}
