@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.1...v1.9.2) (2020-04-17)
+
+### Bug Fixes
+
+- The drag & drop is hard to use since the view would change when reaches max height ([2fb699b](https://github.com/xcv58/Tab-Manager-v2/commit/2fb699b7ae973edabbf5de0452c5fb9a9e8a28bf))
+
 ### [1.9.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.0...v1.9.1) (2020-04-14)
 
 ### Bug Fixes
