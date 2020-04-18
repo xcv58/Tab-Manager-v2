@@ -122,7 +122,7 @@ export default class FocusStore {
     const { scrollTop } = this.containerRef.current
     const { windows } = this.store.windowStore
     const grid: FocusedItem[][] = []
-    let columnIndex = 0
+    let columnIndex = -1
     for (const win of windows) {
       for (const item of win.hide ? [win] : win.matchedTabs) {
         if (!grid.length) {
@@ -144,11 +144,7 @@ export default class FocusStore {
         }
       }
     }
-    return {
-      grid,
-      columnIndex,
-      scrollTop
-    }
+    return { grid, columnIndex, scrollTop, targetColumn: grid[columnIndex] }
   }
 
   _moveVertically = (direction, side = false) => {
@@ -157,8 +153,11 @@ export default class FocusStore {
     if (!focusedItem) {
       return this._focusOnFirstItem()
     }
-    const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
-    const targetColumn = grid[columnIndex]
+    const { scrollTop, targetColumn } = this._getGrid(focusedItem)
+    if (!targetColumn) {
+      log.debug('_moveVertically: No targetColumn found')
+      return
+    }
     const index = targetColumn.findIndex((x) => x === this.focusedItem)
     const item = getNextItem(targetColumn, index, direction, side)
     this._top = scrollTop + item.getBoundingClientRect().top
@@ -172,11 +171,16 @@ export default class FocusStore {
       return this._focusOnFirstItem()
     }
     const baseRect = focusedItem.getBoundingClientRect()
-    log.debug('_moveHorizontally:', { focusedItem, baseRect })
+    log.debug('_moveHorizontally baseRect:', baseRect)
     if (!baseRect) {
       return
     }
     const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
+    log.debug('_moveHorizontally grid:', { grid, columnIndex, scrollTop })
+    if (columnIndex === -1) {
+      log.debug('No available grid')
+      return
+    }
     this._updateTop(scrollTop + baseRect.top)
     const targetColumn = getNextItem(grid, columnIndex, direction)
     let min = Number.MAX_VALUE
