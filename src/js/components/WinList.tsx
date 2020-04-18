@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react'
 import Scrollbar from 'libs/Scrollbar'
 import ReactResizeDetector from 'react-resize-detector'
@@ -7,12 +7,17 @@ import { useStore } from './StoreContext'
 import Window from './Window'
 
 export default observer(() => {
-  const { windowStore } = useStore()
+  const {
+    windowStore,
+    focusStore: { setContainerRef }
+  } = useStore()
   const scrollbarRef = useRef(null)
   const onResize = () => {
     const { height } = scrollbarRef.current.getBoundingClientRect()
     windowStore.updateHeight(height)
   }
+
+  useEffect(() => setContainerRef(scrollbarRef))
 
   const resizeDetector = (
     <ReactResizeDetector

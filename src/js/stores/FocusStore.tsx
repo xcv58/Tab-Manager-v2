@@ -6,34 +6,6 @@ import Window from './Window'
 
 type FocusedItem = Tab | Window
 
-// 1. No previous item -> just add
-// 2. Has previous item with the same left ->
-//      check the delta by Math.abs() and replace it by the smaller one
-// 3. Has previous item with different left -> just add
-const getItemsInRow = (
-  previousItem: FocusedItem,
-  item: FocusedItem,
-  baseRect
-): FocusedItem[] => {
-  const rect = item.getBoundingClientRect()
-  if (!rect) {
-    return [previousItem]
-  }
-  if (!previousItem) {
-    return [item]
-  }
-  const preRect = previousItem.getBoundingClientRect()
-  if (preRect.left !== rect.left) {
-    return [previousItem, item]
-  }
-  const preDelta = Math.abs(baseRect.top - preRect.top)
-  const curDelta = Math.abs(baseRect.top - rect.top)
-  if (curDelta < preDelta) {
-    return [item]
-  }
-  return [previousItem]
-}
-
 export default class FocusStore {
   store: Store
 
@@ -57,6 +29,20 @@ export default class FocusStore {
   @observable
   focusedTabId = null
 
+  @observable
+  containerRef = null
+
+  @action
+  setContainerRef = (ref) => {
+    this.containerRef = ref
+  }
+
+  _top: number = 0
+
+  _updateTop = (top) => {
+    this._top = Math.max(top, this._top)
+  }
+
   _setFocusedItem = (item: FocusedItem) => {
     if (item instanceof Window) {
       this.focusedTabId = null
@@ -76,6 +62,7 @@ export default class FocusStore {
   defocus = () => {
     this.focusedTabId = null
     this.focusedWindowId = null
+    this._top = 0
   }
 
   @action
@@ -123,125 +110,126 @@ export default class FocusStore {
     }
   }
 
-  _getBaseRect = () => {
-    if (!this.focusedItem) {
-      return
-    }
-    return this.focusedItem.getBoundingClientRect()
-  }
-
-  _findColumn = () => {
-    const { focusedItem } = this
-    const baseRect = this._getBaseRect()
-    log.debug('_findColumn:', { focusedItem, baseRect })
-    if (!focusedItem || !baseRect) {
-      return
-    }
+  _getGridWithMetadata = (focusedItem: FocusedItem) => {
+    const { scrollTop } = this.containerRef.current
     const { windows } = this.store.windowStore
-    const column = []
+    const grid: FocusedItem[][] = []
+    let columnIndex = 0
     for (const win of windows) {
-      const rect = win.getBoundingClientRect()
-      if (!rect) {
-        continue
-      }
-      log.debug('win:', win, rect)
-      if (baseRect.left === rect.left) {
-        if (win.hide) {
-          column.push(win)
+      for (const item of win.hide ? [win] : win.matchedTabs) {
+        if (!grid.length) {
+          grid.push([item])
         } else {
-          column.push(...win.matchedTabs)
+          const column = grid[grid.length - 1]
+          const previousItem = column[column.length - 1]
+          if (
+            previousItem.getBoundingClientRect().left ===
+            item.getBoundingClientRect().left
+          ) {
+            column.push(item)
+          } else {
+            grid.push([item])
+          }
+        }
+        if (item === focusedItem) {
+          columnIndex = grid.length - 1
         }
       }
     }
-    return column
+    return {
+      grid,
+      columnIndex,
+      scrollTop
+    }
   }
 
-  _findRow = () => {
+  _moveVertically = (direction, side = false) => {
     const { focusedItem } = this
-    const baseRect = this._getBaseRect()
-    log.debug('_findRow:', { focusedItem, baseRect })
+    log.debug('_moveVertically:', { direction, side, focusedItem })
+    if (!focusedItem) {
+      return this._focusOnFirstItem()
+    }
+    const { grid, columnIndex, scrollTop } = this._getGridWithMetadata(
+      focusedItem
+    )
+    const targetColumn = grid[columnIndex]
+    const index = targetColumn.findIndex((x) => x === this.focusedItem)
+    let nextIndex = index + direction + targetColumn.length
+    if (side) {
+      nextIndex = direction * (targetColumn.length - 1)
+    }
+    const item = targetColumn[nextIndex % targetColumn.length]
+    this._top = scrollTop + item.getBoundingClientRect().top
+    this._setFocusedItem(item)
+  }
+
+  _moveHorizontally = (direction) => {
+    const { focusedItem } = this
+    log.debug('_moveHorizontally:', { direction, focusedItem })
+    if (!focusedItem) {
+      return this._focusOnFirstItem()
+    }
+    const baseRect = focusedItem.getBoundingClientRect()
+    log.debug('_moveHorizontally:', { focusedItem, baseRect })
     if (!focusedItem || !baseRect) {
       return
     }
-    const { windows } = this.store.windowStore
-    const row: FocusedItem[] = []
-    for (const win of windows) {
-      for (const item of win.hide ? [win] : win.matchedTabs) {
-        const items = getItemsInRow(row.pop(), item, baseRect)
-        row.push(...items)
+    const { grid, columnIndex, scrollTop } = this._getGridWithMetadata(
+      focusedItem
+    )
+    this._updateTop(scrollTop + baseRect.top)
+    const nextIndex = (columnIndex + direction + grid.length) % grid.length
+    const targetColumn = grid[nextIndex]
+    let min = Number.MAX_VALUE
+    let targetItem = null
+    for (const item of targetColumn) {
+      const delta = Math.abs(
+        scrollTop + item.getBoundingClientRect().top - this._top
+      )
+      if (delta < min) {
+        targetItem = item
+        min = delta
       }
     }
-    return row
-  }
-
-  _jump = (items: FocusedItem[], direction, side = false) => {
-    if (!items) {
-      return this._focusOnFirstItem()
+    if (targetItem) {
+      this._setFocusedItem(targetItem)
     }
-    const index = items.findIndex((x) => x === this.focusedItem)
-    let nextIndex = index + direction + items.length
-    if (side) {
-      nextIndex = direction * (items.length - 1)
-    }
-    this._setFocusedItem(items[nextIndex % items.length])
-  }
-
-  _jumpInSameCol = (direction, side = false) => {
-    const { focusedItem } = this
-    log.debug('_jumpInSameCol:', { direction, side, focusedItem })
-    if (!focusedItem) {
-      return this._focusOnFirstItem()
-    }
-    const column = this._findColumn()
-    log.debug('column:', { column })
-    this._jump(column, direction, side)
-  }
-
-  _jumpInSameRow = (direction) => {
-    const { focusedItem } = this
-    log.debug('_jumpInSameRow:', { direction, focusedItem })
-    if (!focusedItem) {
-      return this._focusOnFirstItem()
-    }
-    const row = this._findRow()
-    log.debug('row:', { row })
-    this._jump(row, direction)
   }
 
   @action
   left = () => {
     log.debug('left')
-    this._jumpInSameRow(-1)
+    this._moveHorizontally(-1)
   }
 
   @action
   right = () => {
     log.debug('right')
-    this._jumpInSameRow(1)
+    this._moveHorizontally(1)
   }
 
   @action
   up = () => {
     log.debug('up')
-    this._jumpInSameCol(-1)
+    this._moveVertically(-1)
   }
 
   @action
   down = () => {
     log.debug('down')
-    this._jumpInSameCol(1)
+    this._moveVertically(1)
   }
 
   @action
   firstTab = () => {
     log.debug('firstTab')
-    this._jumpInSameCol(0, true)
+    this._moveVertically(0, true)
   }
 
   @action
   lastTab = () => {
     log.debug('lastTab')
-    this._jumpInSameCol(1, true)
+    this._moveVertically(1, true)
   }
 
   _focusOnFirstItem = () => {
