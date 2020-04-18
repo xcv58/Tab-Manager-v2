@@ -6,6 +6,14 @@ import Window from './Window'
 
 type FocusedItem = Tab | Window
 
+const getNextItem = (items, index, direction, side = false) => {
+  let nextIndex = index + direction + items.length
+  if (side) {
+    nextIndex = direction * (items.length - 1)
+  }
+  return items[nextIndex % items.length]
+}
+
 export default class FocusStore {
   store: Store
 
@@ -154,11 +162,7 @@ export default class FocusStore {
     )
     const targetColumn = grid[columnIndex]
     const index = targetColumn.findIndex((x) => x === this.focusedItem)
-    let nextIndex = index + direction + targetColumn.length
-    if (side) {
-      nextIndex = direction * (targetColumn.length - 1)
-    }
-    const item = targetColumn[nextIndex % targetColumn.length]
+    const item = getNextItem(targetColumn, index, direction, side)
     this._top = scrollTop + item.getBoundingClientRect().top
     this._setFocusedItem(item)
   }
@@ -178,8 +182,7 @@ export default class FocusStore {
       focusedItem
     )
     this._updateTop(scrollTop + baseRect.top)
-    const nextIndex = (columnIndex + direction + grid.length) % grid.length
-    const targetColumn = grid[nextIndex]
+    const targetColumn = getNextItem(grid, columnIndex, direction)
     let min = Number.MAX_VALUE
     let targetItem = null
     for (const item of targetColumn) {
