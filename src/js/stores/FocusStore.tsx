@@ -118,7 +118,7 @@ export default class FocusStore {
     }
   }
 
-  _getGridWithMetadata = (focusedItem: FocusedItem) => {
+  _getGrid = (focusedItem: FocusedItem) => {
     const { scrollTop } = this.containerRef.current
     const { windows } = this.store.windowStore
     const grid: FocusedItem[][] = []
@@ -157,9 +157,7 @@ export default class FocusStore {
     if (!focusedItem) {
       return this._focusOnFirstItem()
     }
-    const { grid, columnIndex, scrollTop } = this._getGridWithMetadata(
-      focusedItem
-    )
+    const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
     const targetColumn = grid[columnIndex]
     const index = targetColumn.findIndex((x) => x === this.focusedItem)
     const item = getNextItem(targetColumn, index, direction, side)
@@ -175,12 +173,10 @@ export default class FocusStore {
     }
     const baseRect = focusedItem.getBoundingClientRect()
     log.debug('_moveHorizontally:', { focusedItem, baseRect })
-    if (!focusedItem || !baseRect) {
+    if (!baseRect) {
       return
     }
-    const { grid, columnIndex, scrollTop } = this._getGridWithMetadata(
-      focusedItem
-    )
+    const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
     this._updateTop(scrollTop + baseRect.top)
     const targetColumn = getNextItem(grid, columnIndex, direction)
     let min = Number.MAX_VALUE
