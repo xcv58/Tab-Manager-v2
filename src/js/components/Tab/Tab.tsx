@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Icon from 'components/Tab/Icon'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'

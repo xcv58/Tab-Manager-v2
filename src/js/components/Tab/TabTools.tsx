@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
 import { useStore } from 'components/StoreContext'

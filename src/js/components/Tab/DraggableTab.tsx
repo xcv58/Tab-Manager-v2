@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import classNames from 'classnames'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import { useDrag } from 'react-dnd'
 import DroppableTab from './DroppableTab'
 import { ItemTypes } from 'libs/react-dnd'

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, StrictMode } from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
 import { darkTheme, lightTheme } from 'libs/themes'

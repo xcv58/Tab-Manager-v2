@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import { useDrop } from 'react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import Divider from '@material-ui/core/Divider'

@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import { useDrop } from 'react-dnd'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'

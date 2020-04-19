@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import IconButton from '@material-ui/core/IconButton'
 import MenuItem from '@material-ui/core/MenuItem'
 import Divider from '@material-ui/core/Divider'

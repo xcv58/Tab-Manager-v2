@@ -1,5 +1,5 @@
 import React, { MutableRefObject } from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import { useStore } from './StoreContext'
 import { Input, InputAdornment } from '@material-ui/core'
 import CloseButton from './CloseButton'

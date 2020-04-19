@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactCommandPalette from 'react-command-palette'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import LiveHelpOutlined from '@material-ui/icons/LiveHelpOutlined'
 import IconButton from '@material-ui/core/IconButton'

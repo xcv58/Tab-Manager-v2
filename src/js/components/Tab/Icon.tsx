@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 import { useStore } from 'components/StoreContext'

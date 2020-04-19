@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import DraggableTab from 'components/Tab/DraggableTab'
 import { useStore } from 'components/StoreContext'
 

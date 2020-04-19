@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Slide from '@material-ui/core/Slide'
 import SelectAll from 'components/Toolbar/SelectAll'
 import Reload from 'components/Toolbar/Reload'

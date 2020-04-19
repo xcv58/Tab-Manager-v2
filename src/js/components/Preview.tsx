@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tab from 'components/Tab/Tab'
 import { useStore } from './StoreContext'
 import { useTheme } from './ThemeContext'

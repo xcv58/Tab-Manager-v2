@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'

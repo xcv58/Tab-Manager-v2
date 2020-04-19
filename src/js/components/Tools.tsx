@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Search, { InputRefProps } from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'

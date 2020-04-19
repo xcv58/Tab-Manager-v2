@@ -1,5 +1,5 @@
 import React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'mobx-react-lite'
 import Toolbar from './Toolbar'
 import ToolbarIndicator from './ToolbarIndicator'
 import { useStore } from 'components/StoreContext'
