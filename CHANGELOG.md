@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.2...v1.9.3) (2020-04-19)
+
+### Bug Fixes
+
+- Some Accessibility issues ([0e1449a](https://github.com/xcv58/Tab-Manager-v2/commit/0e1449a4e256d74e88d1ec8a38e056157503e2c2))
+- The top windows & tabs summary incorrectly align to the right on some browsers ([661f3be](https://github.com/xcv58/Tab-Manager-v2/commit/661f3be970838c64fd346337a98a8450002a920d))
+- Update the horizontally to keep how deep focused tab/window ([#384](https://github.com/xcv58/Tab-Manager-v2/issues/384)) ([5e59c8b](https://github.com/xcv58/Tab-Manager-v2/commit/5e59c8b4add85f3947dd01e2e25279a7ead90988))
+
 ### [1.9.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.1...v1.9.2) (2020-04-17)
 
 ### Bug Fixes
