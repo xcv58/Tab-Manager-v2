@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.3...v1.9.4) (2020-04-19)
+
+### Bug Fixes
+
+- Focus on window title (hide window only) doesn't scroll to make it visible ([1e7c873](https://github.com/xcv58/Tab-Manager-v2/commit/1e7c873e2f9cfabe9d5c373c8461fbaa044d930f))
+- Vertically move doesn't work if focus on a unhidden window title ([72db072](https://github.com/xcv58/Tab-Manager-v2/commit/72db0725ff72a55c83a54f5ff003fbe4b796e5cd))
+
 ### [1.9.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.2...v1.9.3) (2020-04-19)
 
 ### Bug Fixes
