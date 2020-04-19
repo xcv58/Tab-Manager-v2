@@ -24,7 +24,7 @@ export default observer(() => {
     <button
       onFocus={(e) => e.target.blur()}
       className={classNames(
-        'fixed top-0 w-full p-0 m-auto text-sm border-none',
+        'fixed top-0 w-full p-0 m-auto text-sm border-none flex',
         {
           'opacity-50': typing
         }
