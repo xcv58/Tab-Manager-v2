@@ -6,15 +6,18 @@ import Tooltip from '@material-ui/core/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
+const TITLE = 'Reload select tab(s)'
+
 export default observer(() => {
   const { hasFocusedOrSelectedTab, reload } = useStore()
   return (
-    <Tooltip title='Reload select tab(s)' enterDelay={TOOLTIP_DELAY}>
+    <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <div>
         <IconButton
           onClick={reload}
           disabled={!hasFocusedOrSelectedTab}
           className='focus:outline-none'
+          aria-label={TITLE}
         >
           <Refresh />
         </IconButton>

@@ -6,6 +6,8 @@ import CloseButton from './CloseButton'
 
 export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
 
+const ARIA_LABLE = 'Search your tab title... (Press "/" to focus)'
+
 export default observer(({ inputRef }: InputRefProps) => {
   const { userStore, searchStore } = useStore()
   const { search, query, startType, stopType, clear } = searchStore
@@ -23,8 +25,11 @@ export default observer(({ inputRef }: InputRefProps) => {
     <Input
       fullWidth
       autoFocus={userStore.autoFocusSearch}
-      inputProps={{ ref: inputRef }}
-      placeholder='Search your tab title... (Press "/" to focus)'
+      inputProps={{
+        ref: inputRef,
+        'aria-label': ARIA_LABLE
+      }}
+      placeholder={ARIA_LABLE}
       onChange={(e) => search(e.target.value)}
       onFocus={() => {
         search(query)

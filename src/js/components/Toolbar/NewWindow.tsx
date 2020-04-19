@@ -10,16 +10,15 @@ export default observer(() => {
   const { dragStore, tabStore } = useStore()
   const { dropToNewWindow } = dragStore
   const { selection, tabDescription } = tabStore
+  const title = `Open ${tabDescription} in new window`
   return (
-    <Tooltip
-      title={`Open ${tabDescription} in new window`}
-      enterDelay={TOOLTIP_DELAY}
-    >
+    <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
       <div>
         <IconButton
           onClick={() => dropToNewWindow()}
           disabled={selection.size === 0}
           className='focus:outline-none'
+          aria-label={title}
         >
           <OpenInNew />
         </IconButton>

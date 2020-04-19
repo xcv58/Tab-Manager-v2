@@ -6,14 +6,17 @@ import Tooltip from '@material-ui/core/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
+const TITLE = 'Settings'
+
 export default observer(() => {
   const { userStore } = useStore()
   return (
-    <Tooltip title='Settings' enterDelay={TOOLTIP_DELAY}>
+    <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <div>
         <IconButton
           onClick={() => userStore.openDialog()}
           className='focus:outline-none'
+          aria-label={TITLE}
         >
           <Settings />
         </IconButton>

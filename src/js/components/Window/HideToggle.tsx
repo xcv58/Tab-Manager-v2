@@ -6,7 +6,11 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 export default ({ hide, toggleHide }) => {
   const icon = hide ? <KeyboardArrowRight /> : <KeyboardArrowDown />
   return (
-    <IconButton onClick={toggleHide} className='focus:outline-none'>
+    <IconButton
+      onClick={toggleHide}
+      className='focus:outline-none'
+      aria-label='Toggle window hide'
+    >
       {icon}
     </IconButton>
   )

@@ -1,9 +1,10 @@
 import React from 'react'
 
 export default (props) => {
-  const { onClick, disabled } = props
+  const { onClick, disabled, ...restProps } = props
   return (
     <button
+      {...restProps}
       {...{
         onClick,
         disabled

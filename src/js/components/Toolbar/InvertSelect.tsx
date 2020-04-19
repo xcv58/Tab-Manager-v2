@@ -6,13 +6,19 @@ import IconButton from '@material-ui/core/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/StoreContext'
 
+const TITLE = 'Inverse select tabs'
+
 export default observer(() => {
   const { searchStore } = useStore()
   const { invertSelect } = searchStore
   return (
-    <Tooltip title='Inverse select tabs' enterDelay={TOOLTIP_DELAY}>
+    <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <div>
-        <IconButton onClick={invertSelect} className='focus:outline-none'>
+        <IconButton
+          onClick={invertSelect}
+          className='focus:outline-none'
+          aria-label={TITLE}
+        >
           <Flip />
         </IconButton>
       </div>

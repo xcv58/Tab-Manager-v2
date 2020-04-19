@@ -35,6 +35,7 @@ export default observer(() => {
             showToolbar()
           }
         }}
+        aria-label='Toggle toolbar'
       >
         <Fade in>
           <IndicatorIcon {...{ toolbarVisible }} />

@@ -12,7 +12,7 @@ export default (props) => {
   return (
     <div
       className={classNames(
-        'w-full overflow-hidden truncate text-xs opacity-50 group-hover:opacity-100',
+        'w-full overflow-hidden truncate text-xs opacity-75 group-hover:opacity-100',
         duplicated && 'text-red-200 group-hover:text-red-400',
         !duplicated && {
           'group-hover:text-black': !isDarkTheme,

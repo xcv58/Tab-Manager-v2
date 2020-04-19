@@ -15,6 +15,9 @@ export default observer(({ win }) => {
     <Tooltip title={title}>
       <Checkbox
         color='primary'
+        inputProps={{
+          'aria-label': title
+        }}
         disabled={disableSelectAll}
         checked={allTabSelected}
         onChange={(e) => {

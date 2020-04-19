@@ -5,6 +5,8 @@ import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 import { useStore } from 'components/StoreContext'
 
+const ARIA_LABEL = 'Toggle select'
+
 export default observer((props) => {
   const { userStore } = useStore()
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
@@ -12,6 +14,9 @@ export default observer((props) => {
     <Checkbox
       color='primary'
       checked={isSelected}
+      inputProps={{
+        'aria-label': ARIA_LABEL
+      }}
       onClick={(e) => {
         if (isSelected || !e.shiftKey) {
           select()
@@ -33,11 +38,12 @@ export default observer((props) => {
         })}
       >
         <IconButton
+          aria-label={ARIA_LABEL}
           className='focus:outline-none focus:shadow-outline'
           onClick={select}
           onFocus={focus}
         >
-          <img className='w-6 h-6' src={iconUrl} />
+          <img className='w-6 h-6' src={iconUrl} alt='tab icon' />
         </IconButton>
       </div>
       <div
