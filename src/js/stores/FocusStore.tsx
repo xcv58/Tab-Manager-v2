@@ -45,7 +45,7 @@ export default class FocusStore {
     this.containerRef = ref
   }
 
-  _top: number = 0
+  _top: number = -1
 
   _updateTop = (top) => {
     this._top = Math.max(top, this._top)
@@ -70,7 +70,7 @@ export default class FocusStore {
   defocus = () => {
     this.focusedTabId = null
     this.focusedWindowId = null
-    this._top = 0
+    this._top = -1
   }
 
   @action
@@ -155,14 +155,12 @@ export default class FocusStore {
     }
     const { scrollTop, targetColumn } = this._getGrid(focusedItem)
     if (!targetColumn) {
-      log.debug('_moveVertically: No targetColumn found')
-      return
+      return log.debug('_moveVertically: No targetColumn found')
     }
     const index = targetColumn.findIndex((x) => x === this.focusedItem)
     const item = getNextItem(targetColumn, index, direction, side)
     if (!item) {
-      log.error('_moveHorizontally: no available item found')
-      return
+      return log.error('_moveHorizontally: no available item found')
     }
     this._top = scrollTop + item.getBoundingClientRect().top
     this._setFocusedItem(item)
@@ -182,14 +180,12 @@ export default class FocusStore {
     const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
     log.debug('_moveHorizontally grid:', { grid, columnIndex, scrollTop })
     if (columnIndex === -1) {
-      log.error('_moveHorizontally: no available grid')
-      return
+      return log.error('_moveHorizontally: no available grid')
     }
     this._updateTop(scrollTop + baseRect.top)
     const targetColumn = getNextItem(grid, columnIndex, direction)
     if (!targetColumn) {
-      log.error('_moveHorizontally: no target column')
-      return
+      return log.error('_moveHorizontally: no target column')
     }
     let min = Number.MAX_VALUE
     let targetItem = null
@@ -261,10 +257,9 @@ export default class FocusStore {
     }
     const { lastFocusedWindow } = this.store.windowStore
     if (!lastFocusedWindow) {
-      log.debug('setDefaultFocusedTab no lastFocusedWindow:', {
+      return log.debug('setDefaultFocusedTab no lastFocusedWindow:', {
         lastFocusedWindow
       })
-      return
     }
     if (lastFocusedWindow.hide) {
       return this.focus(lastFocusedWindow)
