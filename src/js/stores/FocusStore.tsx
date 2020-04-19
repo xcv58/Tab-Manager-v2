@@ -14,6 +14,13 @@ const getNextItem = (items, index, direction, side = false) => {
   return items[nextIndex % items.length]
 }
 
+const getFocusableItems = (win: Window, focusedItem) => {
+  if (win.hide || win === focusedItem) {
+    return [win, ...win.matchedTabs]
+  }
+  return win.matchedTabs
+}
+
 export default class FocusStore {
   store: Store
 
@@ -124,7 +131,8 @@ export default class FocusStore {
     const grid: FocusedItem[][] = []
     let columnIndex = -1
     for (const win of windows) {
-      for (const item of win.hide ? [win] : win.matchedTabs) {
+      const items = getFocusableItems(win, focusedItem)
+      for (const item of items) {
         const rect = item.getBoundingClientRect()
         if (!rect) {
           continue
