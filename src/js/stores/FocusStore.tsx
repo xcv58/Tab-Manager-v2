@@ -125,15 +125,16 @@ export default class FocusStore {
     let columnIndex = -1
     for (const win of windows) {
       for (const item of win.hide ? [win] : win.matchedTabs) {
+        const rect = item.getBoundingClientRect()
+        if (!rect) {
+          continue
+        }
         if (!grid.length) {
           grid.push([item])
         } else {
           const column = grid[grid.length - 1]
           const previousItem = column[column.length - 1]
-          if (
-            previousItem.getBoundingClientRect().left ===
-            item.getBoundingClientRect().left
-          ) {
+          if (previousItem.getBoundingClientRect().left === rect.left) {
             column.push(item)
           } else {
             grid.push([item])
