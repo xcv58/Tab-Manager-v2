@@ -70,7 +70,7 @@ export default class Window extends Focusable {
   @computed
   get invisibleTabs () {
     if (this.hide) {
-      return this.tabs.length
+      return this.tabs
     }
     return this.tabs.filter((x) => !x.isVisible)
   }

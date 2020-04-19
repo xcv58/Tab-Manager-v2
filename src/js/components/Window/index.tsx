@@ -10,8 +10,9 @@ import { useStore } from 'components/StoreContext'
 import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
 import { TAB_HEIGHT } from 'libs'
+import Window from 'stores/Window'
 
-export default observer((props) => {
+export default observer((props: { width: string; win: Window }) => {
   const { dragStore, userStore } = useStore()
   const { win, width } = props
   const { lastFocused, showTabs, visibleLength } = win

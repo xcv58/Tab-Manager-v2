@@ -7,8 +7,10 @@ import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
 import HideToggle from './HideToggle'
+import Window from 'stores/Window'
+import { useScrollbar } from 'libs/Scrollbar'
 
-export default observer((props) => {
+export default observer((props: { className: string; win: Window }) => {
   const nodeRef = useRef(null)
   const { className, win } = props
   const {
@@ -25,8 +27,10 @@ export default observer((props) => {
   const invisibleLength = invisibleTabs.length
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
+  const { scrollToNode } = useScrollbar()
   useEffect(() => {
     if (isFocused) {
+      scrollToNode(nodeRef)
       nodeRef.current.focus()
     }
   }, [isFocused])
@@ -46,7 +50,7 @@ export default observer((props) => {
         className='flex-auto overflow-hidden text-base text-left rounded-sm focus:outline-none focus:shadow-outline'
       >
         <h5 className='flex-auto text-2xl'>
-          {text} {invisibleIndicator}
+          {text} {!hide && invisibleIndicator}
         </h5>
       </button>
       {!hide && (
