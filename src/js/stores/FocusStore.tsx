@@ -160,6 +160,10 @@ export default class FocusStore {
     }
     const index = targetColumn.findIndex((x) => x === this.focusedItem)
     const item = getNextItem(targetColumn, index, direction, side)
+    if (!item) {
+      log.error('_moveHorizontally: no available item found')
+      return
+    }
     this._top = scrollTop + item.getBoundingClientRect().top
     this._setFocusedItem(item)
   }
@@ -178,11 +182,15 @@ export default class FocusStore {
     const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
     log.debug('_moveHorizontally grid:', { grid, columnIndex, scrollTop })
     if (columnIndex === -1) {
-      log.debug('No available grid')
+      log.error('_moveHorizontally: no available grid')
       return
     }
     this._updateTop(scrollTop + baseRect.top)
     const targetColumn = getNextItem(grid, columnIndex, direction)
+    if (!targetColumn) {
+      log.error('_moveHorizontally: no target column')
+      return
+    }
     let min = Number.MAX_VALUE
     let targetItem = null
     for (const item of targetColumn) {
