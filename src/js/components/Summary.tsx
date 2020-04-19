@@ -21,16 +21,15 @@ export default observer(() => {
     windows.length
   )}, ${tabCount} ${getNoun('tab', tabCount)}`
   return (
-    <button
-      onFocus={(e) => e.target.blur()}
+    <p
       className={classNames(
-        'fixed top-0 w-full p-0 m-auto text-sm border-none flex',
+        'fixed top-0 left-0 flex justify-center w-full p-0 text-sm border-none',
         {
           'opacity-50': typing
         }
       )}
     >
       <Title {...{ title }} />, {selected} {getNoun('tab', selected)} selected
-    </button>
+    </p>
   )
 })
