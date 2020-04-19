@@ -43,7 +43,7 @@ export default observer((props) => {
           onClick={select}
           onFocus={focus}
         >
-          <img className='w-6 h-6' src={iconUrl} alt='tab icon' />
+          <img className='w-6 h-6' src={iconUrl} />
         </IconButton>
       </div>
       <div
