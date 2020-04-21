@@ -6,8 +6,9 @@ import Tab from './Tab'
 import { ItemTypes } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import { useStore } from 'components/StoreContext'
+import { TabProps } from 'components/types'
 
-export default observer((props) => {
+export default observer((props: TabProps) => {
   const { tab } = props
   const { showTab } = tab
   const { dragStore } = useStore()

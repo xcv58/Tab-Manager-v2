@@ -2,13 +2,13 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useDrop } from 'react-dnd'
 import DropIndicator from 'components/DropIndicator'
-import Divider from '@material-ui/core/Divider'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import classNames from 'classnames'
 import Title from './Title'
 import { useStore } from 'components/StoreContext'
+import { WinProps } from 'components/types'
 
-export default observer((props) => {
+export default observer((props: WinProps) => {
   const { win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
@@ -41,7 +41,6 @@ export default observer((props) => {
           'bg-red-500': isDragging && isOver && !canDrop
         })}
       />
-      <Divider />
       {preview}
     </div>
   )

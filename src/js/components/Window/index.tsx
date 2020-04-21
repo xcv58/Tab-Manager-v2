@@ -10,9 +10,9 @@ import { useStore } from 'components/StoreContext'
 import { CSSProperties } from '@material-ui/styles'
 import Loading from 'components/Loading'
 import { TAB_HEIGHT } from 'libs'
-import Window from 'stores/Window'
+import { WinProps } from 'components/types'
 
-export default observer((props: { width: string; win: Window }) => {
+export default observer((props: WinProps & { width: string }) => {
   const { dragStore, userStore } = useStore()
   const { win, width } = props
   const { lastFocused, showTabs, visibleLength } = win
@@ -51,7 +51,7 @@ export default observer((props: { width: string; win: Window }) => {
     <div
       ref={drop}
       style={style}
-      className={classNames('p-1 pb-10', {
+      className={classNames('window', {
         'bg-red-500': isDragging && isOver && !canDrop
       })}
     >
