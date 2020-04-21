@@ -342,14 +342,6 @@ export default class WindowsStore {
   @action
   moveTabs = async (tabs, windowId, from = 0) => {
     log.debug('moveTabs:', { tabs, windowId, from })
-    const targetWindow = this.getTargetWindow(windowId)
-    tabs.map((tab, i) => {
-      const index = from + (from !== -1 ? i : 0)
-      const sourceWindow = this.getTargetWindow(tab.windowId)
-      sourceWindow.remove(tab)
-      targetWindow.add(tab, index)
-    })
-    this.clearWindow()
     await moveTabs(tabs, windowId, from)
   }
 
