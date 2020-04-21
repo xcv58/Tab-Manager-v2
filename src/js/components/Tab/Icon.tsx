@@ -4,10 +4,11 @@ import { observer } from 'mobx-react-lite'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 import { useStore } from 'components/StoreContext'
+import { TabProps } from 'components/types'
 
 const ARIA_LABEL = 'Toggle select'
 
-export default observer((props) => {
+export default observer((props: TabProps) => {
   const { userStore } = useStore()
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (

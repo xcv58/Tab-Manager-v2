@@ -53,12 +53,6 @@ export default observer(
       }
     }
 
-    // useEffect(() => {
-    //   if (!faked) {
-    //     window.requestAnimationFrame(tab.mounted)
-    //   }
-    // }, [faked])
-
     const { scrollToNode } = useScrollbar()
 
     useEffect(() => {
