@@ -23,6 +23,7 @@ export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const ALL = async () => {
   const extensionURL = await getExtensionURL(browser)
   await page.goto(extensionURL)
+  await page.waitFor(1000)
 }
 
 export const EACH = async () => {
