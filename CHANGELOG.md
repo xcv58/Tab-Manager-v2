@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.4...v1.9.5) (2020-04-21)
+
+### Bug Fixes
+
+- Drag & drop before pinned tab causes stale tab on UI ([f1e35b8](https://github.com/xcv58/Tab-Manager-v2/commit/f1e35b8a50f34dd670f21f9947a57d8b7d0b2108))
+- Tune UI to avoid jump during init loading and dragging ([#390](https://github.com/xcv58/Tab-Manager-v2/issues/390)) ([d251302](https://github.com/xcv58/Tab-Manager-v2/commit/d251302e79c41e3f898c3c03ce5644a0b49248ba))
+
 ### [1.9.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.3...v1.9.4) (2020-04-19)
 
 ### Bug Fixes
