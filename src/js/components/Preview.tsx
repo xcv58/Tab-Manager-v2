@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
 import Tab from 'components/Tab/Tab'
 import { useStore } from './StoreContext'
 import { useTheme } from './ThemeContext'
 
-export default observer((props) => {
+export default observer((props: { style: CSSProperties }) => {
   const isDarkTheme = useTheme()
   const { tabStore } = useStore()
   const { sources } = tabStore

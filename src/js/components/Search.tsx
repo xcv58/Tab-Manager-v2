@@ -1,10 +1,9 @@
-import React, { MutableRefObject } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore } from './StoreContext'
 import { Input, InputAdornment } from '@material-ui/core'
 import CloseButton from './CloseButton'
-
-export type InputRefProps = { inputRef: MutableRefObject<HTMLInputElement> }
+import { InputRefProps } from './types'
 
 const ARIA_LABLE = 'Search your tab title... (Press "/" to focus)'
 

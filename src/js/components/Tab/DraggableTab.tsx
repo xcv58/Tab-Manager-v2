@@ -6,8 +6,9 @@ import DroppableTab from './DroppableTab'
 import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from 'components/StoreContext'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { TabProps } from '../types'
 
-export default observer((props) => {
+export default observer((props: TabProps) => {
   const { tab } = props
   const { dragStore } = useStore()
   const [dragProps, drag, connectDragPreview] = useDrag({

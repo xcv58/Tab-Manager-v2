@@ -7,10 +7,10 @@ import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
 import HideToggle from './HideToggle'
-import Window from 'stores/Window'
 import { useScrollbar } from 'libs/Scrollbar'
+import { WinProps } from 'components/types'
 
-export default observer((props: { className: string; win: Window }) => {
+export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const { className, win } = props
   const {
@@ -40,7 +40,7 @@ export default observer((props: { className: string; win: Window }) => {
       tabIndex={-1}
       ref={nodeRef}
       className={classNames(
-        'flex justify-between items-center font-bold border-l-2 border-transparent',
+        'flex justify-between items-center font-bold border-0',
         className
       )}
     >
@@ -54,12 +54,12 @@ export default observer((props: { className: string; win: Window }) => {
         </h5>
       </button>
       {!hide && (
-        <div>
+        <>
           <Sort {...props} />
           <Reload {...{ reload }} />
-          <CloseButton onClick={() => props.win.close()} />
-        </div>
+        </>
       )}
+      <CloseButton onClick={() => props.win.close()} />
       <HideToggle {...{ hide, toggleHide }} />
     </div>
   )

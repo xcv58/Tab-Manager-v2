@@ -75,7 +75,7 @@ export default class WindowsStore {
   get visibleColumn () {
     const heights = this.windows
       .filter((x) => x.visibleLength > 0)
-      .map((x) => x.visibleLength * TAB_HEIGHT - 0.8125)
+      .map((x) => x.visibleLength * TAB_HEIGHT)
     let count = 0
     let preHeight = -1
     for (const h of heights) {
