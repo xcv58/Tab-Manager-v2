@@ -18,6 +18,9 @@ export default class Window extends Focusable {
   }
 
   @observable
+  id
+
+  @observable
   tabs: Tab[] = []
 
   // TODO: Remove this when we add concurrent mode

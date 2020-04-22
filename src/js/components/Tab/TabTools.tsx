@@ -5,7 +5,7 @@ import TabMenu from 'components/Tab/TabMenu'
 import { useStore } from 'components/StoreContext'
 import { TabProps } from 'components/types'
 
-export default observer((props: TabProps & { faked?: boolean }) => {
+export default observer((props: TabProps) => {
   const { dragStore } = useStore()
   const {
     faked,

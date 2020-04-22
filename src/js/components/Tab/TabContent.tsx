@@ -5,11 +5,12 @@ import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/StoreContext'
 import Tooltip from '@material-ui/core/Tooltip'
+import { TabProps } from 'components/types'
 
 const pre = "<span class='text-red-500'>"
 const post = '</span>'
 
-export default observer((props) => {
+export default observer((props: TabProps) => {
   const { hoverStore, dragStore, userStore } = useStore()
   const { faked } = props
   const {

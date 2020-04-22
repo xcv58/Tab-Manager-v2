@@ -4,12 +4,11 @@ import Tooltip from '@material-ui/core/Tooltip'
 import SortIcon from '@material-ui/icons/Sort'
 import IconButton from '@material-ui/core/IconButton'
 import { useStore } from 'components/StoreContext'
+import { WinProps } from 'components/types'
 
-export default observer((props) => {
+export default observer((props: WinProps) => {
   const { arrangeStore } = useStore()
-  const {
-    win: { id }
-  } = props
+  const { id } = props.win
   const { sortTabs } = arrangeStore
   return (
     <Tooltip title='Sort tabs'>

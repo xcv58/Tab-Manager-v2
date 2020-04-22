@@ -16,94 +16,92 @@ const PIN = (
   </div>
 )
 
-export default observer(
-  (props: TabProps & { className?: string; faked?: boolean }) => {
-    const nodeRef = useRef(null)
-    const { dragStore, searchStore } = useStore()
-    const isDarkTheme = useTheme()
-    const { faked, tab, className } = props
-    const {
-      setNodeRef,
-      active,
-      isFocused,
-      isMatched,
-      isSelected,
-      pinned,
-      shouldHighlight
-    } = tab
+export default observer((props: TabProps & { className?: string }) => {
+  const nodeRef = useRef(null)
+  const { dragStore, searchStore } = useStore()
+  const isDarkTheme = useTheme()
+  const { faked, tab, className } = props
+  const {
+    setNodeRef,
+    active,
+    isFocused,
+    isMatched,
+    isSelected,
+    pinned,
+    shouldHighlight
+  } = tab
 
-    const isActionable = !faked && !dragStore.dragging
+  const isActionable = !faked && !dragStore.dragging
 
-    const onMouseEnter = () => {
-      if (isActionable) {
-        tab.hover()
-      }
+  const onMouseEnter = () => {
+    if (isActionable) {
+      tab.hover()
     }
-
-    const onMouseLeave = () => {
-      if (isActionable) {
-        tab.unhover()
-      }
-    }
-
-    const onRemove = () => {
-      const { removing, remove } = tab
-      if (!removing) {
-        remove()
-      }
-    }
-
-    const { scrollToNode } = useScrollbar()
-
-    useEffect(() => {
-      if (faked) {
-        return
-      }
-      if (isFocused) {
-        scrollToNode(nodeRef)
-        if (!searchStore.typing) {
-          nodeRef.current.focus()
-        }
-      }
-      return onMouseLeave
-    }, [faked, isFocused])
-    useEffect(() => setNodeRef(nodeRef))
-
-    const pin = pinned && PIN
-
-    return (
-      <div
-        ref={nodeRef}
-        tabIndex={-1}
-        className={classNames(
-          className,
-          'flex',
-          {
-            'opacity-25': !isMatched
-          },
-          !className && [
-            !isDarkTheme && {
-              'hover:bg-blue-300': isActionable,
-              'bg-blue-100': active || shouldHighlight,
-              'bg-blue-300': isSelected
-            },
-            isDarkTheme && {
-              'hover:bg-gray-800': isActionable,
-              'bg-gray-800': active || shouldHighlight,
-              'bg-gray-900': isSelected
-            }
-          ]
-        )}
-        onMouseEnter={onMouseEnter}
-        onMouseOver={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-      >
-        {pin}
-        <Icon tab={tab} />
-        <TabContent {...{ faked, tab }} />
-        <TabTools faked={faked} tab={tab} />
-        <CloseButton onClick={onRemove} disabled={tab.removing} />
-      </div>
-    )
   }
-)
+
+  const onMouseLeave = () => {
+    if (isActionable) {
+      tab.unhover()
+    }
+  }
+
+  const onRemove = () => {
+    const { removing, remove } = tab
+    if (!removing) {
+      remove()
+    }
+  }
+
+  const { scrollToNode } = useScrollbar()
+
+  useEffect(() => {
+    if (faked) {
+      return
+    }
+    if (isFocused) {
+      scrollToNode(nodeRef)
+      if (!searchStore.typing) {
+        nodeRef.current.focus()
+      }
+    }
+    return onMouseLeave
+  }, [faked, isFocused])
+  useEffect(() => setNodeRef(nodeRef))
+
+  const pin = pinned && PIN
+
+  return (
+    <div
+      ref={nodeRef}
+      tabIndex={-1}
+      className={classNames(
+        className,
+        'flex',
+        {
+          'opacity-25': !isMatched
+        },
+        !className && [
+          !isDarkTheme && {
+            'hover:bg-blue-300': isActionable,
+            'bg-blue-100': active || shouldHighlight,
+            'bg-blue-300': isSelected
+          },
+          isDarkTheme && {
+            'hover:bg-gray-800': isActionable,
+            'bg-gray-800': active || shouldHighlight,
+            'bg-gray-900': isSelected
+          }
+        ]
+      )}
+      onMouseEnter={onMouseEnter}
+      onMouseOver={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {pin}
+      <Icon tab={tab} />
+      <TabContent {...{ faked, tab }} />
+      <TabTools faked={faked} tab={tab} />
+      <CloseButton onClick={onRemove} disabled={tab.removing} />
+    </div>
+  )
+})

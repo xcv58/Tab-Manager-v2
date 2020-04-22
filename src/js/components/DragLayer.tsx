@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { useDragLayer } from 'react-dnd'
 import DragPreview from './DragPreview'
 
-const layerStyles: React.CSSProperties = {
+const layerStyles: CSSProperties = {
   position: 'fixed',
   pointerEvents: 'none',
   zIndex: 100,

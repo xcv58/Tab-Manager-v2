@@ -2,8 +2,9 @@ import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import DraggableTab from 'components/Tab/DraggableTab'
 import { useStore } from 'components/StoreContext'
+import { WinProps } from 'components/types'
 
-export default observer((props) => {
+export default observer((props: WinProps) => {
   const { windowStore } = useStore()
   useEffect(() => {
     window.requestAnimationFrame(windowStore.windowMounted)
@@ -13,7 +14,8 @@ export default observer((props) => {
   if (win.hide) {
     return null
   }
-  return win.tabs
+  const content = win.tabs
     .filter((x) => x.isVisible)
     .map((tab) => <DraggableTab key={tab.id} tab={tab} />)
+  return <>{content}</>
 })
