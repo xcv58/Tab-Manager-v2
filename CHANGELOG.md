@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.5...v1.9.6) (2020-04-22)
+
+### Bug Fixes
+
+- Add hover effect for window ([1902eaf](https://github.com/xcv58/Tab-Manager-v2/commit/1902eafa129156f5fad0be800bdff31bbb24bf1e))
+
 ### [1.9.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.4...v1.9.5) (2020-04-21)
 
 ### Bug Fixes
