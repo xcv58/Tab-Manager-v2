@@ -58,7 +58,7 @@ export default observer((props: WinProps & { width: string }) => {
       <div
         className={classNames({
           'shadow-2xl': lastFocused,
-          'shadow-sm': !lastFocused
+          'shadow-sm hover:shadow-lg': !lastFocused
         })}
       >
         <DroppableTitle {...props} />
