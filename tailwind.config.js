@@ -1,6 +1,10 @@
 module.exports = {
   theme: {
-    extend: {}
+    extend: {
+      colors: {
+        charcoal: '#424242'
+      }
+    }
   },
   variants: {
     backgroundColor: ['responsive', 'hover', 'focus', 'active'],

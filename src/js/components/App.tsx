@@ -1,43 +1,14 @@
-import React, { useEffect, useRef, StrictMode } from 'react'
+import React, { StrictMode } from 'react'
 import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
 import { darkTheme, lightTheme } from 'libs/themes'
-import Fade from '@material-ui/core/Fade'
-import Paper from '@material-ui/core/Paper'
-import WinList from 'components/WinList'
-import Shortcut from 'components/Shortcut'
-import Toolbar from 'components/Toolbar'
-import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { DndProvider } from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import { StoreContext, store, useStore } from './StoreContext'
-import DragLayer from './DragLayer'
 import { ThemeContext } from './ThemeContext'
-import DroppableTools from './DroppableTools'
 import { isProduction } from 'libs'
-
-const App = observer(() => {
-  const searchEl = useRef<HTMLInputElement>(null)
-  const { windowStore, shortcutStore } = useStore()
-  useEffect(() => {
-    windowStore.didMount()
-    shortcutStore.didMount(searchEl)
-    return () => shortcutStore.willUnmount()
-  }, [])
-  return (
-    <Paper className='flex flex-col h-screen overflow-hidden'>
-      <DroppableTools inputRef={searchEl} />
-      <Fade in>
-        <WinList />
-      </Fade>
-      <Toolbar />
-      <Shortcut />
-      <SettingsDialog />
-      <DragLayer />
-    </Paper>
-  )
-})
+import Main from './Main'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -56,7 +27,7 @@ export default observer(() => {
             backend={HTML5Backend}
           >
             <ThemeContext.Provider value={isDarkTheme}>
-              <App />
+              <Main />
             </ThemeContext.Provider>
           </DndProvider>
         </MuiThemeProvider>
