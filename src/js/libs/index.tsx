@@ -70,14 +70,23 @@ export const togglePinTabs = async (tabs) => {
 
 export const openOrTogglePopup = async () => {
   log.debug('openOrTogglePopup')
+  const { _selfPopupActive } = await browser.storage.local.get({
+    _selfPopupActive: false
+  })
+  if (_selfPopupActive) {
+    log.debug('openOrTogglePopup open last focused window')
+    return browser.windows.update(await getLastFocusedWindowId(), {
+      focused: true
+    })
+  }
   const windows = await browser.windows.getAll({ populate: true })
   const win = windows.find(isSelfPopup)
   log.debug('openOrTogglePopup win:', { win })
   if (!win) {
     return openPopup()
   }
-  const winId = win.focused ? await getLastFocusedWindowId() : win.id
-  browser.windows.update(winId, { focused: true })
+  log.debug('openOrTogglePopup focus popup window:', { win })
+  browser.windows.update(win.id, { focused: true })
 }
 
 export const MAX_WIDTH = 1024
@@ -119,7 +128,12 @@ export const isSelfPopup = ({ type, tabs = [] }) => {
 export const notSelfPopup = (...args) => !isSelfPopup(...args)
 
 export const setLastFocusedWindowId = (lastFocusedWindowId) => {
-  browser.storage.local.set({ lastFocusedWindowId })
+  browser.storage.local.set({ lastFocusedWindowId, _selfPopupActive: false })
+}
+
+export const setSelfPopupActive = (_selfPopupActive) => {
+  log.debug('setSelfPopupActive:', { _selfPopupActive })
+  return browser.storage.local.set({ _selfPopupActive })
 }
 
 export const getLastFocusedWindowId = async () => {
