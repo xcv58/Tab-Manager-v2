@@ -1,8 +1,13 @@
 const WebpackDevServer = require('webpack-dev-server')
 const webpack = require('webpack')
-const config = require('../webpack.config')()
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const env = require('./env')
 const path = require('path')
+
+const config = require('../webpack.config')([
+  new webpack.HotModuleReplacementPlugin(),
+  new HardSourceWebpackPlugin()
+])
 
 const options = config.chromeExtensionBoilerplate || {}
 const excludeEntriesToHotReload = options.notHotReload || []
@@ -15,10 +20,6 @@ for (var entryName in config.entry) {
     ].concat(config.entry[entryName])
   }
 }
-
-config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(
-  config.plugins || []
-)
 
 delete config.chromeExtensionBoilerplate
 
