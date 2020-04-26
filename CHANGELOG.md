@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.7](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.6...v1.9.7) (2020-04-26)
+
+### Bug Fixes
+
+- Toggle popup doesn't work in some scenario ([#407](https://github.com/xcv58/Tab-Manager-v2/issues/407)) ([73bcc49](https://github.com/xcv58/Tab-Manager-v2/commit/73bcc49611950431e3259571d06d221f6b0dbbb0))
+
 ### [1.9.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.5...v1.9.6) (2020-04-22)
 
 ### Bug Fixes
