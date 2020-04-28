@@ -1,12 +1,12 @@
 const WebpackDevServer = require('webpack-dev-server')
 const webpack = require('webpack')
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+// const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const env = require('./env')
 const path = require('path')
 
 const config = require('../webpack.config')([
-  new webpack.HotModuleReplacementPlugin(),
-  new HardSourceWebpackPlugin()
+  new webpack.HotModuleReplacementPlugin()
+  // new HardSourceWebpackPlugin()
 ])
 
 const options = config.chromeExtensionBoilerplate || {}
