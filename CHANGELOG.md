@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.8](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.7...v1.9.8) (2020-04-28)
+
+### Bug Fixes
+
+- Make the close icon align well to center, update the cursor and icon for drag handle ([d2e8ba5](https://github.com/xcv58/Tab-Manager-v2/commit/d2e8ba502a6387244877a943156798f75a9781cf))
+- Toggle popup window shortcut doesn't work if the lastFocusedWindowId is invalid, close [#415](https://github.com/xcv58/Tab-Manager-v2/issues/415) ([add5a2d](https://github.com/xcv58/Tab-Manager-v2/commit/add5a2de3ab4bee0d384fa034a4859253ae47389))
+
 ### [1.9.7](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.6...v1.9.7) (2020-04-26)
 
 ### Bug Fixes
