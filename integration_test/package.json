@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "description": "Integration test via puppeteer",
   "scripts": {
+    "launch": "babel-node launch.js",
     "test-integration": "jest",
     "test": "jest --maxWorkers=1",
     "test-watch": "yarn test --watch"
   },
   "devDependencies": {
     "@babel/core": "7.9.0",
+    "@babel/node": "7.8.7",
     "@babel/preset-env": "7.9.5",
     "babel-jest": "25.4.0",
     "jest": "25.4.0",

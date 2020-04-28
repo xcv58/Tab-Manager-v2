@@ -1,4 +1,4 @@
-import { TAB_QUERY, ALL, EACH } from './util'
+import { TAB_QUERY, ALL, EACH } from '../util'
 
 describe('The Tab should', () => {
   beforeAll(ALL)

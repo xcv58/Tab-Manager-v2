@@ -1,6 +1,6 @@
 export const manifest = require('../src/manifest.json')
 
-const getExtensionURL = async (browser) => {
+export const getExtensionURL = async (browser) => {
   const extensionId = await getExtensionId(browser)
   return `chrome-extension://${extensionId}/popup.html?not_popup=1`
 }

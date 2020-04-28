@@ -1,4 +1,4 @@
-import { manifest, TAB_QUERY, ALL, EACH } from './util'
+import { manifest, TAB_QUERY, ALL, EACH } from '../util'
 
 describe('The Extension page should', () => {
   beforeAll(ALL)
