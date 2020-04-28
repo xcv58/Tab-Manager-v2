@@ -11,7 +11,7 @@ export default observer(() => {
   const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
-      <div>
+      <div className='flex'>
         <Checkbox
           color='primary'
           checked={allTabSelected}

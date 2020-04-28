@@ -14,7 +14,7 @@ export default observer(() => {
   const { groupTabs } = arrangeStore
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div>
+      <div className='flex'>
         <IconButton
           onClick={() => groupTabs()}
           className='focus:outline-none'

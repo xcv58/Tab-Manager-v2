@@ -12,7 +12,7 @@ export default observer(() => {
   const { shortcutStore } = useStore()
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div>
+      <div className='flex'>
         <IconButton
           onClick={() => shortcutStore.openDialog()}
           className='focus:outline-none'

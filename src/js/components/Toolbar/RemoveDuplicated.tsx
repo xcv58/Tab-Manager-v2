@@ -13,7 +13,7 @@ export default observer(() => {
   const { cleanDuplicatedTabs, duplicatedTabs } = windowStore
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div>
+      <div className='flex'>
         <IconButton
           onClick={cleanDuplicatedTabs}
           disabled={duplicatedTabs.length === 0}

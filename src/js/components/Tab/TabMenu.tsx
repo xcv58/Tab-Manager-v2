@@ -101,7 +101,7 @@ export default observer((props) => {
     )
   })
   return (
-    <div>
+    <>
       <IconButton onClick={handleClick} className='focus:outline-none'>
         <MoreVertIcon />
       </IconButton>
@@ -122,6 +122,6 @@ export default observer((props) => {
       >
         {content}
       </Popover>
-    </div>
+    </>
   )
 })

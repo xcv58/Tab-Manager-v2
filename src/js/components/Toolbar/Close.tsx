@@ -11,7 +11,7 @@ export default observer(() => {
   const title = `Close ${tabDescription}`
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
-      <div>
+      <div className='flex'>
         <CloseButton
           {...{
             onClick: remove,
