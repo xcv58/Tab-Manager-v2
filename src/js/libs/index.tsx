@@ -68,16 +68,37 @@ export const togglePinTabs = async (tabs) => {
   )
 }
 
+const focusOnLastFocusedWin = async () => {
+  log.debug('focusOnLastFocusedWin')
+  const windows = await browser.windows.getAll({ populate: true })
+  const lastFocusedWindowId = await getLastFocusedWindowId()
+  if (windows.find((win) => win.id === lastFocusedWindowId)) {
+    log.debug(
+      'focusOnLastFocusedWin focus on valid lastFocusedWindowId:',
+      lastFocusedWindowId
+    )
+    return browser.windows.update(lastFocusedWindowId, { focused: true })
+  }
+  const win = windows.find((win) => !isSelfPopup(win))
+  if (win) {
+    log.debug(
+      'focusOnLastFocusedWin lastFocusedWindowId is invalid, focused on the first window',
+      { win, lastFocusedWindowId }
+    )
+    return browser.windows.update(win.id, { focused: true })
+  }
+  log.error(
+    'focusOnLastFocusedWin lastFocusedWindowId is invalid, and no active window to focus'
+  )
+}
+
 export const openOrTogglePopup = async () => {
   log.debug('openOrTogglePopup')
   const { _selfPopupActive } = await browser.storage.local.get({
     _selfPopupActive: false
   })
   if (_selfPopupActive) {
-    log.debug('openOrTogglePopup open last focused window')
-    return browser.windows.update(await getLastFocusedWindowId(), {
-      focused: true
-    })
+    return focusOnLastFocusedWin()
   }
   const windows = await browser.windows.getAll({ populate: true })
   const win = windows.find(isSelfPopup)
