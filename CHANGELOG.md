@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.9](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.8...v1.9.9) (2020-04-30)
+
+### Bug Fixes
+
+- Add reduce motion a11y support ([45ca71f](https://github.com/xcv58/Tab-Manager-v2/commit/45ca71f96ac6df640943758d2be968823e8cf2ca))
+
 ### [1.9.8](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.7...v1.9.8) (2020-04-28)
 
 ### Bug Fixes
