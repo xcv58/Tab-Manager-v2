@@ -74,7 +74,7 @@
     "glob-all": "3.2.1",
     "hard-source-webpack-plugin": "0.13.1",
     "html-loader": "1.1.0",
-    "html-webpack-plugin": "4.2.1",
+    "html-webpack-plugin": "4.3.0",
     "husky": "4.2.5",
     "jest": "25.5.2",
     "lint-staged": "10.2.0",
