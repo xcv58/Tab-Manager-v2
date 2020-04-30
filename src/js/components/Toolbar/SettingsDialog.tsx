@@ -18,6 +18,8 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
 import { THEMES } from 'stores/UserStore'
+import useReduceMotion from 'libs/useReduceMotion'
+import { defaultTransitionDuration } from 'libs/transition'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -47,11 +49,13 @@ export default observer(() => {
     theme,
     selectTheme
   } = userStore
+  const reduceMotion = useReduceMotion()
   return (
     <Dialog
       open={dialogOpen}
       fullWidth
       TransitionComponent={Fade}
+      transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
     >

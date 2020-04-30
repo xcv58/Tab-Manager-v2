@@ -9,6 +9,7 @@ import { StoreContext, store, useStore } from './StoreContext'
 import { ThemeContext } from './ThemeContext'
 import { isProduction } from 'libs'
 import Main from './Main'
+import { ReduceMotionProvider } from 'libs/useReduceMotion'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -27,7 +28,9 @@ export default observer(() => {
             backend={HTML5Backend}
           >
             <ThemeContext.Provider value={isDarkTheme}>
-              <Main />
+              <ReduceMotionProvider>
+                <Main />
+              </ReduceMotionProvider>
             </ThemeContext.Provider>
           </DndProvider>
         </MuiThemeProvider>

@@ -2,11 +2,14 @@ import React, { useEffect, useRef } from 'react'
 import log from 'libs/log'
 import { SpringSystem } from 'rebound'
 import { ScrollbarContext } from './useScrollbar'
+import useReduceMotion from '../useReduceMotion'
 
 export default (props) => {
   const { scrollbarRef, children } = props
   const verticalSpring = useRef(null)
   const horizontalSpring = useRef(null)
+
+  const reduceMotion = useReduceMotion()
 
   const scrollTo = ({ top = 0, left = 0 }) => {
     log.debug('scrollTo:', { top, left })
@@ -25,10 +28,15 @@ export default (props) => {
       return
     }
     const { scrollTop, scrollLeft } = scrollbarRef.current
-    verticalSpring.current.setCurrentValue(scrollTop).setAtRest()
-    verticalSpring.current.setEndValue(scrollTop + top)
-    horizontalSpring.current.setCurrentValue(scrollLeft).setAtRest()
-    horizontalSpring.current.setEndValue(scrollLeft + left)
+    if (reduceMotion) {
+      scrollbarRef.current.scrollTop = scrollTop + top
+      scrollbarRef.current.scrollLeft = scrollLeft + left
+    } else {
+      verticalSpring.current.setCurrentValue(scrollTop).setAtRest()
+      verticalSpring.current.setEndValue(scrollTop + top)
+      horizontalSpring.current.setCurrentValue(scrollLeft).setAtRest()
+      horizontalSpring.current.setEndValue(scrollLeft + left)
+    }
   }
 
   useEffect(() => {

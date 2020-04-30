@@ -9,16 +9,20 @@ import Fade from '@material-ui/core/Fade'
 import { useStore } from 'components/StoreContext'
 import { useTheme } from '@material-ui/core'
 import CloseButton from 'components/CloseButton'
+import useReduceMotion from 'libs/useReduceMotion'
+import { defaultTransitionDuration } from 'libs/transition'
 
 export default observer(() => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const { shortcutStore } = useStore()
   const { dialogOpen, closeDialog } = shortcutStore
+  const reduceMotion = useReduceMotion()
   return (
     <Dialog
       open={dialogOpen}
       TransitionComponent={Fade}
+      transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
       fullWidth

@@ -12,12 +12,20 @@ import Help from 'components/Toolbar/Help'
 import RemoveDuplicated from 'components/Toolbar/RemoveDuplicated'
 import VerticalDivider from 'components/Toolbar/VerticalDivider'
 import { useStore } from 'components/StoreContext'
+import useReduceMotion from 'libs/useReduceMotion'
+import { duration } from '@material-ui/core/styles/transitions'
 
 export default observer(() => {
   const { userStore } = useStore()
   const { toolbarVisible } = userStore
+  const reduceMotion = useReduceMotion()
   return (
-    <Slide in={toolbarVisible} direction='up' style={{ display: 'flex' }}>
+    <Slide
+      in={toolbarVisible}
+      direction='up'
+      style={{ display: 'flex' }}
+      timeout={reduceMotion ? 1 : duration.enteringScreen}
+    >
       <div>
         <Settings />
         <Help />
