@@ -13,7 +13,7 @@
     "@babel/node": "7.8.7",
     "@babel/preset-env": "7.9.6",
     "babel-jest": "25.5.1",
-    "jest": "25.5.2",
+    "jest": "25.5.4",
     "jest-puppeteer": "4.4.0",
     "puppeteer": "3.0.2"
   },
