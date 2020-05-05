@@ -9858,6 +9858,15 @@ postcss@7.0.27, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.11, postcss@^7.0.14
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
+postcss@7.0.28:
+  version "7.0.28"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-7.0.28.tgz#d349ced7743475717ba91f6810efb58c51fb5dbb"
+  integrity sha512-YU6nVhyWIsVtlNlnAj1fHTsUKW5qxm3KEgzq2Jj6KTEFOTK8QWR12eIDvrlWhiSTK8WIBFTBhOJV4DY6dUuEbw==
+  dependencies:
+    chalk "^2.4.2"
+    source-map "^0.6.1"
+    supports-color "^6.1.0"
+
 postcss@^6.0.9:
   version "6.0.23"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.23.tgz#61c82cc328ac60e677645f979054eb98bc0e3324"
@@ -10060,12 +10069,12 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-purgecss-webpack-plugin@2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/purgecss-webpack-plugin/-/purgecss-webpack-plugin-2.1.2.tgz#64cab0873754299c821b6e5940aca4232071e36e"
-  integrity sha512-O431LQL245lRfVF4D8qTZzcN7Gv8nxsDDFB2VFsAdaKj3NKmag73A4B5mJTSIgAw68pW/5Lrrj+wky+1FSyHZQ==
+purgecss-webpack-plugin@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/purgecss-webpack-plugin/-/purgecss-webpack-plugin-2.2.0.tgz#5fec1bfd497edbe9217bd6a58e8a16d4050832d6"
+  integrity sha512-wYMkVDcoUFAaRKtk3zlX41lOiEk/mxQcyHp/hl9IvYqVilopNctn9wknr5z/+hfmQyIY80yJLE4ovF/iRpxUcg==
   dependencies:
-    purgecss "^2.1.2"
+    purgecss "^2.2.0"
     webpack "^4.42.1"
     webpack-sources "^1.4.3"
 
@@ -10077,6 +10086,16 @@ purgecss@^2.1.2:
     commander "^5.0.0"
     glob "^7.0.0"
     postcss "7.0.27"
+    postcss-selector-parser "^6.0.2"
+
+purgecss@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/purgecss/-/purgecss-2.2.0.tgz#52cc0f259ada7556e1d83a81bd63ad35d57bdd0f"
+  integrity sha512-krblW3ECdPq8GQZQ2mS4FaKtJbV8PX4x65V6wOuTwcfUSIxcTUeBekROCC53IbFKW/t044BuiVUHiSa3MqGJRg==
+  dependencies:
+    commander "^5.0.0"
+    glob "^7.0.0"
+    postcss "7.0.28"
     postcss-selector-parser "^6.0.2"
 
 q@^1.1.2, q@^1.5.1:
