@@ -10,19 +10,7 @@ const ARIA_LABEL = 'Toggle select'
 
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
-  const { faked, tab } = props
-  const { focus, select, iconUrl, isSelected, bulkSelect } = tab
-  if (faked) {
-    return (
-      <IconButton
-        disabled
-        aria-label={ARIA_LABEL}
-        className='focus:outline-none focus:shadow-outline'
-      >
-        <img className='w-6 h-6' src={iconUrl} />
-      </IconButton>
-    )
-  }
+  const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (
     <Checkbox
       color='primary'
@@ -43,7 +31,7 @@ export const Icon = observer((props: TabProps) => {
     return checkbox
   }
   return (
-    <>
+    <div className='group'>
       <div
         className={classNames({
           hidden: isSelected,
@@ -66,12 +54,25 @@ export const Icon = observer((props: TabProps) => {
       >
         {checkbox}
       </div>
-    </>
+    </div>
   )
 })
 
-export default (props: TabProps) => (
-  <div className='group'>
-    <Icon {...props} />
-  </div>
-)
+export default observer((props: TabProps) => {
+  const { faked, tab } = props
+  const { iconUrl } = tab
+  if (!faked) {
+    return <Icon {...props} />
+  }
+  return (
+    <div>
+      <IconButton
+        disabled
+        aria-label={ARIA_LABEL}
+        className='focus:outline-none focus:shadow-outline'
+      >
+        <img className='w-6 h-6' src={iconUrl} />
+      </IconButton>
+    </div>
+  )
+})
