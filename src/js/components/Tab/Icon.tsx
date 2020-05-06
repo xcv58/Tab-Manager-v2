@@ -8,7 +8,7 @@ import { TabProps } from 'components/types'
 
 const ARIA_LABEL = 'Toggle select'
 
-const Icon = observer((props: TabProps) => {
+export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
   const { faked, tab } = props
   const { focus, select, iconUrl, isSelected, bulkSelect } = tab

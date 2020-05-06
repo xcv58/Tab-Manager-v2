@@ -2,7 +2,7 @@ import React from 'react'
 import { shallow } from 'enzyme'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
-import Icon from 'components/Tab/Icon'
+import { Icon } from 'components/Tab/Icon'
 
 const tab = {
   focus: jest.fn(),
