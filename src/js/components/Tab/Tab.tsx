@@ -15,7 +15,7 @@ export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
   const { dragStore, searchStore } = useStore()
   const isDarkTheme = useTheme()
-  const { faked, tab, className } = props
+  const { tab, className } = props
   const {
     setNodeRef,
     active,
@@ -26,7 +26,7 @@ export default observer((props: TabProps & { className?: string }) => {
     shouldHighlight
   } = tab
 
-  const isActionable = !faked && !dragStore.dragging
+  const isActionable = !dragStore.dragging
 
   const onMouseEnter = () => {
     if (isActionable) {
@@ -50,9 +50,6 @@ export default observer((props: TabProps & { className?: string }) => {
   const { scrollToNode } = useScrollbar()
 
   useEffect(() => {
-    if (faked) {
-      return
-    }
     if (isFocused) {
       scrollToNode(nodeRef)
       if (!searchStore.typing) {
@@ -60,12 +57,8 @@ export default observer((props: TabProps & { className?: string }) => {
       }
     }
     return onMouseLeave
-  }, [faked, isFocused])
-  useEffect(() => {
-    if (!faked) {
-      setNodeRef(nodeRef)
-    }
-  }, [faked])
+  }, [isFocused])
+  useEffect(() => setNodeRef(nodeRef))
 
   const pin = pinned && PIN
 
@@ -98,8 +91,8 @@ export default observer((props: TabProps & { className?: string }) => {
     >
       {pin}
       <Icon tab={tab} />
-      <TabContent {...{ faked, tab }} />
-      <TabTools faked={faked} tab={tab} />
+      <TabContent tab={tab} />
+      <TabTools tab={tab} />
       <CloseButton onClick={onRemove} disabled={tab.removing} />
     </div>
   )
