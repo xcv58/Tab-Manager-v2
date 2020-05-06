@@ -1,6 +1,5 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Search, { InputRefProps } from 'components/Search'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
@@ -8,6 +7,8 @@ import SyncButton from './SyncButton'
 import { useStore } from './StoreContext'
 import CommandPalette from './CommandPalette'
 import Loading from './Loading'
+import Search from './Search'
+import { InputRefProps } from './types'
 
 export default observer((props: InputRefProps) => {
   const { userStore } = useStore()
