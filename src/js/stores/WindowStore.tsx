@@ -277,12 +277,10 @@ export default class WindowsStore {
       .filter((win) => !win.showTabs && win.visibleLength === 0)
       .forEach((win) => {
         win.showTabs = true
-        win.tabMounted()
       })
     const win = this.windows.find((x) => !x.showTabs)
     if (win) {
       win.showTabs = true
-      win.tabMounted()
     }
   }
 

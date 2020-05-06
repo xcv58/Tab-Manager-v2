@@ -31,17 +31,6 @@ export default class Window extends Focusable {
   type
 
   @action
-  tabMounted = () => {
-    this.tabs
-      .filter((x) => !x.isVisible && !x.showTab)
-      .forEach((x) => (x.showTab = true))
-    const tab = this.tabs.find((x) => !x.showTab)
-    if (tab) {
-      tab.showTab = true
-    }
-  }
-
-  @action
   activate = () => {
     browser.windows.update(this.id, { focused: true })
   }
