@@ -14,12 +14,15 @@ export default observer((props: TabProps) => {
   const { focus, select, iconUrl, isSelected, bulkSelect } = tab
   if (faked) {
     return (
-      <IconButton
-        aria-label={ARIA_LABEL}
-        className='focus:outline-none focus:shadow-outline'
-      >
-        <img className='w-6 h-6' src={iconUrl} />
-      </IconButton>
+      <div>
+        <IconButton
+          disabled
+          aria-label={ARIA_LABEL}
+          className='focus:outline-none focus:shadow-outline'
+        >
+          <img className='w-6 h-6' src={iconUrl} />
+        </IconButton>
+      </div>
     )
   }
   const checkbox = (
