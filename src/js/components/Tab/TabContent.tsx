@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, ReactElement, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
@@ -10,75 +10,96 @@ import { TabProps } from 'components/types'
 const pre = "<span class='text-red-500'>"
 const post = '</span>'
 
-export default observer((props: TabProps) => {
-  const { hoverStore, dragStore, userStore } = useStore()
-  const { faked } = props
-  const {
-    activate,
-    title,
-    url,
-    urlCount,
-    focus,
-    isFocused,
-    isHovered
-  } = props.tab
-  const buttonRef = useRef(null)
-  const { showUrl, highlightDuplicatedTab } = userStore
-  const getHighlightNode = (text) => {
+const TabContent = observer(
+  (props: TabProps & { buttonClassName: string; content: ReactElement }) => {
+    const { faked, buttonClassName, content } = props
+    const { hoverStore, dragStore } = useStore()
     const {
-      tab: { isMatched, query }
-    } = props
-    if (!isMatched || !query) {
-      return text
-    }
-    const result = match(query, text, { pre, post })
-    if (!result) {
-      return <div>{text}</div>
-    }
-    return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
-  }
-  useEffect(() => {
-    const button = buttonRef.current
-    if (!isFocused && document.activeElement === button) {
-      button.blur()
-    }
-  }, [isFocused])
-  const duplicated = highlightDuplicatedTab && urlCount > 1
+      activate,
+      title,
+      url,
+      urlCount,
+      focus,
+      isFocused,
+      isHovered
+    } = props.tab
+    const buttonRef = useRef(null)
+    useEffect(() => {
+      const button = buttonRef.current
+      if (!isFocused && document.activeElement === button) {
+        button.blur()
+      }
+    }, [isFocused])
 
-  const { dragging } = dragStore
-  const { hovered } = hoverStore
-  const open = !(faked || dragging || !isHovered || !hovered)
-  const tooltip = open && (
-    <div className='leading-tight break-all whitespace-normal'>
-      <p>{title}</p>
-      <p style={{ opacity: 0.8 }}>{url}</p>
-      {urlCount > 1 && <p>There is duplicated tab!</p>}
-    </div>
+    const { dragging } = dragStore
+    const { hovered } = hoverStore
+    const open = !(faked || dragging || !isHovered || !hovered)
+    const tooltip = open && (
+      <div className='leading-tight break-all whitespace-normal'>
+        <p>{title}</p>
+        <p style={{ opacity: 0.8 }}>{url}</p>
+        {urlCount > 1 && <p>There is duplicated tab!</p>}
+      </div>
+    )
+    return (
+      <Tooltip {...{ open, title: tooltip }} interactive>
+        <button
+          ref={buttonRef}
+          onClick={activate}
+          onFocus={focus}
+          className={buttonClassName}
+        >
+          {content}
+        </button>
+      </Tooltip>
+    )
+  }
+)
+
+export default observer((props: TabProps) => {
+  const { userStore } = useStore()
+  const { faked } = props
+  const { title, urlCount, isMatched, query } = props.tab
+  const { showUrl, highlightDuplicatedTab } = userStore
+  const getHighlightNode = useCallback(
+    (text) => {
+      if (!isMatched || !query) {
+        return text
+      }
+      const result = match(query, text, { pre, post })
+      if (!result) {
+        return <div>{text}</div>
+      }
+      return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
+    },
+    [isMatched, query]
   )
-  return (
-    <Tooltip {...{ open, title: tooltip }} interactive>
-      <button
-        ref={buttonRef}
-        onClick={activate}
-        onFocus={focus}
-        className={classNames(
-          'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left focus:outline-none focus:shadow-outline m-0 rounded-sm text-base',
-          {
-            'text-red-400': duplicated
-          }
-        )}
-      >
-        <div className='w-full overflow-hidden truncate'>
-          {getHighlightNode(title)}
-        </div>
-        {showUrl && (
-          <Url
-            {...props}
-            getHighlightNode={getHighlightNode}
-            duplicated={duplicated}
-          />
-        )}
+  const duplicated = highlightDuplicatedTab && urlCount > 1
+  const buttonClassName = classNames(
+    'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left focus:outline-none focus:shadow-outline m-0 rounded-sm text-base',
+    {
+      'text-red-400': duplicated
+    }
+  )
+  const content = (
+    <>
+      <div className='w-full overflow-hidden truncate'>
+        {getHighlightNode(title)}
+      </div>
+      {showUrl && <Url {...props} {...{ getHighlightNode, duplicated }} />}
+    </>
+  )
+  if (faked) {
+    return (
+      <button className={buttonClassName} disabled>
+        {content}
       </button>
-    </Tooltip>
+    )
+  }
+  return (
+    <TabContent
+      {...props}
+      {...{ getHighlightNode, buttonClassName, content }}
+    />
   )
 })
