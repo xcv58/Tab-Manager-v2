@@ -10,7 +10,18 @@ const ARIA_LABEL = 'Toggle select'
 
 export default observer((props: TabProps) => {
   const { userStore } = useStore()
-  const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
+  const { faked, tab } = props
+  const { focus, select, iconUrl, isSelected, bulkSelect } = tab
+  if (faked) {
+    return (
+      <IconButton
+        aria-label={ARIA_LABEL}
+        className='focus:outline-none focus:shadow-outline'
+      >
+        <img className='w-6 h-6' src={iconUrl} />
+      </IconButton>
+    )
+  }
   const checkbox = (
     <Checkbox
       color='primary'

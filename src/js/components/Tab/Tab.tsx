@@ -9,12 +9,7 @@ import { useStore } from 'components/StoreContext'
 import { useTheme } from 'components/ThemeContext'
 import { useScrollbar } from 'libs/Scrollbar'
 import { TabProps } from 'components/types'
-
-const PIN = (
-  <div className='z-auto w-0 h-0 text-xs origin-bottom-right transform -rotate-90 translate-y-4 pointer-events-none'>
-    📌
-  </div>
-)
+import PIN from './Pin'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
@@ -66,7 +61,11 @@ export default observer((props: TabProps & { className?: string }) => {
     }
     return onMouseLeave
   }, [faked, isFocused])
-  useEffect(() => setNodeRef(nodeRef))
+  useEffect(() => {
+    if (!faked) {
+      setNodeRef(nodeRef)
+    }
+  }, [faked])
 
   const pin = pinned && PIN
 
