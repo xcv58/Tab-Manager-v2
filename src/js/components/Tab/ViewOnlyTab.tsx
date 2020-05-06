@@ -6,7 +6,7 @@ import TabContent from 'components/Tab/TabContent'
 import { TabProps } from 'components/types'
 import PIN from './Pin'
 
-export default observer((props: TabProps & { className?: string }) => {
+export default observer((props: TabProps) => {
   const { tab } = props
   const pin = tab.pinned && PIN
 

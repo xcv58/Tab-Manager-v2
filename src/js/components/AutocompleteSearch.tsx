@@ -4,12 +4,12 @@ import { useStore } from './StoreContext'
 import { TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { InputRefProps } from './types'
-import TabOption from './Tab/TabOption'
+import ViewOnlyTab from './Tab/ViewOnlyTab'
 
 const ARIA_LABLE = 'Search your tab title... (Press "/" to focus)'
 
 const renderTabOption = (tab) => {
-  return <TabOption tab={tab} />
+  return <ViewOnlyTab tab={tab} />
 }
 
 export default observer(({ inputRef }: InputRefProps) => {
