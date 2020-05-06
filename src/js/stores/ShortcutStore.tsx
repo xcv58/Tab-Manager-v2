@@ -137,8 +137,6 @@ export default class ShortcutStore {
       '/',
       (event) => {
         preventDefault(event)
-        console.log(this.searchEl.current)
-        console.log(this.searchEl.current.querySelector('input'))
         const input = this.searchEl.current.querySelector('input')
         if (input) {
           input.focus()
