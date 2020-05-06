@@ -10,7 +10,6 @@ import { TabProps } from 'components/types'
 
 export default observer((props: TabProps) => {
   const { tab } = props
-  const { showTab } = tab
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -30,14 +29,12 @@ export default observer((props: TabProps) => {
   return (
     <div ref={drop}>
       {preview}
-      {showTab && (
-        <Tab
-          {...props}
-          className={classNames({
-            'bg-red-500 hover:bg-red-500': isOver && !canDrop
-          })}
-        />
-      )}
+      <Tab
+        {...props}
+        className={classNames({
+          'bg-red-500 hover:bg-red-500': isOver && !canDrop
+        })}
+      />
     </div>
   )
 })

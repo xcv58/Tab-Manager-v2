@@ -30,17 +30,12 @@ const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 export default class Tab extends Focusable {
   win: Window
 
-  mounted: () => void
-
   constructor (tab, store: Store, win: Window) {
     super(store)
     this.store = store
     Object.assign(this, tab)
     this.win = win
-    this.mounted = this.win.tabMounted
     this.setUrlIcon()
-    // TODO: Remove this when we add concurrent mode
-    this.showTab = true
   }
 
   @observable
@@ -60,10 +55,6 @@ export default class Tab extends Focusable {
 
   @observable
   id
-
-  // TODO: Remove this when we add concurrent mode
-  @observable
-  showTab: boolean
 
   @observable
   removing = false
