@@ -66,7 +66,7 @@ export default class WindowsStore {
   }
 
   @computed
-  get tabs () {
+  get tabs (): Tab[] {
     return [].concat(
       ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
     )
@@ -369,7 +369,7 @@ export default class WindowsStore {
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
 
     this.windows = windows
-      .concat(getMockedWindows(30))
+      .concat(getMockedWindows(50))
       .filter(notSelfPopup)
       .map((win) => new Window(win, this.store))
       .sort(windowComparator)

@@ -43,7 +43,7 @@ const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
           outerElementType={OuterElementType}
           innerElementType='ul'
           itemSize={() => TAB_HEIGHT}
-          overscanCount={10}
+          overscanCount={5}
           itemCount={itemCount}
         >
           {renderRow}
