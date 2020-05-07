@@ -562,7 +562,7 @@
   dependencies:
     "@babel/runtime" "^7.4.4"
 
-"@material-ui/lab@^4.0.0-alpha.52":
+"@material-ui/lab@4.0.0-alpha.52":
   version "4.0.0-alpha.52"
   resolved "https://registry.yarnpkg.com/@material-ui/lab/-/lab-4.0.0-alpha.52.tgz#a868d8c772a90db091a6bfc89aed21a0e2c486bf"
   integrity sha512-aDoRWA+q3/T2spvvQrxPz8qjtf9l8NhaG9ZISBy9zD3cJ05s3KfEP2nrsoBOBgonlSMFQQzUTnxAwThwsJfllw==
@@ -10356,7 +10356,7 @@ react-transition-group@^4.3.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react-window@^1.8.5:
+react-window@1.8.5:
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/react-window/-/react-window-1.8.5.tgz#a56b39307e79979721021f5d06a67742ecca52d1"
   integrity sha512-HeTwlNa37AFa8MDZFZOKcNEkuF2YflA0hpGPiTT9vR7OawEt+GZbfM6wqkBahD3D3pUjIabQYzsnY/BSJbgq6Q==
