@@ -137,12 +137,7 @@ export default class ShortcutStore {
       '/',
       (event) => {
         preventDefault(event)
-        const input = this.searchEl.current.querySelector('input')
-        if (input) {
-          input.focus()
-          input.select()
-        }
-        // this.searchEl.current.focus()
+        this.searchEl.current.click()
       },
       'Search tab'
     ],
@@ -161,13 +156,11 @@ export default class ShortcutStore {
           userStore: { dialogOpen, closeDialog }
         } = this.store
         if (typing) {
-          // event.preventDefault()
-
+          event.preventDefault()
           const input = this.searchEl.current.querySelector('input')
           if (input) {
             input.blur()
           }
-          // return this.searchEl.current.blur()
           return
         }
         if (dialogOpen) {

@@ -17,8 +17,8 @@ const Input = (props) => (
 )
 
 const AutocompleteSearch = observer(
-  (props: InputRefProps & { forceUpdate: Function }) => {
-    const { inputRef, forceUpdate } = props
+  (props: InputRefProps & { forceUpdate: Function; initRender: boolean }) => {
+    const { inputRef, initRender, forceUpdate } = props
     const { userStore, searchStore, windowStore } = useStore()
     const { search, query, startType, stopType } = searchStore
     return (
@@ -27,7 +27,7 @@ const AutocompleteSearch = observer(
         blurOnSelect
         freeSolo
         selectOnFocus
-        openOnFocus={!userStore.autoFocusSearch}
+        openOnFocus
         autoHighlight
         ref={inputRef}
         options={windowStore.tabs}
@@ -48,21 +48,28 @@ const AutocompleteSearch = observer(
           tab.activate()
           forceUpdate()
         }}
-        renderInput={Input}
+        renderInput={(props) => (
+          <Input
+            {...props}
+            autoFocus={initRender && userStore.autoFocusSearch}
+          />
+        )}
       />
     )
   }
 )
 
 export default observer((props: InputRefProps) => {
+  const [initRender, setInitRender] = useState(true)
   const [fake, setFake] = useState(false)
   const { query } = useStore().searchStore
   const forceUpdate = useCallback(() => {
+    setInitRender(false)
     setFake(true)
     setTimeout(() => setFake(false), 0)
   }, [])
   if (fake) {
     return <Input value={query} />
   }
-  return <AutocompleteSearch {...props} forceUpdate={forceUpdate} />
+  return <AutocompleteSearch {...props} {...{ initRender, forceUpdate }} />
 })
