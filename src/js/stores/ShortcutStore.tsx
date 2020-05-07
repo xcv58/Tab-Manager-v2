@@ -47,13 +47,10 @@ export default class ShortcutStore {
   @observable
   inputShortcutSet = new Set([
     'escape',
-    'enter',
     'ctrl+enter',
     'ctrl+h',
     'ctrl+l',
-    'down',
     'ctrl+j',
-    'up',
     'ctrl+k',
     'ctrl+/',
     'ctrl+p',
@@ -137,7 +134,7 @@ export default class ShortcutStore {
       '/',
       (event) => {
         preventDefault(event)
-        this.searchEl.current.focus()
+        this.searchEl.current.click()
       },
       'Search tab'
     ],
@@ -157,7 +154,11 @@ export default class ShortcutStore {
         } = this.store
         if (typing) {
           event.preventDefault()
-          return this.searchEl.current.blur()
+          const input = this.searchEl.current.querySelector('input')
+          if (input) {
+            input.blur()
+          }
+          return
         }
         if (dialogOpen) {
           event.preventDefault()

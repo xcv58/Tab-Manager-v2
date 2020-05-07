@@ -27,6 +27,23 @@ const overrides = {
     }
   },
   MuiSnackbarContent,
+  MuiAutocomplete: {
+    root: {
+      display: 'flex'
+    },
+    listbox: {
+      maxHeight: '64vh'
+    },
+    option: {
+      paddingTop: 0,
+      paddingBottom: 0,
+      paddingLeft: 0,
+      paddingRight: 0
+    },
+    popper: {
+      marginLeft: -6
+    }
+  },
   MuiTooltip: {
     tooltip: {
       display: 'inline-flex',

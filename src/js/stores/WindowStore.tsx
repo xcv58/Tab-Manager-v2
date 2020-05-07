@@ -65,7 +65,7 @@ export default class WindowsStore {
   }
 
   @computed
-  get tabs () {
+  get tabs (): Tab[] {
     return [].concat(
       ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
     )

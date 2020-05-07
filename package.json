@@ -28,6 +28,7 @@
   "dependencies": {
     "@material-ui/core": "4.9.13",
     "@material-ui/icons": "4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.52",
     "classnames": "2.2.6",
     "fuzzy": "0.1.3",
     "lodash.debounce": "4.0.8",
@@ -42,6 +43,7 @@
     "react-dnd-html5-backend": "10.0.2",
     "react-dom": "16.13.1",
     "react-resize-detector": "4.2.3",
+    "react-window": "^1.8.5",
     "rebound": "0.1.0",
     "tailwindcss": "1.4.5",
     "use-system-theme": "0.0.4",
@@ -114,6 +116,7 @@
       "screen",
       "HTMLElement",
       "HTMLInputElement",
+      "HTMLDivElement",
       "page",
       "browser"
     ]
