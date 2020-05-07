@@ -1,66 +1,11 @@
-import React, {
-  useState,
-  useCallback,
-  cloneElement,
-  createContext,
-  forwardRef,
-  useContext
-} from 'react'
+import React, { useState, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useStore } from './StoreContext'
 import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { InputRefProps } from './types'
-import { VariableSizeList, ListChildComponentProps } from 'react-window'
-import ViewOnlyTab from './Tab/ViewOnlyTab'
-import { TAB_HEIGHT } from 'libs'
-
-const LISTBOX_PADDING = 8
-
-const renderRow = (props: ListChildComponentProps) => {
-  const { data, index, style } = props
-  return cloneElement(data[index], {
-    style: {
-      ...style,
-      top: style.top + LISTBOX_PADDING
-    }
-  })
-}
-
-const OuterElementContext = createContext({})
-
-const OuterElementType = forwardRef((props, ref) => {
-  const outerProps = useContext(OuterElementContext)
-  return <div ref={ref} {...props} {...outerProps} />
-})
-
-// Adapter for react-window
-const ListboxComponent = forwardRef((props, ref) => {
-  const { children, ...other } = props
-  const itemData = React.Children.toArray(children)
-  const itemCount = itemData.length
-
-  const getHeight = () => Math.min(10, itemCount) * TAB_HEIGHT
-
-  return (
-    <div ref={ref}>
-      <OuterElementContext.Provider value={other}>
-        <VariableSizeList
-          itemData={itemData}
-          height={getHeight() + 2 * LISTBOX_PADDING}
-          width='100%'
-          outerElementType={OuterElementType}
-          innerElementType='ul'
-          itemSize={() => TAB_HEIGHT}
-          overscanCount={10}
-          itemCount={itemCount}
-        >
-          {renderRow}
-        </VariableSizeList>
-      </OuterElementContext.Provider>
-    </div>
-  )
-})
+import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
+import { useStore } from 'components/StoreContext'
+import { InputRefProps } from 'components/types'
+import ListboxComponent from './ListboxComponent'
 
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 

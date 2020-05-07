@@ -116,6 +116,7 @@
       "screen",
       "HTMLElement",
       "HTMLInputElement",
+      "HTMLDivElement",
       "page",
       "browser"
     ]
