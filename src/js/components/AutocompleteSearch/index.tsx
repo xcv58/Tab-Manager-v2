@@ -72,9 +72,11 @@ const AutocompleteSearch = observer(
 )
 
 export default observer((props: InputRefProps) => {
+  // The initRender make sure the auto focus will be set for only the first render. And following render has no autoFocus to be true.
   const [initRender, setInitRender] = useState(true)
   const [fake, setFake] = useState(false)
   const { query } = useStore().searchStore
+  // The forceUpdate is to force render the Material UI Autocomplete because it wouldn't trigger onChange if select the same option again.
   const forceUpdate = useCallback(() => {
     setInitRender(false)
     setFake(true)
