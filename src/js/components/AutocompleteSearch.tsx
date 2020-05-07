@@ -6,7 +6,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { InputRefProps } from './types'
 import ViewOnlyTab from './Tab/ViewOnlyTab'
 
-const ARIA_LABLE = 'Search your tab title... (Press "/" to focus)'
+const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
 const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
