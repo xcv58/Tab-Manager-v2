@@ -11,7 +11,6 @@ import { useStore } from './StoreContext'
 import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { InputRefProps } from './types'
-import { makeStyles } from '@material-ui/core/styles'
 import { VariableSizeList, ListChildComponentProps } from 'react-window'
 import ViewOnlyTab from './Tab/ViewOnlyTab'
 import { TAB_HEIGHT } from 'libs'
@@ -63,16 +62,6 @@ const ListboxComponent = forwardRef((props, ref) => {
   )
 })
 
-const useStyles = makeStyles({
-  listbox: {
-    boxSizing: 'border-box',
-    '& ul': {
-      padding: 0,
-      margin: 0
-    }
-  }
-})
-
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
 const renderTabOption = (tab) => {
@@ -88,10 +77,8 @@ const AutocompleteSearch = observer(
     const { inputRef, initRender, forceUpdate } = props
     const { userStore, searchStore, windowStore } = useStore()
     const { search, query, startType, stopType } = searchStore
-    const classes = useStyles()
     return (
       <Autocomplete
-        classes={classes}
         fullWidth
         blurOnSelect
         freeSolo
@@ -101,9 +88,9 @@ const AutocompleteSearch = observer(
         ref={inputRef}
         inputValue={query}
         disableListWrap
-        PaperComponent={(props) => {
-          return <Paper elevation={24}>{props.children}</Paper>
-        }}
+        PaperComponent={(props) => (
+          <Paper elevation={24}>{props.children}</Paper>
+        )}
         onFocus={() => {
           startType()
           search(query)
