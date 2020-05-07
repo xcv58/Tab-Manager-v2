@@ -1,10 +1,95 @@
-import React, { useState, useCallback } from 'react'
+import React, {
+  useState,
+  useCallback,
+  cloneElement,
+  createContext,
+  forwardRef,
+  useContext
+} from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore } from './StoreContext'
-import { TextField } from '@material-ui/core'
+import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { InputRefProps } from './types'
+import { makeStyles } from '@material-ui/core/styles'
+import { VariableSizeList, ListChildComponentProps } from 'react-window'
 import ViewOnlyTab from './Tab/ViewOnlyTab'
+import { TAB_HEIGHT } from 'libs'
+
+const LISTBOX_PADDING = 8 // px
+
+function renderRow (props: ListChildComponentProps) {
+  const { data, index, style } = props
+  return cloneElement(data[index], {
+    style: {
+      ...style,
+      top: style.top + LISTBOX_PADDING
+    }
+  })
+}
+
+const OuterElementContext = createContext({})
+
+const OuterElementType = forwardRef((props, ref) => {
+  const outerProps = useContext(OuterElementContext)
+  return <div ref={ref} {...props} {...outerProps} />
+})
+
+function useResetCache (data: any) {
+  const ref = React.useRef<VariableSizeList>(null)
+  React.useEffect(() => {
+    if (ref.current != null) {
+      ref.current.resetAfterIndex(0, true)
+    }
+  }, [data])
+  return ref
+}
+
+// Adapter for react-window
+const ListboxComponent = forwardRef(function ListboxComponent (props, ref) {
+  const { children, ...other } = props
+  const itemData = React.Children.toArray(children)
+  const itemCount = itemData.length
+
+  const getHeight = () => {
+    if (itemCount > 8) {
+      return 8 * TAB_HEIGHT
+    }
+    return itemCount * TAB_HEIGHT
+  }
+
+  const gridRef = useResetCache(itemCount)
+
+  return (
+    <div ref={ref}>
+      <OuterElementContext.Provider value={other}>
+        <VariableSizeList
+          itemData={itemData}
+          height={getHeight() + 2 * LISTBOX_PADDING}
+          width='100%'
+          ref={gridRef}
+          outerElementType={OuterElementType}
+          innerElementType='ul'
+          itemSize={TAB_HEIGHT}
+          overscanCount={10}
+          itemCount={itemCount}
+        >
+          {renderRow}
+        </VariableSizeList>
+      </OuterElementContext.Provider>
+    </div>
+  )
+})
+
+const useStyles = makeStyles({
+  listbox: {
+    boxSizing: 'border-box',
+    '& ul': {
+      padding: 0,
+      margin: 0
+    }
+  }
+})
 
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
@@ -21,8 +106,10 @@ const AutocompleteSearch = observer(
     const { inputRef, initRender, forceUpdate } = props
     const { userStore, searchStore, windowStore } = useStore()
     const { search, query, startType, stopType } = searchStore
+    const classes = useStyles()
     return (
       <Autocomplete
+        classes={classes}
         fullWidth
         blurOnSelect
         freeSolo
@@ -30,8 +117,11 @@ const AutocompleteSearch = observer(
         openOnFocus
         autoHighlight
         ref={inputRef}
-        options={windowStore.tabs}
         inputValue={query}
+        disableListWrap
+        PaperComponent={(props) => {
+          return <Paper elevation={24}>{props.children}</Paper>
+        }}
         onFocus={() => {
           startType()
           search(query)
@@ -42,8 +132,6 @@ const AutocompleteSearch = observer(
             search(value)
           }
         }}
-        getOptionLabel={(option) => option.title + option.url}
-        renderOption={renderTabOption}
         onChange={(_, tab) => {
           tab.activate()
           forceUpdate()
@@ -54,6 +142,10 @@ const AutocompleteSearch = observer(
             autoFocus={initRender && userStore.autoFocusSearch}
           />
         )}
+        getOptionLabel={(option) => option.title + option.url}
+        options={windowStore.tabs}
+        renderOption={renderTabOption}
+        ListboxComponent={ListboxComponent}
       />
     )
   }

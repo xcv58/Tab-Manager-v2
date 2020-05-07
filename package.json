@@ -43,6 +43,7 @@
     "react-dnd-html5-backend": "10.0.2",
     "react-dom": "16.13.1",
     "react-resize-detector": "4.2.3",
+    "react-window": "^1.8.5",
     "rebound": "0.1.0",
     "tailwindcss": "1.4.4",
     "use-system-theme": "0.0.4",
