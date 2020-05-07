@@ -47,13 +47,10 @@ export default class ShortcutStore {
   @observable
   inputShortcutSet = new Set([
     'escape',
-    // 'enter',
     'ctrl+enter',
     'ctrl+h',
     'ctrl+l',
-    // 'down',
     'ctrl+j',
-    // 'up',
     'ctrl+k',
     'ctrl+/',
     'ctrl+p',
