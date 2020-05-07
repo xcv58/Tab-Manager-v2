@@ -14,7 +14,6 @@ import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
-import { getMockedWindows } from './mockUtils'
 
 export default class WindowsStore {
   store: Store
@@ -369,7 +368,6 @@ export default class WindowsStore {
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
 
     this.windows = windows
-      .concat(getMockedWindows(50))
       .filter(notSelfPopup)
       .map((win) => new Window(win, this.store))
       .sort(windowComparator)
