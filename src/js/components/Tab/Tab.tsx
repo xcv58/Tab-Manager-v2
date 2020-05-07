@@ -9,18 +9,13 @@ import { useStore } from 'components/StoreContext'
 import { useTheme } from 'components/ThemeContext'
 import { useScrollbar } from 'libs/Scrollbar'
 import { TabProps } from 'components/types'
-
-const PIN = (
-  <div className='z-auto w-0 h-0 text-xs origin-bottom-right transform -rotate-90 translate-y-4 pointer-events-none'>
-    📌
-  </div>
-)
+import PIN from './Pin'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
   const { dragStore, searchStore } = useStore()
   const isDarkTheme = useTheme()
-  const { faked, tab, className } = props
+  const { tab, className } = props
   const {
     setNodeRef,
     active,
@@ -31,7 +26,7 @@ export default observer((props: TabProps & { className?: string }) => {
     shouldHighlight
   } = tab
 
-  const isActionable = !faked && !dragStore.dragging
+  const isActionable = !dragStore.dragging
 
   const onMouseEnter = () => {
     if (isActionable) {
@@ -55,9 +50,6 @@ export default observer((props: TabProps & { className?: string }) => {
   const { scrollToNode } = useScrollbar()
 
   useEffect(() => {
-    if (faked) {
-      return
-    }
     if (isFocused) {
       scrollToNode(nodeRef)
       if (!searchStore.typing) {
@@ -65,7 +57,7 @@ export default observer((props: TabProps & { className?: string }) => {
       }
     }
     return onMouseLeave
-  }, [faked, isFocused])
+  }, [isFocused])
   useEffect(() => setNodeRef(nodeRef))
 
   const pin = pinned && PIN
@@ -99,8 +91,8 @@ export default observer((props: TabProps & { className?: string }) => {
     >
       {pin}
       <Icon tab={tab} />
-      <TabContent {...{ faked, tab }} />
-      <TabTools faked={faked} tab={tab} />
+      <TabContent tab={tab} />
+      <TabTools tab={tab} />
       <CloseButton onClick={onRemove} disabled={tab.removing} />
     </div>
   )

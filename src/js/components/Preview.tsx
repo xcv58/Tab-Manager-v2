@@ -1,15 +1,15 @@
 import React, { CSSProperties } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import Tab from 'components/Tab/Tab'
 import { useStore } from './StoreContext'
 import { useTheme } from './ThemeContext'
+import ViewOnlyTab from './Tab/ViewOnlyTab'
 
 export default observer((props: { style: CSSProperties }) => {
   const isDarkTheme = useTheme()
   const { tabStore } = useStore()
   const { sources } = tabStore
-  const content = sources.map((tab) => <Tab key={tab.id} tab={tab} faked />)
+  const content = sources.map((tab) => <ViewOnlyTab key={tab.id} tab={tab} />)
   return (
     <div
       className={classNames('opacity-50', {

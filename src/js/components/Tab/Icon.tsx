@@ -8,7 +8,7 @@ import { TabProps } from 'components/types'
 
 const ARIA_LABEL = 'Toggle select'
 
-export default observer((props: TabProps) => {
+export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (
@@ -54,6 +54,25 @@ export default observer((props: TabProps) => {
       >
         {checkbox}
       </div>
+    </div>
+  )
+})
+
+export default observer((props: TabProps) => {
+  const { faked, tab } = props
+  const { iconUrl } = tab
+  if (!faked) {
+    return <Icon {...props} />
+  }
+  return (
+    <div>
+      <IconButton
+        disabled
+        aria-label={ARIA_LABEL}
+        className='focus:outline-none focus:shadow-outline'
+      >
+        <img className='w-6 h-6' src={iconUrl} />
+      </IconButton>
     </div>
   )
 })
