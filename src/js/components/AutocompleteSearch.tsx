@@ -16,9 +16,9 @@ import { VariableSizeList, ListChildComponentProps } from 'react-window'
 import ViewOnlyTab from './Tab/ViewOnlyTab'
 import { TAB_HEIGHT } from 'libs'
 
-const LISTBOX_PADDING = 8 // px
+const LISTBOX_PADDING = 8
 
-function renderRow (props: ListChildComponentProps) {
+const renderRow = (props: ListChildComponentProps) => {
   const { data, index, style } = props
   return cloneElement(data[index], {
     style: {
@@ -35,30 +35,13 @@ const OuterElementType = forwardRef((props, ref) => {
   return <div ref={ref} {...props} {...outerProps} />
 })
 
-function useResetCache (data: any) {
-  const ref = React.useRef<VariableSizeList>(null)
-  React.useEffect(() => {
-    if (ref.current != null) {
-      ref.current.resetAfterIndex(0, true)
-    }
-  }, [data])
-  return ref
-}
-
 // Adapter for react-window
-const ListboxComponent = forwardRef(function ListboxComponent (props, ref) {
+const ListboxComponent = forwardRef((props, ref) => {
   const { children, ...other } = props
   const itemData = React.Children.toArray(children)
   const itemCount = itemData.length
 
-  const getHeight = () => {
-    if (itemCount > 8) {
-      return 8 * TAB_HEIGHT
-    }
-    return itemCount * TAB_HEIGHT
-  }
-
-  const gridRef = useResetCache(itemCount)
+  const getHeight = () => Math.min(10, itemCount) * TAB_HEIGHT
 
   return (
     <div ref={ref}>
@@ -67,10 +50,9 @@ const ListboxComponent = forwardRef(function ListboxComponent (props, ref) {
           itemData={itemData}
           height={getHeight() + 2 * LISTBOX_PADDING}
           width='100%'
-          ref={gridRef}
           outerElementType={OuterElementType}
           innerElementType='ul'
-          itemSize={TAB_HEIGHT}
+          itemSize={() => TAB_HEIGHT}
           overscanCount={10}
           itemCount={itemCount}
         >
