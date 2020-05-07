@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.9...v1.10.0) (2020-05-07)
+
+### Features
+
+- Add autocomplete for search inbox ([#439](https://github.com/xcv58/Tab-Manager-v2/issues/439)) ([2261f0a](https://github.com/xcv58/Tab-Manager-v2/commit/2261f0a49c9a8aef71348428a40eb1339c0ce391))
+
+### Bug Fixes
+
+- Optimize the Preview performance by ViewOnlyTab which has no action associated ([#432](https://github.com/xcv58/Tab-Manager-v2/issues/432)) ([1925823](https://github.com/xcv58/Tab-Manager-v2/commit/1925823512a87b70230e6a47ab7a4fb9fe18b2e2))
+
 ### [1.9.9](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.8...v1.9.9) (2020-04-30)
 
 ### Bug Fixes
