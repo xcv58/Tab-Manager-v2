@@ -39,6 +39,9 @@ const overrides = {
       paddingBottom: 0,
       paddingLeft: 0,
       paddingRight: 0
+    },
+    popper: {
+      marginLeft: -6
     }
   },
   MuiTooltip: {
