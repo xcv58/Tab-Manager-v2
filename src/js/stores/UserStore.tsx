@@ -134,6 +134,7 @@ export default class UserStore {
   save = () => {
     browser.storage.sync.set(
       Object.assign(
+        {},
         ...Object.keys(DEFAULT_SETTINGS).map((key) => ({ [key]: this[key] }))
       )
     )

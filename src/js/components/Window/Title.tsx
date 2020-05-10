@@ -47,7 +47,7 @@ export default observer((props: WinProps & { className: string }) => {
       <SelectAll {...props} />
       <button
         onClick={activate}
-        className='flex-auto overflow-hidden text-base text-left rounded-sm focus:outline-none focus:shadow-outline'
+        className='flex-auto overflow-hidden text-base text-left rounded-sm'
       >
         <h5 className='flex-auto text-2xl'>
           {text} {!hide && invisibleIndicator}

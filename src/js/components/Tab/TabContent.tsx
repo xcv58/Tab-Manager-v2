@@ -76,7 +76,7 @@ export default observer((props: TabProps) => {
   )
   const duplicated = highlightDuplicatedTab && urlCount > 1
   const buttonClassName = classNames(
-    'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left focus:outline-none focus:shadow-outline m-0 rounded-sm text-base',
+    'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base',
     {
       'text-red-400': duplicated
     }
