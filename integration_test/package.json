@@ -15,7 +15,7 @@
     "babel-jest": "26.0.1",
     "jest": "26.0.1",
     "jest-puppeteer": "4.4.0",
-    "puppeteer": "3.0.2"
+    "puppeteer": "3.0.4"
   },
   "private": true
 }
