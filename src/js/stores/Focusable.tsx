@@ -29,4 +29,10 @@ export default class Focusable {
       return this.nodeRef.current.getBoundingClientRect()
     }
   }
+
+  activate: () => void
+  select: () => void
+  closeWindow: () => void
+  toggleSelectAll: () => void
+  toggleHide: () => void
 }

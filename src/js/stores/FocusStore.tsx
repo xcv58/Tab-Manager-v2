@@ -3,8 +3,7 @@ import Store from 'stores'
 import log from 'libs/log'
 import Tab from './Tab'
 import Window from './Window'
-
-type FocusedItem = Tab | Window
+import Focusable from './Focusable'
 
 const getNextItem = (items, index, direction, side = false) => {
   let nextIndex = index + direction + items.length
@@ -29,7 +28,7 @@ export default class FocusStore {
   }
 
   @computed
-  get focusedItem (): FocusedItem | null {
+  get focusedItem (): Focusable | null {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
       return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
@@ -58,7 +57,8 @@ export default class FocusStore {
     this._top = Math.max(top, this._top)
   }
 
-  _setFocusedItem = (item: FocusedItem) => {
+  _setFocusedItem = (item: Focusable) => {
+    log.debug('_setFocusedItem:', item)
     if (item instanceof Window) {
       this.focusedTabId = null
       this.focusedWindowId = item.id
@@ -88,7 +88,7 @@ export default class FocusStore {
   }
 
   @action
-  focus = (item: FocusedItem) => {
+  focus = (item: Focusable) => {
     this._setFocusedItem(item)
   }
 
@@ -125,10 +125,10 @@ export default class FocusStore {
     }
   }
 
-  _getGrid = (focusedItem: FocusedItem) => {
+  _getGrid = (focusedItem: Focusable) => {
     const { scrollTop } = this.containerRef.current
     const { windows } = this.store.windowStore
-    const grid: FocusedItem[][] = []
+    const grid: Focusable[][] = []
     let columnIndex = -1
     for (const win of windows) {
       const items = getFocusableItems(win, focusedItem)
@@ -156,6 +156,7 @@ export default class FocusStore {
     return { grid, columnIndex, scrollTop, targetColumn: grid[columnIndex] }
   }
 
+  @action
   _moveVertically = (direction, side = false) => {
     const { focusedItem } = this
     log.debug('_moveVertically:', { direction, side, focusedItem })
@@ -172,6 +173,7 @@ export default class FocusStore {
       return log.error('_moveHorizontally: no available item found')
     }
     this._top = scrollTop + item.getBoundingClientRect().top
+    log.debug('_moveVertically target item:', item)
     this._setFocusedItem(item)
   }
 
