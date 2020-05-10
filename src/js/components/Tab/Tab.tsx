@@ -10,6 +10,7 @@ import { useTheme } from 'components/ThemeContext'
 import { useScrollbar } from 'libs/Scrollbar'
 import { TabProps } from 'components/types'
 import PIN from './Pin'
+import { _preventFocus } from 'components/_preventFocus'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
@@ -53,12 +54,15 @@ export default observer((props: TabProps & { className?: string }) => {
     if (isFocused) {
       scrollToNode(nodeRef)
       if (!searchStore.typing) {
-        nodeRef.current.focus()
+        nodeRef.current.focus({ setFocus: true })
       }
     }
     return onMouseLeave
   }, [isFocused])
-  useEffect(() => setNodeRef(nodeRef))
+  useEffect(() => {
+    setNodeRef(nodeRef)
+    _preventFocus(nodeRef)
+  })
 
   const pin = pinned && PIN
 
