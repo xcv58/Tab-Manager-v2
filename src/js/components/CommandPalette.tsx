@@ -5,6 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import LiveHelpOutlined from '@material-ui/icons/LiveHelpOutlined'
 import IconButton from '@material-ui/core/IconButton'
 import { useStore } from './StoreContext'
+import CommandPaletteHeader from './CommandPaletteHeader'
 
 const trigger = (
   <Tooltip title='Command Palette'>
@@ -50,6 +51,7 @@ export default observer(() => {
   return (
     <ReactCommandPalette
       closeOnSelect
+      header={<CommandPaletteHeader />}
       commands={commands}
       trigger={trigger}
       onAfterOpen={pause}
