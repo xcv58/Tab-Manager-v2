@@ -1,14 +1,40 @@
 import React, { useRef, useEffect, ReactElement, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
-import { match } from 'fuzzy'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/StoreContext'
 import Tooltip from '@material-ui/core/Tooltip'
 import { TabProps } from 'components/types'
+import { match } from 'fuzzyjs'
 
-const pre = "<span class='text-red-500'>"
-const post = '</span>'
+export const getParts = (source, matchResult) => {
+  if (typeof source !== 'string') {
+    throw new TypeError('Expecting source to be a string')
+  }
+
+  if (!source.length) {
+    return []
+  }
+
+  if (!matchResult || !matchResult.match || !matchResult.ranges.length) {
+    return [{ text: source }]
+  }
+
+  const result = []
+  let curIndex = 0
+
+  for (const range of matchResult.ranges) {
+    const { start, stop } = range
+    if (curIndex < start) {
+      result.push({ text: source.slice(curIndex, start) })
+    }
+    const text = source.slice(start, stop)
+    result.push({ text, matched: true })
+    curIndex = stop
+  }
+  result.push({ text: source.slice(curIndex) })
+  return result.filter((x) => x.text)
+}
 
 const TabContent = observer(
   (props: TabProps & { buttonClassName: string; content: ReactElement }) => {
@@ -66,11 +92,19 @@ export default observer((props: TabProps) => {
       if (!isMatched || !query) {
         return text
       }
-      const result = match(query, text, { pre, post })
-      if (!result) {
-        return <div>{text}</div>
-      }
-      return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
+      const parts = getParts(text, match(query, text, { withRanges: true }))
+      return (
+        <div>
+          {parts.map((part, index) => (
+            <span
+              key={index}
+              className={classNames({ 'text-red-500 font-bold': part.matched })}
+            >
+              {part.text}
+            </span>
+          ))}
+        </div>
+      )
     },
     [isMatched, query]
   )

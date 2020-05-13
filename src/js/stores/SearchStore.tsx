@@ -1,5 +1,5 @@
 import { action, computed, observable } from 'mobx'
-import { filter } from 'fuzzy'
+import { filter as fuzzyFilter } from 'fuzzyjs'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
@@ -33,7 +33,7 @@ export default class SearchStore {
   typing = false
 
   @computed
-  get matchedTabs () {
+  get matchedTabs (): Tab[] {
     return this.fuzzySearch()
   }
 
@@ -110,17 +110,11 @@ export default class SearchStore {
     if (!this._query) {
       return tabs
     }
-    const set = new Set(this.getMatchedIds(tabs, 'title'))
-    if (this.store.userStore.showUrl) {
-      this.getMatchedIds(tabs, 'url').forEach((x) => set.add(x))
-    }
-    return tabs.filter((x) => set.has(x.id))
+    const sourceAccessor = this.store.userStore.showUrl
+      ? (x) => x.title + x.url
+      : (x) => x.title
+    return tabs.filter(fuzzyFilter(this._query, { sourceAccessor }))
   }
-
-  getMatchedIds = (tabs: Tab[], field) =>
-    filter(this._query, tabs, { extract: (x) => x[field] }).map(
-      (x) => x.original.id
-    )
 
   @action
   selectAll = () => {

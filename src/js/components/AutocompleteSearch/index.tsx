@@ -1,18 +1,28 @@
 import React, { useState, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@material-ui/core'
-import Autocomplete, {
-  createFilterOptions
-} from '@material-ui/lab/Autocomplete'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/StoreContext'
 import { InputRefProps } from 'components/types'
 import ListboxComponent from './ListboxComponent'
 import Tab from 'stores/Tab'
+import { filter as fuzzyFilter, sort as fuzzySort } from 'fuzzyjs'
 
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
-const filterOptions = createFilterOptions({ limit: 100 })
+const getOptionLabel = (option: Tab) => option.title + option.url
+
+const filterOptions = (options, { inputValue }) => {
+  return options
+    .filter(fuzzyFilter(inputValue, { sourceAccessor: getOptionLabel }))
+    .sort(
+      fuzzySort(inputValue, {
+        sourceAccessor: getOptionLabel,
+        idAccessor: (x) => x.id
+      })
+    )
+}
 
 const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
@@ -61,7 +71,7 @@ const AutocompleteSearch = observer(
             autoFocus={initRender && userStore.autoFocusSearch}
           />
         )}
-        getOptionLabel={(option: Tab) => option.title + option.url}
+        getOptionLabel={getOptionLabel}
         options={windowStore.tabs}
         renderOption={renderTabOption}
         filterOptions={filterOptions}
