@@ -1,11 +1,10 @@
 import { action, computed, observable } from 'mobx'
-import { filter as fuzzyFilter } from 'fuzzyjs'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
+import matchSorter from 'match-sorter'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
-import { titleAccessor, urlAccessor } from 'libs/search'
 
 export default class SearchStore {
   store: Store
@@ -111,17 +110,11 @@ export default class SearchStore {
     if (!this._query) {
       return tabs
     }
-    const res = new Set(
-      tabs.filter(fuzzyFilter(this._query, { sourceAccessor: titleAccessor }))
-    )
+    const keys = ['title']
     if (this.store.userStore.showUrl) {
-      tabs
-        .filter(fuzzyFilter(this._query, { sourceAccessor: urlAccessor }))
-        .forEach((x) => {
-          res.add(x)
-        })
+      keys.push('url')
     }
-    return [...res]
+    return matchSorter(tabs, this._query, { keys })
   }
 
   @action

@@ -6,9 +6,8 @@ import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/StoreContext'
 import { InputRefProps } from 'components/types'
 import ListboxComponent from './ListboxComponent'
+import matchSorter from 'match-sorter'
 import Tab from 'stores/Tab'
-import { filter as fuzzyFilter, sort as fuzzySort } from 'fuzzyjs'
-import { titleAccessor, urlAccessor } from 'libs/search'
 
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
@@ -16,26 +15,11 @@ const getOptionLabel = (option: Tab) => option.title + option.url
 
 const getFilterOptions = (showUrl) => {
   return (options, { inputValue }) => {
-    const res = new Set(
-      options.filter(fuzzyFilter(inputValue, { sourceAccessor: titleAccessor }))
-    )
-    if (!showUrl) {
-      return [...res].sort(
-        fuzzySort(inputValue, {
-          sourceAccessor: titleAccessor,
-          idAccessor: (x) => x.id
-        })
-      )
+    const keys = ['title']
+    if (showUrl) {
+      keys.push('url')
     }
-    options
-      .filter(fuzzyFilter(inputValue, { sourceAccessor: urlAccessor }))
-      .forEach((x) => res.add(x))
-    return [...res].sort(
-      fuzzySort(inputValue, {
-        sourceAccessor: getOptionLabel,
-        idAccessor: (x) => x.id
-      })
-    )
+    return matchSorter(options, inputValue, { keys })
   }
 }
 
