@@ -12,7 +12,7 @@ export const getParts = (source, matchResult) => {
     return []
   }
 
-  if (!matchResult || !matchResult.match || !matchResult.ranges.length) {
+  if (!matchResult || !matchResult.match) {
     return [{ text: source }]
   }
 
