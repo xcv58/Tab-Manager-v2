@@ -1,8 +1,8 @@
 import { action, computed, observable } from 'mobx'
-import { filter } from 'fuzzy'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
+import matchSorter from 'match-sorter'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
 
@@ -33,7 +33,7 @@ export default class SearchStore {
   typing = false
 
   @computed
-  get matchedTabs () {
+  get matchedTabs (): Tab[] {
     return this.fuzzySearch()
   }
 
@@ -110,17 +110,12 @@ export default class SearchStore {
     if (!this._query) {
       return tabs
     }
-    const set = new Set(this.getMatchedIds(tabs, 'title'))
+    const keys = ['title']
     if (this.store.userStore.showUrl) {
-      this.getMatchedIds(tabs, 'url').forEach((x) => set.add(x))
+      keys.push('url')
     }
-    return tabs.filter((x) => set.has(x.id))
+    return matchSorter(tabs, this._query, { keys })
   }
-
-  getMatchedIds = (tabs: Tab[], field) =>
-    filter(this._query, tabs, { extract: (x) => x[field] }).map(
-      (x) => x.original.id
-    )
 
   @action
   selectAll = () => {

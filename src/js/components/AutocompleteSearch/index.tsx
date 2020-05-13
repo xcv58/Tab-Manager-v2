@@ -1,18 +1,27 @@
 import React, { useState, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@material-ui/core'
-import Autocomplete, {
-  createFilterOptions
-} from '@material-ui/lab/Autocomplete'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/StoreContext'
 import { InputRefProps } from 'components/types'
 import ListboxComponent from './ListboxComponent'
+import matchSorter from 'match-sorter'
 import Tab from 'stores/Tab'
 
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
-const filterOptions = createFilterOptions({ limit: 100 })
+const getOptionLabel = (option: Tab) => option.title + option.url
+
+const getFilterOptions = (showUrl) => {
+  return (options, { inputValue }) => {
+    const keys = ['title']
+    if (showUrl) {
+      keys.push('url')
+    }
+    return matchSorter(options, inputValue, { keys })
+  }
+}
 
 const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
@@ -27,6 +36,9 @@ const AutocompleteSearch = observer(
     const { inputRef, initRender, forceUpdate } = props
     const { userStore, searchStore, windowStore } = useStore()
     const { search, query, startType, stopType } = searchStore
+
+    const filterOptions = getFilterOptions(userStore.showUrl)
+
     return (
       <Autocomplete
         fullWidth
@@ -61,7 +73,7 @@ const AutocompleteSearch = observer(
             autoFocus={initRender && userStore.autoFocusSearch}
           />
         )}
-        getOptionLabel={(option: Tab) => option.title + option.url}
+        getOptionLabel={getOptionLabel}
         options={windowStore.tabs}
         renderOption={renderTabOption}
         filterOptions={filterOptions}
