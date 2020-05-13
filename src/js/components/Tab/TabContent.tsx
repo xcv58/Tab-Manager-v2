@@ -8,11 +8,7 @@ import { TabProps } from 'components/types'
 import { match } from 'fuzzyjs'
 
 export const getParts = (source, matchResult) => {
-  if (typeof source !== 'string') {
-    throw new TypeError('Expecting source to be a string')
-  }
-
-  if (!source.length) {
+  if (typeof source !== 'string' || !source.length) {
     return []
   }
 
