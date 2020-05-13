@@ -5486,10 +5486,10 @@ functions-have-names@^1.2.0:
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.1.tgz#a981ac397fa0c9964551402cdc5533d7a4d52f91"
   integrity sha512-j48B/ZI7VKs3sgeI2cZp7WXWmZXu7Iq5pl5/vptV5N2mq+DGFuS/ulaDjtaoLpYzuD6u8UgrUKHfgo7fDTSiBA==
 
-fuzzyjs@4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/fuzzyjs/-/fuzzyjs-4.0.4.tgz#f63b173ef06d85425dce67f9c4999d848cf7a359"
-  integrity sha512-/qzlaZA+6HgztCGWR2yUKH4NYbmS4SjcOlrxQH9mZNpNWo6A32uqSchfGuKeki6LMABxkOxwLyDVNWdj5o60qg==
+fuzzy@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/fuzzy/-/fuzzy-0.1.3.tgz#4c76ec2ff0ac1a36a9dccf9a00df8623078d4ed8"
+  integrity sha1-THbsL/CsGjap3M+aAN+GIweNTtg=
 
 fuzzysort@^1.1.4:
   version "1.1.4"
