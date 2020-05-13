@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.10.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.10.0...v1.10.1) (2020-05-13)
+
+### Bug Fixes
+
+- Add CommandPaletteHeader to show helper ([16ab0a4](https://github.com/xcv58/Tab-Manager-v2/commit/16ab0a4984288ae959a109ea015595288380eaf6))
+- Move focus by command palette will lead to stale focus element (tab/window-title) ([9771cfd](https://github.com/xcv58/Tab-Manager-v2/commit/9771cfd4dc0e08e250c10b9e4c9d9f45672d3be4))
+- Use unified search algorithm for both search bar and main UI ([#454](https://github.com/xcv58/Tab-Manager-v2/issues/454)) ([6408eda](https://github.com/xcv58/Tab-Manager-v2/commit/6408eda2cbfe988ff89ec723c35b50fc6d01863d))
+- **deps:** pin dependencies ([#440](https://github.com/xcv58/Tab-Manager-v2/issues/440)) ([b427d1f](https://github.com/xcv58/Tab-Manager-v2/commit/b427d1fbcbb5edb418af32c54ebbb5dd383c9446))
+
 ## [1.10.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.9.9...v1.10.0) (2020-05-07)
 
 ### Features
