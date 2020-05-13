@@ -5,6 +5,7 @@ import Store from 'stores'
 import log from 'libs/log'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
+import { titleAccessor, urlAccessor } from 'libs/search'
 
 export default class SearchStore {
   store: Store
@@ -110,10 +111,17 @@ export default class SearchStore {
     if (!this._query) {
       return tabs
     }
-    const sourceAccessor = this.store.userStore.showUrl
-      ? (x) => x.title + x.url
-      : (x) => x.title
-    return tabs.filter(fuzzyFilter(this._query, { sourceAccessor }))
+    const res = new Set(
+      tabs.filter(fuzzyFilter(this._query, { sourceAccessor: titleAccessor }))
+    )
+    if (this.store.userStore.showUrl) {
+      tabs
+        .filter(fuzzyFilter(this._query, { sourceAccessor: urlAccessor }))
+        .forEach((x) => {
+          res.add(x)
+        })
+    }
+    return [...res]
   }
 
   @action
