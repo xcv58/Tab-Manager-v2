@@ -143,26 +143,28 @@ const options = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV)
     }),
-    new CopyWebpackPlugin([
-      ...images,
-      {
-        from: 'src/manifest.json',
-        transform: function (content, path) {
-          const json = JSON.parse(content.toString())
-          if (process.env.NODE_ENV === 'production') {
-            delete json.content_security_policy
-            delete json.browser_specific_settings
+    new CopyWebpackPlugin({
+      patterns: [
+        ...images,
+        {
+          from: 'src/manifest.json',
+          transform: function (content, path) {
+            const json = JSON.parse(content.toString())
+            if (process.env.NODE_ENV === 'production') {
+              delete json.content_security_policy
+              delete json.browser_specific_settings
+            }
+            return Buffer.from(
+              JSON.stringify({
+                description: process.env.npm_package_description,
+                version: process.env.npm_package_version,
+                ...json
+              })
+            )
           }
-          return Buffer.from(
-            JSON.stringify({
-              description: process.env.npm_package_description,
-              version: process.env.npm_package_version,
-              ...json
-            })
-          )
         }
-      }
-    ]),
+      ]
+    }),
     ...HtmlFiles,
     // new ForkTsCheckerWebpackPlugin({
     //   tsconfig: path.join(__dirname, 'tsconfig.json')
