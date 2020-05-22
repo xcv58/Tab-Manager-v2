@@ -9,7 +9,6 @@ import Reload from './Reload'
 import HideToggle from './HideToggle'
 import { useScrollbar } from 'libs/Scrollbar'
 import { WinProps } from 'components/types'
-import { _preventFocus } from 'components/_preventFocus'
 
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
@@ -37,7 +36,6 @@ export default observer((props: WinProps & { className: string }) => {
   }, [isFocused])
   useEffect(() => {
     win.setNodeRef(nodeRef)
-    _preventFocus(nodeRef)
   })
   return (
     <div

@@ -50,6 +50,7 @@ export default observer(() => {
     .sort((a, b) => a.name.localeCompare(b.name))
   return (
     <ReactCommandPalette
+      shouldReturnFocusAfterClose={false}
       closeOnSelect
       header={<CommandPaletteHeader />}
       commands={commands}
