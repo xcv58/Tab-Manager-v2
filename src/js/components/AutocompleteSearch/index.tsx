@@ -65,6 +65,7 @@ const AutocompleteSearch = observer(
         }}
         onChange={(_, tab) => {
           tab.activate()
+          search('')
           forceUpdate()
         }}
         renderInput={(props) => (
