@@ -7,7 +7,8 @@ import { useStore } from 'components/StoreContext'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
 
-const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
+const ARIA_LABLE =
+  'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
 
 const commandFilter = (options, { inputValue }) => {
   const keys = ['name', 'shortcut']
