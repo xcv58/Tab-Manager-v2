@@ -440,7 +440,6 @@ export default class ShortcutStore {
 
   @action
   didMount = () => {
-    // this.searchEl = searchEl
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.resume()
   }
