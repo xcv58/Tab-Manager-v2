@@ -106,7 +106,8 @@ export default class ShortcutStore {
           this.store.focusStore.enter()
         }
       },
-      'Go to tab'
+      'Go to tab',
+      true
     ],
     [
       ['r', 'ctrl+r'],
@@ -136,7 +137,8 @@ export default class ShortcutStore {
         preventDefault(event)
         this.searchEl.current.click()
       },
-      'Search tab'
+      'Search tab',
+      true
     ],
     [
       'escape',
@@ -180,7 +182,8 @@ export default class ShortcutStore {
           return 'Dismiss settings dialog'
         }
         return 'Clear search text'
-      }
+      },
+      true
     ],
     [
       ['h', 'left', 'ctrl+h'],
@@ -244,7 +247,8 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.select()
       },
-      'Select tab'
+      'Select tab',
+      true
     ],
     [
       ['space'],
@@ -254,7 +258,8 @@ export default class ShortcutStore {
           this.store.focusStore.select()
         }
       },
-      'Select tab'
+      'Select tab',
+      true
     ],
     [
       ['shift+x'],
