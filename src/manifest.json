@@ -4,7 +4,7 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "permissions": ["management", "storage", "tabs"],
+  "permissions": ["management", "storage", "tabs", "<all_urls>"],
   "browser_action": {
     "default_popup": "popup.html",
     "default_title": "Tab Manager v2",

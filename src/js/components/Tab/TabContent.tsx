@@ -21,7 +21,8 @@ const TabContent = observer(
       urlCount,
       focus,
       isFocused,
-      isHovered
+      isHovered,
+      thumbnail
     } = props.tab
     const buttonRef = useRef(null)
     useEffect(() => {
@@ -39,6 +40,7 @@ const TabContent = observer(
         <p>{title}</p>
         <p style={{ opacity: 0.8 }}>{url}</p>
         {urlCount > 1 && <p>There is duplicated tab!</p>}
+        {thumbnail && <img src={thumbnail} />}
       </div>
     )
     return (

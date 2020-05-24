@@ -23,7 +23,8 @@ export default observer((props: TabProps & { className?: string }) => {
     isMatched,
     isSelected,
     pinned,
-    shouldHighlight
+    shouldHighlight,
+    thumbnail
   } = tab
 
   const isActionable = !dragStore.dragging
@@ -63,6 +64,7 @@ export default observer((props: TabProps & { className?: string }) => {
   })
 
   const pin = pinned && PIN
+  console.log({ thumbnail })
 
   return (
     <div
@@ -93,6 +95,7 @@ export default observer((props: TabProps & { className?: string }) => {
     >
       {pin}
       <Icon tab={tab} />
+      {/* {thumbnail && <img src={thumbnail} />} */}
       <TabContent tab={tab} />
       <TabTools tab={tab} />
       <CloseButton onClick={onRemove} disabled={tab.removing} />

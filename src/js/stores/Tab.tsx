@@ -169,8 +169,19 @@ export default class Tab extends Focusable {
     return this.isMatched && (this.isFocused || this.isHovered)
   }
 
+  // @computed
+  // get thumbnail () {
+  //   return browser.tabs.captureVisibleTab(this.win.id)
+  // }
+  @observable
+  thumbnail
+
   setUrlIcon = async () => {
     const { url, favIconUrl } = this
+    this.thumbnail = await browser.tabs.captureVisibleTab(this.win.id, {
+      format: 'jpeg',
+      quality: 89
+    })
     if (!url) {
       return
     }
