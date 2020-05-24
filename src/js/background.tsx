@@ -9,6 +9,12 @@ export class Background {
   }
 
   constructor () {
+    browser.omnibox.setDefaultSuggestion({
+      description: 'Open tab manager window'
+    })
+    browser.omnibox.onInputEntered.addListener(() => {
+      openOrTogglePopup()
+    })
     this.tabHistory = new TabHistory(this)
     browser.runtime.onMessage.addListener(this.onMessage)
     browser.commands.onCommand.addListener(this.onCommand)

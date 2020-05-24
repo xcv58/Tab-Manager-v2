@@ -10,6 +10,7 @@
     "default_title": "Tab Manager v2",
     "default_icon": "icon-16.png"
   },
+  "omnibox": { "keyword": "t" },
   "commands": {
     "TOGGLE-POPUP": {
       "suggested_key": {
