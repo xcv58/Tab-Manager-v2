@@ -78,7 +78,6 @@ export default class SearchStore {
 
   @action
   startCommandSearch = async () => {
-    this.focus()
     const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
     this.search(`>${lastCommand}`)
     if (lastCommand) {
@@ -87,6 +86,7 @@ export default class SearchStore {
         inputEl.setSelectionRange(1, 1 + lastCommand.length)
       }
     }
+    this.focus()
   }
 
   @action

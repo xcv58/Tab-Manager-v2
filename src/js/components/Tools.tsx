@@ -5,7 +5,6 @@ import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
 import SyncButton from './SyncButton'
 import { useStore } from './StoreContext'
-import CommandPalette from './CommandPalette'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 
@@ -24,7 +23,6 @@ export default observer((props) => {
       <AutocompleteSearch />
       <SyncButton />
       <ThemeToggle />
-      <CommandPalette />
       <OpenInTab />
     </div>
   )

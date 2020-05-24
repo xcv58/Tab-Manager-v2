@@ -31,7 +31,9 @@ const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
 }
 
-const Shortcut = ({ shortcut }) => <kbd className='shortcut'>{shortcut}</kbd>
+const Shortcut = ({ shortcut }) => (
+  <kbd className='text-white bg-blue-500 shortcut'>{shortcut}</kbd>
+)
 
 const Command = (props) => {
   const { shortcut } = props
@@ -45,8 +47,8 @@ const Command = (props) => {
     <Shortcut shortcut={shortcut} />
   )
   return (
-    <div className='flex justify-between w-full'>
-      <span className='pl-4'>{props.name}</span>
+    <div className='flex justify-between w-full px-4'>
+      <span>{props.name}</span>
       {shortcuts}
     </div>
   )
@@ -103,7 +105,6 @@ const AutocompleteSearch = observer(() => {
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
       onFocus={() => {
         startType()
-        // search(query)
       }}
       onBlur={() => stopType()}
       onInputChange={(_, value, reason) => {
@@ -123,6 +124,7 @@ const AutocompleteSearch = observer(() => {
         <Input {...props} autoFocus={userStore.autoFocusSearch} />
       )}
       options={options}
+      getOptionLabel={(option) => option.name + option.title + option.url}
       renderOption={isCommand ? Command : renderTabOption}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}

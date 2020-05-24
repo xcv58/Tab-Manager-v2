@@ -140,7 +140,7 @@ export default class ShortcutStore {
       true
     ],
     [
-      '>',
+      ['>', 'command+shift+p'],
       (event) => {
         preventDefault(event)
         this.store.searchStore.startCommandSearch()
@@ -364,7 +364,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.toggleHideForFocusedWindow()
       },
-      'Toggle collapse for current windows'
+      'Toggle collapse/expand for current windows'
     ],
     [
       'w t',
@@ -372,7 +372,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.hiddenWindowStore.toggleHideForAllWindows()
       },
-      'Toggle collapse for all windows'
+      'Toggle collapse/expand for all windows'
     ],
     [
       'w c',
