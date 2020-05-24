@@ -1,4 +1,3 @@
-import { MutableRefObject } from 'react'
 import { action, observable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
@@ -29,7 +28,7 @@ const hasFocusedElement = () => {
 export default class ShortcutStore {
   store: Store
 
-  searchEl: MutableRefObject<HTMLInputElement>
+  // searchEl: MutableRefObject<HTMLInputElement>
 
   constructor (store) {
     this.store = store
@@ -135,9 +134,18 @@ export default class ShortcutStore {
       '/',
       (event) => {
         preventDefault(event)
-        this.searchEl.current.click()
+        this.store.searchStore.focus()
       },
       'Search tab',
+      true
+    ],
+    [
+      '>',
+      (event) => {
+        preventDefault(event)
+        this.store.searchStore.startCommandSearch()
+      },
+      'Command Palette',
       true
     ],
     [
@@ -156,10 +164,11 @@ export default class ShortcutStore {
         } = this.store
         if (typing) {
           event.preventDefault()
-          const input = this.searchEl.current.querySelector('input')
-          if (input) {
-            input.blur()
-          }
+          // const input = this.searchEl.current.querySelector('input')
+          // if (input) {
+          //   input.blur()
+          // }
+          this.store.searchStore.blur()
           return
         }
         if (dialogOpen) {
@@ -430,8 +439,8 @@ export default class ShortcutStore {
   }
 
   @action
-  didMount = (searchEl) => {
-    this.searchEl = searchEl
+  didMount = () => {
+    // this.searchEl = searchEl
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.resume()
   }

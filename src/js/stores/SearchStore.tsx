@@ -1,3 +1,4 @@
+import { MutableRefObject } from 'react'
 import { action, computed, observable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
@@ -5,6 +6,8 @@ import log from 'libs/log'
 import matchSorter from 'match-sorter'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
+
+const hasCommandPrefix = (value) => value.startsWith('>')
 
 export default class SearchStore {
   store: Store
@@ -21,6 +24,9 @@ export default class SearchStore {
   }
 
   @observable
+  searchEl: MutableRefObject<HTMLInputElement> = null
+
+  @observable
   query = ''
 
   @observable
@@ -31,6 +37,11 @@ export default class SearchStore {
 
   @observable
   typing = false
+
+  @computed
+  get isCommand () {
+    return hasCommandPrefix(this.query)
+  }
 
   @computed
   get matchedTabs (): Tab[] {
@@ -56,6 +67,37 @@ export default class SearchStore {
   }
 
   @action
+  setSearchEl = (searchEl) => {
+    this.searchEl = searchEl
+  }
+
+  @action
+  focus = () => {
+    this.searchEl.current.click()
+  }
+
+  @action
+  startCommandSearch = async () => {
+    this.focus()
+    const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
+    this.search(`>${lastCommand}`)
+    if (lastCommand) {
+      const inputEl = this.searchEl.current.querySelector('input')
+      if (inputEl) {
+        inputEl.setSelectionRange(1, 1 + lastCommand.length)
+      }
+    }
+  }
+
+  @action
+  blur = () => {
+    const inputEl = this.searchEl.current.querySelector('input')
+    if (inputEl) {
+      inputEl.blur()
+    }
+  }
+
+  @action
   startType = () => {
     this.typing = true
   }
@@ -72,10 +114,14 @@ export default class SearchStore {
       return
     }
     this.query = query
-    this.updateQuery()
-    this.updateTabQuery()
-    if (this.store.userStore.preserveSearch) {
-      browser.storage.local.set({ query })
+    if (!this.isCommand) {
+      this.updateQuery()
+      this.updateTabQuery()
+      if (this.store.userStore.preserveSearch) {
+        browser.storage.local.set({ query })
+      }
+    } else {
+      browser.storage.local.set({ lastCommand: query.slice(1) })
     }
   }
 

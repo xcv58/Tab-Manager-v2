@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/StoreContext'
-import { InputRefProps } from 'components/types'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
 
@@ -57,8 +56,6 @@ const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
 
-const hasCommandPrefix = (value) => value.startsWith('>')
-
 const useOptions = (isCommand) => {
   const { windowStore, shortcutStore } = useStore()
   if (isCommand) {
@@ -76,13 +73,20 @@ const useOptions = (isCommand) => {
   return windowStore.tabs
 }
 
-const AutocompleteSearch = observer((props: InputRefProps) => {
-  const { inputRef, inputValue, setInput, isCommand } = props
-  const options = useOptions(isCommand)
-  console.log(options)
+const AutocompleteSearch = observer(() => {
+  const inputRef = useRef<HTMLInputElement>(null)
   const { userStore, searchStore } = useStore()
-  const { query, startType, stopType } = searchStore
+  const {
+    search,
+    query,
+    startType,
+    stopType,
+    isCommand,
+    setSearchEl
+  } = searchStore
+  const options = useOptions(isCommand)
 
+  useEffect(() => setSearchEl(inputRef))
   const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
 
   return (
@@ -94,18 +98,17 @@ const AutocompleteSearch = observer((props: InputRefProps) => {
       openOnFocus
       autoHighlight
       ref={inputRef}
-      // inputValue={query}
-      inputValue={inputValue}
+      inputValue={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
       onFocus={() => {
         startType()
-        setInput(query)
+        // search(query)
       }}
       onBlur={() => stopType()}
       onInputChange={(_, value, reason) => {
         if (reason !== 'reset') {
-          setInput(value)
+          search(value)
         }
       }}
       onChange={(_, option) => {
@@ -114,7 +117,7 @@ const AutocompleteSearch = observer((props: InputRefProps) => {
         } else {
           option.activate()
         }
-        setInput('')
+        search('')
       }}
       renderInput={(props) => (
         <Input {...props} autoFocus={userStore.autoFocusSearch} />
@@ -127,32 +130,4 @@ const AutocompleteSearch = observer((props: InputRefProps) => {
   )
 })
 
-export default observer((props: InputRefProps) => {
-  const { searchStore } = useStore()
-  const { search, query } = searchStore
-  const [inputValue, setInputValue] = useState('')
-  const isCommand = hasCommandPrefix(inputValue)
-  useEffect(() => {
-    if (query && query !== inputValue) {
-      setInputValue(query)
-    }
-  }, [query])
-  const setInput = useCallback((value) => {
-    setInputValue(value)
-    if (hasCommandPrefix(value)) {
-      search('')
-    } else {
-      search(value)
-    }
-  }, [])
-  return (
-    <AutocompleteSearch
-      {...props}
-      {...{
-        inputValue,
-        setInput,
-        isCommand
-      }}
-    />
-  )
-})
+export default AutocompleteSearch
