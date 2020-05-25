@@ -60,9 +60,9 @@ const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
 
-const useOptions = (isCommand) => {
-  const { windowStore, shortcutStore } = useStore()
-  if (isCommand) {
+const useOptions = () => {
+  const { windowStore, shortcutStore, searchStore } = useStore()
+  if (searchStore.isCommand) {
     const { shortcuts } = shortcutStore
     return shortcuts
       .map(([shortcut, command, name, hideFromCommand]) => {
@@ -79,9 +79,9 @@ const useOptions = (isCommand) => {
 
 const AutocompleteSearch = observer(() => {
   const searchInputRef = useSearchInputRef()
+  const options = useOptions()
   const { userStore, searchStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
-  const options = useOptions(isCommand)
 
   const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
 
