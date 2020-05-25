@@ -40,19 +40,6 @@ body {
   opacity: 1;
 }
 
-.shortcut {
-  float: right;
-  margin-right: 2px;
-  margin-left: 0.45454545em;
-  padding: 0 0.375em;
-  line-height: 2;
-  margin-top: -0.375em;
-  font-family: inherit;
-  font-size: 1em;
-  letter-spacing: 0.1em;
-  border-radius: 3px;
-}
-
 /* Below are css code form load awesome */
 
 /*!

@@ -37,17 +37,15 @@ const renderTabOption = (tab) => {
 }
 
 const Shortcut = ({ shortcut }) => (
-  <kbd className='text-white bg-blue-500 shortcut'>{shortcut}</kbd>
+  <kbd className='px-2 py-1 mx-1 text-sm leading-loose tracking-widest text-white bg-blue-500 rounded'>
+    {shortcut}
+  </kbd>
 )
 
 const renderCommand = (command, { inputValue }) => {
   const { shortcut } = command
   const shortcuts = Array.isArray(shortcut) ? (
-    <div>
-      {shortcut.map((x) => (
-        <Shortcut key={x} shortcut={x} />
-      ))}
-    </div>
+    shortcut.map((x) => <Shortcut key={x} shortcut={x} />)
   ) : (
     <Shortcut shortcut={shortcut} />
   )
@@ -65,7 +63,7 @@ const renderCommand = (command, { inputValue }) => {
           </span>
         ))}
       </span>
-      {shortcuts}
+      <div>{shortcuts}</div>
     </div>
   )
 }
