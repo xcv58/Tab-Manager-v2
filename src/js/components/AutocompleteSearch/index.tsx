@@ -5,6 +5,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
+import { useOptions } from 'components/hooks/useOptions'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
 
@@ -59,23 +60,6 @@ const Command = (props) => {
 const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
-
-const useOptions = () => {
-  const { windowStore, shortcutStore, searchStore } = useStore()
-  if (searchStore.isCommand) {
-    const { shortcuts } = shortcutStore
-    return shortcuts
-      .map(([shortcut, command, name, hideFromCommand]) => {
-        if (typeof name !== 'string' || hideFromCommand) {
-          return
-        }
-        return { name, shortcut, command }
-      })
-      .filter((x) => x)
-      .sort((a, b) => a.name.localeCompare(b.name))
-  }
-  return windowStore.tabs
-}
 
 const AutocompleteSearch = observer(() => {
   const searchInputRef = useSearchInputRef()
