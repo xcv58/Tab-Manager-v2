@@ -164,10 +164,6 @@ export default class ShortcutStore {
         } = this.store
         if (typing) {
           event.preventDefault()
-          // const input = this.searchEl.current.querySelector('input')
-          // if (input) {
-          //   input.blur()
-          // }
           this.store.searchStore.blur()
           return
         }
