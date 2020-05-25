@@ -1,3 +1,4 @@
+import { MutableRefObject } from 'react'
 import { action, computed, observable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
@@ -21,12 +22,16 @@ export default class SearchStore {
   }
 
   @observable
+  searchEl: MutableRefObject<HTMLInputElement> = null
+
+  @observable
   query = ''
 
   @observable
   _query = ''
 
   @observable
+  // The _tabQuery is used only on tab content highlight
   _tabQuery = ''
 
   @observable
@@ -53,6 +58,24 @@ export default class SearchStore {
       !this.allTabSelected &&
       this.matchedTabs.some(this.store.tabStore.isTabSelected)
     )
+  }
+
+  @action
+  setSearchEl = (searchEl) => {
+    this.searchEl = searchEl
+  }
+
+  @action
+  focus = () => {
+    this.searchEl.current.click()
+  }
+
+  @action
+  blur = () => {
+    const inputEl = this.searchEl.current.querySelector('input')
+    if (inputEl) {
+      inputEl.blur()
+    }
   }
 
   @action

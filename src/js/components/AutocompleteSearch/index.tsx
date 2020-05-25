@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/StoreContext'
-import { InputRefProps } from 'components/types'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
 import Tab from 'stores/Tab'
@@ -31,8 +30,17 @@ const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
 
-const AutocompleteSearch = observer((props: InputRefProps) => {
-  const { inputRef } = props
+const useSearchInputRef = () => {
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const { searchStore } = useStore()
+  const { setSearchEl } = searchStore
+
+  useEffect(() => setSearchEl(searchInputRef))
+  return searchInputRef
+}
+
+const AutocompleteSearch = observer(() => {
+  const searchInputRef = useSearchInputRef()
   const { userStore, searchStore, windowStore } = useStore()
   const { search, query, startType, stopType } = searchStore
 
@@ -46,7 +54,7 @@ const AutocompleteSearch = observer((props: InputRefProps) => {
       selectOnFocus
       openOnFocus
       autoHighlight
-      ref={inputRef}
+      ref={searchInputRef}
       inputValue={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
@@ -76,6 +84,4 @@ const AutocompleteSearch = observer((props: InputRefProps) => {
   )
 })
 
-export default observer((props: InputRefProps) => {
-  return <AutocompleteSearch {...props} />
-})
+export default AutocompleteSearch

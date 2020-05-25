@@ -8,9 +8,8 @@ import { useStore } from './StoreContext'
 import CommandPalette from './CommandPalette'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
-import { InputRefProps } from './types'
 
-export default observer((props: InputRefProps) => {
+export default observer(() => {
   const { userStore } = useStore()
   if (!userStore.loaded) {
     return (
@@ -22,7 +21,7 @@ export default observer((props: InputRefProps) => {
   return (
     <div className='flex items-center justify-center flex-shrink-0 h-12 px-1 text-3xl'>
       <Summary />
-      <AutocompleteSearch inputRef={props.inputRef} />
+      <AutocompleteSearch />
       <SyncButton />
       <ThemeToggle />
       <CommandPalette />

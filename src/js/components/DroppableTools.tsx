@@ -7,9 +7,8 @@ import { getNoun } from 'libs'
 import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from './StoreContext'
 import Tools from './Tools'
-import { InputRefProps } from './types'
 
-export default observer((props: InputRefProps) => {
+export default observer((props) => {
   const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -53,5 +52,5 @@ export default observer((props: InputRefProps) => {
       </div>
     )
   }
-  return <Tools {...props} />
+  return <Tools />
 })
