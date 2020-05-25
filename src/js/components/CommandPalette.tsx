@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import LiveHelpOutlined from '@material-ui/icons/LiveHelpOutlined'
 import IconButton from '@material-ui/core/IconButton'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 import CommandPaletteHeader from './CommandPaletteHeader'
 
 const trigger = (

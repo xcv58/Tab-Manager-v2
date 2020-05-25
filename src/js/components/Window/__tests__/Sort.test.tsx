@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import SortIcon from '@material-ui/icons/Sort'
 import IconButton from '@material-ui/core/IconButton'
 import Sort from 'components/Window/Sort'
-import * as StoreContext from 'components/StoreContext'
+import * as StoreContext from 'components/hooks/useStore'
 
 const id = 'id'
 const sortTabs = spy()

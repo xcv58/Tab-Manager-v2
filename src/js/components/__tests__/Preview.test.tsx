@@ -1,7 +1,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 import Preview from 'components/Preview'
-import * as StoreContext from 'components/StoreContext'
+import * as StoreContext from 'components/hooks/useStore'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 
 const sources = [{ id: 1 }, { id: 2 }]

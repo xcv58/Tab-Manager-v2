@@ -3,7 +3,7 @@ import { shallow } from 'enzyme'
 import TabTools from 'components/Tab/TabTools'
 import TabMenu from 'components/Tab/TabMenu'
 import DragHandle from 'components/Tab/DragHandle'
-import * as StoreContext from 'components/StoreContext'
+import * as StoreContext from 'components/hooks/useStore'
 
 const classes = { root: 'root' }
 const props = {

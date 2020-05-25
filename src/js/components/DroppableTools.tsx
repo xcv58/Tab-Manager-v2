@@ -5,7 +5,7 @@ import { useDrop } from 'react-dnd'
 import Preview from 'components/Preview'
 import { getNoun } from 'libs'
 import { ItemTypes } from 'libs/react-dnd'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 import Tools from './Tools'
 
 export default observer((props) => {
@@ -52,5 +52,5 @@ export default observer((props) => {
       </div>
     )
   }
-  return <Tools {...props} />
+  return <Tools />
 })

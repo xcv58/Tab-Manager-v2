@@ -5,7 +5,7 @@ import Slide from '@material-ui/core/Slide'
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import IconButton from '@material-ui/core/IconButton'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { duration } from '@material-ui/core/styles/transitions'
 

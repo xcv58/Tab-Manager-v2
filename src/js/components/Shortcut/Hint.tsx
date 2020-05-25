@@ -2,7 +2,7 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Snackbar from '@material-ui/core/Snackbar'
 import Fade from '@material-ui/core/Fade'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
 

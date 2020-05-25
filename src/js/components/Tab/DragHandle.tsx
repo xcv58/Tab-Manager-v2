@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { useTheme } from 'components/ThemeContext'
+import { useTheme } from 'components/hooks/useTheme'
 
 export default () => {
   const isDarkTheme = useTheme()

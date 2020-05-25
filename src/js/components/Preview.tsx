@@ -1,8 +1,8 @@
 import React, { CSSProperties } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import { useStore } from './StoreContext'
-import { useTheme } from './ThemeContext'
+import { useStore } from './hooks/useStore'
+import { useTheme } from './hooks/useTheme'
 import ViewOnlyTab from './Tab/ViewOnlyTab'
 
 export default observer((props: { style: CSSProperties }) => {

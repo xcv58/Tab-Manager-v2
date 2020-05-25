@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { match } from 'fuzzy'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import Tooltip from '@material-ui/core/Tooltip'
 import { TabProps } from 'components/types'
 

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
 import { getNoun } from 'libs'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 
 const Title = ({ title }) => {
   useEffect(() => {

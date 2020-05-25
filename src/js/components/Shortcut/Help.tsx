@@ -7,7 +7,7 @@ import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
 import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 
 export default observer(() => {
   const { shortcutStore } = useStore()

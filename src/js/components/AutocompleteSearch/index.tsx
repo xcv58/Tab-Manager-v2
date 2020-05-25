@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
+import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
 
@@ -77,19 +78,11 @@ const useOptions = (isCommand) => {
 }
 
 const AutocompleteSearch = observer(() => {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const searchInputRef = useSearchInputRef()
   const { userStore, searchStore } = useStore()
-  const {
-    search,
-    query,
-    startType,
-    stopType,
-    isCommand,
-    setSearchEl
-  } = searchStore
+  const { search, query, startType, stopType, isCommand } = searchStore
   const options = useOptions(isCommand)
 
-  useEffect(() => setSearchEl(inputRef))
   const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
 
   return (
@@ -100,7 +93,7 @@ const AutocompleteSearch = observer(() => {
       selectOnFocus
       openOnFocus
       autoHighlight
-      ref={inputRef}
+      ref={searchInputRef}
       inputValue={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}

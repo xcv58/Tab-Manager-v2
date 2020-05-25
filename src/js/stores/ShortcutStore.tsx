@@ -28,8 +28,6 @@ const hasFocusedElement = () => {
 export default class ShortcutStore {
   store: Store
 
-  // searchEl: MutableRefObject<HTMLInputElement>
-
   constructor (store) {
     this.store = store
   }

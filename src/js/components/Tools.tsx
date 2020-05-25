@@ -4,11 +4,11 @@ import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
 import SyncButton from './SyncButton'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 
-export default observer((props) => {
+export default observer(() => {
   const { userStore } = useStore()
   if (!userStore.loaded) {
     return (

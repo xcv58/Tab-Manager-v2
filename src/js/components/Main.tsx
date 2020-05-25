@@ -5,9 +5,9 @@ import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 import DragLayer from './DragLayer'
-import { useTheme } from './ThemeContext'
+import { useTheme } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
 
 export default observer(() => {

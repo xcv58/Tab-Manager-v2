@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 
 const ARIA_LABEL = 'Toggle select'
