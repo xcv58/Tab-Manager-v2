@@ -202,11 +202,11 @@ export default class UserStore {
   }
 
   @action
-  toggleDarkTheme = () => {
-    if (this.useSystemTheme) {
-      return
-    }
-    browser.storage.sync.set({ darkTheme: !this.darkTheme })
+  toggleDarkTheme = (currentTheme) => {
+    browser.storage.sync.set({
+      useSystemTheme: false,
+      darkTheme: !currentTheme
+    })
     this.init()
   }
 
