@@ -33,6 +33,7 @@ export default class SearchStore {
   _query = ''
 
   @observable
+  // The _tabQuery is used only on tab content highlight
   _tabQuery = ''
 
   @observable
