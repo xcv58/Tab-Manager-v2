@@ -81,13 +81,11 @@ export default class SearchStore {
   startCommandSearch = async () => {
     const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
     this.search(`>${lastCommand}`)
-    if (lastCommand) {
-      const inputEl = this.searchEl.current.querySelector('input')
-      if (inputEl) {
-        inputEl.setSelectionRange(1, 1 + lastCommand.length)
-      }
-    }
     this.focus()
+    const inputEl = this.searchEl.current.querySelector('input')
+    if (inputEl) {
+      inputEl.setSelectionRange(1, 1 + lastCommand.length)
+    }
   }
 
   @action

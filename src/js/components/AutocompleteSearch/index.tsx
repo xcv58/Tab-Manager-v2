@@ -8,6 +8,8 @@ import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
+import parse from 'autosuggest-highlight/parse'
+import match from 'autosuggest-highlight/match'
 
 const ARIA_LABLE =
   'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
@@ -38,8 +40,8 @@ const Shortcut = ({ shortcut }) => (
   <kbd className='text-white bg-blue-500 shortcut'>{shortcut}</kbd>
 )
 
-const Command = (props) => {
-  const { shortcut } = props
+const renderCommand = (command, { inputValue }) => {
+  const { shortcut } = command
   const shortcuts = Array.isArray(shortcut) ? (
     <div>
       {shortcut.map((x) => (
@@ -49,9 +51,20 @@ const Command = (props) => {
   ) : (
     <Shortcut shortcut={shortcut} />
   )
+  const matches = match(command.name, inputValue.slice(1))
+  const parts = parse(command.name, matches)
   return (
     <div className='flex justify-between w-full px-4'>
-      <span>{props.name}</span>
+      <span>
+        {parts.map((part, index) => (
+          <span
+            key={index}
+            className={part.highlight ? 'font-bold' : 'font-normal'}
+          >
+            {part.text}
+          </span>
+        ))}
+      </span>
       {shortcuts}
     </div>
   )
@@ -77,6 +90,7 @@ const AutocompleteSearch = observer(() => {
       selectOnFocus
       openOnFocus
       autoHighlight
+      includeInputInList
       ref={searchInputRef}
       inputValue={query}
       disableListWrap
@@ -103,7 +117,7 @@ const AutocompleteSearch = observer(() => {
       )}
       options={options}
       getOptionLabel={(option) => option.name + option.title + option.url}
-      renderOption={isCommand ? Command : renderTabOption}
+      renderOption={isCommand ? renderCommand : renderTabOption}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}
     />
