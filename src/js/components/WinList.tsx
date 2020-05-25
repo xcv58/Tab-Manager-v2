@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import Scrollbar from 'libs/Scrollbar'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 import Window from './Window'
 
 export default observer(() => {

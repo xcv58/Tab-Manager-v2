@@ -5,7 +5,7 @@ import { useDrop } from 'react-dnd'
 import Tab from './Tab'
 import { ItemTypes } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 
 export default observer((props: TabProps) => {

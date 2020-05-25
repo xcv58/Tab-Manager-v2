@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite'
 import { useDrag } from 'react-dnd'
 import DroppableTab from './DroppableTab'
 import { ItemTypes } from 'libs/react-dnd'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { TabProps } from '../types'
 

@@ -5,7 +5,7 @@ import DropIndicator from 'components/DropIndicator'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import classNames from 'classnames'
 import Title from './Title'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 
 export default observer((props: WinProps) => {

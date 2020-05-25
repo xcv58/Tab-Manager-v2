@@ -1,7 +1,7 @@
 import React from 'react'
 import { mount } from 'enzyme'
 import Loading from 'components/Loading'
-import { ThemeContext } from 'components/ThemeContext'
+import { ThemeContext } from 'components/hooks/useTheme'
 
 describe('Loading should', () => {
   it('render divs', () => {

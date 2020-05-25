@@ -1,12 +1,13 @@
-import React, { useRef, useEffect } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
-import { useStore } from 'components/StoreContext'
+import { useStore } from 'components/hooks/useStore'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
 import Tab from 'stores/Tab'
+import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 
 const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
 
@@ -29,15 +30,6 @@ const renderTabOption = (tab) => {
 const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
-
-const useSearchInputRef = () => {
-  const searchInputRef = useRef<HTMLInputElement>(null)
-  const { searchStore } = useStore()
-  const { setSearchEl } = searchStore
-
-  useEffect(() => setSearchEl(searchInputRef))
-  return searchInputRef
-}
 
 const AutocompleteSearch = observer(() => {
   const searchInputRef = useSearchInputRef()

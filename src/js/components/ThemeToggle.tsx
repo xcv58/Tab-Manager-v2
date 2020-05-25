@@ -4,7 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import LightbulbOutline from 'svgIcons/LightbulbOutline'
 import LightbulbFull from 'svgIcons/LightbulbFull'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 
 export default observer(() => {
   const { userStore } = useStore()

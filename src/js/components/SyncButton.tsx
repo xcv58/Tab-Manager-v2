@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import Sync from '@material-ui/icons/Sync'
-import { useStore } from './StoreContext'
+import { useStore } from './hooks/useStore'
 
 export default observer(() => {
   const { windowStore } = useStore()
