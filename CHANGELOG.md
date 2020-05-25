@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.11.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.10.1...v1.11.0) (2020-05-25)
+
+### Features
+
+- Add omnibox support to open or toggle the popup window ([d22bfcf](https://github.com/xcv58/Tab-Manager-v2/commit/d22bfcf0c6d721afbb70a5438a2178bd04304191))
+
+### Bug Fixes
+
+- Always show Theme Toggle and make it override the System Theme ([4f8d351](https://github.com/xcv58/Tab-Manager-v2/commit/4f8d351af226b54d4a87c10b94f7c7d353f54946))
+- Reset the search input to empty string if users select dropdown option ([c123f72](https://github.com/xcv58/Tab-Manager-v2/commit/c123f7288700cb41368f20389568b5bb958e165b))
+
 ### [1.10.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.10.0...v1.10.1) (2020-05-13)
 
 ### Bug Fixes
