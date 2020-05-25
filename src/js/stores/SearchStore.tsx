@@ -106,6 +106,9 @@ export default class SearchStore {
   @action
   stopType = () => {
     this.typing = false
+    if (this.isCommand) {
+      this.query = this._query
+    }
   }
 
   @action

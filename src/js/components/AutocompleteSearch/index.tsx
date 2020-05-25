@@ -116,7 +116,6 @@ const AutocompleteSearch = observer(() => {
       onChange={(_, option) => {
         if (isCommand) {
           option.command()
-          search(searchStore._query)
         } else {
           option.activate()
           search('')
