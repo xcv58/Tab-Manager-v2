@@ -4,16 +4,25 @@ import { TextField, Paper } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/hooks/useStore'
+import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
+import { useOptions } from 'components/hooks/useOptions'
 import ListboxComponent from './ListboxComponent'
 import matchSorter from 'match-sorter'
-import Tab from 'stores/Tab'
-import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
+import parse from 'autosuggest-highlight/parse'
+import match from 'autosuggest-highlight/match'
 
-const ARIA_LABLE = 'Search your tab title or URL ... (Press "/" to focus)'
+const ARIA_LABLE =
+  'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
 
-const getOptionLabel = (option: Tab) => option.title + option.url
+const commandFilter = (options, { inputValue }) => {
+  const keys = ['name', 'shortcut']
+  return matchSorter(options, inputValue.slice(1).trim(), { keys })
+}
 
-const getFilterOptions = (showUrl) => {
+const getFilterOptions = (showUrl, isCommand) => {
+  if (isCommand) {
+    return commandFilter
+  }
   return (options, { inputValue }) => {
     const keys = ['title']
     if (showUrl) {
@@ -27,16 +36,49 @@ const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
 }
 
+const Shortcut = ({ shortcut }) => (
+  <kbd className='px-2 py-1 mx-1 text-sm leading-loose tracking-widest text-white bg-blue-500 rounded'>
+    {shortcut}
+  </kbd>
+)
+
+const renderCommand = (command, { inputValue }) => {
+  const { shortcut } = command
+  const shortcuts = Array.isArray(shortcut) ? (
+    shortcut.map((x) => <Shortcut key={x} shortcut={x} />)
+  ) : (
+    <Shortcut shortcut={shortcut} />
+  )
+  const matches = match(command.name, inputValue.slice(1))
+  const parts = parse(command.name, matches)
+  return (
+    <div className='flex justify-between w-full px-4'>
+      <span>
+        {parts.map((part, index) => (
+          <span
+            key={index}
+            className={part.highlight ? 'font-bold' : 'font-normal'}
+          >
+            {part.text}
+          </span>
+        ))}
+      </span>
+      <div>{shortcuts}</div>
+    </div>
+  )
+}
+
 const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
 
 const AutocompleteSearch = observer(() => {
   const searchInputRef = useSearchInputRef()
-  const { userStore, searchStore, windowStore } = useStore()
-  const { search, query, startType, stopType } = searchStore
+  const options = useOptions()
+  const { userStore, searchStore } = useStore()
+  const { search, query, startType, stopType, isCommand } = searchStore
 
-  const filterOptions = getFilterOptions(userStore.showUrl)
+  const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
 
   return (
     <Autocomplete
@@ -46,13 +88,13 @@ const AutocompleteSearch = observer(() => {
       selectOnFocus
       openOnFocus
       autoHighlight
+      includeInputInList
       ref={searchInputRef}
       inputValue={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
       onFocus={() => {
         startType()
-        search(query)
       }}
       onBlur={() => stopType()}
       onInputChange={(_, value, reason) => {
@@ -60,16 +102,20 @@ const AutocompleteSearch = observer(() => {
           search(value)
         }
       }}
-      onChange={(_, tab) => {
-        tab.activate()
-        search('')
+      onChange={(_, option) => {
+        if (isCommand) {
+          option.command()
+        } else {
+          option.activate()
+          search('')
+        }
       }}
       renderInput={(props) => (
         <Input {...props} autoFocus={userStore.autoFocusSearch} />
       )}
-      getOptionLabel={getOptionLabel}
-      options={windowStore.tabs}
-      renderOption={renderTabOption}
+      options={options}
+      getOptionLabel={(option) => option.name + option.title + option.url}
+      renderOption={isCommand ? renderCommand : renderTabOption}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}
     />

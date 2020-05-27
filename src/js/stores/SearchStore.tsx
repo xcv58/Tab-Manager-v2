@@ -7,6 +7,8 @@ import matchSorter from 'match-sorter'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
 
+const hasCommandPrefix = (value) => value.startsWith('>')
+
 export default class SearchStore {
   store: Store
 
@@ -36,6 +38,11 @@ export default class SearchStore {
 
   @observable
   typing = false
+
+  @computed
+  get isCommand () {
+    return hasCommandPrefix(this.query)
+  }
 
   @computed
   get matchedTabs (): Tab[] {
@@ -71,6 +78,17 @@ export default class SearchStore {
   }
 
   @action
+  startCommandSearch = async () => {
+    const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
+    this.search(`>${lastCommand}`)
+    this.focus()
+    const inputEl = this.searchEl.current.querySelector('input')
+    if (inputEl) {
+      inputEl.setSelectionRange(1, 1 + lastCommand.length)
+    }
+  }
+
+  @action
   blur = () => {
     const inputEl = this.searchEl.current.querySelector('input')
     if (inputEl) {
@@ -86,6 +104,9 @@ export default class SearchStore {
   @action
   stopType = () => {
     this.typing = false
+    if (this.isCommand) {
+      this.query = this._query
+    }
   }
 
   @action
@@ -95,10 +116,14 @@ export default class SearchStore {
       return
     }
     this.query = query
-    this.updateQuery()
-    this.updateTabQuery()
-    if (this.store.userStore.preserveSearch) {
-      browser.storage.local.set({ query })
+    if (!this.isCommand) {
+      this.updateQuery()
+      this.updateTabQuery()
+      if (this.store.userStore.preserveSearch) {
+        browser.storage.local.set({ query })
+      }
+    } else {
+      browser.storage.local.set({ lastCommand: query.slice(1) })
     }
   }
 

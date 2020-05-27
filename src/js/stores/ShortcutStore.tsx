@@ -103,7 +103,8 @@ export default class ShortcutStore {
           this.store.focusStore.enter()
         }
       },
-      'Go to tab'
+      'Go to tab',
+      true
     ],
     [
       ['r', 'ctrl+r'],
@@ -133,7 +134,17 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.searchStore.focus()
       },
-      'Search tab'
+      'Search tab',
+      true
+    ],
+    [
+      ['>', 'command+shift+p'],
+      (event) => {
+        preventDefault(event)
+        this.store.searchStore.startCommandSearch()
+      },
+      'Command Palette',
+      true
     ],
     [
       'escape',
@@ -174,7 +185,8 @@ export default class ShortcutStore {
           return 'Dismiss settings dialog'
         }
         return 'Clear search text'
-      }
+      },
+      true
     ],
     [
       ['h', 'left', 'ctrl+h'],
@@ -238,7 +250,8 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.select()
       },
-      'Select tab'
+      'Select tab',
+      true
     ],
     [
       ['space'],
@@ -248,7 +261,8 @@ export default class ShortcutStore {
           this.store.focusStore.select()
         }
       },
-      'Select tab'
+      'Select tab',
+      true
     ],
     [
       ['shift+x'],
@@ -344,7 +358,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.toggleHideForFocusedWindow()
       },
-      'Toggle collapse for current windows'
+      'Toggle collapse/expand for current windows'
     ],
     [
       'w t',
@@ -352,7 +366,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.hiddenWindowStore.toggleHideForAllWindows()
       },
-      'Toggle collapse for all windows'
+      'Toggle collapse/expand for all windows'
     ],
     [
       'w c',
