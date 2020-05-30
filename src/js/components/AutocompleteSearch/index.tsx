@@ -91,6 +91,7 @@ const AutocompleteSearch = observer(() => {
       includeInputInList
       ref={searchInputRef}
       inputValue={query}
+      value={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
       onFocus={() => {
