@@ -99,7 +99,7 @@
     "standard-version": "8.0.0",
     "style-loader": "1.2.1",
     "terser-webpack-plugin": "3.0.2",
-    "ts-jest": "26.0.0",
+    "ts-jest": "26.1.0",
     "ts-loader": "7.0.5",
     "typescript": "3.9.3",
     "typescript-eslint-parser": "22.0.0",
