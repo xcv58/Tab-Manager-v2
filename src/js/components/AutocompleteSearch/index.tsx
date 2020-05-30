@@ -103,6 +103,9 @@ const AutocompleteSearch = observer(() => {
         }
       }}
       onChange={(_, option) => {
+        if (!option || typeof option === 'string') {
+          return
+        }
         if (isCommand) {
           option.command()
         } else {
