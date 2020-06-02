@@ -26,9 +26,9 @@
     "build-storybook": "build-storybook -c .storybook -o .out"
   },
   "dependencies": {
-    "@material-ui/core": "4.10.0",
+    "@material-ui/core": "4.10.1",
     "@material-ui/icons": "4.9.1",
-    "@material-ui/lab": "4.0.0-alpha.54",
+    "@material-ui/lab": "4.0.0-alpha.55",
     "autosuggest-highlight": "3.1.1",
     "classnames": "2.2.6",
     "fuzzy": "0.1.3",
@@ -59,8 +59,8 @@
     "@types/react-custom-scrollbars": "4.0.6",
     "@types/react-dom": "16.9.8",
     "@types/webpack-env": "1.15.2",
-    "@typescript-eslint/eslint-plugin": "3.0.2",
-    "@typescript-eslint/parser": "3.0.2",
+    "@typescript-eslint/eslint-plugin": "3.1.0",
+    "@typescript-eslint/parser": "3.1.0",
     "babel-eslint": "10.1.0",
     "chrome-webstore-upload-cli": "1.2.0",
     "clean-webpack-plugin": "3.0.0",
