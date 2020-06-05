@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.12.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.11.0...v1.12.0) (2020-06-05)
+
+### Features
+
+- Combine the command palette (trigger by `>`) and search bar ([#480](https://github.com/xcv58/Tab-Manager-v2/issues/480)) ([24b2777](https://github.com/xcv58/Tab-Manager-v2/commit/24b27775ff2f43bd81567c449b6fc3c199a84f1a))
+
+### Bug Fixes
+
+- During searching, hit enter without option will blur the search box, fix [#484](https://github.com/xcv58/Tab-Manager-v2/issues/484) ([8656901](https://github.com/xcv58/Tab-Manager-v2/commit/865690179a8a5e6df8cf6591b045dcbf5cc77b04))
+- Select an option doesn't work if the option was previous selected ([b132349](https://github.com/xcv58/Tab-Manager-v2/commit/b13234940f1ab63ea40cb0a4b8d6fe2719bfbda8))
+
 ## [1.11.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.10.1...v1.11.0) (2020-05-25)
 
 ### Features
