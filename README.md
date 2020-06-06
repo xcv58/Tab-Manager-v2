@@ -39,7 +39,7 @@ yarn
 yarn start
 ```
 
-Then you can load the `build/` folder in chrome://extensions page, please follow the [Load the extension](https://developers.chrome.com/extensions/getstarted#unpacked).
+Then you can load the `build_chrome/` or `build_firefox/` folder in chrome://extensions page, please follow the instructions for [Chrome](https://developers.chrome.com/extensions/getstarted#unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out).
 
 ## Test
 
