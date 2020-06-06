@@ -40,10 +40,10 @@ jobs:
       - run: yarn lint:ts
       - run: yarn jest
       - run: yarn deploy
-      - run: ls -l build/* build.zip
-      - run: sha256sum build/* build.zip | tee SHA256SUMS.txt
-      - run: cat build/* | sha256sum | tee -a SHA256SUMS.txt
-      - run: mkdir dist && mv build.zip SHA256SUMS.txt dist
+      - run: ls -l build_*/* build_*.zip
+      - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
+      - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
+      - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
       - store_artifacts:
           path: dist
           destination: dist
