@@ -1,7 +1,9 @@
 node_modules
 .nyc_output
 build
+build_*
 build.zip
+build_*.zip
 secrets.*.js
 *.lcov
 coverage

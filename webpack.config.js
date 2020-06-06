@@ -71,7 +71,10 @@ const entry = Object.assign(
 const options = {
   entry,
   output: {
-    path: path.join(__dirname, 'build'),
+    path: path.join(
+      __dirname,
+      'build_' + (process.env.TARGET_BROWSER || 'chrome')
+    ),
     filename: '[name].js'
   },
   module: {
@@ -150,9 +153,18 @@ const options = {
           from: 'src/manifest.json',
           transform: function (content, path) {
             const json = JSON.parse(content.toString())
-            if (process.env.NODE_ENV === 'production') {
+            if (
+              process.env.NODE_ENV === 'production' ||
+              process.env.TARGET_BROWSER !== 'firefox'
+            ) {
               delete json.content_security_policy
               delete json.browser_specific_settings
+            }
+            if (process.env.TARGET_BROWSER !== 'firefox') {
+              json.permissions = json.permissions.filter(
+                (permission) =>
+                  !['contextualIdentities', 'cookies'].includes(permission)
+              )
             }
             return Buffer.from(
               JSON.stringify({
