@@ -118,7 +118,8 @@ const AutocompleteSearch = observer(() => {
         <Input {...props} autoFocus={userStore.autoFocusSearch} />
       )}
       options={options}
-      getOptionLabel={(option) => option.name + option.title + option.url}
+      getOptionLabel={(option) =>
+        `${option.name} ${option.title} ${option.url}`}
       renderOption={isCommand ? renderCommand : renderTabOption}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}
