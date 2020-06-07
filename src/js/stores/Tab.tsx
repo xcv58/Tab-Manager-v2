@@ -39,6 +39,9 @@ export default class Tab extends Focusable {
   }
 
   @observable
+  cookieStoreId = ''
+
+  @observable
   iconUrl = empty
 
   @observable

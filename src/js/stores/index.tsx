@@ -36,6 +36,8 @@ export default class Store {
 
   focusStore: FocusStore
 
+  containerStore
+
   constructor () {
     this.windowStore = new WindowStore(this)
     this.tabStore = new TabStore(this)
@@ -47,6 +49,10 @@ export default class Store {
     this.searchStore = new SearchStore(this)
     this.hiddenWindowStore = new HiddenWindowStore(this)
     this.focusStore = new FocusStore(this)
+    if (process.env.TARGET_BROWSER === 'firefox') {
+      const ContainerStore = require('./ContainerStore').default
+      this.containerStore = new ContainerStore(this)
+    }
   }
 
   @action
