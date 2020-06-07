@@ -4,7 +4,6 @@
   "description": "Quickly and conveniently manage your open tabs",
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
-    "jest": "jest --maxWorkers=1",
     "build": "concurrently yarn:build:*",
     "_build": "NODE_ENV=production node utils/build.js",
     "build:chrome": "yarn _build",
@@ -27,6 +26,7 @@
     "lint": "standard",
     "prettier": "prettier --no-semi --single-quote --write",
     "lintfix": "yarn prettier 'src/**/*.{js,ts,tsx}' && yarn lint --fix && yarn lint:ts --fix",
+    "jest": "jest --maxWorkers=1",
     "test": "yarn lint && yarn lint:ts && yarn jest",
     "test-watch": "yarn jest --watch",
     "storybook": "start-storybook -p 6006",
@@ -60,7 +60,6 @@
   },
   "devDependencies": {
     "@types/chrome": "0.0.114",
-    "@types/jasmine": "3.5.10",
     "@types/jest": "25.2.3",
     "@types/react": "16.9.35",
     "@types/react-custom-scrollbars": "4.0.6",

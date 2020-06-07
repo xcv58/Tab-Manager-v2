@@ -144,7 +144,8 @@ const options = {
       chunkFilename: '[id].css'
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV)
+      'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
+      'process.env.TARGET_BROWSER': JSON.stringify(env.TARGET_BROWSER)
     }),
     new CopyWebpackPlugin({
       patterns: [
