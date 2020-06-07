@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react-lite'
 
-let Dump: any = () => null
+let ContainerIndicator: any = () => null
 
 if (process.env.TARGET_BROWSER === 'firefox') {
-  Dump = observer(require('./_ContainerIndicator').default)
+  ContainerIndicator = observer(require('./_ContainerIndicator').default)
 }
 
-export default Dump
+export default ContainerIndicator
