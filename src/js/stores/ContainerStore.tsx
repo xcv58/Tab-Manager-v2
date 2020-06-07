@@ -2,7 +2,6 @@ import { observable, computed } from 'mobx'
 import Store from 'stores'
 import { browser } from 'libs'
 
-// This store is for individual tab's tooltip.
 export default class ContainerStore {
   store: Store
 
@@ -15,11 +14,8 @@ export default class ContainerStore {
   }
 
   init = async () => {
-    console.log('containers:')
     const containers = await browser.contextualIdentities.query({})
-    console.log('containers:', containers)
     containers.forEach(this._setContainer)
-    console.log(this.containerMap)
     browser.contextualIdentities.onCreated.addListener(this.onCreated)
     browser.contextualIdentities.onRemoved.addListener(this.onRemoved)
     browser.contextualIdentities.onUpdated.addListener(this.onUpdated)
@@ -34,8 +30,6 @@ export default class ContainerStore {
   }
 
   onUpdated = (changeInfo) => {
-    // this.containerMap.set(containerInfo.cookieStoreId, containerInfo)
-    console.log('upUpdated:', changeInfo)
     this._setContainer(changeInfo.contextualIdentity)
   }
 
