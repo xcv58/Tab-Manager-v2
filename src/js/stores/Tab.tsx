@@ -202,5 +202,5 @@ export default class Tab extends Focusable {
       ? () => {
         this.store.tabStore.selectTabsInSameContainer(this)
       }
-      : null
+      : () => {}
 }
