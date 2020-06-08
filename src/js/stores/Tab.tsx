@@ -195,4 +195,12 @@ export default class Tab extends Focusable {
 
   @action
   closeWindow = () => this.win.closeWindow()
+
+  @action
+  selectTabsInSameContainer =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? () => {
+        this.store.tabStore.selectTabsInSameContainer(this)
+      }
+      : null
 }

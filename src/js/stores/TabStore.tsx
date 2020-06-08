@@ -37,6 +37,21 @@ export default class TabStore {
   }
 
   @action
+  selectTabsInSameContainer =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? (tab) => {
+        const tabs = this.store.windowStore.tabs.filter(
+          (x) => x.cookieStoreId === tab.cookieStoreId
+        )
+        if (tab.isSelected) {
+          tabs.forEach((x) => this.selection.delete(x.id))
+        } else {
+          tabs.forEach((x) => this.selection.set(x.id, x))
+        }
+      }
+      : () => {}
+
+  @action
   selectAll = (tabs) => {
     tabs.map((tab) => {
       this.selection.set(tab.id, tab)

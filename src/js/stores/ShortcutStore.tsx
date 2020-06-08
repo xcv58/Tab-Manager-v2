@@ -411,8 +411,17 @@ export default class ShortcutStore {
         })
       },
       'Copy selected/focused tabs URL (separated by comma `,`)'
+    ],
+    process.env.TARGET_BROWSER === 'firefox' && [
+      ['alt+x'],
+      (event) => {
+        preventDefault(event)
+        this.store.focusStore.selectTabsInSameContainer()
+      },
+      'Select/Unselect tabs in the same container',
+      true
     ]
-  ]
+  ].filter((x) => x)
 
   @action
   stopCallback = (e, element, combo) => {
