@@ -154,11 +154,13 @@ const options = {
           from: 'src/manifest.json',
           transform: function (content, path) {
             const json = JSON.parse(content.toString())
+            if (process.env.NODE_ENV === 'production') {
+              delete json.content_security_policy
+            }
             if (
               process.env.NODE_ENV === 'production' ||
               process.env.TARGET_BROWSER !== 'firefox'
             ) {
-              delete json.content_security_policy
               delete json.browser_specific_settings
             }
             if (process.env.TARGET_BROWSER !== 'firefox') {
