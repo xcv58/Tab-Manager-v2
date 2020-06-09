@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.0...v1.13.1) (2020-06-09)
+
+### Bug Fixes
+
+- **Firefox:** Add 'Select/Unselect tabs in the same container' ([#507](https://github.com/xcv58/Tab-Manager-v2/issues/507)) ([a91ffa6](https://github.com/xcv58/Tab-Manager-v2/commit/a91ffa6211d0415c36eb3ffe24f071d4073ae638))
+
 ## [1.13.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.12.0...v1.13.0) (2020-06-07)
 
 ### Features
