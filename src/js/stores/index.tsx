@@ -1,5 +1,5 @@
 import { action, computed } from 'mobx'
-import { togglePinTabs, writeToClipboard } from 'libs'
+import { togglePinTabs, writeToClipboard, moveTabs, tabComparator } from 'libs'
 import log from 'libs/log'
 import WindowStore from 'stores/WindowStore'
 import SearchStore from 'stores/SearchStore'
@@ -153,4 +153,36 @@ export default class Store {
     await writeToClipboard(text)
     this.tabStore.unselectAll()
   }
+
+  @action
+  openSameContainerTabs =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? (tab) => {
+        const tabs = this.windowStore.tabs.filter(
+          (x) => x.cookieStoreId === tab.cookieStoreId
+        )
+        this.windowStore.createNewWindow(tabs)
+      }
+      : () => {}
+
+  @action
+  groupTabsByContainer =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? async () => {
+        const cookieTabMap = this.windowStore.tabs.reduce((acc, cur) => {
+          acc[cur.cookieStoreId] = acc[cur.cookieStoreId] || []
+          acc[cur.cookieStoreId].push(cur)
+          return acc
+        }, {})
+        await Promise.all(
+          Object.values(cookieTabMap).map(async (tabs: Tab[]) => {
+            if (tabs.length > 1) {
+              const sortedTabs = tabs.sort(tabComparator)
+              const { windowId } = sortedTabs[0]
+              await moveTabs(sortedTabs, windowId)
+            }
+          })
+        )
+      }
+      : () => {}
 }
