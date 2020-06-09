@@ -7,6 +7,7 @@ import Popover from '@material-ui/core/Popover'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { getNoun } from 'libs'
 import { useTheme } from '@material-ui/core'
+import Tab from 'stores/Tab'
 
 interface IDivider {
   __typename: 'DIVIDER'
@@ -25,7 +26,7 @@ type OptionOrDivider = IDivider | Option
 const DIVIDER: IDivider = { __typename: 'DIVIDER' }
 const OPTION: Option = { __typename: 'OPTION', label: '' }
 
-export default observer((props) => {
+export default observer((props: { tab: Tab }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const theme = useTheme()
   const handleClick = (event) => {
@@ -71,6 +72,17 @@ export default observer((props) => {
       disabled: win.tabs.length <= 1
     }
   ]
+  if (process.env.TARGET_BROWSER === 'firefox') {
+    options.push({
+      ...OPTION,
+      label: `${
+        props.tab.isSelected ? 'Unselect' : 'Select'
+      } tabs in the same container`,
+      onClick: () => {
+        props.tab.selectTabsInSameContainer()
+      }
+    })
+  }
   if (sameDomainTabs && sameDomainTabs.length > 1) {
     options.push(DIVIDER, {
       ...OPTION,

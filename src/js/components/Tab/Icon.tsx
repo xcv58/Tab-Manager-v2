@@ -19,6 +19,11 @@ export const Icon = observer((props: TabProps) => {
         'aria-label': ARIA_LABEL
       }}
       onClick={(e) => {
+        if (process.env.TARGET_BROWSER === 'firefox') {
+          if (e.altKey) {
+            return props.tab.selectTabsInSameContainer()
+          }
+        }
         if (isSelected || !e.shiftKey) {
           select()
         } else {
