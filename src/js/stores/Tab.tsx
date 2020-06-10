@@ -211,7 +211,7 @@ export default class Tab extends Focusable {
   openSameContainerTabs =
     process.env.TARGET_BROWSER === 'firefox'
       ? () => {
-        this.store.openSameContainerTabs(this)
+        this.store.containerStore.openSameContainerTabs(this)
       }
       : () => {}
 }

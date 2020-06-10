@@ -1,6 +1,9 @@
-import { observable, computed } from 'mobx'
+import { action, observable, computed } from 'mobx'
 import Store from 'stores'
-import { browser } from 'libs'
+import { browser, tabComparator, moveTabs } from 'libs'
+import Tab from './Tab'
+
+const DUMB_FUNCTION = () => {}
 
 export default class ContainerStore {
   store: Store
@@ -45,4 +48,39 @@ export default class ContainerStore {
   getContainer = (cookieStoreId) => {
     return this.containerMap.get(cookieStoreId)
   }
+
+  @action
+  openSameContainerTabs =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? (tab) => {
+        const tabs = this.store.windowStore.tabs.filter(
+          (x) => x.cookieStoreId === tab.cookieStoreId
+        )
+        this.store.windowStore.createNewWindow(tabs)
+      }
+      : DUMB_FUNCTION
+
+  @action
+  groupTabsByContainer =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? async () => {
+        const cookieTabMap = this.store.windowStore.tabs.reduce(
+          (acc, cur) => {
+            acc[cur.cookieStoreId] = acc[cur.cookieStoreId] || []
+            acc[cur.cookieStoreId].push(cur)
+            return acc
+          },
+          {}
+        )
+        await Promise.all(
+          Object.values(cookieTabMap).map(async (tabs: Tab[]) => {
+            if (tabs.length > 1) {
+              const sortedTabs = tabs.sort(tabComparator)
+              const { windowId } = sortedTabs[0]
+              await moveTabs(sortedTabs, windowId)
+            }
+          })
+        )
+      }
+      : DUMB_FUNCTION
 }

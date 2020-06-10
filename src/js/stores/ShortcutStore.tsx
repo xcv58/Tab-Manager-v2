@@ -424,7 +424,7 @@ export default class ShortcutStore {
       ['alt+c'],
       (event) => {
         preventDefault(event)
-        this.store.groupTabsByContainer()
+        this.store.containerStore.groupTabsByContainer()
       },
       'Group tabs by container'
     ]
