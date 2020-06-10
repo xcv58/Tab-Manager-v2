@@ -418,8 +418,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.selectTabsInSameContainer()
       },
-      'Select/Unselect tabs in the same container',
-      true
+      'Select/Unselect tabs in the same container'
     ],
     process.env.TARGET_BROWSER === 'firefox' && [
       ['alt+c'],
@@ -427,8 +426,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.groupTabsByContainer()
       },
-      'Group tabs by container',
-      true
+      'Group tabs by container'
     ]
   ].filter((x) => x)
 
