@@ -122,6 +122,9 @@
     "env": [
       "jest"
     ],
+    "ignore": [
+      "/.yarn/"
+    ],
     "parser": "babel-eslint",
     "globals": [
       "screen",
