@@ -60,6 +60,9 @@ export default class Tab extends Focusable {
   id
 
   @observable
+  windowId
+
+  @observable
   removing = false
 
   favIconUrl: string
@@ -201,6 +204,14 @@ export default class Tab extends Focusable {
     process.env.TARGET_BROWSER === 'firefox'
       ? () => {
         this.store.tabStore.selectTabsInSameContainer(this)
+      }
+      : () => {}
+
+  @action
+  openSameContainerTabs =
+    process.env.TARGET_BROWSER === 'firefox'
+      ? () => {
+        this.store.containerStore.openSameContainerTabs(this)
       }
       : () => {}
 }

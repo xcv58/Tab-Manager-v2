@@ -89,7 +89,7 @@ export default class ShortcutStore {
       'Close tab'
     ],
     [
-      ['* c', 'ctrl+shift+c'],
+      ['* c', 'shift+ctrl+c'],
       (event) => {
         preventDefault(event)
         this.store.windowStore.cleanDuplicatedTabs()
@@ -418,8 +418,15 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.selectTabsInSameContainer()
       },
-      'Select/Unselect tabs in the same container',
-      true
+      'Select/Unselect tabs in the same container'
+    ],
+    process.env.TARGET_BROWSER === 'firefox' && [
+      ['alt+c'],
+      (event) => {
+        preventDefault(event)
+        this.store.containerStore.groupTabsByContainer()
+      },
+      'Group tabs by container'
     ]
   ].filter((x) => x)
 

@@ -73,15 +73,25 @@ export default observer((props: { tab: Tab }) => {
     }
   ]
   if (process.env.TARGET_BROWSER === 'firefox') {
-    options.push({
-      ...OPTION,
-      label: `${
-        props.tab.isSelected ? 'Unselect' : 'Select'
-      } tabs in the same container`,
-      onClick: () => {
-        props.tab.selectTabsInSameContainer()
+    options.push(
+      DIVIDER,
+      {
+        ...OPTION,
+        label: `${
+          props.tab.isSelected ? 'Unselect' : 'Select'
+        } tabs in the same container`,
+        onClick: () => {
+          props.tab.selectTabsInSameContainer()
+        }
+      },
+      {
+        ...OPTION,
+        label: 'Open same container tabs in a new window',
+        onClick: () => {
+          props.tab.openSameContainerTabs()
+        }
       }
-    })
+    )
   }
   if (sameDomainTabs && sameDomainTabs.length > 1) {
     options.push(DIVIDER, {
