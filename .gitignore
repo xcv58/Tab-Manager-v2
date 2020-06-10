@@ -9,3 +9,5 @@ secrets.*.js
 coverage
 yarn-error.log
 .env
+.yarn/cache
+.yarn/install-state.gz
