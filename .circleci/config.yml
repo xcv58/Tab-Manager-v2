@@ -42,9 +42,8 @@ jobs:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - run: yarn build
-      - run: cd integration_test && yarn install
       - *save_yarn_cache
+      - run: yarn build
       - run: cd integration_test && yarn test
 
   publish:
