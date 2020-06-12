@@ -9,7 +9,7 @@
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
     "build": "concurrently yarn:build:*",
-    "_build": "NODE_ENV=production node utils/build.js",
+    "_build": "node utils/build.js",
     "build:chrome": "yarn _build",
     "build:firefox": "TARGET_BROWSER=firefox yarn _build",
     "start": "concurrently yarn:start:*",
@@ -18,7 +18,7 @@
     "start:firefox": "TARGET_BROWSER=firefox PORT=3001 yarn _start",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "deploy": "yarn build && yarn zip && ls -lh build*.zip",
+    "deploy": "NODE_ENV=production yarn build && yarn zip && ls -lh build*.zip",
     "release": "standard-version",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build_chrome.zip",
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/webstore publish",

@@ -35,17 +35,18 @@ console.log({ sourceDir, firefox })
   // Needed because `webExt.cmd.run` returns before the DevTools agent starts running.
   // Alternative would be to wrap the call to puppeteer.connect() with some custom retry logic
   console.log('before sleep')
-  childProcess.execSync('sleep 3')
+  childProcess.execSync('sleep 2')
   console.log('after sleep')
 
   const browserURL = `http://localhost:${CDPPort}`
   // const browser = await puppeteer.launch({ headless: false, product: "firefox" })
   const browser = await puppeteer.connect({ browserURL })
-  console.log(browser)
   await browser.newPage('https://google.com')
-  const page = await browser.newPage('https://google.com')
-  await page.goto('https://google.com')
+  let page = await browser.newPage()
   await page.keyboard.down('Control')
   await page.keyboard.press('o')
   await page.keyboard.up('Control')
+  console.log('new page')
+  page = await browser.newPage()
+  await page.goto('https://google.com')
 })()
