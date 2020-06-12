@@ -1,3 +1,4 @@
+// const puppeteer = require('puppeteer-firefox');
 const puppeteer = require('puppeteer')
 const { launch } = require('./puppeteer.config')
 const { getExtensionURL } = require('./util')
