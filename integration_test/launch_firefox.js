@@ -8,18 +8,18 @@ console.log(webExt)
 const sourceDir = path.join(__dirname, '../build_firefox')
 const firefox = path.join(
   __dirname,
-  '../node_modules/puppeteer/.local-firefox/mac-79.0a1/Firefox Nightly.app/Contents/MacOS/firefox'
+  '../node_modules/puppeteer/.local-firefox/mac-79.0a1/Firefox Nightly.app'
 )
 
 console.log({ sourceDir, firefox })
-
 ;(async () => {
   const CDPPort = await getPort()
-  // const args = ['--headless', `--remote-debugger=localhost:${CDPPort}`];
+  const args = [`--remote-debugger=localhost:${CDPPort}`]
   const extensionRunner = await webExt.cmd.run(
     {
       sourceDir,
-      firefox
+      firefox,
+      args
     },
     {
       shouldExitProgram: false
@@ -40,6 +40,12 @@ console.log({ sourceDir, firefox })
 
   const browserURL = `http://localhost:${CDPPort}`
   // const browser = await puppeteer.launch({ headless: false, product: "firefox" })
-  const page = await puppeteer.connect({ browserURL })
-  console.log(page)
+  const browser = await puppeteer.connect({ browserURL })
+  console.log(browser)
+  await browser.newPage('https://google.com')
+  const page = await browser.newPage('https://google.com')
+  await page.goto('https://google.com')
+  await page.keyboard.down('Control')
+  await page.keyboard.press('o')
+  await page.keyboard.up('Control')
 })()
