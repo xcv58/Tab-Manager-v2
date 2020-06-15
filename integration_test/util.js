@@ -7,8 +7,6 @@ export const getExtensionURL = async (browser) => {
 
 const getExtensionId = async (browser) => {
   const targets = await browser.targets()
-  console.log(targets)
-  console.log(targets.length)
   const extensionTarget = targets.find(({ _targetInfo }) => {
     return (
       _targetInfo.title === manifest.name &&

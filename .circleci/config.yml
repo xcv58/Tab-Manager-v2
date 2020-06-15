@@ -42,6 +42,7 @@ jobs:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
+      - run: cd integration_test && PUPPETEER_PRODUCT=firefox yarn add -D puppeteer@3.3.0
       - *save_yarn_cache
       - run: yarn build
       - run: cd integration_test && yarn test
