@@ -17,7 +17,7 @@
     "get-port": "5.1.1",
     "jest": "26.0.1",
     "jest-puppeteer": "4.4.0",
-    "puppeteer": "3.3.0",
+    "puppeteer": "4.0.1",
     "web-ext": "4.2.0"
   },
   "private": true
