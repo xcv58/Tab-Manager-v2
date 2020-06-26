@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.1...v1.13.2) (2020-06-26)
+
+### Bug Fixes
+
+- The drop indicator is invisible on the bottom of a window ([2ffbfe7](https://github.com/xcv58/Tab-Manager-v2/commit/2ffbfe73c5d832517e49ec85ccb1b57337404367))
+- **Firefox:** Add more container related actions ([#510](https://github.com/xcv58/Tab-Manager-v2/issues/510)) ([741a2c3](https://github.com/xcv58/Tab-Manager-v2/commit/741a2c370aca54b78ce1f31c900560061ad42a3b))
+
 ### [1.13.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.0...v1.13.1) (2020-06-09)
 
 ### Bug Fixes
