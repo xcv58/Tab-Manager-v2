@@ -15,7 +15,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "module": "es6",
     "moduleResolution": "node",
     "target": "es6",
