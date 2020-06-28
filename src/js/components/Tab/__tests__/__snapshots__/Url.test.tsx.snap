@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Url render correct components 1`] = `
+<div>
+  <div
+    class="w-full overflow-hidden truncate text-xs opacity-75 group-hover:opacity-100 group-hover:text-black"
+  >
+    url
+  </div>
+</div>
+`;
+
+exports[`Url render getHighlightNode(url) as children 1`] = `
+<div>
+  <div
+    class="w-full overflow-hidden truncate text-xs opacity-75 group-hover:opacity-100 group-hover:text-black"
+  >
+    test
+  </div>
+</div>
+`;
