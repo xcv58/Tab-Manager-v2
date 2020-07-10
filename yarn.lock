@@ -1716,10 +1716,10 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/chrome@0.0.117":
-  version "0.0.117"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.117.tgz#c535c00580faa307dd24cb81bd76d42b4e62aca9"
-  integrity sha512-MMr1PHywhr3oFF0aTpezv4hUNr959CkJNtTeeI1a97eBKimx0WR6qIIo/28JcmKJWwKnurF/hF/cE0Q0WV8rLw==
+"@types/chrome@0.0.120":
+  version "0.0.120"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.120.tgz#3fed08823a7182aedbd5ee6e9f4a58791182da50"
+  integrity sha512-dFA5nxeccCWqPUr5y5mSKiwxIwHkySx6IAnJ2wBbnmsVvtKHuiAHpS0Cq8hyv/4aUR0KdhPD0Pp0o99E39rzFA==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
