@@ -42,7 +42,7 @@ jobs:
       - run: yarn install
       - *save_yarn_cache
       - run: yarn build
-      - run: cd integration_test && yarn test
+      - run: yarn workspace integration-test test
 
   publish:
     docker:
