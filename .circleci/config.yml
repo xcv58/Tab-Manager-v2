@@ -17,14 +17,12 @@ references:
 jobs:
   build-test:
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
     steps:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
       - *save_yarn_cache
-      - run: yarn lint
-      - run: yarn lint:ts
       - run: yarn jest
       - run: yarn deploy
       - run: ls -l build_*/* build_*.zip
@@ -37,18 +35,18 @@ jobs:
 
   integration-test:
     docker:
-      - image: circleci/node:10.21-browsers
+      - image: circleci/node:14.5-browsers
     steps:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
       - *save_yarn_cache
       - run: yarn build
-      - run: cd integration_test && yarn test
+      - run: yarn workspace integration-test test
 
   publish:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:14
     steps:
       - checkout
       - *restore_yarn_cache
