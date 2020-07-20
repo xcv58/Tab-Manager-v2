@@ -23,7 +23,6 @@ jobs:
       - *restore_yarn_cache
       - run: yarn install
       - *save_yarn_cache
-      - run: yarn lint
       - run: yarn lint:ts
       - run: yarn jest
       - run: yarn deploy
