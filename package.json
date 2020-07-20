@@ -110,7 +110,7 @@
     "sinon-chrome": "3.0.1",
     "speed-measure-webpack-plugin": "1.3.3",
     "standard": "14.3.4",
-    "standard-version": "8.0.0",
+    "standard-version": "8.0.1",
     "style-loader": "1.2.1",
     "terser-webpack-plugin": "3.0.6",
     "ts-jest": "26.1.1",
