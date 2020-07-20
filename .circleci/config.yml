@@ -17,7 +17,7 @@ references:
 jobs:
   build-test:
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
     steps:
       - checkout
       - *restore_yarn_cache
@@ -35,7 +35,7 @@ jobs:
 
   integration-test:
     docker:
-      - image: circleci/node:10.21-browsers
+      - image: circleci/node:14.5-browsers
     steps:
       - checkout
       - *restore_yarn_cache
@@ -46,7 +46,7 @@ jobs:
 
   publish:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:14
     steps:
       - checkout
       - *restore_yarn_cache
