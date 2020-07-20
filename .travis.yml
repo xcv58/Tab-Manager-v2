@@ -12,7 +12,6 @@ node_js:
 script:
   - yarn jest
   - yarn deploy && rm -rf ./node_modules/.cache
-  - yarn workspace integration-test test
   - ls -l build_*/* build_*.zip
   - sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
   - cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
