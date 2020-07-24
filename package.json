@@ -118,7 +118,7 @@
     "typescript": "3.9.7",
     "typescript-eslint-parser": "22.0.0",
     "web-ext": "4.3.0",
-    "webpack": "4.43.0",
+    "webpack": "4.44.0",
     "webpack-bundle-analyzer": "3.8.0",
     "webpack-dev-server": "3.11.0",
     "write-file-webpack-plugin": "4.5.1"
