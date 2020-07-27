@@ -18,7 +18,7 @@
     "jest": "26.1.0",
     "jest-puppeteer": "4.4.0",
     "puppeteer": "5.2.1",
-    "web-ext": "4.3.0"
+    "web-ext": "5.0.0"
   },
   "private": true
 }
