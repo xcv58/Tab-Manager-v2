@@ -68,7 +68,7 @@
     "@testing-library/jest-dom": "5.11.1",
     "@testing-library/react": "10.4.7",
     "@types/chrome": "0.0.122",
-    "@types/jest": "26.0.7",
+    "@types/jest": "26.0.8",
     "@types/react": "16.9.43",
     "@types/react-custom-scrollbars": "4.0.6",
     "@types/react-dom": "16.9.8",
