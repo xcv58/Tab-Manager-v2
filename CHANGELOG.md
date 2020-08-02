@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.2...v1.13.3) (2020-08-02)
+
+### Bug Fixes
+
+- Adding Close Button to Search Results ([#594](https://github.com/xcv58/Tab-Manager-v2/issues/594)) ([56e2992](https://github.com/xcv58/Tab-Manager-v2/commit/56e299212f754d21bcb90c6dd837de0e3bd0e7de))
+
 ### [1.13.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.1...v1.13.2) (2020-06-26)
 
 ### Bug Fixes
