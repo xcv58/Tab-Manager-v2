@@ -12,7 +12,8 @@ export default observer((props: TabProps) => {
   const { tab } = props
   const pin = tab.pinned && PIN
 
-  const onRemove = () => {
+  const onRemove = (event: React.SyntheticEvent) => {
+    event.stopPropagation()
     const { removing, remove } = tab
     if (!removing) {
       remove()
@@ -27,10 +28,7 @@ export default observer((props: TabProps) => {
       <TabTools tab={tab} faked />
       <ContainerIndicator cookieStoreId={tab.cookieStoreId} />
       <CloseButton
-        onClick={(event: React.SyntheticEvent) => {
-          event.stopPropagation()
-          onRemove()
-        }}
+        onClick={onRemove}
         disabled={tab.removing}
       />
     </div>
