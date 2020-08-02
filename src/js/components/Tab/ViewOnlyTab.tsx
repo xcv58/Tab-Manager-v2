@@ -26,7 +26,13 @@ export default observer((props: TabProps) => {
       <TabContent tab={tab} faked />
       <TabTools tab={tab} faked />
       <ContainerIndicator cookieStoreId={tab.cookieStoreId} />
-      <CloseButton onClick={onRemove} disabled={tab.removing} />
+      <CloseButton
+        onClick={(event: React.SyntheticEvent) => {
+          event.stopPropagation()
+          onRemove()
+        }}
+        disabled={tab.removing}
+      />
     </div>
   )
 })
