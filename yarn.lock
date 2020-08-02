@@ -13362,10 +13362,10 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
-tailwindcss@1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-1.5.2.tgz#3e99526e55c600b9df9152b0db12449ed9770855"
-  integrity sha512-OR7wxFetvHruLkQABeQac7jFdTOs+MwXzsuccOuMItva9GBANPd2VX8NgJ3pdvuGSL23c5cVId9jsvuKgulBiQ==
+tailwindcss@1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-1.6.1.tgz#0fbd031848066665fe82dc89eeb30c3d9c4f83ba"
+  integrity sha512-hg20uPJTi3q4Ib6YSMb5p9ZEpp73O/5p3SxWFud45ePXAVl3/DyGMHhjTFDMVX5YqmLrPcEggxBw3Vx9TLuxyA==
   dependencies:
     "@fullhuman/postcss-purgecss" "^2.1.2"
     autoprefixer "^9.4.5"
