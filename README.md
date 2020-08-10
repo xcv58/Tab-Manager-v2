@@ -8,7 +8,7 @@
 
 **Microsfot Edge Addons: https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb**
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)](https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 [![Mozilla Add-on](https://img.shields.io/amo/users/tab-manager-v2)](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2/)
 
 [![CircleCI](https://circleci.com/gh/xcv58/Tab-Manager-v2.svg?style=svg)](https://circleci.com/gh/xcv58/Tab-Manager-v2)
