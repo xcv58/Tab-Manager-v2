@@ -11703,12 +11703,12 @@ react-modal@^3.11.2:
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
 
-react-resize-detector@5.0.6:
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-5.0.6.tgz#7a5b67df1117af83249fbda8bda33df29b0b7e22"
-  integrity sha512-wvyK350xvq3GgRDd8ENE0T5wqTBniGhKuK0rGHeg0L79AlW+2Be6ulecGCzCpC6CE7Zshohf1GZyDaf2onoGFg==
+react-resize-detector@5.0.7:
+  version "5.0.7"
+  resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-5.0.7.tgz#209e4ca786945f91b6266e16658d3aab76a62f94"
+  integrity sha512-h3AeP4FAr6IFwcIvGyaLw8tPYOSXXNGsP9UIlgc2/cRQZ8nwvyj5a+m1lhZa1fxBjfyVkUIHgGmXG+wkEjWVCQ==
   dependencies:
-    lodash "^4.17.15"
+    lodash "^4.17.19"
     lodash-es "^4.17.15"
     prop-types "^15.7.2"
     raf-schd "^4.0.2"
