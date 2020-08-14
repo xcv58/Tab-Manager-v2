@@ -35,7 +35,7 @@ jobs:
 
   integration-test:
     docker:
-      - image: circleci/node:14.5-browsers
+      - image: circleci/node:14.6-browsers
     steps:
       - checkout
       - *restore_yarn_cache
