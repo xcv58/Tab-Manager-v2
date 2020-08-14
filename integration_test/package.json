@@ -10,12 +10,12 @@
     "test-watch": "yarn test --watch"
   },
   "devDependencies": {
-    "@babel/core": "7.11.0",
+    "@babel/core": "7.11.1",
     "@babel/node": "7.10.5",
     "@babel/preset-env": "7.11.0",
-    "babel-jest": "26.2.2",
+    "babel-jest": "26.3.0",
     "get-port": "5.1.1",
-    "jest": "26.2.2",
+    "jest": "26.4.0",
     "jest-puppeteer": "4.4.0",
     "puppeteer": "5.2.1",
     "web-ext": "5.0.0"
