@@ -88,7 +88,7 @@
     "enzyme-adapter-react-16": "1.15.2",
     "eslint-plugin-typescript": "0.14.0",
     "file-loader": "6.0.0",
-    "fork-ts-checker-webpack-plugin": "5.0.13",
+    "fork-ts-checker-webpack-plugin": "5.0.14",
     "glob-all": "3.2.1",
     "hard-source-webpack-plugin": "0.13.1",
     "html-loader": "1.1.0",
