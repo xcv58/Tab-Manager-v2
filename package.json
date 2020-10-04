@@ -50,7 +50,7 @@
     "loglevel": "1.7.0",
     "match-sorter": "4.2.1",
     "mobx": "5.15.5",
-    "mobx-react-lite": "2.0.7",
+    "mobx-react-lite": "3.0.0",
     "mousetrap": "1.6.5",
     "react": "16.13.1",
     "react-command-palette": "0.13.0-0",
