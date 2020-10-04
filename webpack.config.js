@@ -95,8 +95,10 @@ const options = {
           {
             loader: 'postcss-loader',
             options: {
-              ident: 'postcss',
-              plugins: [require('tailwindcss'), require('autoprefixer')]
+              postcssOptions: {
+                ident: 'postcss',
+                plugins: [require('tailwindcss'), require('autoprefixer')]
+              }
             }
           }
         ],
