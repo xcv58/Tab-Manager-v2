@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.3...v1.13.4) (2020-10-05)
+
+### Bug Fixes
+
+- Add default shortcut Alt+W / Ctrl+W (macOS) to Activate the extension ([16d27f4](https://github.com/xcv58/Tab-Manager-v2/commit/16d27f4e3297d85bf1589ef3c9fefe26daf7a718))
+
 ### [1.13.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.2...v1.13.3) (2020-08-02)
 
 ### Bug Fixes
