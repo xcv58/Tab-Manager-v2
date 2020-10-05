@@ -18,6 +18,15 @@
   },
   "omnibox": { "keyword": "t" },
   "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "windows": "Alt+W",
+        "mac": "MacCtrl+W",
+        "chromeos": "Alt+W",
+        "linux": "Alt+W"
+      },
+      "description": "Activate the extension"
+    },
     "TOGGLE-POPUP": {
       "suggested_key": {
         "windows": "Alt+T",
