@@ -12,8 +12,6 @@
       "@material-ui/lab/*": ["./material-ui-lab/src/*"]
     },
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "sourceMap": true,
     "noImplicitAny": true,
     "module": "es6",

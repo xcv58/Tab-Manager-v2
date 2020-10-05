@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import Tab from './Tab'
 import { browser } from 'libs'
 import Store from 'stores'
@@ -10,6 +10,33 @@ export default class Window extends Focusable {
 
   constructor (win, store: Store) {
     super(store)
+
+    makeObservable(this, {
+      tabs: observable,
+      showTabs: observable,
+      type: observable,
+      activate: action,
+      hide: computed,
+      visibleLength: computed,
+      lastFocused: computed,
+      canDrop: computed,
+      invisibleTabs: computed,
+      disableSelectAll: computed,
+      matchedTabs: computed,
+      allTabSelected: computed,
+      someTabSelected: computed,
+      add: action,
+      remove: action,
+      removeTabs: action,
+      reload: action,
+      close: action,
+      toggleSelectAll: action,
+      onMoved: action,
+      onDetached: action,
+      onAttched: action,
+      toggleHide: action
+    })
+
     this.store = store
     Object.assign(this, win)
     this.tabs = win.tabs.map((tab) => new Tab(tab, store, this))
@@ -17,30 +44,21 @@ export default class Window extends Focusable {
     this.showTabs = !this.store.windowStore.initialLoading
   }
 
-  @observable
-  id
-
-  @observable
   tabs: Tab[] = []
 
   // TODO: Remove this when we add concurrent mode
-  @observable
-  showTabs
+  showTabs = false
 
-  @observable
-  type
+  type = ''
 
-  @action
   activate = () => {
     browser.windows.update(this.id, { focused: true })
   }
 
-  @computed
   get hide () {
     return this.store.hiddenWindowStore.hiddenWindows[this.id]
   }
 
-  @computed
   get visibleLength () {
     if (this.hide) {
       return 2
@@ -49,17 +67,14 @@ export default class Window extends Focusable {
     return length ? length + 2 : length
   }
 
-  @computed
   get lastFocused () {
     return this.id === this.store.windowStore.lastFocusedWindowId
   }
 
-  @computed
   get canDrop () {
     return !['popup', 'devtools'].includes(this.type)
   }
 
-  @computed
   get invisibleTabs () {
     if (this.hide) {
       return this.tabs
@@ -67,7 +82,6 @@ export default class Window extends Focusable {
     return this.tabs.filter((x) => !x.isVisible)
   }
 
-  @computed
   get disableSelectAll () {
     if (this.hide) {
       return true
@@ -75,7 +89,6 @@ export default class Window extends Focusable {
     return this.matchedTabs.length === 0
   }
 
-  @computed
   get matchedTabs () {
     if (this.hide) {
       return []
@@ -83,7 +96,6 @@ export default class Window extends Focusable {
     return this.tabs.filter((x) => x.isMatched)
   }
 
-  @computed
   get allTabSelected () {
     return (
       !this.disableSelectAll &&
@@ -91,7 +103,6 @@ export default class Window extends Focusable {
     )
   }
 
-  @computed
   get someTabSelected () {
     return (
       !this.allTabSelected && this.tabs.some(this.store.tabStore.isTabSelected)
@@ -105,7 +116,6 @@ export default class Window extends Focusable {
     return this.tabs[index]
   }
 
-  @action
   add = (tab, index) => {
     if (index < 0 || index > this.tabs.length + 1) {
       throw new Error(`[Window-Store.add] get invalid index: "${index}"!`)
@@ -113,7 +123,6 @@ export default class Window extends Focusable {
     this.tabs.splice(index, 0, tab)
   }
 
-  @action
   remove = (tab) => {
     const index = this.tabs.findIndex((x) => x.id === tab.id)
     if (index !== -1) {
@@ -125,7 +134,6 @@ export default class Window extends Focusable {
     }
   }
 
-  @action
   removeTabs = (set) => {
     for (let index = 0; index < this.tabs.length;) {
       const id = this.tabs[index].id
@@ -138,19 +146,16 @@ export default class Window extends Focusable {
     }
   }
 
-  @action
   reload = () => {
     this.tabs.forEach((tab) => tab.reload())
   }
 
-  @action
   close = () => {
     browser.windows.remove(this.id)
   }
 
   closeWindow = this.close
 
-  @action
   toggleSelectAll = () => {
     log.debug('toggleSelectAll')
     const { allTabSelected, matchedTabs } = this
@@ -164,7 +169,6 @@ export default class Window extends Focusable {
 
   select = this.toggleSelectAll
 
-  @action
   onMoved = (tabId, moveInfo) => {
     const { fromIndex, toIndex } = moveInfo
     const toTab = this.getTab(toIndex)
@@ -183,7 +187,6 @@ export default class Window extends Focusable {
     return true
   }
 
-  @action
   onDetached = (tabId, detachInfo) => {
     const { oldPosition } = detachInfo
     const oldTab = this.getTab(oldPosition)
@@ -192,7 +195,6 @@ export default class Window extends Focusable {
     }
   }
 
-  @action
   onAttched = async (tabId, attachInfo) => {
     const { newPosition } = attachInfo
     const tab = this.getTab(newPosition)
@@ -206,7 +208,6 @@ export default class Window extends Focusable {
     this.tabs.splice(newPosition, 0, new Tab(tabInfo, this.store, this))
   }
 
-  @action
   toggleHide = () => {
     if (this.hide) {
       this.store.hiddenWindowStore.showWindow(this.id)

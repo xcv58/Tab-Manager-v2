@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import {
   browser,
   moveTabs,
@@ -19,6 +19,36 @@ export default class WindowsStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      windows: observable,
+      initialLoading: observable,
+      lastFocusedWindowId: observable,
+      height: observable,
+      tabCount: computed,
+      tabs: computed,
+      visibleColumn: computed,
+      onWindowsCreated: action,
+      onAttached: action,
+      onDetached: action,
+      onRemoved: action,
+      onUpdated: action,
+      onCreated: action,
+      onActivated: action,
+      onMoved: action,
+      removeTabs: action,
+      createNewWindow: action,
+      selectAll: action,
+      windowMounted: action,
+      lastFocusedWindow: computed,
+      urlCountMap: computed,
+      duplicatedTabs: computed,
+      closeDuplicatedTab: action,
+      cleanDuplicatedTabs: action,
+      moveTabs: action,
+      updateHeight: action,
+      updateAllWindows: action
+    })
+
     this.store = store
     this.getAllWindows()
   }
@@ -43,35 +73,28 @@ export default class WindowsStore {
     browser.tabs.onReplaced.addListener(this.updateAllWindows)
   }
 
-  @observable
   windows: Window[] = []
 
-  @observable
   initialLoading = true
 
-  @observable
   lastFocusedWindowId: number | null = null
 
-  @observable
   height = 600
 
   batching = false
 
-  @computed
   get tabCount () {
     return this.windows
       .map((x) => x.tabs.length)
       .reduce((acc, cur) => acc + cur, 0)
   }
 
-  @computed
   get tabs (): Tab[] {
     return [].concat(
       ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
     )
   }
 
-  @computed
   get visibleColumn () {
     const heights = this.windows
       .filter((x) => x.visibleLength > 0)
@@ -101,13 +124,11 @@ export default class WindowsStore {
     }
   }
 
-  @action
   onWindowsCreated = async (win) => {
     log.debug('windows.onCreated:', { win })
     await this.getOrCreateWinById(win.id)
   }
 
-  @action
   onAttached = async (tabId, attachInfo) => {
     log.debug('tabs.onAttached:', { tabId, attachInfo })
     const { newWindowId } = attachInfo
@@ -133,7 +154,6 @@ export default class WindowsStore {
     return win
   }
 
-  @action
   onDetached = (tabId, detachInfo) => {
     log.debug('tabs.onDetached:', { tabId, detachInfo })
     const win = this.windows.find((x) => x.id === detachInfo.oldWindowId)
@@ -146,7 +166,6 @@ export default class WindowsStore {
     this.clearWindow()
   }
 
-  @action
   onRemoved = (id, { windowId, isWindowClosing }) => {
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
     this.store.tabStore.selection.delete(id)
@@ -164,7 +183,6 @@ export default class WindowsStore {
     this.clearWindow()
   }
 
-  @action
   onUpdated = (tabId, changeInfo, newTab) => {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
@@ -187,7 +205,6 @@ export default class WindowsStore {
     }
   }
 
-  @action
   onCreated = (tab) => {
     log.debug('tabs.onCreated:', { tab })
     const { index, windowId } = tab
@@ -207,7 +224,6 @@ export default class WindowsStore {
     }
   }
 
-  @action
   onActivated = ({ tabId, windowId }) => {
     log.debug('tabs.onActivate:', { tabId, windowId })
     this.lastFocusedWindowId = windowId
@@ -226,7 +242,6 @@ export default class WindowsStore {
     }
   }
 
-  @action
   onMoved = (tabId, moveInfo) => {
     log.debug('tabs.onMoved:', { tabId, moveInfo })
     const win = this.windows.find((x) => x.id === moveInfo.windowId)
@@ -248,14 +263,12 @@ export default class WindowsStore {
     this.getAllWindows()
   }
 
-  @action
   removeTabs = (ids) => {
     const set = new Set(ids)
     this.windows.forEach((win) => win.removeTabs(set))
     this.clearWindow()
   }
 
-  @action
   createNewWindow = (tabs) => {
     log.debug('createNewWindow:', { tabs })
     browser.runtime.sendMessage({
@@ -267,10 +280,8 @@ export default class WindowsStore {
     })
   }
 
-  @action
   selectAll = () => this.store.tabStore.selectAll(this.tabs)
 
-  @action
   windowMounted = () => {
     // TODO: Remove this when we add concurrent mode
     this.windows
@@ -284,12 +295,10 @@ export default class WindowsStore {
     }
   }
 
-  @computed
   get lastFocusedWindow () {
     return this.windows.find((x) => x.lastFocused)
   }
 
-  @computed
   get urlCountMap () {
     return this.tabs.reduce((acc, tab) => {
       const { url } = tab
@@ -298,12 +307,10 @@ export default class WindowsStore {
     }, {})
   }
 
-  @computed
   get duplicatedTabs () {
     return this.tabs.filter((tab) => this.urlCountMap[tab.url] > 1)
   }
 
-  @action
   closeDuplicatedTab = (tab) => {
     const { id, url } = tab
     this.tabs
@@ -311,7 +318,6 @@ export default class WindowsStore {
       .forEach((x) => x.remove())
   }
 
-  @action
   cleanDuplicatedTabs = () => {
     const tabMap = this.duplicatedTabs.reduce((acc, tab) => {
       const { url } = tab
@@ -337,13 +343,11 @@ export default class WindowsStore {
     return win
   }
 
-  @action
   moveTabs = async (tabs, windowId, from = 0) => {
     log.debug('moveTabs:', { tabs, windowId, from })
     await moveTabs(tabs, windowId, from)
   }
 
-  @action
   updateHeight (height) {
     log.debug('WindowsStore.updateHeight:', {
       height,
@@ -387,7 +391,6 @@ export default class WindowsStore {
     return this.loadAllWindows()
   }
 
-  @action
   updateAllWindows = debounce(this.getAllWindows, 1000, {
     leading: true,
     trailing: true

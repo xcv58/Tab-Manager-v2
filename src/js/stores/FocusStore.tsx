@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import Store from 'stores'
 import log from 'libs/log'
 import Tab from './Tab'
@@ -24,10 +24,32 @@ export default class FocusStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      focusedItem: computed,
+      focusedWindowId: observable,
+      focusedTabId: observable,
+      containerRef: observable,
+      setContainerRef: action,
+      defocus: action,
+      enter: action,
+      focus: action,
+      select: action,
+      selectTabsInSameContainer: action,
+      closeWindow: action,
+      selectWindow: action,
+      groupTab: action,
+      _moveVertically: action,
+      left: action,
+      right: action,
+      up: action,
+      down: action,
+      firstTab: action,
+      lastTab: action
+    })
+
     this.store = store
   }
 
-  @computed
   get focusedItem (): Focusable | null {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
@@ -37,16 +59,12 @@ export default class FocusStore {
     }
   }
 
-  @observable
   focusedWindowId = null
 
-  @observable
   focusedTabId = null
 
-  @observable
   containerRef = null
 
-  @action
   setContainerRef = (ref) => {
     this.containerRef = ref
   }
@@ -73,34 +91,29 @@ export default class FocusStore {
     }
   }
 
-  @action
   defocus = () => {
     this.focusedTabId = null
     this.focusedWindowId = null
     this._top = -1
   }
 
-  @action
   enter = () => {
     if (this.focusedItem) {
       this.focusedItem.activate()
     }
   }
 
-  @action
   focus = (item: Focusable) => {
     this._setFocusedItem(item)
   }
 
   // Toggle select of focused tab, or the focused window.tabs
-  @action
   select = () => {
     if (this.focusedItem) {
       this.focusedItem.select()
     }
   }
 
-  @action
   selectTabsInSameContainer =
     process.env.TARGET_BROWSER === 'firefox'
       ? () => {
@@ -110,21 +123,18 @@ export default class FocusStore {
       }
       : () => {}
 
-  @action
   closeWindow = () => {
     if (this.focusedItem) {
       this.focusedItem.closeWindow()
     }
   }
 
-  @action
   selectWindow = () => {
     if (this.focusedItem) {
       this.focusedItem.toggleSelectAll()
     }
   }
 
-  @action
   groupTab = () => {
     const { focusedItem } = this
     if (!focusedItem) {
@@ -166,7 +176,6 @@ export default class FocusStore {
     return { grid, columnIndex, scrollTop, targetColumn: grid[columnIndex] }
   }
 
-  @action
   _moveVertically = (direction, side = false) => {
     const { focusedItem } = this
     log.debug('_moveVertically:', { direction, side, focusedItem })
@@ -224,37 +233,31 @@ export default class FocusStore {
     }
   }
 
-  @action
   left = () => {
     log.debug('left')
     this._moveHorizontally(-1)
   }
 
-  @action
   right = () => {
     log.debug('right')
     this._moveHorizontally(1)
   }
 
-  @action
   up = () => {
     log.debug('up')
     this._moveVertically(-1)
   }
 
-  @action
   down = () => {
     log.debug('down')
     this._moveVertically(1)
   }
 
-  @action
   firstTab = () => {
     log.debug('firstTab')
     this._moveVertically(0, true)
   }
 
-  @action
   lastTab = () => {
     log.debug('lastTab')
     this._moveVertically(1, true)

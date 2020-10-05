@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx'
+import { action, observable, makeObservable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
 import Store from 'stores'
@@ -29,19 +29,32 @@ export default class ShortcutStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      combo: observable,
+      toastOpen: observable,
+      dialogOpen: observable,
+      inputShortcutSet: observable,
+      shortcuts: observable,
+      stopCallback: action,
+      didMount: action,
+      willUnmount: action,
+      resume: action,
+      pause: action,
+      clearCombo: action,
+      openToast: action,
+      openDialog: action,
+      closeDialog: action
+    })
+
     this.store = store
   }
 
-  @observable
   combo = null
 
-  @observable
   toastOpen = false
 
-  @observable
   dialogOpen = false
 
-  @observable
   inputShortcutSet = new Set([
     'escape',
     'ctrl+enter',
@@ -63,7 +76,6 @@ export default class ShortcutStore {
     'shift+ctrl+g'
   ])
 
-  @observable
   shortcuts = [
     [
       'ctrl+s',
@@ -430,7 +442,6 @@ export default class ShortcutStore {
     ]
   ].filter((x) => x)
 
-  @action
   stopCallback = (e, element, combo) => {
     if (this.dialogOpen) {
       return combo !== 'escape'
@@ -448,16 +459,13 @@ export default class ShortcutStore {
     return ['INPUT', 'SELECT', 'TEXTAREA'].includes(tagName)
   }
 
-  @action
   didMount = () => {
     Mousetrap.prototype.stopCallback = this.stopCallback
     this.resume()
   }
 
-  @action
   willUnmount = () => Mousetrap.reset()
 
-  @action
   resume = () => {
     this.shortcuts.map(([key, func, description]) =>
       Mousetrap.bind(key, (e, combo) => {
@@ -468,15 +476,12 @@ export default class ShortcutStore {
     )
   }
 
-  @action
   pause = this.willUnmount
 
-  @action
   clearCombo = () => {
     this.combo = null
   }
 
-  @action
   openToast = () => {
     if (!this.store.userStore.showShortcutHint) {
       return
@@ -489,12 +494,10 @@ export default class ShortcutStore {
     this.toastOpen = false
   }, 500)
 
-  @action
   openDialog = () => {
     this.dialogOpen = true
   }
 
-  @action
   closeDialog = () => {
     this.dialogOpen = false
   }

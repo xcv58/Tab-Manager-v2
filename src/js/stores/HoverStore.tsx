@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx'
+import { action, observable, makeObservable } from 'mobx'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 
@@ -9,17 +9,21 @@ export default class HoverStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      hoveredTabId: observable,
+      hovered: observable,
+      hover: action,
+      unhover: action
+    })
+
     this.store = store
   }
 
-  @observable
   hoveredTabId = null
 
   // Hovered long enough with the delay
-  @observable
   hovered = false
 
-  @action
   hover = (id) => {
     if (this.hoveredTabId === id) {
       return
@@ -32,7 +36,6 @@ export default class HoverStore {
     this._updateHovered()
   }
 
-  @action
   unhover = () => {
     this._updateHovered.cancel()
     this.hoveredTabId = null

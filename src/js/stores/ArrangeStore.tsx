@@ -1,4 +1,4 @@
-import { action, computed } from 'mobx'
+import { action, computed, makeObservable } from 'mobx'
 import { moveTabs, tabComparator, browser } from 'libs'
 import Window from 'stores/Window'
 import Store from 'stores'
@@ -7,10 +7,15 @@ export default class ArrangeStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      domainTabsMap: computed,
+      sortTabs: action,
+      groupTab: action
+    })
+
     this.store = store
   }
 
-  @computed
   get domainTabsMap () {
     return this.store.windowStore.tabs.reduce((acc, tab) => {
       const { domain } = tab
@@ -20,7 +25,6 @@ export default class ArrangeStore {
     }, {})
   }
 
-  @action
   sortTabs = async (windowId?: string) => {
     const windows = []
     if (windowId) {
@@ -33,7 +37,6 @@ export default class ArrangeStore {
     await this.sortInWindow(windows.map((win) => new Window(win, this.store)))
   }
 
-  @action
   groupTab = async (tab) => {
     const { domain } = tab
     const tabs = this.domainTabsMap[domain]

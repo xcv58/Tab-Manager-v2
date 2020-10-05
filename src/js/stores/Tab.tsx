@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import { getDomain, togglePinTabs, browser } from 'libs'
 import bookmarks from 'img/chrome/bookmarks.png'
 import chromeIcon from 'img/chrome/chrome.png'
@@ -32,107 +32,119 @@ export default class Tab extends Focusable {
 
   constructor (tab, store: Store, win: Window) {
     super(store)
+
+    makeObservable(this, {
+      cookieStoreId: observable,
+      iconUrl: observable,
+      active: observable,
+      pinned: observable,
+      title: observable,
+      url: observable,
+      windowId: observable,
+      removing: observable,
+      activate: action,
+      select: action,
+      bulkSelect: action,
+      toggleHide: action,
+      toggleSelectAll: action,
+      reload: action,
+      focus: action,
+      hover: action,
+      unhover: action,
+      closeDuplicatedTab: action,
+      remove: action,
+      groupTab: action,
+      togglePin: action,
+      isMatched: computed,
+      isVisible: computed,
+      domain: computed,
+      sameDomainTabs: computed,
+      urlCount: computed,
+      isSelected: computed,
+      query: computed,
+      isHovered: computed,
+      shouldHighlight: computed,
+      closeOtherTabs: action,
+      closeWindow: action,
+      selectTabsInSameContainer: action,
+      openSameContainerTabs: action
+    })
+
     this.store = store
     Object.assign(this, tab)
     this.win = win
     this.setUrlIcon()
   }
 
-  @observable
   cookieStoreId = ''
 
-  @observable
   iconUrl = empty
 
-  @observable
   active: boolean = false
 
-  @observable
-  pinned: boolean
+  pinned: boolean = false
 
-  @observable
-  title: string
+  title: string = ''
 
-  @observable
-  url: string
+  url: string = ''
 
-  @observable
-  id
+  windowId: number = null
 
-  @observable
-  windowId
-
-  @observable
   removing = false
 
-  favIconUrl: string
+  favIconUrl: string = ''
 
-  @action
   activate = () => {
     this.focus()
     this.store.tabStore.activate(this)
   }
 
-  @action
   select = () => {
     this.focus()
     this.store.tabStore.select(this)
   }
 
-  @action
   bulkSelect = () => {
     this.focus()
     this.store.tabStore.bulkSelct(this)
   }
 
-  @action
   toggleHide = () => this.win.toggleHide()
 
-  @action
   toggleSelectAll = () => this.win.toggleSelectAll()
 
-  @action
   reload = () => browser.tabs.reload(this.id)
 
-  @action
   focus = () => {
     this.store.focusStore.focus(this)
   }
 
-  @action
   hover = () => {
     this.store.hoverStore.hover(this.id)
   }
 
-  @action
   unhover = () => this.store.hoverStore.unhover()
 
-  @action
   closeDuplicatedTab = () => this.store.windowStore.closeDuplicatedTab(this)
 
-  @action
   remove = () => {
     this.removing = true
     this.store.windowStore.removeTabs([this.id])
     browser.tabs.remove(this.id)
   }
 
-  @action
   groupTab = () => {
     this.store.arrangeStore.groupTab(this)
   }
 
-  @action
   togglePin = () => {
     togglePinTabs([this])
   }
 
-  @computed
   get isMatched () {
     return this.store.searchStore.matchedSet.has(this.id)
   }
 
-  @computed
   get isVisible () {
     if (this.removing) {
       return false
@@ -140,37 +152,30 @@ export default class Tab extends Focusable {
     return this.isMatched || this.store.userStore.showUnmatchedTab
   }
 
-  @computed
   get domain () {
     return getDomain(this.url)
   }
 
-  @computed
   get sameDomainTabs () {
     return this.store.arrangeStore.domainTabsMap[this.domain]
   }
 
-  @computed
   get urlCount () {
     return this.store.windowStore.urlCountMap[this.url] || 0
   }
 
-  @computed
   get isSelected () {
     return this.store.tabStore.selection.has(this.id)
   }
 
-  @computed
   get query () {
     return this.store.searchStore._tabQuery
   }
 
-  @computed
   get isHovered () {
     return this.id === this.store.hoverStore.hoveredTabId
   }
 
-  @computed
   get shouldHighlight () {
     return this.isMatched && (this.isFocused || this.isHovered)
   }
@@ -191,15 +196,12 @@ export default class Tab extends Focusable {
     }
   }
 
-  @action
   closeOtherTabs = () => {
     this.win.tabs.filter((tab) => tab.id !== this.id).map((tab) => tab.remove())
   }
 
-  @action
   closeWindow = () => this.win.closeWindow()
 
-  @action
   selectTabsInSameContainer =
     process.env.TARGET_BROWSER === 'firefox'
       ? () => {
@@ -207,7 +209,6 @@ export default class Tab extends Focusable {
       }
       : () => {}
 
-  @action
   openSameContainerTabs =
     process.env.TARGET_BROWSER === 'firefox'
       ? () => {

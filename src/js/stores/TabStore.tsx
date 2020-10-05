@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import { activateTab } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
@@ -8,13 +8,24 @@ export default class TabStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      selection: observable,
+      tabDescription: computed,
+      select: action,
+      selectTabsInSameContainer: action,
+      selectAll: action,
+      invertSelect: action,
+      unselectAll: action,
+      bulkSelct: action,
+      sources: computed,
+      activate: action
+    })
+
     this.store = store
   }
 
-  @observable
   selection = observable.map()
 
-  @computed
   get tabDescription () {
     const { size } = this.selection
     if (size === 0) {
@@ -26,7 +37,6 @@ export default class TabStore {
     return 'selected tabs'
   }
 
-  @action
   select = (tab) => {
     const { id } = tab
     if (this.selection.has(id)) {
@@ -36,7 +46,6 @@ export default class TabStore {
     }
   }
 
-  @action
   selectTabsInSameContainer =
     process.env.TARGET_BROWSER === 'firefox'
       ? (tab) => {
@@ -51,19 +60,16 @@ export default class TabStore {
       }
       : () => {}
 
-  @action
   selectAll = (tabs) => {
     tabs.map((tab) => {
       this.selection.set(tab.id, tab)
     })
   }
 
-  @action
   invertSelect = (tabs) => {
     tabs.forEach(this.select)
   }
 
-  @action
   unselectAll = (tabs?: Tab[]) => {
     if (!tabs) {
       return this.selection.clear()
@@ -71,7 +77,6 @@ export default class TabStore {
     tabs.forEach(({ id }) => this.selection.delete(id))
   }
 
-  @action
   bulkSelct = (tab) => {
     log.debug('blukSelect:', tab)
     const { tabs } = this.store.windowStore
@@ -106,7 +111,6 @@ export default class TabStore {
     this.select(tab)
   }
 
-  @computed
   get sources () {
     return Array.from(this.selection.values()).sort((a, b) => {
       if (a.windowId === b.windowId) {
@@ -117,7 +121,6 @@ export default class TabStore {
   }
 
   // TODO: this abstraction may be useless
-  @action
   activate = (tab) => {
     activateTab(tab.id)
   }

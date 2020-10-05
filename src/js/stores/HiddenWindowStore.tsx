@@ -1,4 +1,4 @@
-import { observable } from 'mobx'
+import { observable, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 
@@ -6,6 +6,10 @@ export default class HiddenWindowsStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      hiddenWindows: observable
+    })
+
     this.store = store
     this.init()
   }
@@ -19,7 +23,6 @@ export default class HiddenWindowsStore {
     }
   }
 
-  @observable
   hiddenWindows = {}
 
   updateHideForAllWindows = (hide) => {

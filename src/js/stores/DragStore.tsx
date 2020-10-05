@@ -1,20 +1,26 @@
-import { action, observable } from 'mobx'
+import { action, observable, makeObservable } from 'mobx'
 import Store from 'stores'
 
 export default class DragStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      dropped: observable,
+      dragging: observable,
+      dragStart: action,
+      dragEnd: action,
+      drop: action,
+      dropToNewWindow: action
+    })
+
     this.store = store
   }
 
-  @observable
   dropped = false
 
-  @observable
   dragging = false
 
-  @action
   dragStart = (tab) => {
     tab.select()
     tab.unhover()
@@ -22,7 +28,6 @@ export default class DragStore {
     this.store.tabStore.selection.set(tab.id, tab)
   }
 
-  @action
   dragEnd = () => {
     this.dragging = false
     if (!this.dropped) {
@@ -39,7 +44,6 @@ export default class DragStore {
     return tabs.filter((x) => !this.store.tabStore.selection.has(x.id))
   }
 
-  @action
   drop = async (tab, before = true) => {
     const {
       moveTabs,
@@ -62,7 +66,6 @@ export default class DragStore {
     resume()
   }
 
-  @action
   dropToNewWindow = async () => {
     const { sources } = this.store.tabStore
     this.store.windowStore.createNewWindow(sources)

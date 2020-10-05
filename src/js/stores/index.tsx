@@ -1,4 +1,4 @@
-import { action, computed } from 'mobx'
+import { action, computed, makeObservable } from 'mobx'
 import { togglePinTabs, writeToClipboard } from 'libs'
 import log from 'libs/log'
 import WindowStore from 'stores/WindowStore'
@@ -39,6 +39,14 @@ export default class Store {
   containerStore
 
   constructor () {
+    makeObservable(this, {
+      remove: action,
+      reload: action,
+      togglePin: action,
+      hasFocusedOrSelectedTab: computed,
+      copyTabsInfo: action
+    })
+
     this.windowStore = new WindowStore(this)
     this.tabStore = new TabStore(this)
     this.arrangeStore = new ArrangeStore(this)
@@ -55,7 +63,6 @@ export default class Store {
     }
   }
 
-  @action
   remove = () => {
     const { down, focusedTabId } = this.focusStore
     const { tabs } = this.windowStore
@@ -79,7 +86,6 @@ export default class Store {
     tabsToRemove.forEach((x) => x.remove())
   }
 
-  @action
   reload = () => {
     const { focusedItem } = this.focusStore
     const { tabs } = this.windowStore
@@ -96,7 +102,6 @@ export default class Store {
     tabsToReload.forEach((x) => x.reload())
   }
 
-  @action
   togglePin = async () => {
     const { focusedItem } = this.focusStore
     const { selection, unselectAll } = this.tabStore
@@ -114,7 +119,6 @@ export default class Store {
     }
   }
 
-  @computed
   get hasFocusedOrSelectedTab () {
     return this.tabStore.selection.size > 0 || !!this.focusStore.focusedItem
   }
@@ -136,7 +140,6 @@ export default class Store {
     }
   }
 
-  @action
   copyTabsInfo = async ({ includeTitle = false, delimiter = '\n' } = {}) => {
     const tabs = this._getFocusedOrSelectedTab()
     if (!tabs || !tabs.length) {

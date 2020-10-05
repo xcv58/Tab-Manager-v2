@@ -1,4 +1,4 @@
-import { action, observable, computed } from 'mobx'
+import { action, observable, computed, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
@@ -27,6 +27,45 @@ export default class UserStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      loaded: observable,
+      showShortcutHint: observable,
+      showUnmatchedTab: observable,
+      toolbarAutoHide: observable,
+      highlightDuplicatedTab: observable,
+      showTabTooltip: observable,
+      preserveSearch: observable,
+      showUrl: observable,
+      autoFocusSearch: observable,
+      dialogOpen: observable,
+      toolbarVisible: observable,
+      darkTheme: observable,
+      useSystemTheme: observable,
+      tabWidth: observable,
+      showTabIcon: observable,
+      theme: computed,
+      selectTheme: action,
+      selectNextTheme: action,
+      openDialog: action,
+      closeDialog: action,
+      toggleDialog: action,
+      toggleHighlightDuplicatedTab: action,
+      toggleShowShortcutHint: action,
+      toggleShowTabTooltip: action,
+      togglePreserveSearch: action,
+      toggleShowUnmatchedTab: action,
+      toggleAutoFocusSearch: action,
+      toggleShowUrl: action,
+      updateTabWidth: action,
+      toggleShowTabIcon: action,
+      toggleAutoHide: action,
+      toggleDarkTheme: action,
+      toggleUseSystemTheme: action,
+      lazyHideToolbar: action,
+      showToolbar: action,
+      hideToolbar: action
+    })
+
     this.store = store
     this.init()
   }
@@ -39,52 +78,23 @@ export default class UserStore {
     this.loaded = true
   }
 
-  @observable
   loaded = false
 
-  @observable
-  showShortcutHint
-
-  @observable
-  showUnmatchedTab
-
-  @observable
-  toolbarAutoHide
-
-  @observable
-  highlightDuplicatedTab
-
-  @observable
-  showTabTooltip
-
-  @observable
-  preserveSearch
-
-  @observable
-  showUrl
-
-  @observable
-  autoFocusSearch
-
-  @observable
-  dialogOpen = false
-
-  @observable
-  toolbarVisible
-
-  @observable
-  darkTheme = false
-
-  @observable
+  showShortcutHint = true
+  showUnmatchedTab = true
+  toolbarAutoHide = false
+  highlightDuplicatedTab = true
+  showTabTooltip = true
+  preserveSearch = true
+  showUrl = true
+  autoFocusSearch = false
   useSystemTheme = true
-
-  @observable
+  darkTheme = false
   tabWidth = 20
-
-  @observable
   showTabIcon = true
+  dialogOpen = false
+  toolbarVisible = true
 
-  @computed
   get theme () {
     if (this.useSystemTheme) {
       return SYSTEM
@@ -95,7 +105,6 @@ export default class UserStore {
     return LIGHT
   }
 
-  @action
   selectTheme = (theme) => {
     if (theme === SYSTEM) {
       this.useSystemTheme = true
@@ -109,24 +118,20 @@ export default class UserStore {
     })
   }
 
-  @action
   selectNextTheme = () => {
     const index = THEMES.findIndex((t) => t === this.theme)
     const nextIndex = (index + 1) % THEMES.length
     this.selectTheme(THEMES[nextIndex])
   }
 
-  @action
   openDialog = () => {
     this.dialogOpen = true
   }
 
-  @action
   closeDialog = () => {
     this.dialogOpen = false
   }
 
-  @action
   toggleDialog = () => {
     this.dialogOpen = !this.dialogOpen
   }
@@ -140,68 +145,57 @@ export default class UserStore {
     )
   }
 
-  @action
   toggleHighlightDuplicatedTab = () => {
     this.highlightDuplicatedTab = !this.highlightDuplicatedTab
     this.save()
   }
 
-  @action
   toggleShowShortcutHint = () => {
     this.showShortcutHint = !this.showShortcutHint
     this.save()
   }
 
-  @action
   toggleShowTabTooltip = () => {
     this.showTabTooltip = !this.showTabTooltip
     this.save()
   }
 
-  @action
   togglePreserveSearch = () => {
     this.preserveSearch = !this.preserveSearch
     this.save()
   }
 
-  @action
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
     this.save()
   }
 
-  @action
   toggleAutoFocusSearch = () => {
     this.autoFocusSearch = !this.autoFocusSearch
     this.save()
   }
 
-  @action
   toggleShowUrl = () => {
     this.showUrl = !this.showUrl
     this.save()
   }
 
-  @action
   updateTabWidth = (tabWidth) => {
     this.tabWidth = tabWidth
     this.save()
   }
 
-  @action
   toggleShowTabIcon = () => {
     this.showTabIcon = !this.showTabIcon
     this.save()
   }
 
-  @action
   toggleAutoHide = () => {
     this._hideToolbar.cancel()
     browser.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
     this.init()
   }
 
-  @action
   toggleDarkTheme = (currentTheme) => {
     browser.storage.sync.set({
       useSystemTheme: false,
@@ -210,13 +204,11 @@ export default class UserStore {
     this.init()
   }
 
-  @action
   toggleUseSystemTheme = () => {
     browser.storage.sync.set({ useSystemTheme: !this.useSystemTheme })
     this.init()
   }
 
-  @action
   lazyHideToolbar = () => {
     if (!this.toolbarAutoHide) {
       return
@@ -224,7 +216,6 @@ export default class UserStore {
     this._hideToolbar()
   }
 
-  @action
   showToolbar = () => {
     if (!this.toolbarAutoHide) {
       return
@@ -233,7 +224,6 @@ export default class UserStore {
     this.toolbarVisible = true
   }
 
-  @action
   hideToolbar = () => {
     this.toolbarVisible = false
   }

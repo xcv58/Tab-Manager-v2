@@ -1,5 +1,5 @@
 import { MutableRefObject } from 'react'
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
@@ -13,6 +13,32 @@ export default class SearchStore {
   store: Store
 
   constructor (store) {
+    makeObservable(this, {
+      searchEl: observable,
+      query: observable,
+      _query: observable,
+      _tabQuery: observable,
+      typing: observable,
+      isCommand: computed,
+      matchedTabs: computed,
+      matchedSet: computed,
+      allTabSelected: computed,
+      someTabSelected: computed,
+      setSearchEl: action,
+      focus: action,
+      startCommandSearch: action,
+      blur: action,
+      startType: action,
+      stopType: action,
+      search: action,
+      updateQuery: action,
+      updateTabQuery: action,
+      clear: action,
+      selectAll: action,
+      invertSelect: action,
+      unselectAll: action
+    })
+
     this.store = store
   }
 
@@ -23,43 +49,33 @@ export default class SearchStore {
     }
   }
 
-  @observable
   searchEl: MutableRefObject<HTMLInputElement> = null
 
-  @observable
   query = ''
 
-  @observable
   _query = ''
 
-  @observable
   // The _tabQuery is used only on tab content highlight
   _tabQuery = ''
 
-  @observable
   typing = false
 
-  @computed
   get isCommand () {
     return hasCommandPrefix(this.query)
   }
 
-  @computed
   get matchedTabs (): Tab[] {
     return this.fuzzySearch()
   }
 
-  @computed
   get matchedSet () {
     return new Set(this.matchedTabs.map((x) => x.id))
   }
 
-  @computed
   get allTabSelected () {
     return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
 
-  @computed
   get someTabSelected () {
     return (
       !this.allTabSelected &&
@@ -67,17 +83,14 @@ export default class SearchStore {
     )
   }
 
-  @action
   setSearchEl = (searchEl) => {
     this.searchEl = searchEl
   }
 
-  @action
   focus = () => {
     this.searchEl.current.click()
   }
 
-  @action
   startCommandSearch = async () => {
     const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
     this.search(`>${lastCommand}`)
@@ -88,7 +101,6 @@ export default class SearchStore {
     }
   }
 
-  @action
   blur = () => {
     const inputEl = this.searchEl.current.querySelector('input')
     if (inputEl) {
@@ -96,12 +108,10 @@ export default class SearchStore {
     }
   }
 
-  @action
   startType = () => {
     this.typing = true
   }
 
-  @action
   stopType = () => {
     this.typing = false
     if (this.isCommand) {
@@ -109,7 +119,6 @@ export default class SearchStore {
     }
   }
 
-  @action
   search = (query) => {
     log.debug('SearchStore.search:', { query, 'this.query': this.query })
     if (this.query === query) {
@@ -143,13 +152,10 @@ export default class SearchStore {
     this._tabQuery = this.query
   }
 
-  @action
   updateQuery = debounce(this._updateQuery, 200)
 
-  @action
   updateTabQuery = debounce(this._updateTabQuery, 500)
 
-  @action
   clear = () => this.search('')
 
   fuzzySearch = () => {
@@ -165,17 +171,14 @@ export default class SearchStore {
     return matchSorter(tabs, this._query, { keys })
   }
 
-  @action
   selectAll = () => {
     this.store.tabStore.selectAll(this.matchedTabs)
   }
 
-  @action
   invertSelect = () => {
     this.store.tabStore.invertSelect(this.matchedTabs)
   }
 
-  @action
   unselectAll = () => {
     this.store.tabStore.unselectAll()
   }
