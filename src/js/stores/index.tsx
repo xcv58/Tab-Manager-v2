@@ -66,7 +66,7 @@ export default class Store {
   remove = () => {
     const { down, focusedTabId } = this.focusStore
     const { tabs } = this.windowStore
-    let tabsToRemove = []
+    let tabsToRemove: Tab[] = []
     if (this.tabStore.selection.size > 0) {
       while (this.tabStore.selection.has(this.focusStore.focusedTabId)) {
         down()
@@ -90,7 +90,7 @@ export default class Store {
     const { focusedItem } = this.focusStore
     const { tabs } = this.windowStore
     const { selection, unselectAll } = this.tabStore
-    let tabsToReload = []
+    let tabsToReload: Tab[] = []
     if (selection.size > 0) {
       tabsToReload = tabs.filter((x) => x.isSelected)
     } else {

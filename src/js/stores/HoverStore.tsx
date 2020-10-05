@@ -8,7 +8,7 @@ const HOVERED_DELAY = 896.4
 export default class HoverStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       hoveredTabId: observable,
       hovered: observable,
@@ -19,12 +19,12 @@ export default class HoverStore {
     this.store = store
   }
 
-  hoveredTabId = null
+  hoveredTabId: number = null
 
   // Hovered long enough with the delay
   hovered = false
 
-  hover = (id) => {
+  hover = (id: number) => {
     if (this.hoveredTabId === id) {
       return
     }

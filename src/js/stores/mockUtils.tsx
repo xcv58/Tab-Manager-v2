@@ -1,6 +1,7 @@
 const getId = () => Math.round(Math.random() * 1000 * 1000)
 
-const getMockedTab = ({ windowId, index }) => {
+type Input = { windowId: number; index: number }
+const getMockedTab = ({ windowId, index }: Input) => {
   return {
     id: getId(),
     windowId,

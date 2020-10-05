@@ -39,6 +39,7 @@ export default class Tab extends Focusable {
       active: observable,
       pinned: observable,
       title: observable,
+      index: observable,
       url: observable,
       windowId: observable,
       removing: observable,
@@ -93,6 +94,8 @@ export default class Tab extends Focusable {
   removing = false
 
   favIconUrl: string = ''
+
+  index: number = -1
 
   activate = () => {
     this.focus()

@@ -26,7 +26,7 @@ export const THEMES = [SYSTEM, DARK, LIGHT]
 export default class UserStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       loaded: observable,
       showShortcutHint: observable,
@@ -105,7 +105,7 @@ export default class UserStore {
     return LIGHT
   }
 
-  selectTheme = (theme) => {
+  selectTheme = (theme: string) => {
     if (theme === SYSTEM) {
       this.useSystemTheme = true
     } else {
@@ -180,7 +180,7 @@ export default class UserStore {
     this.save()
   }
 
-  updateTabWidth = (tabWidth) => {
+  updateTabWidth = (tabWidth: number) => {
     this.tabWidth = tabWidth
     this.save()
   }
@@ -196,7 +196,7 @@ export default class UserStore {
     this.init()
   }
 
-  toggleDarkTheme = (currentTheme) => {
+  toggleDarkTheme = (currentTheme: string) => {
     browser.storage.sync.set({
       useSystemTheme: false,
       darkTheme: !currentTheme

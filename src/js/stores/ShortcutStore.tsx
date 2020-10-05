@@ -4,7 +4,7 @@ import { openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 
-export const getDescription = (description) => {
+export const getDescription = (description: string | Function) => {
   if (typeof description === 'string') {
     return description
   }
@@ -14,7 +14,7 @@ export const getDescription = (description) => {
   return 'Unknow description'
 }
 
-const preventDefault = (event) => {
+const preventDefault = (event: Event) => {
   if (event && event.preventDefault) {
     event.preventDefault()
   }
@@ -28,7 +28,7 @@ const hasFocusedElement = () => {
 export default class ShortcutStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       combo: observable,
       toastOpen: observable,
@@ -49,7 +49,7 @@ export default class ShortcutStore {
     this.store = store
   }
 
-  combo = null
+  combo: string = null
 
   toastOpen = false
 
@@ -76,10 +76,10 @@ export default class ShortcutStore {
     'shift+ctrl+g'
   ])
 
-  shortcuts = [
+  shortcuts: any[] = [
     [
       'ctrl+s',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.arrangeStore.sortTabs()
       },
@@ -87,7 +87,7 @@ export default class ShortcutStore {
     ],
     [
       'shift+ctrl+s',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.arrangeStore.groupTabs()
       },
@@ -102,7 +102,7 @@ export default class ShortcutStore {
     ],
     [
       ['* c', 'shift+ctrl+c'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.windowStore.cleanDuplicatedTabs()
       },
@@ -134,7 +134,7 @@ export default class ShortcutStore {
     ],
     [
       ['p', 'ctrl+p'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.togglePin()
       },
@@ -142,7 +142,7 @@ export default class ShortcutStore {
     ],
     [
       '/',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.searchStore.focus()
       },
@@ -151,7 +151,7 @@ export default class ShortcutStore {
     ],
     [
       ['>', 'command+shift+p'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.searchStore.startCommandSearch()
       },
@@ -160,7 +160,7 @@ export default class ShortcutStore {
     ],
     [
       'escape',
-      (event) => {
+      (event: Event) => {
         if (!event) {
           return
         }
@@ -202,7 +202,7 @@ export default class ShortcutStore {
     ],
     [
       ['h', 'left', 'ctrl+h'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.left()
       },
@@ -210,7 +210,7 @@ export default class ShortcutStore {
     ],
     [
       ['l', 'right', 'ctrl+l'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.right()
       },
@@ -218,7 +218,7 @@ export default class ShortcutStore {
     ],
     [
       ['j', 'down', 'ctrl+j'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.down()
       },
@@ -226,7 +226,7 @@ export default class ShortcutStore {
     ],
     [
       ['k', 'up', 'ctrl+k'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.up()
       },
@@ -234,7 +234,7 @@ export default class ShortcutStore {
     ],
     [
       ['g g'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.firstTab()
       },
@@ -242,7 +242,7 @@ export default class ShortcutStore {
     ],
     [
       ['shift+g', 'shift+ctrl+g'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.lastTab()
       },
@@ -250,7 +250,7 @@ export default class ShortcutStore {
     ],
     [
       ['ctrl+g'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.groupTab()
       },
@@ -258,7 +258,7 @@ export default class ShortcutStore {
     ],
     [
       ['x', 'ctrl+x'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.select()
       },
@@ -267,7 +267,7 @@ export default class ShortcutStore {
     ],
     [
       ['space'],
-      (event) => {
+      (event: Event) => {
         if (!hasFocusedElement()) {
           preventDefault(event)
           this.store.focusStore.select()
@@ -278,7 +278,7 @@ export default class ShortcutStore {
     ],
     [
       ['shift+x'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.selectWindow()
       },
@@ -286,7 +286,7 @@ export default class ShortcutStore {
     ],
     [
       ['alt+d'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.closeWindow()
       },
@@ -294,7 +294,7 @@ export default class ShortcutStore {
     ],
     [
       ['* m', 'ctrl+m'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.searchStore.selectAll()
       },
@@ -302,7 +302,7 @@ export default class ShortcutStore {
     ],
     [
       ['* u', 'i', 'ctrl+u'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.searchStore.invertSelect()
       },
@@ -310,7 +310,7 @@ export default class ShortcutStore {
     ],
     [
       ['* a', 'ctrl+8'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.windowStore.selectAll()
       },
@@ -318,7 +318,7 @@ export default class ShortcutStore {
     ],
     [
       ['* n', 'ctrl+n'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.tabStore.unselectAll()
       },
@@ -326,7 +326,7 @@ export default class ShortcutStore {
     ],
     [
       ['ctrl+o'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         openInNewTab()
       },
@@ -334,7 +334,7 @@ export default class ShortcutStore {
     ],
     [
       ['shift+n'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.dragStore.dropToNewWindow()
       },
@@ -342,7 +342,7 @@ export default class ShortcutStore {
     ],
     [
       ['ctrl+i'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.userStore.selectNextTheme()
       },
@@ -350,7 +350,7 @@ export default class ShortcutStore {
     ],
     [
       ['?', 'ctrl+/'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.openDialog()
       },
@@ -358,7 +358,7 @@ export default class ShortcutStore {
     ],
     [
       'ctrl+,',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.userStore.toggleDialog()
       },
@@ -366,7 +366,7 @@ export default class ShortcutStore {
     ],
     [
       'w w',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.toggleHideForFocusedWindow()
       },
@@ -374,7 +374,7 @@ export default class ShortcutStore {
     ],
     [
       'w t',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.hiddenWindowStore.toggleHideForAllWindows()
       },
@@ -382,7 +382,7 @@ export default class ShortcutStore {
     ],
     [
       'w c',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.hiddenWindowStore.updateHideForAllWindows(true)
       },
@@ -390,7 +390,7 @@ export default class ShortcutStore {
     ],
     [
       'w e',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.hiddenWindowStore.updateHideForAllWindows(false)
       },
@@ -398,7 +398,7 @@ export default class ShortcutStore {
     ],
     [
       'c c',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.copyTabsInfo()
       },
@@ -406,7 +406,7 @@ export default class ShortcutStore {
     ],
     [
       'c t',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.copyTabsInfo({
           includeTitle: true
@@ -416,7 +416,7 @@ export default class ShortcutStore {
     ],
     [
       'c ,',
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.copyTabsInfo({
           delimiter: ', '
@@ -426,7 +426,7 @@ export default class ShortcutStore {
     ],
     process.env.TARGET_BROWSER === 'firefox' && [
       ['alt+x'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.focusStore.selectTabsInSameContainer()
       },
@@ -434,7 +434,7 @@ export default class ShortcutStore {
     ],
     process.env.TARGET_BROWSER === 'firefox' && [
       ['alt+c'],
-      (event) => {
+      (event: Event) => {
         preventDefault(event)
         this.store.containerStore.groupTabsByContainer()
       },
@@ -442,7 +442,7 @@ export default class ShortcutStore {
     ]
   ].filter((x) => x)
 
-  stopCallback = (e, element, combo) => {
+  stopCallback = (e: Event, element: HTMLInputElement, combo: string) => {
     if (this.dialogOpen) {
       return combo !== 'escape'
     }

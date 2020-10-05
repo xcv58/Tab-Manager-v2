@@ -10,7 +10,7 @@ export default class ContainerStore {
 
   containerMap = new Map()
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       containerMap: observable,
       count: computed,
@@ -56,7 +56,7 @@ export default class ContainerStore {
 
   openSameContainerTabs =
     process.env.TARGET_BROWSER === 'firefox'
-      ? (tab) => {
+      ? (tab: Tab) => {
         const tabs = this.store.windowStore.tabs.filter(
           (x) => x.cookieStoreId === tab.cookieStoreId
         )

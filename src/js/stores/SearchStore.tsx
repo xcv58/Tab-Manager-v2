@@ -7,12 +7,12 @@ import matchSorter from 'match-sorter'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
 
-const hasCommandPrefix = (value) => value.startsWith('>')
+const hasCommandPrefix = (value: string) => value.startsWith('>')
 
 export default class SearchStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       searchEl: observable,
       query: observable,
@@ -83,7 +83,7 @@ export default class SearchStore {
     )
   }
 
-  setSearchEl = (searchEl) => {
+  setSearchEl = (searchEl: MutableRefObject<HTMLInputElement>) => {
     this.searchEl = searchEl
   }
 
@@ -119,7 +119,7 @@ export default class SearchStore {
     }
   }
 
-  search = (query) => {
+  search = (query: string) => {
     log.debug('SearchStore.search:', { query, 'this.query': this.query })
     if (this.query === query) {
       return
