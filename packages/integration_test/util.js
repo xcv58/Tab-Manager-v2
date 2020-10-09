@@ -1,4 +1,4 @@
-export const manifest = require('../src/manifest.json')
+export const manifest = require('../extension/src/manifest.json')
 
 export const getExtensionURL = async (browser) => {
   const extensionId = await getExtensionId(browser)

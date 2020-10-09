@@ -10,14 +10,14 @@ before_install:
 node_js:
   - "14"
 script:
-  - yarn jest
+  - yarn test
   - yarn deploy && rm -rf ./node_modules/.cache
   - ls -l build_*/* build_*.zip
   - sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
   - cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
 after_script:
-  - yarn codecov
-  - yarn coveralls
+  - yarn workspace tab-manager-v2 codecov
+  - yarn workspace tab-manager-v2 coveralls
   - ./cc-test-reporter after-build --coverage-input-type lcov
 deploy:
   provider: releases

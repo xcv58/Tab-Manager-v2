@@ -9,7 +9,7 @@ import store from '../.storybook/mock-store'
 store.windowStore.getAllWindows()
 const tabs = store.windowStore.windows[0].tabs
 
-const tabProps = props => {
+const tabProps = (props) => {
   const tab = tabs[Math.floor(Math.random() * tabs.length)]
   Object.assign(tab, props)
   return {
@@ -38,7 +38,7 @@ const iconStory = storiesOf('Icon', module)
   'flags',
   'history',
   'settings'
-].map(x => {
+].map((x) => {
   iconStory.add(`Chrome Icon ${x}`, () => (
     <Icon {...tabProps()} url={`chrome://${x}`} />
   ))

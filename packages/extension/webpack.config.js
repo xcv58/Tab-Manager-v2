@@ -73,6 +73,8 @@ const options = {
   output: {
     path: path.join(
       __dirname,
+      '..',
+      '..',
       'build_' + (process.env.TARGET_BROWSER || 'chrome')
     ),
     filename: '[name].js'
