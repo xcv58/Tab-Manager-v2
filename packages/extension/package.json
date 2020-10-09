@@ -55,7 +55,7 @@
     "@types/lodash.debounce": "^4.0.6",
     "@types/match-sorter": "^4.0.0",
     "@types/mousetrap": "^1.6.4",
-    "@types/react": "16.9.50",
+    "@types/react": "16.9.51",
     "@types/react-custom-scrollbars": "4.0.7",
     "@types/react-dom": "16.9.8",
     "@types/webpack-env": "1.15.3",
