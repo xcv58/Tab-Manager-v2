@@ -11046,10 +11046,10 @@ react-autowhatever@^10.2.1:
     react-themeable "^1.1.0"
     section-iterator "^2.0.0"
 
-react-axe@3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/react-axe/-/react-axe-3.5.3.tgz#38dac84e20cdf3e09e5752eb405b30c5ac845fa8"
-  integrity sha512-WDKAoLVsC6rsmYboXThY7OnVDaQOOOecySHJJjggn1cFOJyWtzNh2uiV3oSxoAolONGTi22G9zKDxw53g/8Vqg==
+react-axe@3.5.4:
+  version "3.5.4"
+  resolved "https://registry.yarnpkg.com/react-axe/-/react-axe-3.5.4.tgz#f59b9ea08eb82341f53cb26c5c53724417bc8c8f"
+  integrity sha512-5xNO0QVCCEZnJiyhAGox0MGFyclgU3XL8se+5H+whdxV1VTtA9/uux9BSCF5mGNSgtSZkb+tQtrOaF+zGf/oWw==
   dependencies:
     axe-core "^3.5.0"
     requestidlecallback "^0.3.0"
