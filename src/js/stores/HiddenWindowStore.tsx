@@ -5,7 +5,7 @@ import Store from 'stores'
 export default class HiddenWindowsStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       hiddenWindows: observable
     })
@@ -23,9 +23,9 @@ export default class HiddenWindowsStore {
     }
   }
 
-  hiddenWindows = {}
+  hiddenWindows: { [key: number]: boolean } = {}
 
-  updateHideForAllWindows = (hide) => {
+  updateHideForAllWindows = (hide: boolean) => {
     if (hide) {
       this.hiddenWindows = Object.assign(
         {},
@@ -44,12 +44,12 @@ export default class HiddenWindowsStore {
     this.saveHiddenWindows()
   }
 
-  hideWindow = (windowId) => {
+  hideWindow = (windowId: number) => {
     this.hiddenWindows[windowId] = true
     this.saveHiddenWindows()
   }
 
-  showWindow = (windowId) => {
+  showWindow = (windowId: number) => {
     this.hiddenWindows[windowId] = false
     this.saveHiddenWindows()
   }

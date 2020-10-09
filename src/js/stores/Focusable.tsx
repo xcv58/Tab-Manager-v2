@@ -1,10 +1,11 @@
+import { MutableRefObject } from 'react'
 import { action, computed, observable, makeObservable } from 'mobx'
 import Store from 'stores'
 
 export default class Focusable {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       id: observable,
       nodeRef: observable,
@@ -15,11 +16,11 @@ export default class Focusable {
     this.store = store
   }
 
-  id = null
+  id: number = null
 
-  nodeRef = null
+  nodeRef: MutableRefObject<HTMLDivElement> = null
 
-  setNodeRef = (nodeRef) => {
+  setNodeRef = (nodeRef: MutableRefObject<HTMLDivElement>) => {
     this.nodeRef = nodeRef
   }
 

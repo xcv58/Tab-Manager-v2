@@ -1,5 +1,6 @@
 import { action, observable, makeObservable } from 'mobx'
 import Store from 'stores'
+import Tab from './Tab'
 
 export default class DragStore {
   store: Store
@@ -40,11 +41,11 @@ export default class DragStore {
     this.dropped = false
   }
 
-  getUnselectedTabs = (tabs) => {
+  getUnselectedTabs = (tabs: Tab[]) => {
     return tabs.filter((x) => !this.store.tabStore.selection.has(x.id))
   }
 
-  drop = async (tab, before = true) => {
+  drop = async (tab: Tab, before = true) => {
     const {
       moveTabs,
       getTargetWindow,

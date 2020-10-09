@@ -109,21 +109,21 @@ export default class Window extends Focusable {
     )
   }
 
-  getTab = (index) => {
+  getTab = (index: number) => {
     if (index < 0 || index >= this.tabs.length) {
       return null
     }
     return this.tabs[index]
   }
 
-  add = (tab, index) => {
+  add = (tab: Tab, index: number) => {
     if (index < 0 || index > this.tabs.length + 1) {
       throw new Error(`[Window-Store.add] get invalid index: "${index}"!`)
     }
     this.tabs.splice(index, 0, tab)
   }
 
-  remove = (tab) => {
+  remove = (tab: Tab) => {
     const index = this.tabs.findIndex((x) => x.id === tab.id)
     if (index !== -1) {
       this.tabs.splice(index, 1)
@@ -169,7 +169,7 @@ export default class Window extends Focusable {
 
   select = this.toggleSelectAll
 
-  onMoved = (tabId, moveInfo) => {
+  onMoved = (tabId: number, moveInfo) => {
     const { fromIndex, toIndex } = moveInfo
     const toTab = this.getTab(toIndex)
     if (!toTab) {
@@ -187,7 +187,7 @@ export default class Window extends Focusable {
     return true
   }
 
-  onDetached = (tabId, detachInfo) => {
+  onDetached = (tabId: number, detachInfo) => {
     const { oldPosition } = detachInfo
     const oldTab = this.getTab(oldPosition)
     if (oldTab && oldTab.id === tabId) {
@@ -195,7 +195,7 @@ export default class Window extends Focusable {
     }
   }
 
-  onAttched = async (tabId, attachInfo) => {
+  onAttched = async (tabId: number, attachInfo) => {
     const { newPosition } = attachInfo
     const tab = this.getTab(newPosition)
     if (tab && tab.id === tabId) {

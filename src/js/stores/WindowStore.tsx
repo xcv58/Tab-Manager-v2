@@ -18,7 +18,7 @@ import debounce from 'lodash.debounce'
 export default class WindowsStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       windows: observable,
       initialLoading: observable,
@@ -124,12 +124,12 @@ export default class WindowsStore {
     }
   }
 
-  onWindowsCreated = async (win) => {
+  onWindowsCreated = async (win: Window) => {
     log.debug('windows.onCreated:', { win })
     await this.getOrCreateWinById(win.id)
   }
 
-  onAttached = async (tabId, attachInfo) => {
+  onAttached = async (tabId: number, attachInfo) => {
     log.debug('tabs.onAttached:', { tabId, attachInfo })
     const { newWindowId } = attachInfo
     const win = await this.getOrCreateWinById(newWindowId)
@@ -138,7 +138,7 @@ export default class WindowsStore {
 
   // This method will return the window object if it appears in this.windows.
   // Otherwise, it will create a new Window object and push it to this.windows.
-  getOrCreateWinById = async (windowId) => {
+  getOrCreateWinById = async (windowId: number) => {
     let win = this.windows.find((x) => x.id === windowId)
     if (win) {
       return win
@@ -154,7 +154,7 @@ export default class WindowsStore {
     return win
   }
 
-  onDetached = (tabId, detachInfo) => {
+  onDetached = (tabId: number, detachInfo) => {
     log.debug('tabs.onDetached:', { tabId, detachInfo })
     const win = this.windows.find((x) => x.id === detachInfo.oldWindowId)
     if (!win) {
@@ -166,7 +166,13 @@ export default class WindowsStore {
     this.clearWindow()
   }
 
-  onRemoved = (id, { windowId, isWindowClosing }) => {
+  onRemoved = (
+    id: number,
+    {
+      windowId,
+      isWindowClosing
+    }: { windowId: number; isWindowClosing: boolean }
+  ) => {
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
     this.store.tabStore.selection.delete(id)
     if (!isWindowClosing) {
@@ -183,7 +189,7 @@ export default class WindowsStore {
     this.clearWindow()
   }
 
-  onUpdated = (tabId, changeInfo, newTab) => {
+  onUpdated = (tabId: number, changeInfo, newTab: Tab) => {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
@@ -192,7 +198,7 @@ export default class WindowsStore {
     }
   }
 
-  onFocusChanged = async (windowId) => {
+  onFocusChanged = async (windowId: number) => {
     log.debug('windows.onFocusChanged:', { windowId })
     if (windowId <= 0) {
       return
@@ -205,7 +211,7 @@ export default class WindowsStore {
     }
   }
 
-  onCreated = (tab) => {
+  onCreated = (tab: Tab) => {
     log.debug('tabs.onCreated:', { tab })
     const { index, windowId } = tab
     const win = this.windows.find((x) => x.id === windowId)
@@ -224,7 +230,8 @@ export default class WindowsStore {
     }
   }
 
-  onActivated = ({ tabId, windowId }) => {
+  onActivated = (args: { tabId?: number; windowId?: number }) => {
+    const { tabId, windowId } = args
     log.debug('tabs.onActivate:', { tabId, windowId })
     this.lastFocusedWindowId = windowId
     const win = this.windows.find((x) => x.id === windowId)
@@ -242,7 +249,7 @@ export default class WindowsStore {
     }
   }
 
-  onMoved = (tabId, moveInfo) => {
+  onMoved = (tabId: number, moveInfo) => {
     log.debug('tabs.onMoved:', { tabId, moveInfo })
     const win = this.windows.find((x) => x.id === moveInfo.windowId)
     if (!win) {
@@ -263,13 +270,13 @@ export default class WindowsStore {
     this.getAllWindows()
   }
 
-  removeTabs = (ids) => {
+  removeTabs = (ids: number[]) => {
     const set = new Set(ids)
     this.windows.forEach((win) => win.removeTabs(set))
     this.clearWindow()
   }
 
-  createNewWindow = (tabs) => {
+  createNewWindow = (tabs: Tab[]) => {
     log.debug('createNewWindow:', { tabs })
     browser.runtime.sendMessage({
       tabs: tabs.map(({ id, pinned }) => ({
@@ -300,7 +307,7 @@ export default class WindowsStore {
   }
 
   get urlCountMap () {
-    return this.tabs.reduce((acc, tab) => {
+    return this.tabs.reduce((acc: { [key: string]: number }, tab) => {
       const { url } = tab
       acc[url] = (acc[url] || 0) + 1
       return acc
@@ -311,7 +318,7 @@ export default class WindowsStore {
     return this.tabs.filter((tab) => this.urlCountMap[tab.url] > 1)
   }
 
-  closeDuplicatedTab = (tab) => {
+  closeDuplicatedTab = (tab: Tab) => {
     const { id, url } = tab
     this.tabs
       .filter((x) => x.url === url && x.id !== id)
@@ -319,21 +326,24 @@ export default class WindowsStore {
   }
 
   cleanDuplicatedTabs = () => {
-    const tabMap = this.duplicatedTabs.reduce((acc, tab) => {
-      const { url } = tab
-      if (acc[url]) {
-        acc[url].push(tab)
-      } else {
-        acc[url] = [tab]
-      }
-      return acc
-    }, {})
+    const tabMap = this.duplicatedTabs.reduce(
+      (acc: { [key: string]: Tab[] }, tab) => {
+        const { url } = tab
+        if (acc[url]) {
+          acc[url].push(tab)
+        } else {
+          acc[url] = [tab]
+        }
+        return acc
+      },
+      {}
+    )
     Object.values(tabMap).map((tabs) => {
       tabs.slice(1).forEach((x) => x.remove())
     })
   }
 
-  getTargetWindow = (windowId) => {
+  getTargetWindow = (windowId: number) => {
     const win = this.windows.find((win) => win.id === windowId)
     if (!win) {
       throw new Error(
@@ -343,12 +353,12 @@ export default class WindowsStore {
     return win
   }
 
-  moveTabs = async (tabs, windowId, from = 0) => {
+  moveTabs = async (tabs: Tab[], windowId: number, from = 0) => {
     log.debug('moveTabs:', { tabs, windowId, from })
     await moveTabs(tabs, windowId, from)
   }
 
-  updateHeight (height) {
+  updateHeight (height: number) {
     log.debug('WindowsStore.updateHeight:', {
       height,
       'this.height': this.height

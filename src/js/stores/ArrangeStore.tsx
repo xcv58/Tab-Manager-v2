@@ -2,11 +2,12 @@ import { action, computed, makeObservable } from 'mobx'
 import { moveTabs, tabComparator, browser } from 'libs'
 import Window from 'stores/Window'
 import Store from 'stores'
+import Tab from './Tab'
 
 export default class ArrangeStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       domainTabsMap: computed,
       sortTabs: action,
@@ -17,12 +18,15 @@ export default class ArrangeStore {
   }
 
   get domainTabsMap () {
-    return this.store.windowStore.tabs.reduce((acc, tab) => {
-      const { domain } = tab
-      acc[domain] = acc[domain] || []
-      acc[domain].push(tab)
-      return acc
-    }, {})
+    return this.store.windowStore.tabs.reduce(
+      (acc: { [key: string]: Tab[] }, tab) => {
+        const { domain } = tab
+        acc[domain] = acc[domain] || []
+        acc[domain].push(tab)
+        return acc
+      },
+      {}
+    )
   }
 
   sortTabs = async (windowId?: string) => {
@@ -37,7 +41,7 @@ export default class ArrangeStore {
     await this.sortInWindow(windows.map((win) => new Window(win, this.store)))
   }
 
-  groupTab = async (tab) => {
+  groupTab = async (tab: Tab) => {
     const { domain } = tab
     const tabs = this.domainTabsMap[domain]
     const pinned = tabs.reduce((acc, cur) => acc || cur.pinned, false)
@@ -52,21 +56,23 @@ export default class ArrangeStore {
 
   groupTabs = async () => {
     await Promise.all(
-      Object.entries(this.domainTabsMap).map(async ([domain, tabs]) => {
-        if (tabs.length > 1) {
-          const sortedTabs = tabs.sort(tabComparator)
-          const { windowId, pinned } = sortedTabs[0]
-          await moveTabs(
-            sortedTabs.map((x) => ({ ...x, pinned })),
-            windowId
-          )
+      Object.entries(this.domainTabsMap).map(
+        async ([domain, tabs]: [string, Tab[]]) => {
+          if (tabs.length > 1) {
+            const sortedTabs = tabs.sort(tabComparator)
+            const { windowId, pinned } = sortedTabs[0]
+            await moveTabs(
+              sortedTabs.map((x) => ({ ...x, pinned })),
+              windowId
+            )
+          }
         }
-      })
+      )
     )
     await this.sortTabs()
   }
 
-  sortInWindow = async (windows = []) => {
+  sortInWindow = async (windows: Window[] = []) => {
     windows.map((win) => {
       const sortedTabs = win.tabs.sort(tabComparator)
       const differentTabIndex = sortedTabs

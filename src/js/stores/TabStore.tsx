@@ -7,7 +7,7 @@ import Tab from './Tab'
 export default class TabStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       selection: observable,
       tabDescription: computed,
@@ -37,7 +37,7 @@ export default class TabStore {
     return 'selected tabs'
   }
 
-  select = (tab) => {
+  select = (tab: Tab) => {
     const { id } = tab
     if (this.selection.has(id)) {
       this.selection.delete(id)
@@ -48,7 +48,7 @@ export default class TabStore {
 
   selectTabsInSameContainer =
     process.env.TARGET_BROWSER === 'firefox'
-      ? (tab) => {
+      ? (tab: Tab) => {
         const tabs = this.store.windowStore.tabs.filter(
           (x) => x.cookieStoreId === tab.cookieStoreId
         )
@@ -60,13 +60,13 @@ export default class TabStore {
       }
       : () => {}
 
-  selectAll = (tabs) => {
+  selectAll = (tabs: Tab[]) => {
     tabs.map((tab) => {
       this.selection.set(tab.id, tab)
     })
   }
 
-  invertSelect = (tabs) => {
+  invertSelect = (tabs: Tab[]) => {
     tabs.forEach(this.select)
   }
 
@@ -77,7 +77,7 @@ export default class TabStore {
     tabs.forEach(({ id }) => this.selection.delete(id))
   }
 
-  bulkSelct = (tab) => {
+  bulkSelct = (tab: Tab) => {
     log.debug('blukSelect:', tab)
     const { tabs } = this.store.windowStore
     let fromIndex = -1
@@ -121,9 +121,9 @@ export default class TabStore {
   }
 
   // TODO: this abstraction may be useless
-  activate = (tab) => {
+  activate = (tab: Tab) => {
     activateTab(tab.id)
   }
 
-  isTabSelected = ({ id }) => this.selection.has(id)
+  isTabSelected = ({ id }: { id: number }) => this.selection.has(id)
 }

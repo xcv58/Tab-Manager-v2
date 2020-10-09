@@ -4,8 +4,14 @@ import log from 'libs/log'
 import Tab from './Tab'
 import Window from './Window'
 import Focusable from './Focusable'
+import { MutableRefObject } from 'react'
 
-const getNextItem = (items, index, direction, side = false) => {
+const getNextItem = (
+  items: any[],
+  index: number,
+  direction: number,
+  side = false
+) => {
   let nextIndex = index + direction + items.length
   if (side) {
     nextIndex = direction * (items.length - 1)
@@ -13,7 +19,7 @@ const getNextItem = (items, index, direction, side = false) => {
   return items[nextIndex % items.length]
 }
 
-const getFocusableItems = (win: Window, focusedItem) => {
+const getFocusableItems = (win: Window, focusedItem: Focusable) => {
   if (win.hide || win === focusedItem) {
     return [win, ...win.matchedTabs]
   }
@@ -23,7 +29,7 @@ const getFocusableItems = (win: Window, focusedItem) => {
 export default class FocusStore {
   store: Store
 
-  constructor (store) {
+  constructor (store: Store) {
     makeObservable(this, {
       focusedItem: computed,
       focusedWindowId: observable,
@@ -59,19 +65,19 @@ export default class FocusStore {
     }
   }
 
-  focusedWindowId = null
+  focusedWindowId: number = null
 
-  focusedTabId = null
+  focusedTabId: number = null
 
-  containerRef = null
+  containerRef: MutableRefObject<HTMLElement> = null
 
-  setContainerRef = (ref) => {
+  setContainerRef = (ref: MutableRefObject<HTMLElement>) => {
     this.containerRef = ref
   }
 
   _top: number = -1
 
-  _updateTop = (top) => {
+  _updateTop = (top: number) => {
     this._top = Math.max(top, this._top)
   }
 
@@ -176,7 +182,7 @@ export default class FocusStore {
     return { grid, columnIndex, scrollTop, targetColumn: grid[columnIndex] }
   }
 
-  _moveVertically = (direction, side = false) => {
+  _moveVertically = (direction: number, side = false) => {
     const { focusedItem } = this
     log.debug('_moveVertically:', { direction, side, focusedItem })
     if (!focusedItem) {
@@ -196,7 +202,7 @@ export default class FocusStore {
     this._setFocusedItem(item)
   }
 
-  _moveHorizontally = (direction) => {
+  _moveHorizontally = (direction: number) => {
     const { focusedItem } = this
     log.debug('_moveHorizontally:', { direction, focusedItem })
     if (!focusedItem) {
