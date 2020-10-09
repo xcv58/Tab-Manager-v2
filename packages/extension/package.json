@@ -1,7 +1,5 @@
 {
   "name": "tab-manager-v2",
-  "version": "1.13.4",
-  "description": "Quickly and conveniently manage your open tabs",
   "private": true,
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
@@ -15,7 +13,6 @@
     "start:firefox": "TARGET_BROWSER=firefox PORT=3001 yarn _start",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "release": "standard-version",
     "jest": "jest --maxWorkers=1",
     "test-watch": "yarn jest --watch",
     "storybook": "start-storybook -p 6006",
@@ -92,7 +89,6 @@
     "sinon": "9.1.0",
     "sinon-chrome": "3.0.1",
     "speed-measure-webpack-plugin": "1.3.3",
-    "standard-version": "9.0.0",
     "style-loader": "1.3.0",
     "terser-webpack-plugin": "4.2.2",
     "ts-jest": "26.4.1",
