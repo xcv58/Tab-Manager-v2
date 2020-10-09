@@ -1,8 +1,11 @@
 {
   "name": "tab-manager-v2",
+  "version": "1.13.4",
+  "description": "Quickly and conveniently manage your open tabs",
   "private": true,
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
+    "release": "standard-version",
     "build": "concurrently yarn:build:*",
     "_build": "node utils/build.js",
     "build:chrome": "yarn _build",
@@ -85,10 +88,10 @@
     "react-axe": "3.5.3",
     "react-test-renderer": "16.13.1",
     "regenerator-runtime": "0.13.7",
-    "samsam": "1.3.0",
     "sinon": "9.1.0",
     "sinon-chrome": "3.0.1",
     "speed-measure-webpack-plugin": "1.3.3",
+    "standard-version": "9.0.0",
     "style-loader": "1.3.0",
     "terser-webpack-plugin": "4.2.2",
     "ts-jest": "26.4.1",
