@@ -73,7 +73,7 @@
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.5",
     "eslint-plugin-typescript": "0.14.0",
-    "file-loader": "6.1.0",
+    "file-loader": "6.1.1",
     "fork-ts-checker-webpack-plugin": "5.2.0",
     "glob-all": "3.2.1",
     "hard-source-webpack-plugin": "0.13.1",
