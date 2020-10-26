@@ -99,7 +99,7 @@
     "ts-loader": "8.0.7",
     "typescript": "4.0.3",
     "typescript-eslint-parser": "22.0.0",
-    "webpack": "4.44.2",
+    "webpack": "5.2.0",
     "webpack-bundle-analyzer": "3.9.0",
     "webpack-dev-server": "3.11.0",
     "write-file-webpack-plugin": "4.5.1"

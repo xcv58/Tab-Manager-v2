@@ -82,6 +82,13 @@ const options = {
   module: {
     rules: [
       {
+        test: /\.m?js/,
+        // type: "javascript/auto",
+        resolve: {
+          fullySpecified: false
+        }
+      },
+      {
         test: /\.css$/,
         use: [
           {
@@ -109,7 +116,10 @@ const options = {
       },
       {
         test: new RegExp(`\\.(${fileExtensions.join('|')})$`),
-        loader: 'file-loader?name=[name].[ext]',
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]'
+        },
         include: path.resolve(__dirname, 'src'),
         exclude: /node_modules/
       },
@@ -131,7 +141,7 @@ const options = {
           }
         ],
         include: path.resolve(__dirname, 'src')
-      }
+      },
     ]
   },
   resolve: {
@@ -202,7 +212,7 @@ const options = {
 }
 
 if (env.NODE_ENV === 'development') {
-  options.devtool = 'cheap-module-eval-source-map'
+  options.devtool = 'eval-cheap-source-map'
 }
 
 module.exports = (plugins = []) => ({
