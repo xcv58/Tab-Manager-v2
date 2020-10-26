@@ -21,7 +21,7 @@
     "lint:ts": "standard --parser typescript-eslint-parser --plugin typescript ./**/*.tsx",
     "lint": "standard",
     "prettier": "prettier --no-semi --single-quote --write",
-    "lintfix": "yarn prettier 'src/**/*.{js,ts,tsx}' && yarn lint --fix && yarn lint:ts --fix"
+    "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix && yarn lint:ts --fix"
   },
   "devDependencies": {
     "chrome-webstore-upload-cli": "1.2.0",
@@ -30,12 +30,12 @@
     "dotenv": "8.2.0",
     "eslint-plugin-typescript": "0.14.0",
     "husky": "4.3.0",
-    "lint-staged": "10.4.0",
+    "lint-staged": "10.4.2",
     "prettier": "2.1.2",
     "standard": "14.3.4",
     "typescript": "4.0.3",
     "typescript-eslint-parser": "22.0.0",
-    "web-ext": "5.2.0"
+    "web-ext": "5.3.0"
   },
   "standard": {
     "env": [

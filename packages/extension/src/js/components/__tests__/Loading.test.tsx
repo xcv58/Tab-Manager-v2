@@ -1,32 +1,25 @@
 import React from 'react'
-import { mount } from 'enzyme'
 import Loading from 'components/Loading'
+import { render } from '@testing-library/react'
 import { ThemeContext } from 'components/hooks/useTheme'
 
 describe('Loading should', () => {
-  it('render divs', () => {
-    const el = mount(<Loading />)
-    expect(el.find('div').length).toBe(10)
-    const spinner = el.find({ id: 'spinner' })
-    expect(spinner.length).toBe(1)
-    const la = spinner.find({ className: 'la-ball-spin la-dark la-3x' })
-    expect(la.length).toBe(1)
-    expect(la.find('div').length).toBe(9)
-    expect(el.text()).toBe('')
+  it('render divs with default props', () => {
+    const el = render(<Loading />)
+    expect(el).toMatchSnapshot()
+  })
+
+  it('render small component', () => {
+    const el = render(<Loading small />)
+    expect(el).toMatchSnapshot()
   })
 
   it('render divs in dark mode', () => {
-    const el = mount(
+    const el = render(
       <ThemeContext.Provider value>
         <Loading />
       </ThemeContext.Provider>
     )
-    expect(el.find('div').length).toBe(10)
-    const spinner = el.find({ id: 'spinner' })
-    expect(spinner.length).toBe(1)
-    const la = el.find({ className: 'la-ball-spin la-3x' })
-    expect(la.length).toBe(1)
-    expect(la.find('div').length).toBe(9)
-    expect(el.text()).toBe('')
+    expect(el).toMatchSnapshot()
   })
 })
