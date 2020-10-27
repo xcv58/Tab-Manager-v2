@@ -58,7 +58,7 @@
     "@types/mousetrap": "1.6.4",
     "@types/react": "16.9.53",
     "@types/react-custom-scrollbars": "4.0.7",
-    "@types/react-dom": "16.9.8",
+    "@types/react-dom": "16.9.9",
     "@types/webpack-env": "1.15.3",
     "@typescript-eslint/eslint-plugin": "4.5.0",
     "@typescript-eslint/parser": "4.5.0",
