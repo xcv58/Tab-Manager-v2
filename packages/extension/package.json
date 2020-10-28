@@ -51,7 +51,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "5.11.5",
     "@testing-library/react": "11.1.0",
-    "@types/chrome": "0.0.125",
+    "@types/chrome": "0.0.126",
     "@types/jest": "26.0.15",
     "@types/lodash.debounce": "4.0.6",
     "@types/match-sorter": "5.0.0",
