@@ -5,7 +5,6 @@ const env = require('./utils/env')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const WriteFilePlugin = require('write-file-webpack-plugin')
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -83,7 +82,7 @@ const options = {
     rules: [
       {
         test: /\.m?js/,
-        // type: "javascript/auto",
+        type: 'javascript/auto',
         resolve: {
           fullySpecified: false
         }
@@ -141,7 +140,7 @@ const options = {
           }
         ],
         include: path.resolve(__dirname, 'src')
-      },
+      }
     ]
   },
   resolve: {
@@ -202,7 +201,6 @@ const options = {
     //   tsconfig: path.join(__dirname, 'tsconfig.json')
     // }),
     new ProgressBarPlugin(),
-    new WriteFilePlugin(),
     process.env.NODE_ENV === 'production' &&
       new PurgecssPlugin({
         paths: () => glob.sync(`${__dirname}/src/js/**/*`, { nodir: true }),
