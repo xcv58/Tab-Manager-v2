@@ -73,7 +73,7 @@ export default class ArrangeStore {
   }
 
   sortInWindow = async (windows: Window[] = []) => {
-    windows.map((win) => {
+    windows.forEach((win) => {
       const sortedTabs = win.tabs.sort(tabComparator)
       const differentTabIndex = sortedTabs
         .map((tab, i) => tab.id !== win.tabs[i].id)

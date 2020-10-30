@@ -18,12 +18,13 @@
     "_zip": "zip -X --compression-method deflate -9 -r --junk-paths",
     "zip:chrome": "yarn _zip build_chrome.zip build_chrome/*",
     "zip:firefox": "yarn _zip build_firefox.zip build_firefox/*",
-    "lint:ts": "standard --parser typescript-eslint-parser --plugin typescript ./**/*.tsx",
+    "lint:ts": "standard --parser @typescript-eslint/parser --plugin typescript ./**/*.tsx",
     "lint": "standard",
     "prettier": "prettier --no-semi --single-quote --write",
     "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix && yarn lint:ts --fix"
   },
   "devDependencies": {
+    "@typescript-eslint/parser": "4.6.0",
     "chrome-webstore-upload-cli": "1.2.0",
     "concurrently": "5.3.0",
     "coveralls": "3.1.0",
@@ -32,9 +33,8 @@
     "husky": "4.3.0",
     "lint-staged": "10.5.0",
     "prettier": "2.1.2",
-    "standard": "14.3.4",
+    "standard": "16.0.0",
     "typescript": "4.0.5",
-    "typescript-eslint-parser": "22.0.0",
     "web-ext": "5.3.0"
   },
   "standard": {
@@ -42,6 +42,10 @@
       "jest"
     ],
     "parser": "babel-eslint",
+    "ignore": [
+      "build_chrome/*",
+      "webpack.config.js"
+    ],
     "globals": [
       "screen",
       "Event",
@@ -59,7 +63,7 @@
     ],
     "*.{ts,tsx}": [
       "yarn prettier",
-      "standard --parser typescript-eslint-parser --plugin typescript --fix"
+      "standard --parser @typescript-eslint/parser --plugin typescript --fix"
     ],
     "*.{json,css,md}": [
       "yarn prettier"

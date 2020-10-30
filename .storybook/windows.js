@@ -20,7 +20,7 @@ export default [
         incognito: false,
         index: 0,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -29,7 +29,7 @@ export default [
           'reactjs/react-transition-group: An easy way to perform animations when a React component enters or leaves the DOM',
         url: 'https://github.com/reactjs/react-transition-group',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: false,
@@ -43,7 +43,7 @@ export default [
         incognito: false,
         index: 1,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -52,7 +52,7 @@ export default [
           'chenglou/react-motion: A spring that solves your animation problems.',
         url: 'https://github.com/chenglou/react-motion',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: false,
@@ -66,7 +66,7 @@ export default [
         incognito: false,
         index: 2,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -76,7 +76,7 @@ export default [
         url:
           'https://github.com/xcv58/Tab-Manager-v2/commit/c5e97711ee7034361ad6dac7adc7a6458858310e',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: false,
@@ -90,7 +90,7 @@ export default [
         incognito: false,
         index: 3,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -98,7 +98,7 @@ export default [
         title: 'Release v0.1.9 · xcv58/Tab-Manager-v2',
         url: 'https://github.com/xcv58/Tab-Manager-v2/releases/tag/v0.1.9',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: false,
@@ -113,7 +113,7 @@ export default [
         incognito: false,
         index: 4,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -122,7 +122,7 @@ export default [
         url:
           'https://docs.google.com/spreadsheets/d/1Jupjy8XUoKjLZvnwdSg33C-dOX-5acIV4nH7ph0lUog/edit#gid=0',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: false,
@@ -136,7 +136,7 @@ export default [
         incognito: false,
         index: 5,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -145,7 +145,7 @@ export default [
           'joshwcomeau/react-flip-move: Effortless animation between DOM changes (eg. list reordering) using the FLIP technique.',
         url: 'https://github.com/joshwcomeau/react-flip-move',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: false,
@@ -159,7 +159,7 @@ export default [
         incognito: false,
         index: 6,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -168,7 +168,7 @@ export default [
           'clauderic/react-sortable-hoc: A set of higher-order components to turn any list into an animated, touch-friendly, sortable list ✌️',
         url: 'https://github.com/clauderic/react-sortable-hoc',
         width: 1440,
-        windowId: 2085
+        windowId: 2085,
       },
       {
         active: true,
@@ -182,7 +182,7 @@ export default [
         incognito: false,
         index: 7,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: true,
@@ -191,12 +191,12 @@ export default [
           'atlassian/react-beautiful-dnd: Beautiful, accessible drag and drop for lists with React.js',
         url: 'https://github.com/atlassian/react-beautiful-dnd',
         width: 1440,
-        windowId: 2085
-      }
+        windowId: 2085,
+      },
     ],
     top: 0,
     type: 'normal',
-    width: 1440
+    width: 1440,
   },
   {
     alwaysOnTop: false,
@@ -219,7 +219,7 @@ export default [
         incognito: false,
         index: 0,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -227,7 +227,7 @@ export default [
         title: 'Extensions',
         url: 'chrome://extensions/',
         width: 1440,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: false,
@@ -241,7 +241,7 @@ export default [
         incognito: false,
         index: 1,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -250,7 +250,7 @@ export default [
         url:
           'http://localhost:6006/?selectedKind=Tab&selectedStory=DraggableTab&full=0&down=1&left=1&panelRight=0&downPanel=storybook%2Factions%2Factions-panel',
         width: 906,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: false,
@@ -265,7 +265,7 @@ export default [
         incognito: false,
         index: 2,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -273,7 +273,7 @@ export default [
         title: 'Writing Stories',
         url: 'https://storybook.js.org/basics/writing-stories/',
         width: 1440,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: false,
@@ -288,7 +288,7 @@ export default [
         incognito: false,
         index: 3,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -297,7 +297,7 @@ export default [
         url:
           'https://www.google.com/search?q=storybook+action&oq=storybook+action&gs_l=psy-ab.3..0l4.18028.19816.0.20056.10.10.0.0.0.0.137.910.4j5.9.0....0...1.1.64.psy-ab..1.8.805...0i22i30k1j0i67k1j0i131k1.0.cREP5FIzG6E',
         width: 1440,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: false,
@@ -311,7 +311,7 @@ export default [
         incognito: false,
         index: 4,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -320,7 +320,7 @@ export default [
           'storybooks/storybook: 📓 Interactive development & testing environment for React, React-Native, Vue UI components',
         url: 'https://github.com/storybooks/storybook',
         width: 1440,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: false,
@@ -334,7 +334,7 @@ export default [
         incognito: false,
         index: 5,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -343,7 +343,7 @@ export default [
         url:
           'https://github.com/storybooks/storybook/tree/master/addons/actions',
         width: 1440,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: false,
@@ -357,7 +357,7 @@ export default [
         incognito: false,
         index: 6,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: false,
@@ -365,7 +365,7 @@ export default [
         title: 'Add Storybook · Issue #37 · xcv58/Tab-Manager-v2',
         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/37',
         width: 1440,
-        windowId: 2980
+        windowId: 2980,
       },
       {
         active: true,
@@ -379,7 +379,7 @@ export default [
         incognito: false,
         index: 7,
         mutedInfo: {
-          muted: false
+          muted: false,
         },
         pinned: false,
         selected: true,
@@ -387,11 +387,11 @@ export default [
         title: 'chrome-extension://ejfaieahpegckjbcppkpmfdgfnhdmdpc/popup.html',
         url: 'chrome-extension://ejfaieahpegckjbcppkpmfdgfnhdmdpc/popup.html',
         width: 906,
-        windowId: 2980
-      }
+        windowId: 2980,
+      },
     ],
     top: 0,
     type: 'normal',
-    width: 1440
-  }
+    width: 1440,
+  },
 ]

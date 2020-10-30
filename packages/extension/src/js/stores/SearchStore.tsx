@@ -3,7 +3,7 @@ import { action, computed, observable, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
-import matchSorter from 'match-sorter'
+import { matchSorter } from 'match-sorter'
 import debounce from 'lodash.debounce'
 import Tab from './Tab'
 

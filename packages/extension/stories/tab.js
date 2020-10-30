@@ -38,7 +38,7 @@ const iconStory = storiesOf('Icon', module)
   'flags',
   'history',
   'settings'
-].map((x) => {
+].forEach((x) => {
   iconStory.add(`Chrome Icon ${x}`, () => (
     <Icon {...tabProps()} url={`chrome://${x}`} />
   ))

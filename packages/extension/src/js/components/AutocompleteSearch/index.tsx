@@ -7,7 +7,7 @@ import { useStore } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
 import ListboxComponent from './ListboxComponent'
-import matchSorter from 'match-sorter'
+import { matchSorter } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
 
@@ -36,19 +36,25 @@ const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
 }
 
-const Shortcut = ({ shortcut }) => (
-  <kbd className='px-2 py-1 mx-1 text-sm leading-loose tracking-widest text-white bg-blue-500 rounded'>
-    {shortcut}
-  </kbd>
-)
+const Shortcut = ({ shortcut }) => {
+  if (!Array.isArray(shortcut)) {
+    return (
+      <kbd className='px-2 py-1 mx-1 text-sm leading-loose tracking-widest text-white bg-blue-500 rounded'>
+        {shortcut}
+      </kbd>
+    )
+  }
+  return (
+    <>
+      {shortcut.map((x) => (
+        <Shortcut key={x} shortcut={x} />
+      ))}
+    </>
+  )
+}
 
 const renderCommand = (command, { inputValue }) => {
   const { shortcut } = command
-  const shortcuts = Array.isArray(shortcut) ? (
-    shortcut.map((x) => <Shortcut key={x} shortcut={x} />)
-  ) : (
-    <Shortcut shortcut={shortcut} />
-  )
   const matches = match(command.name, inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
@@ -63,7 +69,9 @@ const renderCommand = (command, { inputValue }) => {
           </span>
         ))}
       </span>
-      <div>{shortcuts}</div>
+      <div>
+        <Shortcut shortcut={shortcut} />
+      </div>
     </div>
   )
 }

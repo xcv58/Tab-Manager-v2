@@ -123,10 +123,10 @@ export default class FocusStore {
   selectTabsInSameContainer =
     process.env.TARGET_BROWSER === 'firefox'
       ? () => {
-        if (this.focusedItem instanceof Tab) {
-          this.store.tabStore.selectTabsInSameContainer(this.focusedItem)
+          if (this.focusedItem instanceof Tab) {
+            this.store.tabStore.selectTabsInSameContainer(this.focusedItem)
+          }
         }
-      }
       : () => {}
 
   closeWindow = () => {

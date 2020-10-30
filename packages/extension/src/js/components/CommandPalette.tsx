@@ -15,23 +15,27 @@ const trigger = (
   </Tooltip>
 )
 
-const Shortcut = ({ shortcut }) => <kbd className='shortcut'>{shortcut}</kbd>
+const Shortcut = ({ shortcut }) => {
+  if (!Array.isArray(shortcut)) {
+    return <kbd className='shortcut'>{shortcut}</kbd>
+  }
+  return (
+    <>
+      {shortcut.map((x) => (
+        <Shortcut key={x} shortcut={x} />
+      ))}
+    </>
+  )
+}
 
 const Command = (props) => {
-  const { shortcut } = props
-  const shortcuts = Array.isArray(shortcut) ? (
-    shortcut.map((x) => <Shortcut key={x} shortcut={x} />)
-  ) : (
-    <Shortcut shortcut={shortcut} />
-  )
   return (
     <div className='item'>
-      {props.highlight ? (
+      {props.highlight && (
         <span dangerouslySetInnerHTML={{ __html: props.highlight }} />
-      ) : (
-        <span>{props.name}</span>
       )}
-      {shortcuts}
+      {!props.highlight && <span>{props.name}</span>}
+      <Shortcut {...props} />
     </div>
   )
 }
@@ -42,7 +46,7 @@ export default observer(() => {
   const commands = shortcuts
     .map(([shortcut, command, name]) => {
       if (typeof name !== 'string') {
-        return
+        return null
       }
       return { name, shortcut, command }
     })
