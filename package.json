@@ -43,7 +43,6 @@
     ],
     "parser": "babel-eslint",
     "ignore": [
-      "build_chrome/*",
       "webpack.config.js"
     ],
     "globals": [
