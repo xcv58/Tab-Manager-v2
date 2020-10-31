@@ -204,7 +204,7 @@ export const findFirstVisibleOrFirstTab = (tabs = []) =>
 export const findLastVisibleOrLastTab = (tabs = []) =>
   findVisibleTab(tabs, tabs.length - 1, -1)
 
-export const findVisibleTab = (tabs = [], index, delta) => {
+export const findVisibleTab = (tabs = [], index = 0, delta = 1) => {
   if (tabs.length <= 0) {
     return null
   }

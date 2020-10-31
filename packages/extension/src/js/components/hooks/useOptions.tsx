@@ -7,7 +7,7 @@ export const useOptions = () => {
     return shortcuts
       .map(([shortcut, command, name, hideFromCommand]) => {
         if (typeof name !== 'string' || hideFromCommand) {
-          return
+          return null
         }
         return { name, shortcut, command }
       })

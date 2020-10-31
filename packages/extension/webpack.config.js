@@ -5,7 +5,6 @@ const env = require('./utils/env')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const WriteFilePlugin = require('write-file-webpack-plugin')
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -22,7 +21,7 @@ const alias = {
   libs: srcPath('libs'),
   stores: srcPath('stores'),
   svgIcons: srcPath('svgIcons'),
-  img: path.join(__dirname, 'src/img')
+  img: path.join(__dirname, 'src/img'),
 }
 
 const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js')
@@ -37,7 +36,7 @@ const fileExtensions = [
   'svg',
   'ttf',
   'woff',
-  'woff2'
+  'woff2',
 ]
 
 if (fileSystem.existsSync(secretsPath)) {
@@ -57,14 +56,14 @@ const HtmlFiles = ['popup'].map(
       filename: `${name}.html`,
       chunks: [name],
       minify: {
-        collapseWhitespace: true
-      }
+        collapseWhitespace: true,
+      },
     })
 )
 
 const entry = Object.assign(
   ...['popup', 'background'].map((name) => ({
-    [name]: path.join(__dirname, 'src', 'js', `${name}.tsx`)
+    [name]: path.join(__dirname, 'src', 'js', `${name}.tsx`),
   }))
 )
 
@@ -77,10 +76,17 @@ const options = {
       '..',
       'build_' + (process.env.TARGET_BROWSER || 'chrome')
     ),
-    filename: '[name].js'
+    filename: '[name].js',
   },
   module: {
     rules: [
+      {
+        test: /\.m?js/,
+        type: 'javascript/auto',
+        resolve: {
+          fullySpecified: false,
+        },
+      },
       {
         test: /\.css$/,
         use: [
@@ -90,8 +96,8 @@ const options = {
               // you can specify a publicPath here
               // by default it uses publicPath in webpackOptions.output
               hmr: process.env.NODE_ENV === 'development',
-              reloadAll: true
-            }
+              reloadAll: true,
+            },
           },
           'css-loader',
           {
@@ -99,25 +105,28 @@ const options = {
             options: {
               postcssOptions: {
                 ident: 'postcss',
-                plugins: [require('tailwindcss'), require('autoprefixer')]
-              }
-            }
-          }
+                plugins: [require('tailwindcss'), require('autoprefixer')],
+              },
+            },
+          },
         ],
         include: path.resolve(__dirname, 'src'),
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: new RegExp(`\\.(${fileExtensions.join('|')})$`),
-        loader: 'file-loader?name=[name].[ext]',
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]',
+        },
         include: path.resolve(__dirname, 'src'),
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
         loader: 'html-loader',
         include: path.resolve(__dirname, 'src'),
-        exclude: /node_modules/
+        exclude: /node_modules/,
       },
       {
         test: /\.(js|ts)x?$/,
@@ -126,30 +135,30 @@ const options = {
             loader: 'ts-loader',
             options: {
               transpileOnly: true,
-              experimentalWatchApi: true
-            }
-          }
+              experimentalWatchApi: true,
+            },
+          },
         ],
-        include: path.resolve(__dirname, 'src')
-      }
-    ]
+        include: path.resolve(__dirname, 'src'),
+      },
+    ],
   },
   resolve: {
     alias,
     extensions: fileExtensions
       .map((extension) => '.' + extension)
-      .concat(['.css', '.jsx', '.js', '.tsx', 'ts'])
+      .concat(['.css', '.jsx', '.js', '.tsx', 'ts']),
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     new MiniCssExtractPlugin({
       filename: '[name].css',
-      chunkFilename: '[id].css'
+      chunkFilename: '[id].css',
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
-      'process.env.TARGET_BROWSER': JSON.stringify(env.TARGET_BROWSER)
+      'process.env.TARGET_BROWSER': JSON.stringify(env.TARGET_BROWSER),
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -180,32 +189,31 @@ const options = {
               JSON.stringify({
                 description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
-                ...json
+                ...json,
               })
             )
-          }
-        }
-      ]
+          },
+        },
+      ],
     }),
     ...HtmlFiles,
     // new ForkTsCheckerWebpackPlugin({
     //   tsconfig: path.join(__dirname, 'tsconfig.json')
     // }),
     new ProgressBarPlugin(),
-    new WriteFilePlugin(),
     process.env.NODE_ENV === 'production' &&
       new PurgecssPlugin({
         paths: () => glob.sync(`${__dirname}/src/js/**/*`, { nodir: true }),
-        defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || []
-      })
-  ].filter((x) => !!x)
+        defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
+      }),
+  ].filter((x) => !!x),
 }
 
 if (env.NODE_ENV === 'development') {
-  options.devtool = 'cheap-module-eval-source-map'
+  options.devtool = 'eval-cheap-source-map'
 }
 
 module.exports = (plugins = []) => ({
   ...options,
-  plugins: [...options.plugins, ...plugins]
+  plugins: [...options.plugins, ...plugins],
 })

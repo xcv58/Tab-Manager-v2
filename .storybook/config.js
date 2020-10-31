@@ -7,7 +7,7 @@ addDecorator((story) => <Provider {...store}>{story()}</Provider>)
 
 const req = require.context('../stories', true, /\.js$/)
 
-function loadStories () {
+function loadStories() {
   req.keys().forEach((filename) => req(filename))
 }
 

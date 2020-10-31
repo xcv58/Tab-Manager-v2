@@ -338,7 +338,7 @@ export default class WindowsStore {
       },
       {}
     )
-    Object.values(tabMap).map((tabs) => {
+    Object.values(tabMap).forEach((tabs) => {
       tabs.slice(1).forEach((x) => x.remove())
     })
   }
