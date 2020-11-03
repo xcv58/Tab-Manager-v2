@@ -7,7 +7,7 @@
   "scripts": {
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
-    "test": "yarn lint && yarn lint:ts && yarn workspace tab-manager-v2 jest",
+    "test": "yarn lint && yarn lint:ts && yarn workspace tab-manager-v2 jest && yarn workspace integration-test test",
     "build": "yarn workspace tab-manager-v2 build",
     "deploy": "NODE_ENV=production yarn workspace tab-manager-v2 build && yarn zip && ls -lh build*.zip",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build_chrome.zip",
@@ -24,7 +24,7 @@
     "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix && yarn lint:ts --fix"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "4.6.0",
+    "@typescript-eslint/parser": "4.6.1",
     "chrome-webstore-upload-cli": "1.2.0",
     "concurrently": "5.3.0",
     "coveralls": "3.1.0",
