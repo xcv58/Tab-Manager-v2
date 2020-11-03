@@ -101,7 +101,7 @@ export default observer(() => {
               }
             />
             <FormControlLabel
-              label='Ignore Hash in URL'
+              label='Ignore Hash in URL when count duplication'
               control={
                 <Switch
                   color='primary'
