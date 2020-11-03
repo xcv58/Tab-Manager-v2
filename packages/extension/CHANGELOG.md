@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.4...v1.13.5) (2020-11-03)
+
+### Bug Fixes
+
+- Add option to ignore hash in URL when counts duplicated tabs ([#707](https://github.com/xcv58/Tab-Manager-v2/issues/707)) ([9a287ce](https://github.com/xcv58/Tab-Manager-v2/commit/9a287ce8cb5565149594892365301b2d549548c3))
+
 ### [1.13.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.3...v1.13.4) (2020-10-05)
 
 ### Bug Fixes
