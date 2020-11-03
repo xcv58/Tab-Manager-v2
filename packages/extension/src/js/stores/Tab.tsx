@@ -60,11 +60,13 @@ export default class Tab extends Focusable {
       isVisible: computed,
       domain: computed,
       sameDomainTabs: computed,
-      urlCount: computed,
+      duplicatedTabCount: computed,
+      isDuplicated: computed,
       isSelected: computed,
       query: computed,
       isHovered: computed,
       shouldHighlight: computed,
+      fingerPrint: computed,
       closeOtherTabs: action,
       closeWindow: action,
       selectTabsInSameContainer: action,
@@ -163,8 +165,12 @@ export default class Tab extends Focusable {
     return this.store.arrangeStore.domainTabsMap[this.domain]
   }
 
-  get urlCount () {
-    return this.store.windowStore.urlCountMap[this.url] || 0
+  get isDuplicated () {
+    return this.store.windowStore.tabFingerprintMap[this.fingerPrint] > 1
+  }
+
+  get duplicatedTabCount () {
+    return this.store.windowStore.tabFingerprintMap[this.fingerPrint]
   }
 
   get isSelected () {
@@ -181,6 +187,13 @@ export default class Tab extends Focusable {
 
   get shouldHighlight () {
     return this.isMatched && (this.isFocused || this.isHovered)
+  }
+
+  get fingerPrint () {
+    if (!this.store.userStore.ignoreHash) {
+      return this.url
+    }
+    return this.url.split('#')[0]
   }
 
   setUrlIcon = async () => {

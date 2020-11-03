@@ -40,7 +40,7 @@ export default class WindowsStore {
       selectAll: action,
       windowMounted: action,
       lastFocusedWindow: computed,
-      urlCountMap: computed,
+      tabFingerprintMap: computed,
       duplicatedTabs: computed,
       closeDuplicatedTab: action,
       cleanDuplicatedTabs: action,
@@ -306,16 +306,17 @@ export default class WindowsStore {
     return this.windows.find((x) => x.lastFocused)
   }
 
-  get urlCountMap () {
+  get tabFingerprintMap () {
+    console.log(this.tabs)
     return this.tabs.reduce((acc: { [key: string]: number }, tab) => {
-      const { url } = tab
-      acc[url] = (acc[url] || 0) + 1
+      const { fingerPrint } = tab
+      acc[fingerPrint] = (acc[fingerPrint] || 0) + 1
       return acc
     }, {})
   }
 
   get duplicatedTabs () {
-    return this.tabs.filter((tab) => this.urlCountMap[tab.url] > 1)
+    return this.tabs.filter((tab) => tab.isDuplicated)
   }
 
   closeDuplicatedTab = (tab: Tab) => {
@@ -328,11 +329,11 @@ export default class WindowsStore {
   cleanDuplicatedTabs = () => {
     const tabMap = this.duplicatedTabs.reduce(
       (acc: { [key: string]: Tab[] }, tab) => {
-        const { url } = tab
-        if (acc[url]) {
-          acc[url].push(tab)
+        const { fingerPrint } = tab
+        if (acc[fingerPrint]) {
+          acc[fingerPrint].push(tab)
         } else {
-          acc[url] = [tab]
+          acc[fingerPrint] = [tab]
         }
         return acc
       },

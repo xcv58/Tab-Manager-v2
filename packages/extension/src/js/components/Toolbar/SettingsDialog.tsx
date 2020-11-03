@@ -47,7 +47,9 @@ export default observer(() => {
     showTabIcon,
     toggleShowTabIcon,
     theme,
-    selectTheme
+    selectTheme,
+    ignoreHash,
+    toggleIgnoreHash
   } = userStore
   const reduceMotion = useReduceMotion()
   return (
@@ -95,6 +97,16 @@ export default observer(() => {
                   color='primary'
                   checked={highlightDuplicatedTab}
                   onChange={toggleHighlightDuplicatedTab}
+                />
+              }
+            />
+            <FormControlLabel
+              label='Ignore Hash in URL'
+              control={
+                <Switch
+                  color='primary'
+                  checked={ignoreHash}
+                  onChange={toggleIgnoreHash}
                 />
               }
             />
