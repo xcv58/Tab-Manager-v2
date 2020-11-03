@@ -7,7 +7,7 @@
   "scripts": {
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
-    "test": "yarn lint && yarn lint:ts && yarn workspace tab-manager-v2 jest && yarn workspace integration-test test",
+    "test": "yarn lint && yarn lint:ts && yarn workspace tab-manager-v2 jest",
     "build": "yarn workspace tab-manager-v2 build",
     "deploy": "NODE_ENV=production yarn workspace tab-manager-v2 build && yarn zip && ls -lh build*.zip",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build_chrome.zip",
