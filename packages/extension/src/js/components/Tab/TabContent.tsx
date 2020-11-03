@@ -18,7 +18,7 @@ const TabContent = observer(
       activate,
       title,
       url,
-      urlCount,
+      isDuplicated,
       focus,
       isFocused,
       isHovered
@@ -38,7 +38,7 @@ const TabContent = observer(
       <div className='leading-tight break-all whitespace-normal'>
         <p>{title}</p>
         <p style={{ opacity: 0.8 }}>{url}</p>
-        {urlCount > 1 && <p>There is duplicated tab!</p>}
+        {isDuplicated && <p>There is duplicated tab!</p>}
       </div>
     )
     return (
@@ -59,7 +59,7 @@ const TabContent = observer(
 export default observer((props: TabProps) => {
   const { userStore } = useStore()
   const { faked } = props
-  const { title, urlCount, isMatched, query } = props.tab
+  const { title, isDuplicated, isMatched, query } = props.tab
   const { showUrl, highlightDuplicatedTab } = userStore
   const getHighlightNode = useCallback(
     (text) => {
@@ -74,7 +74,7 @@ export default observer((props: TabProps) => {
     },
     [isMatched, query]
   )
-  const duplicated = highlightDuplicatedTab && urlCount > 1
+  const duplicated = highlightDuplicatedTab && isDuplicated
   const buttonClassName = classNames(
     'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base',
     {

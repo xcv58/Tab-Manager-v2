@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS = {
   preserveSearch: true,
   showUrl: true,
   autoFocusSearch: false,
+  ignoreHash: false,
   useSystemTheme: true,
   darkTheme: false,
   tabWidth: 20,
@@ -43,6 +44,7 @@ export default class UserStore {
       useSystemTheme: observable,
       tabWidth: observable,
       showTabIcon: observable,
+      ignoreHash: observable,
       theme: computed,
       selectTheme: action,
       selectNextTheme: action,
@@ -94,6 +96,7 @@ export default class UserStore {
   showTabIcon = true
   dialogOpen = false
   toolbarVisible = true
+  ignoreHash = false
 
   get theme () {
     if (this.useSystemTheme) {
@@ -157,6 +160,11 @@ export default class UserStore {
 
   toggleShowTabTooltip = () => {
     this.showTabTooltip = !this.showTabTooltip
+    this.save()
+  }
+
+  toggleIgnoreHash = () => {
+    this.ignoreHash = !this.ignoreHash
     this.save()
   }
 

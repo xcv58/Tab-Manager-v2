@@ -51,7 +51,7 @@ export default observer((props: { tab: Tab }) => {
     sameDomainTabs,
     pinned,
     togglePin,
-    urlCount,
+    duplicatedTabCount,
     closeDuplicatedTab
   } = props.tab
   const options: OptionOrDivider[] = [
@@ -100,12 +100,12 @@ export default observer((props: { tab: Tab }) => {
       onClick: groupTab
     })
   }
-  if (urlCount > 1) {
+  if (duplicatedTabCount > 1) {
     options.push(DIVIDER, {
       ...OPTION,
-      label: `Close other ${urlCount - 1} duplicated ${getNoun(
+      label: `Close other ${duplicatedTabCount - 1} duplicated ${getNoun(
         'tab',
-        urlCount - 1
+        duplicatedTabCount - 1
       )}`,
       onClick: closeDuplicatedTab
     })
