@@ -20,6 +20,7 @@ import InputLabel from '@material-ui/core/InputLabel'
 import { THEMES } from 'stores/UserStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
+import SponsorButton from './SponsorButton'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -61,7 +62,11 @@ export default observer(() => {
       onClose={closeDialog}
       onBackdropClick={closeDialog}
     >
-      <DialogTitle>Settings</DialogTitle>
+      <DialogTitle>
+        <div className='flex justify-between'>
+          Settings <SponsorButton />
+        </div>
+      </DialogTitle>
       <DialogContent>
         <FormControl className='w-full'>
           <FormGroup>
@@ -210,8 +215,10 @@ export default observer(() => {
           </FormGroup>
         </FormControl>
         <Divider />
-        <div className='text-sm text-right opacity-75'>
-          v{browser.runtime.getManifest().version}
+        <div className='flex justify-end'>
+          <div className='text-sm text-right opacity-75'>
+            v{browser.runtime.getManifest().version}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

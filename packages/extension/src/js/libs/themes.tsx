@@ -26,6 +26,11 @@ const overrides = {
       padding: 9
     }
   },
+  MuiButton: {
+    root: {
+      textTransform: 'none'
+    }
+  },
   MuiSnackbarContent,
   MuiAutocomplete: {
     root: {
