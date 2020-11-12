@@ -46,7 +46,7 @@
     "rebound": "0.1.0",
     "tailwindcss": "1.9.6",
     "use-system-theme": "0.0.4",
-    "webextension-polyfill": "0.6.0"
+    "webextension-polyfill": "0.7.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.11.5",
