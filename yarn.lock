@@ -9208,10 +9208,10 @@ mobx-react-lite@3.0.1:
   resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-3.0.1.tgz#417f54a819d1e3e00c073077f29373399c95b005"
   integrity sha512-Ue8uGgT5iOjMyNf5ptoFW7BTvyLIwggzIkoFpwORrqf73TPqu47iLpz/DNvaba3v40kSsEpp050qYroMNuA1xw==
 
-mobx@6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.0.2.tgz#81a00ca9471b83385d342b21370253351782774b"
-  integrity sha512-MG+8YbcwJw0tjJ78ujooqE8rxvCIfDaVZbCLfCxQ9S81oNNJb6W4KZVMSR+Y1e5n4z1vh70/vkibv0xEGwuEPQ==
+mobx@6.0.4:
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.0.4.tgz#8fc3e3629a3346f8afddf5bd954411974744dad1"
+  integrity sha512-wT2QJT9tW19VSHo9x7RPKU3z/I2Ps6wUS8Kb1OO+kzmg7UY3n4AkcaYG6jq95Lp1R9ohjC/NGYuT2PtuvBjhFg==
 
 modify-values@^1.0.0:
   version "1.0.1"
