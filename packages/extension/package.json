@@ -44,7 +44,7 @@
     "react-resize-detector": "5.2.0",
     "react-window": "1.8.6",
     "rebound": "0.1.0",
-    "tailwindcss": "1.9.6",
+    "tailwindcss": "2.0.1",
     "use-system-theme": "0.0.4",
     "webextension-polyfill": "0.7.0"
   },
