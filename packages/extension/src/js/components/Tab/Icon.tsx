@@ -45,7 +45,7 @@ export const Icon = observer((props: TabProps) => {
       >
         <IconButton
           aria-label={ARIA_LABEL}
-          className='focus:outline-none focus:shadow-outline'
+          className='focus:outline-none focus:ring'
           onClick={select}
           onFocus={focus}
         >
@@ -53,7 +53,7 @@ export const Icon = observer((props: TabProps) => {
         </IconButton>
       </div>
       <div
-        className={classNames('focus:outline-none focus:shadow-outline', {
+        className={classNames('focus:outline-none focus:ring', {
           'hidden group-hover:block': !isSelected
         })}
       >
@@ -74,7 +74,7 @@ export default observer((props: TabProps) => {
       <IconButton
         disabled
         aria-label={ARIA_LABEL}
-        className='focus:outline-none focus:shadow-outline'
+        className='focus:outline-none focus:ring'
       >
         <img className='w-6 h-6' src={iconUrl} />
       </IconButton>
