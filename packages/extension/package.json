@@ -37,7 +37,7 @@
     "mobx": "6.0.4",
     "mobx-react-lite": "3.1.6",
     "mousetrap": "1.6.5",
-    "postcss": "8.1.7",
+    "postcss": "8.1.8",
     "react": "17.0.1",
     "react-command-palette": "0.13.0-0",
     "react-dnd": "11.1.3",
