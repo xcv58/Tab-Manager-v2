@@ -1440,10 +1440,10 @@
     lodash "^4.17.15"
     redent "^3.0.0"
 
-"@testing-library/react@11.2.0":
-  version "11.2.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-11.2.0.tgz#ce977a76b6342ea95c71ccd6de3012b1635fb559"
-  integrity sha512-90xKYJzskZ7q/AoSuWraQL4EGZlr75uZvDt3nrO4M+rugN02zjO45tmOBq/JBOgDiMIL1tkhHioKXjJsVaSINA==
+"@testing-library/react@11.2.1":
+  version "11.2.1"
+  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-11.2.1.tgz#01b3d2dd5768ac27402b5d7e41c87e605be3c326"
+  integrity sha512-/rKucr9p/mhMongaeTXwgIRfDnsAUu6LbfN+moNUn2oU0Kw5a7inN5vGvPWv7Ef0YndpERAfODjeseUIlhzRHw==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^7.27.1"
@@ -3984,10 +3984,10 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
-copy-webpack-plugin@6.3.1:
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/copy-webpack-plugin/-/copy-webpack-plugin-6.3.1.tgz#ceb6e9c3e4910e63a774fd4a27451156775f6e2a"
-  integrity sha512-SyIMdP6H3v+zPU+VIhKRsK0ZEF82KZ93JBlKOoIW8SkkuI84FSrHxG+aMTE1u4csbi9PLRqqWTIK+bfJ2xsFuQ==
+copy-webpack-plugin@6.3.2:
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/copy-webpack-plugin/-/copy-webpack-plugin-6.3.2.tgz#0e920a6c181a5052aa6e2861b164bda03f83afeb"
+  integrity sha512-MgJ1uouLIbDg4ST1GzqrGQyKoXY5iPqi6fghFqarijam7FQcBa/r6Rg0VkoIuzx75Xq8iAMghyOueMkWUQ5OaA==
   dependencies:
     cacache "^15.0.5"
     fast-glob "^3.2.4"
@@ -10387,10 +10387,10 @@ postcss-js@^3.0.3:
     camelcase-css "^2.0.1"
     postcss "^8.1.6"
 
-postcss-loader@4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/postcss-loader/-/postcss-loader-4.0.4.tgz#b2d005b52e008a44991cf8123bee207e635eb53e"
-  integrity sha512-pntA9zIR14drQo84yGTjQJg1m7T0DkXR4vXYHBngiRZdJtEeCrojL6lOpqUanMzG375lIJbT4Yug85zC/AJWGw==
+postcss-loader@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/postcss-loader/-/postcss-loader-4.1.0.tgz#4647a6c8dad3cb6b253fbfaa21d62201086f6e39"
+  integrity sha512-vbCkP70F3Q9PIk6d47aBwjqAMI4LfkXCoyxj+7NPNuVIwfTGdzv2KVQes59/RuxMniIgsYQCFSY42P3+ykJfaw==
   dependencies:
     cosmiconfig "^7.0.0"
     klona "^2.0.4"
@@ -10672,10 +10672,10 @@ postcss@8.1.1:
     nanoid "^3.1.12"
     source-map "^0.6.1"
 
-postcss@8.1.7, postcss@^8.1.4, postcss@^8.1.6:
-  version "8.1.7"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.7.tgz#ff6a82691bd861f3354fd9b17b2332f88171233f"
-  integrity sha512-llCQW1Pz4MOPwbZLmOddGM9eIJ8Bh7SZ2Oj5sxZva77uVaotYDsYTch1WBTNu7fUY0fpWp0fdt7uW40D4sRiiQ==
+postcss@8.1.8:
+  version "8.1.8"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.8.tgz#697439e7276735ecdd2893d2cf8efb2236693ac3"
+  integrity sha512-hO6jFWBy0QnBBRaw+s0F4hVPKGDICec/nLNEG1D4qqw9/LBzWMkTjckqqELXAo0J42jN8GFZXtgQfezEaoG9gQ==
   dependencies:
     colorette "^1.2.1"
     line-column "^1.0.2"
@@ -10700,6 +10700,16 @@ postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.27:
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
+postcss@^8.1.4, postcss@^8.1.6:
+  version "8.1.7"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.7.tgz#ff6a82691bd861f3354fd9b17b2332f88171233f"
+  integrity sha512-llCQW1Pz4MOPwbZLmOddGM9eIJ8Bh7SZ2Oj5sxZva77uVaotYDsYTch1WBTNu7fUY0fpWp0fdt7uW40D4sRiiQ==
+  dependencies:
+    colorette "^1.2.1"
+    line-column "^1.0.2"
+    nanoid "^3.1.16"
+    source-map "^0.6.1"
+
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
@@ -10720,10 +10730,10 @@ prepend-http@^2.0.0:
   resolved "https://registry.yarnpkg.com/prepend-http/-/prepend-http-2.0.0.tgz#e92434bfa5ea8c19f41cdfd401d741a3c819d897"
   integrity sha1-6SQ0v6XqjBn0HN/UAddBo8gZ2Jc=
 
-prettier@2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.1.2.tgz#3050700dae2e4c8b67c4c3f666cdb8af405e1ce5"
-  integrity sha512-16c7K+x4qVlJg9rEbXl7HEGmQyZlG4R9AgP+oHKRMsMsuk8s+ATStlf1NpDqyBI1HpVyfjLOeMhH2LvuNvV5Vg==
+prettier@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.0.tgz#8a03c7777883b29b37fb2c4348c66a78e980418b"
+  integrity sha512-yYerpkvseM4iKD/BXLYUkQV5aKt4tQPqaGW6EsZjzyu0r7sVZZNPJW4Y8MyKmicp6t42XUPcBVA+H6sB3gqndw==
 
 pretty-error@^2.1.1:
   version "2.1.2"
@@ -13349,10 +13359,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@4.0.5:
-  version "4.0.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.0.5.tgz#ae9dddfd1069f1cb5beb3ef3b2170dd7c1332389"
-  integrity sha512-ywmr/VrTVCmNTJ6iV2LwIrfG1P+lv6luD8sUJs+2eI9NLGigaN+nUQc13iHqisq7bra9lnmUSYqbJvegraBOPQ==
+typescript@4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.1.2.tgz#6369ef22516fe5e10304aae5a5c4862db55380e9"
+  integrity sha512-thGloWsGH3SOxv1SoY7QojKi0tc+8FnOmiarEGMbd/lar7QOEd3hvlx3Fp5y6FlDUGl9L+pd4n2e+oToGMmhRQ==
 
 uglify-js@^3.1.4:
   version "3.11.4"
@@ -13900,10 +13910,10 @@ webpack-sources@^2.1.1:
     source-list-map "^2.0.1"
     source-map "^0.6.1"
 
-webpack@5.5.1:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.5.1.tgz#d6537f85554a0e59f15e6e683af11befdd0476aa"
-  integrity sha512-v4RzZP9BG2xxMLhxcFIo89M+nyIqGjh35Bhm5EE+I2N8y3dc9jT5OSb1HewUMkzMPyyDscOkVD6pSn6EMtTwNQ==
+webpack@5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.6.0.tgz#282d10434c403b070ed91d459b385e873b51a07d"
+  integrity sha512-SIeFuBhuheKElRbd84O35UhKc0nxlgSwtzm2ksZ0BVhRJqxVJxEguT/pYhfiR0le/pxTa1VsCp7EOYyTsa6XOA==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.45"
