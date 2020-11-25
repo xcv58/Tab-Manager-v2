@@ -47,7 +47,7 @@
     "react-window": "1.8.6",
     "rebound": "0.1.0",
     "tailwindcss": "2.0.1",
-    "use-system-theme": "0.0.4",
+    "use-system-theme": "0.1.1",
     "webextension-polyfill": "0.7.0"
   },
   "devDependencies": {

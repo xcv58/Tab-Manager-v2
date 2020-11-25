@@ -13556,10 +13556,10 @@ urlgrey@0.4.4:
   resolved "https://registry.yarnpkg.com/urlgrey/-/urlgrey-0.4.4.tgz#892fe95960805e85519f1cd4389f2cb4cbb7652f"
   integrity sha1-iS/pWWCAXoVRnxzUOJ8stMu3ZS8=
 
-use-system-theme@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/use-system-theme/-/use-system-theme-0.0.4.tgz#4f56fe29c463feb5b436b826ce6fdd39c36f9cfe"
-  integrity sha512-LuwX9JuAHy2Vb1OI5UKJHOhYKLizS1eXkF3p88hu6RASAKT15xPBOI+W+swrgrf7AyCBUMIEOw34aevKs3Qh/w==
+use-system-theme@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/use-system-theme/-/use-system-theme-0.1.1.tgz#d2fde1e7e31f4dffe32b05317a6742c691b3b045"
+  integrity sha512-R2Y10XUacgoj8NgZzq7o/XW1EYHBAGKiOivnVviL9s3QKfcx2R2yNtfpFh85W6066K6CZgDizKl/NdecqlN9sQ==
 
 use@^3.1.0:
   version "3.1.1"
