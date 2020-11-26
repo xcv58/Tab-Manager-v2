@@ -26,7 +26,7 @@
     "@material-ui/icons": "4.9.1",
     "@material-ui/lab": "4.0.0-alpha.56",
     "@types/enzyme": "3.10.8",
-    "autoprefixer": "10.0.2",
+    "autoprefixer": "10.0.3",
     "autosuggest-highlight": "3.1.1",
     "classnames": "2.2.6",
     "fuzzy": "0.1.3",
