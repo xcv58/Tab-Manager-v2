@@ -846,7 +846,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.5", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.12.1"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.12.1.tgz#b4116a6b6711d010b2dad3b7b6e43bf1b9954740"
   integrity sha512-J5AIf3vPj3UwXaAzb5j1xM4WAQDX3EMgemF8rjCP3SoW09LfRKAXQKt6CoVYl230P6iWdRcBbnLDDdnqWxZSCA==
@@ -8875,12 +8875,12 @@ marky@^1.2.0:
   resolved "https://registry.yarnpkg.com/marky/-/marky-1.2.1.tgz#a3fcf82ffd357756b8b8affec9fdbf3a30dc1b02"
   integrity sha512-md9k+Gxa3qLH6sUKpeC2CNkJK/Ld+bEz5X96nYwloqphQE0CKCVEKco/6jxEZixinqNdz5RFi/KaCyfbMDMAXQ==
 
-match-sorter@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-5.0.0.tgz#c32eacdad0ae0699e82b18fd0a8dc0113e71768d"
-  integrity sha512-q0O1lupUikgSwuefn91pVzmF5YQJHQprltxuaipDE5aAhXDHUkwtxfpvP5utTjoe3hpxgWaFPEiCJf8IsF6T+Q==
+match-sorter@6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/match-sorter/-/match-sorter-6.0.1.tgz#ae6697296a212da75099dddd162c820cc9f73d6d"
+  integrity sha512-BPKBIC0yffMAjymiY4D3EVwWraeBskyTZBY+JL7utOHk5V8I1BTUvqH0/gl8mZKKzSMG4fRmoMubzb++rBgY5Q==
   dependencies:
-    "@babel/runtime" "^7.10.5"
+    "@babel/runtime" "^7.12.5"
     remove-accents "0.4.2"
 
 md5.js@^1.3.4:
