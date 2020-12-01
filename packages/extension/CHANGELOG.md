@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.5...v1.13.6) (2020-12-01)
+
+### Bug Fixes
+
+- Use tab/window width from user preferences if there are more than 4 columns ([381f941](https://github.com/xcv58/Tab-Manager-v2/commit/381f9411de12be979f0f43f8cd702805df08d5c7))
+- **deps:** pin dependencies ([#736](https://github.com/xcv58/Tab-Manager-v2/issues/736)) ([bcf6b56](https://github.com/xcv58/Tab-Manager-v2/commit/bcf6b56ed6a8163918c45c97fa359f8eb3c00496))
+- Add Sponsor Button ([8525b73](https://github.com/xcv58/Tab-Manager-v2/commit/8525b73a428867aac22dc4f353d79d3be975c63b))
+
 ### [1.13.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.4...v1.13.5) (2020-11-03)
 
 ### Bug Fixes
