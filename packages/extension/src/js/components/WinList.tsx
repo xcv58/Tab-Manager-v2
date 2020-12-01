@@ -9,6 +9,7 @@ import Window from './Window'
 export default observer(() => {
   const {
     windowStore,
+    userStore,
     focusStore: { setContainerRef }
   } = useStore()
   const scrollbarRef = useRef(null)
@@ -37,7 +38,8 @@ export default observer(() => {
       </div>
     )
   }
-  const width = 100 / Math.min(4, visibleColumn) + '%'
+  const width =
+    visibleColumn <= 4 ? 100 / visibleColumn + '%' : `${userStore.tabWidth}rem`
   const list = windows.map((window) => (
     <Window key={window.id} width={width} win={window} />
   ))
