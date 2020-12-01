@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.7](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.6...v1.13.7) (2020-12-01)
+
+### Bug Fixes
+
+- Update the tab/window width to be fit all available space if possible ([5e33a23](https://github.com/xcv58/Tab-Manager-v2/commit/5e33a23cf9b0758a21b428e9bb1d5d63cb048366))
+
 ### [1.13.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.5...v1.13.6) (2020-12-01)
 
 ### Bug Fixes
