@@ -38,8 +38,7 @@ export default observer(() => {
       </div>
     )
   }
-  const width =
-    visibleColumn <= 4 ? 100 / visibleColumn + '%' : `${userStore.tabWidth}rem`
+  const width = `calc(max(${100 / visibleColumn}%, ${userStore.tabWidth}rem))`
   const list = windows.map((window) => (
     <Window key={window.id} width={width} win={window} />
   ))
