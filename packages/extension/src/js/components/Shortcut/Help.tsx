@@ -8,17 +8,35 @@ import TableRow from '@material-ui/core/TableRow'
 import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
 import { useStore } from 'components/hooks/useStore'
+import Alert from '@material-ui/lab/Alert'
 
-export default observer(() => {
+const keysSearch = (keys: string | string[], search: string) => {
+  if (typeof keys === 'string') {
+    return keys.includes(search)
+  }
+  return keys.join('').includes(search)
+}
+
+export default observer((props: { search: string }) => {
+  const { search } = props
   const { shortcutStore } = useStore()
   const { shortcuts } = shortcutStore
 
-  const content = shortcuts.map(([keys, _, description], i) => (
-    <TableRow key={i} hover>
-      <Hotkeys keys={keys} />
-      <TableCell>{getDescription(description)}</TableCell>
-    </TableRow>
-  ))
+  const content = shortcuts
+    .filter(
+      ([keys, _, description]) =>
+        getDescription(description).toLowerCase().includes(search) ||
+        keysSearch(keys, search)
+    )
+    .map(([keys, _, description], i) => (
+      <TableRow key={i} hover>
+        <Hotkeys keys={keys} />
+        <TableCell>{getDescription(description)}</TableCell>
+      </TableRow>
+    ))
+  if (!content.length) {
+    return <Alert severity='error'>No shortcut found</Alert>
+  }
   return (
     <Table>
       <TableHead>
