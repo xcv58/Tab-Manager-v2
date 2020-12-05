@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.8](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.7...v1.13.8) (2020-12-05)
+
+### Bug Fixes
+
+- Add Command+k shortcut for search tab ([6d151ba](https://github.com/xcv58/Tab-Manager-v2/commit/6d151ba3fbe16f11a0a3dce1cb0208fe28602781))
+- Add search functionality on hotkey dialog ([33500fb](https://github.com/xcv58/Tab-Manager-v2/commit/33500fbf2fb08a70864fe060683785c588376672))
+
 ### [1.13.7](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.6...v1.13.7) (2020-12-01)
 
 ### Bug Fixes
