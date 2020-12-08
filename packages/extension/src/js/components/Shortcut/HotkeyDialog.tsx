@@ -49,7 +49,7 @@ export default observer(() => {
         </div>
       </DialogTitle>
       <DialogContent style={{ minHeight: 'calc(100vh - 142px)' }}>
-        <Help search={search} />
+        <Help search={search.toLowerCase()} />
       </DialogContent>
     </Dialog>
   )

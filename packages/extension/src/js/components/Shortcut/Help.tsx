@@ -30,8 +30,8 @@ export default observer((props: { search: string }) => {
     )
     .map(([keys, _, description], i) => (
       <TableRow key={i} hover>
-        <Hotkeys keys={keys} />
         <TableCell>{getDescription(description)}</TableCell>
+        <Hotkeys keys={keys} />
       </TableRow>
     ))
   if (!content.length) {
@@ -41,8 +41,8 @@ export default observer((props: { search: string }) => {
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell>Hotkeys</TableCell>
           <TableCell>Action</TableCell>
+          <TableCell>Hotkey(s)</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>{content}</TableBody>

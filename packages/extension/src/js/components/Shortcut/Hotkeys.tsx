@@ -1,11 +1,8 @@
 import React from 'react'
 import TableCell from '@material-ui/core/TableCell'
+import Shortcuts from './Shortcuts'
 
-export default ({ keys }) => {
-  let content = keys
-  if (typeof keys !== 'string') {
-    content = keys.map((key) => <span key={key}>{key}</span>)
-  }
+const Hotkeys = ({ keys }: { keys: string | string[] }) => {
   return (
     <TableCell
       style={{
@@ -20,8 +17,10 @@ export default ({ keys }) => {
           textTransform: 'capitalize'
         }}
       >
-        {content}
+        <Shortcuts shortcut={keys} />
       </div>
     </TableCell>
   )
 }
+
+export default Hotkeys

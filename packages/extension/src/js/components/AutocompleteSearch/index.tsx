@@ -10,6 +10,7 @@ import ListboxComponent from './ListboxComponent'
 import { matchSorter } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
+import Shortcuts from 'components/Shortcut/Shortcuts'
 
 const ARIA_LABLE =
   'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
@@ -36,23 +37,6 @@ const renderTabOption = (tab) => {
   return <ViewOnlyTab tab={tab} />
 }
 
-const Shortcut = ({ shortcut }) => {
-  if (!Array.isArray(shortcut)) {
-    return (
-      <kbd className='px-2 py-1 mx-1 text-sm leading-loose tracking-widest text-white bg-blue-500 rounded'>
-        {shortcut}
-      </kbd>
-    )
-  }
-  return (
-    <>
-      {shortcut.map((x) => (
-        <Shortcut key={x} shortcut={x} />
-      ))}
-    </>
-  )
-}
-
 const renderCommand = (command, { inputValue }) => {
   const { shortcut } = command
   const matches = match(command.name, inputValue.slice(1))
@@ -70,7 +54,7 @@ const renderCommand = (command, { inputValue }) => {
         ))}
       </span>
       <div>
-        <Shortcut shortcut={shortcut} />
+        <Shortcuts shortcut={shortcut} />
       </div>
     </div>
   )
