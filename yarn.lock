@@ -11028,15 +11028,6 @@ postcss@7.0.32:
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
-postcss@8.1.14:
-  version "8.1.14"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.14.tgz#77d6a5db2fdc0afa918e24af5323a53fb8727f2e"
-  integrity sha512-KatkyVPBKfENS+c3dpXJoDXnDD5UZs5exAnDksLqaRJPKwYphEPZt4N0m0i049v2/BtWVQibAhxW4ilXXcolpA==
-  dependencies:
-    colorette "^1.2.1"
-    nanoid "^3.1.20"
-    source-map "^0.6.1"
-
 postcss@8.1.7, postcss@^8.1.4, postcss@^8.1.6:
   version "8.1.7"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.1.7.tgz#ff6a82691bd861f3354fd9b17b2332f88171233f"
@@ -11045,6 +11036,15 @@ postcss@8.1.7, postcss@^8.1.4, postcss@^8.1.6:
     colorette "^1.2.1"
     line-column "^1.0.2"
     nanoid "^3.1.16"
+    source-map "^0.6.1"
+
+postcss@8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.2.0.tgz#214be4eda36db762eb8a89d7c7362b9341156eb5"
+  integrity sha512-vZ8cb6AlN53hHlnPvR+oj7fA46LU05Ysv7O7sNh1ixQrCbtx+d8/h+5tDER9XAccVhkf3aYskAiWmh0DdjNLbw==
+  dependencies:
+    colorette "^1.2.1"
+    nanoid "^3.1.20"
     source-map "^0.6.1"
 
 postcss@^6.0.9:
