@@ -312,9 +312,9 @@ export default class ShortcutStore {
       ['* a', 'ctrl+8'],
       (event: Event) => {
         preventDefault(event)
-        this.store.windowStore.selectAll()
+        this.store.searchStore.toggleSelectAll()
       },
-      'Select all tab'
+      'Select/Unselect all tab(s)'
     ],
     [
       ['* n', 'ctrl+n'],

@@ -37,7 +37,6 @@ export default class WindowsStore {
       onMoved: action,
       removeTabs: action,
       createNewWindow: action,
-      selectAll: action,
       windowMounted: action,
       lastFocusedWindow: computed,
       tabFingerprintMap: computed,
@@ -286,8 +285,6 @@ export default class WindowsStore {
       action: actions.createWindow
     })
   }
-
-  selectAll = () => this.store.tabStore.selectAll(this.tabs)
 
   windowMounted = () => {
     // TODO: Remove this when we add concurrent mode

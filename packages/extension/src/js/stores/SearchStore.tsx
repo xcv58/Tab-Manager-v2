@@ -36,7 +36,8 @@ export default class SearchStore {
       clear: action,
       selectAll: action,
       invertSelect: action,
-      unselectAll: action
+      unselectAll: action,
+      toggleSelectAll: action
     })
 
     this.store = store
@@ -181,5 +182,13 @@ export default class SearchStore {
 
   unselectAll = () => {
     this.store.tabStore.unselectAll()
+  }
+
+  toggleSelectAll = () => {
+    if (this.allTabSelected) {
+      this.unselectAll()
+    } else {
+      this.selectAll()
+    }
   }
 }

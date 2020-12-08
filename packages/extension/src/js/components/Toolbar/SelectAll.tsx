@@ -17,12 +17,7 @@ export default observer(() => {
           checked={allTabSelected}
           onChange={(e) => {
             e.target.blur()
-            const { selectAll, unselectAll } = searchStore
-            if (allTabSelected) {
-              unselectAll()
-            } else {
-              selectAll()
-            }
+            searchStore.toggleSelectAll()
           }}
           indeterminate={someTabSelected}
           inputProps={{ 'aria-label': title }}
