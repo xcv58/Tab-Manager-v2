@@ -35,7 +35,7 @@
     "prettier": "2.2.1",
     "standard": "16.0.3",
     "typescript": "4.1.2",
-    "web-ext": "5.4.0"
+    "web-ext": "5.4.1"
   },
   "standard": {
     "env": [
