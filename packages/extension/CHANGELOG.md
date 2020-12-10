@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.9](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.8...v1.13.9) (2020-12-10)
+
+### Bug Fixes
+
+- Redesign the shortcut help dialog ([3b9a4b5](https://github.com/xcv58/Tab-Manager-v2/commit/3b9a4b5d601699cfd0df8a08b2a6b752b7a2d4ca))
+- The '\* a' and 'Ctrl+8' shortcuts will toggle select all tab(s) ([a93ade2](https://github.com/xcv58/Tab-Manager-v2/commit/a93ade2d49d0acdaf5eaa89e6d0ff87271fcf014))
+
 ### [1.13.8](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.7...v1.13.8) (2020-12-05)
 
 ### Bug Fixes
