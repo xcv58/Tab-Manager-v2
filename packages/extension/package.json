@@ -54,7 +54,7 @@
     "@testing-library/jest-dom": "5.11.6",
     "@testing-library/react": "11.2.2",
     "@types/chrome": "0.0.126",
-    "@types/jest": "26.0.18",
+    "@types/jest": "26.0.19",
     "@types/lodash.debounce": "4.0.6",
     "@types/match-sorter": "6.0.0",
     "@types/mousetrap": "1.6.5",
