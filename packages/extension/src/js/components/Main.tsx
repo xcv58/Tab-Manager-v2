@@ -9,8 +9,15 @@ import { useStore } from './hooks/useStore'
 import DragLayer from './DragLayer'
 import { useTheme } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
+import { useLocation } from "react-router-dom";
+import { NOT_POPUP } from 'libs'
+import PopupView from './PopupView'
+
+const useQuery = () => new URLSearchParams(useLocation().search)
 
 export default observer(() => {
+  const query = useQuery()
+  const isPopup = !query.has(NOT_POPUP)
   const isDarkTheme = useTheme()
   const { windowStore, shortcutStore } = useStore()
   useEffect(() => {
@@ -18,6 +25,11 @@ export default observer(() => {
     shortcutStore.didMount()
     return () => shortcutStore.willUnmount()
   }, [])
+  if (isPopup) {
+    return (
+      <PopupView />
+    )
+  }
   return (
     <main
       className={classNames(

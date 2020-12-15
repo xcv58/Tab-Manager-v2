@@ -23,7 +23,12 @@ const OuterElementContext = createContext({})
 
 const OuterElementType = forwardRef<HTMLDivElement>((props, ref) => {
   const outerProps = useContext(OuterElementContext)
-  return <div ref={ref} {...props} {...outerProps} />
+  console.log({
+    props, outerProps
+  })
+  return <div ref={ref} {...props} {...outerProps}
+  // style={{ ...props.style, height: '900px' }}
+  />
 })
 
 const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
@@ -34,7 +39,7 @@ const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
   const getHeight = () => Math.min(10, itemCount) * TAB_HEIGHT
 
   return (
-    <div ref={ref}>
+    <div ref={ref} style={{ border: '1px solid red' }}>
       <OuterElementContext.Provider value={other}>
         <VariableSizeList
           itemData={itemData}
