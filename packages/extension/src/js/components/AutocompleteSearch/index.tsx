@@ -86,7 +86,12 @@ const AutocompleteSearch = observer((props: { autoFocus?: boolean, open?: boolea
       inputValue={query}
       value={query}
       disableListWrap
-      PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      // disablePortal
+      // forcePopupIcon
+      // PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      // PopperComponent='div'
+      // style={{ height: 950 }}
+      // ListboxProps={{ style: { width: '100vw' } }}
       open={open}
       onFocus={() => {
         startType()

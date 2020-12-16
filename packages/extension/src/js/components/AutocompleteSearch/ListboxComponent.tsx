@@ -36,7 +36,7 @@ const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
   const itemData = React.Children.toArray(children)
   const itemCount = itemData.length
 
-  const getHeight = () => Math.min(10, itemCount) * TAB_HEIGHT
+  const getHeight = () => Math.min(100, itemCount) * TAB_HEIGHT
 
   return (
     <div ref={ref} style={{ border: '1px solid red' }}>
