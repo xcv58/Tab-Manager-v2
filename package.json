@@ -5,6 +5,8 @@
     "packages/*"
   ],
   "scripts": {
+    "precommit": "lint-staged",
+    "postinstall": "husky install",
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
     "test": "yarn lint && yarn lint:ts && yarn workspace tab-manager-v2 jest",
@@ -30,7 +32,7 @@
     "coveralls": "3.1.0",
     "dotenv": "8.2.0",
     "eslint-plugin-typescript": "0.14.0",
-    "husky": "4.3.6",
+    "husky": "5.0.6",
     "lint-staged": "10.5.3",
     "prettier": "2.2.1",
     "standard": "16.0.3",
