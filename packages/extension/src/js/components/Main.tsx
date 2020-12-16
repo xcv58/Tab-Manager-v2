@@ -26,20 +26,22 @@ export default observer(() => {
     return () => shortcutStore.willUnmount()
   }, [])
   if (isPopup) {
-    return (
-      <PopupView />
-    )
+    return <PopupView />
   }
   return (
-    <main className={classNames(
-      'flex flex-col h-screen overflow-hidden',
-      isDarkTheme ? 'bg-charcoal text-white' : 'bg-white text-black'
-    )}>
+    <main
+      className={classNames(
+        'flex flex-col h-screen overflow-hidden',
+        isDarkTheme ? 'bg-charcoal text-white' : 'bg-white text-black'
+      )}
+    >
       {isPopup && <PopupView />}
-      {!isPopup && <>
-        <DroppableTools />
-        <WinList />
-      </>}
+      {!isPopup && (
+        <>
+          <DroppableTools />
+          <WinList />
+        </>
+      )}
       <Toolbar />
       <Shortcut />
       <SettingsDialog />

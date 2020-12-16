@@ -12,7 +12,7 @@ export default observer(() => {
   if (!userStore.loaded) {
     return (
       <div className='flex-shrink-0 h-12'>
- <Loading small />
+        <Loading small />
       </div>
     )
   }
