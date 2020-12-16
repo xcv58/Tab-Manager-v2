@@ -64,68 +64,63 @@ const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
 
-const AutocompleteSearch = observer(
-  (props: { autoFocus?: boolean; open?: boolean }) => {
-    const { autoFocus, open } = props
-    const searchInputRef = useSearchInputRef()
-    const options = useOptions()
-    const { userStore, searchStore } = useStore()
-    const { search, query, startType, stopType, isCommand } = searchStore
+type Props = { autoFocus?: boolean; open?: boolean }
 
-    const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
+const AutocompleteSearch = observer((props: Props) => {
+  const { autoFocus, open } = props
+  const searchInputRef = useSearchInputRef()
+  const options = useOptions()
+  const { userStore, searchStore } = useStore()
+  const { search, query, startType, stopType, isCommand } = searchStore
 
-    return (
-      <Autocomplete
-        fullWidth
-        blurOnSelect
-        freeSolo
-        selectOnFocus
-        openOnFocus
-        autoHighlight
-        includeInputInList
-        ref={searchInputRef}
-        inputValue={query}
-        value={query}
-        disableListWrap
-        PaperComponent={(props) => (
-          <Paper elevation={24}>{props.children}</Paper>
-        )}
-        open={open}
-        onFocus={() => {
-          startType()
-        }}
-        onBlur={() => stopType()}
-        onInputChange={(_, value, reason) => {
-          if (reason !== 'reset') {
-            search(value)
-          }
-        }}
-        onChange={(_, option) => {
-          if (!option || typeof option === 'string') {
-            return
-          }
-          if (isCommand) {
-            option.command()
-          } else {
-            option.activate()
-            search('')
-          }
-        }}
-        renderInput={(props) => (
-          <Input
-            {...props}
-            autoFocus={autoFocus || userStore.autoFocusSearch}
-          />
-        )}
-        options={options}
-        getOptionLabel={(option) =>
-          `${option.name} ${option.title} ${option.url}`}
-        renderOption={isCommand ? renderCommand : renderTabOption}
-        filterOptions={filterOptions}
-        ListboxComponent={ListboxComponent}
-      />
-    )
-  }
-)
+  const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
+
+  return (
+    <Autocomplete
+      fullWidth
+      blurOnSelect
+      freeSolo
+      selectOnFocus
+      openOnFocus
+      autoHighlight
+      includeInputInList
+      ref={searchInputRef}
+      inputValue={query}
+      value={query}
+      disableListWrap
+      PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      open={open}
+      onFocus={() => {
+        startType()
+      }}
+      onBlur={() => stopType()}
+      onInputChange={(_, value, reason) => {
+        if (reason !== 'reset') {
+          search(value)
+        }
+      }}
+      onChange={(_, option) => {
+        if (!option || typeof option === 'string') {
+          return
+        }
+        if (isCommand) {
+          option.command()
+        } else {
+          option.activate()
+          search('')
+        }
+      }}
+      renderInput={(props) => (
+        <Input {...props} autoFocus={autoFocus || userStore.autoFocusSearch} />
+      )}
+      options={options}
+      getOptionLabel={(option) =>
+        `${option.name} ${option.title} ${option.url}`}
+      renderOption={isCommand ? renderCommand : renderTabOption}
+      filterOptions={filterOptions}
+      ListboxComponent={ListboxComponent}
+    />
+  )
+})
 
 export default AutocompleteSearch
