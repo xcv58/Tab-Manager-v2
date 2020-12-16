@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
+import classNames from 'classnames'
 import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { useStore } from './hooks/useStore'
 import DragLayer from './DragLayer'
-import { useThemeClassNames } from './hooks/useTheme'
+import { useTheme } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
 import { useLocation } from 'react-router-dom'
 import { NOT_POPUP } from 'libs'
@@ -16,7 +17,7 @@ const useQuery = () => new URLSearchParams(useLocation().search)
 
 export default observer(() => {
   const query = useQuery()
-  const className = useThemeClassNames()
+  const isDarkTheme = useTheme()
   const isPopup = !query.has(NOT_POPUP)
   const { windowStore, shortcutStore } = useStore()
   useEffect(() => {
@@ -30,9 +31,15 @@ export default observer(() => {
     )
   }
   return (
-    <main className={className}>
-      <DroppableTools />
-      <WinList />
+    <main className={classNames(
+      'flex flex-col h-screen overflow-hidden',
+      isDarkTheme ? 'bg-charcoal text-white' : 'bg-white text-black'
+    )}>
+      {isPopup && <PopupView />}
+      {!isPopup && <>
+        <DroppableTools />
+        <WinList />
+      </>}
       <Toolbar />
       <Shortcut />
       <SettingsDialog />
