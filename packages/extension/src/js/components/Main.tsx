@@ -25,9 +25,6 @@ export default observer(() => {
     shortcutStore.didMount()
     return () => shortcutStore.willUnmount()
   }, [])
-  if (isPopup) {
-    return <PopupView />
-  }
   return (
     <main
       className={classNames(
@@ -40,12 +37,12 @@ export default observer(() => {
         <>
           <DroppableTools />
           <WinList />
+          <DragLayer />
         </>
       )}
       <Toolbar />
       <Shortcut />
       <SettingsDialog />
-      <DragLayer />
     </main>
   )
 })
