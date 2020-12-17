@@ -64,7 +64,10 @@ const Input = (props) => (
   <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
 )
 
-const AutocompleteSearch = observer(() => {
+type Props = { autoFocus?: boolean; open?: boolean }
+
+const AutocompleteSearch = observer((props: Props) => {
+  const { autoFocus, open } = props
   const searchInputRef = useSearchInputRef()
   const options = useOptions()
   const { userStore, searchStore } = useStore()
@@ -86,6 +89,7 @@ const AutocompleteSearch = observer(() => {
       value={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      open={open}
       onFocus={() => {
         startType()
       }}
@@ -107,7 +111,7 @@ const AutocompleteSearch = observer(() => {
         }
       }}
       renderInput={(props) => (
-        <Input {...props} autoFocus={userStore.autoFocusSearch} />
+        <Input {...props} autoFocus={autoFocus || userStore.autoFocusSearch} />
       )}
       options={options}
       getOptionLabel={(option) =>

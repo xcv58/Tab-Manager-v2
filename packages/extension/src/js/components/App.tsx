@@ -8,6 +8,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { StoreContext, store, useStore } from './hooks/useStore'
 import { ThemeContext } from './hooks/useTheme'
 import { isProduction } from 'libs'
+import { BrowserRouter } from 'react-router-dom'
 import Main from './Main'
 import { ReduceMotionProvider } from 'libs/useReduceMotion'
 
@@ -29,7 +30,9 @@ export default observer(() => {
           >
             <ThemeContext.Provider value={isDarkTheme}>
               <ReduceMotionProvider>
-                <Main />
+                <BrowserRouter>
+                  <Main />
+                </BrowserRouter>
               </ReduceMotionProvider>
             </ThemeContext.Provider>
           </DndProvider>
