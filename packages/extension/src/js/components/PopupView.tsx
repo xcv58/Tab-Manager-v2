@@ -22,7 +22,7 @@ export default observer(() => {
         <Summary />
         <AutocompleteSearch autoFocus open />
       </div>
-      <div className='absolute bottom-0 left-0 flex'>
+      <div className='absolute bottom-0 right-0 flex'>
         <ThemeToggle />
         <OpenInTab />
       </div>

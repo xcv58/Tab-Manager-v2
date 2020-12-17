@@ -37,10 +37,10 @@ export default observer(() => {
         <>
           <DroppableTools />
           <WinList />
+          <Toolbar />
           <DragLayer />
         </>
       )}
-      <Toolbar />
       <Shortcut />
       <SettingsDialog />
     </main>
