@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.14.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.9...v1.14.0) (2020-12-18)
+
+### Features
+
+- Add search box only view for popup mode ([#805](https://github.com/xcv58/Tab-Manager-v2/issues/805)) ([afbebaf](https://github.com/xcv58/Tab-Manager-v2/commit/afbebaf1c8941be2fa4cabe444e6714857afa34a))
+
+### Bug Fixes
+
+- **deps:** update dependency postcss to v8.2.1 ([#785](https://github.com/xcv58/Tab-Manager-v2/issues/785)) ([deacb86](https://github.com/xcv58/Tab-Manager-v2/commit/deacb86ec64c3f63bd7293af6699f7cf9fabdba4))
+- **deps:** update dependency tailwindcss to v2.0.2 ([#794](https://github.com/xcv58/Tab-Manager-v2/issues/794)) ([df8d7ba](https://github.com/xcv58/Tab-Manager-v2/commit/df8d7ba331a29b6fe78a08b0d935b95d5afa81b1))
+
 ### [1.13.9](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.8...v1.13.9) (2020-12-10)
 
 ### Bug Fixes
