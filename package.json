@@ -45,6 +45,7 @@
     ],
     "parser": "babel-eslint",
     "ignore": [
+      "**/stories/**/*",
       "webpack.config.js"
     ],
     "globals": [

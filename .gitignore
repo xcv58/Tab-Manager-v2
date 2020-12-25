@@ -9,3 +9,5 @@ secrets.*.js
 coverage
 yarn-error.log
 .env
+
+storybook-static
