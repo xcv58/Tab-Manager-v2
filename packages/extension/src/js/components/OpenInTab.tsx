@@ -5,8 +5,8 @@ import IconButton from '@material-ui/core/IconButton'
 import { openInNewTab } from 'libs'
 
 export default () => (
-  <Tooltip title='Open in new tab' placement='left'>
-    <IconButton onClick={openInNewTab} className='focus:outline-none'>
+  <Tooltip title="Open in new tab" placement="left">
+    <IconButton onClick={openInNewTab} className="focus:outline-none">
       <OpenInBrowser />
     </IconButton>
   </Tooltip>

@@ -11,8 +11,8 @@ export default observer((props: WinProps) => {
   const { id } = props.win
   const { sortTabs } = arrangeStore
   return (
-    <Tooltip title='Sort tabs'>
-      <IconButton onClick={() => sortTabs(id)} className='focus:outline-none'>
+    <Tooltip title="Sort tabs">
+      <IconButton onClick={() => sortTabs(id)} className="focus:outline-none">
         <SortIcon />
       </IconButton>
     </Tooltip>

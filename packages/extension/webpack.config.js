@@ -160,7 +160,7 @@ const options = {
         ...images,
         {
           from: 'src/manifest.json',
-          transform: function (content, path) {
+          transform: function (content) {
             const json = JSON.parse(content.toString())
             if (process.env.NODE_ENV === 'production') {
               delete json.content_security_policy

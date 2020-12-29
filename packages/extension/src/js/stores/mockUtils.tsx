@@ -15,14 +15,14 @@ const getMockedTab = ({ windowId, index }: Input) => {
     highlighted: false,
     incognito: false,
     mutedInfo: {
-      muted: false
+      muted: false,
     },
     pinned: false,
     selected: false,
     status: 'complete',
     title: 'Hover, Focus, and Active Styles - Tailwind CSS',
     url: 'https://tailwindcss.com/course/hover-focus-and-active-styles',
-    width: 1920
+    width: 1920,
   }
 }
 
@@ -42,7 +42,7 @@ const getMockedWindow = (tabNum = 10) => {
     state: 'normal',
     top: 0,
     type: 'normal',
-    width: 1920
+    width: 1920,
   }
   return win
 }

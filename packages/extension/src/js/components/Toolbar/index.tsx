@@ -10,7 +10,7 @@ export default observer(() => {
   const { lazyHideToolbar, showToolbar, toolbarVisible } = userStore
   return (
     <div
-      className='toolbar'
+      className="toolbar"
       onMouseEnter={showToolbar}
       onMouseLeave={lazyHideToolbar}
       style={{
@@ -18,7 +18,7 @@ export default observer(() => {
         width: 'fit-content',
         position: 'fixed',
         bottom: 0,
-        right: 0
+        right: 0,
       }}
     >
       {toolbarVisible && <Toolbar />}

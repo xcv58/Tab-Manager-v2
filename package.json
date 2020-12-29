@@ -9,7 +9,7 @@
     "postinstall": "husky install",
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
-    "test": "yarn lint && yarn lint:ts && yarn workspace tab-manager-v2 jest",
+    "test": "yarn lint && yarn workspace tab-manager-v2 jest",
     "build": "yarn workspace tab-manager-v2 build",
     "deploy": "NODE_ENV=production yarn workspace tab-manager-v2 build && yarn zip && ls -lh build*.zip",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/webstore upload --source build_chrome.zip",
@@ -20,51 +20,31 @@
     "_zip": "zip -X --compression-method deflate -9 -r --junk-paths",
     "zip:chrome": "yarn _zip build_chrome.zip build_chrome/*",
     "zip:firefox": "yarn _zip build_firefox.zip build_firefox/*",
-    "lint:ts": "standard --parser @typescript-eslint/parser --plugin typescript ./**/*.tsx",
-    "lint": "standard",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier": "prettier --no-semi --single-quote --write",
-    "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix && yarn lint:ts --fix"
+    "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "4.11.1",
+    "@typescript-eslint/eslint-plugin": "^4.11.1",
+    "@typescript-eslint/parser": "^4.11.1",
     "chrome-webstore-upload-cli": "1.2.0",
     "concurrently": "5.3.0",
     "coveralls": "3.1.0",
     "dotenv": "8.2.0",
+    "eslint": "^7.16.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-jest": "^24.1.3",
     "eslint-plugin-typescript": "0.14.0",
     "husky": "5.0.6",
     "lint-staged": "10.5.3",
     "prettier": "2.2.1",
-    "standard": "16.0.3",
-    "typescript": "4.1.3",
+    "typescript": "^4.1.3",
     "web-ext": "5.4.1"
   },
-  "standard": {
-    "env": [
-      "jest"
-    ],
-    "parser": "babel-eslint",
-    "ignore": [
-      "webpack.config.js"
-    ],
-    "globals": [
-      "screen",
-      "Event",
-      "HTMLElement",
-      "HTMLInputElement",
-      "HTMLDivElement",
-      "page",
-      "browser"
-    ]
-  },
   "lint-staged": {
-    "*.js": [
+    "*.{js,jsx,ts,tsx}": [
       "yarn prettier",
-      "standard --fix"
-    ],
-    "*.{ts,tsx}": [
-      "yarn prettier",
-      "standard --parser @typescript-eslint/parser --plugin typescript --fix"
+      "eslint --fix"
     ],
     "*.{json,css,md}": [
       "yarn prettier"

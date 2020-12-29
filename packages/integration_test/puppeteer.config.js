@@ -7,8 +7,8 @@ const launch = {
   headless: false,
   args: [
     `--disable-extensions-except=${extensionPath}`,
-    `--load-extension=${extensionPath}`
-  ]
+    `--load-extension=${extensionPath}`,
+  ],
 }
 
 module.exports = { launch }

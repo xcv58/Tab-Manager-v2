@@ -5,7 +5,7 @@ const wrapperStyle = {
   fontSize: '12px',
   color: 'rgb(172, 172, 172)',
   marginBottom: '6px',
-  display: 'inline-block'
+  display: 'inline-block',
 }
 
 const kbdStyle = {
@@ -14,7 +14,7 @@ const kbdStyle = {
   color: '#b9b9b9',
   padding: '2px 4px',
   marginRight: '6px',
-  borderRadius: '4px'
+  borderRadius: '4px',
 }
 
 const itemStyle = { paddingRight: '32px' }

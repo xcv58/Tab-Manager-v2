@@ -8,7 +8,7 @@ import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from './hooks/useStore'
 import Tools from './Tools'
 
-export default observer((props) => {
+export default observer(() => {
   const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -19,9 +19,9 @@ export default observer((props) => {
     collect: (monitor) => {
       return {
         canDrop: monitor.canDrop(),
-        isOver: monitor.isOver()
+        isOver: monitor.isOver(),
       }
-    }
+    },
   })
   const { canDrop, isOver } = dropProps
   const size = tabStore.selection.size
@@ -38,13 +38,13 @@ export default observer((props) => {
         )}
       >
         {text} in New Window
-        <div className='absolute shadow-2xl' style={{ top: '3rem' }}>
+        <div className="absolute shadow-2xl" style={{ top: '3rem' }}>
           {isOver && (
             <Preview
               style={{
                 opacity: 1,
                 maxWidth: '80vw',
-                minWidth: `${userStore.tabWidth}rem`
+                minWidth: `${userStore.tabWidth}rem`,
               }}
             />
           )}

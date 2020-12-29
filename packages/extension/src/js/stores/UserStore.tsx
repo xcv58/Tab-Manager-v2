@@ -16,7 +16,7 @@ const DEFAULT_SETTINGS = {
   useSystemTheme: true,
   darkTheme: false,
   tabWidth: 20,
-  showTabIcon: true
+  showTabIcon: true,
 }
 
 const SYSTEM = 'system'
@@ -27,7 +27,7 @@ export const THEMES = [SYSTEM, DARK, LIGHT]
 export default class UserStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       loaded: observable,
       showShortcutHint: observable,
@@ -65,7 +65,7 @@ export default class UserStore {
       toggleUseSystemTheme: action,
       lazyHideToolbar: action,
       showToolbar: action,
-      hideToolbar: action
+      hideToolbar: action,
     })
 
     this.store = store
@@ -98,7 +98,7 @@ export default class UserStore {
   toolbarVisible = true
   ignoreHash = false
 
-  get theme () {
+  get theme() {
     if (this.useSystemTheme) {
       return SYSTEM
     }
@@ -117,7 +117,7 @@ export default class UserStore {
     }
     browser.storage.sync.set({
       useSystemTheme: this.useSystemTheme,
-      darkTheme: this.darkTheme
+      darkTheme: this.darkTheme,
     })
   }
 
@@ -207,7 +207,7 @@ export default class UserStore {
   toggleDarkTheme = (currentTheme: string) => {
     browser.storage.sync.set({
       useSystemTheme: false,
-      darkTheme: !currentTheme
+      darkTheme: !currentTheme,
     })
     this.init()
   }

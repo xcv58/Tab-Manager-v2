@@ -20,9 +20,9 @@ export default observer((props: TabProps) => {
     collect: (monitor) => {
       return {
         canDrop: monitor.canDrop(),
-        isOver: monitor.isOver({ shallow: true })
+        isOver: monitor.isOver({ shallow: true }),
       }
-    }
+    },
   })
   const { isOver, canDrop } = dropProps
   const preview = canDrop && isOver && <DropIndicator />
@@ -32,7 +32,7 @@ export default observer((props: TabProps) => {
       <Tab
         {...props}
         className={classNames({
-          'bg-red-500 hover:bg-red-500': isOver && !canDrop
+          'bg-red-500 hover:bg-red-500': isOver && !canDrop,
         })}
       />
     </div>

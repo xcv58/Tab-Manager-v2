@@ -5,9 +5,9 @@ import Store from 'stores'
 export default class HiddenWindowsStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
-      hiddenWindows: observable
+      hiddenWindows: observable,
     })
 
     this.store = store
@@ -16,7 +16,7 @@ export default class HiddenWindowsStore {
 
   init = async () => {
     const { hiddenWindows = {} } = await browser.storage.local.get({
-      hiddenWindows: {}
+      hiddenWindows: {},
     })
     if (typeof hiddenWindows === 'object') {
       this.hiddenWindows = hiddenWindows

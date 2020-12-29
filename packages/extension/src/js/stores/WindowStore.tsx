@@ -6,7 +6,7 @@ import {
   notSelfPopup,
   windowComparator,
   isSelfPopup,
-  TAB_HEIGHT
+  TAB_HEIGHT,
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
@@ -18,7 +18,7 @@ import debounce from 'lodash.debounce'
 export default class WindowsStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       windows: observable,
       initialLoading: observable,
@@ -45,7 +45,7 @@ export default class WindowsStore {
       cleanDuplicatedTabs: action,
       moveTabs: action,
       updateHeight: action,
-      updateAllWindows: action
+      updateAllWindows: action,
     })
 
     this.store = store
@@ -82,19 +82,19 @@ export default class WindowsStore {
 
   batching = false
 
-  get tabCount () {
+  get tabCount() {
     return this.windows
       .map((x) => x.tabs.length)
       .reduce((acc, cur) => acc + cur, 0)
   }
 
-  get tabs (): Tab[] {
+  get tabs(): Tab[] {
     return [].concat(
       ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
     )
   }
 
-  get visibleColumn () {
+  get visibleColumn() {
     const heights = this.windows
       .filter((x) => x.visibleLength > 0)
       .map((x) => x.visibleLength * TAB_HEIGHT)
@@ -114,7 +114,7 @@ export default class WindowsStore {
 
   clearWindow = () => {
     log.debug('clearWindow')
-    for (let index = 0; index < this.windows.length;) {
+    for (let index = 0; index < this.windows.length; ) {
       if (this.windows[index].tabs.length === 0) {
         this.windows.splice(index, 1)
       } else {
@@ -143,7 +143,7 @@ export default class WindowsStore {
       return win
     }
     const winData = await browser.windows.get(windowId, {
-      populate: true
+      populate: true,
     })
     win = this.windows.find((x) => x.id === windowId)
     if (!win) {
@@ -169,7 +169,7 @@ export default class WindowsStore {
     id: number,
     {
       windowId,
-      isWindowClosing
+      isWindowClosing,
     }: { windowId: number; isWindowClosing: boolean }
   ) => {
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
@@ -203,7 +203,7 @@ export default class WindowsStore {
       return
     }
     const win = await browser.windows.get(windowId, {
-      populate: true
+      populate: true,
     })
     if (win && !isSelfPopup(win)) {
       this.lastFocusedWindowId = windowId
@@ -219,7 +219,7 @@ export default class WindowsStore {
         new Window(
           {
             id: windowId,
-            tabs: [tab]
+            tabs: [tab],
           },
           this.store
         )
@@ -280,9 +280,9 @@ export default class WindowsStore {
     browser.runtime.sendMessage({
       tabs: tabs.map(({ id, pinned }) => ({
         id,
-        pinned
+        pinned,
       })),
-      action: actions.createWindow
+      action: actions.createWindow,
     })
   }
 
@@ -299,11 +299,11 @@ export default class WindowsStore {
     }
   }
 
-  get lastFocusedWindow () {
+  get lastFocusedWindow() {
     return this.windows.find((x) => x.lastFocused)
   }
 
-  get tabFingerprintMap () {
+  get tabFingerprintMap() {
     console.log(this.tabs)
     return this.tabs.reduce((acc: { [key: string]: number }, tab) => {
       const { fingerPrint } = tab
@@ -312,7 +312,7 @@ export default class WindowsStore {
     }, {})
   }
 
-  get duplicatedTabs () {
+  get duplicatedTabs() {
     return this.tabs.filter((tab) => tab.isDuplicated)
   }
 
@@ -356,10 +356,10 @@ export default class WindowsStore {
     await moveTabs(tabs, windowId, from)
   }
 
-  updateHeight (height: number) {
+  updateHeight(height: number) {
     log.debug('WindowsStore.updateHeight:', {
       height,
-      'this.height': this.height
+      'this.height': this.height,
     })
     if (this.height !== height && Math.abs(this.height - height) > TAB_HEIGHT) {
       this.height = height
@@ -374,7 +374,7 @@ export default class WindowsStore {
   loadAllWindows = async () => {
     log.debug('loadAllWindows')
     const windows = await browser.windows.getAll({
-      populate: true
+      populate: true,
     })
     this.lastFocusedWindowId = await getLastFocusedWindowId()
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
@@ -401,6 +401,6 @@ export default class WindowsStore {
 
   updateAllWindows = debounce(this.getAllWindows, 1000, {
     leading: true,
-    trailing: true
+    trailing: true,
   })
 }

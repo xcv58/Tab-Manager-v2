@@ -8,8 +8,8 @@ import { useStore } from './hooks/useStore'
 import CommandPaletteHeader from './CommandPaletteHeader'
 
 const trigger = (
-  <Tooltip title='Command Palette'>
-    <IconButton onClick={() => {}} className='focus:outline-none'>
+  <Tooltip title="Command Palette">
+    <IconButton onClick={() => {}} className="focus:outline-none">
       <LiveHelpOutlined />
     </IconButton>
   </Tooltip>
@@ -17,7 +17,7 @@ const trigger = (
 
 const Shortcut = ({ shortcut }) => {
   if (!Array.isArray(shortcut)) {
-    return <kbd className='shortcut'>{shortcut}</kbd>
+    return <kbd className="shortcut">{shortcut}</kbd>
   }
   return (
     <>
@@ -30,7 +30,7 @@ const Shortcut = ({ shortcut }) => {
 
 const Command = (props) => {
   return (
-    <div className='item'>
+    <div className="item">
       {props.highlight && (
         <span dangerouslySetInnerHTML={{ __html: props.highlight }} />
       )}

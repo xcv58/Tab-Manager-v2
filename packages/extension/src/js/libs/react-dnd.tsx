@@ -1,7 +1,7 @@
 import { findLastVisibleOrLastTab, findFirstVisibleOrFirstTab } from './index'
 
 export const ItemTypes = {
-  TAB: 'tab'
+  TAB: 'tab',
 }
 
 export const getTargetTab = (tabs, begin) => {

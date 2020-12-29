@@ -5,7 +5,7 @@ const env = require('./env')
 const path = require('path')
 
 const config = require('../webpack.config')([
-  new webpack.HotModuleReplacementPlugin()
+  new webpack.HotModuleReplacementPlugin(),
   // new HardSourceWebpackPlugin()
 ])
 
@@ -16,7 +16,7 @@ for (const entryName in config.entry) {
   if (excludeEntriesToHotReload.indexOf(entryName) === -1) {
     config.entry[entryName] = [
       'webpack-dev-server/client?http://localhost:' + env.PORT,
-      'webpack/hot/dev-server'
+      'webpack/hot/dev-server',
     ].concat(config.entry[entryName])
   }
 }
@@ -31,7 +31,7 @@ const server = new WebpackDevServer(compiler, {
   writeToDisk: true,
   disableHostCheck: true,
   contentBase: path.join(__dirname, '../build'),
-  headers: { 'Access-Control-Allow-Origin': '*' }
+  headers: { 'Access-Control-Allow-Origin': '*' },
 })
 
 server.listen(env.PORT)

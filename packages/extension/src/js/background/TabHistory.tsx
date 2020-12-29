@@ -3,7 +3,7 @@ import {
   setLastFocusedWindowId,
   browser,
   isSelfPopupTab,
-  setSelfPopupActive
+  setSelfPopupActive,
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
@@ -14,14 +14,14 @@ export default class TabHistory {
 
   actionMap: { [key: string]: () => void }
 
-  constructor (background) {
+  constructor(background) {
     this.root = background
     const { onActivated, onFocusChanged, onRemoved } = this
     browser.tabs.onActivated.addListener(onActivated)
     browser.tabs.onRemoved.addListener(onRemoved)
     browser.windows.onFocusChanged.addListener(onFocusChanged)
     this.actionMap = {
-      [actions.lastActiveTab]: this.activateTab
+      [actions.lastActiveTab]: this.activateTab,
     }
   }
 
@@ -67,7 +67,7 @@ export default class TabHistory {
     }
   }
 
-  get nextTabIndex () {
+  get nextTabIndex() {
     return Math.max(this.tabHistory.length - 1 - this.count, 0)
   }
 
@@ -112,14 +112,14 @@ export default class TabHistory {
     if (isPopupWindow) {
       log.debug('onFocusChanged ignore self popup window', {
         tab,
-        isPopupWindow
+        isPopupWindow,
       })
       return setSelfPopupActive(true)
     }
     log.debug('onFocusChanged record the window', {
       windowId,
       tab,
-      isPopupWindow
+      isPopupWindow,
     })
     this.add({ ...tab, tabId: tab.id, windowId })
     setLastFocusedWindowId(windowId)

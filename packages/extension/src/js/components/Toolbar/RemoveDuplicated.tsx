@@ -13,11 +13,11 @@ export default observer(() => {
   const { cleanDuplicatedTabs, duplicatedTabs } = windowStore
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <IconButton
           onClick={cleanDuplicatedTabs}
           disabled={duplicatedTabs.length === 0}
-          className='focus:outline-none'
+          className="focus:outline-none"
           aria-label={TITLE}
         >
           <DeleteSweep />

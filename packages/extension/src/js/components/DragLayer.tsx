@@ -9,13 +9,13 @@ const layerStyles: CSSProperties = {
   left: 0,
   top: 0,
   width: '100%',
-  height: '100%'
+  height: '100%',
 }
 
 const getPreviewStyle = (initialOffset, currentOffset) => {
   if (!initialOffset || !currentOffset) {
     return {
-      display: 'none'
+      display: 'none',
     }
   }
 
@@ -24,7 +24,7 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
   const transform = `translate(${x}px, ${y}px)`
   return {
     transform,
-    WebkitTransform: transform
+    WebkitTransform: transform,
   }
 }
 
@@ -33,7 +33,7 @@ export default () => {
     (monitor) => ({
       initialOffset: monitor.getInitialSourceClientOffset(),
       currentOffset: monitor.getClientOffset(),
-      isDragging: monitor.isDragging()
+      isDragging: monitor.isDragging(),
     })
   )
   return (

@@ -16,38 +16,38 @@ const MuiSnackbarContent = {
     padding: '0 2rem',
     justifyContent: 'center',
     textTransform: 'capitalize',
-    backgroundColor: 'rgba(0, 0, 0, 0.618)'
-  }
+    backgroundColor: 'rgba(0, 0, 0, 0.618)',
+  },
 }
 
 const overrides = {
   MuiIconButton: {
     root: {
-      padding: 9
-    }
+      padding: 9,
+    },
   },
   MuiButton: {
     root: {
-      textTransform: 'none'
-    }
+      textTransform: 'none',
+    },
   },
   MuiSnackbarContent,
   MuiAutocomplete: {
     root: {
-      display: 'flex'
+      display: 'flex',
     },
     listbox: {
-      maxHeight: '64vh'
+      maxHeight: '64vh',
     },
     option: {
       paddingTop: 0,
       paddingBottom: 0,
       paddingLeft: 0,
-      paddingRight: 0
+      paddingRight: 0,
     },
     popper: {
-      marginLeft: -6
-    }
+      marginLeft: -6,
+    },
   },
   MuiTooltip: {
     tooltip: {
@@ -56,28 +56,28 @@ const overrides = {
       borderRadius: '.5rem',
       fontSize: '1rem',
       lineHeight: '1.5rem',
-      maxWidth: '32rem'
-    }
-  }
+      maxWidth: '32rem',
+    },
+  },
 }
 
 const app = {
   focusedColor: blue[200],
   highlightBorderColor: pink.A400,
-  highlightColor: blue[50]
+  highlightColor: blue[50],
 }
 
 export const lightTheme = {
   overrides,
   app,
-  typography: { useNextVariants: true }
+  typography: { useNextVariants: true },
 }
 
 export const darkTheme = merge(
   {
     palette: {
-      type: 'dark'
-    }
+      type: 'dark',
+    },
   },
   {
     ...lightTheme,
@@ -86,16 +86,16 @@ export const darkTheme = merge(
       MuiSnackbarContent: {
         root: {
           ...MuiSnackbarContent.root,
-          backgroundColor
-        }
-      }
-    }
+          backgroundColor,
+        },
+      },
+    },
   },
   {
     app: {
       focusedColor: '#292B2E',
       highlightBorderColor: pink.A400,
-      highlightColor: '#323639'
-    }
+      highlightColor: '#323639',
+    },
   }
 )

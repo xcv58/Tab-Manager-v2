@@ -13,11 +13,11 @@ export default observer(() => {
   const title = `Open ${tabDescription} in new window`
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <IconButton
           onClick={() => dropToNewWindow()}
           disabled={selection.size === 0}
-          className='focus:outline-none'
+          className="focus:outline-none"
           aria-label={title}
         >
           <OpenInNew />

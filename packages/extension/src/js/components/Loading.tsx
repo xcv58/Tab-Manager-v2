@@ -12,7 +12,7 @@ export default ({ small = false }) => {
       <div
         className={classNames('la-ball-spin', {
           'la-dark': !isDarkTheme,
-          'la-3x': !small
+          'la-3x': !small,
         })}
       >
         <div />

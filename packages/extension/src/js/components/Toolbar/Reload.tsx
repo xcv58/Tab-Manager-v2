@@ -12,11 +12,11 @@ export default observer(() => {
   const { hasFocusedOrSelectedTab, reload } = useStore()
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <IconButton
           onClick={reload}
           disabled={!hasFocusedOrSelectedTab}
-          className='focus:outline-none'
+          className="focus:outline-none"
           aria-label={TITLE}
         >
           <Refresh />

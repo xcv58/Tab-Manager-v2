@@ -5,7 +5,7 @@ import ContainerIndicator from '../_ContainerIndicator'
 
 const VALID_COOKIE_STORE_ID = '42'
 const props = {
-  cookieStoreId: VALID_COOKIE_STORE_ID
+  cookieStoreId: VALID_COOKIE_STORE_ID,
 }
 
 const mockStore = {
@@ -14,8 +14,8 @@ const mockStore = {
       if (cookieStoreId === VALID_COOKIE_STORE_ID) {
         return { colorCode: '#ff0000' }
       }
-    }
-  }
+    },
+  },
 }
 
 describe('ContainerIndicator', () => {
@@ -29,7 +29,7 @@ describe('ContainerIndicator', () => {
   })
 
   it('render null for invalid cookieStoreId', () => {
-    const el = render(<ContainerIndicator cookieStoreId='' />)
+    const el = render(<ContainerIndicator cookieStoreId="" />)
     expect(el).toMatchSnapshot()
   })
 })

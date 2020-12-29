@@ -4,7 +4,7 @@ import Hint from './Hint'
 
 export default () => (
   <>
-    <HotkeyDialog key='dialog' />
-    <Hint key='hint' />
+    <HotkeyDialog key="dialog" />
+    <Hint key="hint" />
   </>
 )

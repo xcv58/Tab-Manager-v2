@@ -38,13 +38,13 @@ export default class Store {
 
   containerStore
 
-  constructor () {
+  constructor() {
     makeObservable(this, {
       remove: action,
       reload: action,
       togglePin: action,
       hasFocusedOrSelectedTab: computed,
-      copyTabsInfo: action
+      copyTabsInfo: action,
     })
 
     this.windowStore = new WindowStore(this)
@@ -119,7 +119,7 @@ export default class Store {
     }
   }
 
-  get hasFocusedOrSelectedTab () {
+  get hasFocusedOrSelectedTab() {
     return this.tabStore.selection.size > 0 || !!this.focusStore.focusedItem
   }
 

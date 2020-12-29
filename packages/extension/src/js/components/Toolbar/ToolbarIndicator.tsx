@@ -22,15 +22,15 @@ export default observer(() => {
   const reduceMotion = useReduceMotion()
   return (
     <Slide
-      direction='up'
+      direction="up"
       in
       timeout={reduceMotion ? 1 : duration.enteringScreen}
     >
       <IconButton
         style={{
-          opacity: toolbarAutoHide ? 1 : 0.2
+          opacity: toolbarAutoHide ? 1 : 0.2,
         }}
-        className='focus:outline-none'
+        className="focus:outline-none"
         disabled={!toolbarAutoHide}
         onFocus={showToolbar}
         onMouseEnter={showToolbar}
@@ -42,7 +42,7 @@ export default observer(() => {
             showToolbar()
           }
         }}
-        aria-label='Toggle toolbar'
+        aria-label="Toggle toolbar"
       >
         <Fade in>
           <IndicatorIcon {...{ toolbarVisible }} />

@@ -8,10 +8,10 @@ import { useStore } from './hooks/useStore'
 export default observer(() => {
   const { windowStore } = useStore()
   return (
-    <Tooltip title='Sync All Windows' placement='left'>
+    <Tooltip title="Sync All Windows" placement="left">
       <IconButton
         onClick={() => windowStore.syncAllWindows()}
-        className='focus:outline-none'
+        className="focus:outline-none"
       >
         <Sync />
       </IconButton>

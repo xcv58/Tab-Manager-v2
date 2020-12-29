@@ -14,7 +14,7 @@ export default observer(() => {
     <Snackbar
       anchorOrigin={{
         vertical: 'bottom',
-        horizontal: 'center'
+        horizontal: 'center',
       }}
       TransitionComponent={Fade}
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}

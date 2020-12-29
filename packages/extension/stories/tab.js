@@ -16,7 +16,7 @@ const tabProps = (props) => {
     tab,
     dragPreview: action('dragPreview'),
     getWindowList: action('getWindowList'),
-    faked: true
+    faked: true,
   }
 }
 
@@ -37,7 +37,7 @@ const iconStory = storiesOf('Icon', module)
   'extensions',
   'flags',
   'history',
-  'settings'
+  'settings',
 ].forEach((x) => {
   iconStory.add(`Chrome Icon ${x}`, () => (
     <Icon {...tabProps()} url={`chrome://${x}`} />

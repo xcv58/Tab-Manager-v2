@@ -12,8 +12,8 @@ webpack(
       defaultSizes: 'parsed',
       openAnalyzer: true,
       generateStatsFile: false,
-      logLevel: 'info'
-    })
+      logLevel: 'info',
+    }),
   ]),
   function (err) {
     if (err) throw err

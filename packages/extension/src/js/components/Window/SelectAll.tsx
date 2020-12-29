@@ -8,15 +8,15 @@ export default observer(({ win }) => {
     allTabSelected,
     someTabSelected,
     disableSelectAll,
-    toggleSelectAll
+    toggleSelectAll,
   } = win
   const title = `${allTabSelected ? 'Unselect' : 'Select'} all tabs`
   return (
     <Tooltip title={title}>
       <Checkbox
-        color='primary'
+        color="primary"
         inputProps={{
-          'aria-label': title
+          'aria-label': title,
         }}
         disabled={disableSelectAll}
         checked={allTabSelected}

@@ -25,7 +25,7 @@ export default observer(() => {
       className={classNames(
         'fixed top-0 left-0 flex justify-center w-full p-0 text-sm border-none',
         {
-          'opacity-50': typing
+          'opacity-50': typing,
         }
       )}
     >
