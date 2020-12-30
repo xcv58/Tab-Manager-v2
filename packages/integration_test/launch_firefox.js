@@ -23,10 +23,10 @@ const openPage = async (browser, url) => {
     {
       sourceDir,
       firefox,
-      args
+      args,
     },
     {
-      shouldExitProgram: false
+      shouldExitProgram: false,
     }
   )
   // The command has finished. Each command resolves its promise with a different value.

@@ -5,14 +5,14 @@ import Tab from './Tab'
 export default class DragStore {
   store: Store
 
-  constructor (store) {
+  constructor(store) {
     makeObservable(this, {
       dropped: observable,
       dragging: observable,
       dragStart: action,
       dragEnd: action,
       drop: action,
-      dropToNewWindow: action
+      dropToNewWindow: action,
     })
 
     this.store = store
@@ -50,7 +50,7 @@ export default class DragStore {
       moveTabs,
       getTargetWindow,
       suspend,
-      resume
+      resume,
     } = this.store.windowStore
     suspend()
     const { windowId } = tab

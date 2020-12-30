@@ -11,12 +11,12 @@ const ContainerIndicator = (props) => {
   const { colorCode } = container
   return (
     <hr
-      className='absolute border'
+      className="absolute border"
       style={{
         width: 'calc(100% - 24px)',
         left: 12,
         bottom: 2,
-        borderColor: colorCode
+        borderColor: colorCode,
       }}
     />
   )

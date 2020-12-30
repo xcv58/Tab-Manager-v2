@@ -12,10 +12,10 @@ export default observer(() => {
   const { userStore } = useStore()
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <IconButton
           onClick={() => userStore.openDialog()}
-          className='focus:outline-none'
+          className="focus:outline-none"
           aria-label={TITLE}
         >
           <Settings />

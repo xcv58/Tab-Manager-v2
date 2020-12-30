@@ -52,25 +52,25 @@ export default observer((props: { tab: Tab }) => {
     pinned,
     togglePin,
     duplicatedTabCount,
-    closeDuplicatedTab
+    closeDuplicatedTab,
   } = props.tab
   const options: OptionOrDivider[] = [
     {
       ...OPTION,
       label: pinned ? 'Unpin tab' : 'Pin tab',
-      onClick: togglePin
+      onClick: togglePin,
     },
     {
       ...OPTION,
       label: 'Close',
-      onClick: remove
+      onClick: remove,
     },
     {
       ...OPTION,
       label: 'Close other tabs',
       onClick: closeOtherTabs,
-      disabled: win.tabs.length <= 1
-    }
+      disabled: win.tabs.length <= 1,
+    },
   ]
   if (process.env.TARGET_BROWSER === 'firefox') {
     options.push(
@@ -82,14 +82,14 @@ export default observer((props: { tab: Tab }) => {
         } tabs in the same container`,
         onClick: () => {
           props.tab.selectTabsInSameContainer()
-        }
+        },
       },
       {
         ...OPTION,
         label: 'Open same container tabs in a new window',
         onClick: () => {
           props.tab.openSameContainerTabs()
-        }
+        },
       }
     )
   }
@@ -97,7 +97,7 @@ export default observer((props: { tab: Tab }) => {
     options.push(DIVIDER, {
       ...OPTION,
       label: `Group ${sameDomainTabs.length} same domain tabs to this window`,
-      onClick: groupTab
+      onClick: groupTab,
     })
   }
   if (duplicatedTabCount > 1) {
@@ -107,7 +107,7 @@ export default observer((props: { tab: Tab }) => {
         'tab',
         duplicatedTabCount - 1
       )}`,
-      onClick: closeDuplicatedTab
+      onClick: closeDuplicatedTab,
     })
   }
 
@@ -124,7 +124,7 @@ export default observer((props: { tab: Tab }) => {
   })
   return (
     <>
-      <IconButton onClick={handleClick} className='focus:outline-none'>
+      <IconButton onClick={handleClick} className="focus:outline-none">
         <MoreVertIcon />
       </IconButton>
       <Popover
@@ -132,14 +132,14 @@ export default observer((props: { tab: Tab }) => {
         open={Boolean(anchorEl)}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'left'
+          horizontal: 'left',
         }}
         onClose={handleClose}
         style={{ zIndex: theme.zIndex.tooltip + 1 }}
         PaperProps={{
           style: {
-            minWidth: 200
-          }
+            minWidth: 200,
+          },
         }}
       >
         {content}

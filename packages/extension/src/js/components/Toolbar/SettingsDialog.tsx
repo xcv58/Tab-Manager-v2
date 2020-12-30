@@ -50,7 +50,7 @@ export default observer(() => {
     theme,
     selectTheme,
     ignoreHash,
-    toggleIgnoreHash
+    toggleIgnoreHash,
   } = userStore
   const reduceMotion = useReduceMotion()
   return (
@@ -63,29 +63,29 @@ export default observer(() => {
       onBackdropClick={closeDialog}
     >
       <DialogTitle>
-        <div className='flex justify-between'>
+        <div className="flex justify-between">
           Settings <SponsorButton />
         </div>
       </DialogTitle>
       <DialogContent>
-        <FormControl className='w-full'>
+        <FormControl className="w-full">
           <FormGroup>
             <FormHelperText>Search</FormHelperText>
             <FormControlLabel
-              label='Preserve Search'
+              label="Preserve Search"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={preserveSearch}
                   onChange={togglePreserveSearch}
                 />
               }
             />
             <FormControlLabel
-              label='Auto Focus Search Box'
+              label="Auto Focus Search Box"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={autoFocusSearch}
                   onChange={toggleAutoFocusSearch}
                 />
@@ -96,30 +96,30 @@ export default observer(() => {
           <FormGroup>
             <FormHelperText>Views</FormHelperText>
             <FormControlLabel
-              label='Highlight Duplicated Tabs'
+              label="Highlight Duplicated Tabs"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={highlightDuplicatedTab}
                   onChange={toggleHighlightDuplicatedTab}
                 />
               }
             />
             <FormControlLabel
-              label='Ignore Hash in URL when count duplication'
+              label="Ignore Hash in URL when count duplication"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={ignoreHash}
                   onChange={toggleIgnoreHash}
                 />
               }
             />
             <FormControlLabel
-              label='Show Unmatched Tab'
+              label="Show Unmatched Tab"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={showUnmatchedTab}
                   onChange={toggleShowUnmatchedTab}
                 />
@@ -133,39 +133,39 @@ export default observer(() => {
               max={50}
               marks
               onChange={(_, value) => updateTabWidth(value)}
-              valueLabelDisplay='auto'
-              aria-labelledby='update-tab-width'
-              aria-label='Update Tab Width'
+              valueLabelDisplay="auto"
+              aria-labelledby="update-tab-width"
+              aria-label="Update Tab Width"
             />
             <Divider />
           </FormGroup>
           <FormGroup>
             <FormHelperText>Individual Tab</FormHelperText>
             <FormControlLabel
-              label='Show Tab Icon'
+              label="Show Tab Icon"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={showTabIcon}
                   onChange={toggleShowTabIcon}
                 />
               }
             />
             <FormControlLabel
-              label='Show URL'
+              label="Show URL"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={showUrl}
                   onChange={toggleShowUrl}
                 />
               }
             />
             <FormControlLabel
-              label='Show Tab Tooltip'
+              label="Show Tab Tooltip"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={showTabTooltip}
                   onChange={toggleShowTabTooltip}
                 />
@@ -176,37 +176,37 @@ export default observer(() => {
           <FormGroup>
             <FormHelperText>Others</FormHelperText>
             <FormControlLabel
-              label='Show Shortcut Hint'
+              label="Show Shortcut Hint"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={showShortcutHint}
                   onChange={toggleShowShortcutHint}
                 />
               }
             />
             <FormControlLabel
-              label='Always Show Toolbar'
+              label="Always Show Toolbar"
               control={
                 <Switch
-                  color='primary'
+                  color="primary"
                   checked={!toolbarAutoHide}
                   onChange={toggleAutoHide}
                 />
               }
             />
             <FormControl>
-              <InputLabel id='theme'>Theme</InputLabel>
+              <InputLabel id="theme">Theme</InputLabel>
               <Select
-                id='theme'
+                id="theme"
                 value={theme}
                 onChange={(e) => {
                   selectTheme(e.target.value)
                 }}
-                className='capitalize'
+                className="capitalize"
               >
                 {THEMES.map((t) => (
-                  <MenuItem key={t} value={t} className='capitalize'>
+                  <MenuItem key={t} value={t} className="capitalize">
                     {t}
                   </MenuItem>
                 ))}
@@ -215,8 +215,8 @@ export default observer(() => {
           </FormGroup>
         </FormControl>
         <Divider />
-        <div className='flex justify-end'>
-          <div className='text-sm text-right opacity-75'>
+        <div className="flex justify-end">
+          <div className="text-sm text-right opacity-75">
             v{browser.runtime.getManifest().version}
           </div>
         </div>

@@ -12,8 +12,8 @@ const props = {
     toggleSelectAll,
     allTabSelected: true,
     someTabSelected: false,
-    disableSelectAll: false
-  }
+    disableSelectAll: false,
+  },
 }
 
 describe('SelectAll', () => {

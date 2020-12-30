@@ -35,7 +35,7 @@ export default observer((props: { search: string }) => {
       </TableRow>
     ))
   if (!content.length) {
-    return <Alert severity='error'>No shortcut found</Alert>
+    return <Alert severity="error">No shortcut found</Alert>
   }
   return (
     <Table>

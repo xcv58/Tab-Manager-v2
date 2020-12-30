@@ -12,13 +12,13 @@ export default observer(() => {
   const { userStore } = useStore()
   if (!userStore.loaded) {
     return (
-      <div className='flex-shrink-0 h-12'>
+      <div className="flex-shrink-0 h-12">
         <Loading small />
       </div>
     )
   }
   return (
-    <div className='flex items-center justify-center flex-shrink-0 h-12 px-1 text-3xl'>
+    <div className="flex items-center justify-center flex-shrink-0 h-12 px-1 text-3xl">
       <Summary />
       <AutocompleteSearch />
       <SyncButton />

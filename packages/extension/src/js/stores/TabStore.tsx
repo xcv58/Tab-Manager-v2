@@ -7,7 +7,7 @@ import Tab from './Tab'
 export default class TabStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       selection: observable,
       tabDescription: computed,
@@ -18,7 +18,7 @@ export default class TabStore {
       unselectAll: action,
       bulkSelct: action,
       sources: computed,
-      activate: action
+      activate: action,
     })
 
     this.store = store
@@ -26,7 +26,7 @@ export default class TabStore {
 
   selection = observable.map()
 
-  get tabDescription () {
+  get tabDescription() {
     const { size } = this.selection
     if (size === 0) {
       return 'focused tab'
@@ -111,7 +111,7 @@ export default class TabStore {
     this.select(tab)
   }
 
-  get sources () {
+  get sources() {
     return Array.from(this.selection.values()).sort((a, b) => {
       if (a.windowId === b.windowId) {
         return a.index - b.index

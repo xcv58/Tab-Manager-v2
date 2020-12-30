@@ -31,19 +31,19 @@ export default observer(() => {
       {...{ maxWidth: 'lg', fullScreen }}
     >
       <DialogTitle>
-        <div className='flex items-end'>
+        <div className="flex items-end">
           <h2>Keyboard Shortcuts</h2>
-          <div className='flex-1 mx-6'>
+          <div className="flex-1 mx-6">
             <TextField
               fullWidth
-              label='Search'
-              type='search'
-              variant='standard'
+              label="Search"
+              type="search"
+              variant="standard"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className='absolute top-0 right-0 p-2'>
+          <div className="absolute top-0 right-0 p-2">
             <CloseButton onClick={closeDialog} />
           </div>
         </div>

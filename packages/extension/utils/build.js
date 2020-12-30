@@ -13,11 +13,11 @@ webpack(
       minimizer: [
         new TerserJSPlugin({
           test: /\.js(\?.*)?$/i,
-          parallel: true
+          parallel: true,
         }),
-        new OptimizeCSSAssetsPlugin({})
-      ]
-    }
+        new OptimizeCSSAssetsPlugin({}),
+      ],
+    },
   },
   function (err) {
     if (err) throw err

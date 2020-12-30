@@ -9,14 +9,14 @@ export default observer((props: TabProps) => {
   const { dragStore } = useStore()
   const {
     faked,
-    tab: { isHovered }
+    tab: { isHovered },
   } = props
   const { dragging } = dragStore
   if (faked || dragging || !isHovered) {
     return null
   }
   return (
-    <div className='flex'>
+    <div className="flex">
       <DragHandle />
       <TabMenu {...props} />
     </div>

@@ -10,7 +10,7 @@ export default observer(() => {
   const {
     windowStore,
     userStore,
-    focusStore: { setContainerRef }
+    focusStore: { setContainerRef },
   } = useStore()
   const scrollbarRef = useRef(null)
   const onResize = () => {
@@ -23,7 +23,7 @@ export default observer(() => {
   const resizeDetector = (
     <ReactResizeDetector
       handleHeight
-      refreshMode='throttle'
+      refreshMode="throttle"
       refreshOptions={{ leading: true, trailing: true }}
       refreshRate={500}
       onResize={onResize}

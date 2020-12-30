@@ -1,7 +1,7 @@
 module.exports = {
   future: {
     purgeLayersByDefault: true,
-    removeDeprecatedGapUtilities: true
+    removeDeprecatedGapUtilities: true,
   },
   purge: false,
   theme: {
@@ -19,7 +19,7 @@ module.exports = {
         600: '#718096',
         700: '#4a5568',
         800: '#2d3748',
-        900: '#1a202c'
+        900: '#1a202c',
       },
       red: {
         100: '#fff5f5',
@@ -30,7 +30,7 @@ module.exports = {
         600: '#e53e3e',
         700: '#c53030',
         800: '#9b2c2c',
-        900: '#742a2a'
+        900: '#742a2a',
       },
       green: {
         100: '#f0fff4',
@@ -41,7 +41,7 @@ module.exports = {
         600: '#38a169',
         700: '#2f855a',
         800: '#276749',
-        900: '#22543d'
+        900: '#22543d',
       },
       blue: {
         100: '#ebf8ff',
@@ -52,20 +52,20 @@ module.exports = {
         600: '#3182ce',
         700: '#2b6cb0',
         800: '#2c5282',
-        900: '#2a4365'
-      }
+        900: '#2a4365',
+      },
     },
     extend: {
       colors: {
-        charcoal: '#424242'
-      }
-    }
+        charcoal: '#424242',
+      },
+    },
   },
   variants: {
     backgroundColor: ['responsive', 'hover', 'focus', 'active'],
     textColor: ['responsive', 'hover', 'focus', 'group-hover'],
     opacity: ['responsive', 'hover', 'focus', 'group-hover', 'disabled'],
-    display: ['responsive', 'hover', 'focus', 'group-hover']
+    display: ['responsive', 'hover', 'focus', 'group-hover'],
   },
-  plugins: []
+  plugins: [],
 }

@@ -5,12 +5,12 @@ import Store from 'stores'
 export default class Focusable {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       id: observable,
       nodeRef: observable,
       setNodeRef: action,
-      isFocused: computed
+      isFocused: computed,
     })
 
     this.store = store
@@ -24,7 +24,7 @@ export default class Focusable {
     this.nodeRef = nodeRef
   }
 
-  get isFocused () {
+  get isFocused() {
     return this === this.store.focusStore.focusedItem
   }
 

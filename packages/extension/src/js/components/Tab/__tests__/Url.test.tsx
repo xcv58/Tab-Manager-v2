@@ -4,7 +4,7 @@ import Url from 'components/Tab/Url'
 
 const props = {
   tab: { url: 'url' },
-  getHighlightNode: jest.fn((x) => x)
+  getHighlightNode: jest.fn((x) => x),
 }
 
 describe('Url', () => {
@@ -18,7 +18,7 @@ describe('Url', () => {
   })
 
   it('render getHighlightNode(url) as children', () => {
-    const getHighlightNode = jest.fn((x) => 'test')
+    const getHighlightNode = jest.fn(() => 'test')
     const { container, getByText } = render(
       <Url {...props} getHighlightNode={getHighlightNode} />
     )

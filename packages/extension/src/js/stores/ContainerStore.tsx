@@ -10,12 +10,12 @@ export default class ContainerStore {
 
   containerMap = new Map()
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       containerMap: observable,
       count: computed,
       openSameContainerTabs: action,
-      groupTabsByContainer: action
+      groupTabsByContainer: action,
     })
 
     this.store = store
@@ -46,7 +46,7 @@ export default class ContainerStore {
     this.containerMap.delete(changeInfo.contextualIdentity.cookieStoreId)
   }
 
-  get count () {
+  get count() {
     return this.containerMap.size
   }
 

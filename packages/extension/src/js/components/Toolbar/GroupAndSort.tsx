@@ -14,10 +14,10 @@ export default observer(() => {
   const { groupTabs } = arrangeStore
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <IconButton
           onClick={() => groupTabs()}
-          className='focus:outline-none'
+          className="focus:outline-none"
           aria-label={TITLE}
         >
           <FilterList />

@@ -6,7 +6,7 @@ export default (props) => {
   const {
     tab: { url },
     getHighlightNode,
-    duplicated
+    duplicated,
   } = props
   const isDarkTheme = useTheme()
   return (
@@ -16,7 +16,7 @@ export default (props) => {
         duplicated && 'text-red-200 group-hover:text-red-400',
         !duplicated && {
           'group-hover:text-black': !isDarkTheme,
-          'group-hover:text-white': isDarkTheme
+          'group-hover:text-white': isDarkTheme,
         }
       )}
     >

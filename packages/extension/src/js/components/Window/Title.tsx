@@ -20,7 +20,7 @@ export default observer((props: WinProps & { className: string }) => {
     reload,
     hide,
     toggleHide,
-    isFocused
+    isFocused,
   } = win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
@@ -49,9 +49,9 @@ export default observer((props: WinProps & { className: string }) => {
       <SelectAll {...props} />
       <button
         onClick={activate}
-        className='flex-auto overflow-hidden text-base text-left rounded-sm'
+        className="flex-auto overflow-hidden text-base text-left rounded-sm"
       >
-        <h5 className='flex-auto text-2xl'>
+        <h5 className="flex-auto text-2xl">
           {text} {!hide && invisibleIndicator}
         </h5>
       </button>

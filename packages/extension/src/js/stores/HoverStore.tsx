@@ -8,12 +8,12 @@ const HOVERED_DELAY = 896.4
 export default class HoverStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       hoveredTabId: observable,
       hovered: observable,
       hover: action,
-      unhover: action
+      unhover: action,
     })
 
     this.store = store

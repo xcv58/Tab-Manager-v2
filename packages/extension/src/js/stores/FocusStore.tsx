@@ -29,7 +29,7 @@ const getFocusableItems = (win: Window, focusedItem: Focusable) => {
 export default class FocusStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       focusedItem: computed,
       focusedWindowId: observable,
@@ -50,13 +50,13 @@ export default class FocusStore {
       up: action,
       down: action,
       firstTab: action,
-      lastTab: action
+      lastTab: action,
     })
 
     this.store = store
   }
 
-  get focusedItem (): Focusable | null {
+  get focusedItem(): Focusable | null {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
       return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
@@ -75,7 +75,7 @@ export default class FocusStore {
     this.containerRef = ref
   }
 
-  _top: number = -1
+  _top = -1
 
   _updateTop = (top: number) => {
     this._top = Math.max(top, this._top)
@@ -288,7 +288,7 @@ export default class FocusStore {
     const { lastFocusedWindow } = this.store.windowStore
     if (!lastFocusedWindow) {
       return log.debug('setDefaultFocusedTab no lastFocusedWindow:', {
-        lastFocusedWindow
+        lastFocusedWindow,
       })
     }
     if (lastFocusedWindow.hide) {

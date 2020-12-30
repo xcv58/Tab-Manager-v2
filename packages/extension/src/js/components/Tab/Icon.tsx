@@ -13,10 +13,10 @@ export const Icon = observer((props: TabProps) => {
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (
     <Checkbox
-      color='primary'
+      color="primary"
       checked={isSelected}
       inputProps={{
-        'aria-label': ARIA_LABEL
+        'aria-label': ARIA_LABEL,
       }}
       onClick={(e) => {
         if (process.env.TARGET_BROWSER === 'firefox') {
@@ -36,25 +36,25 @@ export const Icon = observer((props: TabProps) => {
     return checkbox
   }
   return (
-    <div className='group'>
+    <div className="group">
       <div
         className={classNames({
           hidden: isSelected,
-          'group-hover:hidden': !isSelected
+          'group-hover:hidden': !isSelected,
         })}
       >
         <IconButton
           aria-label={ARIA_LABEL}
-          className='focus:outline-none focus:ring'
+          className="focus:outline-none focus:ring"
           onClick={select}
           onFocus={focus}
         >
-          <img className='w-6 h-6' src={iconUrl} />
+          <img className="w-6 h-6" src={iconUrl} />
         </IconButton>
       </div>
       <div
         className={classNames('focus:outline-none focus:ring', {
-          'hidden group-hover:block': !isSelected
+          'hidden group-hover:block': !isSelected,
         })}
       >
         {checkbox}
@@ -74,9 +74,9 @@ export default observer((props: TabProps) => {
       <IconButton
         disabled
         aria-label={ARIA_LABEL}
-        className='focus:outline-none focus:ring'
+        className="focus:outline-none focus:ring"
       >
-        <img className='w-6 h-6' src={iconUrl} />
+        <img className="w-6 h-6" src={iconUrl} />
       </IconButton>
     </div>
   )

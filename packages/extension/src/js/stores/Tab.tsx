@@ -21,7 +21,7 @@ const FAV_ICONS = {
   extensions,
   flags,
   history,
-  settings
+  settings,
 }
 
 const CHROME_PREFIX = 'chrome://'
@@ -30,7 +30,7 @@ const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 export default class Tab extends Focusable {
   win: Window
 
-  constructor (tab, store: Store, win: Window) {
+  constructor(tab, store: Store, win: Window) {
     super(store)
 
     makeObservable(this, {
@@ -70,7 +70,7 @@ export default class Tab extends Focusable {
       closeOtherTabs: action,
       closeWindow: action,
       selectTabsInSameContainer: action,
-      openSameContainerTabs: action
+      openSameContainerTabs: action,
     })
 
     this.store = store
@@ -83,21 +83,21 @@ export default class Tab extends Focusable {
 
   iconUrl = empty
 
-  active: boolean = false
+  active = false
 
-  pinned: boolean = false
+  pinned = false
 
-  title: string = ''
+  title = ''
 
-  url: string = ''
+  url = ''
 
   windowId: number = null
 
   removing = false
 
-  favIconUrl: string = ''
+  favIconUrl = ''
 
-  index: number = -1
+  index = -1
 
   activate = () => {
     this.focus()
@@ -146,50 +146,50 @@ export default class Tab extends Focusable {
     togglePinTabs([this])
   }
 
-  get isMatched () {
+  get isMatched() {
     return this.store.searchStore.matchedSet.has(this.id)
   }
 
-  get isVisible () {
+  get isVisible() {
     if (this.removing) {
       return false
     }
     return this.isMatched || this.store.userStore.showUnmatchedTab
   }
 
-  get domain () {
+  get domain() {
     return getDomain(this.url)
   }
 
-  get sameDomainTabs () {
+  get sameDomainTabs() {
     return this.store.arrangeStore.domainTabsMap[this.domain]
   }
 
-  get isDuplicated () {
+  get isDuplicated() {
     return this.store.windowStore.tabFingerprintMap[this.fingerPrint] > 1
   }
 
-  get duplicatedTabCount () {
+  get duplicatedTabCount() {
     return this.store.windowStore.tabFingerprintMap[this.fingerPrint]
   }
 
-  get isSelected () {
+  get isSelected() {
     return this.store.tabStore.selection.has(this.id)
   }
 
-  get query () {
+  get query() {
     return this.store.searchStore._tabQuery
   }
 
-  get isHovered () {
+  get isHovered() {
     return this.id === this.store.hoverStore.hoveredTabId
   }
 
-  get shouldHighlight () {
+  get shouldHighlight() {
     return this.isMatched && (this.isFocused || this.isHovered)
   }
 
-  get fingerPrint () {
+  get fingerPrint() {
     if (!this.store.userStore.ignoreHash) {
       return this.url
     }

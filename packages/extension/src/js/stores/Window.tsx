@@ -8,7 +8,7 @@ import Focusable from './Focusable'
 export default class Window extends Focusable {
   store: Store
 
-  constructor (win, store: Store) {
+  constructor(win, store: Store) {
     super(store)
 
     makeObservable(this, {
@@ -34,7 +34,7 @@ export default class Window extends Focusable {
       onMoved: action,
       onDetached: action,
       onAttched: action,
-      toggleHide: action
+      toggleHide: action,
     })
 
     this.store = store
@@ -55,11 +55,11 @@ export default class Window extends Focusable {
     browser.windows.update(this.id, { focused: true })
   }
 
-  get hide () {
+  get hide() {
     return this.store.hiddenWindowStore.hiddenWindows[this.id]
   }
 
-  get visibleLength () {
+  get visibleLength() {
     if (this.hide) {
       return 2
     }
@@ -67,43 +67,43 @@ export default class Window extends Focusable {
     return length ? length + 2 : length
   }
 
-  get lastFocused () {
+  get lastFocused() {
     return this.id === this.store.windowStore.lastFocusedWindowId
   }
 
-  get canDrop () {
+  get canDrop() {
     return !['popup', 'devtools'].includes(this.type)
   }
 
-  get invisibleTabs () {
+  get invisibleTabs() {
     if (this.hide) {
       return this.tabs
     }
     return this.tabs.filter((x) => !x.isVisible)
   }
 
-  get disableSelectAll () {
+  get disableSelectAll() {
     if (this.hide) {
       return true
     }
     return this.matchedTabs.length === 0
   }
 
-  get matchedTabs () {
+  get matchedTabs() {
     if (this.hide) {
       return []
     }
     return this.tabs.filter((x) => x.isMatched)
   }
 
-  get allTabSelected () {
+  get allTabSelected() {
     return (
       !this.disableSelectAll &&
       this.matchedTabs.every(this.store.tabStore.isTabSelected)
     )
   }
 
-  get someTabSelected () {
+  get someTabSelected() {
     return (
       !this.allTabSelected && this.tabs.some(this.store.tabStore.isTabSelected)
     )
@@ -135,7 +135,7 @@ export default class Window extends Focusable {
   }
 
   removeTabs = (set) => {
-    for (let index = 0; index < this.tabs.length;) {
+    for (let index = 0; index < this.tabs.length; ) {
       const id = this.tabs[index].id
       if (set.has(id)) {
         this.tabs.splice(index, 1)

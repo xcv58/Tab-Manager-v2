@@ -97,7 +97,7 @@ const focusOnLastFocusedWin = async () => {
 export const openOrTogglePopup = async () => {
   log.debug('openOrTogglePopup')
   const { _selfPopupActive } = await browser.storage.local.get({
-    _selfPopupActive: false
+    _selfPopupActive: false,
   })
   if (_selfPopupActive) {
     return focusOnLastFocusedWin()
@@ -129,7 +129,7 @@ export const openPopup = () => {
     height,
     width,
     url: popupURL,
-    type: 'popup'
+    type: 'popup',
   })
 }
 
@@ -162,7 +162,7 @@ export const setSelfPopupActive = (_selfPopupActive) => {
 export const getLastFocusedWindowId = async () => {
   try {
     const { lastFocusedWindowId } = await browser.storage.local.get({
-      lastFocusedWindowId: null
+      lastFocusedWindowId: null,
     })
     return lastFocusedWindowId
   } catch (e) {
@@ -195,7 +195,7 @@ export const windowComparator = (a, b) => {
 }
 
 export const ItemTypes = {
-  TAB: 'tab'
+  TAB: 'tab',
 }
 
 export const TOOLTIP_DELAY = 300

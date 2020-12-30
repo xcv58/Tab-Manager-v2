@@ -66,8 +66,6 @@
     "@types/react-router-dom": "5.1.6",
     "@types/react-window": "1.8.2",
     "@types/webpack-env": "1.16.0",
-    "@typescript-eslint/eslint-plugin": "4.11.1",
-    "@typescript-eslint/parser": "4.11.1",
     "babel-eslint": "10.1.0",
     "chrome-webstore-upload-cli": "1.2.0",
     "clean-webpack-plugin": "3.0.0",

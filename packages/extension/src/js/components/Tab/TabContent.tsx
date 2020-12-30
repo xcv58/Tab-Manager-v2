@@ -21,7 +21,7 @@ const TabContent = observer(
       isDuplicated,
       focus,
       isFocused,
-      isHovered
+      isHovered,
     } = props.tab
     const buttonRef = useRef(null)
     useEffect(() => {
@@ -35,7 +35,7 @@ const TabContent = observer(
     const { hovered } = hoverStore
     const open = !(faked || dragging || !isHovered || !hovered)
     const tooltip = open && (
-      <div className='leading-tight break-all whitespace-normal'>
+      <div className="leading-tight break-all whitespace-normal">
         <p>{title}</p>
         <p style={{ opacity: 0.8 }}>{url}</p>
         {isDuplicated && <p>There is duplicated tab!</p>}
@@ -78,12 +78,12 @@ export default observer((props: TabProps) => {
   const buttonClassName = classNames(
     'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base',
     {
-      'text-red-400': duplicated
+      'text-red-400': duplicated,
     }
   )
   const content = (
     <>
-      <div className='w-full overflow-hidden truncate'>
+      <div className="w-full overflow-hidden truncate">
         {getHighlightNode(title)}
       </div>
       {showUrl && <Url {...props} {...{ getHighlightNode, duplicated }} />}

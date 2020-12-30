@@ -5,12 +5,12 @@ import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 export class Background {
   tabHistory: TabHistory
   actionMap: {
-    [key: string]: Function
+    [key: string]: () => void
   }
 
-  constructor () {
+  constructor() {
     browser.omnibox.setDefaultSuggestion({
-      description: 'Open tab manager window'
+      description: 'Open tab manager window',
     })
     browser.omnibox.onInputEntered.addListener(() => {
       openOrTogglePopup()
@@ -21,7 +21,7 @@ export class Background {
     this.actionMap = {
       [actions.togglePopup]: openOrTogglePopup,
       [actions.openInNewTab]: openInNewTab,
-      [actions.createWindow]: this.createWindow
+      [actions.createWindow]: this.createWindow,
     }
     Object.assign(this.actionMap, this.tabHistory.actionMap)
     // this.browserAction()

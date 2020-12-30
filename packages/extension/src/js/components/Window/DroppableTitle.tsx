@@ -27,9 +27,9 @@ export default observer((props: WinProps) => {
       return {
         canDrop: monitor.canDrop(),
         isDragging: !!monitor.getItem(),
-        isOver: monitor.isOver({ shallow: true })
+        isOver: monitor.isOver({ shallow: true }),
       }
-    }
+    },
   })
   const { isOver, canDrop, isDragging } = dropProps
   const preview = canDrop && isOver && <DropIndicator />
@@ -38,7 +38,7 @@ export default observer((props: WinProps) => {
       <Title
         {...props}
         className={classNames({
-          'bg-red-500': isDragging && isOver && !canDrop
+          'bg-red-500': isDragging && isOver && !canDrop,
         })}
       />
       {preview}

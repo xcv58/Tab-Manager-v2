@@ -11,11 +11,11 @@ export default observer(() => {
   const title = `Close ${tabDescription}`
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <CloseButton
           {...{
             onClick: remove,
-            disabled: !hasFocusedOrSelectedTab
+            disabled: !hasFocusedOrSelectedTab,
           }}
         />
       </div>

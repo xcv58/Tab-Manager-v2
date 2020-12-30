@@ -9,14 +9,14 @@ import { useTheme } from './hooks/useTheme'
 
 export default observer(() => {
   const {
-    userStore: { toggleDarkTheme }
+    userStore: { toggleDarkTheme },
   } = useStore()
   const isDarkTheme = useTheme()
   return (
-    <Tooltip title='Toggle light/dark theme' placement='left'>
+    <Tooltip title="Toggle light/dark theme" placement="left">
       <IconButton
         onClick={() => toggleDarkTheme(isDarkTheme)}
-        className='focus:outline-none'
+        className="focus:outline-none"
       >
         {isDarkTheme ? <LightbulbFull /> : <LightbulbOutline />}
       </IconButton>

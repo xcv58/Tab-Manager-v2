@@ -24,7 +24,7 @@ export default observer((props: TabProps & { className?: string }) => {
     isMatched,
     isSelected,
     pinned,
-    shouldHighlight
+    shouldHighlight,
   } = tab
 
   const isActionable = !dragStore.dragging
@@ -73,19 +73,19 @@ export default observer((props: TabProps & { className?: string }) => {
         className,
         'flex relative',
         {
-          'opacity-25': !isMatched
+          'opacity-25': !isMatched,
         },
         !className && [
           !isDarkTheme && {
             'hover:bg-blue-300': isActionable,
             'bg-blue-100': active || shouldHighlight,
-            'bg-blue-300': isSelected
+            'bg-blue-300': isSelected,
           },
           isDarkTheme && {
             'hover:bg-gray-800': isActionable,
             'bg-gray-800': active || shouldHighlight,
-            'bg-gray-900': isSelected
-          }
+            'bg-gray-900': isSelected,
+          },
         ]
       )}
       onMouseEnter={onMouseEnter}

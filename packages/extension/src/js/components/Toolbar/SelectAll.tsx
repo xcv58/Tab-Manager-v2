@@ -11,9 +11,9 @@ export default observer(() => {
   const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <Checkbox
-          color='primary'
+          color="primary"
           checked={allTabSelected}
           onChange={(e) => {
             e.target.blur()

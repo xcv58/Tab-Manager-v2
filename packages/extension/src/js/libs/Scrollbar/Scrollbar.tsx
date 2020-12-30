@@ -45,13 +45,13 @@ export default (props) => {
     verticalSpring.current.addListener({
       onSpringUpdate: (spring) => {
         scrollbarRef.current.scrollTop = spring.getCurrentValue()
-      }
+      },
     })
     horizontalSpring.current = springSystem.createSpring()
     horizontalSpring.current.addListener({
       onSpringUpdate: (spring) => {
         scrollbarRef.current.scrollLeft = spring.getCurrentValue()
-      }
+      },
     })
     return () => {
       springSystem.deregisterSpring(verticalSpring.current)
@@ -65,7 +65,7 @@ export default (props) => {
     <ScrollbarContext.Provider value={{ scrollTo, scrollbarRef }}>
       <div
         ref={scrollbarRef}
-        className='flex flex-col flex-wrap content-start flex-auto mb-0 mr-0 overflow-scroll'
+        className="flex flex-col flex-wrap content-start flex-auto mb-0 mr-0 overflow-scroll"
       >
         {children}
       </div>

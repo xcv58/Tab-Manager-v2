@@ -42,7 +42,7 @@ const renderCommand = (command, { inputValue }) => {
   const matches = match(command.name, inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
-    <div className='flex justify-between w-full px-4'>
+    <div className="flex justify-between w-full px-4">
       <span>
         {parts.map((part, index) => (
           <span
@@ -61,7 +61,7 @@ const renderCommand = (command, { inputValue }) => {
 }
 
 const Input = (props) => (
-  <TextField fullWidth placeholder={ARIA_LABLE} variant='standard' {...props} />
+  <TextField fullWidth placeholder={ARIA_LABLE} variant="standard" {...props} />
 )
 
 type Props = { autoFocus?: boolean; open?: boolean }
@@ -115,7 +115,8 @@ const AutocompleteSearch = observer((props: Props) => {
       )}
       options={options}
       getOptionLabel={(option) =>
-        `${option.name} ${option.title} ${option.url}`}
+        `${option.name} ${option.title} ${option.url}`
+      }
       renderOption={isCommand ? renderCommand : renderTabOption}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}

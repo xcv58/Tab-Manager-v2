@@ -8,8 +8,8 @@ export default ({ hide, toggleHide }) => {
   return (
     <IconButton
       onClick={toggleHide}
-      className='focus:outline-none'
-      aria-label='Toggle window hide'
+      className="focus:outline-none"
+      aria-label="Toggle window hide"
     >
       {icon}
     </IconButton>

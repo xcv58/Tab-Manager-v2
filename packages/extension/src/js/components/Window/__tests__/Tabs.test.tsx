@@ -10,16 +10,16 @@ const windowMounted = spy()
 const props = {
   connectDropTarget,
   dragStore: {
-    drop: spy()
+    drop: spy(),
   },
   windowStore: {
-    windowMounted
+    windowMounted,
   },
   win: {
     tabs,
-    showTabs: true
+    showTabs: true,
   },
-  dragPreview: 'preview node'
+  dragPreview: 'preview node',
 }
 
 describe('Tabs', () => {
@@ -34,7 +34,7 @@ describe('Tabs', () => {
         {...props}
         win={{
           ...props.win,
-          tabs: tabs.map((x) => ({ ...x, isVisible: false }))
+          tabs: tabs.map((x) => ({ ...x, isVisible: false })),
         }}
       />
     )
