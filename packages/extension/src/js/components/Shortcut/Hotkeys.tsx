@@ -6,7 +6,7 @@ const Hotkeys = ({ keys }: { keys: string | string[] }) => {
   return (
     <TableCell
       style={{
-        padding: 0
+        padding: 0,
       }}
     >
       <div
@@ -14,7 +14,7 @@ const Hotkeys = ({ keys }: { keys: string | string[] }) => {
           display: 'flex',
           flexDirection: 'row-reverse',
           justifyContent: 'space-between',
-          textTransform: 'capitalize'
+          textTransform: 'capitalize',
         }}
       >
         <Shortcuts shortcut={keys} />

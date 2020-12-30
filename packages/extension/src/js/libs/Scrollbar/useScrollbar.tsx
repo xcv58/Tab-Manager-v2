@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react'
 
 export const ScrollbarContext = createContext({
   scrollTo: (_) => {},
-  scrollbarRef: null
+  scrollbarRef: null,
 })
 
 const getTargetValue = (lValue, rValue) => {
@@ -26,7 +26,7 @@ export default () => {
       left,
       right,
       height,
-      width
+      width,
     } = nodeRef.current.getBoundingClientRect()
     const topGap = top - 2 * height - containmentRect.top
     const bottomGap = containmentRect.bottom - bottom - 2 * height - 4
@@ -37,7 +37,7 @@ export default () => {
         width > containmentRect.width
           ? leftGap
           : getTargetValue(leftGap, rightGap),
-      top: getTargetValue(topGap, bottomGap)
+      top: getTargetValue(topGap, bottomGap),
     })
   }
 

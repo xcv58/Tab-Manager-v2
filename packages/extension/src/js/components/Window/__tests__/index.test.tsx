@@ -14,14 +14,14 @@ const tabs = [{ id: 1 }, { id: 2 }]
 const props = {
   connectDropTarget,
   dragStore: {
-    drop: spy()
+    drop: spy(),
   },
   win: {
     tabs,
-    showTabs: true
+    showTabs: true,
   },
   width: '100%',
-  theme
+  theme,
 }
 
 // TODO: Fix the test

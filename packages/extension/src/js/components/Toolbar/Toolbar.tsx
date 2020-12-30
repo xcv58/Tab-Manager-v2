@@ -22,7 +22,7 @@ export default observer(() => {
   return (
     <Slide
       in={toolbarVisible}
-      direction='up'
+      direction="up"
       style={{ display: 'flex' }}
       timeout={reduceMotion ? 1 : duration.enteringScreen}
     >

@@ -10,10 +10,10 @@ import * as StoreContext from 'components/hooks/useStore'
 const id = 'id'
 const sortTabs = spy()
 const props = {
-  win: { id }
+  win: { id },
 }
 const mockStore = {
-  arrangeStore: { sortTabs }
+  arrangeStore: { sortTabs },
 }
 
 test('Sort should call arrangeStore.sortTabs', () => {

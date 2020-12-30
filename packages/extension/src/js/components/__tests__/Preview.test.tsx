@@ -6,7 +6,7 @@ import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 
 const sources = [{ id: 1 }, { id: 2 }]
 const mockStore = {
-  tabStore: { sources }
+  tabStore: { sources },
 }
 
 describe('Preview', () => {

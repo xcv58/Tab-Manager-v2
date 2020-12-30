@@ -12,7 +12,7 @@ const hasCommandPrefix = (value: string) => value.startsWith('>')
 export default class SearchStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       searchEl: observable,
       query: observable,
@@ -37,7 +37,7 @@ export default class SearchStore {
       selectAll: action,
       invertSelect: action,
       unselectAll: action,
-      toggleSelectAll: action
+      toggleSelectAll: action,
     })
 
     this.store = store
@@ -61,23 +61,23 @@ export default class SearchStore {
 
   typing = false
 
-  get isCommand () {
+  get isCommand() {
     return hasCommandPrefix(this.query)
   }
 
-  get matchedTabs (): Tab[] {
+  get matchedTabs(): Tab[] {
     return this.fuzzySearch()
   }
 
-  get matchedSet () {
+  get matchedSet() {
     return new Set(this.matchedTabs.map((x) => x.id))
   }
 
-  get allTabSelected () {
+  get allTabSelected() {
     return this.matchedTabs.every(this.store.tabStore.isTabSelected)
   }
 
-  get someTabSelected () {
+  get someTabSelected() {
     return (
       !this.allTabSelected &&
       this.matchedTabs.some(this.store.tabStore.isTabSelected)
@@ -148,7 +148,7 @@ export default class SearchStore {
   _updateTabQuery = () => {
     log.debug('_updateTabQuery:', {
       _tabQuery: this._tabQuery,
-      query: this.query
+      query: this.query,
     })
     this._tabQuery = this.query
   }

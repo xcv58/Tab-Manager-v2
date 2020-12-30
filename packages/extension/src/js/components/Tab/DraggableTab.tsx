@@ -23,9 +23,9 @@ export default observer((props: TabProps) => {
     isDragging: () => tab.isSelected,
     collect: (monitor) => {
       return {
-        isDragging: monitor.isDragging()
+        isDragging: monitor.isDragging(),
       }
-    }
+    },
   })
   const { isDragging } = dragProps
   useEffect(() => {

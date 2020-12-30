@@ -2,7 +2,7 @@ import React, {
   cloneElement,
   createContext,
   forwardRef,
-  useContext
+  useContext,
 } from 'react'
 import { VariableSizeList, ListChildComponentProps } from 'react-window'
 import { TAB_HEIGHT } from 'libs'
@@ -14,8 +14,8 @@ const renderRow = (props: ListChildComponentProps) => {
   return cloneElement(data[index], {
     style: {
       ...style,
-      top: style.top + LISTBOX_PADDING
-    }
+      top: style.top + LISTBOX_PADDING,
+    },
   })
 }
 
@@ -39,9 +39,9 @@ const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
         <VariableSizeList
           itemData={itemData}
           height={getHeight() + 2 * LISTBOX_PADDING}
-          width='100%'
+          width="100%"
           outerElementType={OuterElementType}
-          innerElementType='ul'
+          innerElementType="ul"
           itemSize={() => TAB_HEIGHT}
           overscanCount={5}
           itemCount={itemCount}

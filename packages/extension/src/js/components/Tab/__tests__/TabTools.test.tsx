@@ -9,10 +9,10 @@ const classes = { root: 'root' }
 const props = {
   classes,
   faked: false,
-  tab: { isHovered: true, removing: false }
+  tab: { isHovered: true, removing: false },
 }
 const mockStore = {
-  dragStore: { dragging: false }
+  dragStore: { dragging: false },
 }
 
 describe('TabTools', () => {

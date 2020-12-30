@@ -9,7 +9,7 @@ const tab = {
   select: jest.fn(),
   iconUrl: 'url',
   isSelected: false,
-  bulkSelect: jest.fn()
+  bulkSelect: jest.fn(),
 }
 
 const props = { tab }

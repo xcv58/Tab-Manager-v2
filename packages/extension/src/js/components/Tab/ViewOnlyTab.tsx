@@ -21,7 +21,7 @@ export default observer((props: TabProps) => {
   }
 
   return (
-    <div tabIndex={-1} className='relative flex w-full'>
+    <div tabIndex={-1} className="relative flex w-full">
       {pin}
       <Icon tab={tab} faked />
       <TabContent tab={tab} faked />

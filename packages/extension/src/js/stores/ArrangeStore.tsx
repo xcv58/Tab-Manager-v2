@@ -7,17 +7,17 @@ import Tab from './Tab'
 export default class ArrangeStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       domainTabsMap: computed,
       sortTabs: action,
-      groupTab: action
+      groupTab: action,
     })
 
     this.store = store
   }
 
-  get domainTabsMap () {
+  get domainTabsMap() {
     return this.store.windowStore.tabs.reduce(
       (acc: { [key: string]: Tab[] }, tab) => {
         const { domain } = tab
@@ -57,7 +57,7 @@ export default class ArrangeStore {
   groupTabs = async () => {
     await Promise.all(
       Object.entries(this.domainTabsMap).map(
-        async ([domain, tabs]: [string, Tab[]]) => {
+        async ([_, tabs]: [string, Tab[]]) => {
           if (tabs.length > 1) {
             const sortedTabs = tabs.sort(tabComparator)
             const { windowId, pinned } = sortedTabs[0]

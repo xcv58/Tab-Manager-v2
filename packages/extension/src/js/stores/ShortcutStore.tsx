@@ -4,7 +4,7 @@ import { openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 
-export const getDescription = (description: string | Function) => {
+export const getDescription = (description: string | (() => string)) => {
   if (typeof description === 'string') {
     return description
   }
@@ -28,7 +28,7 @@ const hasFocusedElement = () => {
 export default class ShortcutStore {
   store: Store
 
-  constructor (store: Store) {
+  constructor(store: Store) {
     makeObservable(this, {
       combo: observable,
       toastOpen: observable,
@@ -43,7 +43,7 @@ export default class ShortcutStore {
       clearCombo: action,
       openToast: action,
       openDialog: action,
-      closeDialog: action
+      closeDialog: action,
     })
 
     this.store = store
@@ -73,7 +73,7 @@ export default class ShortcutStore {
     'ctrl+m',
     'ctrl+n',
     'ctrl+o',
-    'shift+ctrl+g'
+    'shift+ctrl+g',
   ])
 
   shortcuts: any[] = [
@@ -83,7 +83,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.arrangeStore.sortTabs()
       },
-      'Sort tabs'
+      'Sort tabs',
     ],
     [
       'shift+ctrl+s',
@@ -91,14 +91,14 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.arrangeStore.groupTabs()
       },
-      'Group and sort tabs'
+      'Group and sort tabs',
     ],
     [
       ['d d'],
       () => {
         this.store.remove()
       },
-      'Close tab'
+      'Close tab',
     ],
     [
       ['* c', 'shift+ctrl+c'],
@@ -106,7 +106,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.windowStore.cleanDuplicatedTabs()
       },
-      'Clean duplicated tabs'
+      'Clean duplicated tabs',
     ],
     [
       ['enter', 'ctrl+enter'],
@@ -116,21 +116,21 @@ export default class ShortcutStore {
         }
       },
       'Go to tab',
-      true
+      true,
     ],
     [
       ['r', 'ctrl+r'],
       () => {
         this.store.reload()
       },
-      'Reload tab'
+      'Reload tab',
     ],
     [
       ['s'],
       () => {
         this.store.windowStore.syncAllWindows()
       },
-      'Sync all windows'
+      'Sync all windows',
     ],
     [
       ['p', 'ctrl+p'],
@@ -138,7 +138,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.togglePin()
       },
-      'Toogle pin'
+      'Toogle pin',
     ],
     [
       ['/', 'command+k'],
@@ -147,7 +147,7 @@ export default class ShortcutStore {
         this.store.searchStore.focus()
       },
       'Search tab',
-      true
+      true,
     ],
     [
       ['>', 'command+shift+p'],
@@ -156,7 +156,7 @@ export default class ShortcutStore {
         this.store.searchStore.startCommandSearch()
       },
       'Command Palette',
-      true
+      true,
     ],
     [
       'escape',
@@ -170,7 +170,7 @@ export default class ShortcutStore {
         }
         const {
           searchStore: { clear, typing, query },
-          userStore: { dialogOpen, closeDialog }
+          userStore: { dialogOpen, closeDialog },
         } = this.store
         if (typing) {
           event.preventDefault()
@@ -198,7 +198,7 @@ export default class ShortcutStore {
         }
         return 'Clear search text'
       },
-      true
+      true,
     ],
     [
       ['h', 'left', 'ctrl+h'],
@@ -206,7 +206,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.left()
       },
-      'Left tab'
+      'Left tab',
     ],
     [
       ['l', 'right', 'ctrl+l'],
@@ -214,7 +214,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.right()
       },
-      'Right tab'
+      'Right tab',
     ],
     [
       ['j', 'down', 'ctrl+j'],
@@ -222,7 +222,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.down()
       },
-      'Next tab'
+      'Next tab',
     ],
     [
       ['k', 'up', 'ctrl+k'],
@@ -230,7 +230,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.up()
       },
-      'Previous tab'
+      'Previous tab',
     ],
     [
       ['g g'],
@@ -238,7 +238,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.firstTab()
       },
-      'First tab'
+      'First tab',
     ],
     [
       ['shift+g', 'shift+ctrl+g'],
@@ -246,7 +246,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.lastTab()
       },
-      'Last tab'
+      'Last tab',
     ],
     [
       ['ctrl+g'],
@@ -254,7 +254,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.groupTab()
       },
-      'Group same domain tabs to this window'
+      'Group same domain tabs to this window',
     ],
     [
       ['x', 'ctrl+x'],
@@ -263,7 +263,7 @@ export default class ShortcutStore {
         this.store.focusStore.select()
       },
       'Select tab',
-      true
+      true,
     ],
     [
       ['space'],
@@ -274,7 +274,7 @@ export default class ShortcutStore {
         }
       },
       'Select tab',
-      true
+      true,
     ],
     [
       ['shift+x'],
@@ -282,7 +282,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.selectWindow()
       },
-      'Toggle Select Window'
+      'Toggle Select Window',
     ],
     [
       ['alt+d'],
@@ -290,7 +290,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.closeWindow()
       },
-      'Close window'
+      'Close window',
     ],
     [
       ['* m', 'ctrl+m'],
@@ -298,7 +298,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.searchStore.selectAll()
       },
-      'Select all matched tab'
+      'Select all matched tab',
     ],
     [
       ['* u', 'i', 'ctrl+u'],
@@ -306,7 +306,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.searchStore.invertSelect()
       },
-      'Invert select tabs'
+      'Invert select tabs',
     ],
     [
       ['* a', 'ctrl+8'],
@@ -314,7 +314,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.searchStore.toggleSelectAll()
       },
-      'Select/Unselect all tab(s)'
+      'Select/Unselect all tab(s)',
     ],
     [
       ['* n', 'ctrl+n'],
@@ -322,7 +322,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.tabStore.unselectAll()
       },
-      'Unselect all tab'
+      'Unselect all tab',
     ],
     [
       ['ctrl+o'],
@@ -330,7 +330,7 @@ export default class ShortcutStore {
         preventDefault(event)
         openInNewTab()
       },
-      'Open this window in new tab'
+      'Open this window in new tab',
     ],
     [
       ['shift+n'],
@@ -338,7 +338,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.dragStore.dropToNewWindow()
       },
-      'Open selected tab(s) in a new window'
+      'Open selected tab(s) in a new window',
     ],
     [
       ['ctrl+i'],
@@ -346,7 +346,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.userStore.selectNextTheme()
       },
-      'Toggle dark theme'
+      'Toggle dark theme',
     ],
     [
       ['?', 'ctrl+/'],
@@ -354,7 +354,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.openDialog()
       },
-      'Open keyboard shortcut help'
+      'Open keyboard shortcut help',
     ],
     [
       'ctrl+,',
@@ -362,7 +362,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.userStore.toggleDialog()
       },
-      'Toggle Settings'
+      'Toggle Settings',
     ],
     [
       'w w',
@@ -370,7 +370,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.toggleHideForFocusedWindow()
       },
-      'Toggle collapse/expand for current windows'
+      'Toggle collapse/expand for current windows',
     ],
     [
       'w t',
@@ -378,7 +378,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.hiddenWindowStore.toggleHideForAllWindows()
       },
-      'Toggle collapse/expand for all windows'
+      'Toggle collapse/expand for all windows',
     ],
     [
       'w c',
@@ -386,7 +386,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.hiddenWindowStore.updateHideForAllWindows(true)
       },
-      'Collapse all windows'
+      'Collapse all windows',
     ],
     [
       'w e',
@@ -394,7 +394,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.hiddenWindowStore.updateHideForAllWindows(false)
       },
-      'Expand all windows'
+      'Expand all windows',
     ],
     [
       'c c',
@@ -402,27 +402,27 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.copyTabsInfo()
       },
-      'Copy selected/focused tabs URL (separated by new line)'
+      'Copy selected/focused tabs URL (separated by new line)',
     ],
     [
       'c t',
       (event: Event) => {
         preventDefault(event)
         this.store.copyTabsInfo({
-          includeTitle: true
+          includeTitle: true,
         })
       },
-      'Copy selected/focused tabs title & URL'
+      'Copy selected/focused tabs title & URL',
     ],
     [
       'c ,',
       (event: Event) => {
         preventDefault(event)
         this.store.copyTabsInfo({
-          delimiter: ', '
+          delimiter: ', ',
         })
       },
-      'Copy selected/focused tabs URL (separated by comma `,`)'
+      'Copy selected/focused tabs URL (separated by comma `,`)',
     ],
     process.env.TARGET_BROWSER === 'firefox' && [
       ['alt+x'],
@@ -430,7 +430,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.selectTabsInSameContainer()
       },
-      'Select/Unselect tabs in the same container'
+      'Select/Unselect tabs in the same container',
     ],
     process.env.TARGET_BROWSER === 'firefox' && [
       ['alt+c'],
@@ -438,8 +438,8 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.containerStore.groupTabsByContainer()
       },
-      'Group tabs by container'
-    ]
+      'Group tabs by container',
+    ],
   ].filter((x) => x)
 
   stopCallback = (e: Event, element: HTMLInputElement, combo: string) => {

@@ -14,7 +14,7 @@ export default observer((props: { style: CSSProperties }) => {
     <div
       className={classNames('opacity-50', {
         'bg-blue-300': !isDarkTheme,
-        'bg-gray-900': isDarkTheme
+        'bg-gray-900': isDarkTheme,
       })}
       style={props.style}
     >

@@ -13,10 +13,10 @@ export default observer(() => {
   const { invertSelect } = searchStore
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
-      <div className='flex'>
+      <div className="flex">
         <IconButton
           onClick={invertSelect}
-          className='focus:outline-none'
+          className="focus:outline-none"
           aria-label={TITLE}
         >
           <Flip />

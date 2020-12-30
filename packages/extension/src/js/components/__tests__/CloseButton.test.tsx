@@ -4,7 +4,7 @@ import { shallow } from 'enzyme'
 import CloseButton from 'components/CloseButton'
 
 const props = {
-  onClick: spy()
+  onClick: spy(),
 }
 
 describe('CloseButton', () => {

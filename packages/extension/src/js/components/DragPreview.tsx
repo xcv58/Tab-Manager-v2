@@ -18,7 +18,7 @@ export default observer(() => {
     <div
       className={classNames('w-32 text-center opacity-75', {
         'bg-blue-300': !isDarkTheme,
-        'bg-gray-900': isDarkTheme
+        'bg-gray-900': isDarkTheme,
       })}
     >
       {head}
