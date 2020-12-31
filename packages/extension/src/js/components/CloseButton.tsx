@@ -1,7 +1,18 @@
 import React from 'react'
 import classNames from 'classnames'
 
-export default (props) => {
+export interface CloseButtonProps {
+  /**
+   * Is the button disabled
+   */
+  disabled?: boolean
+  /**
+   * The click handler
+   */
+  onClick: () => void
+}
+
+const CloseButton: React.FC<CloseButtonProps> = (props) => {
   const { onClick, disabled, ...restProps } = props
   return (
     <button
@@ -22,3 +33,5 @@ export default (props) => {
     </button>
   )
 }
+
+export default CloseButton

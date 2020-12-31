@@ -19,7 +19,7 @@
     "jest": "jest --maxWorkers=1",
     "test-watch": "yarn jest --watch",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook -c .storybook -o .out"
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@material-ui/core": "4.11.2",
@@ -52,6 +52,11 @@
     "webextension-polyfill": "0.7.0"
   },
   "devDependencies": {
+    "@babel/core": "7.12.10",
+    "@storybook/addon-actions": "6.1.11",
+    "@storybook/addon-essentials": "6.1.11",
+    "@storybook/addon-links": "6.1.11",
+    "@storybook/react": "6.1.11",
     "@testing-library/jest-dom": "5.11.6",
     "@testing-library/react": "11.2.2",
     "@types/chrome": "0.0.127",
@@ -67,6 +72,7 @@
     "@types/react-window": "1.8.2",
     "@types/webpack-env": "1.16.0",
     "babel-eslint": "10.1.0",
+    "babel-loader": "8.2.2",
     "chrome-webstore-upload-cli": "1.2.0",
     "clean-webpack-plugin": "3.0.0",
     "codecov": "3.8.1",
@@ -83,7 +89,7 @@
     "glob-all": "3.2.1",
     "hard-source-webpack-plugin": "0.13.1",
     "html-loader": "1.3.2",
-    "html-webpack-plugin": "4.5.0",
+    "html-webpack-plugin": "5.0.0-beta.1",
     "jest": "26.6.3",
     "mini-css-extract-plugin": "1.3.3",
     "optimize-css-assets-webpack-plugin": "5.0.4",
