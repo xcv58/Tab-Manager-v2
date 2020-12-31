@@ -6,17 +6,17 @@ import CloseButton, { CloseButtonProps } from './CloseButton'
 export default {
   title: 'UI Components/CloseButton',
   component: CloseButton,
-  argTypes: { disabled: { control: 'boolean' } }
+  argTypes: { disabled: { control: 'boolean' } },
 } as Meta
 
 const Template: Story<CloseButtonProps> = (args) => <CloseButton {...args} />
 
 export const Enabled = Template.bind({})
 Enabled.args = {
-  disabled: false
+  disabled: false,
 }
 
 export const Disabled = Template.bind({})
 Disabled.args = {
-  disabled: true
+  disabled: true,
 }
