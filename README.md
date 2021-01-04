@@ -27,11 +27,11 @@
 
 Tab Manager v2 is Chrome Extension that helps you manage your Chrome tabs easily. ~It's a forked version of https://github.com/joshperry/Tab-Manager.~ But the Tab Manager v2 is completely rewritten by React, MobX, TypeScript, and has different features with original Tab Manager.
 
-# Usage
+## Usage
 
 There is a playlist contains how to videos: https://www.youtube.com/playlist?list=PLtWVZzutpoqLdwaoAVhQPGCXU9sLwT3S7
 
-# Development
+## Development
 
 You should be familiar with [React](https://facebook.github.io/react/), [MobX](https://mobx.js.org/), and [Chrome Extension API](https://developers.chrome.com/extensions/api_index) to develop this extension.
 
@@ -44,24 +44,26 @@ yarn start
 
 Then you can load the `build_chrome/` or `build_firefox/` folder in chrome://extensions page, please follow the instructions for [Chrome](https://developers.chrome.com/extensions/getstarted#unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out).
 
-## Test
+There is a storybook link for component: https://tab-manager.vercel.app
+
+### Test
 
 ```shell
 yarn test
 ```
 
-## Packaging
+### Packaging
 
 ```shell
 yarn deploy
 ```
 
-# Distribute
+## Distribute
 
 Follow the official guide to distribute extension: https://developers.chrome.com/extensions/hosting.
 
 You can download older versions from https://crx.dam.io/ext/nimllkpgmmbdglnjneeakdgcpkbgbfbp.html.
 
-# Thanks
+## Thanks
 
 The default fav icon is made by [Lyolya](https://www.flaticon.com/authors/lyolya) from https://www.flaticon.com is licensed by [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/)
