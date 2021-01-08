@@ -19,7 +19,7 @@
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/webstore publish",
     "publish:firefox": "web-ext sign --source-dir build_firefox --channel=listed || echo 'Publish to Mozilla Add-ons may failed because https://github.com/mozilla/web-ext/issues/804'",
     "publish-extension": "run-s publish:chrome publish:firefox",
-    "zip": "run-s yarn:zip:*",
+    "zip": "run-s zip:*",
     "_zip": "zip -X --compression-method deflate -9 -r --junk-paths",
     "zip:chrome": "yarn _zip build_chrome.zip build_chrome/*",
     "zip:firefox": "yarn _zip build_firefox.zip build_firefox/*",
