@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.14.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.14.0...v1.14.1) (2021-01-10)
+
+### Bug Fixes
+
+- **deps:** update dependency autoprefixer to v10.2.0 ([#839](https://github.com/xcv58/Tab-Manager-v2/issues/839)) ([fd470a5](https://github.com/xcv58/Tab-Manager-v2/commit/fd470a5950b3ec93819e00011d1c6b4415c83fe1))
+- **deps:** update dependency autoprefixer to v10.2.1 ([#845](https://github.com/xcv58/Tab-Manager-v2/issues/845)) ([821717c](https://github.com/xcv58/Tab-Manager-v2/commit/821717c6b28e0c182292ede396f59513c994ce28))
+- **deps:** update dependency match-sorter to v6.1.0 ([#832](https://github.com/xcv58/Tab-Manager-v2/issues/832)) ([d8e4a8a](https://github.com/xcv58/Tab-Manager-v2/commit/d8e4a8ae62969dc1b2e3d7886ec26d38175d134a))
+- **deps:** update dependency postcss to v8.2.2 ([#826](https://github.com/xcv58/Tab-Manager-v2/issues/826)) ([b410a1c](https://github.com/xcv58/Tab-Manager-v2/commit/b410a1c9008762e58df1bd5e95b05a9ec5ff9adc))
+- **deps:** update dependency postcss to v8.2.3 ([#842](https://github.com/xcv58/Tab-Manager-v2/issues/842)) ([104415e](https://github.com/xcv58/Tab-Manager-v2/commit/104415e02e917b5557e46cb40530e76314d85921))
+- **deps:** update dependency postcss to v8.2.4 ([#850](https://github.com/xcv58/Tab-Manager-v2/issues/850)) ([49d9a1a](https://github.com/xcv58/Tab-Manager-v2/commit/49d9a1a324f0cef29b4bb5965586134eb2ee638c))
+
 ## [1.14.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.13.9...v1.14.0) (2020-12-18)
 
 ### Features
