@@ -4151,7 +4151,7 @@ babel-jest@26.6.3, babel-jest@^26.6.3:
     graceful-fs "^4.2.4"
     slash "^3.0.0"
 
-babel-loader@8.2.2, babel-loader@^8.0.6:
+babel-loader@^8.0.6:
   version "8.2.2"
   resolved "https://registry.yarnpkg.com/babel-loader/-/babel-loader-8.2.2.tgz#9363ce84c10c9a40e6c753748e1441b60c8a0b81"
   integrity sha512-JvTd0/D889PQBtUXJ2PXaKU/pjZDMtHA9V2ecm+eNRmmBCMR09a+fmpGTNwnJtFmFl5Ei7Vy47LjBb+L0wQ99g==
@@ -15944,7 +15944,7 @@ store2@^2.7.1:
   resolved "https://registry.yarnpkg.com/store2/-/store2-2.12.0.tgz#e1f1b7e1a59b6083b2596a8d067f6ee88fd4d3cf"
   integrity sha512-7t+/wpKLanLzSnQPX8WAcuLCCeuSHoWdQuh9SB3xD0kNOM38DNf+0Oa+wmvxmYueRzkmh6IcdKFtvTa+ecgPDw==
 
-storybook-addon-performance@^0.14.0:
+storybook-addon-performance@0.14.0:
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/storybook-addon-performance/-/storybook-addon-performance-0.14.0.tgz#d5cf3afc1bbc630f626b67d489ba55e9cd76a12b"
   integrity sha512-Aa/d2B0N2lEc2bTM6arrNkPRELphwp5n90mzvcjT6ls69q486g3e11CLUE/g0roR6dk1hdOkENJLr+ELoMq41g==
