@@ -1,0 +1,19 @@
+{
+  "name": "storybook",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "devDependencies": {
+    "@babel/core": "7.12.10",
+    "@storybook/addon-a11y": "6.1.14",
+    "@storybook/addon-actions": "6.1.14",
+    "@storybook/addon-essentials": "6.1.14",
+    "@storybook/addon-links": "6.1.14",
+    "@storybook/react": "6.1.14",
+    "babel-loader": "8.2.2",
+    "storybook-addon-performance": "^0.14.0"
+  }
+}
