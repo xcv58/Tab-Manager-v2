@@ -13996,12 +13996,12 @@ puppeteer@5.5.0:
     unbzip2-stream "^1.3.3"
     ws "^7.2.3"
 
-purgecss-webpack-plugin@3.1.3:
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/purgecss-webpack-plugin/-/purgecss-webpack-plugin-3.1.3.tgz#ed2611f8594705d9e357a9cbbdb594515c657be6"
-  integrity sha512-GAZzknEqR6Waq5Kw9hXgSZ0oJavmk551XDYoCOUzHSFDK7Y+O7mpsozrnRU5Vb3oVZXXdymT6sLEJZFdUQ0OXQ==
+purgecss-webpack-plugin@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/purgecss-webpack-plugin/-/purgecss-webpack-plugin-4.0.0.tgz#39570bba90ae79501831fbe42680458f4c12a34d"
+  integrity sha512-4Eur2MP9UIdBVFyBz0U7z/bAKa2qSVxvhXRPYqsoxK97gfLWhGKhqZAlkWs+KFvNjZAH3+f+voQ6LfDAEUqI1Q==
   dependencies:
-    purgecss "^3.1.3"
+    purgecss "^4.0.0"
     webpack "^5.4.0"
     webpack-sources "^2.0.0"
 
@@ -14009,6 +14009,16 @@ purgecss@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/purgecss/-/purgecss-3.1.3.tgz#26987ec09d12eeadc318e22f6e5a9eb0be094f41"
   integrity sha512-hRSLN9mguJ2lzlIQtW4qmPS2kh6oMnA9RxdIYK8sz18QYqd6ePp4GNDl18oWHA1f2v2NEQIh51CO8s/E3YGckQ==
+  dependencies:
+    commander "^6.0.0"
+    glob "^7.0.0"
+    postcss "^8.2.1"
+    postcss-selector-parser "^6.0.2"
+
+purgecss@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/purgecss/-/purgecss-4.0.0.tgz#25446199df2ec40d418caf4b95c7548a011be3f1"
+  integrity sha512-j/y6OtNpEiggw/ipCJUOMNLgLpeAv9L8q+SqzEdDzyVEZOfdWjg8yvgOxhBflNyYgJ8SZ+tTwPxrHT9vQUpEPw==
   dependencies:
     commander "^6.0.0"
     glob "^7.0.0"
