@@ -5,7 +5,7 @@ import Tab from './Tab'
 export default class DragStore {
   store: Store
 
-  constructor(store) {
+  constructor(store: Store) {
     makeObservable(this, {
       dropped: observable,
       dragging: observable,
@@ -22,7 +22,7 @@ export default class DragStore {
 
   dragging = false
 
-  dragStart = (tab) => {
+  dragStart = (tab: Tab) => {
     tab.select()
     tab.unhover()
     this.dragging = true
