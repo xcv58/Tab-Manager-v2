@@ -7,11 +7,11 @@
     "build-storybook": "build-storybook"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "6.1.14",
-    "@storybook/addon-actions": "6.1.14",
-    "@storybook/addon-essentials": "6.1.14",
-    "@storybook/addon-links": "6.1.14",
-    "@storybook/react": "6.1.14",
+    "@storybook/addon-a11y": "6.1.15",
+    "@storybook/addon-actions": "6.1.15",
+    "@storybook/addon-essentials": "6.1.15",
+    "@storybook/addon-links": "6.1.15",
+    "@storybook/react": "6.1.15",
     "storybook-addon-performance": "0.14.0"
   }
 }
