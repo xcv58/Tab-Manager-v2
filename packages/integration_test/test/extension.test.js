@@ -1,4 +1,5 @@
 import {
+  manifest,
   TAB_QUERY,
   ALL,
   EACH,
@@ -12,6 +13,30 @@ describe('The Extension page should', () => {
   beforeEach(EACH)
 
   afterEach(CLOSE_PAGES)
+
+  it('have title ends with the extension name', async () => {
+    await expect(page.title()).resolves.toMatch(manifest.name)
+  })
+
+  it('render correct number of windows & tabs', async () => {
+    const wins = await page.$$('.shadow-2xl,.shadow-sm')
+    expect(wins).toHaveLength(1)
+    let tabs = await page.$$(TAB_QUERY)
+    expect(tabs).toHaveLength(1)
+
+    const N = 10
+    await Promise.all(
+      [...Array(10)].map(async () => {
+        const newPage = await browser.newPage()
+        await newPage.goto('https://google.com')
+      })
+    )
+    tabs = await page.$$(TAB_QUERY)
+    expect(tabs).toHaveLength(N + 1)
+    const pages = await browser.pages()
+    expect(pages).toHaveLength(N + 1)
+    await page.bringToFront()
+  })
 
   it('sort the tabs', async () => {
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
@@ -55,5 +80,24 @@ describe('The Extension page should', () => {
       'https://www.google.com/',
       'https://www.google.com/',
     ])
+  })
+
+  it('close tab when click close button', async () => {
+    await Promise.all(
+      URLS.map(async (url) => {
+        const newPage = await browser.newPage()
+        await newPage.goto(url)
+      })
+    )
+    await page.bringToFront()
+    let tabs = await page.$$(TAB_QUERY)
+    const pages = await browser.pages()
+    const tabsCount = tabs.length
+    expect(tabsCount).toBe(pages.length)
+    const buttons = await tabs[2].$$('button')
+    expect(buttons).toHaveLength(3)
+    await buttons[2].click()
+    tabs = await page.$$(TAB_QUERY)
+    expect(tabs.length).toBe(tabsCount - 1)
   })
 })

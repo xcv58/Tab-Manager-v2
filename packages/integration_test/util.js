@@ -25,7 +25,7 @@ export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const ALL = async () => {
   const extensionURL = await getExtensionURL(browser)
   await page.goto(extensionURL)
-  await page.waitForTimeout(1000)
+  await page.waitForTimeout(500)
   await CLOSE_PAGES()
 }
 
@@ -37,7 +37,7 @@ export const CLOSE_PAGES = async () => {
   const pages = await browser.pages()
   for (const page of pages) {
     const url = await page.url()
-    if (!url.startsWith('chrome-extension')) {
+    if (!isExtensionURL(url)) {
       await page.close()
     }
   }
