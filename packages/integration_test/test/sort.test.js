@@ -18,10 +18,12 @@ describe('The Extension page should', () => {
     expect(wins).toHaveLength(1)
     let tabs = await page.$$(TAB_QUERY)
     expect(tabs).toHaveLength(1)
-    for (let url of URLS) {
-      const newPage = await browser.newPage()
-      await newPage.goto(url)
-    }
+    await Promise.all(
+      URLS.map(async (url) => {
+        const newPage = await browser.newPage()
+        await newPage.goto(url)
+      })
+    )
     await page.bringToFront()
     tabs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText)
