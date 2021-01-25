@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.14.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.14.1...v1.14.2) (2021-01-25)
+
+### Bug Fixes
+
+- Sort tabs doesn't work ([5707d8b](https://github.com/xcv58/Tab-Manager-v2/commit/5707d8b343d3711ecacf45a7a2f1a50ba5774ce8))
+- **deps:** update dependency @material-ui/core to v4.11.3 ([#887](https://github.com/xcv58/Tab-Manager-v2/issues/887)) ([9750483](https://github.com/xcv58/Tab-Manager-v2/commit/97504831a0db578a85171855866c6584b39fdaed))
+- **deps:** update dependency autoprefixer to v10.2.3 ([#874](https://github.com/xcv58/Tab-Manager-v2/issues/874)) ([609c391](https://github.com/xcv58/Tab-Manager-v2/commit/609c39158b21edfd7c85bdc846b6b9e47f5bf874))
+- **deps:** update dependency mobx to v6.0.5 ([#885](https://github.com/xcv58/Tab-Manager-v2/issues/885)) ([259b85e](https://github.com/xcv58/Tab-Manager-v2/commit/259b85ea5350209beef86415ac5f8076f3041382))
+- **deps:** update dependency mobx-react-lite to v3.1.7 ([#886](https://github.com/xcv58/Tab-Manager-v2/issues/886)) ([1653473](https://github.com/xcv58/Tab-Manager-v2/commit/16534734ae0fe4d42bbf1da472aa737902286e2e))
+
 ### [1.14.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.14.0...v1.14.1) (2021-01-10)
 
 ### Bug Fixes
