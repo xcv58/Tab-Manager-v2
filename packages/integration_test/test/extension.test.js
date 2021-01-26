@@ -91,13 +91,31 @@ describe('The Extension page should', () => {
     )
     await page.bringToFront()
     let tabs = await page.$$(TAB_QUERY)
+
     const pages = await browser.pages()
-    const tabsCount = tabs.length
-    expect(tabsCount).toBe(pages.length)
-    const buttons = await tabs[2].$$('button')
+    expect(tabs.length).toBe(pages.length)
+    let buttons = await tabs[tabs.length - 1].$$('button')
     expect(buttons).toHaveLength(3)
     await buttons[2].click()
+    await page.waitForTimeout(100)
+
     tabs = await page.$$(TAB_QUERY)
-    expect(tabs.length).toBe(tabsCount - 1)
+    expect(tabs.length).toBe(pages.length - 1)
+
+    buttons = await tabs[tabs.length - 1].$$('button')
+    expect(buttons).toHaveLength(3)
+    await buttons[2].click()
+    await page.waitForTimeout(100)
+
+    tabs = await page.$$(TAB_QUERY)
+    expect(tabs.length).toBe(pages.length - 2)
+
+    buttons = await tabs[tabs.length - 1].$$('button')
+    expect(buttons).toHaveLength(3)
+    await buttons[2].click()
+    await page.waitForTimeout(100)
+
+    tabs = await page.$$(TAB_QUERY)
+    expect(tabs.length).toBe(pages.length - 3)
   })
 })
