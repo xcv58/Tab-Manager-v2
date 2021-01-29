@@ -2,7 +2,24 @@ import React from 'react'
 import classNames from 'classnames'
 import { useTheme } from 'components/hooks/useTheme'
 
-export default (props) => {
+export interface UrlProps {
+  tab: {
+    /**
+     * The tab's URL.
+     */
+    url: string
+  }
+  /**
+   * Whether the tab is duplicated.
+   */
+  duplicated: boolean
+  /**
+   * Get the highlight node based on the query.
+   */
+  getHighlightNode: (url: string) => React.ReactNode
+}
+
+export default (props: UrlProps) => {
   const {
     tab: { url },
     getHighlightNode,
