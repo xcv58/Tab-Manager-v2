@@ -1,16 +1,16 @@
+const fs = require('fs')
 const path = require('path')
 
-const srcPath = (subdir) => {
-  return path.join(__dirname, '../../extension/src/js', subdir)
-}
-
-const alias = {
-  background: srcPath('background'),
-  components: srcPath('components'),
-  libs: srcPath('libs'),
-  stores: srcPath('stores'),
-  svgIcons: srcPath('svgIcons'),
-}
+const alias = {}
+const jsEntry = '../../extension/src/js'
+Object.assign(
+  alias,
+  ...fs
+    .readdirSync(path.join(__dirname, jsEntry), { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
+    .map((entry) => ({ [entry]: path.join(__dirname, jsEntry, entry) }))
+)
 
 module.exports = {
   stories: [

@@ -1,6 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
-const fileSystem = require('fs')
+const fs = require('fs')
 const env = require('./utils/env')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -11,18 +11,19 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const PurgecssPlugin = require('purgecss-webpack-plugin')
 const glob = require('glob-all')
 
-const srcPath = (subdir) => {
-  return path.join(__dirname, 'src/js', subdir)
-}
-
 const alias = {
-  background: srcPath('background'),
-  components: srcPath('components'),
-  libs: srcPath('libs'),
-  stores: srcPath('stores'),
-  svgIcons: srcPath('svgIcons'),
   img: path.join(__dirname, 'src/img'),
 }
+
+const jsEntry = 'src/js'
+Object.assign(
+  alias,
+  ...fs
+    .readdirSync(path.join(__dirname, jsEntry), { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
+    .map((entry) => ({ [entry]: path.join(__dirname, jsEntry, entry) }))
+)
 
 const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js')
 
@@ -39,12 +40,12 @@ const fileExtensions = [
   'woff2',
 ]
 
-if (fileSystem.existsSync(secretsPath)) {
+if (fs.existsSync(secretsPath)) {
   alias.secrets = secretsPath
 }
 
 const imgDir = path.join(__dirname, 'src/img')
-const images = fileSystem
+const images = fs
   .readdirSync(imgDir)
   .filter((x) => x.endsWith('.png'))
   .map((x) => path.join(imgDir, x))
