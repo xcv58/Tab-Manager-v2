@@ -7,6 +7,7 @@ export default {
   title: 'UI Components/CloseButton',
   component: CloseButton,
   argTypes: { disabled: { control: 'boolean' } },
+  parameters: { options: { isToolshown: true } },
 } as Meta
 
 const Template: Story<CloseButtonProps> = (args) => <CloseButton {...args} />

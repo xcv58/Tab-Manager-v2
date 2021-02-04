@@ -14,8 +14,8 @@ Object.assign(
 
 module.exports = {
   stories: [
-    '../../extension/src/**/*.stories.mdx',
-    '../../extension/src/**/*.stories.@(js|jsx|ts|tsx)',
+    '../../extension/**/*.stories.mdx',
+    '../../extension/**/*.stories.@(js|jsx|ts|tsx)',
   ],
   addons: [
     '@storybook/addon-links',
