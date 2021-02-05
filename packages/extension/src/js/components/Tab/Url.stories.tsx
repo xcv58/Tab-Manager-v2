@@ -14,7 +14,6 @@ export default {
     },
     duplicated: { control: 'boolean' },
   },
-  parameters: { options: { isToolshown: true } },
 } as Meta
 
 const getHighlightNode = (url: string) => url
