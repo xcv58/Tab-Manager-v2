@@ -9,7 +9,10 @@ import {
 } from '../util'
 
 describe('The Extension page should', () => {
-  beforeAll(ALL)
+  beforeAll(async () => {
+    jest.setTimeout(10000)
+    await ALL()
+  })
   beforeEach(EACH)
 
   afterEach(CLOSE_PAGES)
