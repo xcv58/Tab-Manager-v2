@@ -9,9 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: |
-        sudo apt-get install xvfb
+    - name: Test Code
+      uses: mujo-code/puppeteer-headful@master
     - name: Use Node.js 14.x
       uses: actions/setup-node@v2
       with:
