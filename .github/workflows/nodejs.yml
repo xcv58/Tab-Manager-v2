@@ -1,9 +1,9 @@
-name: Node CI
+name: Build, Test, Integration Test
 
 on: [push]
 
 jobs:
-  build:
+  build-test:
 
     runs-on: ubuntu-latest
 
@@ -18,3 +18,4 @@ jobs:
         yarn install
         yarn test
         yarn build
+    - run: yarn workspace integration-test test
