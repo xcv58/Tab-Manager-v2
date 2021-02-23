@@ -15,9 +15,9 @@ jobs:
         node-version: '14.x'
     - name: install
       run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true yarn install --ignore-scripts --frozen-lockfile
+    - run: yarn test
     - run: yarn build
     - name: Integration Test
       uses: mujo-code/puppeteer-headful@master
       with:
         args: yarn workspace integration-test test
-    - run: yarn test
