@@ -9,8 +9,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Test Code
-      uses: mujo-code/puppeteer-headful@master
     - name: Use Node.js 14.x
       uses: actions/setup-node@v2
       with:
@@ -21,4 +19,6 @@ jobs:
         yarn test
         yarn build
     - name: Integration Test
-      run: yarn workspace integration-test test
+      uses: mujo-code/puppeteer-headful@master
+      with:
+        args: yarn workspace integration-test test
