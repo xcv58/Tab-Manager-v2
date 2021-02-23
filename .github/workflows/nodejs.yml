@@ -19,4 +19,4 @@ jobs:
         yarn test
         yarn build
     - name: Integration Test
-    - run: yarn workspace integration-test test
+      run: yarn workspace integration-test test
