@@ -50,7 +50,7 @@
     "webextension-polyfill": "0.7.0"
   },
   "devDependencies": {
-    "@babel/core": "7.13.1",
+    "@babel/core": "7.13.8",
     "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.5",
     "@types/chrome": "0.0.133",
