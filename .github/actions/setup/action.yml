@@ -6,7 +6,6 @@ strategy:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node }}
       uses: actions/setup-node@v2
       with:
