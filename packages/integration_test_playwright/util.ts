@@ -1,52 +1,36 @@
-// import { chromium, Browser, Page } from 'playwright';
+import { chromium, ChromiumBrowserContext } from 'playwright'
+import { join } from 'path'
 
-// export const manifest = require('../extension/src/manifest.json')
-
-// export const getExtensionURL = async (browser: Browser) => {
-//   const extensionId = await getExtensionId(browser)
-//   return `chrome-extension://${extensionId}/popup.html?not_popup=1`
-// }
-
-// export const isExtensionURL = (url: string) => url.startsWith('chrome-extension://')
-
-// const getExtensionId = async (browser: Browser) => {
-//   const targets = await browser.targets()
-//   const extensionTarget = targets.find(({ _targetInfo }) => {
-//     return (
-//       _targetInfo.title === manifest.name &&
-//       _targetInfo.type === 'background_page'
-//     )
-//   })
-//   const extensionUrl = extensionTarget._targetInfo.url || ''
-//   const [, , extensionId] = extensionUrl.split('/')
-//   return extensionId
-// }
+export const EXTENSION_PATH = join(__dirname, '../../build_chrome')
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
-
-// export const ALL = async () => {
-//   const extensionURL = await getExtensionURL(browser)
-//   await page.goto(extensionURL)
-//   await page.waitForTimeout(500)
-//   await CLOSE_PAGES()
-// }
-
-// export const EACH = async () => {
-//   await page.bringToFront()
-// }
-
-// export const CLOSE_PAGES = async (browser: Browser) => {
-//   const pages = await browser.pages()
-//   for (const page of pages) {
-//     const url = await page.url()
-//     if (!isExtensionURL(url)) {
-//       await page.close()
-//     }
-//   }
-// }
 
 export const URLS = [
   'https://www.google.com/',
   'https://github.com/',
   'https://www.google.com/',
 ]
+
+export const isExtensionURL = (url: string) =>
+  url.startsWith('chrome-extension://')
+
+export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
+  const pages = await browserContext.pages()
+  for (const page of pages) {
+    const url = await page.url()
+    if (!isExtensionURL(url)) {
+      await page.close()
+    }
+  }
+}
+
+export const initBrowserContext = async () => {
+  const userDataDir = `/tmp/test-user-data-${Math.random()}`
+  return (await chromium.launchPersistentContext(userDataDir, {
+    headless: false,
+    args: [
+      `--disable-extensions-except=${EXTENSION_PATH}`,
+      `--load-extension=${EXTENSION_PATH}`,
+    ],
+  })) as ChromiumBrowserContext
+}

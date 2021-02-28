@@ -1,37 +1,21 @@
-import { chromium, Page, ChromiumBrowserContext } from 'playwright'
+import { Page, ChromiumBrowserContext } from 'playwright'
 import manifest from '../../extension/src/manifest.json'
-import { TAB_QUERY, URLS } from '../util'
-import { join } from 'path'
+import {
+  TAB_QUERY,
+  URLS,
+  isExtensionURL,
+  CLOSE_PAGES,
+  initBrowserContext,
+} from '../util'
 import expect from 'expect'
-
-const extensionPath = join(__dirname, '../../../build_chrome')
 
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
-const isExtensionURL = (url: string) => url.startsWith('chrome-extension://')
-
-const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
-  const pages = await browserContext.pages()
-  for (const page of pages) {
-    const url = await page.url()
-    if (!isExtensionURL(url)) {
-      await page.close()
-    }
-  }
-}
-
 describe('The Extension page should', () => {
   beforeAll(async () => {
-    const userDataDir = `/tmp/test-user-data-${Math.random()}`
-    browserContext = (await chromium.launchPersistentContext(userDataDir, {
-      headless: false,
-      args: [
-        `--disable-extensions-except=${extensionPath}`,
-        `--load-extension=${extensionPath}`,
-      ],
-    })) as ChromiumBrowserContext
+    browserContext = await initBrowserContext()
     browserContext.on('backgroundpage', (page) => {
       const url = page.url()
       const [, , extensionId] = url.split('/')
