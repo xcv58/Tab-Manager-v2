@@ -1,6 +1,6 @@
 name: Build, Test, Integration Test
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   setup:
