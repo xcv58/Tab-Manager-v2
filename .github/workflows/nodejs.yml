@@ -29,9 +29,11 @@ jobs:
       - name: install
         run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true yarn install --ignore-scripts --frozen-lockfile
 
+      # Test and Build
       - run: yarn test
       - run: yarn build
 
+      # Integration test
       - name: Integration Test
         uses: mujo-code/puppeteer-headful@master
         with:
