@@ -37,11 +37,11 @@ jobs:
 
   integration-test:
     runs-on: ubuntu-latest
+    needs: setup
     strategy:
       matrix:
         install-puppeteer: true
     steps:
-      - *setup
       - name: Integration Test
         uses: mujo-code/puppeteer-headful@master
         with:
