@@ -6,10 +6,11 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-latest
-    matrix:
-        os: [ubuntu-latest]
-        node: [14.x, 15.x]
-        install-puppeteer: false
+    strategy:
+      matrix:
+          os: [ubuntu-latest]
+          node: [14.x, 15.x]
+          install-puppeteer: false
     steps: &setup
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node }}
