@@ -6,13 +6,13 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: .github/actions/setup
+      - uses: ./.github/actions/setup
       - run: yarn test
 
   integration-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: .github/actions/setup
+      - uses: ./.github/actions/setup
       - name: Integration Test
         uses: mujo-code/puppeteer-headful@master
         with:
