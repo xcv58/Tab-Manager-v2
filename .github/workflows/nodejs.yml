@@ -38,3 +38,38 @@ jobs:
         uses: mujo-code/puppeteer-headful@master
         with:
           args: yarn workspace integration-test test
+
+  integration-test-playwright:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+          os: [ubuntu-latest]
+          node: [14.x, 15.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ matrix.node }}
+      - name: install
+        run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true yarn install --ignore-scripts --frozen-lockfile
+
+      # Test and Build
+      - run: yarn build
+
+      # Integration test
+      - uses: microsoft/playwright-github-action@v1
+      - name: Integration Test
+        run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
+
