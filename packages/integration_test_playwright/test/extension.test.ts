@@ -24,8 +24,12 @@ describe('The Extension page should', () => {
     })
     await openPages(browserContext, URLS)
     page = await browserContext.pages()[0]
-    while (!extensionURL) {
-      await page.waitForTimeout(500)
+    await page.bringToFront()
+    for (const x in [...Array(100)]) {
+      if (extensionURL || x) {
+        break
+      }
+      await page.waitForTimeout(100)
     }
   })
 
@@ -39,6 +43,7 @@ describe('The Extension page should', () => {
   beforeEach(async () => {
     console.log({ extensionURL })
     await page.waitForTimeout(1000)
+    await page.bringToFront()
   })
 
   afterEach(async () => {
