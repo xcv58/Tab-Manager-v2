@@ -1,5 +1,8 @@
 module.exports = {
-  preset: 'jest-puppeteer',
+  preset: 'jest-playwright-preset',
+  testRegex: './*\\.test\\.ts$',
   setupFilesAfterEnv: ['expect-puppeteer', './setup.js'],
-  testRegex: './*\\.test\\.js$',
+  transform: {
+    '^.+\\.(ts)$': 'ts-jest',
+  },
 }
