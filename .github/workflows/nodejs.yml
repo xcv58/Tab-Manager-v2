@@ -71,5 +71,7 @@ jobs:
       # Integration test
       - uses: microsoft/playwright-github-action@v1
       - name: Integration Test
-        run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
+        run: |
+          xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test || \
+          xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
 
