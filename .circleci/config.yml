@@ -44,7 +44,7 @@ jobs:
       - *restore_yarn_cache
       - run: yarn install
       - run: yarn build
-      - run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
+      - run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test || xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
       - *save_yarn_cache
 
   publish:
