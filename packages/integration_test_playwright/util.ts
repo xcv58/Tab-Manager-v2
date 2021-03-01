@@ -15,7 +15,7 @@ export const isExtensionURL = (url: string) =>
   url.startsWith('chrome-extension://')
 
 export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
-  const pages = await browserContext.pages()
+  const pages = (await browserContext?.pages()) || []
   for (const page of pages) {
     const url = await page.url()
     if (!isExtensionURL(url)) {

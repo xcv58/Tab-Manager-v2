@@ -26,7 +26,7 @@ describe('The Extension page should', () => {
   })
 
   afterAll(async () => {
-    await browserContext.close()
+    await browserContext?.close()
     browserContext = null
     page = null
     extensionURL = ''
