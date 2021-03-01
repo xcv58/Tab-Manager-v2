@@ -21,7 +21,9 @@ describe('The Extension page should', () => {
       const url = backgroundPage.url()
       const [, , extensionId] = url.split('/')
       extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
+      console.log('browserContext.on backgroundpage', { extensionURL })
     })
+    await openPages(browserContext, URLS)
     await openPages(browserContext, URLS)
     page = await browserContext.pages()[0]
     await page.bringToFront()
