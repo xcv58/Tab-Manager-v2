@@ -1,8 +1,7 @@
 version: 2.1
 
 references:
-  yarn_key: &yarn_key
-    v1-dependencies-{{ checksum "yarn.lock" }}
+  yarn_key: &yarn_key yarn.lock-{{ checksum "yarn.lock" }}
 
   save_yarn_cache: &save_yarn_cache
     save_cache:
@@ -17,32 +16,34 @@ references:
 jobs:
   build-test:
     docker:
-      - image: circleci/node:14
+      - image: circleci/node:15
     steps:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - *save_yarn_cache
       - run: yarn test
       - run: yarn deploy
       - run: ls -l build_*/* build_*.zip
       - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
       - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
       - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
+      - *save_yarn_cache
       - store_artifacts:
           path: dist
           destination: dist
 
   integration-test:
     docker:
-      - image: circleci/node:14.16-browsers
+      - image: circleci/node:15-browsers
+        environment:
+          NODE_ENV: development
     steps:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - *save_yarn_cache
       - run: yarn build
-      - run: yarn workspace integration-test test
+      - run: xvfb-run --auto-servernum -- yarn workspace integration-test test
+      - *save_yarn_cache
 
   publish:
     docker:
@@ -51,10 +52,10 @@ jobs:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - *save_yarn_cache
       - run: yarn deploy
       - run: yarn upload:chrome
       - run: yarn publish-extension
+      - *save_yarn_cache
 
 workflows:
   version: 2

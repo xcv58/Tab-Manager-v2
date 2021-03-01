@@ -7,8 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-          os: [ubuntu-latest]
-          node: [14.x, 15.x]
+        node: [14.x, 15.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -27,14 +26,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-${{ matrix.node }}
       - name: install
-        run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true yarn install --ignore-scripts --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       # Test and Build
       - run: yarn test
       - run: yarn build
 
       # Integration test
+      - uses: microsoft/playwright-github-action@v1
       - name: Integration Test
-        uses: mujo-code/puppeteer-headful@master
-        with:
-          args: yarn workspace integration-test test
+        run: xvfb-run --auto-servernum -- yarn workspace integration-test test

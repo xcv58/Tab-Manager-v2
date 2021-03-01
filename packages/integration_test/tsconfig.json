@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": ["es2018"],
+    "types": ["jasmine", "jest"],
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "moduleResolution": "node",
+    "target": "es6",
+    "allowJs": true
+  },
+  "exclude": ["node_modules"]
+}
