@@ -75,6 +75,7 @@ describe('The Extension page should', () => {
       browserContext,
       [...Array(10)].map((_) => 'https://google.com')
     )
+    await page.bringToFront()
     tabs = await page.$$(TAB_QUERY)
     expect(tabs).toHaveLength(N + 1)
     const pages = await browserContext.pages()
