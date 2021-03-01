@@ -24,12 +24,22 @@ const setExtensionURL = (backgroundPage: Page) => {
 describe('The Extension page should', () => {
   beforeAll(async () => {
     browserContext = (await initBrowserContext()) as ChromiumBrowserContext
+    /**
+     * The background page is useful to retrieve the extension id so that we
+     * could programatically open the extension page.
+     *
+     * There is uncertain timing of backgroundPages. Sometimes the
+     * `browserContext.backgroundPages()` will return empty at the beginning,
+     * so we have to rely on the `browserContext.on('backgroundpage')` to get
+     * the background page. But sometimes the 'backgroundpage' would never be
+     * triggered and the `browserContext.backgroundPages()` would give an array
+     * with the existing background page.
+     */
     browserContext.on('backgroundpage', setExtensionURL)
     const backgroundPages = browserContext.backgroundPages()
     if (backgroundPages.length) {
       setExtensionURL(backgroundPages[0])
     }
-    await openPages(browserContext, URLS)
     await openPages(browserContext, URLS)
     page = await browserContext.pages()[0]
     await page.bringToFront()
