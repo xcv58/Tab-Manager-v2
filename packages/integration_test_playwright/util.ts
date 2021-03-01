@@ -34,3 +34,15 @@ export const initBrowserContext = async () => {
     ],
   })) as ChromiumBrowserContext
 }
+
+export const openPages = async (
+  browserContext: ChromiumBrowserContext,
+  urls: string[]
+) => {
+  return await Promise.all(
+    urls.map(async (url) => {
+      const newPage = await browserContext.newPage()
+      await newPage.goto(url)
+    })
+  )
+}

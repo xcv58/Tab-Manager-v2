@@ -6,6 +6,7 @@ import {
   isExtensionURL,
   CLOSE_PAGES,
   initBrowserContext,
+  openPages,
 } from '../util'
 import expect from 'expect'
 
@@ -22,7 +23,12 @@ describe('The Extension page should', () => {
       extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
     })
     page = await browserContext.pages()[0]
-    await page.waitForTimeout(2000)
+    // Warm up
+    await openPages(browserContext, URLS)
+    await openPages(browserContext, URLS)
+    await openPages(browserContext, URLS)
+    await openPages(browserContext, URLS)
+    await page.waitForTimeout(1000)
   })
 
   afterAll(async () => {
@@ -52,11 +58,10 @@ describe('The Extension page should', () => {
     expect(tabs).toHaveLength(1)
 
     const N = 10
-    await Promise.all(
-      [...Array(10)].map(async () => {
-        const newPage = await browserContext.newPage()
-        await newPage.goto('https://google.com')
-      })
+
+    await openPages(
+      browserContext,
+      [...Array(10)].map((_) => 'https://google.com')
     )
     tabs = await page.$$(TAB_QUERY)
     expect(tabs).toHaveLength(N + 1)
@@ -70,12 +75,7 @@ describe('The Extension page should', () => {
     expect(wins).toHaveLength(1)
     const tabs = await page.$$(TAB_QUERY)
     expect(tabs).toHaveLength(1)
-    await Promise.all(
-      URLS.map(async (url) => {
-        const newPage = await browserContext.newPage()
-        await newPage.goto(url)
-      })
-    )
+    await openPages(browserContext, URLS)
     await page.bringToFront()
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
@@ -111,12 +111,7 @@ describe('The Extension page should', () => {
   })
 
   it('close tab when click close button', async () => {
-    await Promise.all(
-      URLS.map(async (url) => {
-        const newPage = await browserContext.newPage()
-        await newPage.goto(url)
-      })
-    )
+    await openPages(browserContext, URLS)
     await page.bringToFront()
     let tabs = await page.$$(TAB_QUERY)
 
