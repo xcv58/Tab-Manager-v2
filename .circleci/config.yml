@@ -22,13 +22,13 @@ jobs:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - *save_yarn_cache
       - run: yarn test
       - run: yarn deploy
       - run: ls -l build_*/* build_*.zip
       - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
       - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
       - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
+      - *save_yarn_cache
       - store_artifacts:
           path: dist
           destination: dist
@@ -43,9 +43,9 @@ jobs:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - *save_yarn_cache
       - run: yarn build
       - run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
+      - *save_yarn_cache
 
   publish:
     docker:
@@ -54,10 +54,10 @@ jobs:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - *save_yarn_cache
       - run: yarn deploy
       - run: yarn upload:chrome
       - run: yarn publish-extension
+      - *save_yarn_cache
 
 workflows:
   version: 2
