@@ -14,15 +14,21 @@ let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
+const setExtensionURL = (backgroundPage: Page) => {
+  const url = backgroundPage.url()
+  const [, , extensionId] = url.split('/')
+  extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
+  console.log('browserContext.on backgroundpage', { extensionURL })
+}
+
 describe('The Extension page should', () => {
   beforeAll(async () => {
     browserContext = (await initBrowserContext()) as ChromiumBrowserContext
-    browserContext.on('backgroundpage', (backgroundPage) => {
-      const url = backgroundPage.url()
-      const [, , extensionId] = url.split('/')
-      extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
-      console.log('browserContext.on backgroundpage', { extensionURL })
-    })
+    browserContext.on('backgroundpage', setExtensionURL)
+    const backgroundPages = browserContext.backgroundPages()
+    if (backgroundPages.length) {
+      setExtensionURL(backgroundPages[0])
+    }
     await openPages(browserContext, URLS)
     await openPages(browserContext, URLS)
     page = await browserContext.pages()[0]
