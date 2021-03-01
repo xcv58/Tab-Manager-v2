@@ -44,7 +44,7 @@ jobs:
     strategy:
       matrix:
           os: [ubuntu-latest]
-          node: [14.1.0, 15.x]
+          node: [14.1.0]
 
     steps:
       - uses: actions/checkout@v2

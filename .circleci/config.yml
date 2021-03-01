@@ -36,13 +36,16 @@ jobs:
   integration-test:
     docker:
       - image: circleci/node:14.16-browsers
+      - image: mcr.microsoft.com/playwright:bionic
+         environment:
+          NODE_ENV: development # Needed if playwright is in `devDependencies`
     steps:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
       - *save_yarn_cache
       - run: yarn build
-      - run: yarn workspace integration-test test
+      - run: yarn workspace integration-test-playwright test
 
   publish:
     docker:
