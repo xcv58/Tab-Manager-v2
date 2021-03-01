@@ -1,8 +1,7 @@
 version: 2.1
 
 references:
-  yarn_key: &yarn_key
-    yarn.lock-{{ checksum "yarn.lock" }}
+  yarn_key: &yarn_key yarn.lock-{{ checksum "yarn.lock" }}
 
   save_yarn_cache: &save_yarn_cache
     save_cache:
@@ -36,7 +35,6 @@ jobs:
   integration-test:
     docker:
       - image: circleci/node:14.16-browsers
-      # mcr.microsoft.com/playwright:focal
         environment:
           NODE_ENV: development
     steps:
