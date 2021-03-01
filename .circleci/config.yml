@@ -44,7 +44,7 @@ jobs:
       - run: yarn install
       - *save_yarn_cache
       - run: yarn build
-      - run: yarn workspace integration-test-playwright test
+      - run: DEBUG=pw:api yarn workspace integration-test-playwright test
 
   publish:
     docker:
