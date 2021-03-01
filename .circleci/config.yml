@@ -35,10 +35,9 @@ jobs:
 
   integration-test:
     docker:
-      - image: circleci/node:14.16-browsers
       - image: mcr.microsoft.com/playwright:bionic
-         environment:
-          NODE_ENV: development # Needed if playwright is in `devDependencies`
+        environment:
+          NODE_ENV: development
     steps:
       - checkout
       - *restore_yarn_cache
