@@ -35,7 +35,8 @@ jobs:
 
   integration-test:
     docker:
-      - image: mcr.microsoft.com/playwright:focal
+      - image: circleci/node:14.16-browsers
+      # mcr.microsoft.com/playwright:focal
         environment:
           NODE_ENV: development
     steps:
@@ -44,7 +45,7 @@ jobs:
       - run: yarn install
       - *save_yarn_cache
       - run: yarn build
-      - run: DEBUG=pw:api yarn workspace integration-test-playwright test
+      - run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
 
   publish:
     docker:

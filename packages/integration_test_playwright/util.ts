@@ -26,6 +26,7 @@ export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
 
 export const initBrowserContext = () => {
   const userDataDir = `/tmp/test-user-data-${Math.random()}`
+  // return chromium.launch({
   return chromium.launchPersistentContext(userDataDir, {
     headless: false,
     args: [
@@ -35,7 +36,7 @@ export const initBrowserContext = () => {
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
     ],
-  }) as Promise<ChromiumBrowserContext>
+  })
 }
 
 export const openPages = async (

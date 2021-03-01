@@ -16,12 +16,17 @@ let extensionURL: string
 
 describe('The Extension page should', () => {
   beforeAll(async () => {
-    browserContext = await initBrowserContext()
-    const backgroundPage = await browserContext.waitForEvent('backgroundpage')
+    browserContext = (await initBrowserContext()) as ChromiumBrowserContext
+    // browserContext.on('backgroundpage')
+    browserContext.once('backgroundpage', (backgroundPage) => {
+      const url = backgroundPage.url()
+      const [, , extensionId] = url.split('/')
+      extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
+      console.log({ extensionURL })
+    })
+    await openPages(browserContext, URLS)
+    // const backgroundPage = await browserContext.waitForEvent('backgroundpage')
     // const backgroundPage = browserContext.backgroundPages()[0];
-    const url = backgroundPage.url()
-    const [, , extensionId] = url.split('/')
-    extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
     page = await browserContext.pages()[0]
   })
 
@@ -33,6 +38,7 @@ describe('The Extension page should', () => {
   })
 
   beforeEach(async () => {
+    console.log({ extensionURL })
     await page.waitForTimeout(1000)
   })
 
