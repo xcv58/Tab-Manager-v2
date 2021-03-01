@@ -28,6 +28,9 @@ describe('The Extension page should', () => {
     // const backgroundPage = await browserContext.waitForEvent('backgroundpage')
     // const backgroundPage = browserContext.backgroundPages()[0];
     page = await browserContext.pages()[0]
+    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1000)
+    await page.waitForTimeout(1000)
   })
 
   afterAll(async () => {
