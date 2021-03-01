@@ -1,4 +1,4 @@
-import { chromium, ChromiumBrowserContext } from 'playwright'
+import { chromium, ChromiumBrowserContext, Page } from 'playwright'
 import { join } from 'path'
 
 export const EXTENSION_PATH = join(__dirname, '../../build_chrome')
@@ -24,9 +24,10 @@ export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
   }
 }
 
-export const initBrowserContext = () => {
+export const initBrowserWithExtension = async () => {
   const userDataDir = `/tmp/test-user-data-${Math.random()}`
-  return chromium.launchPersistentContext(userDataDir, {
+  let extensionURL: string
+  const browserContext = (await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     args: [
       // Follow suggestions on https://playwright.dev/docs/ci#docker
@@ -35,7 +36,40 @@ export const initBrowserContext = () => {
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
     ],
-  })
+  })) as ChromiumBrowserContext
+
+  /**
+   * The background page is useful to retrieve the extension id so that we
+   * could programatically open the extension page.
+   *
+   * There is uncertain timing of backgroundPages. Sometimes the
+   * `browserContext.backgroundPages()` will return empty at the beginning,
+   * so we have to rely on the `browserContext.on('backgroundpage')` to get
+   * the background page. But sometimes the 'backgroundpage' would never be
+   * triggered and the `browserContext.backgroundPages()` would give an array
+   * with the existing background page.
+   */
+  const setExtensionURL = (backgroundPage: Page) => {
+    const url = backgroundPage.url()
+    const [, , extensionId] = url.split('/')
+    extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
+    console.log('browserContext.on backgroundpage', { extensionURL })
+  }
+
+  browserContext.on('backgroundpage', setExtensionURL)
+  const backgroundPages = browserContext.backgroundPages()
+  if (backgroundPages.length) {
+    setExtensionURL(backgroundPages[0])
+  }
+  const page = await browserContext.newPage()
+  await page.bringToFront()
+  for (const x in [...Array(100)]) {
+    if (extensionURL || x) {
+      break
+    }
+    await page.waitForTimeout(100)
+  }
+  return { browserContext, extensionURL }
 }
 
 export const openPages = async (

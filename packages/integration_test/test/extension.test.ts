@@ -5,7 +5,7 @@ import {
   URLS,
   isExtensionURL,
   CLOSE_PAGES,
-  initBrowserContext,
+  initBrowserWithExtension,
   openPages,
 } from '../util'
 import expect from 'expect'
@@ -14,41 +14,12 @@ let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
-const setExtensionURL = (backgroundPage: Page) => {
-  const url = backgroundPage.url()
-  const [, , extensionId] = url.split('/')
-  extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
-  console.log('browserContext.on backgroundpage', { extensionURL })
-}
-
 describe('The Extension page should', () => {
   beforeAll(async () => {
-    browserContext = (await initBrowserContext()) as ChromiumBrowserContext
-    /**
-     * The background page is useful to retrieve the extension id so that we
-     * could programatically open the extension page.
-     *
-     * There is uncertain timing of backgroundPages. Sometimes the
-     * `browserContext.backgroundPages()` will return empty at the beginning,
-     * so we have to rely on the `browserContext.on('backgroundpage')` to get
-     * the background page. But sometimes the 'backgroundpage' would never be
-     * triggered and the `browserContext.backgroundPages()` would give an array
-     * with the existing background page.
-     */
-    browserContext.on('backgroundpage', setExtensionURL)
-    const backgroundPages = browserContext.backgroundPages()
-    if (backgroundPages.length) {
-      setExtensionURL(backgroundPages[0])
-    }
-    await openPages(browserContext, URLS)
-    page = await browserContext.pages()[0]
-    await page.bringToFront()
-    for (const x in [...Array(100)]) {
-      if (extensionURL || x) {
-        break
-      }
-      await page.waitForTimeout(100)
-    }
+    const init = await initBrowserWithExtension()
+    browserContext = init.browserContext
+    extensionURL = init.extensionURL
+    page = browserContext.pages()[0]
   })
 
   afterAll(async () => {
