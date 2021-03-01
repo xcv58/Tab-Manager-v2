@@ -22,6 +22,7 @@ describe('The Extension page should', () => {
       extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
     })
     page = await browserContext.pages()[0]
+    await page.waitForTimeout(2000)
   })
 
   afterAll(async () => {

@@ -63,7 +63,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-${{ matrix.node }}
       - name: install
-        run: yarn install --ignore-scripts --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       # Test and Build
       - run: yarn build
