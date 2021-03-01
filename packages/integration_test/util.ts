@@ -79,7 +79,7 @@ export const openPages = async (
   return await Promise.all(
     urls.map(async (url) => {
       const newPage = await browserContext.newPage()
-      await newPage.goto(url)
+      return await newPage.goto(url)
     })
   )
 }
