@@ -29,6 +29,9 @@ export const initBrowserContext = async () => {
   return (await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     args: [
+      // Follow suggestions on https://playwright.dev/docs/ci#docker
+      '--disable-dev-shm-usage',
+      '--ipc=host',
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
     ],
