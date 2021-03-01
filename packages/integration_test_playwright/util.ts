@@ -24,9 +24,9 @@ export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
   }
 }
 
-export const initBrowserContext = async () => {
+export const initBrowserContext = () => {
   const userDataDir = `/tmp/test-user-data-${Math.random()}`
-  return (await chromium.launchPersistentContext(userDataDir, {
+  return chromium.launchPersistentContext(userDataDir, {
     headless: false,
     args: [
       // Follow suggestions on https://playwright.dev/docs/ci#docker
@@ -35,7 +35,7 @@ export const initBrowserContext = async () => {
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
     ],
-  })) as ChromiumBrowserContext
+  }) as Promise<ChromiumBrowserContext>
 }
 
 export const openPages = async (

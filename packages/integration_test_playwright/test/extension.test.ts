@@ -18,6 +18,7 @@ describe('The Extension page should', () => {
   beforeAll(async () => {
     browserContext = await initBrowserContext()
     const backgroundPage = await browserContext.waitForEvent('backgroundpage')
+    // const backgroundPage = browserContext.backgroundPages()[0];
     const url = backgroundPage.url()
     const [, , extensionId] = url.split('/')
     extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
