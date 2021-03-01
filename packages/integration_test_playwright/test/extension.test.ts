@@ -17,18 +17,11 @@ let extensionURL: string
 describe('The Extension page should', () => {
   beforeAll(async () => {
     browserContext = await initBrowserContext()
-    browserContext.on('backgroundpage', (page) => {
-      const url = page.url()
-      const [, , extensionId] = url.split('/')
-      extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
-    })
+    const backgroundPage = await browserContext.waitForEvent('backgroundpage')
+    const url = backgroundPage.url()
+    const [, , extensionId] = url.split('/')
+    extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
     page = await browserContext.pages()[0]
-    // Warm up
-    await openPages(browserContext, URLS)
-    await openPages(browserContext, URLS)
-    await openPages(browserContext, URLS)
-    await openPages(browserContext, URLS)
-    await page.waitForTimeout(1000)
   })
 
   afterAll(async () => {
