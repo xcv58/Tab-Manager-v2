@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
         node: [14.x, 15.x]
 
     steps:
@@ -43,7 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest]
         node: [14.x, 15.x]
 
     steps:
@@ -72,4 +70,3 @@ jobs:
       - uses: microsoft/playwright-github-action@v1
       - name: Integration Test
         run: xvfb-run --auto-servernum -- yarn workspace integration-test-playwright test
-
