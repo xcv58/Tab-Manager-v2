@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-          os: [ubuntu-latest]
-          node: [14.x, 15.x]
+        os: [ubuntu-latest]
+        node: [14.x, 15.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -43,8 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-          os: [ubuntu-latest]
-          node: [14.1.0]
+        os: [ubuntu-latest]
+        node: [14.x, 15.x]
 
     steps:
       - uses: actions/checkout@v2
