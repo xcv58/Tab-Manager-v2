@@ -54,7 +54,7 @@ describe('The Extension page should', () => {
 
     await openPages(
       browserContext,
-      [...Array(10)].map((_) => 'https://google.com')
+      [...Array(10)].map((_) => 'https://duckduckgo.com')
     )
     await page.bringToFront()
     tabs = await page.$$(TAB_QUERY)
@@ -77,17 +77,23 @@ describe('The Extension page should', () => {
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((tab) => !isExtensionURL(tab))).toEqual([
-      'https://www.google.com/',
-      'https://github.com/',
-      'https://www.google.com/',
+      'https://twitter.com/',
+      'http://xcv58.com/',
+      'https://nextjs.org/',
+      'https://twitter.com/',
+      'https://duckduckgo.com/',
     ])
     const pages = await browserContext.pages()
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
-    expect(urls.filter((x) => !isExtensionURL(x))).toEqual([
-      'https://www.google.com/',
-      'https://github.com/',
-      'https://www.google.com/',
-    ])
+    expect(new Set(urls.filter((x) => !isExtensionURL(x)))).toEqual(
+      new Set([
+        'https://twitter.com/',
+        'http://xcv58.com/',
+        'https://nextjs.org/',
+        'https://twitter.com/',
+        'https://duckduckgo.com/',
+      ])
+    )
     expect(pages).toHaveLength(URLS.length + 1)
     const sortTabsButton = await page.$('button[title="Sort tabs"]')
     await sortTabsButton.click()
@@ -98,9 +104,11 @@ describe('The Extension page should', () => {
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((x) => !isExtensionURL(x))).toEqual([
-      'https://github.com/',
-      'https://www.google.com/',
-      'https://www.google.com/',
+      'http://xcv58.com/',
+      'https://duckduckgo.com/',
+      'https://nextjs.org/',
+      'https://twitter.com/',
+      'https://twitter.com/',
     ])
   })
 
