@@ -54,7 +54,7 @@ describe('The Extension page should', () => {
 
     await openPages(
       browserContext,
-      [...Array(10)].map((_) => 'https://google.com')
+      [...Array(10)].map((_) => 'https://duckduckgo.com')
     )
     await page.bringToFront()
     tabs = await page.$$(TAB_QUERY)
@@ -77,19 +77,19 @@ describe('The Extension page should', () => {
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((tab) => !isExtensionURL(tab))).toEqual([
-      'https://www.google.com/',
+      'https://twitter.com/',
       'http://xcv58.com/',
-      'https://bitcoin.org/en/',
-      'https://www.google.com/',
+      'https://nextjs.org/',
+      'https://twitter.com/',
       'https://duckduckgo.com/',
     ])
     const pages = await browserContext.pages()
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
     expect(urls.filter((x) => !isExtensionURL(x))).toEqual([
-      'https://www.google.com/',
+      'https://twitter.com/',
       'http://xcv58.com/',
-      'https://bitcoin.org/en/',
-      'https://www.google.com/',
+      'https://nextjs.org/',
+      'https://twitter.com/',
       'https://duckduckgo.com/',
     ])
     expect(pages).toHaveLength(URLS.length + 1)
@@ -103,10 +103,10 @@ describe('The Extension page should', () => {
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((x) => !isExtensionURL(x))).toEqual([
       'http://xcv58.com/',
-      'https://bitcoin.org/en/',
       'https://duckduckgo.com/',
-      'https://www.google.com/',
-      'https://www.google.com/',
+      'https://nextjs.org/',
+      'https://twitter.com/',
+      'https://twitter.com/',
     ])
   })
 

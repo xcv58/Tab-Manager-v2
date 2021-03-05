@@ -6,10 +6,10 @@ export const EXTENSION_PATH = join(__dirname, '../../build_chrome')
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 
 export const URLS = [
-  'https://www.google.com/',
+  'https://twitter.com/',
   'http://xcv58.com/',
-  'https://bitcoin.org/',
-  'https://www.google.com/',
+  'https://nextjs.org/',
+  'https://twitter.com/',
   'http://duckduckgo.com/',
 ]
 
