@@ -85,13 +85,15 @@ describe('The Extension page should', () => {
     ])
     const pages = await browserContext.pages()
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
-    expect(urls.filter((x) => !isExtensionURL(x))).toEqual([
-      'https://twitter.com/',
-      'http://xcv58.com/',
-      'https://nextjs.org/',
-      'https://twitter.com/',
-      'https://duckduckgo.com/',
-    ])
+    expect(new Set(urls.filter((x) => !isExtensionURL(x)))).toEqual(
+      new Set([
+        'https://twitter.com/',
+        'http://xcv58.com/',
+        'https://nextjs.org/',
+        'https://twitter.com/',
+        'https://duckduckgo.com/',
+      ])
+    )
     expect(pages).toHaveLength(URLS.length + 1)
     const sortTabsButton = await page.$('button[title="Sort tabs"]')
     await sortTabsButton.click()
