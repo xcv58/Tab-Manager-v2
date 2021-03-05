@@ -8,9 +8,9 @@ export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const URLS = [
   'https://www.google.com/',
   'http://xcv58.com/',
-  'https://www.gatsbyjs.com/',
   'https://bitcoin.org/',
   'https://www.google.com/',
+  'http://duckduckgo.com/',
 ]
 
 export const isExtensionURL = (url: string) =>
