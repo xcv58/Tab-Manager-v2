@@ -78,14 +78,18 @@ describe('The Extension page should', () => {
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((tab) => !isExtensionURL(tab))).toEqual([
       'https://www.google.com/',
-      'https://github.com/',
+      'http://xcv58.com/',
+      'https://www.gatsbyjs.com/',
+      'https://bitcoin.org/en/',
       'https://www.google.com/',
     ])
     const pages = await browserContext.pages()
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
     expect(urls.filter((x) => !isExtensionURL(x))).toEqual([
       'https://www.google.com/',
-      'https://github.com/',
+      'http://xcv58.com/',
+      'https://www.gatsbyjs.com/',
+      'https://bitcoin.org/en/',
       'https://www.google.com/',
     ])
     expect(pages).toHaveLength(URLS.length + 1)
@@ -98,7 +102,9 @@ describe('The Extension page should', () => {
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((x) => !isExtensionURL(x))).toEqual([
-      'https://github.com/',
+      'http://xcv58.com/',
+      'https://bitcoin.org/en/',
+      'https://www.gatsbyjs.com/',
       'https://www.google.com/',
       'https://www.google.com/',
     ])

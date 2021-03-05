@@ -7,7 +7,9 @@ export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 
 export const URLS = [
   'https://www.google.com/',
-  'https://github.com/',
+  'http://xcv58.com/',
+  'https://www.gatsbyjs.com/',
+  'https://bitcoin.org/',
   'https://www.google.com/',
 ]
 
@@ -53,7 +55,6 @@ export const initBrowserWithExtension = async () => {
     const url = backgroundPage.url()
     const [, , extensionId] = url.split('/')
     extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
-    console.log('browserContext.on backgroundpage', { extensionURL })
   }
 
   browserContext.on('backgroundpage', setExtensionURL)
@@ -63,11 +64,11 @@ export const initBrowserWithExtension = async () => {
   }
   const page = await browserContext.newPage()
   await page.bringToFront()
-  for (const x in [...Array(100)]) {
+  for (const x in [...Array(10)]) {
     if (extensionURL || x) {
       break
     }
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(10)
   }
   return { browserContext, extensionURL }
 }
