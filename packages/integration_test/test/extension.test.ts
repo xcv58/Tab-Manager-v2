@@ -14,6 +14,16 @@ let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
+const getCenterOfRect = (rect: {
+  top: number
+  bottom: number
+  left: number
+  right: number
+}) => {
+  const { top, bottom, left, right } = rect
+  return [(left + right) / 2, (top + bottom) / 2]
+}
+
 describe('The Extension page should', () => {
   beforeAll(async () => {
     const init = await initBrowserWithExtension()
@@ -142,5 +152,35 @@ describe('The Extension page should', () => {
 
     tabs = await page.$$(TAB_QUERY)
     expect(tabs.length).toBe(pages.length - 3)
+  })
+
+  it('support drag and drop to reorder tabs', async () => {
+    await page.goto(extensionURL)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    const tabs = await page.$$(TAB_QUERY)
+    const pages = await browserContext.pages()
+    expect(tabs.length).toBe(pages.length)
+    const lastTab = tabs[tabs.length - 2]
+    const rect = await lastTab.evaluate((node) => {
+      const { top, bottom, left, right } = node.getBoundingClientRect()
+      return { top, bottom, left, right }
+    })
+    const [x, y] = getCenterOfRect(rect)
+    await page.mouse.move(x, y, { steps: 10 })
+    const innerHTMLRect = await lastTab.$eval('div.flex > button', (node) => {
+      const { top, bottom, left, right } = node.getBoundingClientRect()
+      return { top, bottom, left, right }
+    })
+    const [xx, yy] = getCenterOfRect(innerHTMLRect)
+    await page.mouse.move(xx, yy)
+    await page.mouse.down()
+    // Playwright triggers the drag effect but it wouldn't move the cursor.
+    await page.mouse.move(100, 20, { steps: 5 })
+    const droppableToolSelector = '.bg-green-300.z-10.h-12.px-1.text-3xl'
+    expect(
+      await page.$eval(droppableToolSelector, (node) => node.innerText)
+    ).toBe('Drop here to open in New Window')
+    await page.mouse.up()
   })
 })
