@@ -92,6 +92,8 @@ describe('The Extension page should', () => {
     expect(tabs).toHaveLength(1)
     await openPages(browserContext, URLS)
     await page.bringToFront()
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText)
@@ -131,8 +133,6 @@ describe('The Extension page should', () => {
       'https://twitter.com/',
       'https://twitter.com/',
     ])
-    const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('close tab when click close button', async () => {
