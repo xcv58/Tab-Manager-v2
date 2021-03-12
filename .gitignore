@@ -11,3 +11,4 @@ yarn-error.log
 .env
 
 storybook-static
+typings.d.ts

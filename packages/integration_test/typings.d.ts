@@ -1,4 +1,9 @@
-declare module '*.json' {
-  const value: any
-  export default value
+import 'jest';
+
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toMatchImageSnapshot(): R
+    }
+  }
 }
