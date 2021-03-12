@@ -15,7 +15,8 @@ import {
 
 expect.extend({ toMatchImageSnapshot })
 
-const imageMatchOption: MatchImageSnapshotOptions = {
+const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
+  updatePassedSnapshot: true,
   failureThreshold: 0.1,
   failureThresholdType: 'percent',
 }
@@ -131,7 +132,7 @@ describe('The Extension page should', () => {
       'https://twitter.com/',
     ])
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(imageMatchOption)
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('close tab when click close button', async () => {
@@ -195,6 +196,6 @@ describe('The Extension page should', () => {
       await page.$eval(droppableToolSelector, (node) => node.innerText)
     ).toBe('Drop here to open in New Window')
     await page.mouse.up()
-    expect(screenshot).toMatchImageSnapshot(imageMatchOption)
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 })
