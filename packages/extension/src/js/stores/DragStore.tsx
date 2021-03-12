@@ -27,6 +27,7 @@ export default class DragStore {
     tab.unhover()
     this.dragging = true
     this.store.tabStore.selection.set(tab.id, tab)
+    return this.store.tabStore.selection
   }
 
   dragEnd = () => {
