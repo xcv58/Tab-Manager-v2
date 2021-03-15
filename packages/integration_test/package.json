@@ -8,7 +8,9 @@
   },
   "devDependencies": {
     "@types/jest": "26.0.20",
+    "@types/jest-image-snapshot": "^4.3.0",
     "jest": "26.6.3",
+    "jest-image-snapshot": "^4.4.0",
     "jest-playwright-preset": "1.5.1",
     "playwright": "1.9.2",
     "ts-jest": "26.5.3",
