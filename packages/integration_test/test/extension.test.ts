@@ -17,7 +17,7 @@ expect.extend({ toMatchImageSnapshot })
 
 const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
   updatePassedSnapshot: true,
-  failureThreshold: 0.1,
+  failureThreshold: 0.05,
   failureThresholdType: 'percent',
 }
 
@@ -52,8 +52,9 @@ describe('The Extension page should', () => {
 
   beforeEach(async () => {
     console.log({ extensionURL })
-    await page.waitForTimeout(1000)
     await page.bringToFront()
+    await page.goto(extensionURL)
+    await page.waitForTimeout(1000)
   })
 
   afterEach(async () => {
@@ -75,7 +76,7 @@ describe('The Extension page should', () => {
 
     await openPages(
       browserContext,
-      [...Array(10)].map((_) => 'https://duckduckgo.com')
+      [...Array(N)].map((_) => 'https://ops-class.org/')
     )
     await page.bringToFront()
     tabs = await page.$$(TAB_QUERY)
@@ -93,16 +94,24 @@ describe('The Extension page should', () => {
     expect(wins).toHaveLength(1)
     const tabs = await page.$$(TAB_QUERY)
     expect(tabs).toHaveLength(1)
+    await page.goto(extensionURL.replace('not_popup=1', ''))
 
+    await openPages(browserContext, URLS)
     await openPages(
       browserContext,
-      [...Array(10)].map((_) => 'https://duckduckgo.com')
+      [...Array(10)].map((_) => 'https://ops-class.org/')
     )
-    await openPages(browserContext, URLS)
     await page.bringToFront()
-    page.goto(extensionURL.replace('not_popup=1', ''))
-    const screenshot = await page.screenshot()
+    const inputSelector = 'input[type="text"]'
+    await page.waitForSelector(inputSelector)
+    let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, 'xcv58')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, '')
   })
 
   it('sort the tabs', async () => {
@@ -112,7 +121,7 @@ describe('The Extension page should', () => {
     expect(tabs).toHaveLength(1)
     await openPages(browserContext, URLS)
     await page.bringToFront()
-    const screenshot = await page.screenshot()
+    let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
@@ -125,6 +134,7 @@ describe('The Extension page should', () => {
       'https://nextjs.org/',
       'https://twitter.com/',
       'https://duckduckgo.com/',
+      'https://ops-class.org/',
     ])
     const pages = await browserContext.pages()
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
@@ -135,6 +145,7 @@ describe('The Extension page should', () => {
         'https://nextjs.org/',
         'https://twitter.com/',
         'https://duckduckgo.com/',
+        'https://ops-class.org/',
       ])
     )
     expect(pages).toHaveLength(URLS.length + 1)
@@ -150,9 +161,12 @@ describe('The Extension page should', () => {
       'http://xcv58.com/',
       'https://duckduckgo.com/',
       'https://nextjs.org/',
+      'https://ops-class.org/',
       'https://twitter.com/',
       'https://twitter.com/',
     ])
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('close tab when click close button', async () => {
@@ -194,7 +208,7 @@ describe('The Extension page should', () => {
     const tabs = await page.$$(TAB_QUERY)
     const pages = await browserContext.pages()
     expect(tabs.length).toBe(pages.length)
-    const lastTab = tabs[tabs.length - 2]
+    const lastTab = tabs[tabs.length - 1]
     const rect = await lastTab.evaluate((node) => {
       const { top, bottom, left, right } = node.getBoundingClientRect()
       return { top, bottom, left, right }
@@ -211,11 +225,11 @@ describe('The Extension page should', () => {
     // Playwright triggers the drag effect but it wouldn't move the cursor.
     await page.mouse.move(100, 20, { steps: 5 })
     const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
     const droppableToolSelector = '.bg-green-300.z-10.h-12.px-1.text-3xl'
     expect(
       await page.$eval(droppableToolSelector, (node) => node.innerText)
     ).toBe('Drop here to open in New Window')
     await page.mouse.up()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 })

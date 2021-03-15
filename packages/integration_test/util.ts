@@ -11,6 +11,7 @@ export const URLS = [
   'https://nextjs.org/',
   'https://twitter.com/',
   'http://duckduckgo.com/',
+  'https://ops-class.org/',
 ]
 
 export const isExtensionURL = (url: string) =>
