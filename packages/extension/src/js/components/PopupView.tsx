@@ -6,6 +6,7 @@ import ThemeToggle from 'components/ThemeToggle'
 import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
+import { openOrTogglePopup } from 'libs'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -22,7 +23,13 @@ export default observer(() => {
         <Summary />
         <AutocompleteSearch autoFocus open />
       </div>
-      <div className="absolute bottom-0 right-0 flex">
+      <div className="absolute bottom-0 flex items-center justify-end w-full ">
+        <button
+          className="absolute bottom-0 left-0 right-0 p-2 mx-auto opacity-50 hover:opacity-100"
+          onClick={openOrTogglePopup}
+        >
+          Open full feature mode
+        </button>
         <ThemeToggle />
         <OpenInTab />
       </div>

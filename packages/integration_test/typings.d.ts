@@ -1,4 +1,4 @@
-import 'jest';
+import 'jest'
 
 declare global {
   namespace jest {
