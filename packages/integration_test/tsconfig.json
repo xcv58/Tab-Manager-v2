@@ -3,6 +3,7 @@
     "lib": ["es2018"],
     "types": ["jasmine", "jest"],
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
     "noImplicitAny": true,
     "module": "es6",

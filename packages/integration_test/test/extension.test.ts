@@ -1,4 +1,8 @@
 import { Page, ChromiumBrowserContext } from 'playwright'
+import {
+  toMatchImageSnapshot,
+  MatchImageSnapshotOptions,
+} from 'jest-image-snapshot'
 import manifest from '../../extension/src/manifest.json'
 import {
   TAB_QUERY,
@@ -8,7 +12,14 @@ import {
   initBrowserWithExtension,
   openPages,
 } from '../util'
-import expect from 'expect'
+
+expect.extend({ toMatchImageSnapshot })
+
+const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
+  updatePassedSnapshot: true,
+  failureThreshold: 0.1,
+  failureThresholdType: 'percent',
+}
 
 let page: Page
 let browserContext: ChromiumBrowserContext
@@ -72,6 +83,26 @@ describe('The Extension page should', () => {
     const pages = await browserContext.pages()
     expect(pages).toHaveLength(N + 1)
     await page.bringToFront()
+    const image = await page.screenshot()
+
+    expect(image).toMatchImageSnapshot()
+  })
+
+  it('render popup mode based on URL query', async () => {
+    const wins = await page.$$('.shadow-2xl,.shadow-sm')
+    expect(wins).toHaveLength(1)
+    const tabs = await page.$$(TAB_QUERY)
+    expect(tabs).toHaveLength(1)
+
+    await openPages(
+      browserContext,
+      [...Array(10)].map((_) => 'https://duckduckgo.com')
+    )
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    page.goto(extensionURL.replace('not_popup=1', ''))
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('sort the tabs', async () => {

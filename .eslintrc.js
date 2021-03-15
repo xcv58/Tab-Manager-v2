@@ -14,6 +14,7 @@ module.exports = {
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     'jest/no-disabled-tests': 'off',
+    'jest/no-jest-import': 'off',
     '@typescript-eslint/no-unused-vars': [2, { argsIgnorePattern: '^_' }],
   },
   globals: {
