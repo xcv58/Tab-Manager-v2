@@ -25,7 +25,7 @@ export default observer(() => {
       </div>
       <div className="absolute bottom-0 flex items-center justify-end w-full ">
         <button
-          className="absolute bottom-0 left-0 right-0 p-2 mx-auto opacity-75 hover:opacity-100"
+          className="absolute bottom-0 left-0 right-0 p-2 mx-auto opacity-50 hover:opacity-100"
           onClick={openOrTogglePopup}
         >
           Open full feature mode

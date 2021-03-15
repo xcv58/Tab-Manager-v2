@@ -52,7 +52,7 @@ describe('The Extension page should', () => {
 
   beforeEach(async () => {
     if (!extensionURL) {
-      console.error('Invalid extensionURL ', { extensionURL })
+      console.error('Invalid extensionURL', { extensionURL })
     }
     await page.bringToFront()
     await page.goto(extensionURL)
