@@ -85,7 +85,6 @@ describe('The Extension page should', () => {
     expect(pages).toHaveLength(N + 1)
     await page.bringToFront()
     const image = await page.screenshot()
-
     expect(image).toMatchImageSnapshot()
   })
 
