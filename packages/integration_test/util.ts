@@ -65,11 +65,11 @@ export const initBrowserWithExtension = async () => {
   }
   const page = await browserContext.newPage()
   await page.bringToFront()
-  for (const x in [...Array(10)]) {
+  for (const x in [...Array(100)]) {
     if (extensionURL || x) {
       break
     }
-    await page.waitForTimeout(10)
+    await page.waitForTimeout(1000)
   }
   return { browserContext, extensionURL }
 }
