@@ -1,7 +1,7 @@
 import { Page, ChromiumBrowserContext } from 'playwright'
 import {
-  toMatchImageSnapshot,
   MatchImageSnapshotOptions,
+  toMatchImageSnapshot,
 } from 'jest-image-snapshot'
 import manifest from '../../extension/src/manifest.json'
 import {
@@ -112,6 +112,8 @@ describe('The Extension page should', () => {
     expect(tabs).toHaveLength(1)
     await openPages(browserContext, URLS)
     await page.bringToFront()
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText)
@@ -208,10 +210,12 @@ describe('The Extension page should', () => {
     await page.mouse.down()
     // Playwright triggers the drag effect but it wouldn't move the cursor.
     await page.mouse.move(100, 20, { steps: 5 })
+    const screenshot = await page.screenshot()
     const droppableToolSelector = '.bg-green-300.z-10.h-12.px-1.text-3xl'
     expect(
       await page.$eval(droppableToolSelector, (node) => node.innerText)
     ).toBe('Drop here to open in New Window')
     await page.mouse.up()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 })
