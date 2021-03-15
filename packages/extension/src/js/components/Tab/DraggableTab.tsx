@@ -12,11 +12,9 @@ export default observer((props: TabProps) => {
   const { tab } = props
   const { dragStore } = useStore()
   const [dragProps, drag, connectDragPreview] = useDrag({
-    item: { type: ItemTypes.TAB },
+    type: ItemTypes.TAB,
     canDrag: true,
-    begin: () => {
-      dragStore.dragStart(tab)
-    },
+    item: () => dragStore.dragStart(tab),
     end: () => {
       dragStore.dragEnd()
     },

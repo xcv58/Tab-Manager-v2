@@ -38,8 +38,8 @@
     "postcss": "8.2.8",
     "react": "17.0.1",
     "react-command-palette": "0.14.0",
-    "react-dnd": "13.1.1",
-    "react-dnd-html5-backend": "12.1.1",
+    "react-dnd": "14.0.1",
+    "react-dnd-html5-backend": "14.0.0",
     "react-dom": "17.0.1",
     "react-resize-detector": "6.6.3",
     "react-router-dom": "5.2.0",
@@ -101,7 +101,7 @@
     "ts-jest": "26.5.3",
     "ts-loader": "8.0.18",
     "typescript": "4.2.3",
-    "webpack": "5.24.4",
+    "webpack": "5.25.1",
     "webpack-bundle-analyzer": "4.4.0",
     "webpack-dev-server": "3.11.2"
   }
