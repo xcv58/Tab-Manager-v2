@@ -17385,10 +17385,10 @@ webpack-virtual-modules@^0.2.2:
   dependencies:
     debug "^3.0.0"
 
-webpack@5.25.1, webpack@^5.4.0:
-  version "5.25.1"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.25.1.tgz#d3564440ed2569253fa45864405a313916bef6f6"
-  integrity sha512-dzFTJwehoLZkeHUkvMSwAgVdGL+PerfX0mke9tOWjJs4OzFctkxCqD8Zj5J387jLkC4gNqSin0/EurhH28boCg==
+webpack@5.26.0:
+  version "5.26.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.26.0.tgz#269841ed7b5c6522221aa27f7efceda04c8916d7"
+  integrity sha512-9kQATUOGQBkqzNKFmFON4KXZDsXnE7xk58tBxca8aCi+6/QhAbmWIvtGqBL66XIsBFpomFH0/0KyCaySo0ta2g==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.46"
@@ -17442,6 +17442,35 @@ webpack@^4.44.2:
     terser-webpack-plugin "^1.4.3"
     watchpack "^1.7.4"
     webpack-sources "^1.4.1"
+
+webpack@^5.4.0:
+  version "5.25.1"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.25.1.tgz#d3564440ed2569253fa45864405a313916bef6f6"
+  integrity sha512-dzFTJwehoLZkeHUkvMSwAgVdGL+PerfX0mke9tOWjJs4OzFctkxCqD8Zj5J387jLkC4gNqSin0/EurhH28boCg==
+  dependencies:
+    "@types/eslint-scope" "^3.7.0"
+    "@types/estree" "^0.0.46"
+    "@webassemblyjs/ast" "1.11.0"
+    "@webassemblyjs/wasm-edit" "1.11.0"
+    "@webassemblyjs/wasm-parser" "1.11.0"
+    acorn "^8.0.4"
+    browserslist "^4.14.5"
+    chrome-trace-event "^1.0.2"
+    enhanced-resolve "^5.7.0"
+    es-module-lexer "^0.4.0"
+    eslint-scope "^5.1.1"
+    events "^3.2.0"
+    glob-to-regexp "^0.4.1"
+    graceful-fs "^4.2.4"
+    json-parse-better-errors "^1.0.2"
+    loader-runner "^4.2.0"
+    mime-types "^2.1.27"
+    neo-async "^2.6.2"
+    schema-utils "^3.0.0"
+    tapable "^2.1.1"
+    terser-webpack-plugin "^5.1.1"
+    watchpack "^2.0.0"
+    webpack-sources "^2.1.1"
 
 websocket-driver@>=0.5.1, websocket-driver@^0.7.4:
   version "0.7.4"
