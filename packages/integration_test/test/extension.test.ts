@@ -17,7 +17,7 @@ expect.extend({ toMatchImageSnapshot })
 
 const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
   updatePassedSnapshot: true,
-  failureThreshold: 0.2,
+  failureThreshold: 0.1,
   failureThresholdType: 'percent',
 }
 
@@ -84,8 +84,8 @@ describe('The Extension page should', () => {
     const pages = await browserContext.pages()
     expect(pages).toHaveLength(N + 1)
     await page.bringToFront()
-    const image = await page.screenshot()
-    expect(image).toMatchImageSnapshot()
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('render popup mode based on URL query', async () => {
