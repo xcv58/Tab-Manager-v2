@@ -106,6 +106,7 @@ describe('The Extension page should', () => {
     await page.bringToFront()
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
+    await page.waitForTimeout(500)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
