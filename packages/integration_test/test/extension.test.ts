@@ -204,6 +204,32 @@ describe('The Extension page should', () => {
     expect(tabs.length).toBe(pages.length - 3)
   })
 
+  it('support font size change', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    await page.keyboard.press('Control+,')
+    await page.waitForSelector('[aria-labelledby="update-font-size"]')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    const minFontSize = (
+      await page.$$('span[data-index="0"].MuiSlider-mark')
+    )[1]
+    await minFontSize.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    const largeFontSize = (
+      await page.$$('span[data-index="15"].MuiSlider-mark')
+    )[1]
+    await largeFontSize.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+  })
+
   it('support drag and drop to reorder tabs', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
@@ -232,32 +258,6 @@ describe('The Extension page should', () => {
       await page.$eval(droppableToolSelector, (node) => node.innerText)
     ).toBe('Drop here to open in New Window')
     await page.mouse.up()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
-  })
-
-  it('support font size change', async () => {
-    await openPages(browserContext, URLS)
-    await page.bringToFront()
-    let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
-    await page.keyboard.press('Control+,')
-    await page.waitForSelector('[aria-labelledby="update-font-size"]')
-    screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
-    const minFontSize = (
-      await page.$$('span[data-index="0"].MuiSlider-mark')
-    )[1]
-    await minFontSize.click()
-    await page.waitForTimeout(500)
-    screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
-
-    const largeFontSize = (
-      await page.$$('span[data-index="15"].MuiSlider-mark')
-    )[1]
-    await largeFontSize.click()
-    await page.waitForTimeout(500)
-    screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 })
