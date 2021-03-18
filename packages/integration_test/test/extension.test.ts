@@ -210,6 +210,7 @@ describe('The Extension page should', () => {
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
     await page.keyboard.press('Control+,')
+    await page.waitForTimeout(500)
     await page.waitForSelector('[aria-labelledby="update-font-size"]')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
