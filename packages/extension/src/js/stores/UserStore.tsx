@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   darkTheme: false,
   tabWidth: 20,
   showTabIcon: true,
+  fontSize: 14,
 }
 
 const SYSTEM = 'system'
@@ -45,6 +46,7 @@ export default class UserStore {
       tabWidth: observable,
       showTabIcon: observable,
       ignoreHash: observable,
+      fontSize: observable,
       theme: computed,
       selectTheme: action,
       selectNextTheme: action,
@@ -93,6 +95,7 @@ export default class UserStore {
   useSystemTheme = true
   darkTheme = false
   tabWidth = 20
+  fontSize = 14
   showTabIcon = true
   dialogOpen = false
   toolbarVisible = true
@@ -190,6 +193,11 @@ export default class UserStore {
 
   updateTabWidth = (tabWidth: number) => {
     this.tabWidth = tabWidth
+    this.save()
+  }
+
+  updateFontSize = (fontSize: number) => {
+    this.fontSize = fontSize
     this.save()
   }
 

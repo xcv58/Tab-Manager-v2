@@ -16,7 +16,7 @@ export default observer((props: TabProps) => {
     return null
   }
   return (
-    <div className="flex">
+    <div className="flex items-center">
       <DragHandle />
       <TabMenu {...props} />
     </div>
