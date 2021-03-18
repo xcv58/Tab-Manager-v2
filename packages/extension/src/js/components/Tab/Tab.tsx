@@ -71,7 +71,7 @@ export default observer((props: TabProps & { className?: string }) => {
       tabIndex={-1}
       className={classNames(
         className,
-        'flex relative',
+        'flex relative items-center',
         {
           'opacity-25': !isMatched,
         },

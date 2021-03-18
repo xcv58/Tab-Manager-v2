@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
 import Dialog from '@material-ui/core/Dialog'
@@ -45,6 +45,8 @@ export default observer(() => {
     toggleAutoFocusSearch,
     tabWidth,
     updateTabWidth,
+    fontSize,
+    updateFontSize,
     showTabIcon,
     toggleShowTabIcon,
     theme,
@@ -52,6 +54,11 @@ export default observer(() => {
     ignoreHash,
     toggleIgnoreHash,
   } = userStore
+  useEffect(() => {
+    console.log(123)
+    console.log('test', document.getElementsByTagName('html')[0].style)
+    document.getElementsByTagName('html')[0].style.fontSize = `${fontSize}px`
+  }, [fontSize])
   const reduceMotion = useReduceMotion()
   return (
     <Dialog
@@ -125,17 +132,29 @@ export default observer(() => {
                 />
               }
             />
-            <FormLabel>Minimum Tab Width</FormLabel>
+            <FormLabel>Minimum Tab Width: `{tabWidth}rem`</FormLabel>
             <Slider
               defaultValue={tabWidth}
               step={1}
               min={15}
               max={50}
               marks
-              onChange={(_, value) => updateTabWidth(value)}
+              onChange={(_, value: number) => updateTabWidth(value)}
               valueLabelDisplay="auto"
               aria-labelledby="update-tab-width"
               aria-label="Update Tab Width"
+            />
+            <FormLabel>Font Size: `{fontSize}px`</FormLabel>
+            <Slider
+              defaultValue={fontSize}
+              step={1}
+              min={6}
+              max={36}
+              marks
+              onChange={(_, value: number) => updateFontSize(value)}
+              valueLabelDisplay="auto"
+              aria-labelledby="update-font-size"
+              aria-label="Update Font Size"
             />
             <Divider />
           </FormGroup>
