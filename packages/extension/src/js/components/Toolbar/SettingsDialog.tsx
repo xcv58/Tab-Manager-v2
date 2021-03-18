@@ -55,8 +55,6 @@ export default observer(() => {
     toggleIgnoreHash,
   } = userStore
   useEffect(() => {
-    console.log(123)
-    console.log('test', document.getElementsByTagName('html')[0].style)
     document.getElementsByTagName('html')[0].style.fontSize = `${fontSize}px`
   }, [fontSize])
   const reduceMotion = useReduceMotion()
