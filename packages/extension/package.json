@@ -55,7 +55,7 @@
     "@testing-library/react": "11.2.5",
     "@types/chrome": "0.0.133",
     "@types/classnames": "2.2.11",
-    "@types/jest": "26.0.20",
+    "@types/jest": "26.0.21",
     "@types/lodash.debounce": "4.0.6",
     "@types/match-sorter": "6.0.0",
     "@types/mousetrap": "1.6.5",
