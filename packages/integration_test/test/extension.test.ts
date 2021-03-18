@@ -228,6 +228,14 @@ describe('The Extension page should', () => {
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    const defaultFontSize = (
+      await page.$$('span[data-index="8"].MuiSlider-mark')
+    )[1]
+    await defaultFontSize.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('support drag and drop to reorder tabs', async () => {
