@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.15.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.14.3...v1.15.0) (2021-03-21)
+
+### Features
+
+- Add option to change font size ([#1059](https://github.com/xcv58/Tab-Manager-v2/issues/1059)) ([789493d](https://github.com/xcv58/Tab-Manager-v2/commit/789493d11373fd9bd9a5ab977f53b009db25a408))
+
+### Bug Fixes
+
+- **deps:** update dependency react-resize-detector to v6.6.4 ([#1062](https://github.com/xcv58/Tab-Manager-v2/issues/1062)) ([8d4861f](https://github.com/xcv58/Tab-Manager-v2/commit/8d4861f113b8675fc18ab69f4adab324ae3d73bd))
+- **deps:** update dependency tailwindcss to v2.0.4 ([#1058](https://github.com/xcv58/Tab-Manager-v2/issues/1058)) ([925a9cf](https://github.com/xcv58/Tab-Manager-v2/commit/925a9cf7fc849f71186aa77882d4eab32e5d0eef))
+
 ### [1.14.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.14.2...v1.14.3) (2021-03-17)
 
 ### Bug Fixes
