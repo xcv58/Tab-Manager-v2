@@ -38,7 +38,7 @@
     "postcss": "8.2.8",
     "react": "17.0.1",
     "react-command-palette": "0.14.0",
-    "react-dnd": "14.0.1",
+    "react-dnd": "14.0.2",
     "react-dnd-html5-backend": "14.0.0",
     "react-dom": "17.0.1",
     "react-resize-detector": "6.6.4",
