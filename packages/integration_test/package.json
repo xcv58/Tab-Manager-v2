@@ -14,7 +14,7 @@
     "jest-playwright-preset": "1.5.1",
     "playwright": "1.10.0",
     "ts-jest": "26.5.4",
-    "typescript": "4.2.3"
+    "typescript": "4.2.4"
   },
   "private": true
 }
