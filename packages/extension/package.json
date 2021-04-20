@@ -47,7 +47,7 @@
     "rebound": "0.1.0",
     "tailwindcss": "2.1.1",
     "use-system-theme": "0.1.1",
-    "webextension-polyfill": "0.7.0"
+    "webextension-polyfill": "0.8.0"
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
