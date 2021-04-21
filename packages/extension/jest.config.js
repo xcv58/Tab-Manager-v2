@@ -15,7 +15,8 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!(react-dnd|dnd-core))'],
   moduleNameMapper: {
-    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': 'babel-jest',
+    '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$':
+      '<rootDir>/__mocks__/fileMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/src/js/test/setupTest.ts'],
   testURL: 'http://localhost/',
