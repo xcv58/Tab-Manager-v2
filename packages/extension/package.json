@@ -32,7 +32,7 @@
     "lodash.merge": "4.6.2",
     "loglevel": "1.7.1",
     "match-sorter": "6.3.0",
-    "mobx": "6.2.0",
+    "mobx": "6.3.0",
     "mobx-react-lite": "3.2.0",
     "mousetrap": "1.6.5",
     "postcss": "8.2.12",
