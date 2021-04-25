@@ -14339,10 +14339,10 @@ react-colorful@^5.0.1:
   resolved "https://registry.yarnpkg.com/react-colorful/-/react-colorful-5.1.2.tgz#5cb1506b8f9104b88d02d34984a36c2d1e477e9e"
   integrity sha512-FRt9jz6xjiPqQ6bIAQ26kd0oJhHbGBwsA4BDz/F8FDCFuQJDiEl0wVUARNiqRyvQjwfKuhM42P/bMYI0l92hRw==
 
-react-command-palette@0.16.1:
-  version "0.16.1"
-  resolved "https://registry.yarnpkg.com/react-command-palette/-/react-command-palette-0.16.1.tgz#a8478808cb080d17e8dfac5de140071040e03ae5"
-  integrity sha512-n3jx6At/b+WOt/yaIxQGD0Htb3pB1QbJrRWtMWaBVO65pewCwYXX2rnv1VcasGOSHXilJ0MR8iXNI/qYMj2F6A==
+react-command-palette@0.16.2:
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/react-command-palette/-/react-command-palette-0.16.2.tgz#411f28255bc3c191b9157f293aeae37385114d55"
+  integrity sha512-LM3Dtz3XuYL3OXhKhsAgxaE5rD4DQ/sDhum//i7UPirIqWkeS60VVoXFk3d2r9QhGfbyln/tk5PmqVaLG16Dqw==
   dependencies:
     fast-deep-equal "^3.1.3"
     fuzzysort "^1.1.4"
