@@ -3123,10 +3123,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.1.tgz#283f669ff76d7b8260df8ab7a4262cc83d988256"
   integrity sha512-fZQQafSREFyuZcdWFAExYjBiCL7AUCdgsk80iO0q4yihYYdcIiH28CcuPTGFgLOCC8RlW49GSQxdHwZP+I7CNg==
 
-"@types/mousetrap@1.6.7":
-  version "1.6.7"
-  resolved "https://registry.yarnpkg.com/@types/mousetrap/-/mousetrap-1.6.7.tgz#362411f89ef78a9ece3a5ff71361e85e3ce6febf"
-  integrity sha512-VGAfynzXjVzqx2TzLTrdXURhgn+N/66IgEFFt4LYCJ0JIzRGcFUCX9sTAqgJGnyHKYt/vvlo+B9sJHhpEWaP5w==
+"@types/mousetrap@1.6.8":
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/@types/mousetrap/-/mousetrap-1.6.8.tgz#448929e6dc21126392830465fdb9d4a2cfc16a88"
+  integrity sha512-zTqjvgCUT5EoXqbqmd8iJMb4NJqyV/V7pK7AIKq7qcaAsJIpGlTVJS1HQM6YkdHCdnkNSbhcQI7MXYxFfE3iCA==
 
 "@types/node-fetch@^2.5.7":
   version "2.5.10"
