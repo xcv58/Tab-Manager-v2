@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
+import RemoveDuplicated from 'components/Toolbar/RemoveDuplicated'
 import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
@@ -31,6 +32,7 @@ export default observer(() => {
           Open full feature mode
         </button>
         <ThemeToggle />
+        <RemoveDuplicated />
         <OpenInTab />
       </div>
     </>
