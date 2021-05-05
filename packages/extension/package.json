@@ -68,7 +68,7 @@
     "babel-eslint": "10.1.0",
     "chrome-webstore-upload-cli": "1.2.1",
     "clean-webpack-plugin": "4.0.0-alpha.0",
-    "codecov": "3.8.1",
+    "codecov": "3.8.2",
     "copy-webpack-plugin": "8.1.1",
     "coveralls": "3.1.0",
     "css-loader": "5.2.4",
