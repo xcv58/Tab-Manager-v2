@@ -32,7 +32,7 @@
     "@typescript-eslint/parser": "4.22.1",
     "chrome-webstore-upload-cli": "1.2.1",
     "coveralls": "3.1.0",
-    "dotenv": "8.5.1",
+    "dotenv": "8.6.0",
     "eslint": "7.25.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-jest": "24.3.6",
