@@ -5,7 +5,6 @@
     "packages/*"
   ],
   "scripts": {
-    "precommit": "lint-staged",
     "postinstall": "husky install",
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
