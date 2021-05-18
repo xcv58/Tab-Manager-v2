@@ -27,9 +27,10 @@ export class Background {
     // this.browserAction()
   }
 
-  browserAction = () => {
-    browser.browserAction.onClicked.addListener(openOrTogglePopup)
-  }
+  // NOT in use
+  // browserAction = () => {
+  //   browser.browserAction.onClicked.addListener(openOrTogglePopup)
+  // }
 
   createWindow = async (request, sender, sendResponse) => {
     createWindow(request.tabs)
