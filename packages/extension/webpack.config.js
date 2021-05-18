@@ -210,7 +210,7 @@ const options = {
 }
 
 if (env.NODE_ENV === 'development') {
-  options.devtool = 'eval-cheap-source-map'
+  options.devtool = 'source-map'
 }
 
 module.exports = (plugins = []) => ({
