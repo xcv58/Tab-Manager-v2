@@ -26,7 +26,12 @@ export default observer(() => {
       style={{ display: 'flex' }}
       timeout={reduceMotion ? 1 : duration.enteringScreen}
     >
-      <div>
+      <div
+        style={{
+          maxWidth: 'calc(100vw - 60px)',
+          overflowX: 'auto',
+        }}
+      >
         <Settings />
         <Help />
         <VerticalDivider />
