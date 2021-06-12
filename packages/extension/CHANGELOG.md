@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.15.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.15.1...v1.15.2) (2021-06-10)
+
+### Bug Fixes
+
+- **deps:** update dependency postcss to v8.3.1 ([#1268](https://github.com/xcv58/Tab-Manager-v2/issues/1268)) ([735707a](https://github.com/xcv58/Tab-Manager-v2/commit/735707ac7c9fc4e810a428aaf9ae1d36b8e25c4e))
+- Tune the Toolbar to fit Vivaldi Web Panels view (width is limited) ([0b4695e](https://github.com/xcv58/Tab-Manager-v2/commit/0b4695e5f336e106f5947d532751a1f776c44b78))
+- **deps:** update dependency autoprefixer to v10.2.6 ([#1239](https://github.com/xcv58/Tab-Manager-v2/issues/1239)) ([41f8f5c](https://github.com/xcv58/Tab-Manager-v2/commit/41f8f5cc79dc40c996811a776c8d49bd496b78ec))
+- **deps:** update dependency mobx to v6.3.1 ([#1215](https://github.com/xcv58/Tab-Manager-v2/issues/1215)) ([fcf415a](https://github.com/xcv58/Tab-Manager-v2/commit/fcf415ae9ae9ad592cab15edc73c22a90651a98f))
+- **deps:** update dependency mobx to v6.3.2 ([#1230](https://github.com/xcv58/Tab-Manager-v2/issues/1230)) ([b1e4e16](https://github.com/xcv58/Tab-Manager-v2/commit/b1e4e1611d7515f31d97a86ca368d60746cb96c7))
+- **deps:** update dependency postcss to v8.2.14 ([#1184](https://github.com/xcv58/Tab-Manager-v2/issues/1184)) ([efb56af](https://github.com/xcv58/Tab-Manager-v2/commit/efb56afe78f9c2dd29cb6b063575075a576aeff1))
+- **deps:** update dependency postcss to v8.2.15 ([#1194](https://github.com/xcv58/Tab-Manager-v2/issues/1194)) ([13de5d9](https://github.com/xcv58/Tab-Manager-v2/commit/13de5d923c08765dc11ae220830bff29317b2e47))
+- **deps:** update dependency postcss to v8.3.0 ([#1224](https://github.com/xcv58/Tab-Manager-v2/issues/1224)) ([49ed172](https://github.com/xcv58/Tab-Manager-v2/commit/49ed172298490f1f4436ec98de54c5605e6021fa))
+- **deps:** update dependency react-resize-detector to v6.7.2 ([#1225](https://github.com/xcv58/Tab-Manager-v2/issues/1225)) ([44b9031](https://github.com/xcv58/Tab-Manager-v2/commit/44b90310b8d3cb8dc85ef12eef10cd8059b8a2aa))
+
 ### [1.15.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.15.0...v1.15.1) (2021-05-05)
 
 ### Bug Fixes
