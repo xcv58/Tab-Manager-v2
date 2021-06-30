@@ -30,7 +30,7 @@
     "@typescript-eslint/eslint-plugin": "4.28.1",
     "@typescript-eslint/parser": "4.28.1",
     "chrome-webstore-upload-cli": "1.2.1",
-    "coveralls": "3.1.0",
+    "coveralls": "3.1.1",
     "dotenv": "10.0.0",
     "eslint": "7.29.0",
     "eslint-config-prettier": "8.3.0",
