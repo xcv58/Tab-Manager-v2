@@ -7,7 +7,7 @@
     "test-watch": "yarn test --watchAll"
   },
   "devDependencies": {
-    "@types/jest": "26.0.23",
+    "@types/jest": "26.0.24",
     "@types/jest-image-snapshot": "4.3.0",
     "jest": "27.0.6",
     "jest-image-snapshot": "4.5.1",
