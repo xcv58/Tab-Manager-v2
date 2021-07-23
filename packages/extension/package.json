@@ -92,7 +92,7 @@
     "purgecss-webpack-plugin": "4.0.3",
     "react-axe": "3.5.4",
     "react-test-renderer": "17.0.2",
-    "regenerator-runtime": "0.13.7",
+    "regenerator-runtime": "0.13.9",
     "sinon": "11.1.1",
     "sinon-chrome": "3.0.1",
     "speed-measure-webpack-plugin": "1.5.0",
