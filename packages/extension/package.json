@@ -46,7 +46,7 @@
     "react-router-dom": "5.2.0",
     "react-window": "1.8.6",
     "rebound": "0.1.0",
-    "tailwindcss": "2.2.6",
+    "tailwindcss": "2.2.7",
     "use-system-theme": "0.1.1",
     "webextension-polyfill": "0.8.0"
   },
