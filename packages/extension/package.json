@@ -64,7 +64,7 @@
     "@types/react-custom-scrollbars": "4.0.8",
     "@types/react-dom": "17.0.9",
     "@types/react-router-dom": "5.1.8",
-    "@types/react-window": "1.8.4",
+    "@types/react-window": "1.8.5",
     "@types/webpack-env": "1.16.2",
     "babel-eslint": "10.1.0",
     "chrome-webstore-upload-cli": "1.2.1",
