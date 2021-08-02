@@ -27,8 +27,8 @@
     "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "4.28.5",
-    "@typescript-eslint/parser": "4.28.5",
+    "@typescript-eslint/eslint-plugin": "4.29.0",
+    "@typescript-eslint/parser": "4.29.0",
     "chrome-webstore-upload-cli": "1.2.1",
     "coveralls": "3.1.1",
     "dotenv": "10.0.0",
