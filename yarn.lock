@@ -3540,10 +3540,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chrome@0.0.150":
-  version "0.0.150"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.150.tgz#84fe4023e78bbca660af070bd531340efe8af44e"
-  integrity sha512-StzZ2lnnj9FtikyV4s0AVdOIl9/iuOYLtR2FJFoQi7tVZkPL+mBwW4P4Pq5fdn9yiXmcNPu0mKKNvRFp8EHQOQ==
+"@types/chrome@0.0.153":
+  version "0.0.153"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.153.tgz#6c3009eb7be1d0fbace82be159122fd99e4a6465"
+  integrity sha512-J8VrwjuJLh6BPmUTmZQd41zJJjVpRnnMZ/E9uHfQZ3RRAESVqYxin8YeCdZUak7+5dUI6wr8Sr6UfR3dehLIdQ==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
