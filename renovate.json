@@ -2,7 +2,7 @@
   "packageRules": [
     {
       "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "automerge": false
     }
   ],
   "extends": ["config:base"]
