@@ -154,7 +154,7 @@ describe('The Extension page should', () => {
     expect(pages).toHaveLength(URLS.length + 1)
     const sortTabsButton = await page.$('button[title="Sort tabs"]')
     await sortTabsButton.click()
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(500)
 
     tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText)
