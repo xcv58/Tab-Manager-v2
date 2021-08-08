@@ -56,7 +56,7 @@ export default observer(function HistoryItemTab(props: Props) {
       <div className="flex-col px-2 text-sm opacity-75 group-hover:opacity-100">
         <div>{moment(lastVisitTime).fromNow()}</div>
         <div className="text-right">
-          {typedCount}/{visitCount}
+          {typedCount} / {visitCount}
         </div>
       </div>
     </div>

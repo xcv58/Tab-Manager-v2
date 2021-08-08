@@ -84,8 +84,12 @@ type TabOption = HistoryItem | Tab | { isDivider: boolean; title: string }
 const renderTabOption = (tab: TabOption) => {
   if (tab.isDivider) {
     return (
-      <div className="flex items-center w-full h-full pl-2 font-bold border-t-2">
-        {tab.title}
+      <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
+        <div className="text-lg">{tab.title}</div>
+        <div className="text-sm text-right">
+          <div>Last visited time</div>
+          <div>Typed visits / All visits</div>
+        </div>
       </div>
     )
   }
@@ -147,7 +151,6 @@ const AutocompleteSearch = observer((props: Props) => {
       value={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
-      // open
       open={open}
       onFocus={() => {
         startType()
