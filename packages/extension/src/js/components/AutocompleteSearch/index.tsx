@@ -14,6 +14,7 @@ import Shortcuts from 'components/Shortcut/Shortcuts'
 import HistoryItemTab from 'components/Tab/HistoryItemTab'
 import Tab from 'stores/Tab'
 import { HistoryItem } from 'stores/SearchStore'
+import { openURL } from 'libs'
 
 const ARIA_LABLE =
   'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
@@ -168,7 +169,11 @@ const AutocompleteSearch = observer((props: Props) => {
         if (isCommand) {
           option.command()
         } else {
-          option.activate()
+          if (option.activate) {
+            option.activate()
+          } else {
+            openURL(option.url)
+          }
           search('')
         }
       }}

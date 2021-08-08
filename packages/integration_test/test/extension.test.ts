@@ -204,6 +204,8 @@ describe('The Extension page should', () => {
     expect(tabs.length).toBe(pages.length - 3)
   })
 
+  it('support search browser history', async () => {})
+
   it('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
