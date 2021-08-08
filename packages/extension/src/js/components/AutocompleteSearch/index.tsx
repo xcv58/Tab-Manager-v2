@@ -11,6 +11,9 @@ import { matchSorter } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
 import Shortcuts from 'components/Shortcut/Shortcuts'
+import HistoryItemTab from 'components/Tab/HistoryItemTab'
+import Tab from 'stores/Tab'
+import { HistoryItem } from 'stores/SearchStore'
 
 const ARIA_LABLE =
   'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
@@ -29,11 +32,17 @@ const getFilterOptions = (showUrl, isCommand) => {
     if (showUrl) {
       keys.push('url')
     }
-    return matchSorter(options, inputValue, { keys })
+    return matchSorter(options, inputValue, {
+      keys,
+      sorter: (rankedItems) => rankedItems,
+    })
   }
 }
 
-const renderTabOption = (tab) => {
+const renderTabOption = (tab: Tab | HistoryItem) => {
+  if (tab.visitCount) {
+    return <HistoryItemTab tab={tab} />
+  }
   return <ViewOnlyTab tab={tab} />
 }
 

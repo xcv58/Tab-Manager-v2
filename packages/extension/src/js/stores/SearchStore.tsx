@@ -9,6 +9,15 @@ import Tab from './Tab'
 
 const hasCommandPrefix = (value: string) => value.startsWith('>')
 
+export type HistoryItem = {
+  id: string
+  lastVisitTime?: number
+  title?: string
+  typedCount?: number
+  url?: string
+  visitCount?: number
+}
+
 export default class SearchStore {
   store: Store
 
@@ -18,6 +27,7 @@ export default class SearchStore {
       query: observable,
       _query: observable,
       _tabQuery: observable,
+      historyTabs: observable,
       typing: observable,
       isCommand: computed,
       matchedTabs: computed,
@@ -58,6 +68,8 @@ export default class SearchStore {
 
   // The _tabQuery is used only on tab content highlight
   _tabQuery = ''
+
+  historyTabs: HistoryItem[] = []
 
   typing = false
 
@@ -137,12 +149,17 @@ export default class SearchStore {
     }
   }
 
-  _updateQuery = () => {
+  _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
     this._query = this.query
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
     }
+    // browser.history.search({ text: 'phab' }, (x) => { console.log({ x }) })
+    const historyTabs = await browser.history.search({ text: this._query })
+    console.log({ text: this._query, historyTabs })
+    this.historyTabs = historyTabs
+    console.log('this.historyTabs', this.historyTabs)
   }
 
   _updateTabQuery = () => {
@@ -161,6 +178,7 @@ export default class SearchStore {
 
   fuzzySearch = () => {
     log.debug('SearchStore.fuzzySearch:', { _query: this._query })
+
     const { tabs } = this.store.windowStore
     if (!this._query) {
       return tabs
