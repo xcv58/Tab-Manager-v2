@@ -34,12 +34,34 @@ const getFilterOptions = (showUrl, isCommand) => {
     }
     return matchSorter(options, inputValue, {
       keys,
-      sorter: (rankedItems) => rankedItems,
+      sorter: (rankedItems) => {
+        // return rankedItems
+        console.log({ rankedItems })
+        const tabs = rankedItems.filter((x) => !x.item.visitCount)
+        const history = rankedItems.filter((x) => x.item.visitCount)
+        if (history.length) {
+          return [
+            ...tabs,
+            { rankedValue: '', item: { isDivider: true, title: 'History' } },
+            ...history,
+          ]
+        }
+        return rankedItems
+      },
     })
   }
 }
 
-const renderTabOption = (tab: Tab | HistoryItem) => {
+const renderTabOption = (
+  tab: { isDivider: boolean; title: string } | HistoryItem | Tab
+) => {
+  if (tab.isDivider) {
+    return (
+      <div className="flex items-center w-full h-full pl-2 font-bold border-t-2">
+        {tab.title}
+      </div>
+    )
+  }
   if (tab.visitCount) {
     return <HistoryItemTab tab={tab} />
   }
@@ -98,6 +120,7 @@ const AutocompleteSearch = observer((props: Props) => {
       value={query}
       disableListWrap
       PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      // open
       open={open}
       onFocus={() => {
         startType()
@@ -126,6 +149,8 @@ const AutocompleteSearch = observer((props: Props) => {
       getOptionLabel={(option) =>
         `${option.name} ${option.title} ${option.url}`
       }
+      // groupBy={(option) => (option.visitCount) ? 'history' : 'tab'}
+      getOptionDisabled={(option) => option.isDivider}
       renderOption={isCommand ? renderCommand : renderTabOption}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}

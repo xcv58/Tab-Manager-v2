@@ -5,14 +5,16 @@ import { match } from 'fuzzy'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-// import Tooltip from '@material-ui/core/Tooltip'
+import moment from 'moment'
+import { openURL } from 'libs'
 
 const pre = "<span class='text-red-500'>"
 const post = '</span>'
 
-const X = observer((props) => {
-  const { searchStore } = useStore()
-  const { query } = searchStore
+type Props = { tab: HistoryItem }
+
+const Content = observer((props: Props) => {
+  const { query } = useStore().searchStore
   const { title } = props.tab
   const getHighlightNode = useCallback(
     (text) => {
@@ -40,20 +42,23 @@ const X = observer((props) => {
   )
 })
 
-export default observer(function HistoryItemTab(props: { tab: HistoryItem }) {
+export default observer(function HistoryItemTab(props: Props) {
   const { tab } = props
   const { lastVisitTime, typedCount, visitCount } = props.tab
 
   return (
-    <div tabIndex={-1} className="relative flex items-center w-full">
-      <span>Histroy:</span>
-      lastVisitTime: {lastVisitTime}
-      typedCount: {typedCount}
-      visitCount: {visitCount}
-      {/* {title}
-      {url} */}
-      <X tab={tab} />
-      {/* <TabContent tab={tab} faked /> */}
+    <div
+      tabIndex={-1}
+      className="relative flex items-center w-full pl-4 group"
+      onClick={() => openURL(tab.url)}
+    >
+      <Content tab={tab} />
+      <div className="flex-col px-2 text-sm opacity-75 group-hover:opacity-100">
+        <div>{moment(lastVisitTime).fromNow()}</div>
+        <div className="text-right">
+          {typedCount}/{visitCount}
+        </div>
+      </div>
     </div>
   )
 })

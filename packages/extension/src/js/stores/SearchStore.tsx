@@ -9,6 +9,8 @@ import Tab from './Tab'
 
 const hasCommandPrefix = (value: string) => value.startsWith('>')
 
+const DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24
+
 export type HistoryItem = {
   id: string
   lastVisitTime?: number
@@ -155,11 +157,11 @@ export default class SearchStore {
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
     }
-    // browser.history.search({ text: 'phab' }, (x) => { console.log({ x }) })
-    const historyTabs = await browser.history.search({ text: this._query })
-    console.log({ text: this._query, historyTabs })
+    const historyTabs = await browser.history.search({
+      text: this._query,
+      startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
+    })
     this.historyTabs = historyTabs
-    console.log('this.historyTabs', this.historyTabs)
   }
 
   _updateTabQuery = () => {
