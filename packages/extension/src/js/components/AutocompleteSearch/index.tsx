@@ -7,7 +7,7 @@ import { useStore } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
 import ListboxComponent from './ListboxComponent'
-import { matchSorter } from 'match-sorter'
+import { matchSorter, defaultBaseSortFn } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
 import Shortcuts from 'components/Shortcut/Shortcuts'
@@ -23,6 +23,30 @@ const commandFilter = (options, { inputValue }) => {
   return matchSorter(options, inputValue.slice(1).trim(), { keys })
 }
 
+/**
+ * Sorts items that have a rank, index, and keyIndex
+ * @param {Object} a - the first item to sort
+ * @param {Object} b - the second item to sort
+ * @return {Number} -1 if a should come first, 1 if b should come first, 0 if equal
+ */
+function sortRankedValues(a, b, baseSort): number {
+  const aFirst = -1
+  const bFirst = 1
+  const { rank: aRank, keyIndex: aKeyIndex } = a
+  const { rank: bRank, keyIndex: bKeyIndex } = b
+  const same = aRank === bRank
+  if (same) {
+    if (aKeyIndex === bKeyIndex) {
+      // use the base sort function as a tie-breaker
+      return baseSort(a, b)
+    } else {
+      return aKeyIndex < bKeyIndex ? aFirst : bFirst
+    }
+  } else {
+    return aRank > bRank ? aFirst : bFirst
+  }
+}
+
 const getFilterOptions = (showUrl, isCommand) => {
   if (isCommand) {
     return commandFilter
@@ -35,14 +59,17 @@ const getFilterOptions = (showUrl, isCommand) => {
     return matchSorter(options, inputValue, {
       keys,
       sorter: (rankedItems) => {
-        // return rankedItems
-        console.log({ rankedItems })
-        const tabs = rankedItems.filter((x) => !x.item.visitCount)
+        const tabs = rankedItems
+          .filter((x) => !x.item.visitCount)
+          .sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn))
         const history = rankedItems.filter((x) => x.item.visitCount)
         if (history.length) {
           return [
             ...tabs,
-            { rankedValue: '', item: { isDivider: true, title: 'History' } },
+            {
+              rankedValue: '',
+              item: { isDivider: true, title: 'History' },
+            },
             ...history,
           ]
         }
@@ -52,9 +79,9 @@ const getFilterOptions = (showUrl, isCommand) => {
   }
 }
 
-const renderTabOption = (
-  tab: { isDivider: boolean; title: string } | HistoryItem | Tab
-) => {
+type TabOption = HistoryItem | Tab | { isDivider: boolean; title: string }
+
+const renderTabOption = (tab: TabOption) => {
   if (tab.isDivider) {
     return (
       <div className="flex items-center w-full h-full pl-2 font-bold border-t-2">

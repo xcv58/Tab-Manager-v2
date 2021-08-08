@@ -157,11 +157,13 @@ export default class SearchStore {
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
     }
-    const historyTabs = await browser.history.search({
-      text: this._query,
-      startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
-    })
-    this.historyTabs = historyTabs
+    if (this.store.userStore.searchHistory) {
+      const historyTabs = await browser.history.search({
+        text: this._query,
+        startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
+      })
+      this.historyTabs = historyTabs
+    }
   }
 
   _updateTabQuery = () => {
