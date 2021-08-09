@@ -182,7 +182,6 @@ export default class SearchStore {
 
   fuzzySearch = () => {
     log.debug('SearchStore.fuzzySearch:', { _query: this._query })
-
     const { tabs } = this.store.windowStore
     if (!this._query) {
       return tabs

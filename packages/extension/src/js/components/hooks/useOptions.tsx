@@ -15,6 +15,5 @@ export const useOptions = () => {
       .sort((a, b) => a.name.localeCompare(b.name))
   }
   const { historyTabs } = searchStore
-  console.log({ historyTabs: [...historyTabs] })
   return [...windowStore.tabs, ...historyTabs]
 }
