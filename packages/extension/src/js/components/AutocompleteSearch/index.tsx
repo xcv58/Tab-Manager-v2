@@ -187,7 +187,6 @@ const AutocompleteSearch = observer((props: Props) => {
       getOptionLabel={(option) =>
         `${option.name} ${option.title} ${option.url}`
       }
-      // groupBy={(option) => (option.visitCount) ? 'history' : 'tab'}
       getOptionDisabled={(option) => option.isDivider}
       renderOption={isCommand ? renderCommand : renderTabOption}
       filterOptions={filterOptions}
