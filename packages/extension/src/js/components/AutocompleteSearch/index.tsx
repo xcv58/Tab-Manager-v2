@@ -25,6 +25,9 @@ const commandFilter = (options, { inputValue }) => {
 }
 
 /**
+ * Copy from https://github.com/kentcdodds/match-sorter/blob/fba154b12ff594e688d0c3f6abc64d22622b6919/src/index.ts#L312
+ * Since it's not exposed via the package.
+ *
  * Sorts items that have a rank, index, and keyIndex
  * @param {Object} a - the first item to sort
  * @param {Object} b - the second item to sort
