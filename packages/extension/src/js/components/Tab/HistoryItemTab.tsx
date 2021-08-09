@@ -1,14 +1,11 @@
 import React, { useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import { HistoryItem } from 'stores/SearchStore'
-import { match } from 'fuzzy'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
 import moment from 'moment'
-
-const pre = "<span class='text-red-500'>"
-const post = '</span>'
+import HighlightNode from 'components/HighlightNode'
 
 type Props = { tab: HistoryItem }
 
@@ -20,11 +17,7 @@ const Content = observer((props: Props) => {
       if (!query) {
         return text
       }
-      const result = match(query, text, { pre, post })
-      if (!result) {
-        return <div>{text}</div>
-      }
-      return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
+      return <HighlightNode {...{ query, text }} />
     },
     [query]
   )
