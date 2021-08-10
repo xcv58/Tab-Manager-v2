@@ -204,6 +204,46 @@ describe('The Extension page should', () => {
     expect(tabs.length).toBe(pages.length - 3)
   })
 
+  it('support search browser history', async () => {
+    const wins = await page.$$('.shadow-2xl,.shadow-sm')
+    expect(wins).toHaveLength(1)
+    const tabs = await page.$$(TAB_QUERY)
+    expect(tabs).toHaveLength(1)
+    await page.goto(extensionURL.replace('not_popup=1', ''))
+
+    await openPages(browserContext, URLS)
+    await page.waitForTimeout(500)
+    await CLOSE_PAGES(browserContext)
+    await page.waitForTimeout(500)
+    await openPages(browserContext, URLS)
+    await page.waitForTimeout(500)
+    await CLOSE_PAGES(browserContext)
+    await page.waitForTimeout(500)
+    await page.bringToFront()
+
+    const inputSelector = 'input[type="text"]'
+    await page.waitForSelector(inputSelector)
+    await page.waitForTimeout(500)
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, 'xcv58')
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, 'duck')
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, '')
+  })
+
   it('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()

@@ -138,6 +138,8 @@ export const openInNewTab = () => {
   closeIfCurrentTabIsPopup()
 }
 
+export const openURL = (url: string) => browser.tabs.create({ url })
+
 export const isSelfPopupTab = (tab) =>
   tab.url === popupURL || tab.pendingUrl === popupURL
 

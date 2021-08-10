@@ -33,6 +33,8 @@ export default observer(() => {
     toggleShowTabTooltip,
     preserveSearch,
     togglePreserveSearch,
+    searchHistory,
+    toggleSearchHistory,
     showUnmatchedTab,
     toggleShowUnmatchedTab,
     showShortcutHint,
@@ -83,6 +85,16 @@ export default observer(() => {
                   color="primary"
                   checked={preserveSearch}
                   onChange={togglePreserveSearch}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Search Browser History"
+              control={
+                <Switch
+                  color="primary"
+                  checked={searchHistory}
+                  onChange={toggleSearchHistory}
                 />
               }
             />

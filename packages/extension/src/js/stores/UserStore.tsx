@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS = {
   highlightDuplicatedTab: true,
   showTabTooltip: true,
   preserveSearch: true,
+  searchHistory: true,
   showUrl: true,
   autoFocusSearch: false,
   ignoreHash: false,
@@ -37,6 +38,7 @@ export default class UserStore {
       highlightDuplicatedTab: observable,
       showTabTooltip: observable,
       preserveSearch: observable,
+      searchHistory: observable,
       showUrl: observable,
       autoFocusSearch: observable,
       dialogOpen: observable,
@@ -57,6 +59,7 @@ export default class UserStore {
       toggleShowShortcutHint: action,
       toggleShowTabTooltip: action,
       togglePreserveSearch: action,
+      toggleSearchHistory: action,
       toggleShowUnmatchedTab: action,
       toggleAutoFocusSearch: action,
       toggleShowUrl: action,
@@ -90,6 +93,7 @@ export default class UserStore {
   highlightDuplicatedTab = true
   showTabTooltip = true
   preserveSearch = true
+  searchHistory = true
   showUrl = true
   autoFocusSearch = false
   useSystemTheme = true
@@ -173,6 +177,11 @@ export default class UserStore {
 
   togglePreserveSearch = () => {
     this.preserveSearch = !this.preserveSearch
+    this.save()
+  }
+
+  toggleSearchHistory = () => {
+    this.searchHistory = !this.searchHistory
     this.save()
   }
 

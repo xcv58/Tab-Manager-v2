@@ -12,7 +12,7 @@ export interface UrlProps {
   /**
    * Whether the tab is duplicated.
    */
-  duplicated: boolean
+  duplicated?: boolean
   /**
    * Get the highlight node based on the query.
    */
