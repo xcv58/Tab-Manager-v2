@@ -58,15 +58,17 @@ export const initBrowserWithExtension = async () => {
     extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
   }
 
+  const page = await browserContext.newPage()
+  await page.bringToFront()
+  await page.goto('chrome://inspect/#extensions')
+
   browserContext.on('backgroundpage', setExtensionURL)
   const backgroundPages = browserContext.backgroundPages()
   if (backgroundPages.length) {
     setExtensionURL(backgroundPages[0])
   }
-  const page = await browserContext.newPage()
-  await page.bringToFront()
   for (const x in [...Array(100)]) {
-    if (extensionURL || x) {
+    if (extensionURL || !x) {
       break
     }
     await page.waitForTimeout(1000)

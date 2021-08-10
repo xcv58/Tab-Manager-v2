@@ -302,11 +302,12 @@ describe('The Extension page should', () => {
     // Playwright triggers the drag effect but it wouldn't move the cursor.
     await page.mouse.move(100, 20, { steps: 5 })
     const screenshot = await page.screenshot()
-    const droppableToolSelector = '.bg-green-300.z-10.h-12.px-1.text-3xl'
-    expect(
-      await page.$eval(droppableToolSelector, (node) => node.innerText)
-    ).toBe('Drop here to open in New Window')
-    await page.mouse.up()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    const droppableToolSelector = '.z-10.h-12.px-1.text-3xl'
+    const dropAreaEl = await page.$(droppableToolSelector)
+    expect(await dropAreaEl.screenshot()).toMatchImageSnapshot(
+      matchImageSnapshotOptions
+    )
+    await page.mouse.up()
   })
 })
