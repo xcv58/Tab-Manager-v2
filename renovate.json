@@ -2,8 +2,9 @@
   "packageRules": [
     {
       "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": false
+      "automerge": true
     }
   ],
+  "schedule": ["every weekend"],
   "extends": ["config:base"]
 }
