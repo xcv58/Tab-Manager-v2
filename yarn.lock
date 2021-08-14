@@ -3531,7 +3531,7 @@
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
 
-"@xstate/react@^1.3.0":
+"@xstate/react@^1.5.1":
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/@xstate/react/-/react-1.5.1.tgz#60817e60e54e338b8e7c3e51bfa4cd3babebdc7d"
   integrity sha512-DJHDqDlZHus08X98uMJw4KR17FRWBXLHMQ02YRxx0DMm5VLn75VwGyt4tXdlNZHQWjyk++C5c9Ichq3PdmM3og==
@@ -15543,10 +15543,10 @@ storybook-addon-outline@^1.4.1:
     "@storybook/core-events" "^6.3.0"
     ts-dedent "^2.1.1"
 
-storybook-addon-performance@0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/storybook-addon-performance/-/storybook-addon-performance-0.16.0.tgz#75a7c451202484aefff13162ebcd2d45f2c5b370"
-  integrity sha512-agAs4kxHHvIlaHLCSY05aXL5ZTVwskbMPxmSz9o2C4GGVeoolZEnTvv2Q1mSzu7BS9JqUj6DouM5tw4TM4u0Uw==
+storybook-addon-performance@0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/storybook-addon-performance/-/storybook-addon-performance-0.16.1.tgz#f7dfee036c8c19a5d405fdb509e419b34432ee50"
+  integrity sha512-hDMRXvZljwBXYKrNegB9+LvT1b0ZQlkvTEDqq4gbMovQcD9yR0mka1eDuhwZfzxcgY1PrhkN3EhNxLybA/ql9Q==
   dependencies:
     "@storybook/addons" "^6.2.9"
     "@storybook/api" "^6.2.9"
@@ -15556,11 +15556,11 @@ storybook-addon-performance@0.16.0:
     "@storybook/theming" "^6.2.9"
     "@testing-library/dom" "^7.22.0"
     "@testing-library/jest-dom" "^5.11.2"
-    "@xstate/react" "^1.3.0"
+    "@xstate/react" "^1.5.1"
     gzip-js "^0.3.2"
     styled-components "^5.1.1"
     tiny-invariant "^1.1.0"
-    xstate "^4.11.0"
+    xstate "^4.22.0"
 
 stream-browserify@^2.0.1:
   version "2.0.2"
@@ -17502,7 +17502,7 @@ xmlchars@^2.2.0:
   resolved "https://registry.yarnpkg.com/xmlchars/-/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
 
-xstate@^4.11.0:
+xstate@^4.22.0:
   version "4.23.1"
   resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.23.1.tgz#a85ce0ca4ad9737f1497e2da7a3abc6a5697fbcd"
   integrity sha512-8ZoCe8d6wDSPfkep+GBgi+fKAdMyXcaizoNf5FKceEhlso4+9n1TeK6oviaDsXZ3Z5O8xKkJOxXPNuD4cA9LCw==
