@@ -7,7 +7,7 @@ import {
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
-import { Background } from '../background'
+import { Background, setBrowserIcon } from '../background'
 
 export default class TabHistory {
   root: Background
@@ -99,6 +99,7 @@ export default class TabHistory {
   }
 
   onFocusChanged = async (windowId) => {
+    setBrowserIcon()
     log.debug('onFocusChanged:', { windowId })
     if (windowId < 0) {
       return setSelfPopupActive(false)
