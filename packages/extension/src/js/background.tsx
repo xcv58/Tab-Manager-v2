@@ -2,6 +2,17 @@ import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
+export const setBrowserIcon = () => {
+  const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
+  let iconPathPrefix = 'icon-128'
+  if (darkThemeMq.matches) {
+    iconPathPrefix += '-dark'
+  }
+  browser.browserAction.setIcon({
+    path: `${iconPathPrefix}.png`,
+  })
+}
+
 export class Background {
   tabHistory: TabHistory
   actionMap: {
@@ -25,6 +36,7 @@ export class Background {
     }
     Object.assign(this.actionMap, this.tabHistory.actionMap)
     // this.browserAction()
+    setBrowserIcon()
   }
 
   browserAction = () => {
