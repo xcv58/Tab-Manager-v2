@@ -31,7 +31,7 @@
     "lodash.debounce": "4.0.8",
     "lodash.merge": "4.6.2",
     "loglevel": "1.7.1",
-    "match-sorter": "6.3.0",
+    "match-sorter": "6.3.1",
     "mobx": "6.3.3",
     "mobx-react-lite": "3.2.1",
     "moment": "2.29.1",
