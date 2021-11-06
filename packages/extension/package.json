@@ -61,7 +61,7 @@
     "@types/lodash.debounce": "4.0.6",
     "@types/match-sorter": "6.0.0",
     "@types/mousetrap": "1.6.8",
-    "@types/react": "17.0.33",
+    "@types/react": "17.0.34",
     "@types/react-custom-scrollbars": "4.0.9",
     "@types/react-dom": "17.0.10",
     "@types/react-router-dom": "5.3.2",
