@@ -105,6 +105,6 @@
     "typescript": "4.4.4",
     "webpack": "5.64.0",
     "webpack-bundle-analyzer": "4.5.0",
-    "webpack-dev-server": "3.11.3"
+    "webpack-dev-server": "4.5.0"
   }
 }
