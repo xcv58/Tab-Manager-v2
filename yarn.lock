@@ -12282,10 +12282,10 @@ mobx-react-lite@3.2.2:
   resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-3.2.2.tgz#cee5f09e6b0e4d2705d87276baf1de74d997fa33"
   integrity sha512-FxJJMqmHcnQYOVVs2DdjNHioGlFsXF5/9VHztS9NAfIT3DYrxNZzVi119Zr/OmlWKkWNkAsssSNzPkqautfL4A==
 
-mobx@6.3.6:
-  version "6.3.6"
-  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.3.6.tgz#3192dea21ae8213d04a0df5c98a5ca164ed29ecd"
-  integrity sha512-TeCp8BTco5cmXKY7Zt5VSL5fHBEAHTSA6xs+KWmcxi3cFN1C+Xqs2m3giyGT/e6TSjtdDysVX5+cCZZhEyiJmA==
+mobx@6.3.7:
+  version "6.3.7"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.3.7.tgz#9ed85561e86da45141134c8fa20cf5f9c7246c3d"
+  integrity sha512-X7yU7eOEyxIBk4gjIi2UIilwdw48gXh0kcZ5ex3Rc+COJsJmJ4SNpf42uYea3aUqb1hedTv5xzJrq5Q55p0P5g==
 
 modern-normalize@^1.1.0:
   version "1.1.0"
