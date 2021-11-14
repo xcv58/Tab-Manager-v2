@@ -68,7 +68,7 @@
     "@types/react-window": "1.8.5",
     "@types/webpack-env": "1.16.3",
     "babel-eslint": "10.1.0",
-    "chrome-webstore-upload-cli": "1.2.2",
+    "chrome-webstore-upload-cli": "2.0.1",
     "clean-webpack-plugin": "4.0.0",
     "codecov": "3.8.3",
     "copy-webpack-plugin": "9.1.0",
@@ -82,7 +82,7 @@
     "fork-ts-checker-webpack-plugin": "6.4.0",
     "glob-all": "3.2.1",
     "hard-source-webpack-plugin": "0.13.1",
-    "html-loader": "2.1.2",
+    "html-loader": "3.0.1",
     "html-webpack-plugin": "5.5.0",
     "jest": "27.3.1",
     "mini-css-extract-plugin": "2.4.4",
@@ -94,7 +94,7 @@
     "react-axe": "3.5.4",
     "react-test-renderer": "17.0.2",
     "regenerator-runtime": "0.13.9",
-    "sinon": "11.1.2",
+    "sinon": "12.0.1",
     "sinon-chrome": "3.0.1",
     "speed-measure-webpack-plugin": "1.5.0",
     "standard-version": "9.3.2",
@@ -105,6 +105,6 @@
     "typescript": "4.4.4",
     "webpack": "5.64.0",
     "webpack-bundle-analyzer": "4.5.0",
-    "webpack-dev-server": "3.11.3"
+    "webpack-dev-server": "4.5.0"
   }
 }
