@@ -3,6 +3,10 @@ import { observer } from 'mobx-react-lite'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
+import GroupAndSort from 'components/Toolbar/GroupAndSort'
+import Settings from 'components/Toolbar/Settings'
+import Help from 'components/Toolbar/Help'
+import VerticalDivider from 'components/Toolbar/VerticalDivider'
 import RemoveDuplicated from 'components/Toolbar/RemoveDuplicated'
 import { useStore } from './hooks/useStore'
 import Loading from './Loading'
@@ -32,7 +36,12 @@ export default observer(() => {
           Open full feature mode
         </button>
         <ThemeToggle />
+        <Settings />
+        <Help />
+        <VerticalDivider />
+        <GroupAndSort />
         <RemoveDuplicated />
+        <VerticalDivider />
         <OpenInTab />
       </div>
     </>
