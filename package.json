@@ -11,6 +11,8 @@
     "test": "run-s test:*",
     "test:lint": "yarn lint",
     "test:unit": "yarn workspace tab-manager-v2 jest",
+    "test:chrome-upload": "chrome-webstore-upload --help",
+    "test:firefox-upload": "web-ext --help",
     "build": "NODE_ENV=production yarn workspace tab-manager-v2 build",
     "ls": "ls -lh build*.zip",
     "deploy": "run-s build zip ls",
