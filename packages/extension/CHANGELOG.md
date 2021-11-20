@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.18.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.17.0...v1.18.0) (2021-11-20)
+
+### Features
+
+- Add more actions to popup mode ([#1584](https://github.com/xcv58/Tab-Manager-v2/issues/1584)) ([549d46d](https://github.com/xcv58/Tab-Manager-v2/commit/549d46ddac2dcf0bc218c34d0a27948093663a95))
+
+### Bug Fixes
+
+- **deps:** update dependency @types/enzyme to v3.10.10 ([#1536](https://github.com/xcv58/Tab-Manager-v2/issues/1536)) ([7d35313](https://github.com/xcv58/Tab-Manager-v2/commit/7d35313053ef6dcca930d7d7b8084772050d53c2))
+- **deps:** update dependency autoprefixer to v10.3.5 ([#1477](https://github.com/xcv58/Tab-Manager-v2/issues/1477)) ([5b105c5](https://github.com/xcv58/Tab-Manager-v2/commit/5b105c5ca88710148c1f6d2f4f5137dfdf56c32a))
+- **deps:** update dependency autoprefixer to v10.3.6 ([#1484](https://github.com/xcv58/Tab-Manager-v2/issues/1484)) ([03cc82f](https://github.com/xcv58/Tab-Manager-v2/commit/03cc82f39e48e4ceacc5c747eea304d2993bc67a))
+- **deps:** update dependency autoprefixer to v10.3.7 ([#1504](https://github.com/xcv58/Tab-Manager-v2/issues/1504)) ([7546d11](https://github.com/xcv58/Tab-Manager-v2/commit/7546d1196c838fb158b574d621008c68f91a1b81))
+- **deps:** update dependency autoprefixer to v10.4.0 ([#1556](https://github.com/xcv58/Tab-Manager-v2/issues/1556)) ([d1eadbc](https://github.com/xcv58/Tab-Manager-v2/commit/d1eadbc4eb56fd6cb806c42d06a16b5955dabdfb))
+- **deps:** update dependency autosuggest-highlight to v3.2.0 ([#1541](https://github.com/xcv58/Tab-Manager-v2/issues/1541)) ([616aad1](https://github.com/xcv58/Tab-Manager-v2/commit/616aad124ca64db73ba7c6267b8f81ac03a88f1e))
+- **deps:** update dependency match-sorter to v6.3.1 ([#1464](https://github.com/xcv58/Tab-Manager-v2/issues/1464)) ([449edcb](https://github.com/xcv58/Tab-Manager-v2/commit/449edcb76f5c2217a721d77a0a04e10d625a3d75))
+- **deps:** update dependency mobx to v6.3.5 ([#1522](https://github.com/xcv58/Tab-Manager-v2/issues/1522)) ([d044ef4](https://github.com/xcv58/Tab-Manager-v2/commit/d044ef4a0fd470dc7fcc5aa516ce992fe5795945))
+- **deps:** update dependency mobx to v6.3.6 ([#1565](https://github.com/xcv58/Tab-Manager-v2/issues/1565)) ([abf1f66](https://github.com/xcv58/Tab-Manager-v2/commit/abf1f666ecc82e074910ee5cca5ba87771124b32))
+- **deps:** update dependency mobx to v6.3.7 ([#1573](https://github.com/xcv58/Tab-Manager-v2/issues/1573)) ([3f78f33](https://github.com/xcv58/Tab-Manager-v2/commit/3f78f33d8fa7c9152fb11c7a17943532ad01ca74))
+- **deps:** update dependency mobx-react-lite to v3.2.2 ([#1566](https://github.com/xcv58/Tab-Manager-v2/issues/1566)) ([d8ba475](https://github.com/xcv58/Tab-Manager-v2/commit/d8ba475911ccf2799d6fe2960d736ea9ffb0d6b2))
+- **deps:** update dependency playwright to v1.15.0 ([#1482](https://github.com/xcv58/Tab-Manager-v2/issues/1482)) ([788519b](https://github.com/xcv58/Tab-Manager-v2/commit/788519b2538d80929d1bbbf5cdff634c01f746d2))
+- **deps:** update dependency playwright to v1.15.1 ([#1490](https://github.com/xcv58/Tab-Manager-v2/issues/1490)) ([ad5df4c](https://github.com/xcv58/Tab-Manager-v2/commit/ad5df4c4804d404abf31429adeac1cc35106f2c1))
+- **deps:** update dependency playwright to v1.15.2 ([#1505](https://github.com/xcv58/Tab-Manager-v2/issues/1505)) ([4f17b93](https://github.com/xcv58/Tab-Manager-v2/commit/4f17b93f38481db5ec25790ff642df9f5b60e75a))
+- **deps:** update dependency playwright to v1.16.2 ([#1542](https://github.com/xcv58/Tab-Manager-v2/issues/1542)) ([f2eb496](https://github.com/xcv58/Tab-Manager-v2/commit/f2eb496907e4dedd862d1a337207e9bb08bb794b))
+- **deps:** update dependency playwright to v1.16.3 ([#1567](https://github.com/xcv58/Tab-Manager-v2/issues/1567)) ([b9a4440](https://github.com/xcv58/Tab-Manager-v2/commit/b9a4440fa5c4b49b605481d48e66fb9ba5fe38e3))
+- **deps:** update dependency postcss to v8.3.11 ([#1537](https://github.com/xcv58/Tab-Manager-v2/issues/1537)) ([c1afcf2](https://github.com/xcv58/Tab-Manager-v2/commit/c1afcf2002e7ce9cb20a3443aca25b95b3c29a77))
+- **deps:** update dependency postcss to v8.3.8 ([#1478](https://github.com/xcv58/Tab-Manager-v2/issues/1478)) ([8494aee](https://github.com/xcv58/Tab-Manager-v2/commit/8494aee40cff026cc044324dee9d1641ee0935fd))
+- **deps:** update dependency postcss to v8.3.9 ([#1506](https://github.com/xcv58/Tab-Manager-v2/issues/1506)) ([500b910](https://github.com/xcv58/Tab-Manager-v2/commit/500b910c780fc973362b9fdaa8404a2bfb657743))
+- **deps:** update dependency react-router-dom to v6.0.2 ([#1568](https://github.com/xcv58/Tab-Manager-v2/issues/1568)) ([8e14d13](https://github.com/xcv58/Tab-Manager-v2/commit/8e14d13d4b540f9f9a34da0b74589c108f160f32))
+- **deps:** update dependency tailwindcss to v2.2.15 ([#1453](https://github.com/xcv58/Tab-Manager-v2/issues/1453)) ([25b00c1](https://github.com/xcv58/Tab-Manager-v2/commit/25b00c13c4a6e4e32cd809ecc49ad159bf7150f9))
+- **deps:** update dependency tailwindcss to v2.2.16 ([#1485](https://github.com/xcv58/Tab-Manager-v2/issues/1485)) ([4e98b1b](https://github.com/xcv58/Tab-Manager-v2/commit/4e98b1b5acab76dab9804c662db154260fd4daa5))
+- **deps:** update dependency tailwindcss to v2.2.17 ([#1523](https://github.com/xcv58/Tab-Manager-v2/issues/1523)) ([e879fc2](https://github.com/xcv58/Tab-Manager-v2/commit/e879fc2a591a5bb0b1c74d5a1f2b3b4f962612ed))
+- **deps:** update dependency tailwindcss to v2.2.19 ([#1552](https://github.com/xcv58/Tab-Manager-v2/issues/1552)) ([90fbbd0](https://github.com/xcv58/Tab-Manager-v2/commit/90fbbd0842b8ca2a85b38ba07f29fd874af91273))
+- **deps:** update react-dnd monorepo ([#1491](https://github.com/xcv58/Tab-Manager-v2/issues/1491)) ([29bd872](https://github.com/xcv58/Tab-Manager-v2/commit/29bd8720e66894ce2f001bb3a0a2917f267d3850))
+
 ## [1.17.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.16.0...v1.17.0) (2021-09-06)
 
 ### Features
