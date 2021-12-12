@@ -3015,10 +3015,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chrome@0.0.169":
-  version "0.0.169"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.169.tgz#d8a38876613ee6e4c364ae5bcab853670a5e2e02"
-  integrity sha512-KbdSspfRAHKcBcbi2gIYLf9wPnoWkzu0k8Wy4J2dfmFxfwvwv+pEq35eeXc7rTxKJaF4CpI2QZAePIGIIsfQkg==
+"@types/chrome@0.0.170":
+  version "0.0.170"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.170.tgz#4692a94ce8400d21325386f2c0174bb56ed730b8"
+  integrity sha512-X6IKLdc/fJyCKxGlCUauL3OKmnhzS29Q2NnlErAiLC3voxvSVG1ISG+l24Q3kFZXmnc543KzElIjDQRvQ/yEBQ==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
