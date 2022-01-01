@@ -23,7 +23,7 @@
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",
-    "@types/enzyme": "3.10.10",
+    "@types/enzyme": "3.10.11",
     "autoprefixer": "10.4.0",
     "autosuggest-highlight": "3.2.0",
     "classnames": "2.3.1",
