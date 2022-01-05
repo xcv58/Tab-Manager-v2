@@ -27,7 +27,6 @@ jobs:
       - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
       - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
       - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
-      - run: yarn release-it
       - *save_yarn_cache
       - store_artifacts:
           path: dist
