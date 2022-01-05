@@ -8,7 +8,7 @@
     "postinstall": "husky install",
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
-    "release-it": "release-it --no-increment --no-git --github.release --github.update --no-github.draft --no-npm.publish --ci",
+    "release-it": "release-it --ci",
     "test": "run-s test:*",
     "test:lint": "yarn lint",
     "test:unit": "yarn workspace tab-manager-v2 jest",

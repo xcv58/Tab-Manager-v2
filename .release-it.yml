@@ -1,3 +1,8 @@
+increment: false
+npm:
+  publish: false
+git: false
 github:
   release: true
+  update: true
   assets: 'dist/*'
