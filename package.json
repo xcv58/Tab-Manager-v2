@@ -8,6 +8,7 @@
     "postinstall": "husky install",
     "start": "yarn workspace tab-manager-v2 start",
     "release": "yarn workspace tab-manager-v2 release",
+    "release-it": "release-it --ci",
     "test": "run-s test:*",
     "test:lint": "yarn lint",
     "test:unit": "yarn workspace tab-manager-v2 jest",
@@ -42,6 +43,7 @@
     "lint-staged": "12.1.5",
     "npm-run-all": "4.1.5",
     "prettier": "2.5.1",
+    "release-it": "^14.11.8",
     "typescript": "4.5.4",
     "web-ext": "6.6.0"
   },

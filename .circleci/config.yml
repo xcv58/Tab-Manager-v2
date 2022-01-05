@@ -58,6 +58,7 @@ jobs:
       - run: yarn deploy
       - run: yarn upload:chrome
       - run: yarn publish-extension
+      - run: yarn release-it
       - *save_yarn_cache
 
 workflows:
