@@ -1,7 +1,7 @@
 import React, { StrictMode } from 'react'
 import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { darkTheme, lightTheme } from 'libs/themes'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -23,7 +23,7 @@ export default observer(() => {
   return (
     <StrictMode>
       <StoreContext.Provider value={store}>
-        <MuiThemeProvider theme={createMuiTheme(theme)}>
+        <ThemeProvider theme={createTheme(theme)}>
           <DndProvider
             key={isProduction() ? 'dnd-provider' : Date.now()}
             backend={HTML5Backend}
@@ -36,7 +36,7 @@ export default observer(() => {
               </ReduceMotionProvider>
             </ThemeContext.Provider>
           </DndProvider>
-        </MuiThemeProvider>
+        </ThemeProvider>
       </StoreContext.Provider>
     </StrictMode>
   )

@@ -1,14 +1,14 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Table from '@material-ui/core/Table'
-import TableHead from '@material-ui/core/TableHead'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableRow from '@material-ui/core/TableRow'
+import Table from '@mui/material/Table'
+import TableHead from '@mui/material/TableHead'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
 import { useStore } from 'components/hooks/useStore'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@mui/material/Alert'
 
 const keysSearch = (keys: string | string[], search: string) => {
   if (typeof keys === 'string') {

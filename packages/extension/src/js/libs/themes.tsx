@@ -1,6 +1,6 @@
-import blue from '@material-ui/core/colors/blue'
-import green from '@material-ui/core/colors/green'
-import pink from '@material-ui/core/colors/pink'
+import blue from '@mui/material/colors/blue'
+import green from '@mui/material/colors/green'
+import pink from '@mui/material/colors/pink'
 import merge from 'lodash.merge'
 import { grey700 } from 'libs/colors'
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Tooltip from '@material-ui/core/Tooltip'
-import Checkbox from '@material-ui/core/Checkbox'
+import Tooltip from '@mui/material/Tooltip'
+import Checkbox from '@mui/material/Checkbox'
 import SelectAll from 'components/Window/SelectAll'
 
 const id = 'id'

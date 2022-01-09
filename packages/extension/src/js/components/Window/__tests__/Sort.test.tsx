@@ -1,9 +1,9 @@
 import React from 'react'
 import { spy } from 'sinon'
 import { shallow } from 'enzyme'
-import Tooltip from '@material-ui/core/Tooltip'
-import SortIcon from '@material-ui/icons/Sort'
-import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import SortIcon from '@mui/icons-material/Sort'
+import IconButton from '@mui/material/IconButton'
 import Sort from 'components/Window/Sort'
 import * as StoreContext from 'components/hooks/useStore'
 
