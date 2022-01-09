@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.18.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.1...v1.18.3) (2022-01-09)
+
+### Bug Fixes
+
+- Add GitHub release integration fix [#1668](https://github.com/xcv58/Tab-Manager-v2/issues/1668) ([#1669](https://github.com/xcv58/Tab-Manager-v2/issues/1669)) ([f24e9aa](https://github.com/xcv58/Tab-Manager-v2/commit/f24e9aa632fe991e753b8fb8ee1e52a608aee127))
+- **deps:** update dependency @types/enzyme to v3.10.11 ([#1661](https://github.com/xcv58/Tab-Manager-v2/issues/1661)) ([209de1e](https://github.com/xcv58/Tab-Manager-v2/commit/209de1ee0c4c9067f43816c415bc43ac55159e9f))
+- **deps:** update dependency autoprefixer to v10.4.1 ([#1662](https://github.com/xcv58/Tab-Manager-v2/issues/1662)) ([ecd0ea4](https://github.com/xcv58/Tab-Manager-v2/commit/ecd0ea4d30696b8ab8ee1518e17dc7afa0d3fa51))
+- **deps:** update dependency autoprefixer to v10.4.2 ([#1676](https://github.com/xcv58/Tab-Manager-v2/issues/1676)) ([87c7aed](https://github.com/xcv58/Tab-Manager-v2/commit/87c7aed09a592b774400da15bdd2ec9c4cab93e9))
+- **deps:** update dependency loglevel to v1.8.0 ([#1589](https://github.com/xcv58/Tab-Manager-v2/issues/1589)) ([ea0043e](https://github.com/xcv58/Tab-Manager-v2/commit/ea0043edfcc98bd5abca42c42f50bb23110f57f6))
+- **deps:** update dependency mobx to v6.3.10 ([#1652](https://github.com/xcv58/Tab-Manager-v2/issues/1652)) ([17a1dcb](https://github.com/xcv58/Tab-Manager-v2/commit/17a1dcb97cfe210d383fc339f760569c4c9f4afb))
+- **deps:** update dependency mobx to v6.3.12 ([#1677](https://github.com/xcv58/Tab-Manager-v2/issues/1677)) ([85e695c](https://github.com/xcv58/Tab-Manager-v2/commit/85e695c9eeeb163e53c796149fdefcfd3aab62ae))
+- **deps:** update dependency mobx to v6.3.8 ([#1607](https://github.com/xcv58/Tab-Manager-v2/issues/1607)) ([23c967a](https://github.com/xcv58/Tab-Manager-v2/commit/23c967a5e74a237e179be380ef289d26346ac280))
+- **deps:** update dependency mobx to v6.3.9 ([#1639](https://github.com/xcv58/Tab-Manager-v2/issues/1639)) ([47b2cf3](https://github.com/xcv58/Tab-Manager-v2/commit/47b2cf3f6b0be10d57af1c49a2d7ddd23a149e46))
+- **deps:** update dependency mobx-react-lite to v3.2.3 ([#1663](https://github.com/xcv58/Tab-Manager-v2/issues/1663)) ([bb2f5fb](https://github.com/xcv58/Tab-Manager-v2/commit/bb2f5fb781273b2a06592d01ad81cf8b2ecd461c))
+- **deps:** update dependency playwright to v1.17.1 ([#1617](https://github.com/xcv58/Tab-Manager-v2/issues/1617)) ([3f5426e](https://github.com/xcv58/Tab-Manager-v2/commit/3f5426e851fa55b4b6132da9b0e2a666b5b2f9d2))
+- **deps:** update dependency postcss to v8.4.4 ([#1606](https://github.com/xcv58/Tab-Manager-v2/issues/1606)) ([e48363a](https://github.com/xcv58/Tab-Manager-v2/commit/e48363ab7ab2fb16b00af2064c3eb7932e6a4056))
+- **deps:** update dependency postcss to v8.4.5 ([#1640](https://github.com/xcv58/Tab-Manager-v2/issues/1640)) ([8030297](https://github.com/xcv58/Tab-Manager-v2/commit/80302971648bdd2943f116ef6ea4e18cb64ecbd7))
+- **deps:** update dependency react-resize-detector to v6.7.7 ([#1653](https://github.com/xcv58/Tab-Manager-v2/issues/1653)) ([e49de85](https://github.com/xcv58/Tab-Manager-v2/commit/e49de85525753e3b0fee8a138266b9b97b1a9ae8))
+- **deps:** update dependency react-resize-detector to v6.7.8 ([#1678](https://github.com/xcv58/Tab-Manager-v2/issues/1678)) ([b83526a](https://github.com/xcv58/Tab-Manager-v2/commit/b83526a98b00a07e31231822d804b8b51f13ae15))
+- **deps:** update dependency react-router-dom to v6.1.1 ([#1630](https://github.com/xcv58/Tab-Manager-v2/issues/1630)) ([e74cf26](https://github.com/xcv58/Tab-Manager-v2/commit/e74cf260dc98d3540174c45c24f6f473a632fc93))
+- **deps:** update dependency react-router-dom to v6.2.1 ([#1645](https://github.com/xcv58/Tab-Manager-v2/issues/1645)) ([8593bbb](https://github.com/xcv58/Tab-Manager-v2/commit/8593bbb1a34b781605c06ebb9264b16dd1e37a58))
+- **deps:** update react-dnd monorepo ([#1679](https://github.com/xcv58/Tab-Manager-v2/issues/1679)) ([4342513](https://github.com/xcv58/Tab-Manager-v2/commit/434251327ca27950d3a92d313aa4fca2c1001061))
+- Sometimes resize window leads to wrong column, i.e. show only half window with only one column, show entire width with 2 columns ([4c0730e](https://github.com/xcv58/Tab-Manager-v2/commit/4c0730ef323a73f897f627c4dbec7ead453e84df))
+- Tune the resize refresh rate to 64ms to make the UI layout refresh faster ([bf039c4](https://github.com/xcv58/Tab-Manager-v2/commit/bf039c4d1fe56b392a0598dc4604001d0f9c52c3))
+
 ### [1.18.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.1...v1.18.2) (2022-01-04)
 
 ### Bug Fixes
