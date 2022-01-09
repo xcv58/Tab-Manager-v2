@@ -50,7 +50,7 @@ export const activateTab = async (id, isBackground = false) => {
   await browser.tabs.update(tab.id, { active: true })
   await browser.windows.update(tab.windowId, { focused: true })
   if (!isBackground) {
-    closeIfCurrentTabIsPopup()
+    // closeIfCurrentTabIsPopup()
   }
 }
 

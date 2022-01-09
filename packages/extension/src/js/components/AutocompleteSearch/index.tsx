@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTextClasses } from '../hooks/useTheme'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -85,44 +86,56 @@ const getFilterOptions = (showUrl, isCommand) => {
 
 type TabOption = HistoryItem | Tab | { isDivider: boolean; title: string }
 
-const renderTabOption = (tab: TabOption) => {
+const renderTabOption = (props, tab: TabOption) => {
   if (tab.isDivider) {
     return (
-      <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
-        <div className="text-lg">{tab.title}</div>
-        <div className="text-sm text-right">
-          <div>Last visited time</div>
-          <div>Typed visits / All visits</div>
+      <li {...props}>
+        <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
+          <div className="text-lg">{tab.title}</div>
+          <div className="text-sm text-right">
+            <div>Last visited time</div>
+            <div>Typed visits / All visits</div>
+          </div>
         </div>
-      </div>
+      </li>
     )
   }
   if (tab.visitCount) {
-    return <HistoryItemTab tab={tab} />
+    return (
+      <li {...props}>
+        <HistoryItemTab {...props} tab={tab} />
+      </li>
+    )
   }
-  return <ViewOnlyTab tab={tab} />
+  return (
+    <li {...props}>
+      <ViewOnlyTab {...props} tab={tab} />
+    </li>
+  )
 }
 
-const renderCommand = (command, { inputValue }) => {
+const renderCommand = (props, command, { inputValue }) => {
   const { shortcut } = command
   const matches = match(command.name, inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
-    <div className="flex justify-between w-full px-4">
-      <span>
-        {parts.map((part, index) => (
-          <span
-            key={index}
-            className={part.highlight ? 'font-bold' : 'font-normal'}
-          >
-            {part.text}
-          </span>
-        ))}
-      </span>
-      <div>
-        <Shortcuts shortcut={shortcut} />
+    <li {...props}>
+      <div className="flex justify-between w-full px-4">
+        <span>
+          {parts.map((part, index) => (
+            <span
+              key={index}
+              className={part.highlight ? 'font-bold' : 'font-normal'}
+            >
+              {part.text}
+            </span>
+          ))}
+        </span>
+        <div>
+          <Shortcuts shortcut={shortcut} />
+        </div>
       </div>
-    </div>
+    </li>
   )
 }
 
@@ -138,7 +151,6 @@ const AutocompleteSearch = observer((props: Props) => {
   const options = useOptions()
   const { userStore, searchStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
-
   const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
 
   return (
@@ -154,7 +166,11 @@ const AutocompleteSearch = observer((props: Props) => {
       inputValue={query}
       value={query}
       disableListWrap
-      PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      PaperComponent={(props) => (
+        <Paper elevation={24}>
+          <div className={useTextClasses()}>{props.children}</div>
+        </Paper>
+      )}
       open={open}
       onFocus={() => {
         startType()
@@ -167,6 +183,9 @@ const AutocompleteSearch = observer((props: Props) => {
       }}
       onChange={(_, option) => {
         if (!option || typeof option === 'string') {
+          return
+        }
+        if (option.isDivider) {
           return
         }
         if (isCommand) {

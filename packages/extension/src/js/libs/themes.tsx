@@ -11,52 +11,68 @@ export const focusedColor = blue[200]
 export const backgroundColor = 'rgba(255, 255, 255, 0.64)'
 
 const MuiSnackbarContent = {
-  root: {
-    fontSize: '1.5rem',
-    padding: '0 2rem',
-    justifyContent: 'center',
-    textTransform: 'capitalize',
-    backgroundColor: 'rgba(0, 0, 0, 0.618)',
+  styleOverrides: {
+    root: {
+      fontSize: '1.5rem',
+      padding: '0 2rem',
+      justifyContent: 'center',
+      textTransform: 'capitalize',
+      backgroundColor: 'rgba(0, 0, 0, 0.618)',
+    },
   },
 }
 
-const overrides = {
+const components = {
   MuiIconButton: {
-    root: {
-      padding: 9,
+    styleOverrides: {
+      root: {
+        padding: 9,
+      },
     },
   },
   MuiButton: {
-    root: {
-      textTransform: 'none',
+    styleOverrides: {
+      root: {
+        textTransform: 'none',
+      },
     },
   },
   MuiSnackbarContent,
   MuiAutocomplete: {
-    root: {
-      display: 'flex',
-    },
-    listbox: {
-      maxHeight: '64vh',
-    },
-    option: {
-      paddingTop: 0,
-      paddingBottom: 0,
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    popper: {
-      marginLeft: -6,
+    styleOverrides: {
+      root: {
+        display: 'flex',
+      },
+      listbox: {
+        maxHeight: 'calc(100vh - 81px)',
+        option: {
+          paddingTop: 0,
+          paddingBottom: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
+        },
+      },
+      option: {
+        paddingTop: 0,
+        paddingBottom: 0,
+        paddingLeft: 0,
+        paddingRight: 0,
+      },
+      popper: {
+        marginLeft: -6,
+      },
     },
   },
   MuiTooltip: {
-    tooltip: {
-      display: 'inline-flex',
-      backgroundColor: grey700,
-      borderRadius: '.5rem',
-      fontSize: '1rem',
-      lineHeight: '1.5rem',
-      maxWidth: '32rem',
+    styleOverrides: {
+      tooltip: {
+        display: 'inline-flex',
+        backgroundColor: grey700,
+        borderRadius: '.5rem',
+        fontSize: '1rem',
+        lineHeight: '1.5rem',
+        maxWidth: '32rem',
+      },
     },
   },
 }
@@ -68,7 +84,7 @@ const app = {
 }
 
 export const lightTheme = {
-  overrides,
+  components,
   app,
   typography: { useNextVariants: true },
 }
@@ -81,12 +97,14 @@ export const darkTheme = merge(
   },
   {
     ...lightTheme,
-    overrides: {
-      ...overrides,
+    components: {
+      ...components,
       MuiSnackbarContent: {
-        root: {
-          ...MuiSnackbarContent.root,
-          backgroundColor,
+        styleOverrides: {
+          root: {
+            ...MuiSnackbarContent.root,
+            backgroundColor,
+          },
         },
       },
     },
