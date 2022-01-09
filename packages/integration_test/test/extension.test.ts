@@ -244,6 +244,27 @@ describe('The Extension page should', () => {
     await page.fill(inputSelector, '')
   })
 
+  it('support different theme', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    let toggleThemeButton = await page.$(
+      '[aria-label="Toggle light/dark theme"]'
+    )
+    await toggleThemeButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    toggleThemeButton = await page.$('[aria-label="Toggle light/dark theme"]')
+    await toggleThemeButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+  })
+
   it('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
