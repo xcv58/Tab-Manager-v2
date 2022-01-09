@@ -86,56 +86,44 @@ const getFilterOptions = (showUrl, isCommand) => {
 
 type TabOption = HistoryItem | Tab | { isDivider: boolean; title: string }
 
-const renderTabOption = (props, tab: TabOption) => {
+const renderTabOption = (tab: TabOption) => {
   if (tab.isDivider) {
     return (
-      <li {...props}>
-        <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
-          <div className="text-lg">{tab.title}</div>
-          <div className="text-sm text-right">
-            <div>Last visited time</div>
-            <div>Typed visits / All visits</div>
-          </div>
+      <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
+        <div className="text-lg">{tab.title}</div>
+        <div className="text-sm text-right">
+          <div>Last visited time</div>
+          <div>Typed visits / All visits</div>
         </div>
-      </li>
+      </div>
     )
   }
   if (tab.visitCount) {
-    return (
-      <li {...props}>
-        <HistoryItemTab {...props} tab={tab} />
-      </li>
-    )
+    return <HistoryItemTab tab={tab} />
   }
-  return (
-    <li {...props}>
-      <ViewOnlyTab {...props} tab={tab} />
-    </li>
-  )
+  return <ViewOnlyTab tab={tab} />
 }
 
-const renderCommand = (props, command, { inputValue }) => {
+const renderCommand = (command, state) => {
   const { shortcut } = command
-  const matches = match(command.name, inputValue.slice(1))
+  const matches = match(command.name, state.inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
-    <li {...props}>
-      <div className="flex justify-between w-full px-4">
-        <span>
-          {parts.map((part, index) => (
-            <span
-              key={index}
-              className={part.highlight ? 'font-bold' : 'font-normal'}
-            >
-              {part.text}
-            </span>
-          ))}
-        </span>
-        <div>
-          <Shortcuts shortcut={shortcut} />
-        </div>
+    <div className="flex justify-between w-full px-4">
+      <span>
+        {parts.map((part, index) => (
+          <span
+            key={index}
+            className={part.highlight ? 'font-bold' : 'font-normal'}
+          >
+            {part.text}
+          </span>
+        ))}
+      </span>
+      <div>
+        <Shortcuts shortcut={shortcut} />
       </div>
-    </li>
+    </div>
   )
 }
 
@@ -207,7 +195,11 @@ const AutocompleteSearch = observer((props: Props) => {
         `${option.name} ${option.title} ${option.url}`
       }
       getOptionDisabled={(option) => option.isDivider}
-      renderOption={isCommand ? renderCommand : renderTabOption}
+      renderOption={(props, option, state) => (
+        <li {...props}>
+          {isCommand ? renderCommand(option, state) : renderTabOption(option)}
+        </li>
+      )}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}
     />
