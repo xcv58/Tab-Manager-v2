@@ -58,6 +58,10 @@ jobs:
       - run: yarn deploy
       - run: yarn upload:chrome
       - run: yarn publish-extension
+      - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
+      - store_artifacts:
+          path: dist
+          destination: dist
       - run: yarn release-it
       - *save_yarn_cache
 
