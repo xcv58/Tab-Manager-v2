@@ -152,7 +152,7 @@ describe('The Extension page should', () => {
       ])
     )
     expect(pages).toHaveLength(URLS.length + 1)
-    const sortTabsButton = await page.$('button[title="Sort tabs"]')
+    const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
     await page.waitForTimeout(500)
 
