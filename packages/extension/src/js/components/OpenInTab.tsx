@@ -1,7 +1,7 @@
 import React from 'react'
-import Tooltip from '@material-ui/core/Tooltip'
-import OpenInBrowser from '@material-ui/icons/OpenInBrowser'
-import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import OpenInBrowser from '@mui/icons-material/OpenInBrowser'
+import IconButton from '@mui/material/IconButton'
 import { openInNewTab } from 'libs'
 
 export default () => (

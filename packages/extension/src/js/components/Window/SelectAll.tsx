@@ -1,15 +1,11 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Checkbox from '@material-ui/core/Checkbox'
-import Tooltip from '@material-ui/core/Tooltip'
+import Checkbox from '@mui/material/Checkbox'
+import Tooltip from '@mui/material/Tooltip'
 
 export default observer(({ win }) => {
-  const {
-    allTabSelected,
-    someTabSelected,
-    disableSelectAll,
-    toggleSelectAll,
-  } = win
+  const { allTabSelected, someTabSelected, disableSelectAll, toggleSelectAll } =
+    win
   const title = `${allTabSelected ? 'Unselect' : 'Select'} all tabs`
   return (
     <Tooltip title={title}>

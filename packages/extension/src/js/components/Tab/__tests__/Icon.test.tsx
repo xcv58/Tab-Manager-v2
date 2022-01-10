@@ -1,7 +1,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Checkbox from '@material-ui/core/Checkbox'
-import IconButton from '@material-ui/core/IconButton'
+import Checkbox from '@mui/material/Checkbox'
+import IconButton from '@mui/material/IconButton'
 import { Icon } from 'components/Tab/Icon'
 
 const tab = {

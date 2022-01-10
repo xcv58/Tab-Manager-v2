@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react'
-import useMediaQuery from '@material-ui/core/useMediaQuery'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
 const ReduceMotionContext = createContext(false)
 

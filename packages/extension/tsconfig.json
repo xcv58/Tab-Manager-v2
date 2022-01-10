@@ -5,11 +5,7 @@
     "outDir": "./build/",
     "baseUrl": "./src/js",
     "paths": {
-      "*": ["*"],
-      "@material-ui/core": ["./material-ui/src"],
-      "@material-ui/core/*": ["./material-ui/src/*"],
-      "@material-ui/lab": ["./material-ui-lab/src"],
-      "@material-ui/lab/*": ["./material-ui-lab/src/*"]
+      "*": ["*"]
     },
     "esModuleInterop": true,
     "sourceMap": true,

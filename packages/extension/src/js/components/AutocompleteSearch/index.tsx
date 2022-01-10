@@ -1,7 +1,8 @@
 import React from 'react'
+import { useTextClasses } from '../hooks/useTheme'
 import { observer } from 'mobx-react-lite'
-import { TextField, Paper } from '@material-ui/core'
-import Autocomplete from '@material-ui/lab/Autocomplete'
+import { TextField, Paper } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
@@ -103,9 +104,9 @@ const renderTabOption = (tab: TabOption) => {
   return <ViewOnlyTab tab={tab} />
 }
 
-const renderCommand = (command, { inputValue }) => {
+const renderCommand = (command, state) => {
   const { shortcut } = command
-  const matches = match(command.name, inputValue.slice(1))
+  const matches = match(command.name, state.inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
     <div className="flex justify-between w-full px-4">
@@ -138,7 +139,6 @@ const AutocompleteSearch = observer((props: Props) => {
   const options = useOptions()
   const { userStore, searchStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
-
   const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
 
   return (
@@ -154,7 +154,11 @@ const AutocompleteSearch = observer((props: Props) => {
       inputValue={query}
       value={query}
       disableListWrap
-      PaperComponent={(props) => <Paper elevation={24}>{props.children}</Paper>}
+      PaperComponent={(props) => (
+        <Paper elevation={24}>
+          <div className={useTextClasses()}>{props.children}</div>
+        </Paper>
+      )}
       open={open}
       onFocus={() => {
         startType()
@@ -167,6 +171,9 @@ const AutocompleteSearch = observer((props: Props) => {
       }}
       onChange={(_, option) => {
         if (!option || typeof option === 'string') {
+          return
+        }
+        if (option.isDivider) {
           return
         }
         if (isCommand) {
@@ -188,7 +195,11 @@ const AutocompleteSearch = observer((props: Props) => {
         `${option.name} ${option.title} ${option.url}`
       }
       getOptionDisabled={(option) => option.isDivider}
-      renderOption={isCommand ? renderCommand : renderTabOption}
+      renderOption={(props, option, state) => (
+        <li {...props}>
+          {isCommand ? renderCommand(option, state) : renderTabOption(option)}
+        </li>
+      )}
       filterOptions={filterOptions}
       ListboxComponent={ListboxComponent}
     />

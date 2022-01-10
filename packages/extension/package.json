@@ -20,9 +20,11 @@
     "test-watch": "yarn jest --watch"
   },
   "dependencies": {
-    "@material-ui/core": "4.12.3",
-    "@material-ui/icons": "4.11.2",
-    "@material-ui/lab": "4.0.0-alpha.60",
+    "@emotion/react": "11.7.1",
+    "@emotion/styled": "11.6.0",
+    "@mui/icons-material": "5.2.5",
+    "@mui/material": "5.2.7",
+    "@mui/styles": "5.2.3",
     "@types/enzyme": "3.10.11",
     "autoprefixer": "10.4.2",
     "autosuggest-highlight": "3.2.0",

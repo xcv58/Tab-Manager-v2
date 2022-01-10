@@ -2,12 +2,12 @@ import React from 'react'
 import { connectDropTarget } from 'test'
 import { spy } from 'sinon'
 import { shallow } from 'enzyme'
-import Paper from '@material-ui/core/Paper'
+import Paper from '@mui/material/Paper'
 import Title from 'components/Window/Title'
 import Tabs from 'components/Window/Tabs'
 import Preview from 'components/Preview'
 import Window from 'components/Window'
-import { createMuiTheme } from '@material-ui/core/styles'
+import { createMuiTheme } from '@mui/material/styles'
 
 const theme = createMuiTheme()
 const tabs = [{ id: 1 }, { id: 2 }]

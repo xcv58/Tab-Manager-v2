@@ -1,6 +1,6 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder'
+import Button from '@mui/material/Button'
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
 
 export default () => {
   return (
