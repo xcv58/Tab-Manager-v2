@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.18.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.3...v1.18.4) (2022-01-12)
+
+### Bug Fixes
+
+- Update MUI from v4 to v5 & make the search result list larger ([#1685](https://github.com/xcv58/Tab-Manager-v2/issues/1685)) ([22adebf](https://github.com/xcv58/Tab-Manager-v2/commit/22adebfcf11c9081e8822919443cd673cc9887d3))
+
 ### [1.18.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.1...v1.18.3) (2022-01-09)
 
 ### Bug Fixes
