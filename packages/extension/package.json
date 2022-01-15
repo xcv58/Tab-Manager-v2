@@ -23,7 +23,7 @@
     "@emotion/react": "11.7.1",
     "@emotion/styled": "11.6.0",
     "@mui/icons-material": "5.2.5",
-    "@mui/material": "5.2.7",
+    "@mui/material": "5.2.8",
     "@mui/styles": "5.2.3",
     "@types/enzyme": "3.10.11",
     "autoprefixer": "10.4.2",
