@@ -14920,10 +14920,10 @@ relaxed-json@1.0.3:
     chalk "^2.4.2"
     commander "^2.6.0"
 
-release-it@14.12.1:
-  version "14.12.1"
-  resolved "https://registry.yarnpkg.com/release-it/-/release-it-14.12.1.tgz#34c0a2465d2064cf5b14f03bc4a6627c3adf3dd4"
-  integrity sha512-dYPGZ7F/kfIWzsGlzNCL6PiWfPoaVUILcmqQm80kgYhI/b9RW3k6DVqE0nqI4fHxRT3fMeKWWvS0jdQmFDKn3Q==
+release-it@14.12.2:
+  version "14.12.2"
+  resolved "https://registry.yarnpkg.com/release-it/-/release-it-14.12.2.tgz#6bdb0794c81b453185879f2176077414f93949b1"
+  integrity sha512-pBoW0R92X2RxxU+gGygmHngTlOsZ8/wF4seiBWBGd3/r0NdKVHYgU1Na8xERVYs9qU0poLITf2BiXfut34nsQw==
   dependencies:
     "@iarna/toml" "2.2.5"
     "@octokit/rest" "18.12.0"
