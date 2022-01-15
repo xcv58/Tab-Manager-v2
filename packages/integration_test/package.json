@@ -17,6 +17,6 @@
   },
   "private": true,
   "dependencies": {
-    "playwright": "1.17.1"
+    "playwright": "1.17.2"
   }
 }
