@@ -3,7 +3,7 @@ module.exports = {
     purgeLayersByDefault: true,
     removeDeprecatedGapUtilities: true,
   },
-  content: false,
+  content: ['./src/**/*.{html,js,ts,tsx}'],
   theme: {
     colors: {
       transparent: 'transparent',
