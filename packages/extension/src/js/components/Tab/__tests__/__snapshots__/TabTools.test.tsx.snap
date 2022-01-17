@@ -17,5 +17,3 @@ exports[`TabTools should render correct components 1`] = `
   </div>
 </div>
 `;
-
-exports[`TabTools should render null 1`] = `<div />`;

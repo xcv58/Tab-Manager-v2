@@ -6,8 +6,20 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import Tabs from 'components/Window/Tabs'
 
 const tabs = [
-  { id: 1, isVisible: true, setNodeRef: jest.fn() },
-  { id: 2, isVisible: true, setNodeRef: jest.fn() },
+  {
+    id: 1,
+    isVisible: true,
+    setNodeRef: jest.fn(),
+    unhover: jest.fn(),
+    hover: jest.fn(),
+  },
+  {
+    id: 2,
+    isVisible: true,
+    setNodeRef: jest.fn(),
+    unhover: jest.fn(),
+    hover: jest.fn(),
+  },
   { id: 3 },
 ]
 const windowMounted = jest.fn()
