@@ -1,10 +1,10 @@
 import React from 'react'
-import { shallow } from 'enzyme'
+import { render } from '@testing-library/react'
 import Preview from 'components/Preview'
 import * as StoreContext from 'components/hooks/useStore'
-import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 
-const sources = [{ id: 1 }, { id: 2 }]
+// TODO: Add real tab mock
+const sources = []
 const mockStore = {
   tabStore: { sources },
 }
@@ -15,8 +15,8 @@ describe('Preview', () => {
   })
 
   it('render correct components', () => {
-    const el = shallow(<Preview />)
-    expect(el.find('div').length).toBe(1)
-    expect(el.find(ViewOnlyTab).length).toBe(sources.length)
+    const { container } = render(<Preview />)
+    expect(container).toMatchSnapshot()
+    expect(container.querySelector('div')).toBeInTheDocument()
   })
 })

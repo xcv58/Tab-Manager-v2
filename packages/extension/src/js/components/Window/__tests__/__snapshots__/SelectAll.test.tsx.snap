@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
+<div
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-1twearc-MuiTooltip-popper"
+  data-popper-escaped=""
+  data-popper-placement="bottom"
+  data-popper-reference-hidden=""
+  id="mui-2"
+  role="tooltip"
+  style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
+>
+  <div
+    class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-ja5taz-MuiTooltip-tooltip"
+    style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+  >
+    Unselect all tabs
+  </div>
+</div>
+`;
+
+exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
+<div
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-1twearc-MuiTooltip-popper"
+  data-popper-escaped=""
+  data-popper-placement="bottom"
+  data-popper-reference-hidden=""
+  id="mui-3"
+  role="tooltip"
+  style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
+>
+  <div
+    class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-ja5taz-MuiTooltip-tooltip"
+    style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+  >
+    Select all tabs
+  </div>
+</div>
+`;
+
+exports[`SelectAll should render correct components 1`] = `
+<div>
+  <span
+    aria-label="Unselect all tabs"
+    class="MuiCheckbox-root MuiCheckbox-colorPrimary MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root Mui-checked  css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+    data-mui-internal-clone-element="true"
+  >
+    <input
+      aria-label="Unselect all tabs"
+      checked=""
+      class="PrivateSwitchBase-input css-1m9pwf3"
+      data-indeterminate="false"
+      type="checkbox"
+    />
+    <svg
+      aria-hidden="true"
+      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+      data-testid="CheckBoxIcon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+      />
+    </svg>
+    <span
+      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+    />
+  </span>
+</div>
+`;

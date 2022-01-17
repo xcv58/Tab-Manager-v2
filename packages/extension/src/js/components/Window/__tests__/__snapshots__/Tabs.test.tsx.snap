@@ -1,0 +1,162 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tabs does not render tab with isVisible = \`false\` 1`] = `<div />`;
+
+exports[`Tabs render correct components 1`] = `
+<div>
+  <div
+    class=""
+    draggable="true"
+  >
+    <div>
+      <div
+        class="flex relative items-center opacity-25 hover:bg-blue-300"
+        tabindex="-1"
+      >
+        <div
+          class="group"
+        >
+          <div
+            class="group-hover:hidden"
+          >
+            <button
+              aria-label="Toggle select"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-78trlr-MuiButtonBase-root-MuiIconButton-root"
+              tabindex="0"
+              type="button"
+            >
+              <img
+                class="w-6 h-6"
+              />
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </button>
+          </div>
+          <div
+            class="focus:outline-none focus:ring hidden group-hover:block"
+          >
+            <span
+              class="MuiCheckbox-root MuiCheckbox-colorPrimary MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+            >
+              <input
+                aria-label="Toggle select"
+                class="PrivateSwitchBase-input css-1m9pwf3"
+                data-indeterminate="false"
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="CheckBoxOutlineBlankIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                />
+              </svg>
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </span>
+          </div>
+        </div>
+        <button
+          class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
+          data-mui-internal-clone-element="true"
+        >
+          <div
+            class="w-full overflow-hidden truncate"
+          />
+          <div
+            class="w-full overflow-hidden truncate text-xs opacity-75 group-hover:opacity-100 group-hover:text-black"
+          />
+        </button>
+        <button
+          class="inline-flex items-center justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+        >
+          x
+        </button>
+      </div>
+    </div>
+  </div>
+  <div
+    class=""
+    draggable="true"
+  >
+    <div>
+      <div
+        class="flex relative items-center opacity-25 hover:bg-blue-300"
+        tabindex="-1"
+      >
+        <div
+          class="group"
+        >
+          <div
+            class="group-hover:hidden"
+          >
+            <button
+              aria-label="Toggle select"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-78trlr-MuiButtonBase-root-MuiIconButton-root"
+              tabindex="0"
+              type="button"
+            >
+              <img
+                class="w-6 h-6"
+              />
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </button>
+          </div>
+          <div
+            class="focus:outline-none focus:ring hidden group-hover:block"
+          >
+            <span
+              class="MuiCheckbox-root MuiCheckbox-colorPrimary MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+            >
+              <input
+                aria-label="Toggle select"
+                class="PrivateSwitchBase-input css-1m9pwf3"
+                data-indeterminate="false"
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="CheckBoxOutlineBlankIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                />
+              </svg>
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </span>
+          </div>
+        </div>
+        <button
+          class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
+          data-mui-internal-clone-element="true"
+        >
+          <div
+            class="w-full overflow-hidden truncate"
+          />
+          <div
+            class="w-full overflow-hidden truncate text-xs opacity-75 group-hover:opacity-100 group-hover:text-black"
+          />
+        </button>
+        <button
+          class="inline-flex items-center justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+        >
+          x
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
