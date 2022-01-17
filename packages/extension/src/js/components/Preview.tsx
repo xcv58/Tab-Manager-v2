@@ -5,7 +5,7 @@ import { useStore } from './hooks/useStore'
 import { useTheme } from './hooks/useTheme'
 import ViewOnlyTab from './Tab/ViewOnlyTab'
 
-export default observer((props: { style: CSSProperties }) => {
+export default observer((props: { style?: CSSProperties }) => {
   const isDarkTheme = useTheme()
   const { tabStore } = useStore()
   const { sources } = tabStore

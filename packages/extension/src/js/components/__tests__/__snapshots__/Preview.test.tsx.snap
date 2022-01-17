@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Preview render correct components 1`] = `
+<div>
+  <div
+    class="opacity-50 bg-blue-300"
+  />
+</div>
+`;
