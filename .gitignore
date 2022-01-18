@@ -1,5 +1,6 @@
 node_modules
 .nyc_output
+dist
 build
 build_*
 build.zip

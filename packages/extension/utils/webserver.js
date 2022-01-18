@@ -2,7 +2,6 @@ const WebpackDevServer = require('webpack-dev-server')
 const webpack = require('webpack')
 // const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const env = require('./env')
-const path = require('path')
 
 const config = require('../webpack.config')([
   new webpack.HotModuleReplacementPlugin(),
@@ -26,11 +25,10 @@ delete config.chromeExtensionBoilerplate
 const compiler = webpack({ ...config, mode: 'development' })
 
 const server = new WebpackDevServer(compiler, {
-  stats: 'minimal',
+  devMiddleware: {
+    writeToDisk: true,
+  },
   hot: true,
-  writeToDisk: true,
-  disableHostCheck: true,
-  contentBase: path.join(__dirname, '../build'),
   headers: { 'Access-Control-Allow-Origin': '*' },
 })
 

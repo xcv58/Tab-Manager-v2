@@ -1,12 +1,8 @@
 import '@testing-library/jest-dom'
-import { configure } from 'enzyme'
 import chrome from 'sinon-chrome/extensions'
-import Adapter from 'enzyme-adapter-react-16'
 
 chrome.runtime.id = 'test'
 global.chrome = chrome
-
-configure({ adapter: new Adapter() })
 
 // TODO: Remove below code since it's a workaround of the testing library
 // Similar to https://github.com/testing-library/dom-testing-library/issues/914

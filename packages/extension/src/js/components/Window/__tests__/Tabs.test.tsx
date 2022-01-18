@@ -1,16 +1,32 @@
 import React from 'react'
 import { connectDropTarget } from 'test'
-import { spy, stub } from 'sinon'
-import { shallow } from 'enzyme'
-import DraggableTab from 'components/Tab/DraggableTab'
+import { render } from '@testing-library/react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import Tabs from 'components/Window/Tabs'
 
-const tabs = [{ id: 1, isVisible: true }, { id: 2, isVisible: true }, { id: 3 }]
-const windowMounted = spy()
+const tabs = [
+  {
+    id: 1,
+    isVisible: true,
+    setNodeRef: jest.fn(),
+    unhover: jest.fn(),
+    hover: jest.fn(),
+  },
+  {
+    id: 2,
+    isVisible: true,
+    setNodeRef: jest.fn(),
+    unhover: jest.fn(),
+    hover: jest.fn(),
+  },
+  { id: 3 },
+]
+const windowMounted = jest.fn()
 const props = {
   connectDropTarget,
   dragStore: {
-    drop: spy(),
+    drop: jest.fn(),
   },
   windowStore: {
     windowMounted,
@@ -24,12 +40,16 @@ const props = {
 
 describe('Tabs', () => {
   it('render correct components', () => {
-    const el = shallow(<Tabs {...props} />)
-    expect(el.find(DraggableTab).length).toBe(2)
+    const { container } = render(
+      <DndProvider backend={HTML5Backend}>
+        <Tabs {...props} />
+      </DndProvider>
+    )
+    expect(container).toMatchSnapshot()
   })
 
   it('does not render tab with isVisible = `false`', () => {
-    const el = shallow(
+    const { container } = render(
       <Tabs
         {...props}
         win={{
@@ -38,15 +58,19 @@ describe('Tabs', () => {
         }}
       />
     )
-    expect(el.find(DraggableTab).length).toBe(0)
+    expect(container).toMatchSnapshot()
   })
 
-  it.skip('call requestAnimationFrame with windowStore.windowMounted', () => {
-    const requestAnimationFrame = stub(window, 'requestAnimationFrame')
-    const el = shallow(<Tabs {...props} />)
-    // TODO: trigger useEffect, it's blocked by https://github.com/airbnb/enzyme/issues/2086
-    el.update()
-    expect(requestAnimationFrame.callCount).toBe(1)
-    expect(requestAnimationFrame.args[0]).toEqual([windowMounted])
+  it('call requestAnimationFrame with windowStore.windowMounted', () => {
+    const requestAnimationFrame = jest.fn(0)
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(requestAnimationFrame)
+    render(
+      <DndProvider backend={HTML5Backend}>
+        <Tabs {...props} />
+      </DndProvider>
+    )
+    expect(requestAnimationFrame.mock.calls.length).toBe(1)
   })
 })

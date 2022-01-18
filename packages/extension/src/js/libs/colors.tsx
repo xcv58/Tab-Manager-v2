@@ -1,7 +1,7 @@
-import blue from '@material-ui/core/colors/blue'
-import green from '@material-ui/core/colors/green'
-import pink from '@material-ui/core/colors/pink'
-import grey from '@material-ui/core/colors/grey'
+import blue from '@mui/material/colors/blue'
+import green from '@mui/material/colors/green'
+import pink from '@mui/material/colors/pink'
+import grey from '@mui/material/colors/grey'
 
 export const grey700 = grey[700]
 export const dropTargetColor = green[100]

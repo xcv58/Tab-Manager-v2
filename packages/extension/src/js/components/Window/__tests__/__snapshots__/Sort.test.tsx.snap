@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Sort should call arrangeStore.sortTabs 1`] = `
+<button
+  aria-label="Sort tabs"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none css-78trlr-MuiButtonBase-root-MuiIconButton-root"
+  data-mui-internal-clone-element="true"
+  tabindex="0"
+  type="button"
+>
+  <svg
+    aria-hidden="true"
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+    data-testid="SortIcon"
+    focusable="false"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"
+    />
+  </svg>
+  <span
+    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+  />
+</button>
+`;
+
+exports[`Sort should have correct tooltip 1`] = `
+<div
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-1twearc-MuiTooltip-popper"
+  data-popper-escaped=""
+  data-popper-placement="bottom"
+  data-popper-reference-hidden=""
+  id="mui-2"
+  role="tooltip"
+  style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
+>
+  <div
+    class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-ja5taz-MuiTooltip-tooltip"
+    style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+  >
+    Sort tabs
+  </div>
+</div>
+`;
+
+exports[`Sort should have correct tooltip 2`] = `
+<div>
+  <button
+    aria-label="Sort tabs"
+    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none css-78trlr-MuiButtonBase-root-MuiIconButton-root"
+    data-mui-internal-clone-element="true"
+    tabindex="0"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+      data-testid="SortIcon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"
+      />
+    </svg>
+    <span
+      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+    />
+  </button>
+</div>
+`;

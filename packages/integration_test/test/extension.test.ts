@@ -152,7 +152,7 @@ describe('The Extension page should', () => {
       ])
     )
     expect(pages).toHaveLength(URLS.length + 1)
-    const sortTabsButton = await page.$('button[title="Sort tabs"]')
+    const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
     await page.waitForTimeout(500)
 
@@ -242,6 +242,27 @@ describe('The Extension page should', () => {
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     await page.fill(inputSelector, '')
+  })
+
+  it('support different theme', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    let toggleThemeButton = await page.$(
+      '[aria-label="Toggle light/dark theme"]'
+    )
+    await toggleThemeButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    toggleThemeButton = await page.$('[aria-label="Toggle light/dark theme"]')
+    await toggleThemeButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('support font size change', async () => {

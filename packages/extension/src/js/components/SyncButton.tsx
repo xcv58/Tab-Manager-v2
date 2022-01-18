@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@material-ui/core/Tooltip'
-import IconButton from '@material-ui/core/IconButton'
-import Sync from '@material-ui/icons/Sync'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import Sync from '@mui/icons-material/Sync'
 import { useStore } from './hooks/useStore'
 
 export default observer(() => {

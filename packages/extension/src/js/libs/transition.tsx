@@ -1,4 +1,4 @@
-import { duration } from '@material-ui/core/styles/transitions'
+import { duration } from '@mui/material'
 
 export const defaultTransitionDuration = {
   enter: duration.enteringScreen,

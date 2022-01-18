@@ -1,7 +1,7 @@
 import React from 'react'
 import * as StoreContext from 'components/hooks/useStore'
-import { render } from 'enzyme'
 import ContainerIndicator from '../_ContainerIndicator'
+import { render } from '@testing-library/react'
 
 const VALID_COOKIE_STORE_ID = '42'
 const props = {
@@ -24,12 +24,12 @@ describe('ContainerIndicator', () => {
   })
 
   it('render valid content if cookieStoreId is valid', () => {
-    const el = render(<ContainerIndicator {...props} />)
-    expect(el).toMatchSnapshot()
+    const { container } = render(<ContainerIndicator {...props} />)
+    expect(container).toMatchSnapshot()
   })
 
   it('render null for invalid cookieStoreId', () => {
-    const el = render(<ContainerIndicator cookieStoreId="" />)
-    expect(el).toMatchSnapshot()
+    const { container } = render(<ContainerIndicator cookieStoreId="" />)
+    expect(container).toMatchSnapshot()
   })
 })

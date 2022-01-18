@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from '@material-ui/core/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 

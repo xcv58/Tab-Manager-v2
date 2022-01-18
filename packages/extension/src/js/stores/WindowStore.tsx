@@ -38,7 +38,10 @@ export default class WindowsStore {
       removeTabs: action,
       createNewWindow: action,
       windowMounted: action,
+      getAllWindows: action,
+      loadAllWindows: action,
       lastFocusedWindow: computed,
+      syncAllWindows: action,
       tabFingerprintMap: computed,
       duplicatedTabs: computed,
       closeDuplicatedTab: action,
@@ -304,7 +307,6 @@ export default class WindowsStore {
   }
 
   get tabFingerprintMap() {
-    console.log(this.tabs)
     return this.tabs.reduce((acc: { [key: string]: number }, tab) => {
       const { fingerPrint } = tab
       acc[fingerPrint] = (acc[fingerPrint] || 0) + 1
@@ -361,7 +363,13 @@ export default class WindowsStore {
       height,
       'this.height': this.height,
     })
-    if (this.height !== height && Math.abs(this.height - height) > TAB_HEIGHT) {
+    if (this.height !== height) {
+      log.debug(
+        'WindowsStore.updateHeight set height from',
+        this.height,
+        'to',
+        height
+      )
       this.height = height
     }
   }

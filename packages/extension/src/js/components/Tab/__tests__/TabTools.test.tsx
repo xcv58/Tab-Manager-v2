@@ -1,10 +1,9 @@
 import React from 'react'
-import { shallow } from 'enzyme'
 import TabTools from 'components/Tab/TabTools'
-import TabMenu from 'components/Tab/TabMenu'
-import DragHandle from 'components/Tab/DragHandle'
 import * as StoreContext from 'components/hooks/useStore'
+import { cleanup, render, screen } from '@testing-library/react'
 
+jest.mock('components/Tab/TabMenu', () => 'TabMenu')
 const classes = { root: 'root' }
 const props = {
   classes,
@@ -21,23 +20,26 @@ describe('TabTools', () => {
   })
 
   it('should render correct components', () => {
-    const el = shallow(<TabTools {...props} />)
-    expect(el.find('div').length).toBe(1)
-    expect(el.find(TabMenu).length).toBe(1)
-    expect(el.find(DragHandle).length).toBe(1)
+    const { container } = render(<TabTools {...props} />)
+    expect(screen.getByRole('button')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 
   it('should render null', () => {
-    let el = shallow(<TabTools {...props} faked />)
-    expect(el.getElement()).toBe(null)
+    let { container } = render(<TabTools {...props} faked />)
+    expect(container.firstChild).toBeNull()
 
-    el = shallow(<TabTools {...props} tab={{ isHovered: false }} />)
-    expect(el.getElement()).toBe(null)
+    cleanup()
+    container = render(
+      <TabTools {...props} tab={{ isHovered: false }} />
+    ).container
+    // expect(el.getElement()).toBe(null)
+    expect(container.firstChild).toBeNull()
 
     jest
       .spyOn(StoreContext, 'useStore')
       .mockImplementation(() => ({ dragStore: { dragging: true } }))
-    el = shallow(<TabTools {...props} />)
-    expect(el.getElement()).toBe(null)
+    container = render(<TabTools {...props} />).container
+    expect(container.firstChild).toBeNull()
   })
 })
