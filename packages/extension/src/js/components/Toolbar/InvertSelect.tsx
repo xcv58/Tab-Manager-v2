@@ -10,12 +10,13 @@ const TITLE = 'Inverse select tabs'
 
 export default observer(() => {
   const { searchStore } = useStore()
-  const { invertSelect } = searchStore
+  const { invertSelect, matchedTabs } = searchStore
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <IconButton
           onClick={invertSelect}
+          disabled={matchedTabs.length === 0}
           className="focus:outline-none"
           aria-label={TITLE}
         >

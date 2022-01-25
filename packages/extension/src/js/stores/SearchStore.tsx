@@ -88,7 +88,10 @@ export default class SearchStore {
   }
 
   get allTabSelected() {
-    return this.matchedTabs.every(this.store.tabStore.isTabSelected)
+    return (
+      this.matchedTabs.every(this.store.tabStore.isTabSelected) &&
+      this.matchedTabs.length > 0
+    )
   }
 
   get someTabSelected() {

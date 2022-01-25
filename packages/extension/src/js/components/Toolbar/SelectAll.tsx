@@ -7,7 +7,7 @@ import { useStore } from 'components/hooks/useStore'
 
 export default observer(() => {
   const { searchStore } = useStore()
-  const { allTabSelected, someTabSelected } = searchStore
+  const { allTabSelected, someTabSelected, matchedTabs } = searchStore
   const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
@@ -15,6 +15,7 @@ export default observer(() => {
         <Checkbox
           color="primary"
           checked={allTabSelected}
+          disabled={matchedTabs.length === 0}
           onChange={(e) => {
             e.target.blur()
             searchStore.toggleSelectAll()
