@@ -224,10 +224,10 @@ export default observer(() => {
                 />
               }
             />
-            <FormControl>
-              <InputLabel id="theme">Theme</InputLabel>
+            <FormControl variant="standard">
+              <InputLabel id="theme-label">Theme</InputLabel>
               <Select
-                id="theme"
+                id="theme-select"
                 value={theme}
                 onChange={(e) => {
                   selectTheme(e.target.value)
