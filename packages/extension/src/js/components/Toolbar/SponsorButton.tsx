@@ -5,7 +5,8 @@ import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
 export default function SponsorButton() {
   return (
     <Button
-      startIcon={<FavoriteBorder className="text-red-500 capitalize" />}
+      sx={{ textTransform: 'none' }}
+      startIcon={<FavoriteBorder className="text-red-500" />}
       variant="text"
       target="_blank"
       rel="noopener noreferrer"

@@ -5,6 +5,7 @@ import Feedback from '@mui/icons-material/Feedback'
 export default function FeedbackButton() {
   return (
     <Button
+      sx={{ textTransform: 'none' }}
       startIcon={<Feedback />}
       variant="text"
       target="_blank"
