@@ -6,7 +6,7 @@ export default function SponsorButton() {
   return (
     <Button
       startIcon={<FavoriteBorder className="text-red-500 capitalize" />}
-      variant="outlined"
+      variant="text"
       target="_blank"
       rel="noopener noreferrer"
       href="https://github.com/sponsors/xcv58"

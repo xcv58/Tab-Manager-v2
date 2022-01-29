@@ -6,7 +6,7 @@ export default function FeedbackButton() {
   return (
     <Button
       startIcon={<Feedback />}
-      variant="outlined"
+      variant="text"
       target="_blank"
       rel="noopener noreferrer"
       href="https://github.com/xcv58/Tab-Manager-v2/issues/new/choose"
