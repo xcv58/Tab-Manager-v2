@@ -1,18 +1,18 @@
 import React from 'react'
 import Button from '@mui/material/Button'
-import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
+import Feedback from '@mui/icons-material/Feedback'
 
-export default function SponsorButton() {
+export default function FeedbackButton() {
   return (
     <Button
       sx={{ textTransform: 'none' }}
-      startIcon={<FavoriteBorder className="text-red-500" />}
+      startIcon={<Feedback />}
       variant="text"
       target="_blank"
       rel="noopener noreferrer"
-      href="https://github.com/sponsors/xcv58"
+      href="https://github.com/xcv58/Tab-Manager-v2/issues/new/choose"
     >
-      Sponsor
+      Feedback
     </Button>
   )
 }

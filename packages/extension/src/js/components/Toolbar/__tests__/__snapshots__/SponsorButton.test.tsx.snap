@@ -3,7 +3,7 @@
 exports[`SponsorButton render correct components 1`] = `
 <div>
   <a
-    class="MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButtonBase-root  css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+    class="MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButtonBase-root  css-1kwi5j1-MuiButtonBase-root-MuiButton-root"
     href="https://github.com/sponsors/xcv58"
     rel="noopener noreferrer"
     tabindex="0"
@@ -14,7 +14,7 @@ exports[`SponsorButton render correct components 1`] = `
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium text-red-500 capitalize css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium text-red-500 css-i4bv87-MuiSvgIcon-root"
         data-testid="FavoriteBorderIcon"
         focusable="false"
         viewBox="0 0 24 24"
