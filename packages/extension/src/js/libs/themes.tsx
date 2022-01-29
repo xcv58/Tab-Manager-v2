@@ -92,7 +92,7 @@ export const lightTheme = {
 export const darkTheme = merge(
   {
     palette: {
-      type: 'dark',
+      mode: 'dark',
     },
   },
   {
