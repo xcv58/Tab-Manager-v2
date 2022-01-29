@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react'
+import React, { useMemo, StrictMode } from 'react'
 import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
@@ -18,12 +18,15 @@ export default observer(() => {
   const isDarkTheme =
     (userStore.useSystemTheme && systemTheme === 'dark') ||
     (!userStore.useSystemTheme && userStore.darkTheme)
-  const theme = isDarkTheme ? darkTheme : lightTheme
+  const theme = useMemo(
+    () => createTheme(isDarkTheme ? darkTheme : lightTheme),
+    [isDarkTheme]
+  )
   // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
     <StrictMode>
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme(theme)}>
+        <ThemeProvider theme={theme}>
           <DndProvider
             key={isProduction() ? 'dnd-provider' : Date.now()}
             backend={HTML5Backend}
