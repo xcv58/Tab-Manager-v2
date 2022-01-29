@@ -21,6 +21,7 @@ import { THEMES } from 'stores/UserStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
+import FeedbackButton from './FeedbackButton'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -71,7 +72,11 @@ export default observer(() => {
     >
       <DialogTitle>
         <div className="flex justify-between">
-          Settings <SponsorButton />
+          Settings{' '}
+          <div>
+            <SponsorButton />
+            <FeedbackButton />
+          </div>
         </div>
       </DialogTitle>
       <DialogContent>
