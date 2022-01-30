@@ -1739,10 +1739,10 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@mui/base@5.0.0-alpha.65":
-  version "5.0.0-alpha.65"
-  resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-alpha.65.tgz#58fb0a4334a57904144b405d16e8deea24bc31b6"
-  integrity sha512-6LCTWVoSnEoQuWdxA+Z1qqmlNK4aZj7LvCuLJzq3RVS2PskRuo1O3caVFxAzRu7xrY3zsyL/sUsJI+rdcjhuXw==
+"@mui/base@5.0.0-alpha.66":
+  version "5.0.0-alpha.66"
+  resolved "https://registry.yarnpkg.com/@mui/base/-/base-5.0.0-alpha.66.tgz#5f03e641daecbc54a7b03d6368e625fef45cb7e4"
+  integrity sha512-LARfVx0HmGV5YwU2pdIqEApQwz/CtEnYtKkV856hlY0cgi5NQL2htzZ/9ujKz0j3LFUaMYiYuJ2AOwrNtGFGrw==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@emotion/is-prop-valid" "^1.1.1"
@@ -1752,20 +1752,20 @@
     prop-types "^15.7.2"
     react-is "^17.0.2"
 
-"@mui/icons-material@5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.3.0.tgz#3e3d5e9a66bcd06d2949c20b82a9688a458fc130"
-  integrity sha512-1+dN2N8BgozmdMeHXQLrvSr1G/7Xc0NmAMLSvu8XA9RxhcTos/p66vrvpPASw2qvt14dkfeqyHwvbLRgAU9slw==
+"@mui/icons-material@5.3.1":
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.3.1.tgz#e0e0aecce5a86971dbaa46441d931a9c749a1c53"
+  integrity sha512-8zBWCaE8DHjIGZhGgMod92p6Rm38EhXrS+cZtaV0+jOTMeWh7z+mvswXzb/rVKc0ZYqw6mQYBcn2uEs2yclI9w==
   dependencies:
     "@babel/runtime" "^7.16.7"
 
-"@mui/material@5.3.0":
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/@mui/material/-/material-5.3.0.tgz#564395bc4dd96bd12e51884214330f22ee876408"
-  integrity sha512-zLdlweBHrKpOwHFoMXA6FFgKQOONuX4sQhODcj9dk5uPeScuMDE26svcsrPam5Y1PKXZX78YEGHB5Jr5PHGpTA==
+"@mui/material@5.3.1":
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/@mui/material/-/material-5.3.1.tgz#23c1e71b9cf995837ff5fdca34ac5052496861f5"
+  integrity sha512-XWPsJ2jet2zfnKojth5d2IaHIJPpJnHq1ACCSlNf898BjYh1j50gRWsPpIHiptQ0oc0pdWmMcmrXbdANKR1ybw==
   dependencies:
     "@babel/runtime" "^7.16.7"
-    "@mui/base" "5.0.0-alpha.65"
+    "@mui/base" "5.0.0-alpha.66"
     "@mui/system" "^5.3.0"
     "@mui/types" "^7.1.0"
     "@mui/utils" "^5.3.0"
