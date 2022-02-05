@@ -72,7 +72,7 @@
     "chrome-webstore-upload-cli": "2.0.1",
     "clean-webpack-plugin": "4.0.0",
     "codecov": "3.8.3",
-    "copy-webpack-plugin": "10.2.3",
+    "copy-webpack-plugin": "10.2.4",
     "coveralls": "3.1.1",
     "css-loader": "6.5.1",
     "dotenv": "14.3.2",
