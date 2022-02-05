@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.16.12",
-    "@testing-library/jest-dom": "5.16.1",
+    "@testing-library/jest-dom": "5.16.2",
     "@testing-library/react": "12.1.2",
     "@types/chrome": "0.0.177",
     "@types/classnames": "2.3.1",
