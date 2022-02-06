@@ -7278,10 +7278,10 @@ dlv@^1.1.3:
   resolved "https://registry.yarnpkg.com/dlv/-/dlv-1.1.3.tgz#5c198a8a11453596e751494d49874bc7732f2e79"
   integrity sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==
 
-dnd-core@14.0.1:
-  version "14.0.1"
-  resolved "https://registry.yarnpkg.com/dnd-core/-/dnd-core-14.0.1.tgz#76d000e41c494983210fb20a48b835f81a203c2e"
-  integrity sha512-+PVS2VPTgKFPYWo3vAFEA8WPbTf7/xo43TifH9G8S1KqnrQu0o77A3unrF5yOugy4mIz7K5wAVFHUcha7wsz6A==
+dnd-core@15.1.0:
+  version "15.1.0"
+  resolved "https://registry.yarnpkg.com/dnd-core/-/dnd-core-15.1.0.tgz#01e745312f782aa9d972a9abbae84fcc6842dcf9"
+  integrity sha512-N11KyIa/rQzUWENdKG/9ijVmk084xccht/FS+V+ZeowmMl/kjLpGAA46K8ylSkXK75UzKeMlYm/sAdxOJx0puA==
   dependencies:
     "@react-dnd/asap" "^4.0.0"
     "@react-dnd/invariant" "^2.0.0"
@@ -14348,21 +14348,21 @@ react-command-palette@0.17.1:
     react-autosuggest "^10.1.0"
     react-modal "^3.14.4"
 
-react-dnd-html5-backend@14.1.0:
-  version "14.1.0"
-  resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-14.1.0.tgz#b35a3a0c16dd3a2bfb5eb7ec62cf0c2cace8b62f"
-  integrity sha512-6ONeqEC3XKVf4eVmMTe0oPds+c5B9Foyj8p/ZKLb7kL2qh9COYxiBHv3szd6gztqi/efkmriywLUVlPotqoJyw==
+react-dnd-html5-backend@15.1.1:
+  version "15.1.1"
+  resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-15.1.1.tgz#2ccd0f447be0efb774dfef1b2b8fd590c35fdb6d"
+  integrity sha512-kZ3TKtOXLFPz68pNWdt1TTC48ugq5WT2jBCi55UPFNDlL19d929Nk53Kcu/Hi6euuIystX4Aj6bj4XwXpLkypA==
   dependencies:
-    dnd-core "14.0.1"
+    dnd-core "15.1.0"
 
-react-dnd@14.0.5:
-  version "14.0.5"
-  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-14.0.5.tgz#ecf264e220ae62e35634d9b941502f3fca0185ed"
-  integrity sha512-9i1jSgbyVw0ELlEVt/NkCUkxy1hmhJOkePoCH713u75vzHGyXhPDm28oLfc2NMSBjZRM1Y+wRjHXJT3sPrTy+A==
+react-dnd@15.1.0:
+  version "15.1.0"
+  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-15.1.0.tgz#7ac9542553420efea4ee10bc5280289462afbbf4"
+  integrity sha512-uOlZj+/ikQC7hddEvjmm+60x8QaL6EQjQ1IsoNCDTdGZszDmkwiZOah9Nvp/ltDZydB46ORD7wgkpaYmsJMpYw==
   dependencies:
     "@react-dnd/invariant" "^2.0.0"
     "@react-dnd/shallowequal" "^2.0.0"
-    dnd-core "14.0.1"
+    dnd-core "15.1.0"
     fast-deep-equal "^3.1.3"
     hoist-non-react-statics "^3.3.2"
 
