@@ -49,6 +49,7 @@ export default class Tab extends Focusable {
       toggleHide: action,
       toggleSelectAll: action,
       reload: action,
+      update: action,
       focus: action,
       hover: action,
       unhover: action,
@@ -119,6 +120,22 @@ export default class Tab extends Focusable {
   toggleSelectAll = () => this.win.toggleSelectAll()
 
   reload = () => browser.tabs.reload(this.id)
+
+  _updateHandle: any = null
+
+  _update = async () => {
+    const newTab = await browser.tabs.get(this.id)
+    Object.assign(this, newTab)
+    this.setUrlIcon()
+    this._updateHandle = null
+  }
+
+  update = () => {
+    if (this._updateHandle) {
+      clearTimeout(this._updateHandle)
+    }
+    this._updateHandle = setTimeout(this._update, 0)
+  }
 
   focus = () => {
     this.store.focusStore.focus(this)

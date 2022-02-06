@@ -191,12 +191,13 @@ export default class WindowsStore {
     this.clearWindow()
   }
 
-  onUpdated = async (tabId: number, changeInfo, newTab: Tab) => {
+  onUpdated = (tabId: number, changeInfo, newTab: Tab) => {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
-      Object.assign(tab, await browser.tabs.get(tabId))
+      Object.assign(tab, newTab)
       tab.setUrlIcon()
+      tab.update()
     }
   }
 
