@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.18.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.5...v1.18.6) (2022-02-09)
+
+### Bug Fixes
+
+- **deps:** update dependency @mui/material to v5.4.0 ([#1757](https://github.com/xcv58/Tab-Manager-v2/issues/1757)) ([6beafd5](https://github.com/xcv58/Tab-Manager-v2/commit/6beafd5eaf3f206ac69f2a730772f3727598f7f7))
+- **deps:** update dependency postcss to v8.4.6 ([#1752](https://github.com/xcv58/Tab-Manager-v2/issues/1752)) ([a2902da](https://github.com/xcv58/Tab-Manager-v2/commit/a2902dab9fe26648eb43acfb6d10a47ef7558e72))
+- **deps:** update react-dnd monorepo ([#1759](https://github.com/xcv58/Tab-Manager-v2/issues/1759)) ([239c01b](https://github.com/xcv58/Tab-Manager-v2/commit/239c01b73816369e6654c8bb542650c68b74f7e3))
+- The MUI theming doesn't apply ([#1763](https://github.com/xcv58/Tab-Manager-v2/issues/1763)) ([8ddd2f3](https://github.com/xcv58/Tab-Manager-v2/commit/8ddd2f3fe0e623b0d2b615e07d17e9b18d9f4613))
+
 ### [1.18.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.4...v1.18.5) (2022-02-03)
 
 ### Bug Fixes
