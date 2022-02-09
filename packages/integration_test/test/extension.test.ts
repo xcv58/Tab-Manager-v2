@@ -258,6 +258,23 @@ describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
+    await page.keyboard.press('Control+,')
+    await page.waitForTimeout(500)
+    await page.waitForSelector('[aria-labelledby="update-font-size"]')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.keyboard.press('?')
+    await page.waitForTimeout(500)
+    await page.waitForSelector('table')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+
     toggleThemeButton = await page.$('[aria-label="Toggle light/dark theme"]')
     await toggleThemeButton.click()
     await page.waitForTimeout(500)
