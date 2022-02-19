@@ -12213,10 +12213,10 @@ mobx-react-lite@3.2.3:
   resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-3.2.3.tgz#83d2b32ebf4383cd0dc0d397acbf53a8e9c66765"
   integrity sha512-7exWp1FV0M9dP08H9PIeHlJqDw4IdkQVRMfLYaZFMmlbzSS6ZU6p/kx392KN+rVf81hH3IQYewvRGQ70oiwmbw==
 
-mobx@6.3.13:
-  version "6.3.13"
-  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.3.13.tgz#93e56a57ee72369f850cf3d6398fd36ee8ef062e"
-  integrity sha512-zDDKDhYUk9QCHQUdLG+wb4Jv/nXutSLt/P8kkwHyjdbrJO4OZS6QTEsrOnrKM39puqXSrJZHdB6+yRys2NBFFA==
+mobx@6.4.1:
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.4.1.tgz#c1d0eeb37ceb31bb2020a85f6bf856782d47fe60"
+  integrity sha512-NFXx0uMbGBgsa0uxhH099L8cMuoRQWh01q6Sf0ZX/3hFU7svJ7yfTD+1LnLMa5wzY/b7gImAeMsR1p0wordDnA==
 
 modify-values@^1.0.0:
   version "1.0.1"
