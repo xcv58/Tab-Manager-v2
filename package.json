@@ -35,7 +35,7 @@
     "chrome-webstore-upload-cli": "2.0.1",
     "coveralls": "3.1.1",
     "dotenv": "16.0.0",
-    "eslint": "8.9.0",
+    "eslint": "8.10.0",
     "eslint-config-prettier": "8.4.0",
     "eslint-plugin-jest": "26.1.1",
     "eslint-plugin-typescript": "0.14.0",
