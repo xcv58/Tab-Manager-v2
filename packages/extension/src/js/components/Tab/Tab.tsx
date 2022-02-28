@@ -19,7 +19,6 @@ export default observer((props: TabProps & { className?: string }) => {
   const { tab, className } = props
   const {
     setNodeRef,
-    active,
     isFocused,
     isMatched,
     isSelected,
@@ -78,12 +77,12 @@ export default observer((props: TabProps & { className?: string }) => {
         !className && [
           !isDarkTheme && {
             'hover:bg-blue-300': isActionable,
-            'bg-blue-100': active || shouldHighlight,
+            'bg-blue-100': shouldHighlight,
             'bg-blue-300': isSelected,
           },
           isDarkTheme && {
             'hover:bg-gray-800': isActionable,
-            'bg-gray-800': active || shouldHighlight,
+            'bg-gray-800': shouldHighlight,
             'bg-gray-900': isSelected,
           },
         ]
