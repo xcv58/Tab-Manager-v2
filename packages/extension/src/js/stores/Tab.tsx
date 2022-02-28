@@ -186,7 +186,10 @@ export default class Tab extends Focusable {
   }
 
   get shouldHighlight() {
-    return this.isMatched && (this.isFocused || this.isHovered)
+    if (this.isSelected || !this.isMatched) {
+      return false
+    }
+    return this.isFocused || this.isHovered || this.active
   }
 
   get fingerPrint() {

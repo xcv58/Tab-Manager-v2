@@ -244,6 +244,18 @@ describe('The Extension page should', () => {
     await page.fill(inputSelector, '')
   })
 
+  it('show correct color for selected tabs', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(500)
+
+    const selectAllButton = await page.$('[aria-label="Select all tabs"]')
+    await selectAllButton.click()
+    await page.waitForTimeout(500)
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+  })
+
   it('support different theme', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
