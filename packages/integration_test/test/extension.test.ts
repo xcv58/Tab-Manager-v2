@@ -252,10 +252,8 @@ describe('The Extension page should', () => {
     const selectAllButton = await page.$('[aria-label="Select all tabs"]')
     await selectAllButton.click()
     await page.waitForTimeout(500)
-    const windowEl = await page.$('.window')
-    expect(await windowEl.screenshot()).toMatchImageSnapshot(
-      matchImageSnapshotOptions
-    )
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('support different theme', async () => {
