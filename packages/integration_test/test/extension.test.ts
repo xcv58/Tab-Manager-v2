@@ -244,7 +244,7 @@ describe('The Extension page should', () => {
     await page.fill(inputSelector, '')
   })
 
-  it('should show correct color for selected tabs', async () => {
+  it('show correct color for selected tabs', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     await page.waitForTimeout(500)
@@ -258,7 +258,7 @@ describe('The Extension page should', () => {
     )
   })
 
-  it('should support different theme', async () => {
+  it('support different theme', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()
