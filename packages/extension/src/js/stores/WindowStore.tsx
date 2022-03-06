@@ -389,7 +389,10 @@ export default class WindowsStore {
 
     this.windows = windows
       .filter(notSelfPopup)
-      .map((win) => new Window(win, this.store))
+      .filter(
+        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app'
+      )
+      .map((win: any) => new Window(win, this.store))
       .sort(windowComparator)
 
     if (this.initialLoading) {
