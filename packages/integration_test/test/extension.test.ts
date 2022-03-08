@@ -16,7 +16,7 @@ import {
 expect.extend({ toMatchImageSnapshot })
 
 const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
-  failureThreshold: 0.15,
+  failureThreshold: 0.18,
   failureThresholdType: 'percent',
 }
 
