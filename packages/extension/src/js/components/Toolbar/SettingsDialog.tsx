@@ -36,6 +36,8 @@ export default observer(() => {
     togglePreserveSearch,
     searchHistory,
     toggleSearchHistory,
+    showAppWindow,
+    toggleShowAppWindow,
     showUnmatchedTab,
     toggleShowUnmatchedTab,
     showShortcutHint,
@@ -202,6 +204,20 @@ export default observer(() => {
                   color="primary"
                   checked={showTabTooltip}
                   onChange={toggleShowTabTooltip}
+                />
+              }
+            />
+            <Divider />
+          </FormGroup>
+          <FormGroup>
+            <FormHelperText>Filter</FormHelperText>
+            <FormControlLabel
+              label="Show App Window"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showAppWindow}
+                  onChange={toggleShowAppWindow}
                 />
               }
             />

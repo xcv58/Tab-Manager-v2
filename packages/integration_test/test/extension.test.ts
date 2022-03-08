@@ -16,7 +16,7 @@ import {
 expect.extend({ toMatchImageSnapshot })
 
 const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
-  failureThreshold: 0.12,
+  failureThreshold: 0.18,
   failureThresholdType: 'percent',
 }
 
@@ -274,6 +274,11 @@ describe('The Extension page should', () => {
     await page.waitForSelector('[aria-labelledby="update-font-size"]')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    const dialogContent = await page.$('.MuiDialogContent-root')
+    expect(await dialogContent.screenshot()).toMatchImageSnapshot(
+      matchImageSnapshotOptions
+    )
 
     await page.keyboard.press('?')
     await page.waitForTimeout(500)

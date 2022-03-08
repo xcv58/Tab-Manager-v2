@@ -4,6 +4,7 @@ import Store from 'stores'
 import debounce from 'lodash.debounce'
 
 const DEFAULT_SETTINGS = {
+  showAppWindow: false,
   showShortcutHint: true,
   showUnmatchedTab: true,
   toolbarAutoHide: false,
@@ -32,6 +33,7 @@ export default class UserStore {
   constructor(store: Store) {
     makeObservable(this, {
       loaded: observable,
+      showAppWindow: observable,
       showShortcutHint: observable,
       showUnmatchedTab: observable,
       toolbarAutoHide: observable,
@@ -87,6 +89,7 @@ export default class UserStore {
 
   loaded = false
 
+  showAppWindow = false
   showShortcutHint = true
   showUnmatchedTab = true
   toolbarAutoHide = false
@@ -158,6 +161,12 @@ export default class UserStore {
   toggleHighlightDuplicatedTab = () => {
     this.highlightDuplicatedTab = !this.highlightDuplicatedTab
     this.save()
+  }
+
+  toggleShowAppWindow = () => {
+    this.showAppWindow = !this.showAppWindow
+    this.save()
+    this.store.windowStore.loadAllWindows()
   }
 
   toggleShowShortcutHint = () => {
