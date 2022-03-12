@@ -7,15 +7,12 @@ import {
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
-import { Background, setBrowserIcon } from '../background'
+import { setBrowserIcon } from '../background'
 
 export default class TabHistory {
-  root: Background
-
   actionMap: { [key: string]: () => void }
 
-  constructor(background) {
-    this.root = background
+  constructor() {
     const { onActivated, onFocusChanged, onRemoved } = this
     browser.tabs.onActivated.addListener(onActivated)
     browser.tabs.onRemoved.addListener(onRemoved)

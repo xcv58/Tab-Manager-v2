@@ -1,4 +1,4 @@
-// import TabHistory from 'background/TabHistory'
+import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import {
   createWindow,
@@ -8,9 +8,14 @@ import {
 } from 'libs'
 import browser from 'webextension-polyfill'
 
-// browser.omnibox.setDefaultSuggestion({
-//   description: 'Open tab manager window',
-// })
+browser.omnibox.setDefaultSuggestion({
+  description: 'Open tab manager window',
+})
+
+browser.omnibox.onInputEntered.addListener(() => {
+  openOrTogglePopup()
+})
+
 console.log(browser, browser.storage.local.get)
 console.log(browser.runtime.onMessage.addListener)
 // chrome.storage.local.get(["badgeText"], ({ badgeText }) => {
@@ -18,42 +23,25 @@ console.log(browser.runtime.onMessage.addListener)
 // });
 
 export const setBrowserIcon = () => {
-  const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
-  let iconPathPrefix = 'icon-128'
-  if (darkThemeMq.matches) {
-    iconPathPrefix += '-dark'
-  }
-  browser.browserAction.setIcon({
-    path: `${iconPathPrefix}.png`,
-  })
+  // TODO
+  console.log('setBrowserIcon')
+  // const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
+  // let iconPathPrefix = 'icon-128'
+  // if (darkThemeMq.matches) {
+  //   iconPathPrefix += '-dark'
+  // }
+  // console.log('setIcon:', {
+  //   path: `${iconPathPrefix}.png`,
+  // })
+  // browser.browserAction.setIcon({
+  //   path: `${iconPathPrefix}.png`,
+  // })
 }
 
-export class Background {
-  tabHistory: TabHistory
-  actionMap: {
-    [key: string]: () => void
-  }
+setBrowserIcon()
 
-  constructor() {
-    browser.omnibox.setDefaultSuggestion({
-      description: 'Open tab manager window',
-    })
-    browser.omnibox.onInputEntered.addListener(() => {
-      openOrTogglePopup()
-    })
-    this.tabHistory = new TabHistory(this)
-    browser.runtime.onMessage.addListener(this.onMessage)
-    browser.commands.onCommand.addListener(this.onCommand)
-    this.actionMap = {
-      [actions.togglePopup]: openOrTogglePopup,
-      [actions.openInNewTab]: openInNewTab,
-      [actions.createWindow]: this.createWindow,
-    }
-    Object.assign(this.actionMap, this.tabHistory.actionMap)
-    // this.browserAction()
-    setBrowserIcon()
-  }
-}
+const tabHistory = new TabHistory()
+// // TODO
 
 const _createWindow = (request, sender, sendResponse) => {
   createWindow(request.tabs)
@@ -65,6 +53,7 @@ const actionMap = {
   [actions.openInNewTab]: openInNewTab,
   [actions.createWindow]: _createWindow,
 }
+Object.assign(actionMap, tabHistory.actionMap)
 
 const onMessage = (request, sender, sendResponse) => {
   const { action } = request
