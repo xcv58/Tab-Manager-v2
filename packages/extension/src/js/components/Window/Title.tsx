@@ -13,15 +13,8 @@ import { WinProps } from 'components/types'
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const { className, win } = props
-  const {
-    tabs,
-    activate,
-    invisibleTabs,
-    reload,
-    hide,
-    toggleHide,
-    isFocused,
-  } = win
+  const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
+    win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
   const invisibleLength = invisibleTabs.length

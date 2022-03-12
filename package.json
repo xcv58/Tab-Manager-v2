@@ -27,7 +27,7 @@
     "zip:firefox": "yarn _zip build_firefox.zip build_firefox/*",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier": "prettier --no-semi --single-quote --write",
-    "lintfix": "yarn prettier '**/*.{js,ts,tsx}' && yarn lint --fix"
+    "lintfix": "yarn prettier '**/*.{js,ts,tsx,yml}' && yarn lint --fix"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "5.13.0",

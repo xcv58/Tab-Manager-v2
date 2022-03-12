@@ -20,14 +20,8 @@ export default () => {
 
   const scrollToNode = (nodeRef) => {
     const containmentRect = scrollbarRef.current.getBoundingClientRect()
-    const {
-      top,
-      bottom,
-      left,
-      right,
-      height,
-      width,
-    } = nodeRef.current.getBoundingClientRect()
+    const { top, bottom, left, right, height, width } =
+      nodeRef.current.getBoundingClientRect()
     const topGap = top - 2 * height - containmentRect.top
     const bottomGap = containmentRect.bottom - bottom - 2 * height - 4
     const leftGap = left - 4 - containmentRect.left

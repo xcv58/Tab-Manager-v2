@@ -47,12 +47,8 @@ export default class DragStore {
   }
 
   drop = async (tab: Tab, before = true) => {
-    const {
-      moveTabs,
-      getTargetWindow,
-      suspend,
-      resume,
-    } = this.store.windowStore
+    const { moveTabs, getTargetWindow, suspend, resume } =
+      this.store.windowStore
     suspend()
     const { windowId } = tab
     const win = getTargetWindow(windowId)

@@ -73,8 +73,7 @@ export default [
         status: 'complete',
         title:
           'Add drag tabs in window title to create new window · xcv58/Tab-Manager-v2@c5e9771',
-        url:
-          'https://github.com/xcv58/Tab-Manager-v2/commit/c5e97711ee7034361ad6dac7adc7a6458858310e',
+        url: 'https://github.com/xcv58/Tab-Manager-v2/commit/c5e97711ee7034361ad6dac7adc7a6458858310e',
         width: 1440,
         windowId: 2085,
       },
@@ -119,8 +118,7 @@ export default [
         selected: false,
         status: 'complete',
         title: 'React List/Grid Animation - Google Sheets',
-        url:
-          'https://docs.google.com/spreadsheets/d/1Jupjy8XUoKjLZvnwdSg33C-dOX-5acIV4nH7ph0lUog/edit#gid=0',
+        url: 'https://docs.google.com/spreadsheets/d/1Jupjy8XUoKjLZvnwdSg33C-dOX-5acIV4nH7ph0lUog/edit#gid=0',
         width: 1440,
         windowId: 2085,
       },
@@ -247,8 +245,7 @@ export default [
         selected: false,
         status: 'loading',
         title: 'Storybook',
-        url:
-          'http://localhost:6006/?selectedKind=Tab&selectedStory=DraggableTab&full=0&down=1&left=1&panelRight=0&downPanel=storybook%2Factions%2Factions-panel',
+        url: 'http://localhost:6006/?selectedKind=Tab&selectedStory=DraggableTab&full=0&down=1&left=1&panelRight=0&downPanel=storybook%2Factions%2Factions-panel',
         width: 906,
         windowId: 2980,
       },
@@ -294,8 +291,7 @@ export default [
         selected: false,
         status: 'complete',
         title: 'storybook action - Google Search',
-        url:
-          'https://www.google.com/search?q=storybook+action&oq=storybook+action&gs_l=psy-ab.3..0l4.18028.19816.0.20056.10.10.0.0.0.0.137.910.4j5.9.0....0...1.1.64.psy-ab..1.8.805...0i22i30k1j0i67k1j0i131k1.0.cREP5FIzG6E',
+        url: 'https://www.google.com/search?q=storybook+action&oq=storybook+action&gs_l=psy-ab.3..0l4.18028.19816.0.20056.10.10.0.0.0.0.137.910.4j5.9.0....0...1.1.64.psy-ab..1.8.805...0i22i30k1j0i67k1j0i131k1.0.cREP5FIzG6E',
         width: 1440,
         windowId: 2980,
       },
@@ -340,8 +336,7 @@ export default [
         selected: false,
         status: 'complete',
         title: 'storybook/addons/actions at master · storybooks/storybook',
-        url:
-          'https://github.com/storybooks/storybook/tree/master/addons/actions',
+        url: 'https://github.com/storybooks/storybook/tree/master/addons/actions',
         width: 1440,
         windowId: 2980,
       },
