@@ -63,7 +63,7 @@
     "128": "icon-128.png"
   },
   "manifest_version": 3,
-  "minimum_chrome_version": "60.0.3112",
+  "minimum_chrome_version": "89.0.4389",
   "offline_enabled": true,
   "browser_specific_settings": {
     "gecko": {
