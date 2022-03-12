@@ -24,7 +24,6 @@ console.log(browser.runtime.onMessage.addListener)
 
 export const setBrowserIcon = () => {
   // TODO
-  console.log('setBrowserIcon')
   // const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
   // let iconPathPrefix = 'icon-128'
   // if (darkThemeMq.matches) {
@@ -41,8 +40,6 @@ export const setBrowserIcon = () => {
 setBrowserIcon()
 
 const tabHistory = new TabHistory()
-// // TODO
-
 const _createWindow = (request, sender, sendResponse) => {
   createWindow(request.tabs)
   sendResponse()
@@ -53,6 +50,7 @@ const actionMap = {
   [actions.openInNewTab]: openInNewTab,
   [actions.createWindow]: _createWindow,
 }
+
 Object.assign(actionMap, tabHistory.actionMap)
 
 const onMessage = (request, sender, sendResponse) => {
@@ -72,27 +70,5 @@ const onCommand = (action) => {
   }
 }
 
-// // // const tabHistory = new TabHistory(this)
 browser.runtime.onMessage.addListener(onMessage)
 browser.commands.onCommand.addListener(onCommand)
-
-// Object.assign(this.actionMap, this.tabHistory.actionMap)
-
-// export class Background {
-//   tabHistory: TabHistory
-//   actionMap: {
-//     [key: string]: () => void
-//   }
-
-//   constructor() {
-//     // this.browserAction()
-//   }
-
-//   // NOT in use
-//   // browserAction = () => {
-//   //   browser.browserAction.onClicked.addListener(openOrTogglePopup)
-//   // }
-
-// }
-
-// ; (() => new Background())()
