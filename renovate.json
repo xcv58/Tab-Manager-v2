@@ -5,6 +5,6 @@
       "automerge": true
     }
   ],
-  "schedule": ["every weekend"],
+  "schedule": ["every weekday"],
   "extends": ["config:base"]
 }
