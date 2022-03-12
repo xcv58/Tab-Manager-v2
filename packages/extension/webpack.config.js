@@ -176,10 +176,12 @@ const options = {
               delete json.offline_enabled
             }
             if (process.env.TARGET_BROWSER !== 'firefox') {
-              json.permissions = json.permissions.filter(
-                (permission) =>
-                  !['contextualIdentities', 'cookies'].includes(permission)
-              )
+              json.permissions = json.permissions
+                .filter(
+                  (permission) =>
+                    !['contextualIdentities', 'cookies'].includes(permission)
+                )
+                .concat('tabGroups')
             }
             return Buffer.from(
               JSON.stringify({

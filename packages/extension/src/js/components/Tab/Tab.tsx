@@ -92,6 +92,7 @@ export default observer((props: TabProps & { className?: string }) => {
       onMouseLeave={onMouseLeave}
     >
       {pin}
+      {tab.groupId}
       <Icon tab={tab} />
       <TabContent tab={tab} />
       <TabTools tab={tab} />

@@ -1,5 +1,5 @@
 import { action, computed, makeObservable } from 'mobx'
-import { togglePinTabs, writeToClipboard } from 'libs'
+import { browser, togglePinTabs, writeToClipboard } from 'libs'
 import log from 'libs/log'
 import WindowStore from 'stores/WindowStore'
 import SearchStore from 'stores/SearchStore'
@@ -11,6 +11,7 @@ import UserStore from 'stores/UserStore'
 import HoverStore from 'stores/HoverStore'
 import HiddenWindowStore from 'stores/HiddenWindowStore'
 import FocusStore from 'stores/FocusStore'
+import GroupStore from 'stores/GroupStore'
 
 import Tab from './Tab'
 import Window from './Window'
@@ -35,6 +36,8 @@ export default class Store {
   hiddenWindowStore: HiddenWindowStore
 
   focusStore: FocusStore
+
+  groupStore: GroupStore
 
   containerStore
 
@@ -61,6 +64,7 @@ export default class Store {
       const ContainerStore = require('./ContainerStore').default
       this.containerStore = new ContainerStore(this)
     }
+    console.log('browser: ', browser, browser.tabGroups, chrome.tabGroups)
   }
 
   remove = () => {
