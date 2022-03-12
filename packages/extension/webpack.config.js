@@ -63,19 +63,9 @@ const HtmlFiles = ['popup'].map(
 )
 
 const entry = Object.assign(
-  ...[
-    'popup',
-    env.TARGET_BROWSER === 'chrome' ? 'background-v3' : 'background',
-  ].map((name) => {
-    return {
-      [name.replace('-v3', '')]: path.join(
-        __dirname,
-        'src',
-        'js',
-        `${name}.tsx`
-      ),
-    }
-  })
+  ...['popup', 'background'].map((name) => ({
+    [name.replace('-v3', '')]: path.join(__dirname, 'src', 'js', `${name}.tsx`),
+  }))
 )
 
 const options = {
