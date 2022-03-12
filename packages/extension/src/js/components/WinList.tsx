@@ -25,7 +25,7 @@ export default observer(() => {
       handleHeight
       refreshMode="throttle"
       refreshOptions={{ leading: true, trailing: true }}
-      refreshRate={500}
+      refreshRate={64}
       onResize={onResize}
     />
   )

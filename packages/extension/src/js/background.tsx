@@ -17,9 +17,43 @@ console.log(browser.runtime.onMessage.addListener)
 //   browser.action.setBadgeText({ text: badgeText });
 // });
 
-browser.omnibox.onInputEntered.addListener(() => {
-  openOrTogglePopup()
-})
+export const setBrowserIcon = () => {
+  const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
+  let iconPathPrefix = 'icon-128'
+  if (darkThemeMq.matches) {
+    iconPathPrefix += '-dark'
+  }
+  browser.browserAction.setIcon({
+    path: `${iconPathPrefix}.png`,
+  })
+}
+
+export class Background {
+  tabHistory: TabHistory
+  actionMap: {
+    [key: string]: () => void
+  }
+
+  constructor() {
+    browser.omnibox.setDefaultSuggestion({
+      description: 'Open tab manager window',
+    })
+    browser.omnibox.onInputEntered.addListener(() => {
+      openOrTogglePopup()
+    })
+    this.tabHistory = new TabHistory(this)
+    browser.runtime.onMessage.addListener(this.onMessage)
+    browser.commands.onCommand.addListener(this.onCommand)
+    this.actionMap = {
+      [actions.togglePopup]: openOrTogglePopup,
+      [actions.openInNewTab]: openInNewTab,
+      [actions.createWindow]: this.createWindow,
+    }
+    Object.assign(this.actionMap, this.tabHistory.actionMap)
+    // this.browserAction()
+    setBrowserIcon()
+  }
+}
 
 const _createWindow = (request, sender, sendResponse) => {
   createWindow(request.tabs)

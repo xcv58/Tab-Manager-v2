@@ -16,8 +16,7 @@ import {
 expect.extend({ toMatchImageSnapshot })
 
 const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
-  updatePassedSnapshot: true,
-  failureThreshold: 0.2,
+  failureThreshold: 0.18,
   failureThresholdType: 'percent',
 }
 
@@ -152,9 +151,9 @@ describe('The Extension page should', () => {
       ])
     )
     expect(pages).toHaveLength(URLS.length + 1)
-    const sortTabsButton = await page.$('button[title="Sort tabs"]')
+    const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(500)
 
     tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText)
@@ -202,6 +201,101 @@ describe('The Extension page should', () => {
 
     tabs = await page.$$(TAB_QUERY)
     expect(tabs.length).toBe(pages.length - 3)
+  })
+
+  it('support search browser history', async () => {
+    const wins = await page.$$('.shadow-2xl,.shadow-sm')
+    expect(wins).toHaveLength(1)
+    const tabs = await page.$$(TAB_QUERY)
+    expect(tabs).toHaveLength(1)
+    await page.goto(extensionURL.replace('not_popup=1', ''))
+
+    await openPages(browserContext, URLS)
+    await page.waitForTimeout(500)
+    await CLOSE_PAGES(browserContext)
+    await page.waitForTimeout(500)
+    await openPages(browserContext, URLS)
+    await page.waitForTimeout(500)
+    await CLOSE_PAGES(browserContext)
+    await page.waitForTimeout(500)
+    await page.bringToFront()
+
+    const inputSelector = 'input[type="text"]'
+    await page.waitForSelector(inputSelector)
+    await page.waitForTimeout(500)
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, 'xcv58')
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, 'duck')
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.fill(inputSelector, '')
+  })
+
+  it('show correct color for selected tabs', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(500)
+
+    const selectAllButton = await page.$('[aria-label="Select all tabs"]')
+    await selectAllButton.click()
+    await page.waitForTimeout(500)
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+  })
+
+  it('support different theme', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    let toggleThemeButton = await page.$(
+      '[aria-label="Toggle light/dark theme"]'
+    )
+    await toggleThemeButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.keyboard.press('Control+,')
+    await page.waitForTimeout(500)
+    await page.waitForSelector('[aria-labelledby="update-font-size"]')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    const dialogContent = await page.$('.MuiDialogContent-root')
+    expect(await dialogContent.screenshot()).toMatchImageSnapshot(
+      matchImageSnapshotOptions
+    )
+
+    await page.keyboard.press('?')
+    await page.waitForTimeout(500)
+    await page.waitForSelector('table')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+
+    toggleThemeButton = await page.$('[aria-label="Toggle light/dark theme"]')
+    await toggleThemeButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 
   it('support font size change', async () => {
@@ -262,11 +356,12 @@ describe('The Extension page should', () => {
     // Playwright triggers the drag effect but it wouldn't move the cursor.
     await page.mouse.move(100, 20, { steps: 5 })
     const screenshot = await page.screenshot()
-    const droppableToolSelector = '.bg-green-300.z-10.h-12.px-1.text-3xl'
-    expect(
-      await page.$eval(droppableToolSelector, (node) => node.innerText)
-    ).toBe('Drop here to open in New Window')
-    await page.mouse.up()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    const droppableToolSelector = '.z-10.h-12.px-1.text-3xl'
+    const dropAreaEl = await page.$(droppableToolSelector)
+    expect(await dropAreaEl.screenshot()).toMatchImageSnapshot(
+      matchImageSnapshotOptions
+    )
+    await page.mouse.up()
   })
 })

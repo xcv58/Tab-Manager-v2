@@ -1,26 +1,27 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import Divider from '@material-ui/core/Divider'
-import FormGroup from '@material-ui/core/FormGroup'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import Fade from '@material-ui/core/Fade'
-import Switch from '@material-ui/core/Switch'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import Divider from '@mui/material/Divider'
+import FormGroup from '@mui/material/FormGroup'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormHelperText from '@mui/material/FormHelperText'
+import Fade from '@mui/material/Fade'
+import Switch from '@mui/material/Switch'
 import { useStore } from 'components/hooks/useStore'
-import Slider from '@material-ui/core/Slider'
-import FormLabel from '@material-ui/core/FormLabel'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
+import Slider from '@mui/material/Slider'
+import FormLabel from '@mui/material/FormLabel'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
 import { THEMES } from 'stores/UserStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
+import FeedbackButton from './FeedbackButton'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -33,6 +34,10 @@ export default observer(() => {
     toggleShowTabTooltip,
     preserveSearch,
     togglePreserveSearch,
+    searchHistory,
+    toggleSearchHistory,
+    showAppWindow,
+    toggleShowAppWindow,
     showUnmatchedTab,
     toggleShowUnmatchedTab,
     showShortcutHint,
@@ -69,7 +74,11 @@ export default observer(() => {
     >
       <DialogTitle>
         <div className="flex justify-between">
-          Settings <SponsorButton />
+          Settings{' '}
+          <div>
+            <SponsorButton />
+            <FeedbackButton />
+          </div>
         </div>
       </DialogTitle>
       <DialogContent>
@@ -83,6 +92,16 @@ export default observer(() => {
                   color="primary"
                   checked={preserveSearch}
                   onChange={togglePreserveSearch}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Search Browser History"
+              control={
+                <Switch
+                  color="primary"
+                  checked={searchHistory}
+                  onChange={toggleSearchHistory}
                 />
               }
             />
@@ -191,6 +210,20 @@ export default observer(() => {
             <Divider />
           </FormGroup>
           <FormGroup>
+            <FormHelperText>Filter</FormHelperText>
+            <FormControlLabel
+              label="Show App Window"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showAppWindow}
+                  onChange={toggleShowAppWindow}
+                />
+              }
+            />
+            <Divider />
+          </FormGroup>
+          <FormGroup>
             <FormHelperText>Others</FormHelperText>
             <FormControlLabel
               label="Show Shortcut Hint"
@@ -212,10 +245,10 @@ export default observer(() => {
                 />
               }
             />
-            <FormControl>
-              <InputLabel id="theme">Theme</InputLabel>
+            <FormControl variant="standard">
+              <InputLabel id="theme-label">Theme</InputLabel>
               <Select
-                id="theme"
+                id="theme-select"
                 value={theme}
                 onChange={(e) => {
                   selectTheme(e.target.value)

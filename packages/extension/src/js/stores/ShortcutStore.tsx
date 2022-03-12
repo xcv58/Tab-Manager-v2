@@ -44,6 +44,7 @@ export default class ShortcutStore {
       openToast: action,
       openDialog: action,
       closeDialog: action,
+      _closeToast: action,
     })
 
     this.store = store

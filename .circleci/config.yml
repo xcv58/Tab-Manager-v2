@@ -16,7 +16,7 @@ references:
 jobs:
   build-test:
     docker:
-      - image: circleci/node:15
+      - image: circleci/node:17
     steps:
       - checkout
       - *restore_yarn_cache
@@ -34,7 +34,7 @@ jobs:
 
   integration-test:
     docker:
-      - image: circleci/node:15-browsers
+      - image: circleci/node:17-browsers
         environment:
           NODE_ENV: development
     steps:
@@ -50,7 +50,7 @@ jobs:
 
   publish:
     docker:
-      - image: circleci/node:15
+      - image: circleci/node:17
     steps:
       - checkout
       - *restore_yarn_cache
@@ -58,6 +58,13 @@ jobs:
       - run: yarn deploy
       - run: yarn upload:chrome
       - run: yarn publish-extension
+      - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
+      - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
+      - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
+      - store_artifacts:
+          path: dist
+          destination: dist
+      - run: yarn release-it
       - *save_yarn_cache
 
 workflows:

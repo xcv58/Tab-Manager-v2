@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@material-ui/core/Tooltip'
-import FilterList from '@material-ui/icons/FilterList'
-import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import FilterList from '@mui/icons-material/FilterList'
+import IconButton from '@mui/material/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 

@@ -1,7 +1,7 @@
 import React from 'react'
-import Tooltip from '@material-ui/core/Tooltip'
-import Refresh from '@material-ui/icons/Refresh'
-import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Refresh from '@mui/icons-material/Refresh'
+import IconButton from '@mui/material/IconButton'
 
 export default ({ reload }) => (
   <Tooltip title="Reload all tabs">

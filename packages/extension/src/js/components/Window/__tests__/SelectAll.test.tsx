@@ -1,8 +1,7 @@
 import React from 'react'
-import { shallow } from 'enzyme'
-import Tooltip from '@material-ui/core/Tooltip'
-import Checkbox from '@material-ui/core/Checkbox'
+import { render, fireEvent, screen, cleanup } from '@testing-library/react'
 import SelectAll from 'components/Window/SelectAll'
+import { act } from 'react-dom/test-utils'
 
 const id = 'id'
 const toggleSelectAll = jest.fn()
@@ -18,25 +17,47 @@ const props = {
 
 describe('SelectAll', () => {
   it('should render correct components', () => {
-    const el = shallow(<SelectAll {...props} />)
-    expect(el.find(Tooltip).length).toBe(1)
-    expect(el.find(Checkbox).length).toBe(1)
+    const { container } = render(<SelectAll {...props} />)
+    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('checkbox')).toBeInTheDocument()
   })
 
-  it('should render Tooltip title based on allTabSelected', () => {
-    let el = shallow(<SelectAll {...props} />)
-    expect(el.find(Tooltip).length).toBe(1)
-    expect(el.find(Tooltip).props().title).toBe('Unselect all tabs')
-    el = shallow(<SelectAll {...props} win={{ allTabSelected: false }} />)
-    expect(el.find(Tooltip).length).toBe(1)
-    expect(el.find(Tooltip).props().title).toBe('Select all tabs')
+  it('should render Tooltip title based on allTabSelected', async () => {
+    render(<SelectAll {...props} />)
+    let tooltip = screen.getByRole('checkbox')
+    act(() => {
+      fireEvent(
+        tooltip,
+        new MouseEvent('mouseover', {
+          bubbles: true,
+        })
+      )
+    })
+    let tooltipText = await screen.findByRole('tooltip')
+    expect(tooltipText).toBeInTheDocument()
+    expect(tooltipText).toMatchSnapshot()
+    expect(tooltipText).toHaveTextContent('Unselect all tabs')
+    cleanup()
+
+    render(<SelectAll {...props} win={{ allTabSelected: false }} />)
+    tooltip = screen.getByRole('checkbox')
+    act(() => {
+      fireEvent(
+        tooltip,
+        new MouseEvent('mouseover', {
+          bubbles: true,
+        })
+      )
+    })
+    tooltipText = await screen.findByRole('tooltip')
+    expect(tooltipText).toBeInTheDocument()
+    expect(tooltipText).toMatchSnapshot()
+    expect(tooltipText).toHaveTextContent('Select all tabs')
   })
 
   it('should call toggleSelectAll when click', () => {
-    const el = shallow(<SelectAll {...props} />)
-    const blur = jest.fn()
-    el.find(Checkbox).props().onChange({ target: { blur } })
-    expect(blur.mock.calls.length).toBe(1)
+    render(<SelectAll {...props} />)
+    fireEvent.click(screen.getByRole('checkbox'))
     expect(toggleSelectAll.mock.calls.length).toBe(1)
   })
 })

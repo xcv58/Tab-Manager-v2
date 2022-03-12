@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import IconButton from '@material-ui/core/IconButton'
-import MenuItem from '@material-ui/core/MenuItem'
-import Divider from '@material-ui/core/Divider'
-import Popover from '@material-ui/core/Popover'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
+import IconButton from '@mui/material/IconButton'
+import MenuItem from '@mui/material/MenuItem'
+import Divider from '@mui/material/Divider'
+import Popover from '@mui/material/Popover'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { getNoun } from 'libs'
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 import Tab from 'stores/Tab'
 
 interface IDivider {

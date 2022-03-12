@@ -9,6 +9,17 @@ import Tab from './Tab'
 
 const hasCommandPrefix = (value: string) => value.startsWith('>')
 
+const DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24
+
+export type HistoryItem = {
+  id: string
+  lastVisitTime?: number
+  title?: string
+  typedCount?: number
+  url?: string
+  visitCount?: number
+}
+
 export default class SearchStore {
   store: Store
 
@@ -18,6 +29,7 @@ export default class SearchStore {
       query: observable,
       _query: observable,
       _tabQuery: observable,
+      historyTabs: observable,
       typing: observable,
       isCommand: computed,
       matchedTabs: computed,
@@ -59,6 +71,8 @@ export default class SearchStore {
   // The _tabQuery is used only on tab content highlight
   _tabQuery = ''
 
+  historyTabs: HistoryItem[] = []
+
   typing = false
 
   get isCommand() {
@@ -74,7 +88,10 @@ export default class SearchStore {
   }
 
   get allTabSelected() {
-    return this.matchedTabs.every(this.store.tabStore.isTabSelected)
+    return (
+      this.matchedTabs.every(this.store.tabStore.isTabSelected) &&
+      this.matchedTabs.length > 0
+    )
   }
 
   get someTabSelected() {
@@ -137,11 +154,18 @@ export default class SearchStore {
     }
   }
 
-  _updateQuery = () => {
+  _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
     this._query = this.query
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
+    }
+    if (this.store.userStore.searchHistory) {
+      const historyTabs = await browser.history.search({
+        text: this._query,
+        startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
+      })
+      this.historyTabs = historyTabs
     }
   }
 

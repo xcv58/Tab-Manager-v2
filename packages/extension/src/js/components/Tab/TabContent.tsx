@@ -1,28 +1,18 @@
 import React, { useRef, useEffect, ReactElement, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
-import { match } from 'fuzzy'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from '@material-ui/core/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { TabProps } from 'components/types'
-
-const pre = "<span class='text-red-500'>"
-const post = '</span>'
+import HighlightNode from 'components/HighlightNode'
 
 const TabContent = observer(
   (props: TabProps & { buttonClassName: string; content: ReactElement }) => {
     const { faked, buttonClassName, content } = props
     const { hoverStore, dragStore } = useStore()
-    const {
-      activate,
-      title,
-      url,
-      isDuplicated,
-      focus,
-      isFocused,
-      isHovered,
-    } = props.tab
+    const { activate, title, url, isDuplicated, focus, isFocused, isHovered } =
+      props.tab
     const buttonRef = useRef(null)
     useEffect(() => {
       const button = buttonRef.current
@@ -66,11 +56,7 @@ export default observer((props: TabProps) => {
       if (!isMatched || !query) {
         return text
       }
-      const result = match(query, text, { pre, post })
-      if (!result) {
-        return <div>{text}</div>
-      }
-      return <div dangerouslySetInnerHTML={{ __html: result.rendered }} />
+      return <HighlightNode {...{ query, text }} />
     },
     [isMatched, query]
   )

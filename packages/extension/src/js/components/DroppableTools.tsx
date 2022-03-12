@@ -33,7 +33,7 @@ export default observer(() => {
       <div
         ref={drop}
         className={classNames(
-          'flex items-center justify-center h-12 px-1 text-3xl flex-shrink-0 z-10',
+          'flex items-center justify-center h-12 px-1 text-3xl shrink-0 z-10',
           isOver ? 'bg-green-400' : 'bg-green-300'
         )}
       >

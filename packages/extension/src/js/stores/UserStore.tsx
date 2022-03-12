@@ -4,12 +4,14 @@ import Store from 'stores'
 import debounce from 'lodash.debounce'
 
 const DEFAULT_SETTINGS = {
+  showAppWindow: false,
   showShortcutHint: true,
   showUnmatchedTab: true,
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
   showTabTooltip: true,
   preserveSearch: true,
+  searchHistory: true,
   showUrl: true,
   autoFocusSearch: false,
   ignoreHash: false,
@@ -31,12 +33,14 @@ export default class UserStore {
   constructor(store: Store) {
     makeObservable(this, {
       loaded: observable,
+      showAppWindow: observable,
       showShortcutHint: observable,
       showUnmatchedTab: observable,
       toolbarAutoHide: observable,
       highlightDuplicatedTab: observable,
       showTabTooltip: observable,
       preserveSearch: observable,
+      searchHistory: observable,
       showUrl: observable,
       autoFocusSearch: observable,
       dialogOpen: observable,
@@ -57,6 +61,7 @@ export default class UserStore {
       toggleShowShortcutHint: action,
       toggleShowTabTooltip: action,
       togglePreserveSearch: action,
+      toggleSearchHistory: action,
       toggleShowUnmatchedTab: action,
       toggleAutoFocusSearch: action,
       toggleShowUrl: action,
@@ -84,12 +89,14 @@ export default class UserStore {
 
   loaded = false
 
+  showAppWindow = false
   showShortcutHint = true
   showUnmatchedTab = true
   toolbarAutoHide = false
   highlightDuplicatedTab = true
   showTabTooltip = true
   preserveSearch = true
+  searchHistory = true
   showUrl = true
   autoFocusSearch = false
   useSystemTheme = true
@@ -156,6 +163,12 @@ export default class UserStore {
     this.save()
   }
 
+  toggleShowAppWindow = () => {
+    this.showAppWindow = !this.showAppWindow
+    this.save()
+    this.store.windowStore.loadAllWindows()
+  }
+
   toggleShowShortcutHint = () => {
     this.showShortcutHint = !this.showShortcutHint
     this.save()
@@ -173,6 +186,11 @@ export default class UserStore {
 
   togglePreserveSearch = () => {
     this.preserveSearch = !this.preserveSearch
+    this.save()
+  }
+
+  toggleSearchHistory = () => {
+    this.searchHistory = !this.searchHistory
     this.save()
   }
 

@@ -1,15 +1,15 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Fade from '@material-ui/core/Fade'
-import Slide from '@material-ui/core/Slide'
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import IconButton from '@material-ui/core/IconButton'
+import Fade from '@mui/material/Fade'
+import Slide from '@mui/material/Slide'
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
+import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import useReduceMotion from 'libs/useReduceMotion'
-import { duration } from '@material-ui/core/styles/transitions'
+import { duration } from '@mui/material'
 
-const IndicatorIcon = ({ toolbarVisible }) => {
+const IndicatorIcon = ({ toolbarVisible }: { toolbarVisible: boolean }) => {
   if (toolbarVisible) {
     return <KeyboardArrowRight />
   }
@@ -45,7 +45,9 @@ export default observer(() => {
         aria-label="Toggle toolbar"
       >
         <Fade in>
-          <IndicatorIcon {...{ toolbarVisible }} />
+          <div>
+            <IndicatorIcon {...{ toolbarVisible }} />
+          </div>
         </Fade>
       </IconButton>
     </Slide>

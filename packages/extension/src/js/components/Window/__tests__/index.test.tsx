@@ -1,20 +1,19 @@
 import React from 'react'
 import { connectDropTarget } from 'test'
-import { spy } from 'sinon'
-import { shallow } from 'enzyme'
-import Paper from '@material-ui/core/Paper'
-import Title from 'components/Window/Title'
-import Tabs from 'components/Window/Tabs'
-import Preview from 'components/Preview'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import Window from 'components/Window'
-import { createMuiTheme } from '@material-ui/core/styles'
+import { createTheme } from '@mui/material/styles'
+import { render } from '@testing-library/react'
 
-const theme = createMuiTheme()
+jest.mock('../Tabs', () => 'tabs')
+
+const theme = createTheme()
 const tabs = [{ id: 1 }, { id: 2 }]
 const props = {
   connectDropTarget,
   dragStore: {
-    drop: spy(),
+    drop: jest.fn(),
   },
   win: {
     tabs,
@@ -24,40 +23,47 @@ const props = {
   theme,
 }
 
-// TODO: Fix the test
-describe.skip('Window', () => {
+describe('Window', () => {
   it('render correct components', () => {
-    const el = shallow(<Window {...props} />)
-    expect(el.find('div').length).toBe(1)
-    expect(el.find(Title).length).toBe(1)
-    expect(el.find(Tabs).length).toBe(1)
-    expect(el.find(Paper).length).toBe(1)
-  })
-
-  it('render error.light backgroundColor if canDrop is false', () => {
-    const el = shallow(<Window {...props} isDragging isOver canDrop={false} />)
-    expect(el.find(Title).length).toBe(1)
-    expect(el.find(Tabs).length).toBe(1)
-    expect(el.find('div').props().style.backgroundColor).toBe(
-      theme.palette.error.light
+    const { container } = render(
+      <DndProvider backend={HTML5Backend}>
+        <Window {...props} />
+      </DndProvider>
     )
+    expect(container).toMatchSnapshot()
   })
 
-  it('render Preview based on canDrop & isOver', () => {
-    let el = shallow(<Window {...props} />)
-    expect(el.find(Preview).length).toBe(0)
-    el = shallow(<Window {...props} isOver />)
-    expect(el.find(Preview).length).toBe(0)
-    el = shallow(<Window {...props} canDrop />)
-    expect(el.find(Preview).length).toBe(0)
-    el = shallow(<Window {...props} canDrop isOver />)
-    expect(el.find(Preview).length).toBe(1)
+  it.skip('render error.light backgroundColor if canDrop is false', () => {
+    const { container } = render(
+      <DndProvider backend={HTML5Backend}>
+        <Window {...props} isDragging isOver canDrop={false} />
+      </DndProvider>
+    )
+    expect(container).toMatchSnapshot()
+    // expect(el.find(Title).length).toBe(1)
+    // expect(el.find(Tabs).length).toBe(1)
+    // expect(el.find('div').props().style.backgroundColor).toBe(
+    //   theme.palette.error.light
+    // )
   })
 
-  it('render correct elevation based on lastFocused', () => {
-    let el = shallow(<Window {...props} />)
-    expect(el.find(Paper).props().elevation).toBe(2)
-    el = shallow(<Window {...props} win={{ lastFocused: true }} />)
-    expect(el.find(Paper).props().elevation).toBe(16)
+  it.skip('render Preview based on canDrop & isOver', () => {
+    const { container } = render(<Window {...props} canDrop isOver />)
+    expect(container).toMatchSnapshot()
+
+    // expect(el.find(Preview).length).toBe(0)
+    // el = render(<Window {...props} isOver />)
+    // expect(el.find(Preview).length).toBe(0)
+    // el = render(<Window {...props} canDrop />)
+    // expect(el.find(Preview).length).toBe(0)
+    // el = render(<Window {...props} canDrop isOver />)
+    // expect(el.find(Preview).length).toBe(1)
   })
+
+  // it.skip('render correct elevation based on lastFocused', () => {
+  //   let el = render(<Window {...props} />)
+  //   expect(el.find(Paper).props().elevation).toBe(2)
+  //   el = render(<Window {...props} win={{ lastFocused: true }} />)
+  //   expect(el.find(Paper).props().elevation).toBe(16)
+  // })
 })

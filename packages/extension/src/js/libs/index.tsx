@@ -119,7 +119,12 @@ export const getInt = (number) => Math.floor(number)
 export const openPopup = () => {
   log.debug('openPopup')
   // TODO: figure out hwo to access screen
-  const screen = { availHeight: 500, availLeft: 0, availTop: 0, availWidth: 500 }
+  const screen = {
+    availHeight: 500,
+    availLeft: 0,
+    availTop: 0,
+    availWidth: 500,
+  }
   console.log({ screen })
   const { availHeight, availLeft, availTop, availWidth } = screen
   const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
@@ -140,6 +145,8 @@ export const openInNewTab = () => {
   browser.tabs.create({ url: popupURL })
   closeIfCurrentTabIsPopup()
 }
+
+export const openURL = (url: string) => browser.tabs.create({ url })
 
 export const isSelfPopupTab = (tab) =>
   tab.url === popupURL || tab.pendingUrl === popupURL
