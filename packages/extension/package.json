@@ -20,7 +20,7 @@
     "test-watch": "yarn jest --watch"
   },
   "dependencies": {
-    "@emotion/react": "11.8.1",
+    "@emotion/react": "11.8.2",
     "@emotion/styled": "11.8.1",
     "@mui/icons-material": "5.4.4",
     "@mui/material": "5.4.4",
@@ -37,7 +37,7 @@
     "mobx-react-lite": "3.3.0",
     "moment": "2.29.1",
     "mousetrap": "1.6.5",
-    "postcss": "8.4.7",
+    "postcss": "8.4.8",
     "postcss-loader": "6.2.1",
     "react": "17.0.2",
     "react-command-palette": "0.17.1",
