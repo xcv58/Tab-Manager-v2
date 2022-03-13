@@ -1,12 +1,6 @@
 import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
-import {
-  createWindow,
-  openInNewTab,
-  openOrTogglePopup,
-  // browser
-} from 'libs'
-import browser from 'webextension-polyfill'
+import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
 browser.omnibox.setDefaultSuggestion({
   description: 'Open tab manager window',
@@ -16,24 +10,30 @@ browser.omnibox.onInputEntered.addListener(() => {
   openOrTogglePopup()
 })
 
-console.log(browser, browser.storage.local.get)
-console.log(browser.runtime.onMessage.addListener)
-// chrome.storage.local.get(["badgeText"], ({ badgeText }) => {
-//   browser.action.setBadgeText({ text: badgeText });
-// });
-
-export const setBrowserIcon = () => {
-  if (typeof window !== undefined) {
+export const setBrowserIcon = async () => {
+  const iconPathPrefix = 'icon-128'
+  let darkTheme = false
+  if (typeof window === 'undefined') {
+    const { systemTheme } = await browser.storage.local.get('systemTheme')
+    darkTheme = systemTheme === 'dark'
+  } else {
     const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
-    let iconPathPrefix = 'icon-128'
-    if (darkThemeMq.matches) {
-      iconPathPrefix += '-dark'
-    }
-    browser.browserAction.setIcon({
-      path: `${iconPathPrefix}.png`,
-    })
+    darkTheme = Boolean(darkThemeMq.matches)
   }
+  ;[browser.browserAction, browser.action].forEach((action) => {
+    if (action && action.setIcon) {
+      action.setIcon({
+        path: `${iconPathPrefix}${darkTheme ? '-dark' : ''}.png`,
+      })
+    }
+  })
 }
+
+browser.storage.onChanged.addListener((changes: any, areaName: string) => {
+  if (areaName === 'local' && changes.systemTheme) {
+    setBrowserIcon()
+  }
+})
 
 setBrowserIcon()
 
