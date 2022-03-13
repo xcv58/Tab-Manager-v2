@@ -2,9 +2,14 @@ import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
-browser.omnibox.setDefaultSuggestion({
-  description: 'Open tab manager window',
-})
+// Edge browser has this issue: https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
+try {
+  browser.omnibox.setDefaultSuggestion({
+    description: 'Open tab manager window',
+  })
+} catch (e) {
+  console.log(e)
+}
 
 browser.omnibox.onInputEntered.addListener(() => {
   openOrTogglePopup()

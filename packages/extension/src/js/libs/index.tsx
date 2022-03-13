@@ -12,7 +12,7 @@ export const NOT_POPUP = 'not_popup'
 export const popupURL = browser.runtime.getURL('popup.html') + `?${NOT_POPUP}=1`
 
 const closeIfCurrentTabIsPopup = () => {
-  if (window.location.href !== popupURL) {
+  if (typeof window !== 'undefined' && window.location.href !== popupURL) {
     window.close()
   }
 }
