@@ -1,4 +1,4 @@
-import React, { useMemo, StrictMode } from 'react'
+import React, { useEffect, useMemo, StrictMode } from 'react'
 import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
@@ -7,7 +7,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { StoreContext, store, useStore } from './hooks/useStore'
 import { ThemeContext } from './hooks/useTheme'
-import { isProduction } from 'libs'
+import { browser, isProduction } from 'libs'
 import { BrowserRouter } from 'react-router-dom'
 import Main from './Main'
 import { ReduceMotionProvider } from 'libs/useReduceMotion'
@@ -22,6 +22,9 @@ export default observer(() => {
     () => createTheme(isDarkTheme ? darkTheme : lightTheme),
     [isDarkTheme]
   )
+  useEffect(() => {
+    browser.storage.local.set({ systemTheme })
+  }, [systemTheme])
   // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
     <StrictMode>

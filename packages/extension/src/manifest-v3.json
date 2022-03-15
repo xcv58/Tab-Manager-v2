@@ -1,8 +1,7 @@
 {
   "name": "Tab Manager v2",
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
   "permissions": [
     "management",
@@ -12,10 +11,10 @@
     "contextualIdentities",
     "cookies"
   ],
-  "browser_action": {
+  "action": {
     "default_popup": "popup.html",
     "default_title": "Tab Manager v2",
-    "default_icon": "icon-128.png"
+    "default_icon": "icon-16.png"
   },
   "omnibox": {
     "keyword": "t"
@@ -63,14 +62,15 @@
     "48": "icon-48.png",
     "128": "icon-128.png"
   },
-  "web_accessible_resources": ["*.css"],
-  "manifest_version": 2,
-  "minimum_chrome_version": "60.0.3112",
+  "manifest_version": 3,
+  "minimum_chrome_version": "89.0.4389",
   "offline_enabled": true,
   "browser_specific_settings": {
     "gecko": {
       "id": "tab-manager-v2@xcv58.com"
     }
   },
-  "content_security_policy": "script-src 'self'; object-src 'self'"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

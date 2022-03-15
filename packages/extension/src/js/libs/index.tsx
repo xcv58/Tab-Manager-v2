@@ -12,7 +12,7 @@ export const NOT_POPUP = 'not_popup'
 export const popupURL = browser.runtime.getURL('popup.html') + `?${NOT_POPUP}=1`
 
 const closeIfCurrentTabIsPopup = () => {
-  if (window.location.href !== popupURL) {
+  if (typeof window !== 'undefined' && window.location.href !== popupURL) {
     window.close()
   }
 }
@@ -118,6 +118,14 @@ export const getInt = (number) => Math.floor(number)
 
 export const openPopup = () => {
   log.debug('openPopup')
+  // TODO: figure out hwo to access screen
+  const screen = {
+    availHeight: 500,
+    availLeft: 0,
+    availTop: 0,
+    availWidth: 500,
+  }
+  console.log({ screen })
   const { availHeight, availLeft, availTop, availWidth } = screen
   const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
   const height = getInt(Math.max(MAX_HEIGHT, availHeight / 2))

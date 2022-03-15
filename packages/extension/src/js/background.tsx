@@ -2,68 +2,76 @@ import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
-export const setBrowserIcon = () => {
-  const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
-  let iconPathPrefix = 'icon-128'
-  if (darkThemeMq.matches) {
-    iconPathPrefix += '-dark'
+// Edge browser has this issue: https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
+try {
+  browser.omnibox.setDefaultSuggestion({
+    description: 'Open tab manager window',
+  })
+} catch (e) {
+  console.log(e)
+}
+
+browser.omnibox.onInputEntered.addListener(() => {
+  openOrTogglePopup()
+})
+
+export const setBrowserIcon = async () => {
+  const iconPathPrefix = 'icon-128'
+  let darkTheme = false
+  if (typeof window === 'undefined') {
+    const { systemTheme } = await browser.storage.local.get('systemTheme')
+    darkTheme = systemTheme === 'dark'
+  } else {
+    const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
+    darkTheme = Boolean(darkThemeMq.matches)
   }
-  browser.browserAction.setIcon({
-    path: `${iconPathPrefix}.png`,
+  ;[browser.browserAction, browser.action].forEach((action) => {
+    if (action && action.setIcon) {
+      action.setIcon({
+        path: `${iconPathPrefix}${darkTheme ? '-dark' : ''}.png`,
+      })
+    }
   })
 }
 
-export class Background {
-  tabHistory: TabHistory
-  actionMap: {
-    [key: string]: () => void
-  }
-
-  constructor() {
-    browser.omnibox.setDefaultSuggestion({
-      description: 'Open tab manager window',
-    })
-    browser.omnibox.onInputEntered.addListener(() => {
-      openOrTogglePopup()
-    })
-    this.tabHistory = new TabHistory(this)
-    browser.runtime.onMessage.addListener(this.onMessage)
-    browser.commands.onCommand.addListener(this.onCommand)
-    this.actionMap = {
-      [actions.togglePopup]: openOrTogglePopup,
-      [actions.openInNewTab]: openInNewTab,
-      [actions.createWindow]: this.createWindow,
-    }
-    Object.assign(this.actionMap, this.tabHistory.actionMap)
-    // this.browserAction()
+browser.storage.onChanged.addListener((changes: any, areaName: string) => {
+  if (areaName === 'local' && changes.systemTheme) {
     setBrowserIcon()
   }
+})
 
-  browserAction = () => {
-    browser.browserAction.onClicked.addListener(openOrTogglePopup)
-  }
+setBrowserIcon()
 
-  createWindow = async (request, sender, sendResponse) => {
-    createWindow(request.tabs)
-    sendResponse()
-  }
+const tabHistory = new TabHistory()
+const _createWindow = (request, sender, sendResponse) => {
+  createWindow(request.tabs)
+  sendResponse()
+}
 
-  onCommand = (action) => {
-    const func = this.actionMap[action]
-    if (func && typeof func === 'function') {
-      func()
-    }
-  }
+const actionMap = {
+  [actions.togglePopup]: openOrTogglePopup,
+  [actions.openInNewTab]: openInNewTab,
+  [actions.createWindow]: _createWindow,
+}
 
-  onMessage = (request, sender, sendResponse) => {
-    const { action } = request
-    const func = this.actionMap[action]
-    if (func && typeof func === 'function') {
-      func(request, sender, sendResponse)
-    } else {
-      sendResponse(`Unknown action: ${action}`)
-    }
+Object.assign(actionMap, tabHistory.actionMap)
+
+const onMessage = (request, sender, sendResponse) => {
+  const { action } = request
+  const func = actionMap[action]
+  if (func && typeof func === 'function') {
+    func(request, sender, sendResponse)
+  } else {
+    sendResponse(`Unknown action: ${action}`)
   }
 }
 
-;(() => new Background())()
+const onCommand = (action) => {
+  const func = actionMap[action]
+  if (func && typeof func === 'function') {
+    func()
+  }
+}
+
+browser.runtime.onMessage.addListener(onMessage)
+browser.commands.onCommand.addListener(onCommand)
