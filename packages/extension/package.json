@@ -56,7 +56,7 @@
     "@babel/core": "7.16.7",
     "@testing-library/jest-dom": "5.16.2",
     "@testing-library/react": "12.1.4",
-    "@types/chrome": "0.0.179",
+    "@types/chrome": "0.0.180",
     "@types/classnames": "2.3.1",
     "@types/jest": "27.4.1",
     "@types/lodash.debounce": "4.0.6",
