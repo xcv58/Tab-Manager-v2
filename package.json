@@ -37,7 +37,7 @@
     "dotenv": "16.0.0",
     "eslint": "8.11.0",
     "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-jest": "26.1.1",
+    "eslint-plugin-jest": "26.1.2",
     "eslint-plugin-typescript": "0.14.0",
     "husky": "7.0.4",
     "lint-staged": "12.3.7",
