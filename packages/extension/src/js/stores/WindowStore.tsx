@@ -394,7 +394,6 @@ export default class WindowsStore {
       )
       .map((win: any) => new Window(win, this.store))
       .sort(windowComparator)
-    console.log('windows::', windows)
 
     if (this.initialLoading) {
       this.windowMounted()

@@ -7,7 +7,6 @@ const _TabGroupIndicator = (props: Tab) => {
   const { groupId } = props
   const { tabGroupStore } = useStore()
   const tabGroup: TabGroup = tabGroupStore.getTabGroup(groupId)
-  console.log('tabGroup:', tabGroup)
   if (!groupId || groupId === -1 || !tabGroup) {
     return null
   }
