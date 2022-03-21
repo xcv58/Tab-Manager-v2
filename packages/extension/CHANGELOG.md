@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.20.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.19.0...v1.20.0) (2022-03-19)
+
+### Features
+
+- Support Manifest V3 ([#1833](https://github.com/xcv58/Tab-Manager-v2/issues/1833)) ([cf90dad](https://github.com/xcv58/Tab-Manager-v2/commit/cf90dad4709415b101bd2d703156a552ccc3bbfe))
+
+### Bug Fixes
+
+- **deps:** update dependency @emotion/react to v11.8.2 ([#1827](https://github.com/xcv58/Tab-Manager-v2/issues/1827)) ([71b672e](https://github.com/xcv58/Tab-Manager-v2/commit/71b672e35d078452eef7fb27eb7e8e72d7bbb52c))
+- **deps:** update dependency autoprefixer to v10.4.3 ([#1838](https://github.com/xcv58/Tab-Manager-v2/issues/1838)) ([fa07970](https://github.com/xcv58/Tab-Manager-v2/commit/fa079702fbddd8ec414df0188dcc11c9f97a5d2e))
+- **deps:** update dependency autoprefixer to v10.4.4 ([#1842](https://github.com/xcv58/Tab-Manager-v2/issues/1842)) ([58488e5](https://github.com/xcv58/Tab-Manager-v2/commit/58488e5f3fba36f21ea53e3d60ca653d6a765415))
+- **deps:** update dependency mobx to v6.5.0 ([#1845](https://github.com/xcv58/Tab-Manager-v2/issues/1845)) ([a2ac0e7](https://github.com/xcv58/Tab-Manager-v2/commit/a2ac0e7f6525a36b3e151bdcdff20b0ddae696ae))
+- **deps:** update dependency playwright to v1.20.0 ([#1836](https://github.com/xcv58/Tab-Manager-v2/issues/1836)) ([5053823](https://github.com/xcv58/Tab-Manager-v2/commit/50538234c40f62907c0ea4f80e8a5c507a629e78))
+- **deps:** update dependency postcss to v8.4.11 ([#1839](https://github.com/xcv58/Tab-Manager-v2/issues/1839)) ([50d6b66](https://github.com/xcv58/Tab-Manager-v2/commit/50d6b66fbbbb08b128ef36d798bfd169fbbb5436))
+- **deps:** update dependency postcss to v8.4.12 ([#1843](https://github.com/xcv58/Tab-Manager-v2/issues/1843)) ([c80cde3](https://github.com/xcv58/Tab-Manager-v2/commit/c80cde3beca434b49c6cb31d6f0f3981e541c21b))
+- **deps:** update dependency postcss to v8.4.8 ([#1828](https://github.com/xcv58/Tab-Manager-v2/issues/1828)) ([2d0b4d0](https://github.com/xcv58/Tab-Manager-v2/commit/2d0b4d01c4d5f11bded70700fa3696ad6722c85f))
+- **deps:** update material-ui monorepo to v5.5.0 ([#1832](https://github.com/xcv58/Tab-Manager-v2/issues/1832)) ([3303ccd](https://github.com/xcv58/Tab-Manager-v2/commit/3303ccd5f46c8145e6864ffa84147a9f1a39fe30))
+- **deps:** update material-ui monorepo to v5.5.1 ([#1834](https://github.com/xcv58/Tab-Manager-v2/issues/1834)) ([77aa07a](https://github.com/xcv58/Tab-Manager-v2/commit/77aa07a3f89e7d7e4fa22218a7f7ef2f2ab091a1))
+
 ## [1.19.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.18.3...v1.19.0) (2022-03-08)
 
 ### Features

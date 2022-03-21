@@ -64,7 +64,7 @@ const HtmlFiles = ['popup'].map(
 
 const entry = Object.assign(
   ...['popup', 'background'].map((name) => ({
-    [name]: path.join(__dirname, 'src', 'js', `${name}.tsx`),
+    [name.replace('-v3', '')]: path.join(__dirname, 'src', 'js', `${name}.tsx`),
   }))
 )
 
@@ -160,7 +160,10 @@ const options = {
       patterns: [
         ...images,
         {
-          from: 'src/manifest.json',
+          from:
+            env.TARGET_BROWSER === 'chrome'
+              ? 'src/manifest-v3.json'
+              : 'src/manifest.json',
           transform: function (content) {
             const json = JSON.parse(content.toString())
             if (process.env.NODE_ENV === 'production') {
@@ -191,6 +194,7 @@ const options = {
               })
             )
           },
+          to: 'manifest.json',
         },
       ],
     }),

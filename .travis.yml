@@ -8,7 +8,7 @@ before_install:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 node_js:
-  - "14"
+  - '14'
 script:
   - yarn test
   - yarn deploy && rm -rf ./node_modules/.cache
