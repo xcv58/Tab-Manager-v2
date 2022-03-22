@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.20.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.20.0...v1.20.1) (2022-03-22)
+
+### Bug Fixes
+
+- The Open or toggle Tab Manager popup window appears at the top left ([#1859](https://github.com/xcv58/Tab-Manager-v2/issues/1859)) ([1c4fddb](https://github.com/xcv58/Tab-Manager-v2/commit/1c4fddb04faac9809a86a6a834ce3562a94c1dac))
+
 ## [1.20.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.19.0...v1.20.0) (2022-03-19)
 
 ### Features
