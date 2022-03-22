@@ -23,7 +23,14 @@ export default observer(() => {
     [isDarkTheme]
   )
   useEffect(() => {
-    browser.storage.local.set({ systemTheme })
+    const { availHeight, availLeft, availTop, availWidth } = screen
+    browser.storage.local.set({
+      systemTheme,
+      availHeight,
+      availLeft,
+      availTop,
+      availWidth,
+    })
   }, [systemTheme])
   // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
