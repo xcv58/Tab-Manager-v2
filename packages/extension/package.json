@@ -16,7 +16,7 @@
     "start:firefox": "TARGET_BROWSER=firefox PORT=3001 yarn _start",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "jest": "jest --maxWorkers=1",
+    "jest": "jest",
     "test-watch": "yarn jest --watch"
   },
   "dependencies": {
