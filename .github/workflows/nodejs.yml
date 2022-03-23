@@ -33,6 +33,6 @@ jobs:
       - run: yarn build
 
       # Integration test
-      - uses: microsoft/playwright-github-action@v1
+      - run: npx playwright install-deps chromium
       - name: Integration Test
         run: xvfb-run --auto-servernum -- yarn workspace integration-test test
