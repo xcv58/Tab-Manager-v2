@@ -1,8 +1,5 @@
 import { Page, ChromiumBrowserContext } from 'playwright'
-import {
-  MatchImageSnapshotOptions,
-  toMatchImageSnapshot,
-} from 'jest-image-snapshot'
+import { toMatchImageSnapshot } from 'jest-image-snapshot'
 import manifest from '../../extension/src/manifest.json'
 import {
   TAB_QUERY,
@@ -10,14 +7,10 @@ import {
   CLOSE_PAGES,
   initBrowserWithExtension,
   openPages,
+  matchImageSnapshotOptions,
 } from '../util'
 
 expect.extend({ toMatchImageSnapshot })
-
-const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
-  failureThreshold: 0.18,
-  failureThresholdType: 'percent',
-}
 
 let page: Page
 let browserContext: ChromiumBrowserContext

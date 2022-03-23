@@ -1,4 +1,5 @@
 import { chromium, ChromiumBrowserContext } from 'playwright'
+import { MatchImageSnapshotOptions } from 'jest-image-snapshot'
 import { join } from 'path'
 
 export const EXTENSION_PATH = join(__dirname, '../../build_chrome')
@@ -64,4 +65,9 @@ export const openPages = async (
       await newPage.waitForLoadState('load')
     })
   )
+}
+
+export const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
+  failureThreshold: 0.18,
+  failureThresholdType: 'percent',
 }
