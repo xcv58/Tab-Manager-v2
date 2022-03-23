@@ -1,5 +1,4 @@
 import { Page, ChromiumBrowserContext } from 'playwright'
-import { toMatchImageSnapshot } from 'jest-image-snapshot'
 import {
   TAB_QUERY,
   URLS,
@@ -9,8 +8,6 @@ import {
   openPages,
   matchImageSnapshotOptions,
 } from '../util'
-
-expect.extend({ toMatchImageSnapshot })
 
 let page: Page
 let browserContext: ChromiumBrowserContext
