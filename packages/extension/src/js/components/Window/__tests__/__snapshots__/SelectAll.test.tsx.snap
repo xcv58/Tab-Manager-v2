@@ -2,7 +2,7 @@
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-1twearc-MuiTooltip-popper"
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
@@ -21,7 +21,7 @@ exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-1twearc-MuiTooltip-popper"
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
