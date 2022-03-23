@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Integration test via Playwright",
   "scripts": {
-    "test": "jest --maxWorkers=4",
+    "test": "jest --maxWorkers=2",
     "test-watch": "yarn test --watchAll"
   },
   "devDependencies": {
