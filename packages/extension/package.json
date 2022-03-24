@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "1.20.0",
+  "version": "1.20.1",
   "description": "Quickly and conveniently manage your open tabs",
   "private": true,
   "scripts": {
@@ -23,7 +23,7 @@
     "@emotion/react": "11.8.2",
     "@emotion/styled": "11.8.1",
     "@mui/icons-material": "5.5.1",
-    "@mui/material": "5.5.1",
+    "@mui/material": "5.5.2",
     "@mui/styles": "5.5.1",
     "autoprefixer": "10.4.4",
     "autosuggest-highlight": "3.2.1",
@@ -62,7 +62,7 @@
     "@types/lodash.debounce": "4.0.6",
     "@types/match-sorter": "6.0.0",
     "@types/mousetrap": "1.6.9",
-    "@types/react": "17.0.41",
+    "@types/react": "17.0.42",
     "@types/react-custom-scrollbars": "4.0.10",
     "@types/react-dom": "17.0.14",
     "@types/react-router-dom": "5.3.3",

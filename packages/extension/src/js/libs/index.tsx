@@ -116,17 +116,20 @@ export const MAX_WIDTH = 1024
 export const MAX_HEIGHT = 768
 export const getInt = (number) => Math.floor(number)
 
-export const openPopup = () => {
+export const openPopup = async () => {
   log.debug('openPopup')
-  // TODO: figure out hwo to access screen
-  const screen = {
-    availHeight: 500,
-    availLeft: 0,
-    availTop: 0,
-    availWidth: 500,
-  }
-  console.log({ screen })
-  const { availHeight, availLeft, availTop, availWidth } = screen
+  const {
+    availHeight = 500,
+    availLeft = 0,
+    availTop = 0,
+    availWidth = 500,
+  } = await browser.storage.local.get([
+    'availHeight',
+    'availLeft',
+    'availTop',
+    'availWidth',
+  ])
+  log.debug('openPopup', { availHeight, availLeft, availTop, availWidth })
   const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
   const height = getInt(Math.max(MAX_HEIGHT, availHeight / 2))
   const top = getInt(availTop + (availHeight - height) / 2)
