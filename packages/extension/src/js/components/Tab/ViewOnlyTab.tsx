@@ -5,7 +5,7 @@ import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import { TabProps } from 'components/types'
 import PIN from './Pin'
-import ContainerIndicator from './ContainerIndicator'
+import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 import CloseButton from 'components/CloseButton'
 
 export default observer((props: TabProps) => {
@@ -26,7 +26,10 @@ export default observer((props: TabProps) => {
       <Icon tab={tab} faked />
       <TabContent tab={tab} faked />
       <TabTools tab={tab} faked />
-      <ContainerIndicator cookieStoreId={tab.cookieStoreId} />
+      <ContainerOrGroupIndicator
+        groupId={tab.groupId}
+        cookieStoreId={tab.cookieStoreId}
+      />
       <CloseButton onClick={onRemove} disabled={tab.removing} />
     </div>
   )

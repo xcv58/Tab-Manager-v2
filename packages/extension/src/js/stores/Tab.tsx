@@ -35,6 +35,7 @@ export default class Tab extends Focusable {
 
     makeObservable(this, {
       cookieStoreId: observable,
+      groupId: observable,
       iconUrl: observable,
       active: observable,
       pinned: observable,
@@ -80,6 +81,8 @@ export default class Tab extends Focusable {
   }
 
   cookieStoreId = ''
+
+  groupId = -1
 
   iconUrl = empty
 

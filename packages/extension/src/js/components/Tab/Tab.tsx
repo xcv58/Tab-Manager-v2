@@ -10,7 +10,7 @@ import { useTheme } from 'components/hooks/useTheme'
 import { useScrollbar } from 'libs/Scrollbar'
 import { TabProps } from 'components/types'
 import PIN from './Pin'
-import ContainerIndicator from './ContainerIndicator'
+import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
@@ -96,7 +96,10 @@ export default observer((props: TabProps & { className?: string }) => {
       <TabContent tab={tab} />
       <TabTools tab={tab} />
       <CloseButton onClick={onRemove} disabled={tab.removing} />
-      <ContainerIndicator cookieStoreId={tab.cookieStoreId} />
+      <ContainerOrGroupIndicator
+        groupId={tab.groupId}
+        cookieStoreId={tab.cookieStoreId}
+      />
     </div>
   )
 })

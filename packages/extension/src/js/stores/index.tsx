@@ -36,6 +36,8 @@ export default class Store {
 
   focusStore: FocusStore
 
+  tabGroupStore
+
   containerStore
 
   constructor() {
@@ -60,6 +62,10 @@ export default class Store {
     if (process.env.TARGET_BROWSER === 'firefox') {
       const ContainerStore = require('./ContainerStore').default
       this.containerStore = new ContainerStore(this)
+    }
+    if (process.env.TARGET_BROWSER === 'chrome') {
+      const TabGroupStore = require('./TabGroupStore').default
+      this.tabGroupStore = new TabGroupStore(this)
     }
   }
 
