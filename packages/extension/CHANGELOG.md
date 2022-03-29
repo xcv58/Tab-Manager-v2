@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.21.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.20.1...v1.21.0) (2022-03-29)
+
+### Features
+
+- Add Tab Group support for Chrome ([#1853](https://github.com/xcv58/Tab-Manager-v2/issues/1853)) ([9bdc902](https://github.com/xcv58/Tab-Manager-v2/commit/9bdc902d8777056166c31436e2a077ae870d1a18))
+
+### Bug Fixes
+
+- **deps:** update dependency playwright to v1.20.1 ([#1862](https://github.com/xcv58/Tab-Manager-v2/issues/1862)) ([b3d04de](https://github.com/xcv58/Tab-Manager-v2/commit/b3d04ded5c712d3d4ce010a883e8c1baa2043e07))
+- **deps:** update dependency webextension-polyfill to v0.9.0 ([#1871](https://github.com/xcv58/Tab-Manager-v2/issues/1871)) ([9a899d4](https://github.com/xcv58/Tab-Manager-v2/commit/9a899d44ac1a48286d5c78a76d4e3cf428b3b620))
+
 ### [1.20.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.20.0...v1.20.1) (2022-03-22)
 
 ### Bug Fixes
