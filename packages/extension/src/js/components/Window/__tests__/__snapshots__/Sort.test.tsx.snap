@@ -31,7 +31,7 @@ exports[`Sort should have correct tooltip 1`] = `
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
-  id="mui-2"
+  id=":r1:"
   role="tooltip"
   style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
 >
