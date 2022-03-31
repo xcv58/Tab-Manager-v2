@@ -1,12 +1,13 @@
 /// <reference types="webpack-env" />
 import App from 'components/App'
 import React from 'react'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { isProduction } from 'libs'
 import '../css/popup.css'
 
 const init = () => {
-  render(<App />, window.document.getElementById('app-container'))
+  const root = createRoot(window.document.getElementById('app-container'))
+  root.render(<App />)
   if (!isProduction()) {
     // require('react-axe')(React, require('react-dom'), 1000)
   }
@@ -18,6 +19,7 @@ init()
 if (module.hot) {
   module.hot.accept('components/App', () => {
     const NewApp = require('components/App').default
-    render(<NewApp />, window.document.getElementById('app-container'))
+    const root = createRoot(window.document.getElementById('app-container'))
+    root.render(<NewApp />)
   })
 }
