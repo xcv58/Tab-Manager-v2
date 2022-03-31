@@ -1,5 +1,4 @@
 import { Page, ChromiumBrowserContext } from 'playwright'
-import { toMatchImageSnapshot } from 'jest-image-snapshot'
 import manifest from '../../extension/src/manifest.json'
 import {
   TAB_QUERY,
@@ -9,8 +8,6 @@ import {
   openPages,
   matchImageSnapshotOptions,
 } from '../util'
-
-expect.extend({ toMatchImageSnapshot })
 
 let page: Page
 let browserContext: ChromiumBrowserContext
