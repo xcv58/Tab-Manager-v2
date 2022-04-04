@@ -66,7 +66,7 @@ const onMessage = (request, sender, sendResponse) => {
   }
 }
 
-const onCommand = (action) => {
+const onCommand = (action: string) => {
   const func = actionMap[action]
   if (func && typeof func === 'function') {
     func()
@@ -75,3 +75,11 @@ const onCommand = (action) => {
 
 browser.runtime.onMessage.addListener(onMessage)
 browser.commands.onCommand.addListener(onCommand)
+
+const onInstalled = (details: any) => {
+  if (details.reason === 'install') {
+    openInNewTab()
+  }
+}
+
+browser.runtime.onInstalled.addListener(onInstalled)
