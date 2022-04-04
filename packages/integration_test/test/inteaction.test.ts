@@ -28,7 +28,7 @@ describe('The Extension page should', () => {
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
-    page = browserContext.pages()[0]
+    page = init.page
   })
 
   afterAll(async () => {
@@ -215,6 +215,9 @@ describe('The Extension page should', () => {
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
   })
 
   it('support drag and drop to reorder tabs', async () => {
