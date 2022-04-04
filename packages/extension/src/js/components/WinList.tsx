@@ -18,7 +18,10 @@ export default observer(() => {
     windowStore.updateHeight(height)
   }
 
-  useEffect(() => setContainerRef(scrollbarRef))
+  useEffect(() => {
+    setContainerRef(scrollbarRef)
+    onResize()
+  }, [])
 
   const resizeDetector = (
     <ReactResizeDetector
