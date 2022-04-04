@@ -21,7 +21,7 @@ export default observer(() => {
   useEffect(() => {
     setContainerRef(scrollbarRef)
     onResize()
-  }, [])
+  })
 
   const resizeDetector = (
     <ReactResizeDetector
