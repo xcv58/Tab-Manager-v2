@@ -41,7 +41,7 @@ export const initBrowserWithExtension = async () => {
     ],
   })) as ChromiumBrowserContext
 
-  const page = await browserContext.newPage()
+  let page = await browserContext.pages()[0]
   await page.bringToFront()
   await page.goto('chrome://inspect/#extensions')
   await page.goto('chrome://inspect/#service-workers')
@@ -50,8 +50,14 @@ export const initBrowserWithExtension = async () => {
     .textContent()
   const [, , extensionId] = url.split('/')
   const extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
+  await page.waitForTimeout(500)
+  const pages = browserContext.pages()
+  page = pages.find((x) => x.url() === extensionURL)
+  if (!page) {
+    page = pages[0]
+  }
 
-  return { browserContext, extensionURL }
+  return { browserContext, extensionURL, page }
 }
 
 export const openPages = async (

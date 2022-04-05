@@ -18,7 +18,7 @@ describe('The Extension page should', () => {
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
-    page = browserContext.pages()[0]
+    page = init.page
   })
 
   afterAll(async () => {
