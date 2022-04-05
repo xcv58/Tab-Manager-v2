@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.21.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.21.0...v1.21.1) (2022-04-05)
+
+### Bug Fixes
+
+- **deps:** update dependency moment to v2.29.2 ([#1886](https://github.com/xcv58/Tab-Manager-v2/issues/1886)) ([627bdae](https://github.com/xcv58/Tab-Manager-v2/commit/627bdae605f9d652613950628977a987fc4109b7))
+- **deps:** update dependency playwright to v1.20.2 ([#1883](https://github.com/xcv58/Tab-Manager-v2/issues/1883)) ([0ea4b77](https://github.com/xcv58/Tab-Manager-v2/commit/0ea4b77319df42d71594f9bc169565cbe0039f3d))
+- **deps:** update dependency react-router-dom to v6.3.0 ([#1879](https://github.com/xcv58/Tab-Manager-v2/issues/1879)) ([5aa8b55](https://github.com/xcv58/Tab-Manager-v2/commit/5aa8b553a95f3b3e34c0b3f560757395d7b6d957))
+- **deps:** update material-ui monorepo to v5.5.3 ([#1855](https://github.com/xcv58/Tab-Manager-v2/issues/1855)) ([8bc8186](https://github.com/xcv58/Tab-Manager-v2/commit/8bc8186ac2f1493d6f7dba5fda0cdc8a8b5aa30c))
+- **deps:** update react-dnd monorepo ([#1878](https://github.com/xcv58/Tab-Manager-v2/issues/1878)) ([e93bfbf](https://github.com/xcv58/Tab-Manager-v2/commit/e93bfbf55911128f4e0043d4c6eb069112e2c8b6))
+- Open extension page in new tab for first install ([#1888](https://github.com/xcv58/Tab-Manager-v2/issues/1888)) ([949f520](https://github.com/xcv58/Tab-Manager-v2/commit/949f520a2da2f4ffa886424310c532515a27d519))
+- The inital layout might be wrong since wrong default height ([1c777ae](https://github.com/xcv58/Tab-Manager-v2/commit/1c777ae866b899532aba7fd9cea37550a995eeaf))
+
 ## [1.21.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.20.1...v1.21.0) (2022-03-29)
 
 ### Features
