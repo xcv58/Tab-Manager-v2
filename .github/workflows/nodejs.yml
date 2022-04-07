@@ -35,4 +35,4 @@ jobs:
       # Integration test
       - run: npx playwright install-deps chromium
       - name: Integration Test
-        run: xvfb-run --auto-servernum -- yarn test:integration
+        run: xvfb-run --auto-servernum -- yarn test-integration
