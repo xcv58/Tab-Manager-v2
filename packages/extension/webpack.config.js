@@ -13,8 +13,6 @@ const glob = require('glob-all')
 
 const alias = {
   img: path.join(__dirname, 'src/img'),
-  'react/jsx-runtime.js': 'react/jsx-runtime',
-  'react/jsx-dev-runtime.js': 'react/jsx-dev-runtime',
 }
 
 const jsEntry = 'src/js'
