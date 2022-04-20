@@ -76,11 +76,7 @@ export default observer((props: TabProps) => {
     </>
   )
   if (faked) {
-    return (
-      <button className={buttonClassName} disabled>
-        {content}
-      </button>
-    )
+    return <button className={buttonClassName}>{content}</button>
   }
   return (
     <TabContent
