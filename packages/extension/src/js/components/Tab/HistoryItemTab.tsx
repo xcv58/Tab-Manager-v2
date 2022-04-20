@@ -25,7 +25,7 @@ const Content = observer((props: Props) => {
     'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base'
   )
   return (
-    <button className={buttonClassName} disabled>
+    <button className={buttonClassName}>
       <div className="w-full overflow-hidden truncate">
         {getHighlightNode(title)}
       </div>
