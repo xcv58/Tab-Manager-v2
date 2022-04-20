@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.21.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.21.1...v1.21.2) (2022-04-20)
+
+### Bug Fixes
+
+- [Firefox] Click the items doesn't work on lite mode ([#1932](https://github.com/xcv58/Tab-Manager-v2/issues/1932)) ([3e82ec6](https://github.com/xcv58/Tab-Manager-v2/commit/3e82ec689adb14396322e68def333a3afe26c6c7))
+- **deps:** update dependency @emotion/react to v11.9.0 ([#1893](https://github.com/xcv58/Tab-Manager-v2/issues/1893)) ([fb27d5f](https://github.com/xcv58/Tab-Manager-v2/commit/fb27d5fb34a5ffffbdf3bff0f8cb869bf1d14349))
+- **deps:** update dependency moment to v2.29.3 ([#1924](https://github.com/xcv58/Tab-Manager-v2/issues/1924)) ([419cfa9](https://github.com/xcv58/Tab-Manager-v2/commit/419cfa98889ff322e28781a2cd894ea9d5819bd5))
+- **deps:** update dependency playwright to v1.21.0 ([#1910](https://github.com/xcv58/Tab-Manager-v2/issues/1910)) ([c2e4765](https://github.com/xcv58/Tab-Manager-v2/commit/c2e476560f78a307661f3407d576732f01e94068))
+- **deps:** update dependency playwright to v1.21.1 ([#1927](https://github.com/xcv58/Tab-Manager-v2/issues/1927)) ([4f66420](https://github.com/xcv58/Tab-Manager-v2/commit/4f664209fba0dcb161efbe888cb3b076bd02604d))
+- **deps:** update dependency tailwindcss to v3.0.24 ([#1912](https://github.com/xcv58/Tab-Manager-v2/issues/1912)) ([904f83c](https://github.com/xcv58/Tab-Manager-v2/commit/904f83c53c755046b0216392ad9056d0e4991c54))
+- **deps:** update material-ui monorepo to v5.6.0 ([#1892](https://github.com/xcv58/Tab-Manager-v2/issues/1892)) ([f8f4d5b](https://github.com/xcv58/Tab-Manager-v2/commit/f8f4d5ba3ec7711b3f89ee99788366c90cedaf96))
+- **deps:** update material-ui monorepo to v5.6.1 ([#1906](https://github.com/xcv58/Tab-Manager-v2/issues/1906)) ([5c2427e](https://github.com/xcv58/Tab-Manager-v2/commit/5c2427e26aca79a75ded2368fcf17fd2de73af12))
+- **deps:** update material-ui monorepo to v5.6.2 ([#1925](https://github.com/xcv58/Tab-Manager-v2/issues/1925)) ([6329b3a](https://github.com/xcv58/Tab-Manager-v2/commit/6329b3afa5caf275f70dae3cb817a40a1798b436))
+- **deps:** update react-dnd monorepo to v16.0.1 ([#1930](https://github.com/xcv58/Tab-Manager-v2/issues/1930)) ([b6db2d9](https://github.com/xcv58/Tab-Manager-v2/commit/b6db2d9f6331e6bbc2052bf04e69d2ce07fdca38))
+
 ### [1.21.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.21.0...v1.21.1) (2022-04-05)
 
 ### Bug Fixes
