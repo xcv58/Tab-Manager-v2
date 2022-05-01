@@ -2,7 +2,7 @@
 
 exports[`CloseButton should honor disabled 1`] = `
 <button
-  class="inline-flex items-center justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 cursor-not-allowed"
+  class="inline-flex justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 cursor-not-allowed"
   disabled=""
 >
   x
@@ -11,7 +11,7 @@ exports[`CloseButton should honor disabled 1`] = `
 
 exports[`CloseButton should render correct components 1`] = `
 <button
-  class="inline-flex items-center justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+  class="inline-flex justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
 >
   x
 </button>
