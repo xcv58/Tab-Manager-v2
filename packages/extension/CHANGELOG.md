@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.21.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.21.2...v1.21.3) (2022-05-01)
+
+### Bug Fixes
+
+- **deps:** update dependency @mui/material to v5.6.3 ([#1941](https://github.com/xcv58/Tab-Manager-v2/issues/1941)) ([65f50c5](https://github.com/xcv58/Tab-Manager-v2/commit/65f50c53e0f2d80415481fdd65564a7c4baa51f6))
+- **deps:** update react monorepo to v18.1.0 ([#1949](https://github.com/xcv58/Tab-Manager-v2/issues/1949)) ([f004753](https://github.com/xcv58/Tab-Manager-v2/commit/f004753b6b1eeccd200c9eac3007f1c27d4a9c61))
+- The X in close button is not in the middle ([#1954](https://github.com/xcv58/Tab-Manager-v2/issues/1954)) ([e030e91](https://github.com/xcv58/Tab-Manager-v2/commit/e030e91f55f923ad32eed51a929ff1545b71198b))
+
 ### [1.21.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.21.1...v1.21.2) (2022-04-20)
 
 ### Bug Fixes
