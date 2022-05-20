@@ -24,8 +24,8 @@
     "publish-extension": "run-s publish:chrome publish:firefox",
     "zip": "run-s zip:*",
     "_zip": "zip -X --compression-method deflate -9 -r --junk-paths",
-    "zip:chrome": "yarn _zip build_chrome.zip packages/extension/build/build_chrome/*",
-    "zip:firefox": "yarn _zip build_firefox.zip packages/extension/build/build_firefox/*",
+    "zip:chrome": "yarn _zip packages/extension/build/build_chrome.zip packages/extension/build/build_chrome/*",
+    "zip:firefox": "yarn _zip packages/extension/build/build_firefox.zip packages/extension/build/build_firefox/*",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier": "prettier --no-semi --single-quote --write",
     "lintfix": "yarn prettier '**/*.{js,ts,tsx,yml}' && yarn lint --fix"

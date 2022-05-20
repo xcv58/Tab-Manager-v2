@@ -23,6 +23,7 @@ jobs:
       - run: yarn install
       - run: yarn test
       - run: yarn deploy
+      - run: mv packages/extension/build/build_*.zip ./
       - run: ls -l packages/extension/build/build_*/* build_*.zip
       - run: sha256sum packages/extension/build/build_*/* build_*.zip | tee SHA256SUMS.txt
       - run: cat packages/extension/build/build_*/* | sha256sum | tee -a SHA256SUMS.txt
