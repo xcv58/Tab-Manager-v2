@@ -5,4 +5,6 @@ git: false
 github:
   release: true
   update: true
-  assets: 'dist/*'
+  assets:
+    - 'dist/*.zip'
+    - 'dist/SHA256SUMS.txt'
