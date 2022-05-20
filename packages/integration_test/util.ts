@@ -4,7 +4,7 @@ import { join } from 'path'
 
 export const EXTENSION_PATH = join(
   __dirname,
-  '../../packages/extension//build_chrome'
+  '../../packages/extension/build/build_chrome'
 )
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
