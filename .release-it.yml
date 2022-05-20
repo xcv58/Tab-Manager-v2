@@ -6,5 +6,5 @@ github:
   release: true
   update: true
   assets:
-    - 'dist/*.zip'
-    - 'dist/SHA256SUMS.txt'
+    - 'packages/extension/build/*.zip'
+    - 'packages/extension/build/SHA256SUMS.txt'

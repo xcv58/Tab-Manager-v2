@@ -41,8 +41,8 @@ jobs:
       - run: xvfb-run --auto-servernum -- yarn test-integration
       - *save_yarn_cache
       - store_artifacts:
-          path: __image_snapshots__
-          destination: packages/integration_test/test/__image_snapshots__
+          path: packages/extension/build
+          destination: dist
 
   publish:
     docker:
