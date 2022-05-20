@@ -16,7 +16,7 @@
     "test:chrome-upload": "chrome-webstore-upload --help",
     "test:firefox-upload": "web-ext --help",
     "build": "NODE_ENV=production yarn workspace tab-manager-v2 build",
-    "ls": "ls -lh build*.zip",
+    "ls": "ls -lh packages/extension/build/build*.zip",
     "deploy": "run-s build zip ls",
     "upload:chrome": "node -r dotenv/config ./node_modules/.bin/chrome-webstore-upload upload --source build_chrome.zip",
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/chrome-webstore-upload publish",
