@@ -23,13 +23,9 @@ jobs:
       - run: yarn install
       - run: yarn test
       - run: yarn deploy
-      - run: ls -l build_*/* build_*.zip
-      - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
-      - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
-      - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
       - *save_yarn_cache
       - store_artifacts:
-          path: dist
+          path: packages/extension/build
           destination: dist
 
   integration-test:
@@ -45,8 +41,8 @@ jobs:
       - run: xvfb-run --auto-servernum -- yarn test-integration
       - *save_yarn_cache
       - store_artifacts:
-          path: __image_snapshots__
-          destination: packages/integration_test/test/__image_snapshots__
+          path: packages/extension/build
+          destination: dist
 
   publish:
     docker:
@@ -58,11 +54,8 @@ jobs:
       - run: yarn deploy
       - run: yarn upload:chrome
       - run: yarn publish-extension
-      - run: sha256sum build_*/* build_*.zip | tee SHA256SUMS.txt
-      - run: cat build_*/* | sha256sum | tee -a SHA256SUMS.txt
-      - run: mkdir dist && mv build_*.zip SHA256SUMS.txt dist
       - store_artifacts:
-          path: dist
+          path: packages/extension/build
           destination: dist
       - run: yarn release-it
       - *save_yarn_cache

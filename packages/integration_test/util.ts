@@ -2,7 +2,10 @@ import { chromium, ChromiumBrowserContext } from 'playwright'
 import { MatchImageSnapshotOptions } from 'jest-image-snapshot'
 import { join } from 'path'
 
-export const EXTENSION_PATH = join(__dirname, '../../build_chrome')
+export const EXTENSION_PATH = join(
+  __dirname,
+  '../../packages/extension/build/build_chrome'
+)
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 
