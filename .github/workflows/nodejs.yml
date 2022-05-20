@@ -29,9 +29,9 @@ jobs:
         run: yarn install --frozen-lockfile --ignore-engines
 
       # Test and Build
-      - run: yarn test
+      # - run: yarn test
 
-      # Integration test
+      # Run all test
       - run: npx playwright install-deps chromium
       - name: Integration Test
         run: xvfb-run --auto-servernum -- yarn test

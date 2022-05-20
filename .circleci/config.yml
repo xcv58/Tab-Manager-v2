@@ -16,12 +16,12 @@ references:
 jobs:
   build-test:
     docker:
-      - image: circleci/node:17
+      - image: circleci/node:17-browsers
     steps:
       - checkout
       - *restore_yarn_cache
       - run: yarn install
-      - run: yarn test
+      - run: xvfb-run --auto-servernum -- yarn test
       - run: yarn deploy
       - *save_yarn_cache
       - store_artifacts:
