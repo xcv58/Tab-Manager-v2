@@ -17,6 +17,9 @@ jobs:
   build-test:
     docker:
       - image: circleci/node:17-browsers
+    environment:
+      TURBO_TOKEN: $TURBO_TOKEN
+      TURBO_TEAM: $TURBO_TEAM
     steps:
       - checkout
       - *restore_yarn_cache

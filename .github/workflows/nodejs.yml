@@ -8,6 +8,9 @@ jobs:
     strategy:
       matrix:
         node: [14, 16, 17]
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
     steps:
       - uses: actions/checkout@v3
