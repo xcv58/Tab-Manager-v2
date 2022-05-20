@@ -5,12 +5,12 @@ on: [push]
 jobs:
   test-build-integration-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [14, 16, 17]
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    strategy:
+      matrix:
+        node: [14, 16, 17]
 
     steps:
       - uses: actions/checkout@v3
