@@ -7,11 +7,27 @@
       "outputs": ["build/**"]
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "tab-manager-v2#build"],
+      "outputs": []
+    },
+    "deploy": {
+      "dependsOn": ["^build", "^zip", "^stat"],
       "outputs": []
     },
     "lint": {
       "outputs": []
+    },
+    "ls": {
+      "dependsOn": ["tab-manager-v2#zip"],
+      "outputs": []
+    },
+    "zip": {
+      "dependsOn": ["^build", "tab-manager-v2#build"],
+      "outputs": ["build/*.zip"]
+    },
+    "stat": {
+      "dependsOn": ["tab-manager-v2#zip"],
+      "outputs": ["build/*.txt"]
     },
     "dev": {
       "cache": false

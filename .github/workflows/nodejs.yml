@@ -30,7 +30,6 @@ jobs:
 
       # Test and Build
       - run: yarn test
-      - run: yarn build
 
       # Integration test
       - run: npx playwright install-deps chromium

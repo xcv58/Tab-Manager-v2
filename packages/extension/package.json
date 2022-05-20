@@ -17,6 +17,7 @@
     "stat": "rm -f build/SHA256SUMS.txt; sha256sum build/build_*/* build/build_*.zip | tee build/SHA256SUMS.txt; cat build/build_*/* | sha256sum | tee -a build/SHA256SUMS.txt",
     "zip": "run-s zip:*",
     "_zip": "zip -X --compression-method deflate -9 -r --junk-paths",
+    "ls": "ls -lh build/build*.zip",
     "zip:chrome": "yarn _zip build/build_chrome.zip build/build_chrome/*",
     "zip:firefox": "yarn _zip build/build_firefox.zip build/build_firefox/*",
     "codecov": "codecov",
