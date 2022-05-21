@@ -5,6 +5,9 @@ on: [push]
 jobs:
   test-build-integration-test:
     runs-on: ubuntu-latest
+    env:
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     strategy:
       matrix:
         node: [14, 16, 17]
@@ -29,10 +32,9 @@ jobs:
         run: yarn install --frozen-lockfile --ignore-engines
 
       # Test and Build
-      - run: yarn test
-      - run: yarn build
+      # - run: yarn test
 
-      # Integration test
+      # Run all test
       - run: npx playwright install-deps chromium
       - name: Integration Test
-        run: xvfb-run --auto-servernum -- yarn test-integration
+        run: xvfb-run --auto-servernum -- yarn test
