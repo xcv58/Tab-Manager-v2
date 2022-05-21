@@ -7,7 +7,7 @@
     "analyze": "NODE_ENV=production node utils/analyze.js",
     "release": "standard-version",
     "build": "run-p build:*",
-    "_build": "node utils/build.js",
+    "_build": "NODE_ENV=production node utils/build.js",
     "build:chrome": "TARGET_BROWSER=chrome yarn _build",
     "build:firefox": "TARGET_BROWSER=firefox yarn _build",
     "start": "run-p start:*",
