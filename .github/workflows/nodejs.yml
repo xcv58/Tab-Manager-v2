@@ -28,6 +28,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-${{ matrix.node }}
+      - name: test
+        run: |
+          echo "TURBO_TEAM: ${TURBO_TEAM}"
       - name: install
         run: yarn install --frozen-lockfile --ignore-engines
 
