@@ -6,8 +6,8 @@ jobs:
   test-build-integration-test:
     runs-on: ubuntu-latest
     env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     strategy:
       matrix:
         node: [14, 16, 17]
@@ -28,9 +28,6 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ matrix.node }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-${{ matrix.node }}
-      - name: test
-        run: |
-          echo "TURBO_TEAM: ${TURBO_TEAM}"
       - name: install
         run: yarn install --frozen-lockfile --ignore-engines
 
