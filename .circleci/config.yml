@@ -24,24 +24,9 @@ jobs:
       - run: xvfb-run --auto-servernum -- yarn test
       - run: yarn deploy
       - *save_yarn_cache
+      - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
       - store_artifacts:
-          path: packages/extension/build/*.{zip,txt}
-          destination: dist
-
-  integration-test:
-    docker:
-      - image: circleci/node:17-browsers
-        environment:
-          NODE_ENV: development
-    steps:
-      - checkout
-      - *restore_yarn_cache
-      - run: yarn install
-      - run: yarn build
-      - run: xvfb-run --auto-servernum -- yarn test
-      - *save_yarn_cache
-      - store_artifacts:
-          path: packages/extension/build/*.{zip,txt}
+          path: packages/extension/build
           destination: dist
 
   publish:
@@ -55,7 +40,7 @@ jobs:
       - run: yarn upload:chrome
       - run: yarn publish-extension
       - store_artifacts:
-          path: packages/extension/build/*.{zip,txt}
+          path: packages/extension/build
           destination: dist
       - run: yarn release-it
       - *save_yarn_cache
@@ -68,14 +53,9 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - integration-test:
-          filters:
-            tags:
-              only: /^v.*/
       - publish:
           requires:
             - build-test
-            - integration-test
           filters:
             branches:
               ignore: /.*/
