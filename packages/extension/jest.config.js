@@ -20,7 +20,9 @@ module.exports = {
       '<rootDir>/__mocks__/fileMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/src/js/test/setupTest.ts'],
-  testURL: 'http://localhost/',
+  testEnvironmentOptions: {
+    url: 'http://localhost/',
+  },
   collectCoverage: true,
   coverageDirectory: './coverage/',
 }
