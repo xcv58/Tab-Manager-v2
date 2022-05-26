@@ -11,7 +11,7 @@
     "@types/jest-image-snapshot": "4.3.1",
     "jest": "27.5.1",
     "jest-image-snapshot": "4.5.1",
-    "jest-playwright-preset": "1.7.0",
+    "jest-playwright-preset": "1.7.2",
     "ts-jest": "28.0.3",
     "typescript": "4.7.2"
   },
