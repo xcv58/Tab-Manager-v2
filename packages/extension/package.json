@@ -50,7 +50,7 @@
     "react-dnd": "16.0.1",
     "react-dnd-html5-backend": "16.0.1",
     "react-dom": "18.1.0",
-    "react-resize-detector": "7.0.0",
+    "react-resize-detector": "7.1.1",
     "react-router-dom": "6.3.0",
     "react-window": "1.8.7",
     "rebound": "0.1.0",
