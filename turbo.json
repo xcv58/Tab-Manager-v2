@@ -7,7 +7,7 @@
       "outputs": ["build/**"]
     },
     "test": {
-      "dependsOn": ["^build", "tab-manager-v2#build"],
+      "dependsOn": ["^build"],
       "outputs": []
     },
     "deploy": {

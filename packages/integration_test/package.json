@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Integration test via Playwright",
   "scripts": {
-    "test": "jest --maxWorkers=2",
+    "test": "jest --maxWorkers=1",
     "test-watch": "yarn test --watchAll"
   },
   "devDependencies": {
@@ -17,6 +17,7 @@
   },
   "private": true,
   "dependencies": {
-    "playwright": "1.22.2"
+    "playwright": "1.22.2",
+    "tab-manager-v2": "*"
   }
 }
