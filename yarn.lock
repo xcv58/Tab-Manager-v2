@@ -3728,10 +3728,10 @@
     "@types/node" "*"
     "@types/responselike" "*"
 
-"@types/chrome@0.0.191":
-  version "0.0.191"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.191.tgz#e14dc52c53e5e89ab74dc0f1e641066c7939ed55"
-  integrity sha512-hXYHJJ1Y265xKCw0o2Kz4CnR8aUhOMdyxK1AinET4EDr3fhpEMvOFDwdqz9LUX4syfTVYWb8w7vfC12s112ehg==
+"@types/chrome@0.0.192":
+  version "0.0.192"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.192.tgz#045bdfc90e5e5c2d8a6e50565add5c0f4b9c8c17"
+  integrity sha512-Zv7TBAt+8bpMT8Ol4evIy7J99uWBmEKRzQOKxn2MYKIVLUKgzGKYijv2Du48twVKP/cQQLC2iLvAKM74/kSh0Q==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
