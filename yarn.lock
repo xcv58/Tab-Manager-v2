@@ -3706,10 +3706,10 @@
     "@types/node" "*"
     "@types/responselike" "*"
 
-"@types/chrome@0.0.192":
-  version "0.0.192"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.192.tgz#045bdfc90e5e5c2d8a6e50565add5c0f4b9c8c17"
-  integrity sha512-Zv7TBAt+8bpMT8Ol4evIy7J99uWBmEKRzQOKxn2MYKIVLUKgzGKYijv2Du48twVKP/cQQLC2iLvAKM74/kSh0Q==
+"@types/chrome@0.0.193":
+  version "0.0.193"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.193.tgz#cd0dc5033f27a243d228aebe566c3ec19ef17e36"
+  integrity sha512-R8C84oqvk8A8C8G1viBd8qLpDr86Y/jwD+KLgzUekbIT9RGds6a9GnlQyg8P7ltnGogTMHkiEQK0ZlcrvTeo3Q==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
