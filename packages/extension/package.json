@@ -41,7 +41,7 @@
     "match-sorter": "6.3.1",
     "mobx": "6.6.1",
     "mobx-react-lite": "3.4.0",
-    "moment": "2.29.3",
+    "moment": "2.29.4",
     "mousetrap": "1.6.5",
     "postcss": "8.4.14",
     "postcss-loader": "7.0.0",
