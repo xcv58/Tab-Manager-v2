@@ -4989,10 +4989,10 @@ autoprefixer@^9.8.6:
     postcss "^7.0.32"
     postcss-value-parser "^4.1.0"
 
-autosuggest-highlight@3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/autosuggest-highlight/-/autosuggest-highlight-3.3.3.tgz#78bd7cf043c1aa69f7e76ef6f0a396f5c571ec0a"
-  integrity sha512-zUrWcA0Y2ikZOh2yFpOok66dcD+A1f29NOEI7X6fto13C9f4SPbT8BK+C1zJsdN0wxjH5g3YSZ1MyELSFAV1sw==
+autosuggest-highlight@3.3.4:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/autosuggest-highlight/-/autosuggest-highlight-3.3.4.tgz#d71b575ba8eab40b5adba73df9244e9ba88cc387"
+  integrity sha512-j6RETBD2xYnrVcoV1S5R4t3WxOlWZKyDQjkwnggDPSjF5L4jV98ZltBpvPvbkM1HtoSe5o+bNrTHyjPbieGeYA==
   dependencies:
     remove-accents "^0.4.2"
 
