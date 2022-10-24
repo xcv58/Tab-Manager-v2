@@ -100,7 +100,7 @@
     "react-axe": "3.5.4",
     "react-test-renderer": "18.2.0",
     "regenerator-runtime": "0.13.10",
-    "sinon": "14.0.0",
+    "sinon": "14.0.1",
     "sinon-chrome": "3.0.1",
     "speed-measure-webpack-plugin": "1.5.0",
     "standard-version": "9.5.0",
