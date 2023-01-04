@@ -15565,10 +15565,10 @@ react-axe@3.5.4:
     axe-core "^3.5.0"
     requestidlecallback "^0.3.0"
 
-react-command-palette@0.22.0:
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/react-command-palette/-/react-command-palette-0.22.0.tgz#a2e9b079975fbe0682003ff7ee78aff05d4bc1b9"
-  integrity sha512-5SzjzWreWWBWj0wUAh45vb0D30ZhEzmOFJg8O+OGvMWJAuYoU87iUzqX051psiOfKYPdTMcsJ8f7WEZ9V6goEA==
+react-command-palette@0.22.1:
+  version "0.22.1"
+  resolved "https://registry.yarnpkg.com/react-command-palette/-/react-command-palette-0.22.1.tgz#175398fbc0819924aaf45d2980f7976f2f6dece4"
+  integrity sha512-LLTUzue8ehiym+9nAXJscn1Dlvv4Qv9NQfJLDkQNKumL7DkA/mvMHHj/srmQvzoxSfnVE4zJ6Xdu33kxR9Xr0w==
   dependencies:
     fast-deep-equal "^3.1.3"
     fuzzysort "^1.9.0"
