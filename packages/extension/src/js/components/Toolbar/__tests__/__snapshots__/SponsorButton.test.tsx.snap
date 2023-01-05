@@ -3,7 +3,7 @@
 exports[`SponsorButton render correct components 1`] = `
 <div>
   <a
-    class="MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButtonBase-root  css-1kwi5j1-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1kwi5j1-MuiButtonBase-root-MuiButton-root"
     href="https://github.com/sponsors/xcv58"
     rel="noopener noreferrer"
     tabindex="0"
