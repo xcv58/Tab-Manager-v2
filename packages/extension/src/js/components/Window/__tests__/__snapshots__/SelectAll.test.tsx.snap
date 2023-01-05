@@ -2,7 +2,7 @@
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper MuiPopperUnstyled-root"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
@@ -12,6 +12,7 @@ exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 >
   <div
     class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-ja5taz-MuiTooltip-tooltip"
+    data-foo="bar"
     style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
   >
     Unselect all tabs
@@ -21,7 +22,7 @@ exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
+  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper MuiPopperUnstyled-root"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
@@ -31,6 +32,7 @@ exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
 >
   <div
     class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-ja5taz-MuiTooltip-tooltip"
+    data-foo="bar"
     style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
   >
     Select all tabs
@@ -42,7 +44,7 @@ exports[`SelectAll should render correct components 1`] = `
 <div>
   <span
     aria-label="Unselect all tabs"
-    class="MuiCheckbox-root MuiCheckbox-colorPrimary MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root Mui-checked  css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
     data-mui-internal-clone-element="true"
   >
     <input

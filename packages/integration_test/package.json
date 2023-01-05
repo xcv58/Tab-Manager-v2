@@ -13,11 +13,11 @@
     "jest-image-snapshot": "5.2.0",
     "jest-playwright-preset": "1.7.2",
     "ts-jest": "28.0.8",
-    "typescript": "4.8.4"
+    "typescript": "4.9.4"
   },
   "private": true,
   "dependencies": {
-    "playwright": "1.27.1",
+    "playwright": "1.29.1",
     "tab-manager-v2": "*"
   }
 }
