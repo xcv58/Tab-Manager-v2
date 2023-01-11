@@ -3672,10 +3672,10 @@
     "@types/node" "*"
     "@types/responselike" "*"
 
-"@types/chrome@0.0.207":
-  version "0.0.207"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.207.tgz#70560b461c329b635213408c87f3e9906a791781"
-  integrity sha512-GgO/tlIRo0BIL5LdjKTSjLIPaSe8CBWu9a+r9kIXVfjvuIhxBgg8BOIqFoexoxtpKzJoHQWD4YOihlb++bQeKw==
+"@types/chrome@0.0.208":
+  version "0.0.208"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.208.tgz#c52992e46723c783d3fd84a8b90dd8b3e87af67f"
+  integrity sha512-VDU/JnXkF5qaI7WBz14Azpa2VseZTgML0ia/g/B1sr9OfdOnHiH/zZ7P7qCDqxSlkqJh76/bPc8jLFcx8rHJmw==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
