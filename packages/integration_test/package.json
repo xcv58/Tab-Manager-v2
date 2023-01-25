@@ -17,7 +17,7 @@
   },
   "private": true,
   "dependencies": {
-    "playwright": "1.29.2",
+    "playwright": "1.30.0",
     "tab-manager-v2": "*"
   }
 }
