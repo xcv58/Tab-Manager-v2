@@ -13,9 +13,9 @@ references:
     restore_cache:
       key: *pnpm_key
 
-  pnpm_setup: &pnpm_setup
+  pnpm_install: &pnpm_install
     run:
-      name: Install pnpm package manager
+      name: Install pnpm and run `pnpm install`
       command: |
         curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
         export PNPM_HOME="/home/circleci/.local/share/pnpm"
@@ -28,9 +28,8 @@ jobs:
       - image: circleci/node:17-browsers
     steps:
       - checkout
-      - *pnpm_setup
       - *restore_cache
-      - run: pnpm install
+      - *pnpm_install
       - run: xvfb-run --auto-servernum -- pnpm test
       - run: pnpm run deploy
       - *save_cache
@@ -44,9 +43,8 @@ jobs:
       - image: circleci/node:17
     steps:
       - checkout
-      - *pnpm_setup
       - *restore_cache
-      - run: pnpm install
+      - *pnpm_install
       - run: pnpm run deploy
       - run: pnpm upload:chrome
       - run: pnpm publish-extension
