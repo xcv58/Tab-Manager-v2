@@ -17,7 +17,7 @@ references:
     run:
       name: Install pnpm package manager
       command: |
-        curl -L https://pnpm.js.org/pnpm.js | node - add pnpm
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
 
 jobs:
   build-test:
