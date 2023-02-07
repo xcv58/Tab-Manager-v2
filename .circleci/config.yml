@@ -17,12 +17,12 @@ references:
     run:
       name: Install pnpm package manager
       command: |
-        curl -f https://get.pnpm.io/v6.js | node - add --global pnpm
+        curl -L https://pnpm.js.org/pnpm.js | node - add --global pnpm
 
 jobs:
   build-test:
     docker:
-      - image: circleci/node:17-browsers
+      - image: circleci/node:18-browsers
     steps:
       - checkout
       - *pnpm_setup
