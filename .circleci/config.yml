@@ -17,9 +17,10 @@ references:
     run:
       name: Install pnpm and run `pnpm install`
       command: |
+        echo "BASH_ENV: ${BASH_ENV}"
         curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
-        echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ~/.bashrc
-        echo 'export PATH="$PNPM_HOME:$PATH"' >> ~/.bashrc
+        echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ${BASH_ENV}
+        echo 'export PATH="$PNPM_HOME:$PATH"' >> ${BASH_ENV}
 
 jobs:
   build-test:
