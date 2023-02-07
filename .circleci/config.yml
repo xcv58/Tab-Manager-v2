@@ -13,12 +13,18 @@ references:
     restore_cache:
       key: *pnpm_key
 
+  pnpm_setup: &pnpm_setup
+    run:
+      name: Install pnpm package manager
+      command: |
+        curl -L https://pnpm.js.org/pnpm.js | node - add --global pnpm@7
 jobs:
   build-test:
     docker:
       - image: circleci/node:17-browsers
     steps:
       - checkout
+      - *pnpm_setup
       - *restore_cache
       - run: pnpm install
       - run: xvfb-run --auto-servernum -- pnpm test
@@ -34,6 +40,7 @@ jobs:
       - image: circleci/node:17
     steps:
       - checkout
+      - *pnpm_setup
       - *restore_cache
       - run: pnpm install
       - run: pnpm deploy
