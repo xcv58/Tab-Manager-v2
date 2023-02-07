@@ -53,7 +53,7 @@ pnpm test
 ### Packaging
 
 ```shell
-pnpm deploy
+pnpm run deploy
 ```
 
 ## Distribute

@@ -17,7 +17,8 @@ references:
     run:
       name: Install pnpm package manager
       command: |
-        sudo corepack enable && corepack prepare pnpm@latest --activate
+        curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
+
 jobs:
   build-test:
     docker:
@@ -28,7 +29,7 @@ jobs:
       - *restore_cache
       - run: pnpm install
       - run: xvfb-run --auto-servernum -- pnpm test
-      - run: pnpm deploy
+      - run: pnpm run deploy
       - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
       - store_artifacts:
@@ -43,7 +44,7 @@ jobs:
       - *pnpm_setup
       - *restore_cache
       - run: pnpm install
-      - run: pnpm deploy
+      - run: pnpm run deploy
       - run: pnpm upload:chrome
       - run: pnpm publish-extension
       - store_artifacts:
