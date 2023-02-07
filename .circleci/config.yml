@@ -28,7 +28,7 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_install
-      - run: xvfb-run --auto-servernum -- PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm test
+      - run: PATH="/home/circleci/.local/share/pnpm:$PATH" xvfb-run --auto-servernum --  pnpm test
       - run: PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm run deploy
       - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
