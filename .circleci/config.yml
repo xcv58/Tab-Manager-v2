@@ -18,9 +18,7 @@ references:
       name: Install pnpm and run `pnpm install`
       command: |
         curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
-        export PNPM_HOME="/home/circleci/.local/share/pnpm"
-        export PATH="$PNPM_HOME:$PATH"
-        pnpm install
+        PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm install
 
 jobs:
   build-test:
@@ -30,8 +28,8 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_install
-      - run: xvfb-run --auto-servernum -- pnpm test
-      - run: pnpm run deploy
+      - run: xvfb-run --auto-servernum -- PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm test
+      - run: PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm run deploy
       - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
       - store_artifacts:
@@ -45,13 +43,13 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_install
-      - run: pnpm run deploy
-      - run: pnpm upload:chrome
-      - run: pnpm publish-extension
+      - run: PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm run deploy
+      - run: PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm upload:chrome
+      - run: PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm publish-extension
       - store_artifacts:
           path: packages/extension/build
           destination: dist
-      - run: pnpm release-it
+      - run: PATH="/home/circleci/.local/share/pnpm:$PATH" pnpm release-it
       - *save_cache
 
 workflows:
