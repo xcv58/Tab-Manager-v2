@@ -36,8 +36,8 @@ You should be familiar with [React](https://facebook.github.io/react/), [MobX](h
 You should run below commands after clone this repo:
 
 ```shell
-yarn
-yarn start
+pnpm install
+pnpm start
 ```
 
 Then you can load the `build_chrome/` or `build_firefox/` folder in chrome://extensions page, please follow the instructions for [Chrome](https://developers.chrome.com/extensions/getstarted#unpacked) or [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out).
@@ -47,13 +47,13 @@ There is a storybook link for component: https://tab-manager.vercel.app
 ### Test
 
 ```shell
-yarn test
+pnpm test
 ```
 
 ### Packaging
 
 ```shell
-yarn deploy
+pnpm deploy
 ```
 
 ## Distribute

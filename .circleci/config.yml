@@ -1,17 +1,17 @@
 version: 2.1
 
 references:
-  yarn_key: &yarn_key yarn.lock-{{ checksum "yarn.lock" }}
+  pnpm_key: &pnpm_key pnpm-lock.yaml-{{ checksum "pnpm-lock.yaml" }}
 
-  save_yarn_cache: &save_yarn_cache
+  save_cache: &save_cache
     save_cache:
-      key: *yarn_key
+      key: *pnpm_key
       paths:
         - node_modules
 
-  restore_yarn_cache: &restore_yarn_cache
+  restore_cache: &restore_cache
     restore_cache:
-      key: *yarn_key
+      key: *pnpm_key
 
 jobs:
   build-test:
@@ -19,11 +19,11 @@ jobs:
       - image: circleci/node:17-browsers
     steps:
       - checkout
-      - *restore_yarn_cache
-      - run: yarn install
-      - run: xvfb-run --auto-servernum -- yarn test
-      - run: yarn deploy
-      - *save_yarn_cache
+      - *restore_cache
+      - run: pnpm install
+      - run: xvfb-run --auto-servernum -- pnpm test
+      - run: pnpm deploy
+      - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
       - store_artifacts:
           path: packages/extension/build
@@ -34,16 +34,16 @@ jobs:
       - image: circleci/node:17
     steps:
       - checkout
-      - *restore_yarn_cache
-      - run: yarn install
-      - run: yarn deploy
-      - run: yarn upload:chrome
-      - run: yarn publish-extension
+      - *restore_cache
+      - run: pnpm install
+      - run: pnpm deploy
+      - run: pnpm upload:chrome
+      - run: pnpm publish-extension
       - store_artifacts:
           path: packages/extension/build
           destination: dist
-      - run: yarn release-it
-      - *save_yarn_cache
+      - run: pnpm release-it
+      - *save_cache
 
 workflows:
   version: 2

@@ -1,16 +1,14 @@
 {
   "name": "tab-manager-v2",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "postinstall": "husky install",
-    "start": "yarn workspace tab-manager-v2 start",
-    "release": "yarn workspace tab-manager-v2 release",
+    "start": "pnpm --filter tab-manager-v2 start",
+    "release": "pnpm --filter tab-manager-v2 release",
     "release-it": "release-it --ci",
     "test": "turbo run test",
-    "test:lint": "yarn lint",
+    "test:lint": "pnpm lint",
     "test:chrome-upload": "chrome-webstore-upload --help",
     "test:firefox-upload": "web-ext --help",
     "build": "turbo run build",
@@ -19,11 +17,11 @@
     "publish:chrome": "node -r dotenv/config ./node_modules/.bin/chrome-webstore-upload publish",
     "publish:firefox": "web-ext sign --source-dir packages/extension/build/build_firefox --channel=listed || echo 'Publish to Mozilla Add-ons may failed because https://github.com/mozilla/web-ext/issues/804'",
     "publish-extension": "run-s publish:chrome publish:firefox",
-    "zip": "yarn workspace tab-manager-v2 zip",
-    "stat": "yarn workspace tab-manager-v2 stat",
+    "zip": "pnpm --filter tab-manager-v2 zip",
+    "stat": "pnpm --filter tab-manager-v2 stat",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prettier": "prettier --no-semi --single-quote --write",
-    "lintfix": "yarn prettier '**/*.{js,ts,tsx,yml}' && yarn lint --fix"
+    "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "5.51.0",
@@ -46,11 +44,11 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn prettier",
+      "pnpm prettier",
       "eslint --fix"
     ],
     "*.{json,css,md,yaml,yml,md,mdx,html}": [
-      "yarn prettier"
+      "pnpm prettier"
     ]
   }
 }
