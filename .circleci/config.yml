@@ -18,6 +18,7 @@ references:
       name: Install pnpm package manager
       command: |
         curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
+        source /home/circleci/.bashrc
 
 jobs:
   build-test:
