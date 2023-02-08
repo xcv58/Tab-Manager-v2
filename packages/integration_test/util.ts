@@ -4,7 +4,7 @@ import { join } from 'path'
 
 export const EXTENSION_PATH = join(
   __dirname,
-  '../../node_modules/tab-manager-v2/build/build_chrome'
+  '../../packages/extension/build/build_chrome'
 )
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'

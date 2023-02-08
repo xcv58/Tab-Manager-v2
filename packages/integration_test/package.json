@@ -4,7 +4,7 @@
   "description": "Integration test via Playwright",
   "scripts": {
     "test": "jest --maxWorkers=1",
-    "test-watch": "yarn test --watchAll"
+    "test-watch": "pnpm test --watchAll"
   },
   "devDependencies": {
     "@types/jest": "27.5.2",
