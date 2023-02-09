@@ -7,8 +7,8 @@ import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
 import HideToggle from './HideToggle'
-import { useScrollbar } from 'libs/Scrollbar'
 import { WinProps } from 'components/types'
+import useReduceMotion from 'libs/useReduceMotion'
 
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
@@ -20,11 +20,13 @@ export default observer((props: WinProps & { className: string }) => {
   const invisibleLength = invisibleTabs.length
   const invisibleIndicator =
     invisibleLength > 0 && `/ ${invisibleLength} hidden`
-  const { scrollToNode } = useScrollbar()
+  const reduceMotion = useReduceMotion()
   useEffect(() => {
     if (isFocused) {
-      scrollToNode(nodeRef)
-      nodeRef.current.focus({ setFocus: true })
+      nodeRef.current.focus({ preventScroll: true })
+      nodeRef.current.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+      })
     }
   }, [isFocused])
   useEffect(() => {
