@@ -48,4 +48,4 @@ jobs:
       # Run all test
       - run: pnpx playwright install-deps chromium
       - name: Integration Test
-        run: xvfb-run --auto-servernum -- pnpm test
+        run: xvfb-run --auto-servernum -- pnpm test --no-cache
