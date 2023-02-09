@@ -47,7 +47,7 @@
       "pnpm prettier",
       "eslint --fix"
     ],
-    "*.{json,css,md,yaml,yml,md,mdx,html}": [
+    "*.{json,css,md,md,mdx,html}": [
       "pnpm prettier"
     ]
   }
