@@ -46,7 +46,7 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright
-        run: npx playwright install --with-deps
+        run: pnpm dlx playwright install --with-deps
 
       # Run all test
       - name: Integration Test
