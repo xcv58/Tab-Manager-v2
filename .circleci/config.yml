@@ -32,8 +32,7 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
-      - name: Install Playwright
-        run: npx playwright install --with-deps
+      - run: npx playwright install --with-deps
       - run: xvfb-run --auto-servernum -- pnpm test
       - run: pnpm run deploy
       - *save_cache
