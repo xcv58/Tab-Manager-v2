@@ -45,7 +45,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
       # Run all test
-      - run: pnpm dlx playwright install-deps chromium
       - name: Integration Test
         run: xvfb-run --auto-servernum -- pnpm test

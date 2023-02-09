@@ -22,7 +22,6 @@ references:
         echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ${BASH_ENV}
         echo 'export PATH="$PNPM_HOME:$PATH"' >> ${BASH_ENV}
         source ${BASH_ENV}
-        pnpm dlx playwright install-deps chromium
         pnpm install
 
 jobs:
@@ -33,6 +32,8 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
+      - name: Install Playwright
+        run: npx playwright install --with-deps
       - run: xvfb-run --auto-servernum -- pnpm test
       - run: pnpm run deploy
       - *save_cache
