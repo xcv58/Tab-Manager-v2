@@ -13,7 +13,7 @@ references:
     restore_cache:
       key: *pnpm_key
 
-  pnpm_install: &pnpm_install
+  pnpm_setup: &pnpm_setup
     run:
       name: Install pnpm and run `pnpm install`
       command: |
@@ -21,6 +21,7 @@ references:
         curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
         echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ${BASH_ENV}
         echo 'export PATH="$PNPM_HOME:$PATH"' >> ${BASH_ENV}
+        pnpm install
 
 jobs:
   build-test:
@@ -29,7 +30,7 @@ jobs:
     steps:
       - checkout
       - *restore_cache
-      - *pnpm_install
+      - *pnpm_setup
       - run: xvfb-run --auto-servernum -- pnpm test
       - run: pnpm run deploy
       - *save_cache
@@ -44,7 +45,7 @@ jobs:
     steps:
       - checkout
       - *restore_cache
-      - *pnpm_install
+      - *pnpm_setup
       - run: pnpm run deploy
       - run: pnpm upload:chrome
       - run: pnpm publish-extension
