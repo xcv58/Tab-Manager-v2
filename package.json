@@ -7,7 +7,7 @@
     "start": "pnpm --filter tab-manager-v2 start",
     "release": "pnpm --filter tab-manager-v2 release",
     "release-it": "release-it --ci",
-    "test": "turbo run test",
+    "test": "turbo run test --no-cache --force",
     "test:lint": "pnpm lint",
     "test:chrome-upload": "chrome-webstore-upload --help",
     "test:firefox-upload": "web-ext --help",
