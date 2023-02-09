@@ -21,6 +21,7 @@ references:
         curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
         echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ${BASH_ENV}
         echo 'export PATH="$PNPM_HOME:$PATH"' >> ${BASH_ENV}
+        source ${BASH_ENV}
         pnpm install
 
 jobs:
