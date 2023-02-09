@@ -7,10 +7,10 @@ import CloseButton from 'components/CloseButton'
 import classNames from 'classnames'
 import { useStore } from 'components/hooks/useStore'
 import { useTheme } from 'components/hooks/useTheme'
-import { useScrollbar } from 'libs/Scrollbar'
 import { TabProps } from 'components/types'
 import PIN from './Pin'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
+import useReduceMotion from 'libs/useReduceMotion'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
@@ -47,13 +47,17 @@ export default observer((props: TabProps & { className?: string }) => {
     }
   }
 
-  const { scrollToNode } = useScrollbar()
+  const reduceMotion = useReduceMotion()
 
   useEffect(() => {
     if (isFocused) {
-      scrollToNode(nodeRef)
       if (!searchStore.typing) {
-        nodeRef.current.focus({ setFocus: true })
+        nodeRef.current.focus({ preventScroll: true })
+        nodeRef.current.scrollIntoView({
+          behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'end',
+          inline: 'nearest',
+        })
       }
     }
     return onMouseLeave

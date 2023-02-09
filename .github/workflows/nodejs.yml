@@ -45,9 +45,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      # Test and Build
-      # - run: pnpm test
-
       # Run all test
       - run: pnpx playwright install-deps chromium
       - name: Integration Test

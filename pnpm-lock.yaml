@@ -109,7 +109,6 @@ importers:
       react-router-dom: 6.8.1
       react-test-renderer: 18.2.0
       react-window: 1.8.8
-      rebound: 0.1.0
       regenerator-runtime: 0.13.11
       sinon: 15.0.1
       sinon-chrome: 3.0.1
@@ -154,7 +153,6 @@ importers:
       react-resize-detector: 7.1.2_biqbaboplfbrettd7655fr4n2y
       react-router-dom: 6.8.1_biqbaboplfbrettd7655fr4n2y
       react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
-      rebound: 0.1.0
       tailwindcss: 3.2.4_postcss@8.4.21
       use-system-theme: 0.1.1_biqbaboplfbrettd7655fr4n2y
       webextension-polyfill: 0.10.0
@@ -23373,13 +23371,6 @@ packages:
       }
     engines: { node: '>= 12.13.0' }
     dev: true
-
-  /rebound/0.1.0:
-    resolution:
-      {
-        integrity: sha512-pKCVuoHvyKPr0tWS+CTCbJcUgifaH3K0bcZlHZpUS7GdNK/m78QgndlZH6+JpvXzuTwbUKZCiHgix0sce433uw==,
-      }
-    dev: false
 
   /rechoir/0.6.2:
     resolution:
