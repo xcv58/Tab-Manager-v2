@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
-import Scrollbar from 'libs/Scrollbar'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
 import { useStore } from './hooks/useStore'
@@ -46,9 +45,12 @@ export default observer(() => {
     <Window key={window.id} width={width} win={window} />
   ))
   return (
-    <Scrollbar scrollbarRef={scrollbarRef}>
+    <div
+      ref={scrollbarRef}
+      className="flex flex-col flex-wrap content-start flex-auto mb-0 mr-0 overflow-scroll"
+    >
       {list}
       {resizeDetector}
-    </Scrollbar>
+    </div>
   )
 })

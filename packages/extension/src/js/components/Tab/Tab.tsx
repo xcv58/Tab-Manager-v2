@@ -55,6 +55,8 @@ export default observer((props: TabProps & { className?: string }) => {
         nodeRef.current.focus({ preventScroll: true })
         nodeRef.current.scrollIntoView({
           behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'end',
+          inline: 'nearest',
         })
       }
     }
