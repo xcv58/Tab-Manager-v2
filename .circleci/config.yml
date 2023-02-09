@@ -32,8 +32,8 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
-      - run: xvfb-run --auto-servernum -- pnpm test --no-cache
-      - run: pnpm run deploy --no-cache
+      - run: xvfb-run --auto-servernum -- pnpm test
+      - run: pnpm run deploy
       - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
       - store_artifacts:
