@@ -22,8 +22,8 @@ references:
         echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ${BASH_ENV}
         echo 'export PATH="$PNPM_HOME:$PATH"' >> ${BASH_ENV}
         source ${BASH_ENV}
+        pnpm dlx playwright install-deps chromium
         pnpm install
-        pnpx playwright install-deps chromium
 
 jobs:
   build-test:
