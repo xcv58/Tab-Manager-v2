@@ -14,7 +14,7 @@ importers:
       eslint-plugin-jest: 26.9.0
       eslint-plugin-typescript: 0.14.0
       husky: 8.0.3
-      lint-staged: 13.1.0
+      lint-staged: 13.1.1
       npm-run-all: 4.1.5
       prettier: 2.8.3
       release-it: 15.6.0
@@ -32,7 +32,7 @@ importers:
       eslint-plugin-jest: 26.9.0_wusnydlfdg5bqnao5o66ou7q6e
       eslint-plugin-typescript: 0.14.0
       husky: 8.0.3
-      lint-staged: 13.1.0
+      lint-staged: 13.1.1
       npm-run-all: 4.1.5
       prettier: 2.8.3
       release-it: 15.6.0
@@ -7190,6 +7190,7 @@ packages:
 
   /bindings/1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    requiresBuild: true
     dependencies:
       file-uri-to-path: 1.0.0
     dev: true
@@ -10398,6 +10399,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -14205,8 +14207,8 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: true
 
-  /lint-staged/13.1.0:
-    resolution: {integrity: sha512-pn/sR8IrcF/T0vpWLilih8jmVouMlxqXxKuAojmbiGX5n/gDnz+abdPptlj0vYnbfE0SQNl3CY/HwtM0+yfOVQ==}
+  /lint-staged/13.1.1:
+    resolution: {integrity: sha512-LLJLO0Kdbcv2a+CvSF4p1M7jBZOajKSMpBUvyR8+bXccsqPER0/NxTFQSpNHjqwV9kM3tkHczYerTB5wI+bksQ==}
     engines: {node: ^14.13.1 || >=16.0.0}
     hasBin: true
     dependencies:
