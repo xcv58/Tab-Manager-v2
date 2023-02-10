@@ -215,7 +215,6 @@ importers:
 
   packages/integration_test:
     specifiers:
-      '@playwright/test': 1.30.0
       '@types/jest': 27.5.2
       '@types/jest-image-snapshot': 5.1.0
       jest: 27.5.1
@@ -226,7 +225,6 @@ importers:
       ts-jest: 28.0.8
       typescript: 4.9.5
     dependencies:
-      '@playwright/test': 1.30.0
       playwright: 1.30.0
       tab-manager-v2: link:../extension
     devDependencies:
@@ -3752,15 +3750,6 @@ packages:
     dependencies:
       '@octokit/openapi-types': 14.0.0
     dev: true
-
-  /@playwright/test/1.30.0:
-    resolution: {integrity: sha512-SVxkQw1xvn/Wk/EvBnqWIq6NLo1AppwbYOjNLmyU0R1RoQ3rLEBtmjTnElcnz8VEtn11fptj1ECxK0tgURhajw==}
-    engines: {node: '>=14'}
-    hasBin: true
-    dependencies:
-      '@types/node': 18.0.3
-      playwright-core: 1.30.0
-    dev: false
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.7_ohj47mxwagpoxvu7nhhwxzphqm:
     resolution: {integrity: sha512-bcKCAzF0DV2IIROp9ZHkRJa6O4jy7NlnHdWL3GmcUxYWNjLXkK5kfELELwEfSP5hXPfVL/qOGMAROuMQb9GG8Q==}
@@ -14948,6 +14937,7 @@ packages:
 
   /moment/2.29.4:
     resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
+    requiresBuild: true
 
   /mousetrap/1.6.5:
     resolution: {integrity: sha512-QNo4kEepaIBwiT8CDhP98umTetp+JNfQYBWvC1pc6/OAibuXtRcxZ58Qz8skvEHYvURne/7R8T5VoOI7rDsEUA==}
