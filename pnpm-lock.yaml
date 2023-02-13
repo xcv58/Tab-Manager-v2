@@ -124,7 +124,7 @@ importers:
       use-system-theme: 0.1.1
       webextension-polyfill: 0.10.0
       webpack: 5.75.0
-      webpack-bundle-analyzer: 4.7.0
+      webpack-bundle-analyzer: 4.8.0
       webpack-dev-server: 4.11.1
     dependencies:
       '@emotion/react': 11.10.5_wkiylh6bncbdhwh6tncqb3s2nm
@@ -210,7 +210,7 @@ importers:
       ts-loader: 9.4.2_hhrrucqyg4eysmfpujvov2ym5u
       typescript: 4.9.5
       webpack: 5.75.0
-      webpack-bundle-analyzer: 4.7.0
+      webpack-bundle-analyzer: 4.8.0
       webpack-dev-server: 4.11.1_webpack@5.75.0
 
   packages/integration_test:
@@ -20443,11 +20443,12 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
-  /webpack-bundle-analyzer/4.7.0:
-    resolution: {integrity: sha512-j9b8ynpJS4K+zfO5GGwsAcQX4ZHpWV+yRiHDiL+bE0XHJ8NiPYLTNVQdlFYWxtpg9lfAQNlwJg16J9AJtFSXRg==}
+  /webpack-bundle-analyzer/4.8.0:
+    resolution: {integrity: sha512-ZzoSBePshOKhr+hd8u6oCkZVwpVaXgpw23ScGLFpR6SjYI7+7iIWYarjN6OEYOfRt8o7ZyZZQk0DuMizJ+LEIg==}
     engines: {node: '>= 10.13.0'}
     hasBin: true
     dependencies:
+      '@discoveryjs/json-ext': 0.5.7
       acorn: 8.8.1
       acorn-walk: 8.2.0
       chalk: 4.1.2
