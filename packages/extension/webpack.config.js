@@ -8,7 +8,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 // const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const PurgecssPlugin = require('purgecss-webpack-plugin')
+const { PurgeCSSPlugin } = require('purgecss-webpack-plugin')
 const glob = require('glob-all')
 
 const alias = {
@@ -204,7 +204,7 @@ const options = {
     // }),
     new ProgressBarPlugin(),
     process.env.NODE_ENV === 'production' &&
-      new PurgecssPlugin({
+      new PurgeCSSPlugin({
         paths: () => glob.sync(`${__dirname}/src/js/**/*`, { nodir: true }),
         defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
       }),
