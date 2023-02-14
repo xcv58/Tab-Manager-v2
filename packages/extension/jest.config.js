@@ -1,14 +1,8 @@
 module.exports = {
-  globals: {
-    'ts-jest': {
-      isolatedModules: true,
-      diagnostics: false,
-    },
-  },
   roots: ['<rootDir>/src/js'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.js$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true, diagnostics: false }],
+    '^.+\\.js$': ['ts-jest', { isolatedModules: true, diagnostics: false }],
   },
   testEnvironment: 'jsdom',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(t|j)sx?$',

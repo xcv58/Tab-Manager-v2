@@ -3,6 +3,6 @@ module.exports = {
   testRegex: './*\\.test\\.ts$',
   setupFilesAfterEnv: ['./setup.js'],
   transform: {
-    '^.+\\.(ts)$': 'ts-jest',
+    '^.+\\.(ts)$': ['ts-jest', { isolatedModules: true, diagnostics: false }],
   },
 }

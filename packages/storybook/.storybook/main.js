@@ -17,11 +17,13 @@ module.exports = {
     '../../extension/**/*.stories.mdx',
     '../../extension/**/*.stories.@(js|jsx|ts|tsx)',
   ],
+  core: {
+    builder: 'webpack5',
+  },
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@storybook/addon-a11y',
-    'storybook-addon-performance/register',
   ],
   webpackFinal: (config) => {
     Object.assign(config.resolve.alias, alias)
