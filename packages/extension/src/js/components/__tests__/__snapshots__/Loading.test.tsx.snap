@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Loading should render divs in dark mode 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
@@ -96,7 +96,7 @@ Object {
 `;
 
 exports[`Loading should render divs with default props 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
@@ -191,7 +191,7 @@ Object {
 `;
 
 exports[`Loading should render small component 1`] = `
-Object {
+{
   "asFragment": [Function],
   "baseElement": <body>
     <div>
