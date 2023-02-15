@@ -32,7 +32,7 @@ const TabContent = observer(
       </div>
     )
     return (
-      <Tooltip {...{ open, title: tooltip }} interactive>
+      <Tooltip {...{ open, title: tooltip }}>
         <button
           ref={buttonRef}
           onClick={activate}
