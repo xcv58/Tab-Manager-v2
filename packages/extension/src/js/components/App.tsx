@@ -32,7 +32,6 @@ export default observer(() => {
       availWidth,
     })
   }, [systemTheme])
-  // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
     <StrictMode>
       <StoreContext.Provider value={store}>
