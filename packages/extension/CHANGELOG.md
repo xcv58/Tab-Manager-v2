@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.23.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.22.1...v1.23.0) (2023-02-15)
+
+### Features
+
+- Add option to toggle popup lite mode ([#2314](https://github.com/xcv58/Tab-Manager-v2/issues/2314)) ([c8d9002](https://github.com/xcv58/Tab-Manager-v2/commit/c8d90028ae71e2fc3f7df10968776412b2f46a55))
+
+### Bug Fixes
+
+- **deps:** update dependency mobx to v6.8.0 ([#2303](https://github.com/xcv58/Tab-Manager-v2/issues/2303)) ([1265218](https://github.com/xcv58/Tab-Manager-v2/commit/12652181220c78b5d826f5b12208ede18516bc1c))
+- **deps:** update dependency tailwindcss to v3.2.6 ([#2302](https://github.com/xcv58/Tab-Manager-v2/issues/2302)) ([93c7042](https://github.com/xcv58/Tab-Manager-v2/commit/93c704283e9c26194aa02b7922681f0abc535332))
+- **deps:** update material-ui monorepo to v5.11.9 ([#2131](https://github.com/xcv58/Tab-Manager-v2/issues/2131)) ([1e58c72](https://github.com/xcv58/Tab-Manager-v2/commit/1e58c72c44bda3e51c06162ea45fe453d2e47395))
+- Overlay between bottom toolbar and tab ([#2313](https://github.com/xcv58/Tab-Manager-v2/issues/2313)) ([4990499](https://github.com/xcv58/Tab-Manager-v2/commit/4990499bda17d5d1a575e7e11593a969022337ad))
+
 ### [1.22.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.22.0...v1.22.1) (2023-02-10)
 
 ## [1.22.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.21.3...v1.22.0) (2023-02-09)
