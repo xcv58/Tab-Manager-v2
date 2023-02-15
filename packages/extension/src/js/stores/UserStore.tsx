@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS = {
   showAppWindow: false,
   showShortcutHint: true,
   showUnmatchedTab: true,
+  litePopupMode: false,
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
   showTabTooltip: true,
@@ -36,6 +37,7 @@ export default class UserStore {
       showAppWindow: observable,
       showShortcutHint: observable,
       showUnmatchedTab: observable,
+      litePopupMode: observable,
       toolbarAutoHide: observable,
       highlightDuplicatedTab: observable,
       showTabTooltip: observable,
@@ -92,6 +94,7 @@ export default class UserStore {
   showAppWindow = false
   showShortcutHint = true
   showUnmatchedTab = true
+  litePopupMode = false
   toolbarAutoHide = false
   highlightDuplicatedTab = true
   showTabTooltip = true
@@ -199,6 +202,11 @@ export default class UserStore {
     this.save()
   }
 
+  toggleLitePopupMode = () => {
+    this.litePopupMode = !this.litePopupMode
+    this.save()
+  }
+
   toggleAutoFocusSearch = () => {
     this.autoFocusSearch = !this.autoFocusSearch
     this.save()
@@ -230,7 +238,7 @@ export default class UserStore {
     this.init()
   }
 
-  toggleDarkTheme = (currentTheme: string) => {
+  toggleDarkTheme = (currentTheme: boolean) => {
     browser.storage.sync.set({
       useSystemTheme: false,
       darkTheme: !currentTheme,
