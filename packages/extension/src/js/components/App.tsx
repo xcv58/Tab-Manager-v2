@@ -36,6 +36,7 @@ export default observer(() => {
     <StrictMode>
       <StoreContext.Provider value={store}>
         <ThemeProvider theme={theme}>
+          {/* The context for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/3257#issuecomment-1239254032 */}
           <DndProvider context={window} backend={HTML5Backend}>
             <ThemeContext.Provider value={isDarkTheme}>
               <ReduceMotionProvider>
