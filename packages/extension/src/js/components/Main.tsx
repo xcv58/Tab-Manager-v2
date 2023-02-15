@@ -19,6 +19,8 @@ export default observer(() => {
   const query = useQuery()
   const isPopup = !query.has(NOT_POPUP)
   const { windowStore, shortcutStore, userStore } = useStore()
+  const { toolbarAutoHide, litePopupMode } = userStore
+  const liteMode = isPopup && litePopupMode
   useEffect(() => {
     windowStore.didMount()
     shortcutStore.didMount()
@@ -28,12 +30,13 @@ export default observer(() => {
     <main
       className={classNames(
         'flex flex-col h-screen overflow-hidden',
-        { 'pb-12': !userStore.toolbarAutoHide },
+        { 'pb-12': !toolbarAutoHide },
         useTextClasses()
       )}
     >
-      {isPopup && <PopupView />}
-      {!isPopup && (
+      {liteMode ? (
+        <PopupView />
+      ) : (
         <>
           <DroppableTools />
           <WinList />

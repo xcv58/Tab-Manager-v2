@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS = {
   showAppWindow: false,
   showShortcutHint: true,
   showUnmatchedTab: true,
+  litePopupMode: false,
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
   showTabTooltip: true,
@@ -36,6 +37,7 @@ export default class UserStore {
       showAppWindow: observable,
       showShortcutHint: observable,
       showUnmatchedTab: observable,
+      litePopupMode: observable,
       toolbarAutoHide: observable,
       highlightDuplicatedTab: observable,
       showTabTooltip: observable,
@@ -92,6 +94,7 @@ export default class UserStore {
   showAppWindow = false
   showShortcutHint = true
   showUnmatchedTab = true
+  litePopupMode = false
   toolbarAutoHide = false
   highlightDuplicatedTab = true
   showTabTooltip = true
@@ -196,6 +199,11 @@ export default class UserStore {
 
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
+    this.save()
+  }
+
+  toggleLitePopupMode = () => {
+    this.litePopupMode = !this.litePopupMode
     this.save()
   }
 

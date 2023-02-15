@@ -40,6 +40,8 @@ export default observer(() => {
     toggleShowAppWindow,
     showUnmatchedTab,
     toggleShowUnmatchedTab,
+    litePopupMode,
+    toggleLitePopupMode,
     showShortcutHint,
     toggleShowShortcutHint,
     toolbarAutoHide,
@@ -225,6 +227,16 @@ export default observer(() => {
           </FormGroup>
           <FormGroup>
             <FormHelperText>Others</FormHelperText>
+            <FormControlLabel
+              label="Lite Popup Mode"
+              control={
+                <Switch
+                  color="primary"
+                  checked={litePopupMode}
+                  onChange={toggleLitePopupMode}
+                />
+              }
+            />
             <FormControlLabel
               label="Show Shortcut Hint"
               control={
