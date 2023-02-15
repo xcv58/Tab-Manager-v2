@@ -7,7 +7,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { StoreContext, store, useStore } from './hooks/useStore'
 import { ThemeContext } from './hooks/useTheme'
-import { browser, isProduction } from 'libs'
+import { browser } from 'libs'
 import { BrowserRouter } from 'react-router-dom'
 import Main from './Main'
 import { ReduceMotionProvider } from 'libs/useReduceMotion'
@@ -32,15 +32,12 @@ export default observer(() => {
       availWidth,
     })
   }, [systemTheme])
-  // The key for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/186#issuecomment-573567724
   return (
     <StrictMode>
       <StoreContext.Provider value={store}>
         <ThemeProvider theme={theme}>
-          <DndProvider
-            key={isProduction() ? 'dnd-provider' : Date.now()}
-            backend={HTML5Backend}
-          >
+          {/* The context for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/3257#issuecomment-1239254032 */}
+          <DndProvider context={window} backend={HTML5Backend}>
             <ThemeContext.Provider value={isDarkTheme}>
               <ReduceMotionProvider>
                 <BrowserRouter>

@@ -18,7 +18,7 @@ const useQuery = () => new URLSearchParams(useLocation().search)
 export default observer(() => {
   const query = useQuery()
   const isPopup = !query.has(NOT_POPUP)
-  const { windowStore, shortcutStore } = useStore()
+  const { windowStore, shortcutStore, userStore } = useStore()
   useEffect(() => {
     windowStore.didMount()
     shortcutStore.didMount()
@@ -28,6 +28,7 @@ export default observer(() => {
     <main
       className={classNames(
         'flex flex-col h-screen overflow-hidden',
+        { 'pb-12': !userStore.toolbarAutoHide },
         useTextClasses()
       )}
     >

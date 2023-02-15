@@ -20,7 +20,7 @@ export default observer(() => {
   useEffect(() => {
     setContainerRef(scrollbarRef)
     onResize()
-  })
+  }, [])
 
   const resizeDetector = (
     <ReactResizeDetector
@@ -47,7 +47,7 @@ export default observer(() => {
   return (
     <div
       ref={scrollbarRef}
-      className="flex flex-col flex-wrap content-start flex-auto mb-0 mr-0 overflow-scroll"
+      className="flex flex-col flex-wrap content-start flex-auto mb-0 mr-0 overflow-scroll border-red-700"
     >
       {list}
       {resizeDetector}
