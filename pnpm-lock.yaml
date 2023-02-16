@@ -116,7 +116,7 @@ importers:
       speed-measure-webpack-plugin: 1.5.0
       standard-version: 9.5.0
       style-loader: 3.3.1
-      tailwindcss: 3.2.6
+      tailwindcss: 3.2.7
       terser-webpack-plugin: 5.3.6
       ts-jest: 29.0.5
       ts-loader: 9.4.2
@@ -154,7 +154,7 @@ importers:
       react-resize-detector: 8.0.3_biqbaboplfbrettd7655fr4n2y
       react-router-dom: 6.8.1_biqbaboplfbrettd7655fr4n2y
       react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
-      tailwindcss: 3.2.6_postcss@8.4.21
+      tailwindcss: 3.2.7_postcss@8.4.21
       use-system-theme: 0.1.1_biqbaboplfbrettd7655fr4n2y
       webextension-polyfill: 0.10.0
     devDependencies:
@@ -9183,7 +9183,7 @@ packages:
     dependencies:
       acorn-node: 1.8.2
       defined: 1.0.0
-      minimist: 1.2.7
+      minimist: 1.2.8
     dev: false
 
   /didyoumean/1.2.2:
@@ -14391,13 +14391,8 @@ packages:
       kind-of: 6.0.3
     dev: true
 
-  /minimist/1.2.7:
-    resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
-    dev: false
-
   /minimist/1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
-    dev: true
 
   /minipass-collect/1.0.2:
     resolution: {integrity: sha512-6T6lH0H8OG9kITm/Jm6tdooIbogG9e0tLgpY6mphXSm/A9u8Nq1ryBG+Qspiub9LjWlBPsPS3tWQ/Botq4FdxA==}
@@ -18749,8 +18744,8 @@ packages:
     resolution: {integrity: sha512-k8uzYIkIVwmT+TcglpdN50pS2y1BDcUnBPK9iJeGu0Pl1lOI8pD6wtzgw91Pjpe+RxtTncw32tLxs/R0yNL2Mg==}
     dev: true
 
-  /tailwindcss/3.2.6_postcss@8.4.21:
-    resolution: {integrity: sha512-BfgQWZrtqowOQMC2bwaSNe7xcIjdDEgixWGYOd6AL0CbKHJlvhfdbINeAW76l1sO+1ov/MJ93ODJ9yluRituIw==}
+  /tailwindcss/3.2.7_postcss@8.4.21:
+    resolution: {integrity: sha512-B6DLqJzc21x7wntlH/GsZwEXTBttVSl1FtCzC8WP4oBc/NKef7kaax5jeihkkCEWc831/5NDJ9gRNDK6NEioQQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
     peerDependencies:
