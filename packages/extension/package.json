@@ -26,8 +26,8 @@
     "test-watch": "pnpm jest --watch"
   },
   "dependencies": {
-    "@emotion/react": "11.10.5",
-    "@emotion/styled": "11.10.5",
+    "@emotion/react": "11.10.6",
+    "@emotion/styled": "11.10.6",
     "@mui/icons-material": "5.11.9",
     "@mui/material": "5.11.9",
     "@mui/styles": "5.11.9",
