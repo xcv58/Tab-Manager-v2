@@ -106,7 +106,7 @@ importers:
       react-dnd: 16.0.1
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.2.0
-      react-resize-detector: 8.0.3
+      react-resize-detector: 8.0.4
       react-router-dom: 6.8.1
       react-test-renderer: 18.2.0
       react-window: 1.8.8
@@ -151,7 +151,7 @@ importers:
       react-dnd: 16.0.1_pmekkgnqduwlme35zpnqhenc34
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.2.0_react@18.2.0
-      react-resize-detector: 8.0.3_biqbaboplfbrettd7655fr4n2y
+      react-resize-detector: 8.0.4_biqbaboplfbrettd7655fr4n2y
       react-router-dom: 6.8.1_biqbaboplfbrettd7655fr4n2y
       react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
       tailwindcss: 3.2.7_postcss@8.4.21
@@ -16798,8 +16798,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /react-resize-detector/8.0.3_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-c3eqm5BVcluVhxHsBQnhyPO/5uYB3XHIHz6D1ZOHzU2WcnZF0Cr3KLl5OIozRC2RSsdQlu5vn1PHEqrvKRnIYA==}
+  /react-resize-detector/8.0.4_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-ln9pMAob8y8mc9UI4aZuuWFiyMqBjnTs/sxe9Vs9dPXUjwCTeKK1FP8I75ufnb/2mEEZXG6wOo/fjMcBRRuAXw==}
     peerDependencies:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
