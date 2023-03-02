@@ -220,12 +220,12 @@ importers:
       jest: 29.4.3
       jest-image-snapshot: 6.1.0
       jest-playwright-preset: 3.0.1
-      playwright: 1.31.1
+      playwright: 1.31.2
       tab-manager-v2: '*'
       ts-jest: 29.0.5
       typescript: 4.9.5
     dependencies:
-      playwright: 1.31.1
+      playwright: 1.31.2
       tab-manager-v2: link:../extension
     devDependencies:
       '@types/jest': 29.4.0
@@ -15838,19 +15838,19 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright-core/1.31.1:
-    resolution: {integrity: sha512-JTyX4kV3/LXsvpHkLzL2I36aCdml4zeE35x+G5aPc4bkLsiRiQshU5lWeVpHFAuC8xAcbI6FDcw/8z3q2xtJSQ==}
+  /playwright-core/1.31.2:
+    resolution: {integrity: sha512-a1dFgCNQw4vCsG7bnojZjDnPewZcw7tZUNFN0ZkcLYKj+mPmXvg4MpaaKZ5SgqPsOmqIf2YsVRkgqiRDxD+fDQ==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false
 
-  /playwright/1.31.1:
-    resolution: {integrity: sha512-zKJabsIA2rvOwJ12lGTqWv4HVJzlfw2JtUvO4hAr7J8UXQZ1qEPpX20E1vcz/9fotnTkwgqp3CVdIBwptBN3Fg==}
+  /playwright/1.31.2:
+    resolution: {integrity: sha512-jpC47n2PKQNtzB7clmBuWh6ftBRS/Bt5EGLigJ9k2QAKcNeYXZkEaDH5gmvb6+AbcE0DO6GnXdbl9ogG6Eh+og==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.31.1
+      playwright-core: 1.31.2
     dev: false
 
   /pngjs/3.4.0:
