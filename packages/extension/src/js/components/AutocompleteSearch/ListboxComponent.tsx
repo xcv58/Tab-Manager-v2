@@ -2,7 +2,7 @@ import React, {
   cloneElement,
   createContext,
   forwardRef,
-  useContext
+  useContext,
 } from 'react'
 import { VariableSizeList, ListChildComponentProps } from 'react-window'
 import { useTabHeight } from 'components/hooks/useStore'
@@ -14,8 +14,8 @@ const renderRow = (props: ListChildComponentProps) => {
   return cloneElement(data[index], {
     style: {
       ...style,
-      top: style.top + LISTBOX_PADDING
-    }
+      top: style.top + LISTBOX_PADDING,
+    },
   })
 }
 

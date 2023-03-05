@@ -5,7 +5,7 @@ import {
   getLastFocusedWindowId,
   notSelfPopup,
   windowComparator,
-  isSelfPopup
+  isSelfPopup,
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
@@ -47,7 +47,7 @@ export default class WindowsStore {
       cleanDuplicatedTabs: action,
       moveTabs: action,
       updateHeight: action,
-      updateAllWindows: action
+      updateAllWindows: action,
     })
 
     this.store = store
@@ -92,7 +92,7 @@ export default class WindowsStore {
 
   get tabs(): Tab[] {
     return [].concat(
-      ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
+      ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice()),
     )
   }
 
@@ -146,7 +146,7 @@ export default class WindowsStore {
       return win
     }
     const winData = await browser.windows.get(windowId, {
-      populate: true
+      populate: true,
     })
     win = this.windows.find((x) => x.id === windowId)
     if (!win) {
@@ -172,8 +172,8 @@ export default class WindowsStore {
     id: number,
     {
       windowId,
-      isWindowClosing
-    }: { windowId: number; isWindowClosing: boolean }
+      isWindowClosing,
+    }: { windowId: number; isWindowClosing: boolean },
   ) => {
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
     this.store.tabStore.selection.delete(id)
@@ -206,7 +206,7 @@ export default class WindowsStore {
       return
     }
     const win = await browser.windows.get(windowId, {
-      populate: true
+      populate: true,
     })
     if (win && !isSelfPopup(win)) {
       this.lastFocusedWindowId = windowId
@@ -222,10 +222,10 @@ export default class WindowsStore {
         new Window(
           {
             id: windowId,
-            tabs: [tab]
+            tabs: [tab],
           },
-          this.store
-        )
+          this.store,
+        ),
       )
     } else {
       win.add(new Tab(tab, this.store, win), index)
@@ -283,9 +283,9 @@ export default class WindowsStore {
     browser.runtime.sendMessage({
       tabs: tabs.map(({ id, pinned }) => ({
         id,
-        pinned
+        pinned,
       })),
-      action: actions.createWindow
+      action: actions.createWindow,
     })
   }
 
@@ -336,7 +336,7 @@ export default class WindowsStore {
         }
         return acc
       },
-      {}
+      {},
     )
     Object.values(tabMap).forEach((tabs) => {
       tabs.slice(1).forEach((x) => x.remove())
@@ -347,7 +347,7 @@ export default class WindowsStore {
     const win = this.windows.find((win) => win.id === windowId)
     if (!win) {
       throw new Error(
-        `getTargetWindow canot find window for windowId: ${windowId}!`
+        `getTargetWindow canot find window for windowId: ${windowId}!`,
       )
     }
     return win
@@ -361,14 +361,14 @@ export default class WindowsStore {
   updateHeight(height: number) {
     log.debug('WindowsStore.updateHeight:', {
       height,
-      'this.height': this.height
+      'this.height': this.height,
     })
     if (this.height !== height) {
       log.debug(
         'WindowsStore.updateHeight set height from',
         this.height,
         'to',
-        height
+        height,
       )
       this.height = height
     }
@@ -382,7 +382,7 @@ export default class WindowsStore {
   loadAllWindows = async () => {
     log.debug('loadAllWindows')
     const windows = await browser.windows.getAll({
-      populate: true
+      populate: true,
     })
     this.lastFocusedWindowId = await getLastFocusedWindowId()
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
@@ -390,7 +390,7 @@ export default class WindowsStore {
     this.windows = windows
       .filter(notSelfPopup)
       .filter(
-        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app'
+        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app',
       )
       .map((win: any) => new Window(win, this.store))
       .sort(windowComparator)
@@ -412,6 +412,6 @@ export default class WindowsStore {
 
   updateAllWindows = debounce(this.getAllWindows, 1000, {
     leading: true,
-    trailing: true
+    trailing: true,
   })
 }

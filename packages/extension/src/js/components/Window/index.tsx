@@ -32,9 +32,9 @@ export default observer((props: WinProps & { width: string }) => {
       return {
         canDrop: monitor.canDrop(),
         isDragging: !!monitor.getItem(),
-        isOver: monitor.isOver({ shallow: true })
+        isOver: monitor.isOver({ shallow: true }),
       }
-    }
+    },
   })
   const { canDrop, isOver, isDragging } = dropProps
   const style: CSSProperties = {
@@ -42,7 +42,7 @@ export default observer((props: WinProps & { width: string }) => {
     width,
     height: 'fit-content',
     boxSizing: 'border-box',
-    padding: `0px 1px ${tabHeight}px 1px`
+    padding: `0px 1px ${tabHeight}px 1px`,
   }
   const dropIndicator = canDrop && isOver && <DropIndicator />
   if (!win.visibleLength) {
@@ -53,13 +53,13 @@ export default observer((props: WinProps & { width: string }) => {
       ref={drop}
       style={style}
       className={classNames({
-        'bg-red-500': isDragging && isOver && !canDrop
+        'bg-red-500': isDragging && isOver && !canDrop,
       })}
     >
       <div
         className={classNames({
           'shadow-2xl': lastFocused,
-          'shadow-sm hover:shadow-lg': !lastFocused
+          'shadow-sm hover:shadow-lg': !lastFocused,
         })}
       >
         <DroppableTitle {...props} />
