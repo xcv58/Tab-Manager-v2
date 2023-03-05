@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
 import Dialog from '@mui/material/Dialog'
@@ -61,9 +61,6 @@ export default observer(() => {
     ignoreHash,
     toggleIgnoreHash,
   } = userStore
-  useEffect(() => {
-    document.getElementsByTagName('html')[0].style.fontSize = `${fontSize}px`
-  }, [fontSize])
   const reduceMotion = useReduceMotion()
   return (
     <Dialog

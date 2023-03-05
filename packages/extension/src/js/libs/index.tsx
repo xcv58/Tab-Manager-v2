@@ -3,8 +3,6 @@ import log from 'libs/log'
 
 export { browser }
 
-export const TAB_HEIGHT = 42
-
 export const NOT_POPUP = 'not_popup'
 
 // The not_popup=1 query indicate current page is not opened by browser_action.
@@ -30,7 +28,7 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
       const index = from + (from !== -1 ? i : 0)
       await browser.tabs.update(id, { pinned })
       await browser.tabs.move(id, { windowId, index })
-    })
+    }),
   )
 }
 
@@ -66,7 +64,7 @@ export const togglePinTabs = async (tabs) => {
   await Promise.all(
     [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
       await browser.tabs.update(id, { pinned: !pinned })
-    })
+    }),
   )
 }
 
@@ -77,7 +75,7 @@ const focusOnLastFocusedWin = async () => {
   if (windows.find((win) => win.id === lastFocusedWindowId)) {
     log.debug(
       'focusOnLastFocusedWin focus on valid lastFocusedWindowId:',
-      lastFocusedWindowId
+      lastFocusedWindowId,
     )
     return browser.windows.update(lastFocusedWindowId, { focused: true })
   }
@@ -85,12 +83,12 @@ const focusOnLastFocusedWin = async () => {
   if (win) {
     log.debug(
       'focusOnLastFocusedWin lastFocusedWindowId is invalid, focused on the first window',
-      { win, lastFocusedWindowId }
+      { win, lastFocusedWindowId },
     )
     return browser.windows.update(win.id, { focused: true })
   }
   log.error(
-    'focusOnLastFocusedWin lastFocusedWindowId is invalid, and no active window to focus'
+    'focusOnLastFocusedWin lastFocusedWindowId is invalid, and no active window to focus',
   )
 }
 

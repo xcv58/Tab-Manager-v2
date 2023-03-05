@@ -129,7 +129,7 @@ export default class Window extends Focusable {
       this.tabs.splice(index, 1)
     } else {
       throw new Error(
-        `[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`
+        `[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`,
       )
     }
   }

@@ -6,14 +6,14 @@ import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
 import DropIndicator from 'components/DropIndicator'
 import { ItemTypes, getTargetTab } from 'libs/react-dnd'
-import { useStore } from 'components/hooks/useStore'
+import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { CSSProperties } from '@mui/styles'
 import Loading from 'components/Loading'
-import { TAB_HEIGHT } from 'libs'
 import { WinProps } from 'components/types'
 
 export default observer((props: WinProps & { width: string }) => {
   const { dragStore, userStore } = useStore()
+  const tabHeight = useTabHeight()
   const { win, width } = props
   const { lastFocused, showTabs, visibleLength } = win
   const [dropProps, drop] = useDrop({
@@ -42,6 +42,7 @@ export default observer((props: WinProps & { width: string }) => {
     width,
     height: 'fit-content',
     boxSizing: 'border-box',
+    padding: `0px 1px ${tabHeight}px 1px`,
   }
   const dropIndicator = canDrop && isOver && <DropIndicator />
   if (!win.visibleLength) {
@@ -51,7 +52,7 @@ export default observer((props: WinProps & { width: string }) => {
     <div
       ref={drop}
       style={style}
-      className={classNames('window', {
+      className={classNames({
         'bg-red-500': isDragging && isOver && !canDrop,
       })}
     >
@@ -64,7 +65,7 @@ export default observer((props: WinProps & { width: string }) => {
         <DroppableTitle {...props} />
         {showTabs && <Tabs {...props} />}
         {!showTabs && (
-          <div style={{ height: TAB_HEIGHT * (visibleLength - 2) }}>
+          <div style={{ height: tabHeight * (visibleLength - 1) }}>
             <Loading small />
           </div>
         )}

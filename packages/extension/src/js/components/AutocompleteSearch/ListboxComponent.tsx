@@ -5,7 +5,7 @@ import React, {
   useContext,
 } from 'react'
 import { VariableSizeList, ListChildComponentProps } from 'react-window'
-import { TAB_HEIGHT } from 'libs'
+import { useTabHeight } from 'components/hooks/useStore'
 
 const LISTBOX_PADDING = 8
 
@@ -27,11 +27,12 @@ const OuterElementType = forwardRef<HTMLDivElement>((props, ref) => {
 })
 
 const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
+  const tabHeight = useTabHeight()
   const { children, ...other } = props
   const itemData = React.Children.toArray(children)
   const itemCount = itemData.length
 
-  const getHeight = () => Math.min(20, itemCount) * TAB_HEIGHT
+  const getHeight = () => Math.min(20, itemCount) * tabHeight
 
   return (
     <div ref={ref}>
@@ -42,7 +43,7 @@ const ListboxComponent = forwardRef<HTMLDivElement>((props, ref) => {
           width="100%"
           outerElementType={OuterElementType}
           innerElementType="ul"
-          itemSize={() => TAB_HEIGHT}
+          itemSize={() => tabHeight}
           overscanCount={5}
           itemCount={itemCount}
         >

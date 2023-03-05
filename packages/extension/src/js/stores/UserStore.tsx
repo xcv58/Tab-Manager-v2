@@ -68,6 +68,7 @@ export default class UserStore {
       toggleAutoFocusSearch: action,
       toggleShowUrl: action,
       updateTabWidth: action,
+      updateFontSize: action,
       toggleShowTabIcon: action,
       toggleAutoHide: action,
       toggleDarkTheme: action,
@@ -156,8 +157,8 @@ export default class UserStore {
     browser.storage.sync.set(
       Object.assign(
         {},
-        ...Object.keys(DEFAULT_SETTINGS).map((key) => ({ [key]: this[key] }))
-      )
+        ...Object.keys(DEFAULT_SETTINGS).map((key) => ({ [key]: this[key] })),
+      ),
     )
   }
 

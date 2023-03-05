@@ -6,7 +6,6 @@ import {
   notSelfPopup,
   windowComparator,
   isSelfPopup,
-  TAB_HEIGHT,
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
@@ -49,6 +48,7 @@ export default class WindowsStore {
       moveTabs: action,
       updateHeight: action,
       updateAllWindows: action,
+      onFocusChanged: action,
     })
 
     this.store = store
@@ -93,14 +93,15 @@ export default class WindowsStore {
 
   get tabs(): Tab[] {
     return [].concat(
-      ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice())
+      ...this.windows.filter((x) => !x.hide).map((x) => x.tabs.slice()),
     )
   }
 
   get visibleColumn() {
+    const tabHeight = this.store.userStore.fontSize * 3
     const heights = this.windows
       .filter((x) => x.visibleLength > 0)
-      .map((x) => x.visibleLength * TAB_HEIGHT)
+      .map((x) => x.visibleLength * tabHeight)
     let count = 0
     let preHeight = -1
     for (const h of heights) {
@@ -173,7 +174,7 @@ export default class WindowsStore {
     {
       windowId,
       isWindowClosing,
-    }: { windowId: number; isWindowClosing: boolean }
+    }: { windowId: number; isWindowClosing: boolean },
   ) => {
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
     this.store.tabStore.selection.delete(id)
@@ -224,8 +225,8 @@ export default class WindowsStore {
             id: windowId,
             tabs: [tab],
           },
-          this.store
-        )
+          this.store,
+        ),
       )
     } else {
       win.add(new Tab(tab, this.store, win), index)
@@ -336,7 +337,7 @@ export default class WindowsStore {
         }
         return acc
       },
-      {}
+      {},
     )
     Object.values(tabMap).forEach((tabs) => {
       tabs.slice(1).forEach((x) => x.remove())
@@ -347,7 +348,7 @@ export default class WindowsStore {
     const win = this.windows.find((win) => win.id === windowId)
     if (!win) {
       throw new Error(
-        `getTargetWindow canot find window for windowId: ${windowId}!`
+        `getTargetWindow canot find window for windowId: ${windowId}!`,
       )
     }
     return win
@@ -368,7 +369,7 @@ export default class WindowsStore {
         'WindowsStore.updateHeight set height from',
         this.height,
         'to',
-        height
+        height,
       )
       this.height = height
     }
@@ -390,7 +391,7 @@ export default class WindowsStore {
     this.windows = windows
       .filter(notSelfPopup)
       .filter(
-        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app'
+        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app',
       )
       .map((win: any) => new Window(win, this.store))
       .sort(windowComparator)
