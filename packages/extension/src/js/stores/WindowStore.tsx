@@ -48,6 +48,7 @@ export default class WindowsStore {
       moveTabs: action,
       updateHeight: action,
       updateAllWindows: action,
+      onFocusChanged: action,
     })
 
     this.store = store

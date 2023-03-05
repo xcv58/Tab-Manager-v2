@@ -57,6 +57,7 @@ export default class Tab extends Focusable {
       remove: action,
       groupTab: action,
       togglePin: action,
+      setUrlIcon: action,
       isMatched: computed,
       isVisible: computed,
       domain: computed,
