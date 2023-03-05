@@ -32,7 +32,7 @@ export default observer(() => {
       className={classNames(
         'flex flex-col h-screen overflow-hidden',
         { 'pb-12': !toolbarAutoHide },
-        useTextClasses(),
+        useTextClasses()
       )}
     >
       {liteMode ? (

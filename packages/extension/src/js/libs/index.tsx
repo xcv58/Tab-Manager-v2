@@ -28,7 +28,7 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
       const index = from + (from !== -1 ? i : 0)
       await browser.tabs.update(id, { pinned })
       await browser.tabs.move(id, { windowId, index })
-    }),
+    })
   )
 }
 
@@ -64,7 +64,7 @@ export const togglePinTabs = async (tabs) => {
   await Promise.all(
     [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
       await browser.tabs.update(id, { pinned: !pinned })
-    }),
+    })
   )
 }
 
@@ -75,7 +75,7 @@ const focusOnLastFocusedWin = async () => {
   if (windows.find((win) => win.id === lastFocusedWindowId)) {
     log.debug(
       'focusOnLastFocusedWin focus on valid lastFocusedWindowId:',
-      lastFocusedWindowId,
+      lastFocusedWindowId
     )
     return browser.windows.update(lastFocusedWindowId, { focused: true })
   }
@@ -83,19 +83,19 @@ const focusOnLastFocusedWin = async () => {
   if (win) {
     log.debug(
       'focusOnLastFocusedWin lastFocusedWindowId is invalid, focused on the first window',
-      { win, lastFocusedWindowId },
+      { win, lastFocusedWindowId }
     )
     return browser.windows.update(win.id, { focused: true })
   }
   log.error(
-    'focusOnLastFocusedWin lastFocusedWindowId is invalid, and no active window to focus',
+    'focusOnLastFocusedWin lastFocusedWindowId is invalid, and no active window to focus'
   )
 }
 
 export const openOrTogglePopup = async () => {
   log.debug('openOrTogglePopup')
   const { _selfPopupActive } = await browser.storage.local.get({
-    _selfPopupActive: false,
+    _selfPopupActive: false
   })
   if (_selfPopupActive) {
     return focusOnLastFocusedWin()
@@ -120,12 +120,12 @@ export const openPopup = async () => {
     availHeight = 500,
     availLeft = 0,
     availTop = 0,
-    availWidth = 500,
+    availWidth = 500
   } = await browser.storage.local.get([
     'availHeight',
     'availLeft',
     'availTop',
-    'availWidth',
+    'availWidth'
   ])
   log.debug('openPopup', { availHeight, availLeft, availTop, availWidth })
   const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
@@ -138,7 +138,7 @@ export const openPopup = async () => {
     height,
     width,
     url: popupURL,
-    type: 'popup',
+    type: 'popup'
   })
 }
 
@@ -173,7 +173,7 @@ export const setSelfPopupActive = (_selfPopupActive) => {
 export const getLastFocusedWindowId = async () => {
   try {
     const { lastFocusedWindowId } = await browser.storage.local.get({
-      lastFocusedWindowId: null,
+      lastFocusedWindowId: null
     })
     return lastFocusedWindowId
   } catch (e) {
@@ -206,7 +206,7 @@ export const windowComparator = (a, b) => {
 }
 
 export const ItemTypes = {
-  TAB: 'tab',
+  TAB: 'tab'
 }
 
 export const TOOLTIP_DELAY = 300

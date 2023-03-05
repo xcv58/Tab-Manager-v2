@@ -59,7 +59,7 @@ export default observer(() => {
     theme,
     selectTheme,
     ignoreHash,
-    toggleIgnoreHash,
+    toggleIgnoreHash
   } = userStore
   const reduceMotion = useReduceMotion()
   return (
