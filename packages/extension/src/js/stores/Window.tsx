@@ -61,7 +61,7 @@ export default class Window extends Focusable {
 
   get visibleLength() {
     if (this.hide) {
-      return 2
+      return 1
     }
     const { length } = this.tabs.filter((x) => x.isVisible)
     return length ? length + 2 : length
@@ -129,7 +129,7 @@ export default class Window extends Focusable {
       this.tabs.splice(index, 1)
     } else {
       throw new Error(
-        `[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`
+        `[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`,
       )
     }
   }

@@ -28,10 +28,6 @@ body {
   height: calc(100vh - 3rem);
 }
 
-.window {
-  padding: 0 1px 42px 1px;
-}
-
 .toolbar {
   opacity: 0.4;
 }

@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
+import FontSizeUpdater from 'components/FontSizeUpdater'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { useStore } from './hooks/useStore'
 import DragLayer from './DragLayer'
@@ -31,7 +32,7 @@ export default observer(() => {
       className={classNames(
         'flex flex-col h-screen overflow-hidden',
         { 'pb-12': !toolbarAutoHide },
-        useTextClasses()
+        useTextClasses(),
       )}
     >
       {liteMode ? (
@@ -46,6 +47,7 @@ export default observer(() => {
       )}
       <Shortcut />
       <SettingsDialog />
+      <FontSizeUpdater />
     </main>
   )
 })
