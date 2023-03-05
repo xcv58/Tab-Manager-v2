@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.23.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.0...v1.23.1) (2023-03-05)
+
+### Bug Fixes
+
+- Column mismatch if font size is not default ([#2339](https://github.com/xcv58/Tab-Manager-v2/issues/2339)) ([a240ce5](https://github.com/xcv58/Tab-Manager-v2/commit/a240ce54dbd70831c58a0fc9c77c1ddd8f5bd49c))
+- **deps:** update dependency @mui/material to v5.11.10 ([#2323](https://github.com/xcv58/Tab-Manager-v2/issues/2323)) ([6ab9353](https://github.com/xcv58/Tab-Manager-v2/commit/6ab9353c04851a2b9be7c9054409a2872ba3c154))
+- **deps:** update dependency playwright to v1.31.0 ([#2325](https://github.com/xcv58/Tab-Manager-v2/issues/2325)) ([6dc95f5](https://github.com/xcv58/Tab-Manager-v2/commit/6dc95f5e140738fe7b1de96826734683893b6fd5))
+- **deps:** update dependency playwright to v1.31.1 ([#2327](https://github.com/xcv58/Tab-Manager-v2/issues/2327)) ([b2f4eba](https://github.com/xcv58/Tab-Manager-v2/commit/b2f4ebaf2ad73661fa1590b7d530f548a1bf8188))
+- **deps:** update dependency playwright to v1.31.2 ([#2337](https://github.com/xcv58/Tab-Manager-v2/issues/2337)) ([4d03ccd](https://github.com/xcv58/Tab-Manager-v2/commit/4d03ccd8e24db81d58258ed8ff63917d484d5034))
+- **deps:** update dependency react-resize-detector to v8.0.4 ([#2272](https://github.com/xcv58/Tab-Manager-v2/issues/2272)) ([421b8dd](https://github.com/xcv58/Tab-Manager-v2/commit/421b8ddf35983c73271c779be5efe3ca83e32e35))
+- **deps:** update dependency react-router-dom to v6.8.2 ([#2331](https://github.com/xcv58/Tab-Manager-v2/issues/2331)) ([0d0fba3](https://github.com/xcv58/Tab-Manager-v2/commit/0d0fba384ff3b8fd9267c18b174faf81feca7992))
+- **deps:** update dependency tailwindcss to v3.2.7 ([#2317](https://github.com/xcv58/Tab-Manager-v2/issues/2317)) ([a3960df](https://github.com/xcv58/Tab-Manager-v2/commit/a3960df4ba1339996b502e7ac634af7d8c0dd0d6))
+- **deps:** update emotion monorepo to v11.10.6 ([#2318](https://github.com/xcv58/Tab-Manager-v2/issues/2318)) ([194cc39](https://github.com/xcv58/Tab-Manager-v2/commit/194cc39ac60d5531922c7d1476d99058448a9999))
+
 ## [1.23.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.22.1...v1.23.0) (2023-02-15)
 
 ### Features
