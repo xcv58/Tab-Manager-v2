@@ -21,8 +21,8 @@ describe('TabTools', () => {
 
   it('should render correct components', () => {
     const { container } = render(<TabTools {...props} />)
-    expect(screen.getByRole('button')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
+    expect(screen.getByRole('button')).toBeInTheDocument()
   })
 
   it('should render null', () => {
@@ -31,7 +31,7 @@ describe('TabTools', () => {
 
     cleanup()
     container = render(
-      <TabTools {...props} tab={{ isHovered: false }} />
+      <TabTools {...props} tab={{ isHovered: false }} />,
     ).container
     // expect(el.getElement()).toBe(null)
     expect(container.firstChild).toBeNull()

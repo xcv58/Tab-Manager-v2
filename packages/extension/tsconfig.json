@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["es2018", "dom"],
-    "types": ["jasmine", "jest"],
+    "types": ["jasmine", "jest", "@testing-library/jest-dom"],
     "outDir": "./build/",
     "baseUrl": "./src/js",
     "paths": {

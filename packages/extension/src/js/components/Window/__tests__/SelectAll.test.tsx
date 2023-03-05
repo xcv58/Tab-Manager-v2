@@ -30,7 +30,7 @@ describe('SelectAll', () => {
         tooltip,
         new MouseEvent('mouseover', {
           bubbles: true,
-        })
+        }),
       )
     })
     let tooltipText = await screen.findByRole('tooltip')
@@ -46,7 +46,7 @@ describe('SelectAll', () => {
         tooltip,
         new MouseEvent('mouseover', {
           bubbles: true,
-        })
+        }),
       )
     })
     tooltipText = await screen.findByRole('tooltip')
