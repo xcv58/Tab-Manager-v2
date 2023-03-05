@@ -19,7 +19,7 @@
     "zip": "pnpm --filter tab-manager-v2 zip",
     "stat": "pnpm --filter tab-manager-v2 stat",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prettier": "prettier --no-semi --single-quote --write",
+    "prettier": "prettier --write",
     "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix"
   },
   "devDependencies": {
