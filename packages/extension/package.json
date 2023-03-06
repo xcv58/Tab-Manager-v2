@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "1.23.1",
+  "version": "1.23.2",
   "description": "Quickly and conveniently manage your open tabs",
   "private": true,
   "scripts": {
