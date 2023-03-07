@@ -75,7 +75,7 @@
     "@types/react-window": "1.8.5",
     "@types/webpack-env": "1.18.0",
     "babel-eslint": "10.1.0",
-    "chrome-webstore-upload-cli": "2.1.0",
+    "chrome-webstore-upload-cli": "2.2.0",
     "clean-webpack-plugin": "4.0.0",
     "codecov": "3.8.3",
     "copy-webpack-plugin": "11.0.0",
