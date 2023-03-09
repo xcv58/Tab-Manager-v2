@@ -92,7 +92,7 @@ importers:
       match-sorter: 6.3.1
       mini-css-extract-plugin: 2.7.2
       mobx: 6.8.0
-      mobx-react-lite: 3.4.2
+      mobx-react-lite: 3.4.3
       moment: 2.29.4
       mousetrap: 1.6.5
       npm-run-all: 4.1.5
@@ -143,7 +143,7 @@ importers:
       loglevel: 1.8.1
       match-sorter: 6.3.1
       mobx: 6.8.0
-      mobx-react-lite: 3.4.2_woojb62cqeyk443mbl7msrwu2e
+      mobx-react-lite: 3.4.3_woojb62cqeyk443mbl7msrwu2e
       moment: 2.29.4
       mousetrap: 1.6.5
       postcss: 8.4.21
@@ -14578,8 +14578,8 @@ packages:
     hasBin: true
     dev: true
 
-  /mobx-react-lite/3.4.2_woojb62cqeyk443mbl7msrwu2e:
-    resolution: {integrity: sha512-wOFI6qhMBucYNy00aSDoee23L2//wKYJp4z5k+YOhOCY303prwLaWiEhJU0H2c//oIEEswGqUHtVV2qptk/g5g==}
+  /mobx-react-lite/3.4.3_woojb62cqeyk443mbl7msrwu2e:
+    resolution: {integrity: sha512-NkJREyFTSUXR772Qaai51BnE1voWx56LOL80xG7qkZr6vo8vEaLF3sz1JNUVh+rxmUzxYaqOhfuxTfqUh0FXUg==}
     peerDependencies:
       mobx: ^6.1.0
       react: ^16.8.0 || ^17 || ^18
