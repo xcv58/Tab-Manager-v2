@@ -4,6 +4,7 @@ importers:
 
   .:
     specifiers:
+      '@plasmohq/edge-addons-api': ^1.1.1
       '@typescript-eslint/eslint-plugin': 5.54.1
       '@typescript-eslint/parser': 5.54.1
       chrome-webstore-upload-cli: 2.2.0
@@ -22,6 +23,7 @@ importers:
       typescript: 4.9.5
       web-ext: 7.5.0
     devDependencies:
+      '@plasmohq/edge-addons-api': 1.1.1
       '@typescript-eslint/eslint-plugin': 5.54.1_mlk7dnz565t663n4razh6a6v6i
       '@typescript-eslint/parser': 5.54.1_ycpbpc6yetojsgtrx3mwntkhsu
       chrome-webstore-upload-cli: 2.2.0
@@ -3602,6 +3604,13 @@ packages:
     resolution: {integrity: sha512-LUewfj94xCMH2rbD5YJ+6AQ4AVjFYTgpp6rboWM5T7N3IsIF65SBEOVcYMGAEzO/kKNiNaW4LoWtoThOhH06gw==}
     dependencies:
       '@octokit/openapi-types': 16.0.0
+    dev: true
+
+  /@plasmohq/edge-addons-api/1.1.1:
+    resolution: {integrity: sha512-GRE2FBDrGgxNpRxrbo0LosjP5sgqC9OmcSKAvIjG704uHU7i4S6F4XK5LtxMkPsWdvY5FlNWByaUMNIzwhcs1g==}
+    engines: {node: '>=16.14'}
+    dependencies:
+      got: 12.5.3
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.7_6amjs7vuycqvm7ujodxt7nfvgm:
@@ -11363,6 +11372,23 @@ packages:
       lowercase-keys: 2.0.0
       p-cancelable: 2.1.1
       responselike: 2.0.1
+    dev: true
+
+  /got/12.5.3:
+    resolution: {integrity: sha512-8wKnb9MGU8IPGRIo+/ukTy9XLJBwDiCpIf5TVzQ9Cpol50eMTpBq2GAuDsuDIz7hTYmZgMgC1e9ydr6kSDWs3w==}
+    engines: {node: '>=14.16'}
+    dependencies:
+      '@sindresorhus/is': 5.3.0
+      '@szmarczak/http-timer': 5.0.1
+      cacheable-lookup: 7.0.0
+      cacheable-request: 10.2.8
+      decompress-response: 6.0.0
+      form-data-encoder: 2.1.4
+      get-stream: 6.0.1
+      http2-wrapper: 2.2.0
+      lowercase-keys: 3.0.0
+      p-cancelable: 3.0.0
+      responselike: 3.0.0
     dev: true
 
   /got/12.6.0:

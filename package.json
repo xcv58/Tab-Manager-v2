@@ -15,7 +15,8 @@
     "deploy": "turbo run zip ls stat",
     "publish:chrome": "chrome-webstore-upload upload --auto-publish --source packages/extension/build/build_chrome.zip",
     "publish:firefox": "web-ext sign --source-dir packages/extension/build/build_firefox --channel=listed || echo 'Publish to Mozilla Add-ons may failed because https://github.com/mozilla/web-ext/issues/804'",
-    "publish-extension": "run-s publish:chrome publish:firefox",
+    "publish:edge": "node ./publish_edge.mjs",
+    "publish-extension": "run-s publish:chrome publish:firefox publish:edge",
     "zip": "pnpm --filter tab-manager-v2 zip",
     "stat": "pnpm --filter tab-manager-v2 stat",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
@@ -39,6 +40,7 @@
     "release-it": "15.8.0",
     "turbo": "1.8.3",
     "typescript": "4.9.5",
+    "@plasmohq/edge-addons-api": "^1.1.1",
     "web-ext": "7.5.0"
   },
   "lint-staged": {
