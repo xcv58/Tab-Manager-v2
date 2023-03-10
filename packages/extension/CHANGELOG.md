@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.23.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.2...v1.23.3) (2023-03-10)
+
+### Bug Fixes
+
+- **deps:** update dependency mobx-react-lite to v3.4.2 ([#2340](https://github.com/xcv58/Tab-Manager-v2/issues/2340)) ([ada6d58](https://github.com/xcv58/Tab-Manager-v2/commit/ada6d58eab8db40b827068d1a2b9bb10aafc8ae9))
+- **deps:** update dependency mobx-react-lite to v3.4.3 ([#2348](https://github.com/xcv58/Tab-Manager-v2/issues/2348)) ([ce707bc](https://github.com/xcv58/Tab-Manager-v2/commit/ce707bc01f42b8ff1cae3ebb18b0e676411b9714))
+- The loading spinner view is higher than actual tabs ([40282d1](https://github.com/xcv58/Tab-Manager-v2/commit/40282d1cad7964d64878b6ea2da9e8fa92bc92f8))
+
 ### [1.23.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.1...v1.23.2) (2023-03-06)
 
 ### [1.23.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.0...v1.23.1) (2023-03-05)
