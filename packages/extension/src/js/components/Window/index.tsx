@@ -65,7 +65,7 @@ export default observer((props: WinProps & { width: string }) => {
         <DroppableTitle {...props} />
         {showTabs && <Tabs {...props} />}
         {!showTabs && (
-          <div style={{ height: tabHeight * (visibleLength - 1) }}>
+          <div style={{ height: tabHeight * (visibleLength - 2) }}>
             <Loading small />
           </div>
         )}
