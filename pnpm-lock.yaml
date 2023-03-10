@@ -110,7 +110,7 @@ importers:
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.2.0
       react-resize-detector: 8.0.4
-      react-router-dom: 6.8.2
+      react-router-dom: 6.9.0
       react-test-renderer: 18.2.0
       react-window: 1.8.8
       regenerator-runtime: 0.13.11
@@ -156,7 +156,7 @@ importers:
       react-dnd-html5-backend: 16.0.1
       react-dom: 18.2.0_react@18.2.0
       react-resize-detector: 8.0.4_biqbaboplfbrettd7655fr4n2y
-      react-router-dom: 6.8.2_biqbaboplfbrettd7655fr4n2y
+      react-router-dom: 6.9.0_biqbaboplfbrettd7655fr4n2y
       react-window: 1.8.8_biqbaboplfbrettd7655fr4n2y
       tailwindcss: 3.2.7_postcss@8.4.21
       use-system-theme: 0.1.1_biqbaboplfbrettd7655fr4n2y
@@ -3687,8 +3687,8 @@ packages:
     resolution: {integrity: sha512-/RVXdLvJxLg4QKvMoM5WlwNR9ViO9z8B/qPcc+C0Sa/teJY7QG7kJ441DwzOjMYEY7GmU4dj5EcGHIkKZiQZCA==}
     dev: false
 
-  /@remix-run/router/1.3.3:
-    resolution: {integrity: sha512-YRHie1yQEj0kqqCTCJEfHqYSSNlZQ696QJG+MMiW4mxSl9I0ojz/eRhJS4fs88Z5i6D1SmoF9d3K99/QOhI8/w==}
+  /@remix-run/router/1.4.0:
+    resolution: {integrity: sha512-BJ9SxXux8zAg991UmT8slpwpsd31K1dHHbD3Ba4VzD+liLQ4WAMSxQp2d2ZPRPfN0jN2NPRowcSSoM7lCaF08Q==}
     engines: {node: '>=14'}
     dev: false
 
@@ -16981,26 +16981,26 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /react-router-dom/6.8.2_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-N/oAF1Shd7g4tWy+75IIufCGsHBqT74tnzHQhbiUTYILYF0Blk65cg+HPZqwC+6SqEyx033nKqU7by38v3lBZg==}
+  /react-router-dom/6.9.0_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-/seUAPY01VAuwkGyVBPCn1OXfVbaWGGu4QN9uj0kCPcTyNYgL1ldZpxZUpRU7BLheKQI4Twtl/OW2nHRF1u26Q==}
     engines: {node: '>=14'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
     dependencies:
-      '@remix-run/router': 1.3.3
+      '@remix-run/router': 1.4.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-router: 6.8.2_react@18.2.0
+      react-router: 6.9.0_react@18.2.0
     dev: false
 
-  /react-router/6.8.2_react@18.2.0:
-    resolution: {integrity: sha512-lF7S0UmXI5Pd8bmHvMdPKI4u4S5McxmHnzJhrYi9ZQ6wE+DA8JN5BzVC5EEBuduWWDaiJ8u6YhVOCmThBli+rw==}
+  /react-router/6.9.0_react@18.2.0:
+    resolution: {integrity: sha512-51lKevGNUHrt6kLuX3e/ihrXoXCa9ixY/nVWRLlob4r/l0f45x3SzBvYJe3ctleLUQQ5fVa4RGgJOTH7D9Umhw==}
     engines: {node: '>=14'}
     peerDependencies:
       react: '>=16.8'
     dependencies:
-      '@remix-run/router': 1.3.3
+      '@remix-run/router': 1.4.0
       react: 18.2.0
     dev: false
 
