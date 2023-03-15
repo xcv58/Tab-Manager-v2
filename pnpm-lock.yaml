@@ -118,7 +118,7 @@ importers:
       sinon-chrome: 3.0.1
       speed-measure-webpack-plugin: 1.5.0
       standard-version: 9.5.0
-      style-loader: 3.3.1
+      style-loader: 3.3.2
       tailwindcss: 3.2.7
       terser-webpack-plugin: 5.3.7
       ts-jest: 29.0.5
@@ -208,7 +208,7 @@ importers:
       sinon-chrome: 3.0.1
       speed-measure-webpack-plugin: 1.5.0_webpack@5.76.1
       standard-version: 9.5.0
-      style-loader: 3.3.1_webpack@5.76.1
+      style-loader: 3.3.2_webpack@5.76.1
       terser-webpack-plugin: 5.3.7_webpack@5.76.1
       ts-jest: 29.0.5_q744lk64cx4tbpg7zn4yr5nesi
       ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi
@@ -18758,8 +18758,8 @@ packages:
       webpack: 5.76.1
     dev: true
 
-  /style-loader/3.3.1_webpack@5.76.1:
-    resolution: {integrity: sha512-GPcQ+LDJbrcxHORTRes6Jy2sfvK2kS6hpSfI/fXhPt+spVzxF6LJ1dHLN9zIGmVaaP044YKaIatFaufENRiDoQ==}
+  /style-loader/3.3.2_webpack@5.76.1:
+    resolution: {integrity: sha512-RHs/vcrKdQK8wZliteNK4NKzxvLBzpuHMqYmUVWeKa6MkaIQ97ZTOS0b+zapZhy6GcrgWnvWYCMHRirC3FsUmw==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
