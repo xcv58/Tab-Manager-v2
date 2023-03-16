@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.23.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.3...v1.23.4) (2023-03-16)
+
+### Bug Fixes
+
+- **deps:** update dependency autoprefixer to v10.4.14 ([#2353](https://github.com/xcv58/Tab-Manager-v2/issues/2353)) ([7a2d256](https://github.com/xcv58/Tab-Manager-v2/commit/7a2d256674f5393b614efedde2b29ceb24d7ae6a))
+- **deps:** update dependency react-router-dom to v6.9.0 ([#2356](https://github.com/xcv58/Tab-Manager-v2/issues/2356)) ([018d4c7](https://github.com/xcv58/Tab-Manager-v2/commit/018d4c762ccd194aeb074dfc74f4dd90fd8e5452))
+- The pin indicator position ([8924fe1](https://github.com/xcv58/Tab-Manager-v2/commit/8924fe18805bad80b3f8ad997cc1b98151c35e9f))
+
 ### [1.23.3](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.2...v1.23.3) (2023-03-10)
 
 ### Bug Fixes
