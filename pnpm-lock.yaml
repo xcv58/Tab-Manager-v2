@@ -52,7 +52,7 @@ importers:
       '@mui/styles': 5.11.9
       '@testing-library/jest-dom': 5.16.5
       '@testing-library/react': 14.0.0
-      '@types/chrome': 0.0.222
+      '@types/chrome': 0.0.224
       '@types/classnames': 2.3.1
       '@types/jest': 29.4.3
       '@types/lodash.debounce': 4.0.7
@@ -165,7 +165,7 @@ importers:
       '@babel/core': 7.21.3
       '@testing-library/jest-dom': 5.16.5
       '@testing-library/react': 14.0.0_biqbaboplfbrettd7655fr4n2y
-      '@types/chrome': 0.0.222
+      '@types/chrome': 0.0.224
       '@types/classnames': 2.3.1
       '@types/jest': 29.4.3
       '@types/lodash.debounce': 4.0.7
@@ -5313,8 +5313,8 @@ packages:
       '@types/responselike': 1.0.0
     dev: true
 
-  /@types/chrome/0.0.222:
-    resolution: {integrity: sha512-7XQnS85od1P0aBz0nrl5L7B+p4mKG/g4ya8nrJOJFVFRfVfqZTnp1B8c9JP6gAbHv7LRAeu9/BTPzMLLjHLiZQ==}
+  /@types/chrome/0.0.224:
+    resolution: {integrity: sha512-YkL7q3KDV7OAKgVCBNIfH73rnjNMbIzAYHzTa2DKhSK/2z0Wf/n8yJnK/UoW+lvuYJJR4LtAkG3YvsIZTy7BOA==}
     dependencies:
       '@types/filesystem': 0.0.32
       '@types/har-format': 1.2.8
