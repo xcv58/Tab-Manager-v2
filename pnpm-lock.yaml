@@ -128,7 +128,7 @@ importers:
       webextension-polyfill: 0.10.0
       webpack: 5.76.2
       webpack-bundle-analyzer: 4.8.0
-      webpack-dev-server: 4.12.0
+      webpack-dev-server: 4.13.1
     dependencies:
       '@emotion/react': 11.10.6_pmekkgnqduwlme35zpnqhenc34
       '@emotion/styled': 11.10.6_oouaibmszuch5k64ms7uxp2aia
@@ -215,7 +215,7 @@ importers:
       typescript: 4.9.5
       webpack: 5.76.2
       webpack-bundle-analyzer: 4.8.0
-      webpack-dev-server: 4.12.0_webpack@5.76.2
+      webpack-dev-server: 4.13.1_webpack@5.76.2
 
   packages/integration_test:
     specifiers:
@@ -20097,14 +20097,16 @@ packages:
       webpack: 5.76.2
     dev: true
 
-  /webpack-dev-server/4.12.0_webpack@5.76.2:
-    resolution: {integrity: sha512-XRN9YRnvOj3TQQ5w/0pR1y1xDcVnbWtNkTri46kuEbaWUPTHsWUvOyAAI7PZHLY+hsFki2kRltJjKMw7e+IiqA==}
+  /webpack-dev-server/4.13.1_webpack@5.76.2:
+    resolution: {integrity: sha512-5tWg00bnWbYgkN+pd5yISQKDejRBYGEw15RaEEslH+zdbNDxxaZvEAO2WulaSaFKb5n3YG8JXsGaDsut1D0xdA==}
     engines: {node: '>= 12.13.0'}
     hasBin: true
     peerDependencies:
       webpack: ^4.37.0 || ^5.0.0
       webpack-cli: '*'
     peerDependenciesMeta:
+      webpack:
+        optional: true
       webpack-cli:
         optional: true
     dependencies:
