@@ -1,4 +1,4 @@
-import { action, computed, makeObservable } from 'mobx'
+import { action, computed, makeAutoObservable } from 'mobx'
 import { togglePinTabs, writeToClipboard } from 'libs'
 import log from 'libs/log'
 import WindowStore from 'stores/WindowStore'
@@ -41,7 +41,7 @@ export default class Store {
   containerStore
 
   constructor() {
-    makeObservable(this, {
+    makeAutoObservable(this, {
       remove: action,
       reload: action,
       togglePin: action,

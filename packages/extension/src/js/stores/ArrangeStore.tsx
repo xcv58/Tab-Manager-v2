@@ -1,4 +1,4 @@
-import { action, computed, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import { moveTabs, tabComparator, browser } from 'libs'
 import Window from 'stores/Window'
 import Store from 'stores'
@@ -8,11 +8,7 @@ export default class ArrangeStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      domainTabsMap: computed,
-      sortTabs: action,
-      groupTab: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }
@@ -25,7 +21,7 @@ export default class ArrangeStore {
         acc[domain].push(tab)
         return acc
       },
-      {}
+      {},
     )
   }
 
@@ -50,7 +46,7 @@ export default class ArrangeStore {
     await moveTabs(
       sortedTabs.map((x) => ({ ...x, pinned })),
       windowId,
-      0
+      0,
     )
   }
 
@@ -63,11 +59,11 @@ export default class ArrangeStore {
             const { windowId, pinned } = sortedTabs[0]
             await moveTabs(
               sortedTabs.map((x) => ({ ...x, pinned })),
-              windowId
+              windowId,
             )
           }
-        }
-      )
+        },
+      ),
     )
     await this.sortTabs()
   }

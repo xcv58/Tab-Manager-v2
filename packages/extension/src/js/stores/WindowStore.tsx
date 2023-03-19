@@ -1,4 +1,4 @@
-import { action, computed, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import {
   browser,
   moveTabs,
@@ -18,38 +18,7 @@ export default class WindowsStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      windows: observable,
-      initialLoading: observable,
-      lastFocusedWindowId: observable,
-      height: observable,
-      tabCount: computed,
-      tabs: computed,
-      visibleColumn: computed,
-      onWindowsCreated: action,
-      onAttached: action,
-      onDetached: action,
-      onRemoved: action,
-      onUpdated: action,
-      onCreated: action,
-      onActivated: action,
-      onMoved: action,
-      removeTabs: action,
-      createNewWindow: action,
-      windowMounted: action,
-      getAllWindows: action,
-      loadAllWindows: action,
-      lastFocusedWindow: computed,
-      syncAllWindows: action,
-      tabFingerprintMap: computed,
-      duplicatedTabs: computed,
-      closeDuplicatedTab: action,
-      cleanDuplicatedTabs: action,
-      moveTabs: action,
-      updateHeight: action,
-      updateAllWindows: action,
-      onFocusChanged: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
     this.getAllWindows()

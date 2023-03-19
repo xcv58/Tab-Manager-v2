@@ -1,4 +1,4 @@
-import { observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 
@@ -6,9 +6,7 @@ export default class HiddenWindowsStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      hiddenWindows: observable,
-    })
+    makeAutoObservable(this)
 
     this.store = store
     this.init()
@@ -29,7 +27,7 @@ export default class HiddenWindowsStore {
     if (hide) {
       this.hiddenWindows = Object.assign(
         {},
-        ...this.store.windowStore.windows.map((x) => ({ [x.id]: true }))
+        ...this.store.windowStore.windows.map((x) => ({ [x.id]: true })),
       )
     } else {
       this.hiddenWindows = {}

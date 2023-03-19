@@ -1,4 +1,4 @@
-import { action, computed, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import { getDomain, togglePinTabs, browser } from 'libs'
 import bookmarks from 'img/chrome/bookmarks.png'
 import chromeIcon from 'img/chrome/chrome.png'
@@ -33,47 +33,7 @@ export default class Tab extends Focusable {
   constructor(tab, store: Store, win: Window) {
     super(store)
 
-    makeObservable(this, {
-      cookieStoreId: observable,
-      groupId: observable,
-      iconUrl: observable,
-      active: observable,
-      pinned: observable,
-      title: observable,
-      index: observable,
-      url: observable,
-      windowId: observable,
-      removing: observable,
-      activate: action,
-      select: action,
-      bulkSelect: action,
-      toggleHide: action,
-      toggleSelectAll: action,
-      reload: action,
-      focus: action,
-      hover: action,
-      unhover: action,
-      closeDuplicatedTab: action,
-      remove: action,
-      groupTab: action,
-      togglePin: action,
-      setUrlIcon: action,
-      isMatched: computed,
-      isVisible: computed,
-      domain: computed,
-      sameDomainTabs: computed,
-      duplicatedTabCount: computed,
-      isDuplicated: computed,
-      isSelected: computed,
-      query: computed,
-      isHovered: computed,
-      shouldHighlight: computed,
-      fingerPrint: computed,
-      closeOtherTabs: action,
-      closeWindow: action,
-      selectTabsInSameContainer: action,
-      openSameContainerTabs: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
     Object.assign(this, tab)

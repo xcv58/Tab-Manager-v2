@@ -1,4 +1,4 @@
-import { action, computed, observable, makeObservable } from 'mobx'
+import { observable, makeAutoObservable } from 'mobx'
 import { activateTab } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
@@ -8,18 +8,7 @@ export default class TabStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      selection: observable,
-      tabDescription: computed,
-      select: action,
-      selectTabsInSameContainer: action,
-      selectAll: action,
-      invertSelect: action,
-      unselectAll: action,
-      bulkSelct: action,
-      sources: computed,
-      activate: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }
@@ -50,7 +39,7 @@ export default class TabStore {
     process.env.TARGET_BROWSER === 'firefox'
       ? (tab: Tab) => {
           const tabs = this.store.windowStore.tabs.filter(
-            (x) => x.cookieStoreId === tab.cookieStoreId
+            (x) => x.cookieStoreId === tab.cookieStoreId,
           )
           if (tab.isSelected) {
             tabs.forEach((x) => this.selection.delete(x.id))

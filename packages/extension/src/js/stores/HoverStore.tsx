@@ -1,4 +1,4 @@
-import { action, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 
@@ -9,12 +9,7 @@ export default class HoverStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      hoveredTabId: observable,
-      hovered: observable,
-      hover: action,
-      unhover: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }
