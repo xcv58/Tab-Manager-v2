@@ -1,12 +1,17 @@
 import { MutableRefObject } from 'react'
-import { makeAutoObservable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import Store from 'stores'
 
 export default class Focusable {
   store: Store
 
   constructor(store: Store) {
-    makeAutoObservable(this)
+    makeObservable(this, {
+      id: observable,
+      nodeRef: observable,
+      setNodeRef: action,
+      isFocused: computed,
+    })
 
     this.store = store
   }
