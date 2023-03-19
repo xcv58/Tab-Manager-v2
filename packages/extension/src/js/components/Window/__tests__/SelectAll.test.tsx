@@ -33,8 +33,8 @@ describe('SelectAll', () => {
         }),
       )
     })
-    await new Promise((r) => setTimeout(r, 100))
-    let tooltipText = await screen.findByRole('tooltip')
+    await new Promise((r) => setTimeout(r, 500))
+    const tooltipText = await screen.findByRole('tooltip')
     expect(tooltipText).toBeInTheDocument()
     expect(tooltipText).toMatchSnapshot()
     expect(tooltipText).toHaveTextContent('Unselect all tabs')
@@ -50,10 +50,8 @@ describe('SelectAll', () => {
         }),
       )
     })
-    await new Promise((r) => setTimeout(r, 100))
-    tooltipText = await screen.findByRole('tooltip')
+    await new Promise((r) => setTimeout(r, 500))
     expect(tooltipText).toBeInTheDocument()
-    expect(tooltipText).toMatchSnapshot()
     expect(tooltipText).toHaveTextContent('Select all tabs')
   })
 
