@@ -33,6 +33,7 @@ describe('SelectAll', () => {
         }),
       )
     })
+    await new Promise((r) => setTimeout(r, 100))
     let tooltipText = await screen.findByRole('tooltip')
     expect(tooltipText).toBeInTheDocument()
     expect(tooltipText).toMatchSnapshot()
