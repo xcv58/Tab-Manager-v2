@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { action, computed, observable, makeObservable } from 'mobx'
 import Tab from './Tab'
 import { browser } from 'libs'
 import Store from 'stores'
@@ -8,10 +8,34 @@ import Focusable from './Focusable'
 export default class Window extends Focusable {
   store: Store
 
-  constructor(win: Window, store: Store) {
+  constructor(win, store: Store) {
     super(store)
 
-    makeAutoObservable(this)
+    makeObservable(this, {
+      tabs: observable,
+      showTabs: observable,
+      type: observable,
+      activate: action,
+      hide: computed,
+      visibleLength: computed,
+      lastFocused: computed,
+      canDrop: computed,
+      invisibleTabs: computed,
+      disableSelectAll: computed,
+      matchedTabs: computed,
+      allTabSelected: computed,
+      someTabSelected: computed,
+      add: action,
+      remove: action,
+      removeTabs: action,
+      reload: action,
+      close: action,
+      toggleSelectAll: action,
+      onMoved: action,
+      onDetached: action,
+      onAttched: action,
+      toggleHide: action,
+    })
 
     this.store = store
     Object.assign(this, win)
