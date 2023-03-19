@@ -22,7 +22,7 @@
     "zip:firefox": "pnpm _zip build/build_firefox.zip build/build_firefox/*",
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "test": "jest",
+    "test": "jest --maxWorkers=1",
     "test-watch": "pnpm jest --watch"
   },
   "dependencies": {
