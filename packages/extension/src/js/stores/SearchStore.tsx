@@ -1,5 +1,5 @@
 import { MutableRefObject } from 'react'
-import { action, computed, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
@@ -24,33 +24,7 @@ export default class SearchStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      searchEl: observable,
-      query: observable,
-      _query: observable,
-      _tabQuery: observable,
-      historyTabs: observable,
-      typing: observable,
-      isCommand: computed,
-      matchedTabs: computed,
-      matchedSet: computed,
-      allTabSelected: computed,
-      someTabSelected: computed,
-      setSearchEl: action,
-      focus: action,
-      startCommandSearch: action,
-      blur: action,
-      startType: action,
-      stopType: action,
-      search: action,
-      updateQuery: action,
-      updateTabQuery: action,
-      clear: action,
-      selectAll: action,
-      invertSelect: action,
-      unselectAll: action,
-      toggleSelectAll: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }

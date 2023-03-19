@@ -1,4 +1,4 @@
-import { action, computed, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import Store from 'stores'
 import log from 'libs/log'
 import Tab from './Tab'
@@ -10,7 +10,7 @@ const getNextItem = (
   items: any[],
   index: number,
   direction: number,
-  side = false
+  side = false,
 ) => {
   let nextIndex = index + direction + items.length
   if (side) {
@@ -30,28 +30,7 @@ export default class FocusStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      focusedItem: computed,
-      focusedWindowId: observable,
-      focusedTabId: observable,
-      containerRef: observable,
-      setContainerRef: action,
-      defocus: action,
-      enter: action,
-      focus: action,
-      select: action,
-      selectTabsInSameContainer: action,
-      closeWindow: action,
-      selectWindow: action,
-      groupTab: action,
-      _moveVertically: action,
-      left: action,
-      right: action,
-      up: action,
-      down: action,
-      firstTab: action,
-      lastTab: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }
@@ -92,7 +71,7 @@ export default class FocusStore {
     } else {
       log.error(
         'invalid input item for _setFocusedItem, it is not Window nor Tab:',
-        { item }
+        { item },
       )
     }
   }
@@ -227,7 +206,7 @@ export default class FocusStore {
     let targetItem = null
     for (const item of targetColumn) {
       const delta = Math.abs(
-        scrollTop + item.getBoundingClientRect().top - this._top
+        scrollTop + item.getBoundingClientRect().top - this._top,
       )
       if (delta < min) {
         targetItem = item

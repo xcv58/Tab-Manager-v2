@@ -1,4 +1,4 @@
-import { action, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import Store from 'stores'
 import Tab from './Tab'
 
@@ -6,14 +6,7 @@ export default class DragStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      dropped: observable,
-      dragging: observable,
-      dragStart: action,
-      dragEnd: action,
-      drop: action,
-      dropToNewWindow: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }

@@ -1,4 +1,4 @@
-import { action, observable, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import Mousetrap from 'mousetrap'
 import { openInNewTab } from 'libs'
 import Store from 'stores'
@@ -29,23 +29,7 @@ export default class ShortcutStore {
   store: Store
 
   constructor(store: Store) {
-    makeObservable(this, {
-      combo: observable,
-      toastOpen: observable,
-      dialogOpen: observable,
-      inputShortcutSet: observable,
-      shortcuts: observable,
-      stopCallback: action,
-      didMount: action,
-      willUnmount: action,
-      resume: action,
-      pause: action,
-      clearCombo: action,
-      openToast: action,
-      openDialog: action,
-      closeDialog: action,
-      _closeToast: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
   }
@@ -473,7 +457,7 @@ export default class ShortcutStore {
         this.combo = `${combo}: ${getDescription(description)}`
         this.openToast()
         func(e)
-      })
+      }),
     )
   }
 

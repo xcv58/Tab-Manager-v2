@@ -1,4 +1,4 @@
-import { action, observable, computed, makeObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import Store from 'stores'
 import { browser, tabComparator, moveTabs } from 'libs'
 import Tab from './Tab'
@@ -11,12 +11,7 @@ export default class ContainerStore {
   containerMap = new Map()
 
   constructor(store: Store) {
-    makeObservable(this, {
-      containerMap: observable,
-      count: computed,
-      openSameContainerTabs: action,
-      groupTabsByContainer: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
     this.init()
@@ -58,7 +53,7 @@ export default class ContainerStore {
     process.env.TARGET_BROWSER === 'firefox'
       ? (tab: Tab) => {
           const tabs = this.store.windowStore.tabs.filter(
-            (x) => x.cookieStoreId === tab.cookieStoreId
+            (x) => x.cookieStoreId === tab.cookieStoreId,
           )
           this.store.windowStore.createNewWindow(tabs)
         }
@@ -73,7 +68,7 @@ export default class ContainerStore {
               acc[cur.cookieStoreId].push(cur)
               return acc
             },
-            {}
+            {},
           )
           await Promise.all(
             Object.values(cookieTabMap).map(async (tabs: Tab[]) => {
@@ -82,7 +77,7 @@ export default class ContainerStore {
                 const { windowId } = sortedTabs[0]
                 await moveTabs(sortedTabs, windowId)
               }
-            })
+            }),
           )
         }
       : DUMB_FUNCTION
