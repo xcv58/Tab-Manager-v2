@@ -15,6 +15,9 @@ export default class Window extends Focusable {
       tabs: observable,
       showTabs: observable,
       type: observable,
+      title: observable,
+      getTitle: action,
+      setTitle: action,
       activate: action,
       hide: computed,
       visibleLength: computed,
@@ -42,6 +45,7 @@ export default class Window extends Focusable {
     this.tabs = win.tabs.map((tab) => new Tab(tab, store, this))
     // TODO: Remove this when we add concurrent mode
     this.showTabs = !this.store.windowStore.initialLoading
+    this.getTitle()
   }
 
   tabs: Tab[] = []
@@ -51,8 +55,14 @@ export default class Window extends Focusable {
 
   type = ''
 
+  title = ''
+
   activate = () => {
     browser.windows.update(this.id, { focused: true })
+  }
+
+  get key() {
+    return `win-${this.id}`
   }
 
   get hide() {
@@ -215,5 +225,17 @@ export default class Window extends Focusable {
       this.store.hiddenWindowStore.hideWindow(this.id)
       this.store.focusStore.focus(this)
     }
+  }
+
+  getTitle = async () => {
+    const res = await browser.storage.local.get({ [this.key]: '' })
+    const title = res[this.key]
+    console.log('key:', res, title)
+    this.title = title
+  }
+
+  setTitle = async (title: string) => {
+    this.title = title
+    await browser.storage.local.set({ [this.key]: title })
   }
 }
