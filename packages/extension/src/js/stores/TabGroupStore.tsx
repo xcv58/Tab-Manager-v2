@@ -1,4 +1,4 @@
-import { action, observable, makeAutoObservable } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import Store from 'stores'
 import { browser } from 'libs'
 
@@ -16,11 +16,7 @@ export default class GroupStore {
   tabGroupMap: Map<number, TabGroup> = new Map()
 
   constructor(store: Store) {
-    makeAutoObservable(this, {
-      tabGroupMap: observable,
-      onTabGroup: action,
-      onRemoved: action,
-    })
+    makeAutoObservable(this)
 
     this.store = store
     this.init()
