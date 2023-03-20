@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.23.5](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.4...v1.23.5) (2023-03-20)
+
+### Bug Fixes
+
+- Do not wrap the window title ([3eedcdf](https://github.com/xcv58/Tab-Manager-v2/commit/3eedcdf6db698dc98e015547da3bd7c0697a8ae1))
+- Tab duplication check is case insensitive ([cad8155](https://github.com/xcv58/Tab-Manager-v2/commit/cad81558fe7011e2c6a0bbea39a2bb9e06b05755))
+- Use makeAutoObservable to replace makeObservable ([#2377](https://github.com/xcv58/Tab-Manager-v2/issues/2377)) ([7c547a2](https://github.com/xcv58/Tab-Manager-v2/commit/7c547a28982f00a63f37d77019130decc2721f8f))
+
 ### [1.23.4](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.3...v1.23.4) (2023-03-16)
 
 ### Bug Fixes
