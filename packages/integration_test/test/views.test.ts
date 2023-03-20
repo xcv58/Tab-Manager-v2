@@ -57,7 +57,7 @@ describe('The Extension page should', () => {
 
     await openPages(
       browserContext,
-      [...Array(N)].map((_) => 'https://ops-class.org/')
+      [...Array(N)].map((_) => 'https://ops-class.org/'),
     )
     await page.bringToFront()
     tabs = await page.$$(TAB_QUERY)
@@ -79,7 +79,7 @@ describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await openPages(
       browserContext,
-      [...Array(10)].map((_) => 'https://ops-class.org/')
+      [...Array(10)].map((_) => 'https://ops-class.org/'),
     )
     await page.bringToFront()
     const inputSelector = 'input[type="text"]'
@@ -145,5 +145,19 @@ describe('The Extension page should', () => {
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     await page.fill(inputSelector, '')
+  })
+
+  it('check duplicated tabs and is case insensitive', async () => {
+    await openPages(browserContext, URLS)
+    await openPages(browserContext, [
+      'http://xcv58.com/ABC',
+      'http://xcv58.com/abc',
+      'http://xcv58.com/aBC',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(500)
+
+    const screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
   })
 })

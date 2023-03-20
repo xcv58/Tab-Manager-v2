@@ -197,10 +197,10 @@ export default class Tab extends Focusable {
   }
 
   get fingerPrint() {
-    if (!this.store.userStore.ignoreHash) {
-      return this.url
-    }
-    return this.url.split('#')[0]
+    const fingerPrint = this.store.userStore.ignoreHash
+      ? this.url.split('#')[0]
+      : this.url
+    return (fingerPrint || '').toLowerCase()
   }
 
   setUrlIcon = async () => {
