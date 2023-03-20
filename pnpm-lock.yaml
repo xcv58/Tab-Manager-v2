@@ -100,7 +100,7 @@ importers:
       npm-run-all: 4.1.5
       optimize-css-assets-webpack-plugin: 6.0.1
       postcss: 8.4.21
-      postcss-loader: 7.0.2
+      postcss-loader: 7.1.0
       progress-bar-webpack-plugin: 2.1.0
       purgecss-webpack-plugin: 5.0.0
       react: 18.2.0
@@ -149,7 +149,7 @@ importers:
       moment: 2.29.4
       mousetrap: 1.6.5
       postcss: 8.4.21
-      postcss-loader: 7.0.2_6puvukfnwbwq425eep7g4z27be
+      postcss-loader: 7.1.0_6puvukfnwbwq425eep7g4z27be
       react: 18.2.0
       react-command-palette: 0.22.1_biqbaboplfbrettd7655fr4n2y
       react-dnd: 16.0.1_pmekkgnqduwlme35zpnqhenc34
@@ -6595,7 +6595,6 @@ packages:
 
   /argparse/2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
-    dev: true
 
   /argv/0.0.2:
     resolution: {integrity: sha512-dEamhpPEwRUBpLNHeuCm/v+g0anFByHahxodVO/BbAarHVBBg2MccCwf9K+o1Pof+2btdnkJelYVUWjW/VrATw==}
@@ -8585,7 +8584,6 @@ packages:
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
-    dev: true
 
   /coveralls/3.1.1:
     resolution: {integrity: sha512-+dxnG2NHncSD1NrqbSM3dn/lE57O6Qf/koe9+I7c+wzkqRmEvcp0kgJdxKInzYzkICKkFMZsX3Vct3++tsF9ww==}
@@ -13404,7 +13402,6 @@ packages:
     hasBin: true
     dependencies:
       argparse: 2.0.1
-    dev: true
 
   /jsbn/0.1.1:
     resolution: {integrity: sha512-UVU9dibq2JcFWxQPA6KCqj5O42VOmAY3zQUfEKxU0KpTGXwNoCjkX1e13eHNvw/xPynt6pU0rZ1htjWTNTSXsg==}
@@ -13685,8 +13682,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /klona/2.0.5:
-    resolution: {integrity: sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==}
+  /klona/2.0.6:
+    resolution: {integrity: sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==}
     engines: {node: '>= 8'}
 
   /last-call-webpack-plugin/3.0.0:
@@ -15966,7 +15963,7 @@ packages:
       webpack: ^4.0.0 || ^5.0.0
     dependencies:
       cosmiconfig: 7.0.1
-      klona: 2.0.5
+      klona: 2.0.6
       loader-utils: 2.0.4
       postcss: 7.0.39
       schema-utils: 3.1.1
@@ -15974,15 +15971,15 @@ packages:
       webpack: 4.46.0
     dev: true
 
-  /postcss-loader/7.0.2_6puvukfnwbwq425eep7g4z27be:
-    resolution: {integrity: sha512-fUJzV/QH7NXUAqV8dWJ9Lg4aTkDCezpTS5HgJ2DvqznexTbSTxgi/dTECvTZ15BwKTtk8G/bqI/QTu2HPd3ZCg==}
+  /postcss-loader/7.1.0_6puvukfnwbwq425eep7g4z27be:
+    resolution: {integrity: sha512-vTD2DJ8vJD0Vr1WzMQkRZWRjcynGh3t7NeoLg+Sb1TeuK7etiZfL/ZwHbaVa3M+Qni7Lj/29voV9IggnIUjlIw==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
       postcss: ^7.0.0 || ^8.0.1
       webpack: ^5.0.0
     dependencies:
-      cosmiconfig: 7.0.1
-      klona: 2.0.5
+      cosmiconfig: 8.1.0
+      klona: 2.0.6
       postcss: 8.4.21
       semver: 7.3.8
       webpack: 5.76.2
