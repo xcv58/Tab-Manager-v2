@@ -94,7 +94,7 @@ importers:
       match-sorter: 6.3.1
       mini-css-extract-plugin: 2.7.5
       mobx: 6.9.0
-      mobx-react-lite: 3.4.3
+      mobx-react-lite: 4.0.2
       moment: 2.29.4
       mousetrap: 1.6.5
       npm-run-all: 4.1.5
@@ -145,7 +145,7 @@ importers:
       loglevel: 1.8.1
       match-sorter: 6.3.1
       mobx: 6.9.0
-      mobx-react-lite: 3.4.3_lrdhi4fih7ii4kmeak7ov4c3ha
+      mobx-react-lite: 4.0.2_lrdhi4fih7ii4kmeak7ov4c3ha
       moment: 2.29.4
       mousetrap: 1.6.5
       postcss: 8.4.21
@@ -14541,10 +14541,10 @@ packages:
     hasBin: true
     dev: true
 
-  /mobx-react-lite/3.4.3_lrdhi4fih7ii4kmeak7ov4c3ha:
-    resolution: {integrity: sha512-NkJREyFTSUXR772Qaai51BnE1voWx56LOL80xG7qkZr6vo8vEaLF3sz1JNUVh+rxmUzxYaqOhfuxTfqUh0FXUg==}
+  /mobx-react-lite/4.0.2_lrdhi4fih7ii4kmeak7ov4c3ha:
+    resolution: {integrity: sha512-5o7for7/5QLpgzKvA3ZjrO8TmfkZgVcSjwYalGlW6OkK/fCxmVlwbFeoWJQzWbkWSxlcaatTO0j4riAUvWoqMg==}
     peerDependencies:
-      mobx: ^6.1.0
+      mobx: ^6.9.0
       react: ^16.8.0 || ^17 || ^18
       react-dom: '*'
       react-native: '*'
@@ -14557,6 +14557,7 @@ packages:
       mobx: 6.9.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
   /mobx/6.9.0:
@@ -19837,6 +19838,14 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dev: true
+
+  /use-sync-external-store/1.2.0_react@18.2.0:
+    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /use-system-theme/0.1.1_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-R2Y10XUacgoj8NgZzq7o/XW1EYHBAGKiOivnVviL9s3QKfcx2R2yNtfpFh85W6066K6CZgDizKl/NdecqlN9sQ==}
