@@ -93,7 +93,7 @@ importers:
       loglevel: 1.8.1
       match-sorter: 6.3.1
       mini-css-extract-plugin: 2.7.5
-      mobx: 6.8.0
+      mobx: 6.9.0
       mobx-react-lite: 3.4.3
       moment: 2.29.4
       mousetrap: 1.6.5
@@ -144,8 +144,8 @@ importers:
       lodash.merge: 4.6.2
       loglevel: 1.8.1
       match-sorter: 6.3.1
-      mobx: 6.8.0
-      mobx-react-lite: 3.4.3_woojb62cqeyk443mbl7msrwu2e
+      mobx: 6.9.0
+      mobx-react-lite: 3.4.3_lrdhi4fih7ii4kmeak7ov4c3ha
       moment: 2.29.4
       mousetrap: 1.6.5
       postcss: 8.4.21
@@ -14541,7 +14541,7 @@ packages:
     hasBin: true
     dev: true
 
-  /mobx-react-lite/3.4.3_woojb62cqeyk443mbl7msrwu2e:
+  /mobx-react-lite/3.4.3_lrdhi4fih7ii4kmeak7ov4c3ha:
     resolution: {integrity: sha512-NkJREyFTSUXR772Qaai51BnE1voWx56LOL80xG7qkZr6vo8vEaLF3sz1JNUVh+rxmUzxYaqOhfuxTfqUh0FXUg==}
     peerDependencies:
       mobx: ^6.1.0
@@ -14554,13 +14554,13 @@ packages:
       react-native:
         optional: true
     dependencies:
-      mobx: 6.8.0
+      mobx: 6.9.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /mobx/6.8.0:
-    resolution: {integrity: sha512-+o/DrHa4zykFMSKfS8Z+CPSEg5LW9tSNGTuN8o6MF1GKxlfkSHSeJn5UtgxvPkGgaouplnrLXCF+duAsmm6FHQ==}
+  /mobx/6.9.0:
+    resolution: {integrity: sha512-HdKewQEREEJgsWnErClfbFoVebze6rGazxFLU/XUyrII8dORfVszN1V0BMRnQSzcgsNNtkX8DHj3nC6cdWE9YQ==}
     dev: false
 
   /modify-values/1.0.1:
