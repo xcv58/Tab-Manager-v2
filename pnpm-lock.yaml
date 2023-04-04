@@ -165,8 +165,8 @@ importers:
         specifier: 14.0.0
         version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
       '@types/chrome':
-        specifier: 0.0.227
-        version: 0.0.227
+        specifier: 0.0.228
+        version: 0.0.228
       '@types/classnames':
         specifier: 2.3.1
         version: 2.3.1
@@ -4641,8 +4641,8 @@ packages:
       '@types/responselike': 1.0.0
     dev: true
 
-  /@types/chrome@0.0.227:
-    resolution: {integrity: sha512-l1sVnf/1wZ/oNPw5X7OJMZjQlqVf3tPO50aE/aETHQRbrYhlHZkwv7lcuOWCimRSkFdHvAW4M+RIBAZACblXng==}
+  /@types/chrome@0.0.228:
+    resolution: {integrity: sha512-rDmyVEF+l9H+6FQYqsEGqQOjBw/uaSx6KJ6o47FwbQmPPcskmt8XlPbKjy5KeQXU3ZLiV2x45Fk4kdtRMSghfQ==}
     dependencies:
       '@types/filesystem': 0.0.32
       '@types/har-format': 1.2.8
