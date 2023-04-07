@@ -137,8 +137,8 @@ importers:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
       react-resize-detector:
-        specifier: 8.0.4
-        version: 8.0.4(react-dom@18.2.0)(react@18.2.0)
+        specifier: 8.0.5
+        version: 8.0.5(react-dom@18.2.0)(react@18.2.0)
       react-router-dom:
         specifier: 6.9.0
         version: 6.9.0(react-dom@18.2.0)(react@18.2.0)
@@ -16266,8 +16266,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /react-resize-detector@8.0.4(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ln9pMAob8y8mc9UI4aZuuWFiyMqBjnTs/sxe9Vs9dPXUjwCTeKK1FP8I75ufnb/2mEEZXG6wOo/fjMcBRRuAXw==}
+  /react-resize-detector@8.0.5(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-63QJjip3nK/qzmzEWjOkexC36d15JWrIgc3apWZB5rws1C1UyC5/5Pg2DMHT4RTseiaW01cE8t+CIK9KfqF/fw==}
     peerDependencies:
       react: ^16.0.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
