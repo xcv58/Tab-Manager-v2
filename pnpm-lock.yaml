@@ -321,8 +321,8 @@ importers:
   packages/integration_test:
     dependencies:
       playwright:
-        specifier: 1.32.2
-        version: 1.32.2
+        specifier: 1.32.3
+        version: 1.32.3
       tab-manager-v2:
         specifier: '*'
         version: link:../extension
@@ -15164,19 +15164,19 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright-core@1.32.2:
-    resolution: {integrity: sha512-zD7aonO+07kOTthsrCR3YCVnDcqSHIJpdFUtZEMOb6//1Rc7/6mZDRdw+nlzcQiQltOOsiqI3rrSyn/SlyjnJQ==}
+  /playwright-core@1.32.3:
+    resolution: {integrity: sha512-SB+cdrnu74ZIn5Ogh/8278ngEh9NEEV0vR4sJFmK04h2iZpybfbqBY0bX6+BLYWVdV12JLLI+JEFtSnYgR+mWg==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false
 
-  /playwright@1.32.2:
-    resolution: {integrity: sha512-jHVnXJke0PXpuPszKtk9y1zZSlzO5+2a+aockT/AND0oeXx46FiJEFrafthurglLygVZA+1gEbtUM1C7qtTV+Q==}
+  /playwright@1.32.3:
+    resolution: {integrity: sha512-h/ylpgoj6l/EjkfUDyx8cdOlfzC96itPpPe8BXacFkqpw/YsuxkpPyVbzEq4jw+bAJh5FLgh31Ljg2cR6HV3uw==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.32.2
+      playwright-core: 1.32.3
     dev: false
 
   /pngjs@3.4.0:
