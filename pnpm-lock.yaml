@@ -315,8 +315,8 @@ importers:
         specifier: 4.8.0
         version: 4.8.0
       webpack-dev-server:
-        specifier: 4.13.2
-        version: 4.13.2(webpack@5.79.0)
+        specifier: 4.13.3
+        version: 4.13.3(webpack@5.79.0)
 
   packages/integration_test:
     dependencies:
@@ -19553,8 +19553,8 @@ packages:
       webpack: 5.79.0
     dev: true
 
-  /webpack-dev-server@4.13.2(webpack@5.79.0):
-    resolution: {integrity: sha512-5i6TrGBRxG4vnfDpB6qSQGfnB6skGBXNL5/542w2uRGLimX6qeE5BQMLrzIC3JYV/xlGOv+s+hTleI9AZKUQNw==}
+  /webpack-dev-server@4.13.3(webpack@5.79.0):
+    resolution: {integrity: sha512-KqqzrzMRSRy5ePz10VhjyL27K2dxqwXQLP5rAKwRJBPUahe7Z2bBWzHw37jeb8GCPKxZRO79ZdQUAPesMh/Nug==}
     engines: {node: '>= 12.13.0'}
     hasBin: true
     peerDependencies:
