@@ -171,8 +171,8 @@ importers:
         specifier: 2.3.1
         version: 2.3.1
       '@types/jest':
-        specifier: 29.5.0
-        version: 29.5.0
+        specifier: 29.5.1
+        version: 29.5.1
       '@types/lodash.debounce':
         specifier: 4.0.7
         version: 4.0.7
@@ -328,8 +328,8 @@ importers:
         version: link:../extension
     devDependencies:
       '@types/jest':
-        specifier: 29.5.0
-        version: 29.5.0
+        specifier: 29.5.1
+        version: 29.5.1
       '@types/jest-image-snapshot':
         specifier: 6.1.0
         version: 6.1.0
@@ -4803,13 +4803,13 @@ packages:
   /@types/jest-image-snapshot@6.1.0:
     resolution: {integrity: sha512-wYayjKQGdI0ZbmsAq7OPt+5wMMi1CDXXkF3LfoGj4eRC0dOqlYJdXqLwfC89Qf2apQdlL9StgCkw0iTDb8lpUw==}
     dependencies:
-      '@types/jest': 29.5.0
+      '@types/jest': 29.5.1
       '@types/pixelmatch': 5.2.4
       ssim.js: 3.5.0
     dev: true
 
-  /@types/jest@29.5.0:
-    resolution: {integrity: sha512-3Emr5VOl/aoBwnWcH/EFQvlSAmjV+XtV9GGu5mwdYew5vhQh0IUZx/60x0TzHDu09Bi7HMx10t/namdJw5QIcg==}
+  /@types/jest@29.5.1:
+    resolution: {integrity: sha512-tEuVcHrpaixS36w7hpsfLBLpjtMRJUE09/MHXn923LOVojDwyC14cWcfc0rDs0VEfUyYmt/+iX1kxxp+gZMcaQ==}
     dependencies:
       expect: 29.5.0
       pretty-format: 29.5.0
@@ -5030,7 +5030,7 @@ packages:
   /@types/testing-library__jest-dom@5.14.5:
     resolution: {integrity: sha512-SBwbxYoyPIvxHbeHxTZX2Pe/74F/tX2/D3mMvzabdeJ25bBojfW0TyB8BHrbq/9zaaKICJZjLP+8r6AeZMFCuQ==}
     dependencies:
-      '@types/jest': 29.5.0
+      '@types/jest': 29.5.1
 
   /@types/tough-cookie@4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
