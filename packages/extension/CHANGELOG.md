@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.23.7](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.6...v1.23.7) (2023-07-21)
+
+### Bug Fixes
+
+- Broken CI pipeline ([#2457](https://github.com/xcv58/Tab-Manager-v2/issues/2457)) ([2dd7f47](https://github.com/xcv58/Tab-Manager-v2/commit/2dd7f47b9ffaf66454ebca40fa37d9e2a3d01ec3))
+
 ### [1.23.6](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.5...v1.23.6) (2023-07-21)
 
 ### Bug Fixes
