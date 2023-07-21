@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { action, observable, computed, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
@@ -32,7 +32,52 @@ export default class UserStore {
   store: Store
 
   constructor(store: Store) {
-    makeAutoObservable(this)
+    // makeAutoObservable(this)
+    makeObservable(this, {
+      loaded: observable,
+      showAppWindow: observable,
+      showShortcutHint: observable,
+      showUnmatchedTab: observable,
+      litePopupMode: observable,
+      toolbarAutoHide: observable,
+      highlightDuplicatedTab: observable,
+      showTabTooltip: observable,
+      preserveSearch: observable,
+      searchHistory: observable,
+      showUrl: observable,
+      autoFocusSearch: observable,
+      dialogOpen: observable,
+      toolbarVisible: observable,
+      darkTheme: observable,
+      useSystemTheme: observable,
+      tabWidth: observable,
+      showTabIcon: observable,
+      ignoreHash: observable,
+      fontSize: observable,
+      theme: computed,
+      selectTheme: action,
+      selectNextTheme: action,
+      openDialog: action,
+      closeDialog: action,
+      toggleDialog: action,
+      toggleHighlightDuplicatedTab: action,
+      toggleShowShortcutHint: action,
+      toggleShowTabTooltip: action,
+      togglePreserveSearch: action,
+      toggleSearchHistory: action,
+      toggleShowUnmatchedTab: action,
+      toggleAutoFocusSearch: action,
+      toggleShowUrl: action,
+      updateTabWidth: action,
+      updateFontSize: action,
+      toggleShowTabIcon: action,
+      toggleAutoHide: action,
+      toggleDarkTheme: action,
+      toggleUseSystemTheme: action,
+      lazyHideToolbar: action,
+      showToolbar: action,
+      hideToolbar: action,
+    })
 
     this.store = store
     this.init()
