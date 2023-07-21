@@ -63,7 +63,7 @@ describe('The Extension page should', () => {
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
-      nodes.map((node) => node.querySelector('.text-xs').innerText)
+      nodes.map((node) => node.querySelector('.text-xs').innerText),
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((tab) => !isExtensionURL(tab))).toEqual([
@@ -84,7 +84,7 @@ describe('The Extension page should', () => {
         'https://twitter.com/',
         'https://duckduckgo.com/',
         'https://ops-class.org/',
-      ])
+      ]),
     )
     expect(pages).toHaveLength(URLS.length + 1)
     const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
@@ -92,7 +92,7 @@ describe('The Extension page should', () => {
     await page.waitForTimeout(500)
 
     tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
-      nodes.map((node) => node.querySelector('.text-xs').innerText)
+      nodes.map((node) => node.querySelector('.text-xs').innerText),
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((x) => !isExtensionURL(x))).toEqual([
@@ -146,7 +146,7 @@ describe('The Extension page should', () => {
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     let toggleThemeButton = await page.$(
-      '[aria-label="Toggle light/dark theme"]'
+      '[aria-label="Toggle light/dark theme"]',
     )
     await toggleThemeButton.click()
     await page.waitForTimeout(500)
@@ -161,7 +161,7 @@ describe('The Extension page should', () => {
 
     const dialogContent = await page.$('.MuiDialogContent-root')
     expect(await dialogContent.screenshot()).toMatchImageSnapshot(
-      matchImageSnapshotOptions
+      matchImageSnapshotOptions,
     )
 
     await page.keyboard.press('?')
@@ -220,6 +220,38 @@ describe('The Extension page should', () => {
     await page.waitForTimeout(500)
   })
 
+  it('support toggle always show toolbar', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    let screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    await page.keyboard.press('Control+,')
+    await page.waitForTimeout(500)
+    await page.waitForSelector('[aria-labelledby="toggle-always-show-toolbar"]')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    let toogleButton = await page.$(
+      '[aria-labelledby="toggle-always-show-toolbar"]',
+    )
+    await toogleButton.click()
+
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    toogleButton = await page.$(
+      '[aria-labelledby="toggle-always-show-toolbar"]',
+    )
+    await toogleButton.click()
+    await page.waitForTimeout(500)
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+  })
+
   it('support drag and drop to reorder tabs', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
@@ -247,7 +279,7 @@ describe('The Extension page should', () => {
     const droppableToolSelector = '.z-10.h-12.px-1.text-3xl'
     const dropAreaEl = await page.$(droppableToolSelector)
     expect(await dropAreaEl.screenshot()).toMatchImageSnapshot(
-      matchImageSnapshotOptions
+      matchImageSnapshotOptions,
     )
     await page.mouse.up()
   })
