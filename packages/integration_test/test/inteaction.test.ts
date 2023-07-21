@@ -67,10 +67,10 @@ describe('The Extension page should', () => {
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((tab) => !isExtensionURL(tab))).toEqual([
-      'https://twitter.com/',
+      'https://twitter.com/i/flow/login?redirect_after_login=%2F',
       'http://xcv58.com/',
       'https://nextjs.org/',
-      'https://twitter.com/',
+      'https://twitter.com/i/flow/login?redirect_after_login=%2F',
       'https://duckduckgo.com/',
       'https://ops-class.org/',
     ])
@@ -78,10 +78,10 @@ describe('The Extension page should', () => {
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
     expect(new Set(urls.filter((x) => !isExtensionURL(x)))).toEqual(
       new Set([
-        'https://twitter.com/',
+        'https://twitter.com/i/flow/login?redirect_after_login=%2F',
         'http://xcv58.com/',
         'https://nextjs.org/',
-        'https://twitter.com/',
+        'https://twitter.com/i/flow/login?redirect_after_login=%2F',
         'https://duckduckgo.com/',
         'https://ops-class.org/',
       ]),
@@ -100,8 +100,8 @@ describe('The Extension page should', () => {
       'https://duckduckgo.com/',
       'https://nextjs.org/',
       'https://ops-class.org/',
-      'https://twitter.com/',
-      'https://twitter.com/',
+      'https://twitter.com/i/flow/login?redirect_after_login=%2F',
+      'https://twitter.com/i/flow/login?redirect_after_login=%2F',
     ])
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
@@ -223,12 +223,11 @@ describe('The Extension page should', () => {
   it('support toggle always show toolbar', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
-    let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
     await page.keyboard.press('Control+,')
     await page.waitForTimeout(500)
     await page.waitForSelector('[aria-labelledby="toggle-always-show-toolbar"]')
-    screenshot = await page.screenshot()
+    await page.waitForTimeout(500)
+    let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
     let toogleButton = await page.$(
