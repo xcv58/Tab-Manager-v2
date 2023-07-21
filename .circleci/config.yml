@@ -34,6 +34,7 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
+      - run: pnpm dlx playwright install --with-deps chromium
       - run: xvfb-run --auto-servernum -- pnpm test
       - run: pnpm run deploy
       - *save_cache
