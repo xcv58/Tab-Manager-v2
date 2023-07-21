@@ -246,6 +246,8 @@ export default observer(() => {
             />
             <FormControlLabel
               label="Always Show Toolbar"
+              aria-labelledby="toggle-always-show-toolbar"
+              aria-label="Toggle Always Show Toolbar"
               control={
                 <Switch
                   color="primary"
