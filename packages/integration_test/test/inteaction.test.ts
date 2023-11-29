@@ -145,6 +145,7 @@ describe('The Extension page should', () => {
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
 
+    await page.waitForTimeout(500)
     let toggleThemeButton = await page.$(
       '[aria-label="Toggle light/dark theme"]',
     )
