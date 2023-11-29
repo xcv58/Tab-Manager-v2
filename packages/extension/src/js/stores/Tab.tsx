@@ -104,18 +104,18 @@ export default class Tab extends Focusable {
   index = -1
 
   activate = () => {
-    this.focus()
     this.store.tabStore.activate(this)
+    this.focus()
   }
 
   select = () => {
-    this.focus()
     this.store.tabStore.select(this)
+    this.focus()
   }
 
   bulkSelect = () => {
-    this.focus()
     this.store.tabStore.bulkSelct(this)
+    this.focus()
   }
 
   toggleHide = () => this.win.toggleHide()
