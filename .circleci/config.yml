@@ -24,7 +24,7 @@ references:
         source ${BASH_ENV}
         pnpm install
         wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        cd packages/integration_test/ && pnpm dlx playwright install --with-deps chromium
+        pnpm dlx playwright install --with-deps chromium
 
 jobs:
   build-test:
@@ -34,7 +34,7 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
-      - run: xvfb-run --auto-servernum -- pnpm test
+      - run: xvfb-run --auto-servernum -- pnpm test --force
       - run: pnpm run deploy
       - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox

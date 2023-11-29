@@ -46,8 +46,8 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright
-        run: cd packages/integration_test/ && pnpm dlx playwright install --with-deps chromium
+        run: pnpm dlx playwright install --with-deps chromium
 
       # Run all test
       - name: Integration Test
-        run: xvfb-run --auto-servernum -- pnpm test
+        run: xvfb-run --auto-servernum -- pnpm test --force
