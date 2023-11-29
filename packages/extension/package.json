@@ -44,7 +44,7 @@
     "mobx-react-lite": "3.4.3",
     "moment": "2.29.4",
     "mousetrap": "1.6.5",
-    "postcss": "8.4.23",
+    "postcss": "8.4.31",
     "postcss-loader": "7.2.4",
     "react": "18.2.0",
     "react-command-palette": "0.22.1",
