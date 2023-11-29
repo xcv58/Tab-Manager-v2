@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.23.8](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.7...v1.23.8) (2023-11-29)
+
+### Bug Fixes
+
+- Initial column calculation is wrong occasionally ([3f187ce](https://github.com/xcv58/Tab-Manager-v2/commit/3f187cead289e7c87199c9ec7f60430b2a4d23fc))
+- Sometime click tab doesn't activate the tab ([de18619](https://github.com/xcv58/Tab-Manager-v2/commit/de18619314c1397f4b5b89e590d677e63c9d0548))
+
 ### [1.23.7](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.6...v1.23.7) (2023-07-21)
 
 ### Bug Fixes
