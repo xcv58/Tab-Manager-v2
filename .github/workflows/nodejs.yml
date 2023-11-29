@@ -47,6 +47,7 @@ jobs:
 
       - name: Install Playwright
         run: pnpm dlx playwright install --with-deps chromium
+      - run: npx playwright install
 
       # Run all test
       - name: Integration Test
