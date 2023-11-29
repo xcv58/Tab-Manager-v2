@@ -4,16 +4,16 @@ import { join } from 'path'
 
 export const EXTENSION_PATH = join(
   __dirname,
-  '../../packages/extension/build/build_chrome'
+  '../../packages/extension/build/build_chrome',
 )
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 
 export const URLS = [
-  'https://twitter.com/',
+  'https://pinboard.in/',
   'http://xcv58.com/',
   'https://nextjs.org/',
-  'https://twitter.com/',
+  'https://pinboard.in/',
   'http://duckduckgo.com/',
   'https://ops-class.org/',
 ]
@@ -65,14 +65,14 @@ export const initBrowserWithExtension = async () => {
 
 export const openPages = async (
   browserContext: ChromiumBrowserContext,
-  urls: string[]
+  urls: string[],
 ) => {
   return await Promise.all(
     urls.map(async (url) => {
       const newPage = await browserContext.newPage()
       await newPage.goto(url)
       await newPage.waitForLoadState('load')
-    })
+    }),
   )
 }
 

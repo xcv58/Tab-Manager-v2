@@ -67,10 +67,10 @@ describe('The Extension page should', () => {
     )
     expect(tabURLs).toHaveLength(URLS.length + 1)
     expect(tabURLs.filter((tab) => !isExtensionURL(tab))).toEqual([
-      'https://twitter.com/',
+      'https://pinboard.in/',
       'http://xcv58.com/',
       'https://nextjs.org/',
-      'https://twitter.com/',
+      'https://pinboard.in/',
       'https://duckduckgo.com/',
       'https://ops-class.org/',
     ])
@@ -78,10 +78,10 @@ describe('The Extension page should', () => {
     const urls = await Promise.all(pages.map(async (page) => await page.url()))
     expect(new Set(urls.filter((x) => !isExtensionURL(x)))).toEqual(
       new Set([
-        'https://twitter.com/',
+        'https://pinboard.in/',
         'http://xcv58.com/',
         'https://nextjs.org/',
-        'https://twitter.com/',
+        'https://pinboard.in/',
         'https://duckduckgo.com/',
         'https://ops-class.org/',
       ]),
@@ -100,8 +100,8 @@ describe('The Extension page should', () => {
       'https://duckduckgo.com/',
       'https://nextjs.org/',
       'https://ops-class.org/',
-      'https://twitter.com/',
-      'https://twitter.com/',
+      'https://pinboard.in/',
+      'https://pinboard.in/',
     ])
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
