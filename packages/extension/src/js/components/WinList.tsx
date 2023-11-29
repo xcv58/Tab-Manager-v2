@@ -26,7 +26,7 @@ export default observer(() => {
     <ReactResizeDetector
       handleHeight
       refreshMode="throttle"
-      refreshOptions={{ leading: true, trailing: true }}
+      refreshOptions={{ leading: false, trailing: true }}
       refreshRate={64}
       onResize={onResize}
     />
