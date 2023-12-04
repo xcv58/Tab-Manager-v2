@@ -3,11 +3,13 @@ import { Story, Meta } from '@storybook/react'
 
 import CloseButton, { CloseButtonProps } from './CloseButton'
 
-export default {
+const meta: Meta<typeof CloseButton> = {
   title: 'UI Components/CloseButton',
   component: CloseButton,
   argTypes: { disabled: { control: 'boolean' } },
-} as Meta
+}
+
+export default meta
 
 const Template: Story<CloseButtonProps> = (args) => <CloseButton {...args} />
 

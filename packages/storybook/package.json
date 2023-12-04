@@ -3,17 +3,27 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.23.5",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
     "@storybook/addon-a11y": "7.6.3",
     "@storybook/addon-actions": "7.6.3",
     "@storybook/addon-essentials": "7.6.3",
     "@storybook/addon-links": "7.6.3",
-    "@storybook/builder-webpack5": "7.6.3",
-    "@storybook/manager-webpack5": "6.5.16",
+    "@storybook/addon-mdx-gfm": "7.6.3",
     "@storybook/react": "7.6.3",
+    "@storybook/react-webpack5": "7.6.3",
+    "@storybook/addon-interactions": "7.6.3",
+    "@storybook/addon-onboarding": "1.0.9",
+    "@storybook/blocks": "7.6.3",
+    "@storybook/test": "7.6.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "storybook": "7.6.3",
     "storybook-addon-performance": "0.17.1"
   }
 }

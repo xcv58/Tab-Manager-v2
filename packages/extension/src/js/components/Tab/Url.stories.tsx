@@ -3,7 +3,7 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 
 import Url, { UrlProps } from './Url'
 
-export default {
+const meta: Meta<typeof Url> = {
   title: 'UI Components/Url',
   component: Url,
   argTypes: {
@@ -14,7 +14,9 @@ export default {
     },
     duplicated: { control: 'boolean' },
   },
-} as Meta
+}
+
+export default meta
 
 const getHighlightNode = (url: string) => url
 
