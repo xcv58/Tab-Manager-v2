@@ -7,13 +7,13 @@
     "build-storybook": "build-storybook"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "6.5.16",
-    "@storybook/addon-actions": "6.5.16",
-    "@storybook/addon-essentials": "6.5.16",
-    "@storybook/addon-links": "6.5.16",
-    "@storybook/builder-webpack5": "6.5.16",
+    "@storybook/addon-a11y": "7.6.3",
+    "@storybook/addon-actions": "7.6.3",
+    "@storybook/addon-essentials": "7.6.3",
+    "@storybook/addon-links": "7.6.3",
+    "@storybook/builder-webpack5": "7.6.3",
     "@storybook/manager-webpack5": "6.5.16",
-    "@storybook/react": "6.5.16",
+    "@storybook/react": "7.6.3",
     "storybook-addon-performance": "0.17.1"
   }
 }
