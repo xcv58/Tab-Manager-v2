@@ -9,6 +9,12 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    options: {
+      isToolshown: true,
+      storySort: {
+        order: ['Introduction', 'Changelog', 'UI Components'],
+      },
+    },
   },
 }
 
