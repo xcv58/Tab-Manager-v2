@@ -2,7 +2,7 @@
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper MuiPopperUnstyled-root"
+  class="MuiPopper-root MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
@@ -21,7 +21,7 @@ exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper MuiPopperUnstyled-root"
+  class="MuiPopper-root MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
@@ -42,7 +42,7 @@ exports[`SelectAll should render correct components 1`] = `
 <div>
   <span
     aria-label="Unselect all tabs"
-    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
     data-mui-internal-clone-element="true"
   >
     <input

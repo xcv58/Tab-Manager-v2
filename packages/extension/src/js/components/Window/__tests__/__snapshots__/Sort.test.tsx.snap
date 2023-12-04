@@ -27,7 +27,7 @@ exports[`Sort should call arrangeStore.sortTabs 1`] = `
 
 exports[`Sort should have correct tooltip 1`] = `
 <div
-  class="MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper MuiPopperUnstyled-root"
+  class="MuiPopper-root MuiTooltip-popper MuiTooltip-popperInteractive css-yem0l2-MuiPopper-root-MuiTooltip-popper"
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
