@@ -22,7 +22,7 @@ describe('SelectAll', () => {
     expect(screen.getByRole('checkbox')).toBeInTheDocument()
   })
 
-  it('should render Tooltip title based on allTabSelected', async () => {
+  it('should render Tooltip content based on allTabSelected', async () => {
     render(<SelectAll {...props} />)
     let tooltip = screen.getByRole('checkbox')
     act(() => {

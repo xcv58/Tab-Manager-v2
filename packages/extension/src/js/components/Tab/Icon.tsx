@@ -1,8 +1,8 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import Checkbox from '@mui/material/Checkbox'
-import IconButton from '@mui/material/IconButton'
+import { Checkbox } from '@material-tailwind/react'
+import { IconButton } from '@material-tailwind/react'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 
@@ -10,14 +10,10 @@ const ARIA_LABEL = 'Toggle select'
 
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
-  const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
+  const { select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (
     <Checkbox
-      color="primary"
       checked={isSelected}
-      inputProps={{
-        'aria-label': ARIA_LABEL,
-      }}
       onClick={(e) => {
         if (process.env.TARGET_BROWSER === 'firefox') {
           if (e.altKey) {
@@ -36,21 +32,14 @@ export const Icon = observer((props: TabProps) => {
     return checkbox
   }
   return (
-    <div className="group">
+    <div className="flex justify-center w-12 group">
       <div
         className={classNames({
           hidden: isSelected,
           'group-hover:hidden': !isSelected,
         })}
       >
-        <IconButton
-          aria-label={ARIA_LABEL}
-          className="focus:outline-none focus:ring"
-          onClick={select}
-          onFocus={focus}
-        >
-          <img className="w-6 h-6" src={iconUrl} />
-        </IconButton>
+        <img className="w-6 h-6" src={iconUrl} />
       </div>
       <div
         className={classNames('focus:outline-none focus:ring', {

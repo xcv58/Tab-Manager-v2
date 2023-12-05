@@ -1,14 +1,14 @@
 import React from 'react'
 import ReactCommandPalette from 'react-command-palette'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import LiveHelpOutlined from '@mui/icons-material/LiveHelpOutlined'
 import IconButton from '@mui/material/IconButton'
 import { useStore } from './hooks/useStore'
 import CommandPaletteHeader from './CommandPaletteHeader'
 
 const trigger = (
-  <Tooltip title="Command Palette">
+  <Tooltip content="Command Palette">
     <IconButton onClick={() => {}} className="focus:outline-none">
       <LiveHelpOutlined />
     </IconButton>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import SortIcon from '@mui/icons-material/Sort'
 import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
@@ -11,7 +11,7 @@ export default observer((props: WinProps) => {
   const { id } = props.win
   const { sortTabs } = arrangeStore
   return (
-    <Tooltip title="Sort tabs">
+    <Tooltip content="Sort tabs">
       <IconButton onClick={() => sortTabs(id)} className="focus:outline-none">
         <SortIcon />
       </IconButton>

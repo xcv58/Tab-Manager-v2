@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, StrictMode } from 'react'
 import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
+import { ThemeProvider as MaterialTailwindThemeProvider } from '@material-tailwind/react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { darkTheme, lightTheme } from 'libs/themes'
 import { DndProvider } from 'react-dnd'
@@ -20,7 +21,7 @@ export default observer(() => {
     (!userStore.useSystemTheme && userStore.darkTheme)
   const theme = useMemo(
     () => createTheme(isDarkTheme ? darkTheme : lightTheme),
-    [isDarkTheme]
+    [isDarkTheme],
   )
   useEffect(() => {
     const { availHeight, availLeft, availTop, availWidth } = screen
@@ -36,16 +37,18 @@ export default observer(() => {
     <StrictMode>
       <StoreContext.Provider value={store}>
         <ThemeProvider theme={theme}>
-          {/* The context for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/3257#issuecomment-1239254032 */}
-          <DndProvider context={window} backend={HTML5Backend}>
-            <ThemeContext.Provider value={isDarkTheme}>
-              <ReduceMotionProvider>
-                <BrowserRouter>
-                  <Main />
-                </BrowserRouter>
-              </ReduceMotionProvider>
-            </ThemeContext.Provider>
-          </DndProvider>
+          <MaterialTailwindThemeProvider>
+            {/* The context for DndProvider is a workaround: https://github.com/react-dnd/react-dnd/issues/3257#issuecomment-1239254032 */}
+            <DndProvider context={window} backend={HTML5Backend}>
+              <ThemeContext.Provider value={isDarkTheme}>
+                <ReduceMotionProvider>
+                  <BrowserRouter>
+                    <Main />
+                  </BrowserRouter>
+                </ReduceMotionProvider>
+              </ThemeContext.Provider>
+            </DndProvider>
+          </MaterialTailwindThemeProvider>
         </ThemeProvider>
       </StoreContext.Provider>
     </StrictMode>

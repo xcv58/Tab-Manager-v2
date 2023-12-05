@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import Flip from '@mui/icons-material/Flip'
 import IconButton from '@mui/material/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
@@ -12,7 +12,7 @@ export default observer(() => {
   const { searchStore } = useStore()
   const { invertSelect, matchedTabs } = searchStore
   return (
-    <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
+    <Tooltip content={TITLE} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <IconButton
           onClick={invertSelect}

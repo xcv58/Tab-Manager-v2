@@ -28,6 +28,7 @@
   "dependencies": {
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
+    "@material-tailwind/react": "^2.1.5",
     "@mui/icons-material": "5.14.19",
     "@mui/material": "5.14.19",
     "@mui/styles": "5.14.19",

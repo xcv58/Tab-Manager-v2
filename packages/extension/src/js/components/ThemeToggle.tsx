@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import IconButton from '@mui/material/IconButton'
 import LightbulbOutline from 'svgIcons/LightbulbOutline'
 import LightbulbFull from 'svgIcons/LightbulbFull'
@@ -13,7 +13,7 @@ export default observer(() => {
   } = useStore()
   const isDarkTheme = useTheme()
   return (
-    <Tooltip title="Toggle light/dark theme" placement="left">
+    <Tooltip content="Toggle light/dark theme" placement="left">
       <IconButton
         onClick={() => toggleDarkTheme(isDarkTheme)}
         className="focus:outline-none"

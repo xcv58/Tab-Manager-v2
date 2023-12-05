@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import OpenInNew from '@mui/icons-material/OpenInNew'
 import IconButton from '@mui/material/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
@@ -12,7 +12,7 @@ export default observer(() => {
   const { selection, tabDescription } = tabStore
   const title = `Open ${tabDescription} in new window`
   return (
-    <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
+    <Tooltip content={title} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <IconButton
           onClick={() => dropToNewWindow()}
