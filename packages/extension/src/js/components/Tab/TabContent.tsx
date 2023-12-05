@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 
@@ -32,7 +32,7 @@ const TabContent = observer(
       </div>
     )
     return (
-      <Tooltip {...{ open, title: tooltip }}>
+      <Tooltip {...{ open, content: tooltip }}>
         <button
           ref={buttonRef}
           onClick={activate}
@@ -43,7 +43,7 @@ const TabContent = observer(
         </button>
       </Tooltip>
     )
-  }
+  },
 )
 
 export default observer((props: TabProps) => {
@@ -58,14 +58,14 @@ export default observer((props: TabProps) => {
       }
       return <HighlightNode {...{ query, text }} />
     },
-    [isMatched, query]
+    [isMatched, query],
   )
   const duplicated = highlightDuplicatedTab && isDuplicated
   const buttonClassName = classNames(
     'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base',
     {
       'text-red-400': duplicated,
-    }
+    },
   )
   const content = (
     <>

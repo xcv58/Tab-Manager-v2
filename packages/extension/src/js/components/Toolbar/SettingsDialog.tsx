@@ -1,15 +1,18 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
+import {
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  Switch,
+} from '@material-tailwind/react'
+import CloseButton from 'components/CloseButton'
 import Divider from '@mui/material/Divider'
 import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
-import Fade from '@mui/material/Fade'
-import Switch from '@mui/material/Switch'
+// import Switch from '@mui/material/Switch'
 import { useStore } from 'components/hooks/useStore'
 import Slider from '@mui/material/Slider'
 import FormLabel from '@mui/material/FormLabel'
@@ -18,8 +21,6 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import { THEMES } from 'stores/UserStore'
-import useReduceMotion from 'libs/useReduceMotion'
-import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
 
@@ -61,26 +62,21 @@ export default observer(() => {
     ignoreHash,
     toggleIgnoreHash,
   } = userStore
-  const reduceMotion = useReduceMotion()
   return (
-    <Dialog
-      open={dialogOpen}
-      fullWidth
-      TransitionComponent={Fade}
-      transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
-      onClose={closeDialog}
-      onBackdropClick={closeDialog}
-    >
-      <DialogTitle>
-        <div className="flex justify-between">
-          Settings{' '}
-          <div>
-            <SponsorButton />
-            <FeedbackButton />
+    <Dialog open={dialogOpen} handler={closeDialog}>
+      <DialogHeader>
+        <div className="flex justify-between w-full">
+          <div className="flex justify-between">
+            Settings{' '}
+            <div>
+              <SponsorButton />
+              <FeedbackButton />
+            </div>
           </div>
+          <CloseButton onClick={closeDialog} />
         </div>
-      </DialogTitle>
-      <DialogContent>
+      </DialogHeader>
+      <DialogBody>
         <FormControl className="w-full">
           <FormGroup>
             <FormHelperText>Search</FormHelperText>
@@ -88,7 +84,7 @@ export default observer(() => {
               label="Preserve Search"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={preserveSearch}
                   onChange={togglePreserveSearch}
                 />
@@ -98,7 +94,7 @@ export default observer(() => {
               label="Search Browser History"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={searchHistory}
                   onChange={toggleSearchHistory}
                 />
@@ -108,7 +104,7 @@ export default observer(() => {
               label="Auto Focus Search Box"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={autoFocusSearch}
                   onChange={toggleAutoFocusSearch}
                 />
@@ -122,7 +118,7 @@ export default observer(() => {
               label="Highlight Duplicated Tabs"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={highlightDuplicatedTab}
                   onChange={toggleHighlightDuplicatedTab}
                 />
@@ -132,7 +128,7 @@ export default observer(() => {
               label="Ignore Hash in URL when count duplication"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={ignoreHash}
                   onChange={toggleIgnoreHash}
                 />
@@ -142,7 +138,7 @@ export default observer(() => {
               label="Show Unmatched Tab"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={showUnmatchedTab}
                   onChange={toggleShowUnmatchedTab}
                 />
@@ -180,7 +176,7 @@ export default observer(() => {
               label="Show Tab Icon"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={showTabIcon}
                   onChange={toggleShowTabIcon}
                 />
@@ -190,7 +186,7 @@ export default observer(() => {
               label="Show URL"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={showUrl}
                   onChange={toggleShowUrl}
                 />
@@ -200,7 +196,7 @@ export default observer(() => {
               label="Show Tab Tooltip"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={showTabTooltip}
                   onChange={toggleShowTabTooltip}
                 />
@@ -214,7 +210,7 @@ export default observer(() => {
               label="Show App Window"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={showAppWindow}
                   onChange={toggleShowAppWindow}
                 />
@@ -228,7 +224,7 @@ export default observer(() => {
               label="Lite Popup Mode"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={litePopupMode}
                   onChange={toggleLitePopupMode}
                 />
@@ -238,7 +234,7 @@ export default observer(() => {
               label="Show Shortcut Hint"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={showShortcutHint}
                   onChange={toggleShowShortcutHint}
                 />
@@ -250,7 +246,7 @@ export default observer(() => {
               aria-label="Toggle Always Show Toolbar"
               control={
                 <Switch
-                  color="primary"
+                  color="blue"
                   checked={!toolbarAutoHide}
                   onChange={toggleAutoHide}
                 />
@@ -281,7 +277,7 @@ export default observer(() => {
             v{browser.runtime.getManifest().version}
           </div>
         </div>
-      </DialogContent>
+      </DialogBody>
     </Dialog>
   )
 })

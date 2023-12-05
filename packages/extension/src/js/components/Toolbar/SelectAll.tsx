@@ -1,7 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Checkbox from '@mui/material/Checkbox'
-import Tooltip from '@mui/material/Tooltip'
+// import Checkbox from '@mui/material/Checkbox'
+import { Checkbox } from '@material-tailwind/react'
+import { Tooltip } from '@material-tailwind/react'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
@@ -10,7 +11,7 @@ export default observer(() => {
   const { allTabSelected, someTabSelected, matchedTabs } = searchStore
   const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
   return (
-    <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
+    <Tooltip content={title} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <Checkbox
           color="primary"

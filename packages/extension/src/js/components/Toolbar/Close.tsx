@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import { Tooltip } from '@material-tailwind/react'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 import CloseButton from 'components/CloseButton'
@@ -10,7 +10,7 @@ export default observer(() => {
   const { tabDescription } = tabStore
   const title = `Close ${tabDescription}`
   return (
-    <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
+    <Tooltip content={title} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <CloseButton
           {...{
