@@ -129,8 +129,8 @@ importers:
         specifier: 8.4.32
         version: 8.4.32
       postcss-loader:
-        specifier: 7.3.3
-        version: 7.3.3(postcss@8.4.32)(typescript@5.3.2)(webpack@5.89.0)
+        specifier: 7.3.4
+        version: 7.3.4(postcss@8.4.32)(typescript@5.3.2)(webpack@5.89.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -7669,8 +7669,8 @@ packages:
       ts-node:
         optional: true
 
-  postcss-loader@7.3.3:
-    resolution: {integrity: sha512-YgO/yhtevGO/vJePCQmTxiaEwER94LABZN0ZMT4A0vsak9TpO+RvKRs7EmJ8peIlB9xfXCsS7M8LjqncsUZ5HA==}
+  postcss-loader@7.3.4:
+    resolution: {integrity: sha512-iW5WTTBSC5BfsBJ9daFMPVrLT36MrNiC6fqOZTTaHjBNX6Pfd5p+hSBqe/fEeNd7pc13QiAyGt7VdGMw4eRC4A==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
       postcss: ^7.0.0 || ^8.0.1
@@ -7967,6 +7967,7 @@ packages:
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
     deprecated: |-
       You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.13.0:
@@ -18126,7 +18127,7 @@ snapshots:
   make-dir@2.1.0:
     dependencies:
       pify: 4.0.1
-      semver: 5.7.1
+      semver: 5.7.2
 
   make-dir@3.1.0:
     dependencies:
@@ -19310,7 +19311,7 @@ snapshots:
     optionalDependencies:
       postcss: 8.4.32
 
-  postcss-loader@7.3.3(postcss@8.4.32)(typescript@5.3.2)(webpack@5.89.0):
+  postcss-loader@7.3.4(postcss@8.4.32)(typescript@5.3.2)(webpack@5.89.0):
     dependencies:
       cosmiconfig: 8.3.6(typescript@5.3.2)
       jiti: 1.21.7
