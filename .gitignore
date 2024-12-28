@@ -13,3 +13,5 @@ yarn-error.log
 
 storybook-static
 .turbo
+playwright-report
+test-results

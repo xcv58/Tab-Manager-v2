@@ -1,34 +1,34 @@
 import { Page, ChromiumBrowserContext } from 'playwright'
-import manifest from '../../extension/src/manifest.json'
+import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
   URLS,
   CLOSE_PAGES,
   initBrowserWithExtension,
   openPages,
-  matchImageSnapshotOptions,
 } from '../util'
+import manifest from '../../extension/src/manifest.json'
 
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
-describe('The Extension page should', () => {
-  beforeAll(async () => {
+test.describe('The Extension page should', () => {
+  test.beforeAll(async () => {
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
     page = init.page
   })
 
-  afterAll(async () => {
+  test.afterAll(async () => {
     await browserContext?.close()
     browserContext = null
     page = null
     extensionURL = ''
   })
 
-  beforeEach(async () => {
+  test.beforeEach(async () => {
     if (!extensionURL) {
       console.error('Invalid extensionURL', { extensionURL })
     }
@@ -38,16 +38,16 @@ describe('The Extension page should', () => {
     await CLOSE_PAGES(browserContext)
   })
 
-  afterEach(async () => {
+  test.afterEach(async () => {
     await CLOSE_PAGES(browserContext)
   })
 
-  it('have title ends with the extension name', async () => {
+  test('have title ends with the extension name', async () => {
     await page.goto(extensionURL)
     await expect(page.title()).resolves.toMatch(manifest.name)
   })
 
-  it('render correct number of windows & tabs', async () => {
+  test('render correct number of windows & tabs', async () => {
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
     let tabs = await page.$$(TAB_QUERY)
@@ -66,10 +66,10 @@ describe('The Extension page should', () => {
     expect(pages).toHaveLength(N + 1)
     await page.bringToFront()
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'render.png')
   })
 
-  it('render popup mode based on URL query', async () => {
+  test('render popup mode based on URL query', async () => {
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
     const tabs = await page.$$(TAB_QUERY)
@@ -86,16 +86,16 @@ describe('The Extension page should', () => {
     await page.waitForSelector(inputSelector)
     await page.waitForTimeout(500)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 1.png')
 
     await page.fill(inputSelector, 'xcv58')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 2.png')
 
     await page.fill(inputSelector, '')
   })
 
-  it('show correct color for selected tabs', async () => {
+  test('show correct color for selected tabs', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     await page.waitForTimeout(500)
@@ -104,10 +104,10 @@ describe('The Extension page should', () => {
     await selectAllButton.click()
     await page.waitForTimeout(500)
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'correct color.png')
   })
 
-  it('support search browser history', async () => {
+  test('support search browser history', async () => {
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
     const tabs = await page.$$(TAB_QUERY)
@@ -128,26 +128,35 @@ describe('The Extension page should', () => {
     await page.waitForSelector(inputSelector)
     await page.waitForTimeout(500)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(
+      test.info(),
+      'browser history 1.png',
+    )
 
     await page.fill(inputSelector, 'xcv58')
     await page.waitForTimeout(500)
     await page.waitForTimeout(500)
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(
+      test.info(),
+      'browser history 2.png',
+    )
 
     await page.fill(inputSelector, 'duck')
     await page.waitForTimeout(500)
     await page.waitForTimeout(500)
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(
+      test.info(),
+      'browser history 3.png',
+    )
 
     await page.fill(inputSelector, '')
   })
 
-  it('check duplicated tabs and is case insensitive', async () => {
+  test('check duplicated tabs and is case insensitive', async () => {
     await openPages(browserContext, URLS)
     await openPages(browserContext, [
       'http://xcv58.com/ABC',
@@ -158,6 +167,6 @@ describe('The Extension page should', () => {
     await page.waitForTimeout(500)
 
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'duplicated tabs.png')
   })
 })

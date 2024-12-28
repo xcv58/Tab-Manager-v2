@@ -3,21 +3,21 @@
   "version": "0.0.1",
   "description": "Integration test via Playwright",
   "scripts": {
-    "test": "jest --maxWorkers=1",
+    "test": "playwright test",
     "test-watch": "pnpm test -- --watchAll"
   },
   "devDependencies": {
+    "@ayroblu/playwright-image-snapshot": "^0.3.9",
+    "@playwright/test": "1.49.1",
     "@types/jest": "29.5.10",
     "@types/jest-image-snapshot": "6.3.0",
     "jest": "29.7.0",
     "jest-image-snapshot": "6.3.0",
-    "jest-playwright-preset": "4.0.0",
     "ts-jest": "29.1.1",
     "typescript": "5.3.2"
   },
   "private": true,
   "dependencies": {
-    "playwright": "1.40.1",
     "tab-manager-v2": "workspace:*"
   }
 }
