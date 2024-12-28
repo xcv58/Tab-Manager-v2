@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.25.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.25.0...v1.25.1) (2024-12-28)
+
+### Bug Fixes
+
+- Bump Node.js version in CircleCI ([7df3751](https://github.com/xcv58/Tab-Manager-v2/commit/7df3751d54c8fdc0989070ccd034cd68afc0d683))
+
 ## [1.25.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.24.0...v1.25.0) (2024-12-28)
 
 ### Features
