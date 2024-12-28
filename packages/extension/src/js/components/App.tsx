@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, StrictMode } from 'react'
 import { observer } from 'mobx-react-lite'
 import useSystemTheme from 'use-system-theme'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
+import { createTheme } from '@mui/material'
 import { darkTheme, lightTheme } from 'libs/themes'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -20,7 +21,7 @@ export default observer(() => {
     (!userStore.useSystemTheme && userStore.darkTheme)
   const theme = useMemo(
     () => createTheme(isDarkTheme ? darkTheme : lightTheme),
-    [isDarkTheme]
+    [isDarkTheme],
   )
   useEffect(() => {
     const { availHeight, availLeft, availTop, availWidth } = screen
