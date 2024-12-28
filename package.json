@@ -2,6 +2,7 @@
   "name": "tab-manager-v2",
   "private": true,
   "scripts": {
+    "prepare": "husky",
     "preinstall": "npx only-allow pnpm",
     "postinstall": "husky install",
     "start": "pnpm --filter tab-manager-v2 start",
