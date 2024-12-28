@@ -11,8 +11,17 @@ const TabContent = observer(
   (props: TabProps & { buttonClassName: string; content: ReactElement }) => {
     const { faked, buttonClassName, content } = props
     const { hoverStore, dragStore } = useStore()
-    const { activate, title, url, isDuplicated, focus, isFocused, isHovered } =
-      props.tab
+    const {
+      activate,
+      title,
+      url,
+      isDuplicated,
+      focus,
+      isFocused,
+      isHovered,
+      removing,
+      remove,
+    } = props.tab
     const buttonRef = useRef(null)
     useEffect(() => {
       const button = buttonRef.current
@@ -36,6 +45,12 @@ const TabContent = observer(
         <button
           ref={buttonRef}
           onClick={activate}
+          onAuxClick={(event) => {
+            // Middle mouse button
+            if (event.button === 1 && !removing) {
+              remove()
+            }
+          }}
           onFocus={focus}
           className={buttonClassName}
         >
@@ -43,7 +58,7 @@ const TabContent = observer(
         </button>
       </Tooltip>
     )
-  }
+  },
 )
 
 export default observer((props: TabProps) => {
@@ -58,14 +73,14 @@ export default observer((props: TabProps) => {
       }
       return <HighlightNode {...{ query, text }} />
     },
-    [isMatched, query]
+    [isMatched, query],
   )
   const duplicated = highlightDuplicatedTab && isDuplicated
   const buttonClassName = classNames(
     'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base',
     {
       'text-red-400': duplicated,
-    }
+    },
   )
   const content = (
     <>
