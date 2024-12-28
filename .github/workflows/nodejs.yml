@@ -50,4 +50,5 @@ jobs:
 
       # Run all test
       - name: Integration Test
-        run: xvfb-run --auto-servernum -- pnpm run test --force
+        run: pnpm run test --force
+
