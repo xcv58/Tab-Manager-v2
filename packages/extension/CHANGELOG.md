@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.25.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.24.0...v1.25.0) (2024-12-28)
+
+### Features
+
+- Middle click to close tab ([#2477](https://github.com/xcv58/Tab-Manager-v2/issues/2477)) ([b443258](https://github.com/xcv58/Tab-Manager-v2/commit/b4432581502831efb503aebca19ea1206caae920))
+
+### Bug Fixes
+
+- Upgrade dependencies ([ae5a513](https://github.com/xcv58/Tab-Manager-v2/commit/ae5a513b53166a78a8d6c49f1fc2678194f9763d))
+
 ## [1.24.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.8...v1.24.0) (2023-11-29)
 
 ### [1.23.8](https://github.com/xcv58/Tab-Manager-v2/compare/v1.23.7...v1.23.8) (2023-11-29)
