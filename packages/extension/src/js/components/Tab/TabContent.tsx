@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, ReactElement, useCallback } from 'react'
+import React, {
+  useRef,
+  useEffect,
+  ReactElement,
+  useCallback,
+  SyntheticEvent,
+} from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
@@ -8,20 +14,17 @@ import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 
 const TabContent = observer(
-  (props: TabProps & { buttonClassName: string; content: ReactElement }) => {
-    const { faked, buttonClassName, content } = props
+  (
+    props: TabProps & {
+      buttonClassName: string
+      content: ReactElement
+      onAuxClick: (e: SyntheticEvent) => void
+    },
+  ) => {
+    const { faked, buttonClassName, content, onAuxClick } = props
     const { hoverStore, dragStore } = useStore()
-    const {
-      activate,
-      title,
-      url,
-      isDuplicated,
-      focus,
-      isFocused,
-      isHovered,
-      removing,
-      remove,
-    } = props.tab
+    const { activate, title, url, isDuplicated, focus, isFocused, isHovered } =
+      props.tab
     const buttonRef = useRef(null)
     useEffect(() => {
       const button = buttonRef.current
@@ -45,12 +48,7 @@ const TabContent = observer(
         <button
           ref={buttonRef}
           onClick={activate}
-          onAuxClick={(event) => {
-            // Middle mouse button
-            if (event.button === 1 && !removing) {
-              remove()
-            }
-          }}
+          onAuxClick={onAuxClick}
           onFocus={focus}
           className={buttonClassName}
         >
@@ -64,7 +62,13 @@ const TabContent = observer(
 export default observer((props: TabProps) => {
   const { userStore } = useStore()
   const { faked } = props
-  const { title, isDuplicated, isMatched, query } = props.tab
+  const { title, isDuplicated, isMatched, query, removing, remove } = props.tab
+  const onAuxClick = (event: SyntheticEvent) => {
+    // Middle mouse button
+    if (event.button === 1 && !removing) {
+      remove()
+    }
+  }
   const { showUrl, highlightDuplicatedTab } = userStore
   const getHighlightNode = useCallback(
     (text) => {
@@ -91,12 +95,16 @@ export default observer((props: TabProps) => {
     </>
   )
   if (faked) {
-    return <button className={buttonClassName}>{content}</button>
+    return (
+      <button className={buttonClassName} onAuxClick={onAuxClick}>
+        {content}
+      </button>
+    )
   }
   return (
     <TabContent
       {...props}
-      {...{ getHighlightNode, buttonClassName, content }}
+      {...{ getHighlightNode, buttonClassName, content, onAuxClick }}
     />
   )
 })
