@@ -4,7 +4,6 @@
   "scripts": {
     "prepare": "husky",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "husky install",
     "start": "pnpm --filter tab-manager-v2 start",
     "release": "pnpm --filter tab-manager-v2 release",
     "release-it": "release-it --ci",
