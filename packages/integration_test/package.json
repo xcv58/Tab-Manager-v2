@@ -4,7 +4,7 @@
   "description": "Integration test via Playwright",
   "scripts": {
     "test": "jest --maxWorkers=1",
-    "test-watch": "pnpm test --watchAll"
+    "test-watch": "pnpm test -- --watchAll"
   },
   "devDependencies": {
     "@types/jest": "29.5.10",
@@ -18,6 +18,6 @@
   "private": true,
   "dependencies": {
     "playwright": "1.40.1",
-    "tab-manager-v2": "*"
+    "tab-manager-v2": "workspace:*"
   }
 }
