@@ -28,9 +28,9 @@
   "dependencies": {
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
-    "@mui/icons-material": "5.14.19",
-    "@mui/material": "5.14.19",
-    "@mui/styles": "5.14.19",
+    "@mui/icons-material": "5.16.13",
+    "@mui/material": "5.16.13",
+    "@mui/styles": "5.16.13",
     "@types/testing-library__jest-dom": "^6.0.0",
     "autoprefixer": "10.4.16",
     "autosuggest-highlight": "3.3.4",
