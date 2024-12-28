@@ -29,7 +29,7 @@ references:
 jobs:
   build-test:
     docker:
-      - image: circleci/node:22.12-browsers
+      - image: circleci/node:17-browsers
     steps:
       - checkout
       - *restore_cache
