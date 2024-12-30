@@ -413,8 +413,8 @@ importers:
         specifier: 7.6.3
         version: 7.6.3
       storybook-addon-performance:
-        specifier: 0.17.1
-        version: 0.17.1(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.17.3
+        version: 0.17.3(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
 packages:
 
@@ -8761,9 +8761,9 @@ packages:
   store2@2.14.4:
     resolution: {integrity: sha512-srTItn1GOvyvOycgxjAnPA63FZNwy0PTyUBFMHRM+hVFltAeoh0LmNBz9SZqUS9mMqGk8rfyWyXn3GH5ReJ8Zw==}
 
-  storybook-addon-performance@0.17.1:
-    resolution: {integrity: sha512-pOt33LwBJU2fWzyawy+i03M5b27gF/+/EgexyvZZtWhab3GLdQcLnIqt7fTMLOievYmibbiD23M64Fbq91POUQ==}
-    engines: {node: '>=16.0.0'}
+  storybook-addon-performance@0.17.3:
+    resolution: {integrity: sha512-N0l790tvRf3LarCP9u/GMWVMvb2+x4eaJLtoAHguXBwab5Zgc5wPARTWOrtzS1DlLwwQPxbkzGVixEYntZKEFA==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -20511,10 +20511,11 @@ snapshots:
 
   store2@2.14.4: {}
 
-  storybook-addon-performance@0.17.1(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  storybook-addon-performance@0.17.3(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@storybook/manager-api': 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/theming': 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/types': 7.6.20
       '@xstate/react': 3.2.2(@types/react@18.3.18)(react@18.3.1)(xstate@4.38.3)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

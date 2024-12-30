@@ -24,6 +24,6 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "storybook": "7.6.3",
-    "storybook-addon-performance": "0.17.1"
+    "storybook-addon-performance": "0.17.3"
   }
 }
