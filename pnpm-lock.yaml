@@ -211,8 +211,8 @@ importers:
         specifier: 1.8.8
         version: 1.8.8
       '@types/webpack-env':
-        specifier: 1.18.4
-        version: 1.18.4
+        specifier: 1.18.5
+        version: 1.18.5
       chrome-webstore-upload-cli:
         specifier: 2.2.2
         version: 2.2.2
@@ -2957,8 +2957,8 @@ packages:
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
 
-  '@types/webpack-env@1.18.4':
-    resolution: {integrity: sha512-I6e+9+HtWADAWeeJWDFQtdk4EVSAbj6Rtz4q8fJ7mSr1M0jzlFcs8/HZ+Xb5SHzVm1dxH7aUiI+A8kA8Gcrm0A==}
+  '@types/webpack-env@1.18.5':
+    resolution: {integrity: sha512-wz7kjjRRj8/Lty4B+Kr0LN6Ypc/3SymeCCGSbaXp2leH0ZVg/PriNiOwNj4bD4uphI7A8NXS4b6Gl373sfO5mA==}
 
   '@types/ws@8.5.13':
     resolution: {integrity: sha512-osM/gWBTPKgHV8XkTunnegTRIsvF6owmf5w+JtAfOw472dptdm0dlGv4xCt6GwQRcC2XVOvvRE/0bAoQcL2QkA==}
@@ -13471,7 +13471,7 @@ snapshots:
 
   '@types/uuid@9.0.8': {}
 
-  '@types/webpack-env@1.18.4': {}
+  '@types/webpack-env@1.18.5': {}
 
   '@types/ws@8.5.13':
     dependencies:
