@@ -304,8 +304,8 @@ importers:
         specifier: 9.5.0
         version: 9.5.0
       style-loader:
-        specifier: 3.3.3
-        version: 3.3.3(webpack@5.94.0)
+        specifier: 3.3.4
+        version: 3.3.4(webpack@5.94.0)
       terser-webpack-plugin:
         specifier: 5.3.9
         version: 5.3.9(webpack@5.94.0)
@@ -8886,8 +8886,8 @@ packages:
   stubs@3.0.0:
     resolution: {integrity: sha512-PdHt7hHUJKxvTCgbKX9C1V/ftOcjJQgz8BZwNfV5c4B6dcGqlpelTbJ999jBGZ2jYiPAwcX5dP6oBwVlBlUbxw==}
 
-  style-loader@3.3.3:
-    resolution: {integrity: sha512-53BiGLXAcll9maCYtZi2RCQZKa8NQQai5C4horqKyRmHj9H7QmcUyucrH+4KW/gBQbXM2AsB0axoEcFZPlfPcw==}
+  style-loader@3.3.4:
+    resolution: {integrity: sha512-0WqXzrsMTyb8yjZJHDqwmnwRJvhALK9LfRtRc6B4UTWe8AijYLZYZ9thuJTZc2VfQWINADW/j+LiJnfy2RoC1w==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
@@ -12423,7 +12423,7 @@ snapshots:
       path-browserify: 1.0.1
       process: 0.11.10
       semver: 7.6.3
-      style-loader: 3.3.3(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
+      style-loader: 3.3.4(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
       swc-loader: 0.2.6(@swc/core@1.10.3)(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
       terser-webpack-plugin: 5.3.9(@swc/core@1.10.3)(esbuild@0.18.20)(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
       ts-dedent: 2.2.0
@@ -20649,11 +20649,11 @@ snapshots:
 
   stubs@3.0.0: {}
 
-  style-loader@3.3.3(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)):
+  style-loader@3.3.4(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)):
     dependencies:
       webpack: 5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)
 
-  style-loader@3.3.3(webpack@5.94.0):
+  style-loader@3.3.4(webpack@5.94.0):
     dependencies:
       webpack: 5.94.0
 
