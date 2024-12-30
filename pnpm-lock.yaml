@@ -88,7 +88,7 @@ importers:
         version: 0.0.29(@types/react@18.3.18)(react@18.3.1)(typescript@5.3.2)
       '@types/testing-library__jest-dom':
         specifier: 6.0.0
-        version: 6.0.0(@jest/globals@29.7.0)(@types/jest@29.5.10)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
+        version: 6.0.0(@jest/globals@29.7.0)(@types/jest@29.5.14)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
       autoprefixer:
         specifier: 10.4.16
         version: 10.4.16(postcss@8.4.32)
@@ -173,7 +173,7 @@ importers:
         version: 7.11.0(@babel/core@7.23.5)(eslint@8.55.0)
       '@testing-library/jest-dom':
         specifier: 6.1.5
-        version: 6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.10)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
+        version: 6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.14)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
       '@testing-library/react':
         specifier: 14.1.2
         version: 14.1.2(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -184,8 +184,8 @@ importers:
         specifier: 2.3.1
         version: 2.3.1
       '@types/jest':
-        specifier: 29.5.10
-        version: 29.5.10
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/lodash.debounce':
         specifier: 4.0.9
         version: 4.0.9
@@ -341,8 +341,8 @@ importers:
         specifier: 1.49.1
         version: 1.49.1
       '@types/jest':
-        specifier: 29.5.10
-        version: 29.5.10
+        specifier: 29.5.14
+        version: 29.5.14
       '@types/jest-image-snapshot':
         specifier: 6.3.0
         version: 6.3.0
@@ -2807,9 +2807,6 @@ packages:
 
   '@types/jest-image-snapshot@6.3.0':
     resolution: {integrity: sha512-YZuZ1asbK3pK6+wzlhvs3vQ/FkvaWJfX7tTiha6TB5EOqPUSzYxheoodiCvOgIcX89NSlbJ4mMCKoVx6XMRVUA==}
-
-  '@types/jest@29.5.10':
-    resolution: {integrity: sha512-tE4yxKEphEyxj9s4inideLHktW/x6DwesIwWZ9NN1FKf9zbJYsnhBoA9vrHA/IuIOKwPa5PcFBNV4lpMIOEzyQ==}
 
   '@types/jest@29.5.14':
     resolution: {integrity: sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ==}
@@ -13099,7 +13096,7 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.10)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))':
+  '@testing-library/jest-dom@6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.14)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))':
     dependencies:
       '@adobe/css-tools': 4.4.1
       '@babel/runtime': 7.26.0
@@ -13111,7 +13108,7 @@ snapshots:
       redent: 3.0.0
     optionalDependencies:
       '@jest/globals': 29.7.0
-      '@types/jest': 29.5.10
+      '@types/jest': 29.5.14
       jest: 29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1)
 
   '@testing-library/jest-dom@6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.14)(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))':
@@ -13308,20 +13305,14 @@ snapshots:
 
   '@types/jest-image-snapshot@6.3.0':
     dependencies:
-      '@types/jest': 29.5.10
+      '@types/jest': 29.5.14
       '@types/pixelmatch': 5.2.6
       ssim.js: 3.5.0
-
-  '@types/jest@29.5.10':
-    dependencies:
-      expect: 29.7.0
-      pretty-format: 29.7.0
 
   '@types/jest@29.5.14':
     dependencies:
       expect: 29.7.0
       pretty-format: 29.7.0
-    optional: true
 
   '@types/jsdom@20.0.1':
     dependencies:
@@ -13471,9 +13462,9 @@ snapshots:
 
   '@types/stack-utils@2.0.3': {}
 
-  '@types/testing-library__jest-dom@6.0.0(@jest/globals@29.7.0)(@types/jest@29.5.10)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))':
+  '@types/testing-library__jest-dom@6.0.0(@jest/globals@29.7.0)(@types/jest@29.5.14)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))':
     dependencies:
-      '@testing-library/jest-dom': 6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.10)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
+      '@testing-library/jest-dom': 6.1.5(@jest/globals@29.7.0)(@types/jest@29.5.14)(jest@29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
     transitivePeerDependencies:
       - '@jest/globals'
       - '@types/jest'
