@@ -75,7 +75,7 @@
     "@types/react-dom": "18.3.5",
     "@types/react-router-dom": "5.3.3",
     "@types/react-window": "1.8.8",
-    "@types/webpack-env": "1.18.4",
+    "@types/webpack-env": "1.18.5",
     "@babel/eslint-parser": "7.11.0",
     "chrome-webstore-upload-cli": "2.2.2",
     "clean-webpack-plugin": "4.0.0",
