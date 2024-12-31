@@ -325,8 +325,8 @@ importers:
         specifier: 4.10.2
         version: 4.10.2
       webpack-dev-server:
-        specifier: 4.15.1
-        version: 4.15.1(webpack@5.94.0)
+        specifier: 4.15.2
+        version: 4.15.2(webpack@5.94.0)
 
   packages/integration_test:
     dependencies:
@@ -9590,8 +9590,8 @@ packages:
       webpack:
         optional: true
 
-  webpack-dev-server@4.15.1:
-    resolution: {integrity: sha512-5hbAst3h3C3L8w6W4P96L5vaV0PxSmJhxZvWKYIdgxOQm8pNZ5dEOmmSLBVpP85ReeyRt6AS1QJNyo/oFFPeVA==}
+  webpack-dev-server@4.15.2:
+    resolution: {integrity: sha512-0XavAZbNJ5sDrCbkpWL8mia0o5WPOd2YGtxrEiZkBK9FjLppIUK2TgxK6qGD2P3hUXTJNNPVibrerKcx5WkR1g==}
     engines: {node: '>= 12.13.0'}
     hasBin: true
     peerDependencies:
@@ -21424,7 +21424,7 @@ snapshots:
       webpack: 5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)
     optional: true
 
-  webpack-dev-server@4.15.1(webpack@5.94.0):
+  webpack-dev-server@4.15.2(webpack@5.94.0):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
