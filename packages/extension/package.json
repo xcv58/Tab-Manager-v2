@@ -55,7 +55,7 @@
     "react-dom": "18.3.1",
     "react-resize-detector": "9.1.1",
     "react-router-dom": "6.20.1",
-    "react-window": "1.8.10",
+    "react-window": "1.8.11",
     "tailwindcss": "3.3.5",
     "use-system-theme": "0.1.1",
     "webextension-polyfill": "0.10.0"
