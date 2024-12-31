@@ -61,7 +61,7 @@
     "webextension-polyfill": "0.10.0"
   },
   "devDependencies": {
-    "@babel/core": "7.23.5",
+    "@babel/core": "7.26.0",
     "@testing-library/jest-dom": "6.1.5",
     "@testing-library/react": "14.1.2",
     "@types/chrome": "0.0.287",
@@ -76,7 +76,7 @@
     "@types/react-router-dom": "5.3.3",
     "@types/react-window": "1.8.8",
     "@types/webpack-env": "1.18.5",
-    "@babel/eslint-parser": "7.11.0",
+    "@babel/eslint-parser": "7.25.9",
     "chrome-webstore-upload-cli": "2.2.2",
     "clean-webpack-plugin": "4.0.0",
     "codecov": "3.8.3",
