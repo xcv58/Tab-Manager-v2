@@ -259,8 +259,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0(webpack@5.94.0)
       html-webpack-plugin:
-        specifier: 5.5.3
-        version: 5.5.3(webpack@5.94.0)
+        specifier: 5.6.3
+        version: 5.6.3(webpack@5.94.0)
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@20.10.3)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1)
@@ -5448,11 +5448,17 @@ packages:
     resolution: {integrity: sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==}
     engines: {node: '>=8'}
 
-  html-webpack-plugin@5.5.3:
-    resolution: {integrity: sha512-6YrDKTuqaP/TquFH7h4srYWsZx+x6k6+FbsTm0ziCwGHDP78Unr1r9F/H4+sGmMbX08GQcJ+K64x55b+7VM/jg==}
+  html-webpack-plugin@5.6.3:
+    resolution: {integrity: sha512-QSf1yjtSAsmf7rYBV7XX86uua4W/vkhIt0xNXKbsi2foEeW7vjJQz4bhnpL3xH+l1ryl1680uNv968Z+X6jSYg==}
     engines: {node: '>=10.13.0'}
     peerDependencies:
+      '@rspack/core': 0.x || 1.x
       webpack: ^5.20.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
 
   htmlparser2@6.1.0:
     resolution: {integrity: sha512-gyyPk6rgonLFEDGoeRgQNaEUvdJ4ktTmmUh/h2t7s+M8oPpIPxgNACWa+6ESR57kXstwqPiCut0V8NRpcwgU7A==}
@@ -12360,7 +12366,7 @@ snapshots:
       express: 4.21.2
       fork-ts-checker-webpack-plugin: 8.0.0(typescript@5.7.2)(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
       fs-extra: 11.2.0
-      html-webpack-plugin: 5.5.3(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
+      html-webpack-plugin: 5.6.3(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20))
       magic-string: 0.30.17
       path-browserify: 1.0.1
       process: 0.11.10
@@ -12379,6 +12385,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.7.2
     transitivePeerDependencies:
+      - '@rspack/core'
       - '@swc/helpers'
       - encoding
       - esbuild
@@ -12749,6 +12756,7 @@ snapshots:
       '@babel/core': 7.23.5
       typescript: 5.7.2
     transitivePeerDependencies:
+      - '@rspack/core'
       - '@swc/core'
       - '@swc/helpers'
       - '@types/webpack'
@@ -16455,22 +16463,24 @@ snapshots:
 
   html-tags@3.3.1: {}
 
-  html-webpack-plugin@5.5.3(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)):
+  html-webpack-plugin@5.6.3(webpack@5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
+    optionalDependencies:
       webpack: 5.94.0(@swc/core@1.10.3)(esbuild@0.18.20)
 
-  html-webpack-plugin@5.5.3(webpack@5.94.0):
+  html-webpack-plugin@5.6.3(webpack@5.94.0):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
+    optionalDependencies:
       webpack: 5.94.0
 
   htmlparser2@6.1.0:
