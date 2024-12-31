@@ -2,7 +2,11 @@
   "packageRules": [
     {
       "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "automerge": true,
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchPackageNames": ["*"],
+      "matchUpdateTypes": ["minor", "patch"]
     }
   ],
   "schedule": ["every weekday"],
