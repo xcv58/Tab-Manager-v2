@@ -344,14 +344,14 @@ importers:
         specifier: 29.5.14
         version: 29.5.14
       '@types/jest-image-snapshot':
-        specifier: 6.3.0
-        version: 6.3.0
+        specifier: 6.4.0
+        version: 6.4.0
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1)
       jest-image-snapshot:
-        specifier: 6.3.0
-        version: 6.3.0(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
+        specifier: 6.4.0
+        version: 6.4.0(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
       ts-jest:
         specifier: 29.1.1
         version: 29.1.1(@babel/core@7.26.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))(typescript@5.3.2)
@@ -2763,8 +2763,8 @@ packages:
   '@types/istanbul-reports@3.0.4':
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
 
-  '@types/jest-image-snapshot@6.3.0':
-    resolution: {integrity: sha512-YZuZ1asbK3pK6+wzlhvs3vQ/FkvaWJfX7tTiha6TB5EOqPUSzYxheoodiCvOgIcX89NSlbJ4mMCKoVx6XMRVUA==}
+  '@types/jest-image-snapshot@6.4.0':
+    resolution: {integrity: sha512-8TQ/EgqFCX0UWSpH488zAc21fCkJNpZPnnp3xWFMqElxApoJV5QOoqajnVRV7AhfF0rbQWTVyc04KG7tXnzCPA==}
 
   '@types/jest@29.5.14':
     resolution: {integrity: sha512-ZN+4sdnLUbo8EVvVc2ao0GFW6oVrQRPn4K2lglySj7APvSrgzxHiNNK99us4WDMi57xxA2yggblIAMNhXOotLQ==}
@@ -6069,8 +6069,8 @@ packages:
     resolution: {integrity: sha512-fP8u2pyfqx0K1rGn1R9pyE0/KTn+G7PxktWidOBTqFPLYX0b9ksaMFkhK5vrS3DVun09pckLdlx90QthlW7AmA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  jest-image-snapshot@6.3.0:
-    resolution: {integrity: sha512-Rdu5aZL0439yBPLCWVz/vmldrQKKvhCx8jpZP5p68Li4drgwsZaUaQpMmfcQWhqssjUtTAbBnaOsGJkOxGuAqw==}
+  jest-image-snapshot@6.4.0:
+    resolution: {integrity: sha512-IWGtSOnelwaVPd09STbJuLmnAwlBC/roJtTLGLb8M3TA0vfku3MRNEXmljTa1EMXqdRbA0oIWiqHFB1ttTGazQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
       jest: '>=20 <=29'
@@ -13118,7 +13118,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
 
-  '@types/jest-image-snapshot@6.3.0':
+  '@types/jest-image-snapshot@6.4.0':
     dependencies:
       '@types/jest': 29.5.14
       '@types/pixelmatch': 5.2.6
@@ -17197,7 +17197,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  jest-image-snapshot@6.3.0(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1)):
+  jest-image-snapshot@6.4.0(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1)):
     dependencies:
       chalk: 4.1.2
       get-stdin: 5.0.1
