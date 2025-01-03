@@ -36,7 +36,7 @@
     "eslint-plugin-typescript": "0.14.0",
     "husky": "9.1.7",
     "lint-staged": "15.3.0",
-    "npm-run-all2": "5.0.0",
+    "npm-run-all2": "5.0.2",
     "prettier": "3.4.2",
     "release-it": "17.11.0",
     "turbo": "2.3.3",
