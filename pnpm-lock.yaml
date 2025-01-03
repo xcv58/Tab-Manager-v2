@@ -325,8 +325,8 @@ importers:
         specifier: 4.10.2
         version: 4.10.2
       webpack-dev-server:
-        specifier: 4.15.2
-        version: 4.15.2(webpack@5.97.1)
+        specifier: 5.2.0
+        version: 5.2.0(webpack@5.97.1)
 
   packages/integration_test:
     dependencies:
@@ -2892,9 +2892,6 @@ packages:
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
 
-  '@types/retry@0.12.0':
-    resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
-
   '@types/retry@0.12.2':
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
 
@@ -4304,10 +4301,6 @@ packages:
   default-browser@5.2.1:
     resolution: {integrity: sha512-WY/3TUME0x3KPYdRRxEJJvXRHV4PyPoUsxtZa78lwItwRQRHhd2U9xOscaT/YTf8uCXIAjeJOFBVEh/7FtD8Xg==}
     engines: {node: '>=18'}
-
-  default-gateway@6.0.3:
-    resolution: {integrity: sha512-fwSOJsbbNzZ/CUFpqFBqYfYNLj1NbMPm8MMCIzHjC83iSJRBEGmDUxU+WP661BaBQImeC2yHwXtz+P/O9o+XEg==}
-    engines: {node: '>= 10'}
 
   defaults@1.0.4:
     resolution: {integrity: sha512-eFuaLoy/Rxalv2kr+lqMlUnrDWV+3j4pljOIJgLIhI058IQfWJ7vXhyEIHu+HtC738klGALYxOKDO0bQP3tg8A==}
@@ -7122,10 +7115,6 @@ packages:
     resolution: {integrity: sha512-/bjOqmgETBYB5BoEeGVea8dmvHb2m9GLy1E9W43yeyfP6QQCZGFNa+XRceJEuDB6zqr+gKpIAmlLebMpykw/MQ==}
     engines: {node: '>=10'}
 
-  p-retry@4.6.2:
-    resolution: {integrity: sha512-312Id396EbJdvRONlngUx0NydfrIQ5lsYu0znKVUzVvArzEIt08V1qhtyESbGVd1FGX7UKtiFp5uwKZdM8wIuQ==}
-    engines: {node: '>=8'}
-
   p-retry@6.2.1:
     resolution: {integrity: sha512-hEt02O4hUct5wtwg4H4KcWgDdm+l1bOaEy/hWzd8xtXB9BqxTWBBhb+2ImAtH4Cv4rPjV76xN3Zumqk3k3AhhQ==}
     engines: {node: '>=16.17'}
@@ -9320,12 +9309,6 @@ packages:
     engines: {node: '>= 10.13.0'}
     hasBin: true
 
-  webpack-dev-middleware@5.3.4:
-    resolution: {integrity: sha512-BVdTqhhs+0IfoeAf7EoH5WE+exCmqGerHfDM0IL096Px60Tq2Mn9MAbnaGUe6HiMa41KMCYF19gyzZmBcq/o4Q==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      webpack: ^4.0.0 || ^5.0.0
-
   webpack-dev-middleware@6.1.3:
     resolution: {integrity: sha512-A4ChP0Qj8oGociTs6UdlRUGANIGrCDL3y+pmQMc+dSsraXHCatFpmMey4mYELA+juqwUqwQsUgJJISXl1KWmiw==}
     engines: {node: '>= 14.15.0'}
@@ -9342,19 +9325,6 @@ packages:
       webpack: ^5.0.0
     peerDependenciesMeta:
       webpack:
-        optional: true
-
-  webpack-dev-server@4.15.2:
-    resolution: {integrity: sha512-0XavAZbNJ5sDrCbkpWL8mia0o5WPOd2YGtxrEiZkBK9FjLppIUK2TgxK6qGD2P3hUXTJNNPVibrerKcx5WkR1g==}
-    engines: {node: '>= 12.13.0'}
-    hasBin: true
-    peerDependencies:
-      webpack: ^4.37.0 || ^5.0.0
-      webpack-cli: '*'
-    peerDependenciesMeta:
-      webpack:
-        optional: true
-      webpack-cli:
         optional: true
 
   webpack-dev-server@5.2.0:
@@ -11019,7 +10989,6 @@ snapshots:
   '@jsonjoy.com/base64@1.1.2(tslib@2.8.1)':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@jsonjoy.com/json-pack@1.1.1(tslib@2.8.1)':
     dependencies:
@@ -11028,12 +10997,10 @@ snapshots:
       hyperdyperid: 1.2.0
       thingies: 1.21.0(tslib@2.8.1)
       tslib: 2.8.1
-    optional: true
 
   '@jsonjoy.com/util@1.5.0(tslib@2.8.1)':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@juggle/resize-observer@3.4.0': {}
 
@@ -12884,10 +12851,7 @@ snapshots:
 
   '@types/resolve@1.20.6': {}
 
-  '@types/retry@0.12.0': {}
-
-  '@types/retry@0.12.2':
-    optional: true
+  '@types/retry@0.12.2': {}
 
   '@types/semver@7.5.8': {}
 
@@ -14557,10 +14521,6 @@ snapshots:
       bundle-name: 4.1.0
       default-browser-id: 5.0.0
 
-  default-gateway@6.0.3:
-    dependencies:
-      execa: 5.1.1
-
   defaults@1.0.4:
     dependencies:
       clone: 1.0.4
@@ -15986,8 +15946,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  hyperdyperid@1.2.0:
-    optional: true
+  hyperdyperid@1.2.0: {}
 
   hyphenate-style-name@1.1.0: {}
 
@@ -16181,8 +16140,7 @@ snapshots:
       call-bind: 1.0.8
       define-properties: 1.2.1
 
-  is-network-error@1.1.0:
-    optional: true
+  is-network-error@1.1.0: {}
 
   is-npm@6.0.0: {}
 
@@ -17344,7 +17302,6 @@ snapshots:
       '@jsonjoy.com/util': 1.5.0(tslib@2.8.1)
       tree-dump: 1.0.2(tslib@2.8.1)
       tslib: 2.8.1
-    optional: true
 
   memoize-one@5.2.1: {}
 
@@ -18009,17 +17966,11 @@ snapshots:
     dependencies:
       aggregate-error: 3.1.0
 
-  p-retry@4.6.2:
-    dependencies:
-      '@types/retry': 0.12.0
-      retry: 0.13.1
-
   p-retry@6.2.1:
     dependencies:
       '@types/retry': 0.12.2
       is-network-error: 1.1.0
       retry: 0.13.1
-    optional: true
 
   p-try@1.0.0: {}
 
@@ -19896,7 +19847,6 @@ snapshots:
   thingies@1.21.0(tslib@2.8.1):
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   thread-stream@2.7.0:
     dependencies:
@@ -19966,7 +19916,6 @@ snapshots:
   tree-dump@1.0.2(tslib@2.8.1):
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   trim-newlines@3.0.1: {}
 
@@ -20416,15 +20365,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-dev-middleware@5.3.4(webpack@5.97.1):
-    dependencies:
-      colorette: 2.0.20
-      memfs: 3.5.3
-      mime-types: 2.1.35
-      range-parser: 1.2.1
-      schema-utils: 4.3.0
-      webpack: 5.97.1
-
   webpack-dev-middleware@6.1.3(webpack@5.97.1(@swc/core@1.10.3)(esbuild@0.18.20)):
     dependencies:
       colorette: 2.0.20
@@ -20447,45 +20387,16 @@ snapshots:
       webpack: 5.97.1(@swc/core@1.10.3)(esbuild@0.18.20)
     optional: true
 
-  webpack-dev-server@4.15.2(webpack@5.97.1):
+  webpack-dev-middleware@7.4.2(webpack@5.97.1):
     dependencies:
-      '@types/bonjour': 3.5.13
-      '@types/connect-history-api-fallback': 1.5.4
-      '@types/express': 4.17.21
-      '@types/serve-index': 1.9.4
-      '@types/serve-static': 1.15.7
-      '@types/sockjs': 0.3.36
-      '@types/ws': 8.5.13
-      ansi-html-community: 0.0.8
-      bonjour-service: 1.3.0
-      chokidar: 3.6.0
       colorette: 2.0.20
-      compression: 1.7.5
-      connect-history-api-fallback: 2.0.0
-      default-gateway: 6.0.3
-      express: 4.21.2
-      graceful-fs: 4.2.11
-      html-entities: 2.5.2
-      http-proxy-middleware: 2.0.7(@types/express@4.17.21)
-      ipaddr.js: 2.2.0
-      launch-editor: 2.9.1
-      open: 8.4.2
-      p-retry: 4.6.2
-      rimraf: 3.0.2
+      memfs: 4.15.1
+      mime-types: 2.1.35
+      on-finished: 2.4.1
+      range-parser: 1.2.1
       schema-utils: 4.3.0
-      selfsigned: 2.4.1
-      serve-index: 1.9.1
-      sockjs: 0.3.24
-      spdy: 4.0.2
-      webpack-dev-middleware: 5.3.4(webpack@5.97.1)
-      ws: 8.18.0
     optionalDependencies:
       webpack: 5.97.1
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - supports-color
-      - utf-8-validate
 
   webpack-dev-server@5.2.0(webpack@5.97.1(@swc/core@1.10.3)(esbuild@0.18.20)):
     dependencies:
@@ -20524,6 +20435,43 @@ snapshots:
       - supports-color
       - utf-8-validate
     optional: true
+
+  webpack-dev-server@5.2.0(webpack@5.97.1):
+    dependencies:
+      '@types/bonjour': 3.5.13
+      '@types/connect-history-api-fallback': 1.5.4
+      '@types/express': 4.17.21
+      '@types/serve-index': 1.9.4
+      '@types/serve-static': 1.15.7
+      '@types/sockjs': 0.3.36
+      '@types/ws': 8.5.13
+      ansi-html-community: 0.0.8
+      bonjour-service: 1.3.0
+      chokidar: 3.6.0
+      colorette: 2.0.20
+      compression: 1.7.5
+      connect-history-api-fallback: 2.0.0
+      express: 4.21.2
+      graceful-fs: 4.2.11
+      http-proxy-middleware: 2.0.7(@types/express@4.17.21)
+      ipaddr.js: 2.2.0
+      launch-editor: 2.9.1
+      open: 10.1.0
+      p-retry: 6.2.1
+      schema-utils: 4.3.0
+      selfsigned: 2.4.1
+      serve-index: 1.9.1
+      sockjs: 0.3.24
+      spdy: 4.0.2
+      webpack-dev-middleware: 7.4.2(webpack@5.97.1)
+      ws: 8.18.0
+    optionalDependencies:
+      webpack: 5.97.1
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - supports-color
+      - utf-8-validate
 
   webpack-hot-middleware@2.26.1:
     dependencies:
