@@ -178,8 +178,8 @@ importers:
         specifier: 16.1.0
         version: 16.1.0(@testing-library/dom@9.3.4)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/chrome':
-        specifier: 0.0.289
-        version: 0.0.289
+        specifier: 0.0.290
+        version: 0.0.290
       '@types/classnames':
         specifier: 2.3.4
         version: 2.3.4
@@ -2677,8 +2677,8 @@ packages:
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
-  '@types/chrome@0.0.289':
-    resolution: {integrity: sha512-JQifH2d4TFeIZ+ySBSQxCd4D+J6W0jIAyQipAzG1up4O7WApTYrBqnmpNbMqFR5f70wJ1FE6+axqtpfTtPzy/g==}
+  '@types/chrome@0.0.290':
+    resolution: {integrity: sha512-N92vsAdlwoWameDQ8D4K0EZXXvxsJ1+gJg+4TWjUUsZ6gpontVmwl1XVtysA3mso45Fcn5UPiX/yqiT8GcBV3A==}
 
   '@types/classnames@2.3.4':
     resolution: {integrity: sha512-dwmfrMMQb9ujX1uYGvB5ERDlOzBNywnZAZBtOe107/hORWP05ESgU4QyaanZMWYYfd2BzrG78y13/Bju8IQcMQ==}
@@ -12658,7 +12658,7 @@ snapshots:
 
   '@types/chai@4.3.20': {}
 
-  '@types/chrome@0.0.289':
+  '@types/chrome@0.0.290':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
