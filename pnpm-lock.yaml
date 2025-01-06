@@ -129,8 +129,8 @@ importers:
         specifier: 8.4.49
         version: 8.4.49
       postcss-loader:
-        specifier: 7.3.4
-        version: 7.3.4(postcss@8.4.49)(typescript@5.7.2)(webpack@5.97.1)
+        specifier: 8.1.1
+        version: 8.1.1(postcss@8.4.49)(typescript@5.7.2)(webpack@5.97.1)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -7459,12 +7459,18 @@ packages:
       ts-node:
         optional: true
 
-  postcss-loader@7.3.4:
-    resolution: {integrity: sha512-iW5WTTBSC5BfsBJ9daFMPVrLT36MrNiC6fqOZTTaHjBNX6Pfd5p+hSBqe/fEeNd7pc13QiAyGt7VdGMw4eRC4A==}
-    engines: {node: '>= 14.15.0'}
+  postcss-loader@8.1.1:
+    resolution: {integrity: sha512-0IeqyAsG6tYiDRCYKQJLAmgQr47DX6N7sFSWvQxt6AcupX8DIdmykuk/o/tx0Lze3ErGHJEp5OSRxrelC6+NdQ==}
+    engines: {node: '>= 18.12.0'}
     peerDependencies:
+      '@rspack/core': 0.x || 1.x
       postcss: ^7.0.0 || ^8.0.1
       webpack: ^5.0.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
 
   postcss-merge-longhand@5.1.6:
     resolution: {integrity: sha512-6C/UGF/3T5OE2CEbOuX7iNO63dnvqhGZeUnKkDeifebY0XqkkvrctYSZurpNE902LDf2yKwwPFgotnfSoPhQiw==}
@@ -18294,12 +18300,13 @@ snapshots:
     optionalDependencies:
       postcss: 8.4.49
 
-  postcss-loader@7.3.4(postcss@8.4.49)(typescript@5.7.2)(webpack@5.97.1):
+  postcss-loader@8.1.1(postcss@8.4.49)(typescript@5.7.2)(webpack@5.97.1):
     dependencies:
-      cosmiconfig: 8.3.6(typescript@5.7.2)
+      cosmiconfig: 9.0.0(typescript@5.7.2)
       jiti: 1.21.7
       postcss: 8.4.49
       semver: 7.6.3
+    optionalDependencies:
       webpack: 5.97.1
     transitivePeerDependencies:
       - typescript
