@@ -24,7 +24,7 @@
     "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix"
   },
   "devDependencies": {
-    "@plasmohq/edge-addons-api": "^1.5.0",
+    "@plasmohq/edge-addons-api": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "8.19.1",
     "@typescript-eslint/parser": "8.19.1",
     "chrome-webstore-upload-cli": "3.3.1",
