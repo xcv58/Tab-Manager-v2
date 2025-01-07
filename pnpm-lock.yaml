@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@plasmohq/edge-addons-api':
-        specifier: ^1.5.0
-        version: 1.5.0
+        specifier: ^2.0.0
+        version: 2.0.0
       '@typescript-eslint/eslint-plugin':
         specifier: 8.19.1
         version: 8.19.1(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2))(eslint@9.17.0(jiti@1.21.7))(typescript@5.7.2)
@@ -1796,8 +1796,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@plasmohq/edge-addons-api@1.5.0':
-    resolution: {integrity: sha512-nBAojCNJfdaiIn2fRhEiRK0VXyzPg3BjCt1PxxI12WOuML5YuAJa2GvsoLAMD7jzrWaY+RebNxEVyGKIohJ4rw==}
+  '@plasmohq/edge-addons-api@2.0.0':
+    resolution: {integrity: sha512-kqtXxYF/kXJrDlCkewk3sUUAFGmRRpzcNv5vuf0mvNIcVKEuU1ixDWSFYw/amSnju5QkcwAtsceLvCmfy+6NBA==}
     engines: {node: '>=16.14'}
 
   '@playwright/test@1.49.1':
@@ -11369,7 +11369,7 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@plasmohq/edge-addons-api@1.5.0':
+  '@plasmohq/edge-addons-api@2.0.0':
     dependencies:
       got: 14.4.4
 
