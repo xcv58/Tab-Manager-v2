@@ -38,7 +38,7 @@
     "lint-staged": "15.3.0",
     "npm-run-all2": "7.0.2",
     "prettier": "3.4.2",
-    "release-it": "17.11.0",
+    "release-it": "18.0.0",
     "turbo": "2.3.3",
     "typescript": "5.7.2",
     "web-ext": "8.3.0"
