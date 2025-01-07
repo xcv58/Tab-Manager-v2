@@ -304,8 +304,8 @@ importers:
         specifier: 9.5.0
         version: 9.5.0
       style-loader:
-        specifier: 3.3.4
-        version: 3.3.4(webpack@5.97.1)
+        specifier: 4.0.0
+        version: 4.0.0(webpack@5.97.1)
       terser-webpack-plugin:
         specifier: 5.3.11
         version: 5.3.11(webpack@5.97.1)
@@ -8819,6 +8819,12 @@ packages:
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
+
+  style-loader@4.0.0:
+    resolution: {integrity: sha512-1V4WqhhZZgjVAVJyt7TdDPZoPBPNHbekX4fWnCJL1yQukhCeZhJySUL+gL9y6sNdN95uEOS83Y55SqHcP7MzLA==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      webpack: ^5.27.0
 
   stylehacks@5.1.0:
     resolution: {integrity: sha512-SzLmvHQTrIWfSgljkQCw2++C9+Ne91d/6Sp92I8c5uHTcy/PgeHamwITIbBW9wnFTY/3ZfSXR9HIL6Ikqmcu6Q==}
@@ -19983,7 +19989,7 @@ snapshots:
     dependencies:
       webpack: 5.97.1(@swc/core@1.10.3)(esbuild@0.18.20)
 
-  style-loader@3.3.4(webpack@5.97.1):
+  style-loader@4.0.0(webpack@5.97.1):
     dependencies:
       webpack: 5.97.1
 
