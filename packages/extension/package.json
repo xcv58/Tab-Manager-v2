@@ -64,7 +64,7 @@
     "@babel/core": "7.26.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.1.0",
-    "@types/chrome": "0.0.290",
+    "@types/chrome": "0.0.291",
     "@types/classnames": "2.3.4",
     "@types/jest": "29.5.14",
     "@types/lodash.debounce": "4.0.9",
@@ -112,7 +112,7 @@
     "terser-webpack-plugin": "5.3.11",
     "ts-jest": "29.2.5",
     "ts-loader": "9.5.1",
-    "typescript": "5.7.2",
+    "typescript": "5.7.3",
     "webpack": "5.97.1",
     "webpack-bundle-analyzer": "4.10.2",
     "webpack-dev-server": "5.2.0"
