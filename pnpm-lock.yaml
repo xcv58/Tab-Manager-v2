@@ -51,8 +51,8 @@ importers:
         specifier: 3.4.2
         version: 3.4.2
       release-it:
-        specifier: 18.0.0
-        version: 18.0.0(@types/node@22.10.2)(typescript@5.7.3)
+        specifier: 18.1.1
+        version: 18.1.1(@types/node@22.10.2)(typescript@5.7.3)
       turbo:
         specifier: 2.3.3
         version: 2.3.3
@@ -178,8 +178,8 @@ importers:
         specifier: 16.1.0
         version: 16.1.0(@testing-library/dom@9.3.4)(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/chrome':
-        specifier: 0.0.291
-        version: 0.0.291
+        specifier: 0.0.293
+        version: 0.0.293
       '@types/classnames':
         specifier: 2.3.4
         version: 2.3.4
@@ -2753,8 +2753,8 @@ packages:
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
-  '@types/chrome@0.0.291':
-    resolution: {integrity: sha512-pvzuUGY0dpO6qbikDEiKbiLLEUgSgnYnvk5mPNWImPcB/HWwkH/bvU5lR/XdPpB03W0jnEuOIXjblzAq759zkg==}
+  '@types/chrome@0.0.293':
+    resolution: {integrity: sha512-pghCOLVHsnePWcMEHCxkAfMRx8qJWmj4lUoyF3ZpANniKz8AucIGLSld7smsrTdLUkk/p5JjOCGVDRdUDHx+uA==}
 
   '@types/classnames@2.3.4':
     resolution: {integrity: sha512-dwmfrMMQb9ujX1uYGvB5ERDlOzBNywnZAZBtOe107/hORWP05ESgU4QyaanZMWYYfd2BzrG78y13/Bju8IQcMQ==}
@@ -8237,8 +8237,8 @@ packages:
     engines: {node: '>= 0.10.0'}
     hasBin: true
 
-  release-it@18.0.0:
-    resolution: {integrity: sha512-aO7sGBwv+0m8FXVNT+RyL1yky9Nhg0IxkqJIdofTma0Dz4w9z0+u5DddzesOoYQL2fawib3Kwn30DaLxqiz5ng==}
+  release-it@18.1.1:
+    resolution: {integrity: sha512-rC/iVKri7U/Kp/Myujmsf7HG2gPq8My/LBVB72TbZZYKD14fmgDZC4Eyn8DD7Yh2h/G/YCCsRe1QQPrjXj9Mzg==}
     engines: {node: ^20.9.0 || >=22.0.0}
     hasBin: true
 
@@ -12908,7 +12908,7 @@ snapshots:
 
   '@types/chai@4.3.20': {}
 
-  '@types/chrome@0.0.291':
+  '@types/chrome@0.0.293':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
@@ -19307,7 +19307,7 @@ snapshots:
       chalk: 2.4.2
       commander: 2.20.3
 
-  release-it@18.0.0(@types/node@22.10.2)(typescript@5.7.3):
+  release-it@18.1.1(@types/node@22.10.2)(typescript@5.7.3):
     dependencies:
       '@iarna/toml': 2.2.5
       '@octokit/rest': 21.0.2
