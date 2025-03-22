@@ -84,13 +84,14 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 1.png')
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 1a.png')
 
+    await page.waitForTimeout(1000)
     await page.fill(inputSelector, 'xcv58')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 2.png')
+    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 2a.png')
 
     await page.fill(inputSelector, '')
   })
@@ -98,11 +99,11 @@ test.describe('The Extension page should', () => {
   test('show correct color for selected tabs', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
 
     const selectAllButton = await page.$('[aria-label="Select all tabs"]')
     await selectAllButton.click()
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(test.info(), 'correct color.png')
   })
@@ -115,38 +116,37 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL.replace('not_popup=1', ''))
 
     await openPages(browserContext, URLS)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await CLOSE_PAGES(browserContext)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await openPages(browserContext, URLS)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await CLOSE_PAGES(browserContext)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await page.bringToFront()
 
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
+    await page.bringToFront()
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(
       test.info(),
-      'browser history 1.png',
+      'browser history 1a.png',
     )
 
     await page.fill(inputSelector, 'xcv58')
-    await page.waitForTimeout(500)
-    await page.waitForTimeout(500)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     screenshot = await page.screenshot()
+    await page.bringToFront()
     expect(screenshot).toMatchImageSnapshot(
       test.info(),
-      'browser history 2.png',
+      'browser history 2a.png',
     )
 
     await page.fill(inputSelector, 'duck')
-    await page.waitForTimeout(500)
-    await page.waitForTimeout(500)
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
+    await page.bringToFront()
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(
       test.info(),
@@ -164,7 +164,7 @@ test.describe('The Extension page should', () => {
       'http://xcv58.com/aBC',
     ])
     await page.bringToFront()
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
 
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(test.info(), 'duplicated tabs.png')
