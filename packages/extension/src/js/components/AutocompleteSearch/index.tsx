@@ -184,8 +184,8 @@ const AutocompleteSearch = observer((props: Props) => {
           } else {
             openURL(option.url)
           }
-          search('')
         }
+        search('')
       }}
       renderInput={(props) => (
         <Input {...props} autoFocus={autoFocus || userStore.autoFocusSearch} />

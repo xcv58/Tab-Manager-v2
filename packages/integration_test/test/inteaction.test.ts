@@ -90,7 +90,7 @@ test.describe('The Extension page should', () => {
     expect(pages).toHaveLength(URLS.length + 1)
     const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
 
     tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText),
@@ -106,6 +106,33 @@ test.describe('The Extension page should', () => {
     ])
     screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(test.info(), 'sort the tabs 2.png')
+  })
+
+  test('search input field should clear after selecting a command', async () => {
+    // Set up initial page state
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(1000)
+
+    // Verify initial state
+    const searchInput = await page.$(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    expect(searchInput).toBeTruthy()
+
+    // Type a command in the search box
+    await searchInput.click()
+    await searchInput.fill('>clean dup')
+    await page.waitForTimeout(1000)
+
+    // Wait for and select the first command option that appears
+    const commandOption = await page.waitForSelector('.MuiAutocomplete-option')
+    await commandOption.click()
+    await page.waitForTimeout(1000)
+
+    // Verify that the input field is cleared after command selection
+    const inputValue = await searchInput.inputValue()
+    expect(inputValue).toBe('')
   })
 
   // test('close tab when click close button', async () => {

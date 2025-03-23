@@ -1,8 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const WebpackDevServer = require('webpack-dev-server')
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const webpack = require('webpack')
 // const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const env = require('./env')
-
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const config = require('../webpack.config')([
   new webpack.HotModuleReplacementPlugin(),
   // new HardSourceWebpackPlugin()
@@ -24,12 +27,16 @@ delete config.chromeExtensionBoilerplate
 
 const compiler = webpack({ ...config, mode: 'development' })
 
-const server = new WebpackDevServer(compiler, {
-  devMiddleware: {
-    writeToDisk: true,
+const server = new WebpackDevServer(
+  {
+    devMiddleware: {
+      writeToDisk: true,
+    },
+    hot: true,
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    port: env.PORT,
   },
-  hot: true,
-  headers: { 'Access-Control-Allow-Origin': '*' },
-})
+  compiler,
+)
 
-server.listen(env.PORT)
+server.start()
