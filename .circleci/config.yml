@@ -25,7 +25,6 @@ references:
         pnpm install
         wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
         pnpm dlx playwright install --with-deps chromium
-        pnpm exec playwright install
 
 jobs:
   build-test:
