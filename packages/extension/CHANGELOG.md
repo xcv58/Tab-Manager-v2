@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.25.2](https://github.com/xcv58/Tab-Manager-v2/compare/v1.25.1...v1.25.2) (2025-03-23)
+
+### Bug Fixes
+
+- command name left in search input issue ([#2540](https://github.com/xcv58/Tab-Manager-v2/issues/2540)) ([3bd1e41](https://github.com/xcv58/Tab-Manager-v2/commit/3bd1e4119a0a73c298f14d78eb90510d0dcaa070))
+- **deps:** update all non-major dependencies ([#2501](https://github.com/xcv58/Tab-Manager-v2/issues/2501)) ([2e2c1bb](https://github.com/xcv58/Tab-Manager-v2/commit/2e2c1bbfb63c9f2f983272eddd02450e67e54c0d))
+- **deps:** update all non-major dependencies ([#2532](https://github.com/xcv58/Tab-Manager-v2/issues/2532)) ([add4f50](https://github.com/xcv58/Tab-Manager-v2/commit/add4f500a164a8f8653916a32abe2eeb6d291cdd))
+- **deps:** update all non-major dependencies to v6.3.1 ([#2514](https://github.com/xcv58/Tab-Manager-v2/issues/2514)) ([33807e5](https://github.com/xcv58/Tab-Manager-v2/commit/33807e56844e3e3dbc166261fe9d8923854da94e))
+- **deps:** update dependency autoprefixer to v10.4.20 ([#2490](https://github.com/xcv58/Tab-Manager-v2/issues/2490)) ([d7c28a0](https://github.com/xcv58/Tab-Manager-v2/commit/d7c28a0ea9b7d7781a8973ce3e544c1f5ea3760a))
+- **deps:** update dependency match-sorter to v8 ([#2519](https://github.com/xcv58/Tab-Manager-v2/issues/2519)) ([ca85fa4](https://github.com/xcv58/Tab-Manager-v2/commit/ca85fa4a09ee10618683c0cfa398db7c60d17980))
+- **deps:** update dependency postcss-loader to v7.3.4 ([#2462](https://github.com/xcv58/Tab-Manager-v2/issues/2462)) ([2b3fb58](https://github.com/xcv58/Tab-Manager-v2/commit/2b3fb588a559af7f7ee0e1234491bf7e62b620f5))
+- **deps:** update dependency postcss-loader to v8 ([#2520](https://github.com/xcv58/Tab-Manager-v2/issues/2520)) ([1afeb0a](https://github.com/xcv58/Tab-Manager-v2/commit/1afeb0a02f60e8f89161850ccdd5443a972fb61f))
+- **deps:** update dependency react-resize-detector to v9.1.1 ([#2493](https://github.com/xcv58/Tab-Manager-v2/issues/2493)) ([34a2d16](https://github.com/xcv58/Tab-Manager-v2/commit/34a2d165a8a5c46fb03ff9319264d6244a5d4694))
+- **deps:** update dependency react-router-dom to v7 ([#2523](https://github.com/xcv58/Tab-Manager-v2/issues/2523)) ([2c4d168](https://github.com/xcv58/Tab-Manager-v2/commit/2c4d16802361c04e5f802afd04a137f83e3d8df8))
+- **deps:** update react monorepo ([#2466](https://github.com/xcv58/Tab-Manager-v2/issues/2466)) ([be57a3d](https://github.com/xcv58/Tab-Manager-v2/commit/be57a3d36c5720ca84dccd960eea9377a90678a8))
+
 ### [1.25.1](https://github.com/xcv58/Tab-Manager-v2/compare/v1.25.0...v1.25.1) (2024-12-28)
 
 ### Bug Fixes
