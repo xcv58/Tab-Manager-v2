@@ -13,8 +13,8 @@
     "@types/jest-image-snapshot": "6.4.0",
     "jest": "29.7.0",
     "jest-image-snapshot": "6.4.0",
-    "ts-jest": "29.2.5",
-    "typescript": "5.7.3"
+    "ts-jest": "29.3.0",
+    "typescript": "5.8.2"
   },
   "private": true,
   "dependencies": {
