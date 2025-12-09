@@ -52,5 +52,5 @@
       "pnpm prettier"
     ]
   },
-  "packageManager": "pnpm@9.15.3"
+  "packageManager": "pnpm@10.25.0"
 }
