@@ -84,7 +84,9 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
-    await page.waitForTimeout(1000)
+    // Wait for the UI to be stable and all tabs (URLS count + 10 ops-classes) to be rendered
+    await expect(page.locator(TAB_QUERY)).toHaveCount(URLS.length + 10)
+    await page.waitForTimeout(3000)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 1a.png')
 
