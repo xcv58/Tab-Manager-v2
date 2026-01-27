@@ -3,7 +3,7 @@
 exports[`Sort should call arrangeStore.sortTabs 1`] = `
 <button
   aria-label="Sort tabs"
-  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none css-aixiz9-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none css-53g0n7-MuiButtonBase-root-MuiIconButton-root"
   data-mui-internal-clone-element="true"
   tabindex="0"
   type="button"
@@ -28,7 +28,7 @@ exports[`Sort should have correct tooltip 1`] = `
   data-popper-escaped=""
   data-popper-placement="bottom"
   data-popper-reference-hidden=""
-  id=":r1:"
+  id=":r2:"
   role="tooltip"
   style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
 >
@@ -45,7 +45,7 @@ exports[`Sort should have correct tooltip 2`] = `
 <div>
   <button
     aria-label="Sort tabs"
-    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none css-aixiz9-MuiButtonBase-root-MuiIconButton-root"
+    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none css-53g0n7-MuiButtonBase-root-MuiIconButton-root"
     data-mui-internal-clone-element="true"
     tabindex="0"
     type="button"

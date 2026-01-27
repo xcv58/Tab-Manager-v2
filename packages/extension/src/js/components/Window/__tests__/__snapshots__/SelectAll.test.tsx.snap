@@ -42,13 +42,13 @@ exports[`SelectAll should render correct components 1`] = `
 <div>
   <span
     aria-label="Unselect all tabs"
-    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-imrjgg-MuiButtonBase-root-MuiCheckbox-root"
+    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
     data-mui-internal-clone-element="true"
   >
     <input
       aria-label="Unselect all tabs"
       checked=""
-      class="PrivateSwitchBase-input css-j8yymo"
+      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
       data-indeterminate="false"
       type="checkbox"
     />
