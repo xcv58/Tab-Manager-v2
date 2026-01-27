@@ -69,7 +69,7 @@ test.describe('The Extension page should', () => {
     expect(screenshot).toMatchImageSnapshot(test.info(), 'render.png')
   })
 
-  test.only('render popup mode based on URL query', async () => {
+  test('render popup mode based on URL query', async () => {
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
     const tabs = await page.$$(TAB_QUERY)
@@ -82,13 +82,17 @@ test.describe('The Extension page should', () => {
       [...Array(10)].map((_) => 'https://ops-class.org/'),
     )
     await page.bringToFront()
+    await page.reload()
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
-    // Wait for the UI to be stable and all tabs (URLS count + 10 ops-classes self) to be rendered
-    await expect(page.locator(TAB_QUERY)).toHaveCount(URLS.length + 10)
     await page.waitForTimeout(3000)
+    // Wait for the UI to be stable and all tabs (URLS count + 10 ops-classes self) to be rendered
+    await expect(page.locator(TAB_QUERY)).toHaveCount(URLS.length + 10 + 1)
+    await page.waitForTimeout(3000)
+    // Wait for the UI to be stable and all tabs (URLS count + 10 ops-classes self) to be rendered
     // Reload to ensure all tabs are detected
     await page.reload()
+    await page.waitForTimeout(3000)
     await page.waitForSelector(inputSelector)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 1a.png')
