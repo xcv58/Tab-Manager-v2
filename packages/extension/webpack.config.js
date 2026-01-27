@@ -22,7 +22,7 @@ Object.assign(
     .readdirSync(path.join(__dirname, jsEntry), { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
-    .map((entry) => ({ [entry]: path.join(__dirname, jsEntry, entry) }))
+    .map((entry) => ({ [entry]: path.join(__dirname, jsEntry, entry) })),
 )
 
 const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js')
@@ -59,13 +59,13 @@ const HtmlFiles = ['popup'].map(
       minify: {
         collapseWhitespace: true,
       },
-    })
+    }),
 )
 
 const entry = Object.assign(
   ...['popup', 'background'].map((name) => ({
     [name.replace('-v3', '')]: path.join(__dirname, 'src', 'js', `${name}.tsx`),
-  }))
+  })),
 )
 
 const options = {
@@ -74,7 +74,7 @@ const options = {
     path: path.join(
       __dirname,
       'build',
-      'build_' + (process.env.TARGET_BROWSER || 'chrome')
+      'build_' + (process.env.TARGET_BROWSER || 'chrome'),
     ),
     filename: '[name].js',
   },
@@ -142,7 +142,7 @@ const options = {
     alias,
     extensions: fileExtensions
       .map((extension) => '.' + extension)
-      .concat(['.css', '.jsx', '.js', '.tsx', 'ts']),
+      .concat(['.css', '.jsx', '.js', '.tsx', '.ts']),
   },
   plugins: [
     // expose and write the allowed env vars on the compiled bundle
@@ -180,7 +180,7 @@ const options = {
             if (process.env.TARGET_BROWSER !== 'firefox') {
               json.permissions = json.permissions.filter(
                 (permission) =>
-                  !['contextualIdentities', 'cookies'].includes(permission)
+                  !['contextualIdentities', 'cookies'].includes(permission),
               )
             }
             if (process.env.TARGET_BROWSER === 'chrome') {
@@ -191,7 +191,7 @@ const options = {
                 description: process.env.npm_package_description,
                 version: process.env.npm_package_version,
                 ...json,
-              })
+              }),
             )
           },
           to: 'manifest.json',

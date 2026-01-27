@@ -53,4 +53,15 @@ export default [...compat.extends(
             argsIgnorePattern: "^_",
         }],
     },
+}, {
+    files: ["**/*.js", "webpack.config.js", "**/utils/**/*.js"],
+    rules: {
+        "@typescript-eslint/no-require-imports": "off",
+        "no-undef": "off",
+    },
+    languageOptions: {
+        globals: {
+            console: true,
+        }
+    }
 }];
