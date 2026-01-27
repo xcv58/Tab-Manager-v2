@@ -10,7 +10,7 @@ exports[`Icon should render correct component 1`] = `
     >
       <button
         aria-label="Toggle select"
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-aixiz9-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-53g0n7-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -24,11 +24,11 @@ exports[`Icon should render correct component 1`] = `
       class="focus:outline-none focus:ring hidden group-hover:block"
     >
       <span
-        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-imrjgg-MuiButtonBase-root-MuiCheckbox-root"
+        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
       >
         <input
           aria-label="Toggle select"
-          class="PrivateSwitchBase-input css-j8yymo"
+          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
           data-indeterminate="false"
           type="checkbox"
         />

@@ -1,6 +1,4 @@
-import blue from '@mui/material/colors/blue'
-import green from '@mui/material/colors/green'
-import pink from '@mui/material/colors/pink'
+import { blue, green, pink } from '@mui/material/colors'
 import merge from 'lodash.merge'
 import { grey700 } from 'libs/colors'
 
@@ -115,5 +113,5 @@ export const darkTheme = merge(
       highlightBorderColor: pink.A400,
       highlightColor: '#323639',
     },
-  }
+  },
 )

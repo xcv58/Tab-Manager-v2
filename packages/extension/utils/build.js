@@ -19,7 +19,11 @@ webpack(
       ],
     },
   },
-  function (err) {
+  function (err, stats) {
     if (err) throw err
-  }
+    if (stats.hasErrors()) {
+      console.log(stats.toString({ colors: true }))
+      process.exit(1)
+    }
+  },
 )
