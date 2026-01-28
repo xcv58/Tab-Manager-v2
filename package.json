@@ -25,23 +25,23 @@
   },
   "devDependencies": {
     "@plasmohq/edge-addons-api": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "8.22.0",
-    "@typescript-eslint/parser": "8.22.0",
-    "chrome-webstore-upload-cli": "3.3.1",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
+    "chrome-webstore-upload-cli": "3.5.0",
     "coveralls": "3.1.1",
-    "dotenv": "16.4.7",
-    "eslint": "9.19.0",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-jest": "28.11.0",
+    "dotenv": "16.6.1",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "9.1.2",
+    "eslint-plugin-jest": "28.14.0",
     "eslint-plugin-typescript": "0.14.0",
     "husky": "9.1.7",
-    "lint-staged": "15.4.3",
+    "lint-staged": "15.5.2",
     "npm-run-all2": "7.0.2",
-    "prettier": "3.4.2",
+    "prettier": "3.8.1",
     "release-it": "18.1.2",
-    "turbo": "2.3.4",
-    "typescript": "5.7.3",
-    "web-ext": "8.3.0"
+    "turbo": "2.7.6",
+    "typescript": "5.9.3",
+    "web-ext": "8.10.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -52,5 +52,5 @@
       "pnpm prettier"
     ]
   },
-  "packageManager": "pnpm@9.15.3"
+  "packageManager": "pnpm@9.15.9"
 }
