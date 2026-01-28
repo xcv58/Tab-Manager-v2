@@ -9,6 +9,7 @@
     "build": "run-p build:*",
     "_build": "NODE_ENV=production node utils/build.js",
     "build:chrome": "TARGET_BROWSER=chrome pnpm _build",
+    "build:safari": "pnpm build:chrome && cp -R build/build_chrome/* 'safari/Tab Manager v2/Tab Manager v2 Extension/Resources/' && node utils/prepare-safari-manifest.js",
     "build:firefox": "TARGET_BROWSER=firefox pnpm _build",
     "start": "run-p start:*",
     "_start": "node utils/webserver.js",

@@ -2,45 +2,34 @@ import TabHistory from 'background/TabHistory'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
-// Edge browser has this issue: https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
-try {
-  browser.omnibox.setDefaultSuggestion({
-    description: 'Open tab manager window',
-  })
-} catch (e) {
-  console.log(e)
-}
+import { setBrowserIcon } from 'libs/verify'
 
-browser.omnibox.onInputEntered.addListener(() => {
-  openOrTogglePopup()
-})
-
-export const setBrowserIcon = async () => {
-  const iconPathPrefix = 'icon-128'
-  let darkTheme = false
-  if (typeof window === 'undefined') {
-    const { systemTheme } = await browser.storage.local.get('systemTheme')
-    darkTheme = systemTheme === 'dark'
-  } else {
-    const darkThemeMq = window.matchMedia('(prefers-color-scheme: dark)')
-    darkTheme = Boolean(darkThemeMq.matches)
-  }
-  ;[browser.browserAction, browser.action].forEach((action) => {
-    if (action && action.setIcon) {
-      action.setIcon({
-        path: `${iconPathPrefix}${darkTheme ? '-dark' : ''}.png`,
+const init = async () => {
+  // Edge browser has this issue: https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
+  if (browser.omnibox) {
+    try {
+      browser.omnibox.setDefaultSuggestion({
+        description: 'Open tab manager window',
       })
+    } catch (e) {
+      console.log(e)
+    }
+
+    browser.omnibox.onInputEntered.addListener(() => {
+      openOrTogglePopup()
+    })
+  }
+
+  browser.storage.onChanged.addListener((changes: any, areaName: string) => {
+    if (areaName === 'local' && changes.systemTheme) {
+      setBrowserIcon()
     }
   })
+
+  setBrowserIcon()
 }
 
-browser.storage.onChanged.addListener((changes: any, areaName: string) => {
-  if (areaName === 'local' && changes.systemTheme) {
-    setBrowserIcon()
-  }
-})
-
-setBrowserIcon()
+init()
 
 const tabHistory = new TabHistory()
 const _createWindow = (request, sender, sendResponse) => {

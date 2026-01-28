@@ -23,16 +23,18 @@ export default class GroupStore {
   }
 
   init = async () => {
-    const tabGroups = await browser.tabGroups.query({})
-    if (Array.isArray(tabGroups)) {
-      tabGroups.forEach((tabGroup) => {
-        this.tabGroupMap.set(tabGroup.id, tabGroup)
-      })
+    if (browser.tabGroups) {
+      const tabGroups = await browser.tabGroups.query({})
+      if (Array.isArray(tabGroups)) {
+        tabGroups.forEach((tabGroup) => {
+          this.tabGroupMap.set(tabGroup.id, tabGroup)
+        })
+      }
+      browser.tabGroups.onCreated.addListener(this.onTabGroup)
+      browser.tabGroups.onRemoved.addListener(this.onRemoved)
+      browser.tabGroups.onMoved.addListener(this.onTabGroup)
+      browser.tabGroups.onUpdated.addListener(this.onTabGroup)
     }
-    browser.tabGroups.onCreated.addListener(this.onTabGroup)
-    browser.tabGroups.onRemoved.addListener(this.onRemoved)
-    browser.tabGroups.onMoved.addListener(this.onTabGroup)
-    browser.tabGroups.onUpdated.addListener(this.onTabGroup)
   }
 
   onTabGroup = (tabGroup: TabGroup) => {

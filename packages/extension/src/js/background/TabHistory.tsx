@@ -7,7 +7,7 @@ import {
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
-import { setBrowserIcon } from '../background'
+import { setBrowserIcon } from 'libs/verify'
 
 export default class TabHistory {
   actionMap: { [key: string]: () => void }

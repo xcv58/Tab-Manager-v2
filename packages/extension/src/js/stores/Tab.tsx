@@ -211,7 +211,7 @@ export default class Tab extends Focusable {
     const { host } = new window.URL(url)
     if (url.startsWith(CHROME_PREFIX)) {
       this.iconUrl = FAV_ICONS[host] || this.iconUrl
-    } else if (url.startsWith(CHROME_EXTENSION_PREFIX)) {
+    } else if (url.startsWith(CHROME_EXTENSION_PREFIX) && browser.management) {
       const { icons } = await browser.management.get(host)
       this.iconUrl = ([...(icons || [])].pop() || {}).url || this.iconUrl
     } else {
