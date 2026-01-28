@@ -32335,7 +32335,10 @@
                   const { host: n } = new window.URL(e)
                   if (e.startsWith('chrome://'))
                     this.iconUrl = v[n] || this.iconUrl
-                  else if (e.startsWith('chrome-extension://')) {
+                  else if (
+                    e.startsWith('chrome-extension://') &&
+                    o.T.management
+                  ) {
                     const { icons: e } = yield o.T.management.get(n)
                     this.iconUrl =
                       ([...(e || [])].pop() || {}).url || this.iconUrl
@@ -33005,7 +33008,7 @@
                     (this._query = this.query),
                     this.matchedSet.has(this.store.focusStore.focusedTabId) ||
                       this.store.focusStore.defocus(),
-                    this.store.userStore.searchHistory)
+                    this.store.userStore.searchHistory && o.T.history)
                   ) {
                     const e = yield o.T.history.search({
                       text: this._query,
@@ -34431,15 +34434,17 @@
             ;(this.tabGroupMap = new Map()),
               (this.init = () =>
                 o(this, void 0, void 0, function* () {
-                  const e = yield a.T.tabGroups.query({})
-                  Array.isArray(e) &&
-                    e.forEach((e) => {
-                      this.tabGroupMap.set(e.id, e)
-                    }),
-                    a.T.tabGroups.onCreated.addListener(this.onTabGroup),
-                    a.T.tabGroups.onRemoved.addListener(this.onRemoved),
-                    a.T.tabGroups.onMoved.addListener(this.onTabGroup),
-                    a.T.tabGroups.onUpdated.addListener(this.onTabGroup)
+                  if (a.T.tabGroups) {
+                    const e = yield a.T.tabGroups.query({})
+                    Array.isArray(e) &&
+                      e.forEach((e) => {
+                        this.tabGroupMap.set(e.id, e)
+                      }),
+                      a.T.tabGroups.onCreated.addListener(this.onTabGroup),
+                      a.T.tabGroups.onRemoved.addListener(this.onRemoved),
+                      a.T.tabGroups.onMoved.addListener(this.onTabGroup),
+                      a.T.tabGroups.onUpdated.addListener(this.onTabGroup)
+                  }
                 })),
               (this.onTabGroup = (e) => {
                 this.tabGroupMap.set(e.id, e)
@@ -63531,7 +63536,7 @@
                       'flex items-center justify-center shrink-0 h-12 px-1 text-3xl',
                   },
                   t.createElement(rw, null),
-                  t.createElement(AM, { open: !0 }),
+                  t.createElement(AM, { autoFocus: !0, open: !0 }),
                 ),
                 t.createElement(
                   'div',

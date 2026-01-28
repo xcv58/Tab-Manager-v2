@@ -7,57 +7,57 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DF0D03C42F2999D2008BF3BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D03C32F2999D2008BF3BC /* AppDelegate.swift */; };
-		DF0D03C82F2999D2008BF3BC /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03C62F2999D2008BF3BC /* Main.html */; };
-		DF0D03CA2F2999D2008BF3BC /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03C92F2999D2008BF3BC /* Icon.png */; };
-		DF0D03CC2F2999D2008BF3BC /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03CB2F2999D2008BF3BC /* Style.css */; };
-		DF0D03CE2F2999D2008BF3BC /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03CD2F2999D2008BF3BC /* Script.js */; };
-		DF0D03D02F2999D2008BF3BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D03CF2F2999D2008BF3BC /* ViewController.swift */; };
-		DF0D03D32F2999D2008BF3BC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03D12F2999D2008BF3BC /* Main.storyboard */; };
-		DF0D03D52F2999D3008BF3BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03D42F2999D3008BF3BC /* Assets.xcassets */; };
-		DF0D03DC2F2999D3008BF3BC /* Tab Manager v2 Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		DF0D03E12F2999D3008BF3BC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D03E02F2999D3008BF3BC /* SafariWebExtensionHandler.swift */; };
-		DF0D04022F2999D4008BF3BC /* icon-128-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03ED2F2999D4008BF3BC /* icon-128-dark.png */; };
-		DF0D04032F2999D4008BF3BC /* icon-16-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03EE2F2999D4008BF3BC /* icon-16-dark.png */; };
-		DF0D04042F2999D4008BF3BC /* icon-16.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03EF2F2999D4008BF3BC /* icon-16.png */; };
-		DF0D04052F2999D4008BF3BC /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F02F2999D4008BF3BC /* popup.js */; };
-		DF0D04062F2999D4008BF3BC /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F12F2999D4008BF3BC /* settings.png */; };
-		DF0D04072F2999D4008BF3BC /* popup.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F22F2999D4008BF3BC /* popup.js.LICENSE.txt */; };
-		DF0D04082F2999D4008BF3BC /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F32F2999D4008BF3BC /* background.js */; };
-		DF0D04092F2999D4008BF3BC /* icon-48-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F42F2999D4008BF3BC /* icon-48-dark.png */; };
-		DF0D040A2F2999D4008BF3BC /* empty.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F52F2999D4008BF3BC /* empty.png */; };
-		DF0D040B2F2999D4008BF3BC /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F62F2999D4008BF3BC /* popup.html */; };
-		DF0D040C2F2999D4008BF3BC /* icon-48.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F72F2999D4008BF3BC /* icon-48.png */; };
-		DF0D040D2F2999D4008BF3BC /* downloads.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F82F2999D4008BF3BC /* downloads.png */; };
-		DF0D040E2F2999D4008BF3BC /* crashes.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F92F2999D4008BF3BC /* crashes.png */; };
-		DF0D040F2F2999D4008BF3BC /* history.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FA2F2999D4008BF3BC /* history.png */; };
-		DF0D04102F2999D4008BF3BC /* chrome.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FB2F2999D4008BF3BC /* chrome.png */; };
-		DF0D04112F2999D4008BF3BC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FC2F2999D4008BF3BC /* manifest.json */; };
-		DF0D04122F2999D4008BF3BC /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FD2F2999D4008BF3BC /* popup.css */; };
-		DF0D04132F2999D4008BF3BC /* flags.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FE2F2999D4008BF3BC /* flags.png */; };
-		DF0D04142F2999D4008BF3BC /* icon-128.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FF2F2999D4008BF3BC /* icon-128.png */; };
-		DF0D04152F2999D4008BF3BC /* bookmarks.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D04002F2999D4008BF3BC /* bookmarks.png */; };
-		DF0D04162F2999D4008BF3BC /* extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D04012F2999D4008BF3BC /* extensions.png */; };
+		DFE3D5982F29A16700DB813D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3D5972F29A16700DB813D /* AppDelegate.swift */; };
+		DFE3D59C2F29A16700DB813D /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D59A2F29A16700DB813D /* Main.html */; };
+		DFE3D59E2F29A16700DB813D /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D59D2F29A16700DB813D /* Icon.png */; };
+		DFE3D5A02F29A16700DB813D /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D59F2F29A16700DB813D /* Style.css */; };
+		DFE3D5A22F29A16700DB813D /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5A12F29A16700DB813D /* Script.js */; };
+		DFE3D5A42F29A16700DB813D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3D5A32F29A16700DB813D /* ViewController.swift */; };
+		DFE3D5A72F29A16700DB813D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5A52F29A16700DB813D /* Main.storyboard */; };
+		DFE3D5A92F29A16800DB813D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5A82F29A16800DB813D /* Assets.xcassets */; };
+		DFE3D5B02F29A16800DB813D /* Tab Manager v2 Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DFE3D5AF2F29A16800DB813D /* Tab Manager v2 Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DFE3D5B52F29A16800DB813D /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE3D5B42F29A16800DB813D /* SafariWebExtensionHandler.swift */; };
+		DFE3D5D62F29A16900DB813D /* icon-128-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C12F29A16900DB813D /* icon-128-dark.png */; };
+		DFE3D5D72F29A16900DB813D /* icon-16-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C22F29A16900DB813D /* icon-16-dark.png */; };
+		DFE3D5D82F29A16900DB813D /* icon-16.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C32F29A16900DB813D /* icon-16.png */; };
+		DFE3D5D92F29A16900DB813D /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C42F29A16900DB813D /* popup.js */; };
+		DFE3D5DA2F29A16900DB813D /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C52F29A16900DB813D /* settings.png */; };
+		DFE3D5DB2F29A16900DB813D /* popup.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C62F29A16900DB813D /* popup.js.LICENSE.txt */; };
+		DFE3D5DC2F29A16900DB813D /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C72F29A16900DB813D /* background.js */; };
+		DFE3D5DD2F29A16900DB813D /* icon-48-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C82F29A16900DB813D /* icon-48-dark.png */; };
+		DFE3D5DE2F29A16900DB813D /* empty.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5C92F29A16900DB813D /* empty.png */; };
+		DFE3D5DF2F29A16900DB813D /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5CA2F29A16900DB813D /* popup.html */; };
+		DFE3D5E02F29A16900DB813D /* icon-48.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5CB2F29A16900DB813D /* icon-48.png */; };
+		DFE3D5E12F29A16900DB813D /* downloads.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5CC2F29A16900DB813D /* downloads.png */; };
+		DFE3D5E22F29A16900DB813D /* crashes.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5CD2F29A16900DB813D /* crashes.png */; };
+		DFE3D5E32F29A16900DB813D /* history.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5CE2F29A16900DB813D /* history.png */; };
+		DFE3D5E42F29A16900DB813D /* chrome.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5CF2F29A16900DB813D /* chrome.png */; };
+		DFE3D5E52F29A16900DB813D /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5D02F29A16900DB813D /* manifest.json */; };
+		DFE3D5E62F29A16900DB813D /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5D12F29A16900DB813D /* popup.css */; };
+		DFE3D5E72F29A16900DB813D /* flags.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5D22F29A16900DB813D /* flags.png */; };
+		DFE3D5E82F29A16900DB813D /* icon-128.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5D32F29A16900DB813D /* icon-128.png */; };
+		DFE3D5E92F29A16900DB813D /* bookmarks.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5D42F29A16900DB813D /* bookmarks.png */; };
+		DFE3D5EA2F29A16900DB813D /* extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = DFE3D5D52F29A16900DB813D /* extensions.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		DF0D03DD2F2999D3008BF3BC /* PBXContainerItemProxy */ = {
+		DFE3D5B12F29A16800DB813D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = DF0D03B82F2999D2008BF3BC /* Project object */;
+			containerPortal = DFE3D58C2F29A16700DB813D /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = DF0D03DA2F2999D3008BF3BC;
+			remoteGlobalIDString = DFE3D5AE2F29A16800DB813D;
 			remoteInfo = "Tab Manager v2 Extension";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		DF0D03E82F2999D3008BF3BC /* Embed Foundation Extensions */ = {
+		DFE3D5BC2F29A16800DB813D /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				DF0D03DC2F2999D3008BF3BC /* Tab Manager v2 Extension.appex in Embed Foundation Extensions */,
+				DFE3D5B02F29A16800DB813D /* Tab Manager v2 Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,51 +65,51 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DF0D03C02F2999D2008BF3BC /* Tab Manager v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tab Manager v2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF0D03C32F2999D2008BF3BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		DF0D03C72F2999D2008BF3BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
-		DF0D03C92F2999D2008BF3BC /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		DF0D03CB2F2999D2008BF3BC /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
-		DF0D03CD2F2999D2008BF3BC /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
-		DF0D03CF2F2999D2008BF3BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		DF0D03D22F2999D2008BF3BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		DF0D03D42F2999D3008BF3BC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DF0D03D62F2999D3008BF3BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Tab Manager v2 Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		DF0D03E02F2999D3008BF3BC /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		DF0D03E22F2999D3008BF3BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DF0D03ED2F2999D4008BF3BC /* icon-128-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128-dark.png"; path = "Resources/icon-128-dark.png"; sourceTree = "<group>"; };
-		DF0D03EE2F2999D4008BF3BC /* icon-16-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16-dark.png"; path = "Resources/icon-16-dark.png"; sourceTree = "<group>"; };
-		DF0D03EF2F2999D4008BF3BC /* icon-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16.png"; path = "Resources/icon-16.png"; sourceTree = "<group>"; };
-		DF0D03F02F2999D4008BF3BC /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
-		DF0D03F12F2999D4008BF3BC /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settings.png; path = Resources/settings.png; sourceTree = "<group>"; };
-		DF0D03F22F2999D4008BF3BC /* popup.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = popup.js.LICENSE.txt; path = Resources/popup.js.LICENSE.txt; sourceTree = "<group>"; };
-		DF0D03F32F2999D4008BF3BC /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
-		DF0D03F42F2999D4008BF3BC /* icon-48-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48-dark.png"; path = "Resources/icon-48-dark.png"; sourceTree = "<group>"; };
-		DF0D03F52F2999D4008BF3BC /* empty.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = empty.png; path = Resources/empty.png; sourceTree = "<group>"; };
-		DF0D03F62F2999D4008BF3BC /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
-		DF0D03F72F2999D4008BF3BC /* icon-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48.png"; path = "Resources/icon-48.png"; sourceTree = "<group>"; };
-		DF0D03F82F2999D4008BF3BC /* downloads.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = downloads.png; path = Resources/downloads.png; sourceTree = "<group>"; };
-		DF0D03F92F2999D4008BF3BC /* crashes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = crashes.png; path = Resources/crashes.png; sourceTree = "<group>"; };
-		DF0D03FA2F2999D4008BF3BC /* history.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = history.png; path = Resources/history.png; sourceTree = "<group>"; };
-		DF0D03FB2F2999D4008BF3BC /* chrome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = chrome.png; path = Resources/chrome.png; sourceTree = "<group>"; };
-		DF0D03FC2F2999D4008BF3BC /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
-		DF0D03FD2F2999D4008BF3BC /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
-		DF0D03FE2F2999D4008BF3BC /* flags.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flags.png; path = Resources/flags.png; sourceTree = "<group>"; };
-		DF0D03FF2F2999D4008BF3BC /* icon-128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128.png"; path = "Resources/icon-128.png"; sourceTree = "<group>"; };
-		DF0D04002F2999D4008BF3BC /* bookmarks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bookmarks.png; path = Resources/bookmarks.png; sourceTree = "<group>"; };
-		DF0D04012F2999D4008BF3BC /* extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = extensions.png; path = Resources/extensions.png; sourceTree = "<group>"; };
+		DFE3D5942F29A16700DB813D /* Tab Manager v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tab Manager v2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFE3D5972F29A16700DB813D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DFE3D59B2F29A16700DB813D /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		DFE3D59D2F29A16700DB813D /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		DFE3D59F2F29A16700DB813D /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		DFE3D5A12F29A16700DB813D /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		DFE3D5A32F29A16700DB813D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DFE3D5A62F29A16700DB813D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DFE3D5A82F29A16800DB813D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DFE3D5AA2F29A16800DB813D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DFE3D5AF2F29A16800DB813D /* Tab Manager v2 Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Tab Manager v2 Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFE3D5B42F29A16800DB813D /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		DFE3D5B62F29A16800DB813D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DFE3D5C12F29A16900DB813D /* icon-128-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128-dark.png"; path = "Resources/icon-128-dark.png"; sourceTree = "<group>"; };
+		DFE3D5C22F29A16900DB813D /* icon-16-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16-dark.png"; path = "Resources/icon-16-dark.png"; sourceTree = "<group>"; };
+		DFE3D5C32F29A16900DB813D /* icon-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16.png"; path = "Resources/icon-16.png"; sourceTree = "<group>"; };
+		DFE3D5C42F29A16900DB813D /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
+		DFE3D5C52F29A16900DB813D /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settings.png; path = Resources/settings.png; sourceTree = "<group>"; };
+		DFE3D5C62F29A16900DB813D /* popup.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = popup.js.LICENSE.txt; path = Resources/popup.js.LICENSE.txt; sourceTree = "<group>"; };
+		DFE3D5C72F29A16900DB813D /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		DFE3D5C82F29A16900DB813D /* icon-48-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48-dark.png"; path = "Resources/icon-48-dark.png"; sourceTree = "<group>"; };
+		DFE3D5C92F29A16900DB813D /* empty.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = empty.png; path = Resources/empty.png; sourceTree = "<group>"; };
+		DFE3D5CA2F29A16900DB813D /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
+		DFE3D5CB2F29A16900DB813D /* icon-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48.png"; path = "Resources/icon-48.png"; sourceTree = "<group>"; };
+		DFE3D5CC2F29A16900DB813D /* downloads.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = downloads.png; path = Resources/downloads.png; sourceTree = "<group>"; };
+		DFE3D5CD2F29A16900DB813D /* crashes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = crashes.png; path = Resources/crashes.png; sourceTree = "<group>"; };
+		DFE3D5CE2F29A16900DB813D /* history.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = history.png; path = Resources/history.png; sourceTree = "<group>"; };
+		DFE3D5CF2F29A16900DB813D /* chrome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = chrome.png; path = Resources/chrome.png; sourceTree = "<group>"; };
+		DFE3D5D02F29A16900DB813D /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		DFE3D5D12F29A16900DB813D /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
+		DFE3D5D22F29A16900DB813D /* flags.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flags.png; path = Resources/flags.png; sourceTree = "<group>"; };
+		DFE3D5D32F29A16900DB813D /* icon-128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128.png"; path = "Resources/icon-128.png"; sourceTree = "<group>"; };
+		DFE3D5D42F29A16900DB813D /* bookmarks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bookmarks.png; path = Resources/bookmarks.png; sourceTree = "<group>"; };
+		DFE3D5D52F29A16900DB813D /* extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = extensions.png; path = Resources/extensions.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		DF0D03BD2F2999D2008BF3BC /* Frameworks */ = {
+		DFE3D5912F29A16700DB813D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DF0D03D82F2999D3008BF3BC /* Frameworks */ = {
+		DFE3D5AC2F29A16800DB813D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -119,82 +119,82 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		DF0D03B72F2999D2008BF3BC = {
+		DFE3D58B2F29A16700DB813D = {
 			isa = PBXGroup;
 			children = (
-				DF0D03C22F2999D2008BF3BC /* Tab Manager v2 */,
-				DF0D03DF2F2999D3008BF3BC /* Tab Manager v2 Extension */,
-				DF0D03C12F2999D2008BF3BC /* Products */,
+				DFE3D5962F29A16700DB813D /* Tab Manager v2 */,
+				DFE3D5B32F29A16800DB813D /* Tab Manager v2 Extension */,
+				DFE3D5952F29A16700DB813D /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		DF0D03C12F2999D2008BF3BC /* Products */ = {
+		DFE3D5952F29A16700DB813D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DF0D03C02F2999D2008BF3BC /* Tab Manager v2.app */,
-				DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */,
+				DFE3D5942F29A16700DB813D /* Tab Manager v2.app */,
+				DFE3D5AF2F29A16800DB813D /* Tab Manager v2 Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		DF0D03C22F2999D2008BF3BC /* Tab Manager v2 */ = {
+		DFE3D5962F29A16700DB813D /* Tab Manager v2 */ = {
 			isa = PBXGroup;
 			children = (
-				DF0D03C32F2999D2008BF3BC /* AppDelegate.swift */,
-				DF0D03CF2F2999D2008BF3BC /* ViewController.swift */,
-				DF0D03D12F2999D2008BF3BC /* Main.storyboard */,
-				DF0D03D42F2999D3008BF3BC /* Assets.xcassets */,
-				DF0D03D62F2999D3008BF3BC /* Info.plist */,
-				DF0D03C52F2999D2008BF3BC /* Resources */,
+				DFE3D5972F29A16700DB813D /* AppDelegate.swift */,
+				DFE3D5A32F29A16700DB813D /* ViewController.swift */,
+				DFE3D5A52F29A16700DB813D /* Main.storyboard */,
+				DFE3D5A82F29A16800DB813D /* Assets.xcassets */,
+				DFE3D5AA2F29A16800DB813D /* Info.plist */,
+				DFE3D5992F29A16700DB813D /* Resources */,
 			);
 			path = "Tab Manager v2";
 			sourceTree = "<group>";
 		};
-		DF0D03C52F2999D2008BF3BC /* Resources */ = {
+		DFE3D5992F29A16700DB813D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				DF0D03C62F2999D2008BF3BC /* Main.html */,
-				DF0D03C92F2999D2008BF3BC /* Icon.png */,
-				DF0D03CB2F2999D2008BF3BC /* Style.css */,
-				DF0D03CD2F2999D2008BF3BC /* Script.js */,
+				DFE3D59A2F29A16700DB813D /* Main.html */,
+				DFE3D59D2F29A16700DB813D /* Icon.png */,
+				DFE3D59F2F29A16700DB813D /* Style.css */,
+				DFE3D5A12F29A16700DB813D /* Script.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		DF0D03DF2F2999D3008BF3BC /* Tab Manager v2 Extension */ = {
+		DFE3D5B32F29A16800DB813D /* Tab Manager v2 Extension */ = {
 			isa = PBXGroup;
 			children = (
-				DF0D03EC2F2999D4008BF3BC /* Resources */,
-				DF0D03E02F2999D3008BF3BC /* SafariWebExtensionHandler.swift */,
-				DF0D03E22F2999D3008BF3BC /* Info.plist */,
+				DFE3D5C02F29A16900DB813D /* Resources */,
+				DFE3D5B42F29A16800DB813D /* SafariWebExtensionHandler.swift */,
+				DFE3D5B62F29A16800DB813D /* Info.plist */,
 			);
 			path = "Tab Manager v2 Extension";
 			sourceTree = "<group>";
 		};
-		DF0D03EC2F2999D4008BF3BC /* Resources */ = {
+		DFE3D5C02F29A16900DB813D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				DF0D03ED2F2999D4008BF3BC /* icon-128-dark.png */,
-				DF0D03EE2F2999D4008BF3BC /* icon-16-dark.png */,
-				DF0D03EF2F2999D4008BF3BC /* icon-16.png */,
-				DF0D03F02F2999D4008BF3BC /* popup.js */,
-				DF0D03F12F2999D4008BF3BC /* settings.png */,
-				DF0D03F22F2999D4008BF3BC /* popup.js.LICENSE.txt */,
-				DF0D03F32F2999D4008BF3BC /* background.js */,
-				DF0D03F42F2999D4008BF3BC /* icon-48-dark.png */,
-				DF0D03F52F2999D4008BF3BC /* empty.png */,
-				DF0D03F62F2999D4008BF3BC /* popup.html */,
-				DF0D03F72F2999D4008BF3BC /* icon-48.png */,
-				DF0D03F82F2999D4008BF3BC /* downloads.png */,
-				DF0D03F92F2999D4008BF3BC /* crashes.png */,
-				DF0D03FA2F2999D4008BF3BC /* history.png */,
-				DF0D03FB2F2999D4008BF3BC /* chrome.png */,
-				DF0D03FC2F2999D4008BF3BC /* manifest.json */,
-				DF0D03FD2F2999D4008BF3BC /* popup.css */,
-				DF0D03FE2F2999D4008BF3BC /* flags.png */,
-				DF0D03FF2F2999D4008BF3BC /* icon-128.png */,
-				DF0D04002F2999D4008BF3BC /* bookmarks.png */,
-				DF0D04012F2999D4008BF3BC /* extensions.png */,
+				DFE3D5C12F29A16900DB813D /* icon-128-dark.png */,
+				DFE3D5C22F29A16900DB813D /* icon-16-dark.png */,
+				DFE3D5C32F29A16900DB813D /* icon-16.png */,
+				DFE3D5C42F29A16900DB813D /* popup.js */,
+				DFE3D5C52F29A16900DB813D /* settings.png */,
+				DFE3D5C62F29A16900DB813D /* popup.js.LICENSE.txt */,
+				DFE3D5C72F29A16900DB813D /* background.js */,
+				DFE3D5C82F29A16900DB813D /* icon-48-dark.png */,
+				DFE3D5C92F29A16900DB813D /* empty.png */,
+				DFE3D5CA2F29A16900DB813D /* popup.html */,
+				DFE3D5CB2F29A16900DB813D /* icon-48.png */,
+				DFE3D5CC2F29A16900DB813D /* downloads.png */,
+				DFE3D5CD2F29A16900DB813D /* crashes.png */,
+				DFE3D5CE2F29A16900DB813D /* history.png */,
+				DFE3D5CF2F29A16900DB813D /* chrome.png */,
+				DFE3D5D02F29A16900DB813D /* manifest.json */,
+				DFE3D5D12F29A16900DB813D /* popup.css */,
+				DFE3D5D22F29A16900DB813D /* flags.png */,
+				DFE3D5D32F29A16900DB813D /* icon-128.png */,
+				DFE3D5D42F29A16900DB813D /* bookmarks.png */,
+				DFE3D5D52F29A16900DB813D /* extensions.png */,
 			);
 			name = Resources;
 			path = "Tab Manager v2 Extension";
@@ -203,34 +203,34 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DF0D03BF2F2999D2008BF3BC /* Tab Manager v2 */ = {
+		DFE3D5932F29A16700DB813D /* Tab Manager v2 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF0D03E92F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2" */;
+			buildConfigurationList = DFE3D5BD2F29A16800DB813D /* Build configuration list for PBXNativeTarget "Tab Manager v2" */;
 			buildPhases = (
-				DF0D03BC2F2999D2008BF3BC /* Sources */,
-				DF0D03BD2F2999D2008BF3BC /* Frameworks */,
-				DF0D03BE2F2999D2008BF3BC /* Resources */,
-				DF0D03E82F2999D3008BF3BC /* Embed Foundation Extensions */,
+				DFE3D5902F29A16700DB813D /* Sources */,
+				DFE3D5912F29A16700DB813D /* Frameworks */,
+				DFE3D5922F29A16700DB813D /* Resources */,
+				DFE3D5BC2F29A16800DB813D /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				DF0D03DE2F2999D3008BF3BC /* PBXTargetDependency */,
+				DFE3D5B22F29A16800DB813D /* PBXTargetDependency */,
 			);
 			name = "Tab Manager v2";
 			packageProductDependencies = (
 			);
 			productName = "Tab Manager v2";
-			productReference = DF0D03C02F2999D2008BF3BC /* Tab Manager v2.app */;
+			productReference = DFE3D5942F29A16700DB813D /* Tab Manager v2.app */;
 			productType = "com.apple.product-type.application";
 		};
-		DF0D03DA2F2999D3008BF3BC /* Tab Manager v2 Extension */ = {
+		DFE3D5AE2F29A16800DB813D /* Tab Manager v2 Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DF0D03E52F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2 Extension" */;
+			buildConfigurationList = DFE3D5B92F29A16800DB813D /* Build configuration list for PBXNativeTarget "Tab Manager v2 Extension" */;
 			buildPhases = (
-				DF0D03D72F2999D3008BF3BC /* Sources */,
-				DF0D03D82F2999D3008BF3BC /* Frameworks */,
-				DF0D03D92F2999D3008BF3BC /* Resources */,
+				DFE3D5AB2F29A16800DB813D /* Sources */,
+				DFE3D5AC2F29A16800DB813D /* Frameworks */,
+				DFE3D5AD2F29A16800DB813D /* Resources */,
 			);
 			buildRules = (
 			);
@@ -240,132 +240,132 @@
 			packageProductDependencies = (
 			);
 			productName = "Tab Manager v2 Extension";
-			productReference = DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */;
+			productReference = DFE3D5AF2F29A16800DB813D /* Tab Manager v2 Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		DF0D03B82F2999D2008BF3BC /* Project object */ = {
+		DFE3D58C2F29A16700DB813D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
-					DF0D03BF2F2999D2008BF3BC = {
+					DFE3D5932F29A16700DB813D = {
 						CreatedOnToolsVersion = 26.2;
 					};
-					DF0D03DA2F2999D3008BF3BC = {
+					DFE3D5AE2F29A16800DB813D = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
-			buildConfigurationList = DF0D03BB2F2999D2008BF3BC /* Build configuration list for PBXProject "Tab Manager v2" */;
+			buildConfigurationList = DFE3D58F2F29A16700DB813D /* Build configuration list for PBXProject "Tab Manager v2" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = DF0D03B72F2999D2008BF3BC;
+			mainGroup = DFE3D58B2F29A16700DB813D;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = DF0D03C12F2999D2008BF3BC /* Products */;
+			productRefGroup = DFE3D5952F29A16700DB813D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DF0D03BF2F2999D2008BF3BC /* Tab Manager v2 */,
-				DF0D03DA2F2999D3008BF3BC /* Tab Manager v2 Extension */,
+				DFE3D5932F29A16700DB813D /* Tab Manager v2 */,
+				DFE3D5AE2F29A16800DB813D /* Tab Manager v2 Extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		DF0D03BE2F2999D2008BF3BC /* Resources */ = {
+		DFE3D5922F29A16700DB813D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF0D03CA2F2999D2008BF3BC /* Icon.png in Resources */,
-				DF0D03D32F2999D2008BF3BC /* Main.storyboard in Resources */,
-				DF0D03CE2F2999D2008BF3BC /* Script.js in Resources */,
-				DF0D03C82F2999D2008BF3BC /* Main.html in Resources */,
-				DF0D03D52F2999D3008BF3BC /* Assets.xcassets in Resources */,
-				DF0D03CC2F2999D2008BF3BC /* Style.css in Resources */,
+				DFE3D59E2F29A16700DB813D /* Icon.png in Resources */,
+				DFE3D5A72F29A16700DB813D /* Main.storyboard in Resources */,
+				DFE3D5A22F29A16700DB813D /* Script.js in Resources */,
+				DFE3D59C2F29A16700DB813D /* Main.html in Resources */,
+				DFE3D5A92F29A16800DB813D /* Assets.xcassets in Resources */,
+				DFE3D5A02F29A16700DB813D /* Style.css in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DF0D03D92F2999D3008BF3BC /* Resources */ = {
+		DFE3D5AD2F29A16800DB813D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF0D04072F2999D4008BF3BC /* popup.js.LICENSE.txt in Resources */,
-				DF0D040B2F2999D4008BF3BC /* popup.html in Resources */,
-				DF0D04022F2999D4008BF3BC /* icon-128-dark.png in Resources */,
-				DF0D04132F2999D4008BF3BC /* flags.png in Resources */,
-				DF0D04082F2999D4008BF3BC /* background.js in Resources */,
-				DF0D040C2F2999D4008BF3BC /* icon-48.png in Resources */,
-				DF0D04062F2999D4008BF3BC /* settings.png in Resources */,
-				DF0D040F2F2999D4008BF3BC /* history.png in Resources */,
-				DF0D04092F2999D4008BF3BC /* icon-48-dark.png in Resources */,
-				DF0D04152F2999D4008BF3BC /* bookmarks.png in Resources */,
-				DF0D04142F2999D4008BF3BC /* icon-128.png in Resources */,
-				DF0D040A2F2999D4008BF3BC /* empty.png in Resources */,
-				DF0D04102F2999D4008BF3BC /* chrome.png in Resources */,
-				DF0D04032F2999D4008BF3BC /* icon-16-dark.png in Resources */,
-				DF0D04042F2999D4008BF3BC /* icon-16.png in Resources */,
-				DF0D04122F2999D4008BF3BC /* popup.css in Resources */,
-				DF0D04112F2999D4008BF3BC /* manifest.json in Resources */,
-				DF0D04162F2999D4008BF3BC /* extensions.png in Resources */,
-				DF0D04052F2999D4008BF3BC /* popup.js in Resources */,
-				DF0D040D2F2999D4008BF3BC /* downloads.png in Resources */,
-				DF0D040E2F2999D4008BF3BC /* crashes.png in Resources */,
+				DFE3D5DB2F29A16900DB813D /* popup.js.LICENSE.txt in Resources */,
+				DFE3D5DF2F29A16900DB813D /* popup.html in Resources */,
+				DFE3D5D62F29A16900DB813D /* icon-128-dark.png in Resources */,
+				DFE3D5E72F29A16900DB813D /* flags.png in Resources */,
+				DFE3D5DC2F29A16900DB813D /* background.js in Resources */,
+				DFE3D5E02F29A16900DB813D /* icon-48.png in Resources */,
+				DFE3D5DA2F29A16900DB813D /* settings.png in Resources */,
+				DFE3D5E32F29A16900DB813D /* history.png in Resources */,
+				DFE3D5DD2F29A16900DB813D /* icon-48-dark.png in Resources */,
+				DFE3D5E92F29A16900DB813D /* bookmarks.png in Resources */,
+				DFE3D5E82F29A16900DB813D /* icon-128.png in Resources */,
+				DFE3D5DE2F29A16900DB813D /* empty.png in Resources */,
+				DFE3D5E42F29A16900DB813D /* chrome.png in Resources */,
+				DFE3D5D72F29A16900DB813D /* icon-16-dark.png in Resources */,
+				DFE3D5D82F29A16900DB813D /* icon-16.png in Resources */,
+				DFE3D5E62F29A16900DB813D /* popup.css in Resources */,
+				DFE3D5E52F29A16900DB813D /* manifest.json in Resources */,
+				DFE3D5EA2F29A16900DB813D /* extensions.png in Resources */,
+				DFE3D5D92F29A16900DB813D /* popup.js in Resources */,
+				DFE3D5E12F29A16900DB813D /* downloads.png in Resources */,
+				DFE3D5E22F29A16900DB813D /* crashes.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		DF0D03BC2F2999D2008BF3BC /* Sources */ = {
+		DFE3D5902F29A16700DB813D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF0D03D02F2999D2008BF3BC /* ViewController.swift in Sources */,
-				DF0D03C42F2999D2008BF3BC /* AppDelegate.swift in Sources */,
+				DFE3D5A42F29A16700DB813D /* ViewController.swift in Sources */,
+				DFE3D5982F29A16700DB813D /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DF0D03D72F2999D3008BF3BC /* Sources */ = {
+		DFE3D5AB2F29A16800DB813D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DF0D03E12F2999D3008BF3BC /* SafariWebExtensionHandler.swift in Sources */,
+				DFE3D5B52F29A16800DB813D /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		DF0D03DE2F2999D3008BF3BC /* PBXTargetDependency */ = {
+		DFE3D5B22F29A16800DB813D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = DF0D03DA2F2999D3008BF3BC /* Tab Manager v2 Extension */;
-			targetProxy = DF0D03DD2F2999D3008BF3BC /* PBXContainerItemProxy */;
+			target = DFE3D5AE2F29A16800DB813D /* Tab Manager v2 Extension */;
+			targetProxy = DFE3D5B12F29A16800DB813D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		DF0D03C62F2999D2008BF3BC /* Main.html */ = {
+		DFE3D59A2F29A16700DB813D /* Main.html */ = {
 			isa = PBXVariantGroup;
 			children = (
-				DF0D03C72F2999D2008BF3BC /* Base */,
+				DFE3D59B2F29A16700DB813D /* Base */,
 			);
 			name = Main.html;
 			sourceTree = "<group>";
 		};
-		DF0D03D12F2999D2008BF3BC /* Main.storyboard */ = {
+		DFE3D5A52F29A16700DB813D /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				DF0D03D22F2999D2008BF3BC /* Base */,
+				DFE3D5A62F29A16700DB813D /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -373,7 +373,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		DF0D03E32F2999D3008BF3BC /* Debug */ = {
+		DFE3D5B72F29A16800DB813D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -436,7 +436,7 @@
 			};
 			name = Debug;
 		};
-		DF0D03E42F2999D3008BF3BC /* Release */ = {
+		DFE3D5B82F29A16800DB813D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -491,7 +491,7 @@
 			};
 			name = Release;
 		};
-		DF0D03E62F2999D3008BF3BC /* Debug */ = {
+		DFE3D5BA2F29A16800DB813D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -525,7 +525,7 @@
 			};
 			name = Debug;
 		};
-		DF0D03E72F2999D3008BF3BC /* Release */ = {
+		DFE3D5BB2F29A16800DB813D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -559,7 +559,7 @@
 			};
 			name = Release;
 		};
-		DF0D03EA2F2999D3008BF3BC /* Debug */ = {
+		DFE3D5BE2F29A16800DB813D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -600,7 +600,7 @@
 			};
 			name = Debug;
 		};
-		DF0D03EB2F2999D3008BF3BC /* Release */ = {
+		DFE3D5BF2F29A16800DB813D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -644,34 +644,34 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DF0D03BB2F2999D2008BF3BC /* Build configuration list for PBXProject "Tab Manager v2" */ = {
+		DFE3D58F2F29A16700DB813D /* Build configuration list for PBXProject "Tab Manager v2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DF0D03E32F2999D3008BF3BC /* Debug */,
-				DF0D03E42F2999D3008BF3BC /* Release */,
+				DFE3D5B72F29A16800DB813D /* Debug */,
+				DFE3D5B82F29A16800DB813D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF0D03E52F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2 Extension" */ = {
+		DFE3D5B92F29A16800DB813D /* Build configuration list for PBXNativeTarget "Tab Manager v2 Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DF0D03E62F2999D3008BF3BC /* Debug */,
-				DF0D03E72F2999D3008BF3BC /* Release */,
+				DFE3D5BA2F29A16800DB813D /* Debug */,
+				DFE3D5BB2F29A16800DB813D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DF0D03E92F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2" */ = {
+		DFE3D5BD2F29A16800DB813D /* Build configuration list for PBXNativeTarget "Tab Manager v2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				DF0D03EA2F2999D3008BF3BC /* Debug */,
-				DF0D03EB2F2999D3008BF3BC /* Release */,
+				DFE3D5BE2F29A16800DB813D /* Debug */,
+				DFE3D5BF2F29A16800DB813D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = DF0D03B82F2999D2008BF3BC /* Project object */;
+	rootObject = DFE3D58C2F29A16700DB813D /* Project object */;
 }
