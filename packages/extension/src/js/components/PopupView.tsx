@@ -26,7 +26,7 @@ export default observer(() => {
     <>
       <div className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl">
         <Summary />
-        <AutocompleteSearch autoFocus open />
+        <AutocompleteSearch open />
       </div>
       <div className="absolute bottom-0 flex items-center justify-end w-full ">
         <button

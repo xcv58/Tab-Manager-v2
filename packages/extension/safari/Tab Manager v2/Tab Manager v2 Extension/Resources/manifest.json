@@ -1,24 +1,15 @@
 {
+  "description": "Quickly and conveniently manage your open tabs",
+  "version": "1.25.3",
   "name": "Tab Manager v2",
-  "background": {
-    "service_worker": "background.js"
-  },
-  "permissions": [
-    "management",
-    "storage",
-    "tabs",
-    "history",
-    "contextualIdentities",
-    "cookies"
-  ],
+  "background": { "service_worker": "background.js" },
+  "permissions": ["management", "storage", "tabs", "history", "tabGroups"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Tab Manager v2",
     "default_icon": "icon-16.png"
   },
-  "omnibox": {
-    "keyword": "t"
-  },
+  "omnibox": { "keyword": "t" },
   "commands": {
     "_execute_action": {
       "suggested_key": {
@@ -57,20 +48,8 @@
       "description": "Open extension in new tab"
     }
   },
-  "icons": {
-    "16": "icon-16.png",
-    "48": "icon-48.png",
-    "128": "icon-128.png"
-  },
+  "icons": { "16": "icon-16.png", "48": "icon-48.png", "128": "icon-128.png" },
   "manifest_version": 3,
   "minimum_chrome_version": "89.0.4389",
-  "offline_enabled": true,
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "tab-manager-v2@xcv58.com"
-    }
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
-  }
+  "offline_enabled": true
 }

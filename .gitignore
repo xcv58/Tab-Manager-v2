@@ -15,3 +15,20 @@ storybook-static
 .turbo
 playwright-report
 test-results
+
+# macOS
+.DS_Store
+
+# Xcode
+build/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.idestatus
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM

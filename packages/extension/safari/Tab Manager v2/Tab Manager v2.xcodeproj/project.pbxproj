@@ -1,0 +1,677 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DF0D03C42F2999D2008BF3BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D03C32F2999D2008BF3BC /* AppDelegate.swift */; };
+		DF0D03C82F2999D2008BF3BC /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03C62F2999D2008BF3BC /* Main.html */; };
+		DF0D03CA2F2999D2008BF3BC /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03C92F2999D2008BF3BC /* Icon.png */; };
+		DF0D03CC2F2999D2008BF3BC /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03CB2F2999D2008BF3BC /* Style.css */; };
+		DF0D03CE2F2999D2008BF3BC /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03CD2F2999D2008BF3BC /* Script.js */; };
+		DF0D03D02F2999D2008BF3BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D03CF2F2999D2008BF3BC /* ViewController.swift */; };
+		DF0D03D32F2999D2008BF3BC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03D12F2999D2008BF3BC /* Main.storyboard */; };
+		DF0D03D52F2999D3008BF3BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03D42F2999D3008BF3BC /* Assets.xcassets */; };
+		DF0D03DC2F2999D3008BF3BC /* Tab Manager v2 Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DF0D03E12F2999D3008BF3BC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0D03E02F2999D3008BF3BC /* SafariWebExtensionHandler.swift */; };
+		DF0D04022F2999D4008BF3BC /* icon-128-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03ED2F2999D4008BF3BC /* icon-128-dark.png */; };
+		DF0D04032F2999D4008BF3BC /* icon-16-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03EE2F2999D4008BF3BC /* icon-16-dark.png */; };
+		DF0D04042F2999D4008BF3BC /* icon-16.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03EF2F2999D4008BF3BC /* icon-16.png */; };
+		DF0D04052F2999D4008BF3BC /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F02F2999D4008BF3BC /* popup.js */; };
+		DF0D04062F2999D4008BF3BC /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F12F2999D4008BF3BC /* settings.png */; };
+		DF0D04072F2999D4008BF3BC /* popup.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F22F2999D4008BF3BC /* popup.js.LICENSE.txt */; };
+		DF0D04082F2999D4008BF3BC /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F32F2999D4008BF3BC /* background.js */; };
+		DF0D04092F2999D4008BF3BC /* icon-48-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F42F2999D4008BF3BC /* icon-48-dark.png */; };
+		DF0D040A2F2999D4008BF3BC /* empty.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F52F2999D4008BF3BC /* empty.png */; };
+		DF0D040B2F2999D4008BF3BC /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F62F2999D4008BF3BC /* popup.html */; };
+		DF0D040C2F2999D4008BF3BC /* icon-48.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F72F2999D4008BF3BC /* icon-48.png */; };
+		DF0D040D2F2999D4008BF3BC /* downloads.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F82F2999D4008BF3BC /* downloads.png */; };
+		DF0D040E2F2999D4008BF3BC /* crashes.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03F92F2999D4008BF3BC /* crashes.png */; };
+		DF0D040F2F2999D4008BF3BC /* history.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FA2F2999D4008BF3BC /* history.png */; };
+		DF0D04102F2999D4008BF3BC /* chrome.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FB2F2999D4008BF3BC /* chrome.png */; };
+		DF0D04112F2999D4008BF3BC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FC2F2999D4008BF3BC /* manifest.json */; };
+		DF0D04122F2999D4008BF3BC /* popup.css in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FD2F2999D4008BF3BC /* popup.css */; };
+		DF0D04132F2999D4008BF3BC /* flags.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FE2F2999D4008BF3BC /* flags.png */; };
+		DF0D04142F2999D4008BF3BC /* icon-128.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D03FF2F2999D4008BF3BC /* icon-128.png */; };
+		DF0D04152F2999D4008BF3BC /* bookmarks.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D04002F2999D4008BF3BC /* bookmarks.png */; };
+		DF0D04162F2999D4008BF3BC /* extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = DF0D04012F2999D4008BF3BC /* extensions.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DF0D03DD2F2999D3008BF3BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DF0D03B82F2999D2008BF3BC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF0D03DA2F2999D3008BF3BC;
+			remoteInfo = "Tab Manager v2 Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DF0D03E82F2999D3008BF3BC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DF0D03DC2F2999D3008BF3BC /* Tab Manager v2 Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		DF0D03C02F2999D2008BF3BC /* Tab Manager v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tab Manager v2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF0D03C32F2999D2008BF3BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		DF0D03C72F2999D2008BF3BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		DF0D03C92F2999D2008BF3BC /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		DF0D03CB2F2999D2008BF3BC /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		DF0D03CD2F2999D2008BF3BC /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		DF0D03CF2F2999D2008BF3BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		DF0D03D22F2999D2008BF3BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DF0D03D42F2999D3008BF3BC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DF0D03D62F2999D3008BF3BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Tab Manager v2 Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF0D03E02F2999D3008BF3BC /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		DF0D03E22F2999D3008BF3BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DF0D03ED2F2999D4008BF3BC /* icon-128-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128-dark.png"; path = "Resources/icon-128-dark.png"; sourceTree = "<group>"; };
+		DF0D03EE2F2999D4008BF3BC /* icon-16-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16-dark.png"; path = "Resources/icon-16-dark.png"; sourceTree = "<group>"; };
+		DF0D03EF2F2999D4008BF3BC /* icon-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-16.png"; path = "Resources/icon-16.png"; sourceTree = "<group>"; };
+		DF0D03F02F2999D4008BF3BC /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
+		DF0D03F12F2999D4008BF3BC /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settings.png; path = Resources/settings.png; sourceTree = "<group>"; };
+		DF0D03F22F2999D4008BF3BC /* popup.js.LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = popup.js.LICENSE.txt; path = Resources/popup.js.LICENSE.txt; sourceTree = "<group>"; };
+		DF0D03F32F2999D4008BF3BC /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		DF0D03F42F2999D4008BF3BC /* icon-48-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48-dark.png"; path = "Resources/icon-48-dark.png"; sourceTree = "<group>"; };
+		DF0D03F52F2999D4008BF3BC /* empty.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = empty.png; path = Resources/empty.png; sourceTree = "<group>"; };
+		DF0D03F62F2999D4008BF3BC /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
+		DF0D03F72F2999D4008BF3BC /* icon-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-48.png"; path = "Resources/icon-48.png"; sourceTree = "<group>"; };
+		DF0D03F82F2999D4008BF3BC /* downloads.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = downloads.png; path = Resources/downloads.png; sourceTree = "<group>"; };
+		DF0D03F92F2999D4008BF3BC /* crashes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = crashes.png; path = Resources/crashes.png; sourceTree = "<group>"; };
+		DF0D03FA2F2999D4008BF3BC /* history.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = history.png; path = Resources/history.png; sourceTree = "<group>"; };
+		DF0D03FB2F2999D4008BF3BC /* chrome.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = chrome.png; path = Resources/chrome.png; sourceTree = "<group>"; };
+		DF0D03FC2F2999D4008BF3BC /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		DF0D03FD2F2999D4008BF3BC /* popup.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = popup.css; path = Resources/popup.css; sourceTree = "<group>"; };
+		DF0D03FE2F2999D4008BF3BC /* flags.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flags.png; path = Resources/flags.png; sourceTree = "<group>"; };
+		DF0D03FF2F2999D4008BF3BC /* icon-128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-128.png"; path = "Resources/icon-128.png"; sourceTree = "<group>"; };
+		DF0D04002F2999D4008BF3BC /* bookmarks.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bookmarks.png; path = Resources/bookmarks.png; sourceTree = "<group>"; };
+		DF0D04012F2999D4008BF3BC /* extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = extensions.png; path = Resources/extensions.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DF0D03BD2F2999D2008BF3BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF0D03D82F2999D3008BF3BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DF0D03B72F2999D2008BF3BC = {
+			isa = PBXGroup;
+			children = (
+				DF0D03C22F2999D2008BF3BC /* Tab Manager v2 */,
+				DF0D03DF2F2999D3008BF3BC /* Tab Manager v2 Extension */,
+				DF0D03C12F2999D2008BF3BC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DF0D03C12F2999D2008BF3BC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DF0D03C02F2999D2008BF3BC /* Tab Manager v2.app */,
+				DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DF0D03C22F2999D2008BF3BC /* Tab Manager v2 */ = {
+			isa = PBXGroup;
+			children = (
+				DF0D03C32F2999D2008BF3BC /* AppDelegate.swift */,
+				DF0D03CF2F2999D2008BF3BC /* ViewController.swift */,
+				DF0D03D12F2999D2008BF3BC /* Main.storyboard */,
+				DF0D03D42F2999D3008BF3BC /* Assets.xcassets */,
+				DF0D03D62F2999D3008BF3BC /* Info.plist */,
+				DF0D03C52F2999D2008BF3BC /* Resources */,
+			);
+			path = "Tab Manager v2";
+			sourceTree = "<group>";
+		};
+		DF0D03C52F2999D2008BF3BC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DF0D03C62F2999D2008BF3BC /* Main.html */,
+				DF0D03C92F2999D2008BF3BC /* Icon.png */,
+				DF0D03CB2F2999D2008BF3BC /* Style.css */,
+				DF0D03CD2F2999D2008BF3BC /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DF0D03DF2F2999D3008BF3BC /* Tab Manager v2 Extension */ = {
+			isa = PBXGroup;
+			children = (
+				DF0D03EC2F2999D4008BF3BC /* Resources */,
+				DF0D03E02F2999D3008BF3BC /* SafariWebExtensionHandler.swift */,
+				DF0D03E22F2999D3008BF3BC /* Info.plist */,
+			);
+			path = "Tab Manager v2 Extension";
+			sourceTree = "<group>";
+		};
+		DF0D03EC2F2999D4008BF3BC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DF0D03ED2F2999D4008BF3BC /* icon-128-dark.png */,
+				DF0D03EE2F2999D4008BF3BC /* icon-16-dark.png */,
+				DF0D03EF2F2999D4008BF3BC /* icon-16.png */,
+				DF0D03F02F2999D4008BF3BC /* popup.js */,
+				DF0D03F12F2999D4008BF3BC /* settings.png */,
+				DF0D03F22F2999D4008BF3BC /* popup.js.LICENSE.txt */,
+				DF0D03F32F2999D4008BF3BC /* background.js */,
+				DF0D03F42F2999D4008BF3BC /* icon-48-dark.png */,
+				DF0D03F52F2999D4008BF3BC /* empty.png */,
+				DF0D03F62F2999D4008BF3BC /* popup.html */,
+				DF0D03F72F2999D4008BF3BC /* icon-48.png */,
+				DF0D03F82F2999D4008BF3BC /* downloads.png */,
+				DF0D03F92F2999D4008BF3BC /* crashes.png */,
+				DF0D03FA2F2999D4008BF3BC /* history.png */,
+				DF0D03FB2F2999D4008BF3BC /* chrome.png */,
+				DF0D03FC2F2999D4008BF3BC /* manifest.json */,
+				DF0D03FD2F2999D4008BF3BC /* popup.css */,
+				DF0D03FE2F2999D4008BF3BC /* flags.png */,
+				DF0D03FF2F2999D4008BF3BC /* icon-128.png */,
+				DF0D04002F2999D4008BF3BC /* bookmarks.png */,
+				DF0D04012F2999D4008BF3BC /* extensions.png */,
+			);
+			name = Resources;
+			path = "Tab Manager v2 Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DF0D03BF2F2999D2008BF3BC /* Tab Manager v2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF0D03E92F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2" */;
+			buildPhases = (
+				DF0D03BC2F2999D2008BF3BC /* Sources */,
+				DF0D03BD2F2999D2008BF3BC /* Frameworks */,
+				DF0D03BE2F2999D2008BF3BC /* Resources */,
+				DF0D03E82F2999D3008BF3BC /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DF0D03DE2F2999D3008BF3BC /* PBXTargetDependency */,
+			);
+			name = "Tab Manager v2";
+			packageProductDependencies = (
+			);
+			productName = "Tab Manager v2";
+			productReference = DF0D03C02F2999D2008BF3BC /* Tab Manager v2.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DF0D03DA2F2999D3008BF3BC /* Tab Manager v2 Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF0D03E52F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2 Extension" */;
+			buildPhases = (
+				DF0D03D72F2999D3008BF3BC /* Sources */,
+				DF0D03D82F2999D3008BF3BC /* Frameworks */,
+				DF0D03D92F2999D3008BF3BC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Tab Manager v2 Extension";
+			packageProductDependencies = (
+			);
+			productName = "Tab Manager v2 Extension";
+			productReference = DF0D03DB2F2999D3008BF3BC /* Tab Manager v2 Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DF0D03B82F2999D2008BF3BC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					DF0D03BF2F2999D2008BF3BC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					DF0D03DA2F2999D3008BF3BC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = DF0D03BB2F2999D2008BF3BC /* Build configuration list for PBXProject "Tab Manager v2" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DF0D03B72F2999D2008BF3BC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = DF0D03C12F2999D2008BF3BC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DF0D03BF2F2999D2008BF3BC /* Tab Manager v2 */,
+				DF0D03DA2F2999D3008BF3BC /* Tab Manager v2 Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DF0D03BE2F2999D2008BF3BC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF0D03CA2F2999D2008BF3BC /* Icon.png in Resources */,
+				DF0D03D32F2999D2008BF3BC /* Main.storyboard in Resources */,
+				DF0D03CE2F2999D2008BF3BC /* Script.js in Resources */,
+				DF0D03C82F2999D2008BF3BC /* Main.html in Resources */,
+				DF0D03D52F2999D3008BF3BC /* Assets.xcassets in Resources */,
+				DF0D03CC2F2999D2008BF3BC /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF0D03D92F2999D3008BF3BC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF0D04072F2999D4008BF3BC /* popup.js.LICENSE.txt in Resources */,
+				DF0D040B2F2999D4008BF3BC /* popup.html in Resources */,
+				DF0D04022F2999D4008BF3BC /* icon-128-dark.png in Resources */,
+				DF0D04132F2999D4008BF3BC /* flags.png in Resources */,
+				DF0D04082F2999D4008BF3BC /* background.js in Resources */,
+				DF0D040C2F2999D4008BF3BC /* icon-48.png in Resources */,
+				DF0D04062F2999D4008BF3BC /* settings.png in Resources */,
+				DF0D040F2F2999D4008BF3BC /* history.png in Resources */,
+				DF0D04092F2999D4008BF3BC /* icon-48-dark.png in Resources */,
+				DF0D04152F2999D4008BF3BC /* bookmarks.png in Resources */,
+				DF0D04142F2999D4008BF3BC /* icon-128.png in Resources */,
+				DF0D040A2F2999D4008BF3BC /* empty.png in Resources */,
+				DF0D04102F2999D4008BF3BC /* chrome.png in Resources */,
+				DF0D04032F2999D4008BF3BC /* icon-16-dark.png in Resources */,
+				DF0D04042F2999D4008BF3BC /* icon-16.png in Resources */,
+				DF0D04122F2999D4008BF3BC /* popup.css in Resources */,
+				DF0D04112F2999D4008BF3BC /* manifest.json in Resources */,
+				DF0D04162F2999D4008BF3BC /* extensions.png in Resources */,
+				DF0D04052F2999D4008BF3BC /* popup.js in Resources */,
+				DF0D040D2F2999D4008BF3BC /* downloads.png in Resources */,
+				DF0D040E2F2999D4008BF3BC /* crashes.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DF0D03BC2F2999D2008BF3BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF0D03D02F2999D2008BF3BC /* ViewController.swift in Sources */,
+				DF0D03C42F2999D2008BF3BC /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF0D03D72F2999D3008BF3BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF0D03E12F2999D3008BF3BC /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DF0D03DE2F2999D3008BF3BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DF0D03DA2F2999D3008BF3BC /* Tab Manager v2 Extension */;
+			targetProxy = DF0D03DD2F2999D3008BF3BC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		DF0D03C62F2999D2008BF3BC /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DF0D03C72F2999D2008BF3BC /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		DF0D03D12F2999D2008BF3BC /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DF0D03D22F2999D2008BF3BC /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DF0D03E32F2999D3008BF3BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DF0D03E42F2999D3008BF3BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		DF0D03E62F2999D3008BF3BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tab Manager v2 Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tab Manager v2 Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xcv58.Tab-Manager-v2.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DF0D03E72F2999D3008BF3BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tab Manager v2 Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tab Manager v2 Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xcv58.Tab-Manager-v2.Extension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		DF0D03EA2F2999D3008BF3BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tab Manager v2/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tab Manager v2";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xcv58.Tab-Manager-v2";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DF0D03EB2F2999D3008BF3BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Tab Manager v2/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Tab Manager v2";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.xcv58.Tab-Manager-v2";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DF0D03BB2F2999D2008BF3BC /* Build configuration list for PBXProject "Tab Manager v2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF0D03E32F2999D3008BF3BC /* Debug */,
+				DF0D03E42F2999D3008BF3BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF0D03E52F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2 Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF0D03E62F2999D3008BF3BC /* Debug */,
+				DF0D03E72F2999D3008BF3BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF0D03E92F2999D3008BF3BC /* Build configuration list for PBXNativeTarget "Tab Manager v2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF0D03EA2F2999D3008BF3BC /* Debug */,
+				DF0D03EB2F2999D3008BF3BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DF0D03B82F2999D2008BF3BC /* Project object */;
+}
