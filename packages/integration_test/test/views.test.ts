@@ -14,6 +14,7 @@ let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
 test.describe('The Extension page should', () => {
+  test.describe.configure({ mode: 'serial' })
   test.beforeAll(async () => {
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
@@ -66,7 +67,7 @@ test.describe('The Extension page should', () => {
     expect(pages).toHaveLength(N + 1)
     await page.bringToFront()
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'render.png')
+    expect(screenshot).toMatchSnapshot(test.info(), 'render.png')
   })
 
   test('render popup mode based on URL query', async () => {
@@ -95,12 +96,12 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(3000)
     await page.waitForSelector(inputSelector)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 1a.png')
+    expect(screenshot).toMatchSnapshot(test.info(), 'popup 1a.png')
 
     await page.waitForTimeout(1000)
     await page.fill(inputSelector, 'xcv58')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'popup 2a.png')
+    expect(screenshot).toMatchSnapshot(test.info(), 'popup 2a.png')
 
     await page.fill(inputSelector, '')
   })
@@ -110,11 +111,12 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     await page.waitForTimeout(1000)
 
+    await page.reload()
     const selectAllButton = await page.$('[aria-label="Select all tabs"]')
     await selectAllButton.click()
     await page.waitForTimeout(1000)
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'correct color.png')
+    expect(screenshot).toMatchSnapshot(test.info(), 'correct color.png')
   })
 
   test('support search browser history', async () => {
@@ -139,28 +141,19 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(
-      test.info(),
-      'browser history 1a.png',
-    )
+    expect(screenshot).toMatchSnapshot(test.info(), 'browser history 1a.png')
 
     await page.fill(inputSelector, 'xcv58')
     await page.waitForTimeout(1000)
-    screenshot = await page.screenshot()
     await page.bringToFront()
-    expect(screenshot).toMatchImageSnapshot(
-      test.info(),
-      'browser history 2a.png',
-    )
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchSnapshot(test.info(), 'browser history 2a.png')
 
     await page.fill(inputSelector, 'duck')
     await page.waitForTimeout(1000)
     await page.bringToFront()
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(
-      test.info(),
-      'browser history 3.png',
-    )
+    expect(screenshot).toMatchSnapshot(test.info(), 'browser history 3.png')
 
     await page.fill(inputSelector, '')
   })
@@ -176,6 +169,6 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchImageSnapshot(test.info(), 'duplicated tabs.png')
+    expect(screenshot).toMatchSnapshot(test.info(), 'duplicated tabs.png')
   })
 })

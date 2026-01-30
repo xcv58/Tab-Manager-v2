@@ -164,8 +164,8 @@
                     for (var e in r) r[e].rebuild()
                 }),
                 (i = p(o ? o.getLevel() : 'WARN')))
-              var x = u()
-              ;(null != x && (g = p(x)), l.call(c))
+              var h = u()
+              ;(null != h && (g = p(h)), l.call(c))
             }
             ;(o = new d()).getLogger = function (e) {
               if (('symbol' != typeof e && 'string' != typeof e) || '' === e)
@@ -699,16 +699,16 @@
                         }),
                       },
                     },
-                    x = {
+                    h = {
                       clear: { minArgs: 1, maxArgs: 1 },
                       get: { minArgs: 1, maxArgs: 1 },
                       set: { minArgs: 1, maxArgs: 1 },
                     }
                   return (
                     (n.privacy = {
-                      network: { '*': x },
-                      services: { '*': x },
-                      websites: { '*': x },
+                      network: { '*': h },
+                      services: { '*': h },
+                      websites: { '*': h },
                     }),
                     c(e, p, n)
                   )
@@ -816,7 +816,7 @@
               return i(void 0, void 0, void 0, function* () {
                 o.debug('focusOnLastFocusedWin')
                 const e = yield t().windows.getAll({ populate: !0 }),
-                  n = yield x()
+                  n = yield h()
                 if (e.find((e) => e.id === n))
                   return (
                     o.debug(
@@ -887,7 +887,7 @@
           o.debug('setSelfPopupActive:', { _selfPopupActive: e }),
           t().storage.local.set({ _selfPopupActive: e })
         ),
-        x = () =>
+        h = () =>
           i(void 0, void 0, void 0, function* () {
             try {
               const { lastFocusedWindowId: e } = yield t().storage.local.get({
@@ -898,10 +898,10 @@
               return null
             }
           }),
-        h = 'TOGGLE-POPUP',
+        x = 'TOGGLE-POPUP',
         v = 'OPEN-IN-NEW-TAB',
-        w = 'LAST-ACTIVE-TAB',
-        b = 'CREATE-WINDOW'
+        b = 'LAST-ACTIVE-TAB',
+        w = 'CREATE-WINDOW'
       var y = function (e, t, n, s) {
         return new (n || (n = Promise))(function (r, o) {
           function i(e) {
@@ -987,6 +987,7 @@
           }
           return n
         }
+      const k = 'tabHistory'
       ;(function (e, t, n, s) {
         new (n || (n = Promise))(function (r, o) {
           function i(e) {
@@ -1034,12 +1035,40 @@
         }),
           T())
       })
-      const k = new (class {
+      const P = new (class {
           constructor() {
             ;((this.tabHistory = []),
               (this.count = 0),
               (this.resetCountHandler = null),
               (this.expectedTabId = null),
+              (this.loaded = !1),
+              (this.init = () =>
+                I(this, void 0, void 0, function* () {
+                  try {
+                    const e = yield t().storage.local.get({ [k]: [] })
+                    ;(0 === this.tabHistory.length &&
+                      (this.tabHistory = e[k] || []),
+                      (this.loaded = !0),
+                      o.debug(
+                        'TabHistory loaded from storage:',
+                        this.tabHistory,
+                      ))
+                  } catch (e) {
+                    ;(o.error('Failed to load TabHistory from storage:', e),
+                      (this.loaded = !0))
+                  }
+                })),
+              (this.save = () =>
+                I(this, void 0, void 0, function* () {
+                  if (this.loaded)
+                    try {
+                      const e = 100,
+                        n = this.tabHistory.slice(-e)
+                      yield t().storage.local.set({ [k]: n })
+                    } catch (e) {
+                      o.error('Failed to save TabHistory to storage:', e)
+                    }
+                })),
               (this.resetCount = () => {
                 ;(null != this.resetCountHandler &&
                   clearTimeout(this.resetCountHandler),
@@ -1052,41 +1081,47 @@
                   s = this.tabHistory[e - 1]
                 ;((this.tabHistory = [...t, ...n, s]),
                   (this.count = 0),
-                  (this.resetCountHandler = null))
+                  (this.resetCountHandler = null),
+                  this.save())
               }),
               (this.add = (e) => {
                 var { tabId: t, windowId: n } = e,
                   s = C(e, ['tabId', 'windowId'])
                 t &&
                   -1 !== n &&
-                  (this.remove(t),
+                  (this.remove(t, !1),
                   this.tabHistory.push(
                     Object.assign({ tabId: t, windowId: n }, s),
-                  ))
+                  ),
+                  this.save())
               }),
-              (this.remove = (e) => {
-                const t = this.tabHistory.findIndex((t) => t.tabId === e)
-                ;-1 !== t && this.tabHistory.splice(t, 1)
+              (this.remove = (e, t = !0) => {
+                const n = this.tabHistory.findIndex((t) => t.tabId === e)
+                ;-1 !== n && (this.tabHistory.splice(n, 1), t && this.save())
               }),
-              (this.activateTab = () => {
-                if (
-                  ((this.count += 1),
-                  this.resetCount(),
-                  this.tabHistory.length > 1)
-                ) {
-                  const { tabId: e } = this.tabHistory[this.nextTabIndex]
-                  ;((this.expectedTabId = e),
-                    ((e, ...n) => {
-                      i(void 0, [e, ...n], void 0, function* (e, n = !1) {
-                        if (!e) return
-                        const s = yield t().tabs.get(e)
-                        ;(yield t().tabs.update(s.id, { active: !0 }),
-                          yield t().windows.update(s.windowId, { focused: !0 }),
-                          n || g())
-                      })
-                    })(e, !0))
-                }
-              }),
+              (this.activateTab = () =>
+                I(this, void 0, void 0, function* () {
+                  if (
+                    (this.loaded || (yield this.init()),
+                    (this.count += 1),
+                    this.resetCount(),
+                    this.tabHistory.length > 1)
+                  ) {
+                    const { tabId: e } = this.tabHistory[this.nextTabIndex]
+                    ;((this.expectedTabId = e),
+                      ((e, ...n) => {
+                        i(void 0, [e, ...n], void 0, function* (e, n = !1) {
+                          if (!e) return
+                          const s = yield t().tabs.get(e)
+                          ;(yield t().tabs.update(s.id, { active: !0 }),
+                            yield t().windows.update(s.windowId, {
+                              focused: !0,
+                            }),
+                            n || g())
+                        })
+                      })(e, !0))
+                  }
+                })),
               (this.onActivated = (e) =>
                 I(this, void 0, void 0, function* () {
                   const { tabId: n, windowId: s } = e
@@ -1099,50 +1134,61 @@
                     }
                   }
                   this.expectedTabId = null
-                  const r = yield t().tabs.get(n)
-                  this.add(
-                    Object.assign(Object.assign({}, r), {
-                      tabId: n,
-                      windowId: s,
-                    }),
-                  )
+                  try {
+                    const e = yield t().tabs.get(n)
+                    this.add(
+                      Object.assign(Object.assign({}, e), {
+                        tabId: n,
+                        windowId: s,
+                      }),
+                    )
+                  } catch (e) {
+                    o.warn('Failed to get tab info in onActivated:', e)
+                  }
                 })),
               (this.onFocusChanged = (e) =>
                 I(this, void 0, void 0, function* () {
                   if ((T(), o.debug('onFocusChanged:', { windowId: e }), e < 0))
                     return p(!1)
-                  const [n] = yield t().tabs.query({ active: !0, windowId: e })
-                  if (!n)
-                    return (
-                      o.debug('onFocusChanged does nothing since no tab'),
-                      p(!1)
-                    )
-                  const s = u(n)
-                  if (s)
-                    return (
-                      o.debug('onFocusChanged ignore self popup window', {
-                        tab: n,
-                        isPopupWindow: s,
-                      }),
-                      p(!0)
-                    )
-                  var r
-                  ;(o.debug('onFocusChanged record the window', {
-                    windowId: e,
-                    tab: n,
-                    isPopupWindow: s,
-                  }),
-                    this.add(
-                      Object.assign(Object.assign({}, n), {
-                        tabId: n.id,
-                        windowId: e,
-                      }),
-                    ),
-                    (r = e),
-                    t().storage.local.set({
-                      lastFocusedWindowId: r,
-                      _selfPopupActive: !1,
-                    }))
+                  try {
+                    const [s] = yield t().tabs.query({
+                      active: !0,
+                      windowId: e,
+                    })
+                    if (!s)
+                      return (
+                        o.debug('onFocusChanged does nothing since no tab'),
+                        p(!1)
+                      )
+                    const r = u(s)
+                    if (r)
+                      return (
+                        o.debug('onFocusChanged ignore self popup window', {
+                          tab: s,
+                          isPopupWindow: r,
+                        }),
+                        p(!0)
+                      )
+                    ;(o.debug('onFocusChanged record the window', {
+                      windowId: e,
+                      tab: s,
+                      isPopupWindow: r,
+                    }),
+                      this.add(
+                        Object.assign(Object.assign({}, s), {
+                          tabId: s.id,
+                          windowId: e,
+                        }),
+                      ),
+                      (n = e),
+                      t().storage.local.set({
+                        lastFocusedWindowId: n,
+                        _selfPopupActive: !1,
+                      }))
+                  } catch (e) {
+                    o.warn('Error in onFocusChanged:', e)
+                  }
+                  var n
                 })),
               (this.onRemoved = (e) =>
                 I(this, void 0, void 0, function* () {
@@ -1152,27 +1198,28 @@
             ;(t().tabs.onActivated.addListener(e),
               t().tabs.onRemoved.addListener(s),
               t().windows.onFocusChanged.addListener(n),
-              (this.actionMap = { [w]: this.activateTab }))
+              (this.actionMap = { [b]: this.activateTab }),
+              this.init())
           }
           get nextTabIndex() {
             return Math.max(this.tabHistory.length - 1 - this.count, 0)
           }
         })(),
-        P = {
-          [h]: c,
+        L = {
+          [x]: c,
           [v]: A,
-          [b]: (e, t, n) => {
+          [w]: (e, t, n) => {
             ;(l(e.tabs), n())
           },
         }
-      Object.assign(P, k.actionMap)
+      Object.assign(L, P.actionMap)
       ;(t().runtime.onMessage.addListener((e, t, n) => {
         const { action: s } = e,
-          r = P[s]
+          r = L[s]
         r && 'function' == typeof r ? r(e, t, n) : n(`Unknown action: ${s}`)
       }),
         t().commands.onCommand.addListener((e) => {
-          const t = P[e]
+          const t = L[e]
           t && 'function' == typeof t && t()
         }))
       t().runtime.onInstalled.addListener((e) => {

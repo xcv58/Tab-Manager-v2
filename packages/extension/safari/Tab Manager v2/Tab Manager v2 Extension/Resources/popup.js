@@ -50356,23 +50356,22 @@
             : l
         }),
         ah = w((e) => {
-          const { faked: n, tab: r } = e,
-            { iconUrl: a } = r
-          return n
-            ? t.createElement(
-                'div',
-                null,
-                t.createElement(
-                  Dm,
-                  {
-                    disabled: !0,
-                    'aria-label': nh,
-                    className: 'focus:outline-none focus:ring',
-                  },
-                  t.createElement('img', { className: 'w-6 h-6', src: a }),
-                ),
-              )
-            : t.createElement(rh, Object.assign({}, e))
+          const { faked: n, tab: r } = e
+          if (!n) return t.createElement(rh, { tab: r })
+          const { iconUrl: a } = r
+          return t.createElement(
+            'div',
+            null,
+            t.createElement(
+              Dm,
+              {
+                disabled: !0,
+                'aria-label': nh,
+                className: 'focus:outline-none focus:ring',
+              },
+              t.createElement('img', { className: 'w-6 h-6', src: a }),
+            ),
+          )
         }),
         oh = () => {
           const e = Mi()
@@ -52237,20 +52236,24 @@
               shouldHighlight: m,
             } = i,
             h = !r.dragging,
-            f = () => {
+            f = t.useCallback(() => {
               h && i.hover()
-            },
-            g = () => {
+            }, [h, i]),
+            g = t.useCallback(() => {
               h && i.unhover()
-            },
-            _ = Bm()
+            }, [h, i]),
+            _ = t.useCallback(() => {
+              const { removing: e, remove: t } = i
+              e || t()
+            }, [i]),
+            y = Bm()
           ;((0, t.useEffect)(
             () => (
               u &&
                 (a.typing ||
                   (n.current.focus({ preventScroll: !0 }),
                   n.current.scrollIntoView({
-                    behavior: _ ? 'auto' : 'smooth',
+                    behavior: y ? 'auto' : 'smooth',
                     block: 'end',
                     inline: 'nearest',
                   }))),
@@ -52261,7 +52264,7 @@
             (0, t.useEffect)(() => {
               l(n)
             }))
-          const y = p && wf
+          const v = p && wf
           return t.createElement(
             'div',
             {
@@ -52288,17 +52291,11 @@
               onMouseOver: f,
               onMouseLeave: g,
             },
-            y,
+            v,
             t.createElement(ah, { tab: i }),
             t.createElement(bf, { tab: i }),
             t.createElement(ff, { tab: i }),
-            t.createElement(Om, {
-              onClick: () => {
-                const { removing: e, remove: t } = i
-                e || t()
-              },
-              disabled: i.removing,
-            }),
+            t.createElement(Om, { onClick: _, disabled: i.removing }),
             t.createElement(kf, {
               groupId: i.groupId,
               cookieStoreId: i.cookieStoreId,
