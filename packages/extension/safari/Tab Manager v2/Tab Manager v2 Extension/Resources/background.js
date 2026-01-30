@@ -1,10 +1,10 @@
 ;(() => {
   var e = {
-      2470: function (e, t, n) {
+      2470(e, t, n) {
         var s, r
         !(function () {
           'use strict'
-          ;(s = function () {
+          ;((s = function () {
             var e = function () {},
               t = 'undefined',
               n =
@@ -26,14 +26,14 @@
               }
             }
             function a() {
-              console.log &&
+              ;(console.log &&
                 (console.log.apply
                   ? console.log.apply(console, arguments)
                   : Function.prototype.apply.apply(console.log, [
                       console,
                       arguments,
                     ])),
-                console.trace && console.trace()
+                console.trace && console.trace())
             }
             function g(s) {
               return (
@@ -100,7 +100,7 @@
                       ;-1 !== r &&
                         (e = /^([^;]+)/.exec(n.slice(r + s.length + 1))[1])
                     } catch (e) {}
-                  return void 0 === c.levels[e] && (e = void 0), e
+                  return (void 0 === c.levels[e] && (e = void 0), e)
                 }
               }
               function f() {
@@ -128,7 +128,7 @@
                   'log.setLevel() called with invalid level: ' + e,
                 )
               }
-              'string' == typeof e
+              ;('string' == typeof e
                 ? (d += ':' + e)
                 : 'symbol' == typeof e && (d = void 0),
                 (c.name = e),
@@ -145,13 +145,13 @@
                   return null != g ? g : null != a ? a : i
                 }),
                 (c.setLevel = function (e, t) {
-                  return (g = p(e)), !1 !== t && A(g), l.call(c)
+                  return ((g = p(e)), !1 !== t && A(g), l.call(c))
                 }),
                 (c.setDefaultLevel = function (e) {
-                  ;(a = p(e)), u() || c.setLevel(e, !1)
+                  ;((a = p(e)), u() || c.setLevel(e, !1))
                 }),
                 (c.resetLevel = function () {
-                  ;(g = null), f(), l.call(c)
+                  ;((g = null), f(), l.call(c))
                 }),
                 (c.enableAll = function (e) {
                   c.setLevel(c.levels.TRACE, e)
@@ -163,9 +163,9 @@
                   if ((o !== c && (i = p(o.getLevel())), l.call(c), o === c))
                     for (var e in r) r[e].rebuild()
                 }),
-                (i = p(o ? o.getLevel() : 'WARN'))
+                (i = p(o ? o.getLevel() : 'WARN')))
               var x = u()
-              null != x && (g = p(x)), l.call(c)
+              ;(null != x && (g = p(x)), l.call(c))
             }
             ;(o = new d()).getLogger = function (e) {
               if (('symbol' != typeof e && 'string' != typeof e) || '' === e)
@@ -173,13 +173,14 @@
                   'You must supply a name when creating a logger.',
                 )
               var t = r[e]
-              return t || (t = r[e] = new d(e, o.methodFactory)), t
+              return (t || (t = r[e] = new d(e, o.methodFactory)), t)
             }
             var A = typeof window !== t ? window.log : void 0
             return (
               (o.noConflict = function () {
                 return (
-                  typeof window !== t && window.log === o && (window.log = A), o
+                  typeof window !== t && window.log === o && (window.log = A),
+                  o
                 )
               }),
               (o.getLoggers = function () {
@@ -190,12 +191,12 @@
             )
           }),
             void 0 === (r = 'function' == typeof s ? s.call(t, n, t, e) : s) ||
-              (e.exports = r)
+              (e.exports = r))
         })()
       },
-      3346: function (e, t) {
+      3346(e, t) {
         var n, s, r
-        'undefined' != typeof globalThis
+        ;('undefined' != typeof globalThis
           ? globalThis
           : 'undefined' != typeof self && self,
           (s = [e]),
@@ -485,7 +486,7 @@
                     )
                   class s extends WeakMap {
                     constructor(e, t = void 0) {
-                      super(t), (this.createItem = e)
+                      ;(super(t), (this.createItem = e))
                     }
                     get(e) {
                       return (
@@ -522,14 +523,14 @@
                             try {
                               n[e](...s, o({ resolve: r, reject: i }, t))
                             } catch (o) {
-                              console.warn(
+                              ;(console.warn(
                                 `${e} API method doesn't seem to support the callback parameter, falling back to call it without a callback: `,
                                 o,
                               ),
                                 n[e](...s),
                                 (t.fallbackToNoCallback = !1),
                                 (t.noCallback = !0),
-                                r()
+                                r())
                             }
                           else
                             t.noCallback
@@ -576,10 +577,11 @@
                                 )
                               m = c(m, t[o], n['*'])
                             }
-                            return (s[o] = m), m
+                            return ((s[o] = m), m)
                           },
                           set: (t, n, r, o) => (
-                            n in s ? (s[n] = r) : (e[n] = r), !0
+                            n in s ? (s[n] = r) : (e[n] = r),
+                            !0
                           ),
                           defineProperty: (e, t, n) =>
                             Reflect.defineProperty(s, t, n),
@@ -619,7 +621,7 @@
                               a = !1,
                               g = new Promise((e) => {
                                 o = function (t) {
-                                  ;(a = !0), e(t)
+                                  ;((a = !0), e(t))
                                 }
                               })
                             try {
@@ -636,7 +638,7 @@
                                 },
                                 (e) => {
                                   let t
-                                  ;(t =
+                                  ;((t =
                                     e &&
                                     (e instanceof Error ||
                                       'string' == typeof e.message)
@@ -645,7 +647,7 @@
                                     s({
                                       __mozWebExtensionPolyfillReject__: !0,
                                       message: t,
-                                    })
+                                    }))
                                 },
                               ).catch((e) => {
                                 console.error(
@@ -654,7 +656,7 @@
                                 )
                               })
                             }
-                            return c(l ? i : g), !0
+                            return (c(l ? i : g), !0)
                           },
                     ),
                     u = ({ reject: n, resolve: s }, r) => {
@@ -677,7 +679,7 @@
                         )
                       return new Promise((e, t) => {
                         const r = u.bind(null, { resolve: e, reject: t })
-                        s.push(r), n.sendMessage(...s)
+                        ;(s.push(r), n.sendMessage(...s))
                       })
                     },
                     p = {
@@ -715,7 +717,7 @@
             }
           }),
           void 0 === (r = 'function' == typeof n ? n.apply(t, s) : n) ||
-            (e.exports = r)
+            (e.exports = r))
       },
     },
     t = {}
@@ -723,11 +725,11 @@
     var r = t[s]
     if (void 0 !== r) return r.exports
     var o = (t[s] = { exports: {} })
-    return e[s].call(o.exports, o, o.exports, n), o.exports
+    return (e[s].call(o.exports, o, o.exports, n), o.exports)
   }
-  ;(n.n = (e) => {
+  ;((n.n = (e) => {
     var t = e && e.__esModule ? () => e.default : () => e
-    return n.d(t, { a: t }), t
+    return (n.d(t, { a: t }), t)
   }),
     (n.d = (e, t) => {
       for (var s in t)
@@ -785,7 +787,7 @@
             const [n, ...s] = e,
               r = n.id,
               o = yield t().windows.create({ tabId: r })
-            yield ((e, n, ...s) =>
+            ;(yield ((e, n, ...s) =>
               i(void 0, [e, n, ...s], void 0, function* (e, n, s = 0) {
                 yield Promise.all(
                   e.map((e, r) =>
@@ -795,14 +797,14 @@
                       void 0,
                       function* ({ id: e, pinned: r }, o) {
                         const i = s + (-1 !== s ? o : 0)
-                        yield t().tabs.update(e, { pinned: r }),
-                          yield t().tabs.move(e, { windowId: n, index: i })
+                        ;(yield t().tabs.update(e, { pinned: r }),
+                          yield t().tabs.move(e, { windowId: n, index: i }))
                       },
                     ),
                   ),
                 )
               }))(s, o.id, -1),
-              yield t().windows.update(o.id, { focused: !0 })
+              yield t().windows.update(o.id, { focused: !0 }))
           }),
         c = () =>
           i(void 0, void 0, void 0, function* () {
@@ -838,8 +840,8 @@
               })
             const n = (yield t().windows.getAll({ populate: !0 })).find(f)
             if ((o.debug('openOrTogglePopup win:', { win: n }), !n)) return d()
-            o.debug('openOrTogglePopup focus popup window:', { win: n }),
-              t().windows.update(n.id, { focused: !0 })
+            ;(o.debug('openOrTogglePopup focus popup window:', { win: n }),
+              t().windows.update(n.id, { focused: !0 }))
           }),
         m = (e) => Math.floor(e),
         d = () =>
@@ -876,7 +878,7 @@
             })
           }),
         A = () => {
-          t().tabs.create({ url: a }), g()
+          ;(t().tabs.create({ url: a }), g())
         },
         u = (e) => e.url === a || e.pendingUrl === a,
         f = ({ type: e, tabs: t = [] }) =>
@@ -1027,30 +1029,30 @@
             c()
           })
         }
-        t().storage.onChanged.addListener((e, t) => {
+        ;(t().storage.onChanged.addListener((e, t) => {
           'local' === t && e.systemTheme && T()
         }),
-          T()
+          T())
       })
       const k = new (class {
           constructor() {
-            ;(this.tabHistory = []),
+            ;((this.tabHistory = []),
               (this.count = 0),
               (this.resetCountHandler = null),
               (this.expectedTabId = null),
               (this.resetCount = () => {
-                null != this.resetCountHandler &&
+                ;(null != this.resetCountHandler &&
                   clearTimeout(this.resetCountHandler),
-                  (this.resetCountHandler = setTimeout(this.reset, 1e3))
+                  (this.resetCountHandler = setTimeout(this.reset, 1e3)))
               }),
               (this.reset = () => {
                 const { length: e } = this.tabHistory,
                   t = this.tabHistory.slice(0, this.nextTabIndex),
                   n = this.tabHistory.slice(this.nextTabIndex, e - 1).reverse(),
                   s = this.tabHistory[e - 1]
-                ;(this.tabHistory = [...t, ...n, s]),
+                ;((this.tabHistory = [...t, ...n, s]),
                   (this.count = 0),
-                  (this.resetCountHandler = null)
+                  (this.resetCountHandler = null))
               }),
               (this.add = (e) => {
                 var { tabId: t, windowId: n } = e,
@@ -1073,16 +1075,16 @@
                   this.tabHistory.length > 1)
                 ) {
                   const { tabId: e } = this.tabHistory[this.nextTabIndex]
-                  ;(this.expectedTabId = e),
+                  ;((this.expectedTabId = e),
                     ((e, ...n) => {
                       i(void 0, [e, ...n], void 0, function* (e, n = !1) {
                         if (!e) return
                         const s = yield t().tabs.get(e)
-                        yield t().tabs.update(s.id, { active: !0 }),
+                        ;(yield t().tabs.update(s.id, { active: !0 }),
                           yield t().windows.update(s.windowId, { focused: !0 }),
-                          n || g()
+                          n || g())
                       })
-                    })(e, !0)
+                    })(e, !0))
                 }
               }),
               (this.onActivated = (e) =>
@@ -1112,7 +1114,8 @@
                   const [n] = yield t().tabs.query({ active: !0, windowId: e })
                   if (!n)
                     return (
-                      o.debug('onFocusChanged does nothing since no tab'), p(!1)
+                      o.debug('onFocusChanged does nothing since no tab'),
+                      p(!1)
                     )
                   const s = u(n)
                   if (s)
@@ -1124,7 +1127,7 @@
                       p(!0)
                     )
                   var r
-                  o.debug('onFocusChanged record the window', {
+                  ;(o.debug('onFocusChanged record the window', {
                     windowId: e,
                     tab: n,
                     isPopupWindow: s,
@@ -1139,17 +1142,17 @@
                     t().storage.local.set({
                       lastFocusedWindowId: r,
                       _selfPopupActive: !1,
-                    })
+                    }))
                 })),
               (this.onRemoved = (e) =>
                 I(this, void 0, void 0, function* () {
                   return this.remove(e)
-                }))
+                })))
             const { onActivated: e, onFocusChanged: n, onRemoved: s } = this
-            t().tabs.onActivated.addListener(e),
+            ;(t().tabs.onActivated.addListener(e),
               t().tabs.onRemoved.addListener(s),
               t().windows.onFocusChanged.addListener(n),
-              (this.actionMap = { [w]: this.activateTab })
+              (this.actionMap = { [w]: this.activateTab }))
           }
           get nextTabIndex() {
             return Math.max(this.tabHistory.length - 1 - this.count, 0)
@@ -1159,11 +1162,11 @@
           [h]: c,
           [v]: A,
           [b]: (e, t, n) => {
-            l(e.tabs), n()
+            ;(l(e.tabs), n())
           },
         }
       Object.assign(P, k.actionMap)
-      t().runtime.onMessage.addListener((e, t, n) => {
+      ;(t().runtime.onMessage.addListener((e, t, n) => {
         const { action: s } = e,
           r = P[s]
         r && 'function' == typeof r ? r(e, t, n) : n(`Unknown action: ${s}`)
@@ -1171,9 +1174,9 @@
         t().commands.onCommand.addListener((e) => {
           const t = P[e]
           t && 'function' == typeof t && t()
-        })
+        }))
       t().runtime.onInstalled.addListener((e) => {
         'install' === e.reason && A()
       })
-    })()
+    })())
 })()
