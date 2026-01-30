@@ -9,6 +9,8 @@ import actions from 'libs/actions'
 import log from 'libs/log'
 import { setBrowserIcon } from 'libs/verify'
 
+const STORAGE_KEY = 'tabHistory'
+
 export default class TabHistory {
   actionMap: { [key: string]: () => void }
 
@@ -20,15 +22,47 @@ export default class TabHistory {
     this.actionMap = {
       [actions.lastActiveTab]: this.activateTab,
     }
+    this.init()
   }
 
-  tabHistory = []
+  tabHistory: any[] = []
 
   count = 0
 
-  resetCountHandler = null
+  resetCountHandler: any = null
 
-  expectedTabId = null
+  expectedTabId: number | null = null
+
+  // Flag to indicate if history has been loaded from storage
+  loaded = false
+
+  init = async () => {
+    try {
+      const data = await browser.storage.local.get({ [STORAGE_KEY]: [] })
+      if (this.tabHistory.length === 0) {
+        this.tabHistory = data[STORAGE_KEY] || []
+      }
+      this.loaded = true
+      log.debug('TabHistory loaded from storage:', this.tabHistory)
+    } catch (e) {
+      log.error('Failed to load TabHistory from storage:', e)
+      this.loaded = true
+    }
+  }
+
+  save = async () => {
+    if (!this.loaded) {
+      return
+    }
+    try {
+      // Limit history size to prevent storage quota issues (optional, but good practice)
+      const MAX_HISTORY = 100
+      const historyToSave = this.tabHistory.slice(-MAX_HISTORY)
+      await browser.storage.local.set({ [STORAGE_KEY]: historyToSave })
+    } catch (e) {
+      log.error('Failed to save TabHistory to storage:', e)
+    }
+  }
 
   resetCount = () => {
     if (this.resetCountHandler != null) {
@@ -47,20 +81,25 @@ export default class TabHistory {
     this.tabHistory = [...untouchedTabs, ...touchedTabs, lastTab]
     this.count = 0
     this.resetCountHandler = null
+    this.save()
   }
 
   add = ({ tabId, windowId, ...rest }) => {
     if (!tabId || windowId === -1) {
       return
     }
-    this.remove(tabId)
+    this.remove(tabId, false) // pass false to avoid double save
     this.tabHistory.push({ tabId, windowId, ...rest })
+    this.save()
   }
 
-  remove = (tabId) => {
+  remove = (tabId, shouldSave = true) => {
     const index = this.tabHistory.findIndex((x) => x.tabId === tabId)
     if (index !== -1) {
       this.tabHistory.splice(index, 1)
+      if (shouldSave) {
+        this.save()
+      }
     }
   }
 
@@ -68,7 +107,12 @@ export default class TabHistory {
     return Math.max(this.tabHistory.length - 1 - this.count, 0)
   }
 
-  activateTab = () => {
+  activateTab = async () => {
+    // Ensure loaded before trying to activate
+    if (!this.loaded) {
+      await this.init()
+    }
+
     this.count += 1
     this.resetCount()
     if (this.tabHistory.length > 1) {
@@ -91,8 +135,13 @@ export default class TabHistory {
       }
     }
     this.expectedTabId = null
-    const tab = await browser.tabs.get(tabId)
-    this.add({ ...tab, tabId, windowId })
+    try {
+      const tab = await browser.tabs.get(tabId)
+      this.add({ ...tab, tabId, windowId })
+    } catch (e) {
+      // Tab might not exist anymore
+      log.warn('Failed to get tab info in onActivated:', e)
+    }
   }
 
   onFocusChanged = async (windowId) => {
@@ -101,26 +150,30 @@ export default class TabHistory {
     if (windowId < 0) {
       return setSelfPopupActive(false)
     }
-    const [tab] = await browser.tabs.query({ active: true, windowId })
-    if (!tab) {
-      log.debug('onFocusChanged does nothing since no tab')
-      return setSelfPopupActive(false)
-    }
-    const isPopupWindow = isSelfPopupTab(tab)
-    if (isPopupWindow) {
-      log.debug('onFocusChanged ignore self popup window', {
+    try {
+      const [tab] = await browser.tabs.query({ active: true, windowId })
+      if (!tab) {
+        log.debug('onFocusChanged does nothing since no tab')
+        return setSelfPopupActive(false)
+      }
+      const isPopupWindow = isSelfPopupTab(tab)
+      if (isPopupWindow) {
+        log.debug('onFocusChanged ignore self popup window', {
+          tab,
+          isPopupWindow,
+        })
+        return setSelfPopupActive(true)
+      }
+      log.debug('onFocusChanged record the window', {
+        windowId,
         tab,
         isPopupWindow,
       })
-      return setSelfPopupActive(true)
+      this.add({ ...tab, tabId: tab.id, windowId })
+      setLastFocusedWindowId(windowId)
+    } catch (e) {
+      log.warn('Error in onFocusChanged:', e)
     }
-    log.debug('onFocusChanged record the window', {
-      windowId,
-      tab,
-      isPopupWindow,
-    })
-    this.add({ ...tab, tabId: tab.id, windowId })
-    setLastFocusedWindowId(windowId)
   }
 
   onRemoved = async (tabId) => this.remove(tabId)

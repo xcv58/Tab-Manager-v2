@@ -28,24 +28,24 @@ export default observer((props: TabProps & { className?: string }) => {
 
   const isActionable = !dragStore.dragging
 
-  const onMouseEnter = () => {
+  const onMouseEnter = React.useCallback(() => {
     if (isActionable) {
       tab.hover()
     }
-  }
+  }, [isActionable, tab])
 
-  const onMouseLeave = () => {
+  const onMouseLeave = React.useCallback(() => {
     if (isActionable) {
       tab.unhover()
     }
-  }
+  }, [isActionable, tab])
 
-  const onRemove = () => {
+  const onRemove = React.useCallback(() => {
     const { removing, remove } = tab
     if (!removing) {
       remove()
     }
-  }
+  }, [tab])
 
   const reduceMotion = useReduceMotion()
 
@@ -89,7 +89,7 @@ export default observer((props: TabProps & { className?: string }) => {
             'bg-gray-800': shouldHighlight,
             'bg-gray-900': isSelected,
           },
-        ]
+        ],
       )}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}

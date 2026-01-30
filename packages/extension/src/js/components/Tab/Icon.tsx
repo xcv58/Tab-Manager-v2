@@ -65,10 +65,10 @@ export const Icon = observer((props: TabProps) => {
 
 export default observer((props: TabProps) => {
   const { faked, tab } = props
-  const { iconUrl } = tab
   if (!faked) {
-    return <Icon {...props} />
+    return <Icon tab={tab} />
   }
+  const { iconUrl } = tab
   return (
     <div>
       <IconButton
