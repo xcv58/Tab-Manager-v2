@@ -6,7 +6,6 @@ import {
   CLOSE_PAGES,
   initBrowserWithExtension,
   openPages,
-  matchImageSnapshotOptions,
 } from '../util'
 import manifest from '../../extension/src/manifest.json'
 
@@ -72,7 +71,10 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     await page.reload()
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot(
+      'render correct number of windows & tabs.png',
+      { maxDiffPixelRatio: 0.15 },
+    )
   })
 
   test('render popup mode based on URL query', async () => {
