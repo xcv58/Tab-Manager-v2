@@ -49,8 +49,10 @@ test.describe('The Extension page should', () => {
   })
 
   test('render correct number of windows & tabs', async () => {
+    await page.reload()
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
+    await page.reload()
     let tabs = await page.$$(TAB_QUERY)
     expect(tabs).toHaveLength(1)
 
