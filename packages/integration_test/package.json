@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Integration test via Playwright",
   "scripts": {
-    "test": "CI=${CI:-false} && ${CI} && xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' npx playwright test || npx playwright test",
+    "test": "npx playwright test",
     "test-watch": "pnpm test -- --watchAll"
   },
   "devDependencies": {
