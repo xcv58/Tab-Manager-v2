@@ -53,7 +53,7 @@ jobs:
 
       # Run all test
       - name: Integration Test
-        run: pnpm run test --force
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test --force
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
