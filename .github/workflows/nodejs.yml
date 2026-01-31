@@ -47,8 +47,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Debug Playwright Container
+        run: |
+          echo "Listing /ms-playwright:"
+          ls -la /ms-playwright || echo "/ms-playwright not found"
+          echo "Environment:"
+          env | grep PLAYWRIGHT
+
       # Run all test
       - name: Integration Test
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
         run: pnpm run test --force
 
       - uses: actions/upload-artifact@v4
