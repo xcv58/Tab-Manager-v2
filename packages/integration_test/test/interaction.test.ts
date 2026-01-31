@@ -54,8 +54,8 @@ test.describe('The Extension page should', () => {
   })
 
   test('sort the tabs', async () => {
-    await page.waitForTimeout(1000)
     await page.reload()
+    await page.waitForTimeout(1000)
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
     const tabs = await page.$$(TAB_QUERY)

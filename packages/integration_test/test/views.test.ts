@@ -6,6 +6,7 @@ import {
   CLOSE_PAGES,
   initBrowserWithExtension,
   openPages,
+  matchImageSnapshotOptions,
 } from '../util'
 import manifest from '../../extension/src/manifest.json'
 
@@ -71,7 +72,7 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     await page.reload()
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'render.png')
+    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
   })
 
   test('render popup mode based on URL query', async () => {
