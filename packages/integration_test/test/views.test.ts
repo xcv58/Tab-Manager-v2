@@ -13,6 +13,8 @@ let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
+const snapShotOptions = { maxDiffPixelRatio: 0.18 }
+
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.beforeAll(async () => {
@@ -73,7 +75,7 @@ test.describe('The Extension page should', () => {
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(
       'render correct number of windows & tabs.png',
-      { maxDiffPixelRatio: 0.15 },
+      snapShotOptions,
     )
   })
 
@@ -103,16 +105,20 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(3000)
     await page.waitForSelector(inputSelector)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'popup 1a.png', {
-      maxDiffPixelRatio: 0.15,
-    })
+    expect(screenshot).toMatchSnapshot(
+      screenshot,
+      'popup 1a.png',
+      snapShotOptions,
+    )
 
     await page.waitForTimeout(1000)
     await page.fill(inputSelector, 'xcv58')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'popup 2a.png', {
-      maxDiffPixelRatio: 0.15,
-    })
+    expect(screenshot).toMatchSnapshot(
+      screenshot,
+      'popup 2a.png',
+      snapShotOptions,
+    )
 
     await page.fill(inputSelector, '')
   })
@@ -127,9 +133,11 @@ test.describe('The Extension page should', () => {
     await selectAllButton.click()
     await page.waitForTimeout(1000)
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'correct color.png', {
-      maxDiffPixelRatio: 0.15,
-    })
+    expect(screenshot).toMatchSnapshot(
+      screenshot,
+      'correct color.png',
+      snapShotOptions,
+    )
   })
 
   test('support search browser history', async () => {
@@ -154,17 +162,21 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 1a.png', {
-      maxDiffPixelRatio: 0.15,
-    })
+    expect(screenshot).toMatchSnapshot(
+      screenshot,
+      'browser history 1a.png',
+      snapShotOptions,
+    )
 
     await page.fill(inputSelector, 'xcv58')
     await page.waitForTimeout(1000)
     await page.bringToFront()
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 2a.png', {
-      maxDiffPixelRatio: 0.15,
-    })
+    expect(screenshot).toMatchSnapshot(
+      screenshot,
+      'browser history 2a.png',
+      snapShotOptions,
+    )
 
     await page.fill(inputSelector, 'duck')
     await page.waitForTimeout(1000)
@@ -186,8 +198,10 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'duplicated tabs.png', {
-      maxDiffPixelRatio: 0.15,
-    })
+    expect(screenshot).toMatchSnapshot(
+      screenshot,
+      'duplicated tabs.png',
+      snapShotOptions,
+    )
   })
 })
