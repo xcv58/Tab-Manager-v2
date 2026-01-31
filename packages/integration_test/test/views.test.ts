@@ -13,7 +13,7 @@ let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
-const snapShotOptions = { maxDiffPixelRatio: 0.18 }
+const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
