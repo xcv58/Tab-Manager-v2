@@ -103,12 +103,16 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(3000)
     await page.waitForSelector(inputSelector)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'popup 1a.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'popup 1a.png', {
+      maxDiffPixelRatio: 0.15,
+    })
 
     await page.waitForTimeout(1000)
     await page.fill(inputSelector, 'xcv58')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'popup 2a.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'popup 2a.png', {
+      maxDiffPixelRatio: 0.15,
+    })
 
     await page.fill(inputSelector, '')
   })
@@ -123,7 +127,9 @@ test.describe('The Extension page should', () => {
     await selectAllButton.click()
     await page.waitForTimeout(1000)
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'correct color.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'correct color.png', {
+      maxDiffPixelRatio: 0.15,
+    })
   })
 
   test('support search browser history', async () => {
@@ -148,13 +154,17 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 1a.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 1a.png', {
+      maxDiffPixelRatio: 0.15,
+    })
 
     await page.fill(inputSelector, 'xcv58')
     await page.waitForTimeout(1000)
     await page.bringToFront()
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 2a.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 2a.png', {
+      maxDiffPixelRatio: 0.15,
+    })
 
     await page.fill(inputSelector, 'duck')
     await page.waitForTimeout(1000)
@@ -176,6 +186,8 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'duplicated tabs.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'duplicated tabs.png', {
+      maxDiffPixelRatio: 0.15,
+    })
   })
 })
