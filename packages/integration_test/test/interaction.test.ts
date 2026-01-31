@@ -7,7 +7,6 @@ import {
   CLOSE_PAGES,
   initBrowserWithExtension,
   openPages,
-  matchImageSnapshotOptions,
 } from '../util'
 
 let page: Page
@@ -63,7 +62,7 @@ test.describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(test.info(), 'sort the tabs 1.png')
+    expect(screenshot).toMatchSnapshot('sort the tabs 1.png')
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText),
@@ -107,7 +106,7 @@ test.describe('The Extension page should', () => {
       'https://xcv58.com/',
     ])
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(test.info(), 'sort the tabs 2.png')
+    expect(screenshot).toMatchSnapshot('sort the tabs 2.png')
   })
 
   test('search input field should clear after selecting a command', async () => {
@@ -175,7 +174,7 @@ test.describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     await page.waitForTimeout(500)
     let toggleThemeButton = await page.$(
@@ -184,24 +183,22 @@ test.describe('The Extension page should', () => {
     await toggleThemeButton.click()
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     await page.keyboard.press('Control+,')
     await page.waitForTimeout(500)
     await page.waitForSelector('[aria-labelledby="update-font-size"]')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     const dialogContent = await page.$('.MuiDialogContent-root')
-    expect(await dialogContent.screenshot()).toMatchSnapshot(
-      matchImageSnapshotOptions,
-    )
+    expect(await dialogContent.screenshot()).toMatchSnapshot()
 
     await page.keyboard.press('?')
     await page.waitForTimeout(500)
     await page.waitForSelector('table')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
@@ -212,26 +209,26 @@ test.describe('The Extension page should', () => {
     await toggleThemeButton.click()
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
   })
 
   test('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
     await page.keyboard.press('Control+,')
     await page.waitForTimeout(500)
     await page.waitForSelector('[aria-labelledby="update-font-size"]')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
     const minFontSize = (
       await page.$$('span[data-index="0"].MuiSlider-mark')
     )[1]
     await minFontSize.click()
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     const largeFontSize = (
       await page.$$('span[data-index="15"].MuiSlider-mark')
@@ -239,7 +236,7 @@ test.describe('The Extension page should', () => {
     await largeFontSize.click()
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     const defaultFontSize = (
       await page.$$('span[data-index="8"].MuiSlider-mark')
@@ -247,7 +244,7 @@ test.describe('The Extension page should', () => {
     await defaultFontSize.click()
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
@@ -261,7 +258,7 @@ test.describe('The Extension page should', () => {
     await page.waitForSelector('[aria-labelledby="toggle-always-show-toolbar"]')
     await page.waitForTimeout(500)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     let toogleButton = await page.$(
       '[aria-labelledby="toggle-always-show-toolbar"]',
@@ -270,7 +267,7 @@ test.describe('The Extension page should', () => {
 
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     toogleButton = await page.$(
       '[aria-labelledby="toggle-always-show-toolbar"]',
@@ -278,7 +275,7 @@ test.describe('The Extension page should', () => {
     await toogleButton.click()
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
 
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
@@ -309,12 +306,10 @@ test.describe('The Extension page should', () => {
     // Playwright triggers the drag effect but it wouldn't move the cursor.
     await page.mouse.move(100, 20, { steps: 5 })
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
+    expect(screenshot).toMatchSnapshot()
     const droppableToolSelector = '.z-10.h-12.px-1.text-3xl'
     const dropAreaEl = await page.$(droppableToolSelector)
-    expect(await dropAreaEl.screenshot()).toMatchSnapshot(
-      matchImageSnapshotOptions,
-    )
+    expect(await dropAreaEl.screenshot()).toMatchSnapshot()
     await page.mouse.up()
   })
 })

@@ -105,20 +105,12 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(3000)
     await page.waitForSelector(inputSelector)
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(
-      screenshot,
-      'popup 1a.png',
-      snapShotOptions,
-    )
+    expect(screenshot).toMatchSnapshot('popup 1a.png', snapShotOptions)
 
     await page.waitForTimeout(1000)
     await page.fill(inputSelector, 'xcv58')
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(
-      screenshot,
-      'popup 2a.png',
-      snapShotOptions,
-    )
+    expect(screenshot).toMatchSnapshot('popup 2a.png', snapShotOptions)
 
     await page.fill(inputSelector, '')
   })
@@ -133,11 +125,7 @@ test.describe('The Extension page should', () => {
     await selectAllButton.click()
     await page.waitForTimeout(1000)
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(
-      screenshot,
-      'correct color.png',
-      snapShotOptions,
-    )
+    expect(screenshot).toMatchSnapshot('correct color.png', snapShotOptions)
   })
 
   test('support search browser history', async () => {
@@ -163,7 +151,6 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(
-      screenshot,
       'browser history 1a.png',
       snapShotOptions,
     )
@@ -173,7 +160,6 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(
-      screenshot,
       'browser history 2a.png',
       snapShotOptions,
     )
@@ -182,7 +168,7 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
     await page.bringToFront()
     screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(screenshot, 'browser history 3.png')
+    expect(screenshot).toMatchSnapshot('browser history 3.png')
 
     await page.fill(inputSelector, '')
   })
@@ -198,10 +184,6 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(
-      screenshot,
-      'duplicated tabs.png',
-      snapShotOptions,
-    )
+    expect(screenshot).toMatchSnapshot('duplicated tabs.png', snapShotOptions)
   })
 })
