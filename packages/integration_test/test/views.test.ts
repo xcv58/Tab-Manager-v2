@@ -35,8 +35,8 @@ test.describe('The Extension page should', () => {
     }
     await page.bringToFront()
     await page.goto(extensionURL)
-    await page.waitForTimeout(1000)
     await CLOSE_PAGES(browserContext)
+    await page.waitForTimeout(1000)
   })
 
   test.afterEach(async () => {
@@ -49,6 +49,7 @@ test.describe('The Extension page should', () => {
   })
 
   test('render correct number of windows & tabs', async () => {
+    await page.waitForTimeout(1000)
     await page.reload()
     const wins = await page.$$('.shadow-2xl,.shadow-sm')
     expect(wins).toHaveLength(1)
@@ -69,7 +70,7 @@ test.describe('The Extension page should', () => {
     expect(pages).toHaveLength(N + 1)
     await page.bringToFront()
     const screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(test.info(), 'render.png')
+    expect(screenshot).toMatchSnapshot(screenshot, 'render.png')
   })
 
   test('render popup mode based on URL query', async () => {
