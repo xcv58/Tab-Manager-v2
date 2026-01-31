@@ -330,10 +330,10 @@ importers:
     devDependencies:
       '@ayroblu/playwright-image-snapshot':
         specifier: ^0.3.9
-        version: 0.3.9(@playwright/test@1.58.0)
+        version: 0.3.9(@playwright/test@1.58.1)
       '@playwright/test':
-        specifier: 1.58.0
-        version: 1.58.0
+        specifier: 1.58.1
+        version: 1.58.1
       '@types/jest':
         specifier: 29.5.14
         version: 29.5.14
@@ -2010,8 +2010,8 @@ packages:
     resolution: {integrity: sha512-kqtXxYF/kXJrDlCkewk3sUUAFGmRRpzcNv5vuf0mvNIcVKEuU1ixDWSFYw/amSnju5QkcwAtsceLvCmfy+6NBA==}
     engines: {node: '>=16.14'}
 
-  '@playwright/test@1.58.0':
-    resolution: {integrity: sha512-fWza+Lpbj6SkQKCrU6si4iu+fD2dD3gxNHFhUPxsfXBPhnv3rRSQVd0NtBUT9Z/RhF/boCBcuUaMUSTRTopjZg==}
+  '@playwright/test@1.58.1':
+    resolution: {integrity: sha512-6LdVIUERWxQMmUSSQi0I53GgCBYgM2RpGngCPY7hSeju+VrKjq3lvs7HpJoPbDiY5QM5EYRtRX5fvrinnMAz3w==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -7650,13 +7650,13 @@ packages:
     resolution: {integrity: sha512-+KD8hJtqQMYoTuL1bbGOqxb4z+nZkTAwVdNtWwe8Tc2xNbEmdJYIYoc6Qt0uF55e6YW6KuTHw1DjQ18gMhzepw==}
     engines: {node: '>=16.0.0'}
 
-  playwright-core@1.58.0:
-    resolution: {integrity: sha512-aaoB1RWrdNi3//rOeKuMiS65UCcgOVljU46At6eFcOFPFHWtd2weHRRow6z/n+Lec0Lvu0k9ZPKJSjPugikirw==}
+  playwright-core@1.58.1:
+    resolution: {integrity: sha512-bcWzOaTxcW+VOOGBCQgnaKToLJ65d6AqfLVKEWvexyS3AS6rbXl+xdpYRMGSRBClPvyj44njOWoxjNdL/H9UNg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.58.0:
-    resolution: {integrity: sha512-2SVA0sbPktiIY/MCOPX8e86ehA/e+tDNq+e5Y8qjKYti2Z/JG7xnronT/TXTIkKbYGWlCbuucZ6dziEgkoEjQQ==}
+  playwright@1.58.1:
+    resolution: {integrity: sha512-+2uTZHxSCcxjvGc5C891LrS1/NlxglGxzrC4seZiVjcYVQfUa87wBL6rTDqzGjuoWNjnBzRqKmF6zRYGMvQUaQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -10002,9 +10002,9 @@ snapshots:
     dependencies:
       default-browser-id: 3.0.0
 
-  '@ayroblu/playwright-image-snapshot@0.3.9(@playwright/test@1.58.0)':
+  '@ayroblu/playwright-image-snapshot@0.3.9(@playwright/test@1.58.1)':
     dependencies:
-      '@playwright/test': 1.58.0
+      '@playwright/test': 1.58.1
       colors: 1.4.0
       glur: 1.1.2
       mkdirp: 1.0.4
@@ -12003,9 +12003,9 @@ snapshots:
     dependencies:
       got: 14.4.4
 
-  '@playwright/test@1.58.0':
+  '@playwright/test@1.58.1':
     dependencies:
-      playwright: 1.58.0
+      playwright: 1.58.1
 
   '@pmmmwh/react-refresh-webpack-plugin@0.5.15(react-refresh@0.14.2)(type-fest@4.41.0)(webpack-dev-server@5.2.3(webpack@5.104.1(@swc/core@1.10.3)(esbuild@0.18.20)))(webpack-hot-middleware@2.26.1)(webpack@5.104.1(@swc/core@1.10.3)(esbuild@0.18.20))':
     dependencies:
@@ -19032,11 +19032,11 @@ snapshots:
       pvutils: 1.1.5
       tslib: 2.8.1
 
-  playwright-core@1.58.0: {}
+  playwright-core@1.58.1: {}
 
-  playwright@1.58.0:
+  playwright@1.58.1:
     dependencies:
-      playwright-core: 1.58.0
+      playwright-core: 1.58.1
     optionalDependencies:
       fsevents: 2.3.2
 

@@ -34,7 +34,7 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
-      - run: pnpm run test --force
+      - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test --force
       - run: pnpm run deploy
       - *save_cache
       - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
