@@ -154,9 +154,7 @@ const options = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
       'process.env.TARGET_BROWSER': JSON.stringify(env.TARGET_BROWSER),
-      'process.env.IS_SAFARI': JSON.stringify(
-        String(env.TARGET_BROWSER === 'safari'),
-      ),
+      IS_SAFARI: env.TARGET_BROWSER === 'safari',
     }),
     new CopyWebpackPlugin({
       patterns: [

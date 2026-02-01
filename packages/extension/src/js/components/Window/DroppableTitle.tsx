@@ -7,8 +7,6 @@ import Title from './Title'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 
-const IS_SAFARI = process.env.IS_SAFARI === 'true'
-
 export default observer((props: WinProps) => {
   if (IS_SAFARI) {
     return <Title {...props} />

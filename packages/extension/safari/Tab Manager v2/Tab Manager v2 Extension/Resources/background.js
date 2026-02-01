@@ -789,13 +789,33 @@
               o = yield t().windows.create({ tabId: r })
             ;(yield ((e, n, ...s) =>
               i(void 0, [e, n, ...s], void 0, function* (e, n, s = 0) {
-                yield Promise.all(
-                  e.map((e) =>
-                    i(void 0, [e], void 0, function* ({ id: e, pinned: n }) {
-                      yield t().tabs.update(e, { pinned: n })
-                    }),
-                  ),
-                )
+                'true' !== process.env.IS_SAFARI
+                  ? yield Promise.all(
+                      e.map((e, r) =>
+                        i(
+                          void 0,
+                          [e, r],
+                          void 0,
+                          function* ({ id: e, pinned: r }, o) {
+                            const i = s + (-1 !== s ? o : 0)
+                            ;(yield t().tabs.update(e, { pinned: r }),
+                              yield t().tabs.move(e, { windowId: n, index: i }))
+                          },
+                        ),
+                      ),
+                    )
+                  : yield Promise.all(
+                      e.map((e) =>
+                        i(
+                          void 0,
+                          [e],
+                          void 0,
+                          function* ({ id: e, pinned: n }) {
+                            yield t().tabs.update(e, { pinned: n })
+                          },
+                        ),
+                      ),
+                    )
               }))(s, o.id, -1),
               yield t().windows.update(o.id, { focused: !0 }))
           }),

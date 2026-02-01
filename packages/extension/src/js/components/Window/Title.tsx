@@ -10,8 +10,6 @@ import HideToggle from './HideToggle'
 import { WinProps } from 'components/types'
 import useReduceMotion from 'libs/useReduceMotion'
 
-const IS_SAFARI = process.env.IS_SAFARI === 'true'
-
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const { className, win } = props

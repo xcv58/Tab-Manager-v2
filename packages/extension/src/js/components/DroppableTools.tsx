@@ -7,8 +7,6 @@ import { getNoun } from 'libs'
 import { useStore } from './hooks/useStore'
 import Tools from './Tools'
 
-const IS_SAFARI = process.env.IS_SAFARI === 'true'
-
 export default observer(() => {
   if (IS_SAFARI) {
     return <Tools />
