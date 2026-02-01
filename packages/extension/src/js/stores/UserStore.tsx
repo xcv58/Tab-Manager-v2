@@ -86,6 +86,9 @@ export default class UserStore {
   init = async () => {
     const result = await browser.storage.sync.get(DEFAULT_SETTINGS)
     Object.assign(this, result)
+    if (process.env.IS_SAFARI === 'true') {
+      this.showTabIcon = false
+    }
     this.toolbarVisible = !this.toolbarAutoHide
     this.store.searchStore.init()
     this.loaded = true

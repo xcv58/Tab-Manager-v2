@@ -49,11 +49,11 @@ export default class ShortcutStore {
     'ctrl+k',
     'ctrl+/',
     'ctrl+p',
-    'ctrl+s',
-    'shift+ctrl+s',
+    ...(process.env.IS_SAFARI !== 'true'
+      ? ['ctrl+s', 'shift+ctrl+s', 'ctrl+g']
+      : []),
     'ctrl+x',
     'ctrl+r',
-    'ctrl+g',
     'ctrl+8',
     'ctrl+m',
     'ctrl+n',
@@ -62,7 +62,7 @@ export default class ShortcutStore {
   ])
 
   shortcuts: any[] = [
-    [
+    process.env.IS_SAFARI !== 'true' && [
       'ctrl+s',
       (event: Event) => {
         preventDefault(event)
@@ -70,7 +70,7 @@ export default class ShortcutStore {
       },
       'Sort tabs',
     ],
-    [
+    process.env.IS_SAFARI !== 'true' && [
       'shift+ctrl+s',
       (event: Event) => {
         preventDefault(event)
@@ -233,7 +233,7 @@ export default class ShortcutStore {
       },
       'Last tab',
     ],
-    [
+    process.env.IS_SAFARI !== 'true' && [
       ['ctrl+g'],
       (event: Event) => {
         preventDefault(event)
@@ -317,7 +317,7 @@ export default class ShortcutStore {
       },
       'Open this window in new tab',
     ],
-    [
+    process.env.IS_SAFARI !== 'true' && [
       ['shift+n'],
       (event: Event) => {
         preventDefault(event)

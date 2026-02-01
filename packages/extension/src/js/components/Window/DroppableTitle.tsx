@@ -1,14 +1,18 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { useDrop } from 'react-dnd'
+import { useDrop, ItemTypes, getTargetTab } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
-import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import classNames from 'classnames'
 import Title from './Title'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default observer((props: WinProps) => {
+  if (IS_SAFARI) {
+    return <Title {...props} />
+  }
   const { win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({

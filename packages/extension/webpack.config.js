@@ -154,13 +154,16 @@ const options = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
       'process.env.TARGET_BROWSER': JSON.stringify(env.TARGET_BROWSER),
+      'process.env.IS_SAFARI': JSON.stringify(
+        String(env.TARGET_BROWSER === 'safari'),
+      ),
     }),
     new CopyWebpackPlugin({
       patterns: [
         ...images,
         {
           from:
-            env.TARGET_BROWSER === 'chrome'
+            env.TARGET_BROWSER === 'chrome' || env.TARGET_BROWSER === 'safari'
               ? 'src/manifest-v3.json'
               : 'src/manifest.json',
           transform: function (content) {
@@ -185,6 +188,15 @@ const options = {
             }
             if (process.env.TARGET_BROWSER === 'chrome') {
               json.permissions = json.permissions.concat('tabGroups')
+            }
+            // Safari-specific: remove unsupported permissions
+            if (process.env.TARGET_BROWSER === 'safari') {
+              json.permissions = json.permissions.filter(
+                (permission) =>
+                  !['management', 'history', 'tabGroups'].includes(permission),
+              )
+              // Remove unsupported manifest keys
+              delete json.omnibox
             }
             return Buffer.from(
               JSON.stringify({

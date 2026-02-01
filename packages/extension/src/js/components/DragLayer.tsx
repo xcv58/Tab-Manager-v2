@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react'
-import { useDragLayer } from 'react-dnd'
+import { useDragLayer } from 'libs/react-dnd'
 import DragPreview from './DragPreview'
 
 const layerStyles: CSSProperties = {
@@ -28,13 +28,18 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
   }
 }
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default () => {
+  if (IS_SAFARI) {
+    return null
+  }
   const { initialOffset, currentOffset, isDragging } = useDragLayer(
     (monitor) => ({
       initialOffset: monitor.getInitialSourceClientOffset(),
       currentOffset: monitor.getClientOffset(),
       isDragging: monitor.isDragging(),
-    })
+    }),
   )
   return (
     <div style={layerStyles}>
