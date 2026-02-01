@@ -2,7 +2,12 @@ import React from 'react'
 import classNames from 'classnames'
 import { useTheme } from 'components/hooks/useTheme'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default () => {
+  if (IS_SAFARI) {
+    return null
+  }
   const isDarkTheme = useTheme()
   return (
     <button
@@ -11,7 +16,7 @@ export default () => {
         {
           'hover:bg-blue-200 active:bg-blue-300': !isDarkTheme,
           'hover:bg-gray-600 active:bg-gray-800': isDarkTheme,
-        }
+        },
       )}
     >
       &#9776;

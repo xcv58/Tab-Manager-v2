@@ -90,10 +90,14 @@ export default observer((props: { tab: Tab }) => {
         onClick: () => {
           props.tab.openSameContainerTabs()
         },
-      }
+      },
     )
   }
-  if (sameDomainTabs && sameDomainTabs.length > 1) {
+  if (
+    process.env.IS_SAFARI !== 'true' &&
+    sameDomainTabs &&
+    sameDomainTabs.length > 1
+  ) {
     options.push(DIVIDER, {
       ...OPTION,
       label: `Group ${sameDomainTabs.length} same domain tabs to this window`,
@@ -105,7 +109,7 @@ export default observer((props: { tab: Tab }) => {
       ...OPTION,
       label: `Close other ${duplicatedTabCount - 1} duplicated ${getNoun(
         'tab',
-        duplicatedTabCount - 1
+        duplicatedTabCount - 1,
       )}`,
       onClick: closeDuplicatedTab,
     })

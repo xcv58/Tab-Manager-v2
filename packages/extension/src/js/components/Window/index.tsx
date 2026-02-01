@@ -1,15 +1,16 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import { useDrop } from 'react-dnd'
+import { useDrop, ItemTypes, getTargetTab } from 'libs/react-dnd'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
 import DropIndicator from 'components/DropIndicator'
-import { ItemTypes, getTargetTab } from 'libs/react-dnd'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { CSSProperties } from '@mui/styles'
 import Loading from 'components/Loading'
 import { WinProps } from 'components/types'
+
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
 
 export default observer((props: WinProps & { width: string }) => {
   const { dragStore, userStore } = useStore()
@@ -44,16 +45,16 @@ export default observer((props: WinProps & { width: string }) => {
     boxSizing: 'border-box',
     padding: `0px 1px ${tabHeight}px 1px`,
   }
-  const dropIndicator = canDrop && isOver && <DropIndicator />
+  const dropIndicator = !IS_SAFARI && canDrop && isOver && <DropIndicator />
   if (!win.visibleLength) {
     return null
   }
   return (
     <div
-      ref={drop}
+      ref={IS_SAFARI ? undefined : drop}
       style={style}
       className={classNames({
-        'bg-red-500': isDragging && isOver && !canDrop,
+        'bg-red-500': !IS_SAFARI && isDragging && isOver && !canDrop,
       })}
     >
       <div

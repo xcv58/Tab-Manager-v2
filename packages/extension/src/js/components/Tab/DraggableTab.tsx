@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import { useDrag } from 'react-dnd'
+import { useDrag, ItemTypes, getEmptyImage } from 'libs/react-dnd'
 import DroppableTab from './DroppableTab'
-import { ItemTypes } from 'libs/react-dnd'
+import Tab from './Tab'
 import { useStore } from 'components/hooks/useStore'
-import { getEmptyImage } from 'react-dnd-html5-backend'
 import { TabProps } from '../types'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default observer((props: TabProps) => {
+  if (IS_SAFARI) {
+    return <Tab {...props} />
+  }
   const { tab } = props
   const { dragStore } = useStore()
   const [dragProps, drag, connectDragPreview] = useDrag({

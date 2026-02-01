@@ -176,16 +176,18 @@ export default observer(() => {
           </FormGroup>
           <FormGroup>
             <FormHelperText>Individual Tab</FormHelperText>
-            <FormControlLabel
-              label="Show Tab Icon"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showTabIcon}
-                  onChange={toggleShowTabIcon}
-                />
-              }
-            />
+            {process.env.IS_SAFARI !== 'true' && (
+              <FormControlLabel
+                label="Show Tab Icon"
+                control={
+                  <Switch
+                    color="primary"
+                    checked={showTabIcon}
+                    onChange={toggleShowTabIcon}
+                  />
+                }
+              />
+            )}
             <FormControlLabel
               label="Show URL"
               control={

@@ -1,14 +1,18 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import { useDrop } from 'react-dnd'
+import { useDrop, ItemTypes } from 'libs/react-dnd'
 import Preview from 'components/Preview'
 import { getNoun } from 'libs'
-import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from './hooks/useStore'
 import Tools from './Tools'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default observer(() => {
+  if (IS_SAFARI) {
+    return <Tools />
+  }
   const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -34,7 +38,7 @@ export default observer(() => {
         ref={drop}
         className={classNames(
           'flex items-center justify-center h-12 px-1 text-3xl shrink-0 z-10',
-          isOver ? 'bg-green-400' : 'bg-green-300'
+          isOver ? 'bg-green-400' : 'bg-green-300',
         )}
       >
         {text} in New Window

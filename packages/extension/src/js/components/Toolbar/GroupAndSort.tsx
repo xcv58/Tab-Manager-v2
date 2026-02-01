@@ -6,9 +6,13 @@ import IconButton from '@mui/material/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
 const TITLE = 'Group & Sort Tabs'
 
 export default observer(() => {
+  if (IS_SAFARI) {
+    return null
+  }
   const { arrangeStore } = useStore()
 
   const { groupTabs } = arrangeStore

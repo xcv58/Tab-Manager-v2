@@ -23,6 +23,17 @@ export const getNoun = (noun, size) => {
 }
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
+  // Safari doesn't support tabs.move()
+  if (process.env.IS_SAFARI === 'true') {
+    // In Safari, we can only update pinned status
+    await Promise.all(
+      tabs.map(async ({ id, pinned }) => {
+        await browser.tabs.update(id, { pinned })
+      }),
+    )
+    return
+  }
+
   await Promise.all(
     tabs.map(async ({ id, pinned }, i) => {
       const index = from + (from !== -1 ? i : 0)
@@ -176,7 +187,7 @@ export const getLastFocusedWindowId = async () => {
       lastFocusedWindowId: null,
     })
     return lastFocusedWindowId
-  } catch (e) {
+  } catch {
     return null
   }
 }
