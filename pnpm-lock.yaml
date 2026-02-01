@@ -220,8 +220,8 @@ importers:
         specifier: 3.8.3
         version: 3.8.3
       copy-webpack-plugin:
-        specifier: 12.0.2
-        version: 12.0.2(webpack@5.104.1)
+        specifier: 13.0.1
+        version: 13.0.1(webpack@5.104.1)
       coveralls:
         specifier: 3.1.1
         version: 3.1.1
@@ -4334,8 +4334,8 @@ packages:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
 
-  copy-webpack-plugin@12.0.2:
-    resolution: {integrity: sha512-SNwdBeHyII+rWvee/bTnAYyO8vfVdcSTud4EIb6jcZ8inLeWucJE0DnxXQBjlQ5zlteuuvooGQy3LIyGxhvlOA==}
+  copy-webpack-plugin@13.0.1:
+    resolution: {integrity: sha512-J+YV3WfhY6W/Xf9h+J1znYuqTye2xkBUIGyTPWuBAT27qajBa5mR4f8WBmfDY3YjRftT2kqZZiLi1qf0H+UOFw==}
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       webpack: ^5.1.0
@@ -12015,7 +12015,7 @@ snapshots:
       html-entities: 2.5.2
       loader-utils: 2.0.4
       react-refresh: 0.14.2
-      schema-utils: 4.3.0
+      schema-utils: 4.3.3
       source-map: 0.7.4
       webpack: 5.104.1(@swc/core@1.10.3)(esbuild@0.18.20)
     optionalDependencies:
@@ -14330,7 +14330,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.6
       find-cache-dir: 4.0.0
-      schema-utils: 4.3.0
+      schema-utils: 4.3.3
       webpack: 5.104.1(@swc/core@1.10.3)(esbuild@0.18.20)
 
   babel-merge@3.0.0(@babel/core@7.28.6):
@@ -15052,14 +15052,13 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  copy-webpack-plugin@12.0.2(webpack@5.104.1):
+  copy-webpack-plugin@13.0.1(webpack@5.104.1):
     dependencies:
-      fast-glob: 3.3.2
       glob-parent: 6.0.2
-      globby: 14.0.2
       normalize-path: 3.0.0
-      schema-utils: 4.3.0
+      schema-utils: 4.3.3
       serialize-javascript: 6.0.2
+      tinyglobby: 0.2.15
       webpack: 5.104.1
 
   core-js-compat@3.48.0:
@@ -21224,7 +21223,7 @@ snapshots:
       memfs: 3.5.3
       mime-types: 2.1.35
       range-parser: 1.2.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.3
     optionalDependencies:
       webpack: 5.104.1(@swc/core@1.10.3)(esbuild@0.18.20)
 
@@ -21235,7 +21234,7 @@ snapshots:
       mime-types: 2.1.35
       on-finished: 2.4.1
       range-parser: 1.2.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.3
     optionalDependencies:
       webpack: 5.104.1(@swc/core@1.10.3)(esbuild@0.18.20)
     optional: true
@@ -21247,7 +21246,7 @@ snapshots:
       mime-types: 2.1.35
       on-finished: 2.4.1
       range-parser: 1.2.1
-      schema-utils: 4.3.0
+      schema-utils: 4.3.3
     optionalDependencies:
       webpack: 5.104.1
 
