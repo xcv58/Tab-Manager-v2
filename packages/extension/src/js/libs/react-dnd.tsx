@@ -17,6 +17,8 @@ export const getTargetTab = (tabs, begin) => {
  * Safari doesn't support tabs.move(), so drag-and-drop is disabled
  */
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 // Safari: No-op implementations
 const useDragNoOp = () => [{ isDragging: false }, () => {}, () => {}] as const
 

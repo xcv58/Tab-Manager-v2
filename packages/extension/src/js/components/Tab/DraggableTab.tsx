@@ -7,6 +7,8 @@ import Tab from './Tab'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from '../types'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default observer((props: TabProps) => {
   if (IS_SAFARI) {
     return <Tab {...props} />

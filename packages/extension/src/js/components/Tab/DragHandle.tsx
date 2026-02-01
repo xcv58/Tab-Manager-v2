@@ -2,6 +2,8 @@ import React from 'react'
 import classNames from 'classnames'
 import { useTheme } from 'components/hooks/useTheme'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default () => {
   if (IS_SAFARI) {
     return null

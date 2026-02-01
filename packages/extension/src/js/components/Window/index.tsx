@@ -10,6 +10,8 @@ import { CSSProperties } from '@mui/styles'
 import Loading from 'components/Loading'
 import { WinProps } from 'components/types'
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default observer((props: WinProps & { width: string }) => {
   const { dragStore, userStore } = useStore()
   const tabHeight = useTabHeight()

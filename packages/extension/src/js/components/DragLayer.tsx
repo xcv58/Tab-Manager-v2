@@ -28,6 +28,8 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
   }
 }
 
+const IS_SAFARI = process.env.IS_SAFARI === 'true'
+
 export default () => {
   if (IS_SAFARI) {
     return null
