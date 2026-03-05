@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
-const TITLE = 'Group & Sort Tabs'
+const TITLE = 'Cluster Ungrouped & Sort Tabs'
 
 export default observer(() => {
   const { arrangeStore } = useStore()

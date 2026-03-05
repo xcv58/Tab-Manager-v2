@@ -169,6 +169,9 @@ export default class SearchStore {
     if (this.store.userStore.showUrl) {
       keys.push('url')
     }
+    if (process.env.TARGET_BROWSER === 'chrome' && this.store.tabGroupStore) {
+      keys.push('groupTitle')
+    }
     return matchSorter(tabs, this._query, { keys })
   }
 

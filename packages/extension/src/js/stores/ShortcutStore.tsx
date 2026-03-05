@@ -59,6 +59,10 @@ export default class ShortcutStore {
     'ctrl+n',
     'ctrl+o',
     'shift+ctrl+g',
+    'alt+shift+g',
+    'alt+g',
+    'alt+u',
+    'alt+shift+u',
   ])
 
   shortcuts: any[] = [
@@ -76,7 +80,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.arrangeStore.groupTabs()
       },
-      'Group and sort tabs',
+      'Cluster ungrouped tabs by domain and sort',
     ],
     [
       ['d d'],
@@ -239,7 +243,7 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.focusStore.groupTab()
       },
-      'Group same domain tabs to this window',
+      'Cluster same domain ungrouped tabs to this window',
     ],
     [
       ['x', 'ctrl+x'],
@@ -424,6 +428,38 @@ export default class ShortcutStore {
         this.store.containerStore.groupTabsByContainer()
       },
       'Group tabs by container',
+    ],
+    process.env.TARGET_BROWSER === 'chrome' && [
+      ['alt+shift+g'],
+      (event: Event) => {
+        preventDefault(event)
+        this.store.focusStore.createGroupFromFocusedOrSelectedTabs()
+      },
+      'Create a new group from selected/focused tabs',
+    ],
+    process.env.TARGET_BROWSER === 'chrome' && [
+      ['alt+g'],
+      (event: Event) => {
+        preventDefault(event)
+        this.store.focusStore.toggleFocusedTabGroup()
+      },
+      'Collapse/expand focused tab group',
+    ],
+    process.env.TARGET_BROWSER === 'chrome' && [
+      ['alt+shift+u'],
+      (event: Event) => {
+        preventDefault(event)
+        this.store.focusStore.ungroupFocusedSingleTab()
+      },
+      'Remove focused tab from its group',
+    ],
+    process.env.TARGET_BROWSER === 'chrome' && [
+      ['alt+u'],
+      (event: Event) => {
+        preventDefault(event)
+        this.store.focusStore.ungroupFocusedTab()
+      },
+      'Ungroup focused tab group',
     ],
   ].filter((x) => x)
 

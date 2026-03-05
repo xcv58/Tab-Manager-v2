@@ -4,6 +4,7 @@ import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
 import Focusable from './Focusable'
+import type { WindowRow } from './TabGroupStore'
 
 export default class Window extends Focusable {
   store: Store
@@ -18,6 +19,7 @@ export default class Window extends Focusable {
       activate: action,
       hide: computed,
       visibleLength: computed,
+      rows: computed,
       lastFocused: computed,
       canDrop: computed,
       invisibleTabs: computed,
@@ -63,8 +65,23 @@ export default class Window extends Focusable {
     if (this.hide) {
       return 2
     }
-    const { length } = this.tabs.filter((x) => x.isVisible)
+    const { length } = this.rows
     return length ? length + 2 : length
+  }
+
+  get rows(): WindowRow[] {
+    if (process.env.TARGET_BROWSER === 'chrome' && this.store.tabGroupStore) {
+      return this.store.tabGroupStore.getRowsForWindow(this)
+    }
+    return this.tabs
+      .filter((x) => x.isVisible)
+      .map((tab) => ({
+        kind: 'tab' as const,
+        tabId: tab.id,
+        windowId: tab.windowId,
+        groupId: tab.groupId,
+        hiddenByCollapse: false,
+      }))
   }
 
   get lastFocused() {
@@ -114,6 +131,10 @@ export default class Window extends Focusable {
       return null
     }
     return this.tabs[index]
+  }
+
+  getTabById = (tabId: number) => {
+    return this.tabs.find((x) => x.id === tabId)
   }
 
   add = (tab: Tab, index: number) => {

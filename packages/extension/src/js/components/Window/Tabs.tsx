@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite'
 import DraggableTab from 'components/Tab/DraggableTab'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
+import GroupRow from 'components/TabGroup/GroupRow'
 
 export default observer((props: WinProps) => {
   const { windowStore } = useStore()
@@ -14,8 +15,15 @@ export default observer((props: WinProps) => {
   if (win.hide) {
     return null
   }
-  const content = win.tabs
-    .filter((x) => x.isVisible)
-    .map((tab) => <DraggableTab key={tab.id} tab={tab} />)
+  const content = win.rows.map((row) => {
+    if (row.kind === 'group') {
+      return <GroupRow key={`group-${row.groupId}`} row={row} />
+    }
+    const tab = win.getTabById(row.tabId)
+    if (!tab) {
+      return null
+    }
+    return <DraggableTab key={tab.id} tab={tab} />
+  })
   return <>{content}</>
 })

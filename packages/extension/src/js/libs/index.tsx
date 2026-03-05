@@ -23,13 +23,15 @@ export const getNoun = (noun, size) => {
 }
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
-  await Promise.all(
-    tabs.map(async ({ id, pinned }, i) => {
-      const index = from + (from !== -1 ? i : 0)
-      await browser.tabs.update(id, { pinned })
-      await browser.tabs.move(id, { windowId, index })
-    }),
-  )
+  if (!tabs || tabs.length === 0) {
+    return
+  }
+  for (let i = 0; i < tabs.length; i++) {
+    const { id, pinned } = tabs[i]
+    const index = from + (from !== -1 ? i : 0)
+    await browser.tabs.move(id, { windowId, index })
+    await browser.tabs.update(id, { pinned })
+  }
 }
 
 export const createWindow = async (tabs) => {
@@ -176,7 +178,7 @@ export const getLastFocusedWindowId = async () => {
       lastFocusedWindowId: null,
     })
     return lastFocusedWindowId
-  } catch (e) {
+  } catch {
     return null
   }
 }

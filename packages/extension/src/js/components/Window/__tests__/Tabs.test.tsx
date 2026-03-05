@@ -22,6 +22,16 @@ const tabs = [
   },
   { id: 3 },
 ]
+const getRows = (inputTabs = tabs) =>
+  inputTabs
+    .filter((x) => x.isVisible)
+    .map((x) => ({
+      kind: 'tab' as const,
+      tabId: x.id,
+      windowId: 1,
+      groupId: -1,
+      hiddenByCollapse: false,
+    }))
 const windowMounted = jest.fn()
 const props = {
   connectDropTarget,
@@ -33,6 +43,8 @@ const props = {
   },
   win: {
     tabs,
+    rows: getRows(),
+    getTabById: (tabId) => tabs.find((x) => x.id === tabId),
     showTabs: true,
   },
   dragPreview: 'preview node',
@@ -43,7 +55,7 @@ describe('Tabs', () => {
     const { container } = render(
       <DndProvider backend={HTML5Backend}>
         <Tabs {...props} />
-      </DndProvider>
+      </DndProvider>,
     )
     expect(container).toMatchSnapshot()
   })
@@ -55,8 +67,10 @@ describe('Tabs', () => {
         win={{
           ...props.win,
           tabs: tabs.map((x) => ({ ...x, isVisible: false })),
+          rows: [],
+          getTabById: () => null,
         }}
-      />
+      />,
     )
     expect(container).toMatchSnapshot()
   })
@@ -69,7 +83,7 @@ describe('Tabs', () => {
     render(
       <DndProvider backend={HTML5Backend}>
         <Tabs {...props} />
-      </DndProvider>
+      </DndProvider>,
     )
     expect(requestAnimationFrame.mock.calls.length).toBe(1)
   })

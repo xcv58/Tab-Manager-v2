@@ -14,7 +14,7 @@ export default observer((props: TabProps) => {
   const [dragProps, drag, connectDragPreview] = useDrag({
     type: ItemTypes.TAB,
     canDrag: true,
-    item: () => dragStore.dragStart(tab),
+    item: () => dragStore.dragStartTab(tab),
     end: () => {
       dragStore.dragEnd()
     },

@@ -72,6 +72,7 @@ export default observer((props: TabProps & { className?: string }) => {
     <div
       ref={nodeRef}
       tabIndex={-1}
+      data-testid={`tab-row-${tab.id}`}
       className={classNames(
         className,
         'flex relative items-center',

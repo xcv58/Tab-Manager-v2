@@ -61,12 +61,14 @@ export default class Tab extends Focusable {
       isMatched: computed,
       isVisible: computed,
       domain: computed,
+      groupTitle: computed,
       sameDomainTabs: computed,
       duplicatedTabCount: computed,
       isDuplicated: computed,
       isSelected: computed,
       query: computed,
       isHovered: computed,
+      isHiddenByCollapsedGroup: computed,
       shouldHighlight: computed,
       fingerPrint: computed,
       closeOtherTabs: action,
@@ -158,6 +160,9 @@ export default class Tab extends Focusable {
     if (this.removing) {
       return false
     }
+    if (this.isHiddenByCollapsedGroup) {
+      return false
+    }
     return this.isMatched || this.store.userStore.showUnmatchedTab
   }
 
@@ -165,8 +170,19 @@ export default class Tab extends Focusable {
     return getDomain(this.url)
   }
 
+  get groupTitle() {
+    if (
+      !this.store.tabGroupStore ||
+      this.store.tabGroupStore.isNoGroupId(this.groupId)
+    ) {
+      return ''
+    }
+    const tabGroup = this.store.tabGroupStore.getTabGroup(this.groupId)
+    return (tabGroup && tabGroup.title) || ''
+  }
+
   get sameDomainTabs() {
-    return this.store.arrangeStore.domainTabsMap[this.domain]
+    return this.store.arrangeStore.getTabsForDomain(this.domain)
   }
 
   get isDuplicated() {
@@ -187,6 +203,23 @@ export default class Tab extends Focusable {
 
   get isHovered() {
     return this.id === this.store.hoverStore.hoveredTabId
+  }
+
+  get isHiddenByCollapsedGroup() {
+    if (
+      !this.store.tabGroupStore ||
+      this.store.tabGroupStore.isNoGroupId(this.groupId)
+    ) {
+      return false
+    }
+    const tabGroup = this.store.tabGroupStore.getTabGroup(this.groupId)
+    if (!tabGroup || !tabGroup.collapsed) {
+      return false
+    }
+    if (this.store.searchStore._query && this.isMatched) {
+      return false
+    }
+    return true
   }
 
   get shouldHighlight() {

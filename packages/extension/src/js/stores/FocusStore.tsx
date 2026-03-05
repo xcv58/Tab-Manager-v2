@@ -130,6 +130,66 @@ export default class FocusStore {
     }
   }
 
+  getNoGroupId = () => this.store.tabGroupStore?.getNoGroupId?.() ?? -1
+
+  toggleFocusedTabGroup = () => {
+    if (
+      process.env.TARGET_BROWSER !== 'chrome' ||
+      !(this.focusedItem instanceof Tab)
+    ) {
+      return
+    }
+    const { groupId } = this.focusedItem
+    if (groupId === this.getNoGroupId() || !this.store.tabGroupStore) {
+      return
+    }
+    this.store.tabGroupStore.toggleCollapsed(groupId)
+  }
+
+  ungroupFocusedTab = () => {
+    if (
+      process.env.TARGET_BROWSER !== 'chrome' ||
+      !(this.focusedItem instanceof Tab)
+    ) {
+      return
+    }
+    const { groupId } = this.focusedItem
+    if (groupId === this.getNoGroupId() || !this.store.tabGroupStore) {
+      return
+    }
+    this.store.tabGroupStore.ungroup(groupId)
+  }
+
+  ungroupFocusedSingleTab = () => {
+    if (
+      process.env.TARGET_BROWSER !== 'chrome' ||
+      !(this.focusedItem instanceof Tab) ||
+      !this.store.tabGroupStore
+    ) {
+      return
+    }
+    const { groupId, id } = this.focusedItem
+    if (groupId === this.getNoGroupId()) {
+      return
+    }
+    this.store.tabGroupStore.ungroupTab(id)
+  }
+
+  createGroupFromFocusedOrSelectedTabs = () => {
+    if (process.env.TARGET_BROWSER !== 'chrome' || !this.store.tabGroupStore) {
+      return
+    }
+    const selectedTabs = this.store.tabStore.sources
+    const focusedTab = this.focusedItem instanceof Tab ? [this.focusedItem] : []
+    const tabs = selectedTabs.length ? selectedTabs : focusedTab
+    if (!tabs.length || tabs.length < 2) {
+      return
+    }
+    const uniqueTabIds = Array.from(new Set(tabs.map((tab) => tab.id)))
+    this.store.tabGroupStore.createGroup(uniqueTabIds)
+    this.store.tabStore.unselectAll()
+  }
+
   _getGrid = (focusedItem: Focusable) => {
     const { scrollTop } = this.containerRef.current
     const { windows } = this.store.windowStore
