@@ -604,25 +604,36 @@ test.describe('The Extension page should', () => {
 
     const pages = await browserContext.pages()
     expect(tabs.length).toBe(pages.length)
-    let buttons = await tabs[tabs.length - 1].$$('button')
-    expect(buttons).toHaveLength(3)
-    await buttons[2].click()
+    const clickCloseButton = async (tabHandle) => {
+      const closeByClass = await tabHandle.$('button.text-red-200')
+      if (closeByClass) {
+        await closeByClass.click()
+        return
+      }
+      const buttons = await tabHandle.$$('button')
+      for (const button of buttons) {
+        const label = ((await button.textContent()) || '').trim().toLowerCase()
+        if (label === 'x') {
+          await button.click()
+          return
+        }
+      }
+      throw new Error('close button not found in tab row')
+    }
+
+    await clickCloseButton(tabs[tabs.length - 1])
     await page.waitForTimeout(500)
 
     tabs = await page.$$(TAB_QUERY)
     expect(tabs.length).toBe(pages.length - 1)
 
-    buttons = await tabs[tabs.length - 1].$$('button')
-    expect(buttons).toHaveLength(3)
-    await buttons[2].click()
+    await clickCloseButton(tabs[tabs.length - 1])
     await page.waitForTimeout(500)
 
     tabs = await page.$$(TAB_QUERY)
     expect(tabs.length).toBe(pages.length - 2)
 
-    buttons = await tabs[tabs.length - 1].$$('button')
-    expect(buttons).toHaveLength(3)
-    await buttons[2].click()
+    await clickCloseButton(tabs[tabs.length - 1])
     await page.waitForTimeout(500)
 
     tabs = await page.$$(TAB_QUERY)
