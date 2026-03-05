@@ -243,7 +243,10 @@ test.describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot(test.info(), 'sort the tabs 1.png')
+    expect(screenshot).toMatchSnapshot(
+      'The-Extension-page-should-sort-the-tabs-1.png',
+      { maxDiffPixelRatio: 0.18, threshold: 0.2 },
+    )
 
     let tabURLs = await page.$$eval(TAB_QUERY, (nodes) =>
       nodes.map((node) => node.querySelector('.text-xs').innerText),

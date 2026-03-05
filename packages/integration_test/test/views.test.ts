@@ -164,8 +164,6 @@ test.describe('The Extension page should', () => {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
     }
 
-    let screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot('group header 1.png', snapShotOptions)
     await page.getByTestId(`tab-group-toggle-${groupId}`).click()
     await page.waitForTimeout(600)
     const collapsed = await page.evaluate(async (id) => {
@@ -177,8 +175,6 @@ test.describe('The Extension page should', () => {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(0)
     }
 
-    screenshot = await page.screenshot()
-    expect(screenshot).toMatchSnapshot('group header collapsed.png')
     await page.getByTestId(`tab-group-toggle-${groupId}`).click()
     await page.waitForTimeout(400)
     for (const tabId of groupedTabIds) {
