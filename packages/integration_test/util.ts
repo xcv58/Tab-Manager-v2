@@ -1,5 +1,4 @@
 import { chromium, ChromiumBrowserContext } from 'playwright'
-import { MatchImageSnapshotOptions } from 'jest-image-snapshot'
 import { join } from 'path'
 import { Page } from 'playwright'
 
@@ -323,7 +322,7 @@ export const dragByTestId = async (
   )
 }
 
-export const matchImageSnapshotOptions: MatchImageSnapshotOptions = {
-  failureThreshold: 0.18,
-  failureThresholdType: 'percent',
+export const matchImageSnapshotOptions = {
+  maxDiffPixelRatio: 0.18,
+  threshold: 0.2,
 }
