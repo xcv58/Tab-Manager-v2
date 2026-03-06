@@ -1,4 +1,4 @@
-import { Page, ChromiumBrowserContext } from 'playwright'
+import { Page, Locator, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
@@ -16,6 +16,142 @@ let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
+
+const waitForAnimationsToFinish = async (target: Locator): Promise<void> => {
+  await target.evaluate(async (node) => {
+    const nextFrame = () =>
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    let stableFrames = 0
+    for (let i = 0; i < 180; i += 1) {
+      const animations = node
+        .getAnimations({ subtree: true })
+        .filter(
+          (animation) =>
+            animation.playState !== 'finished' &&
+            animation.playState !== 'idle',
+        )
+      if (animations.length > 0) {
+        stableFrames = 0
+        await Promise.all(
+          animations.map((animation) =>
+            animation.finished.catch(() => undefined),
+          ),
+        )
+      } else {
+        stableFrames += 1
+      }
+      if (stableFrames >= 3) {
+        return
+      }
+      await nextFrame()
+    }
+  })
+}
+
+const waitForSurfaceToFullyAppear = async (
+  page: Page,
+  surface: Locator,
+): Promise<void> => {
+  await expect(surface).toBeVisible()
+  await waitForAnimationsToFinish(surface)
+  await expect
+    .poll(
+      async () =>
+        surface.evaluate((node) => {
+          const isIdentityTransform = (transform: string): boolean => {
+            if (transform === 'none') {
+              return true
+            }
+            const matrix2d = /^matrix\(([^)]+)\)$/.exec(transform)
+            if (matrix2d) {
+              const values = matrix2d[1]
+                .split(',')
+                .map((value) => Number(value.trim()))
+              if (values.length !== 6) {
+                return false
+              }
+              return (
+                Math.abs(values[0] - 1) < 0.001 &&
+                Math.abs(values[1]) < 0.001 &&
+                Math.abs(values[2]) < 0.001 &&
+                Math.abs(values[3] - 1) < 0.001 &&
+                Number.isFinite(values[4]) &&
+                Number.isFinite(values[5])
+              )
+            }
+            const matrix3d = /^matrix3d\(([^)]+)\)$/.exec(transform)
+            if (!matrix3d) {
+              return false
+            }
+            const values = matrix3d[1]
+              .split(',')
+              .map((value) => Number(value.trim()))
+            if (values.length !== 16) {
+              return false
+            }
+            return (
+              Math.abs(values[0] - 1) < 0.001 &&
+              Math.abs(values[5] - 1) < 0.001 &&
+              Math.abs(values[10] - 1) < 0.001 &&
+              Math.abs(values[15] - 1) < 0.001 &&
+              Math.abs(values[1]) < 0.001 &&
+              Math.abs(values[2]) < 0.001 &&
+              Math.abs(values[3]) < 0.001 &&
+              Math.abs(values[4]) < 0.001 &&
+              Math.abs(values[6]) < 0.001 &&
+              Math.abs(values[7]) < 0.001 &&
+              Math.abs(values[8]) < 0.001 &&
+              Math.abs(values[9]) < 0.001 &&
+              Math.abs(values[11]) < 0.001 &&
+              Number.isFinite(values[12]) &&
+              Number.isFinite(values[13]) &&
+              Number.isFinite(values[14])
+            )
+          }
+
+          let current: HTMLElement | null = node as HTMLElement
+          while (current) {
+            const style = window.getComputedStyle(current)
+            const opacity = Number.parseFloat(style.opacity || '1')
+            if (opacity < 0.999) {
+              return false
+            }
+            current = current.parentElement
+          }
+
+          const style = window.getComputedStyle(node)
+          const opacity = Number.parseFloat(style.opacity || '1')
+          const rect = (node as HTMLElement).getBoundingClientRect()
+          const hasSize = rect.width > 0 && rect.height > 0
+
+          if (
+            !hasSize ||
+            opacity < 0.999 ||
+            !isIdentityTransform(style.transform)
+          ) {
+            return false
+          }
+          return true
+        }),
+      { timeout: 5000 },
+    )
+    .toBe(true)
+  await page.evaluate(async () => {
+    if (document.fonts?.status !== 'loaded') {
+      await document.fonts?.ready
+    }
+  })
+}
+
+const waitForDialogToFullyAppear = async (
+  page: Page,
+  dialog: Locator,
+): Promise<void> => {
+  const dialogRoot = page.locator('.MuiDialog-root').first()
+  await expect(dialogRoot).toBeVisible()
+  await waitForAnimationsToFinish(dialogRoot)
+  await waitForSurfaceToFullyAppear(page, dialog)
+}
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
@@ -332,9 +468,13 @@ test.describe('The Extension page should', () => {
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)
+    const groupEditor = page.getByTestId(`tab-group-editor-${groupId}`)
+    await waitForSurfaceToFullyAppear(page, groupEditor)
 
     const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
-    const titleInputScreenshot = await titleInput.screenshot()
+    const titleInputScreenshot = await titleInput.screenshot({
+      animations: 'disabled',
+    })
     expect(titleInputScreenshot).toMatchSnapshot(
       'group-editor-title-input.png',
       {
@@ -344,7 +484,7 @@ test.describe('The Extension page should', () => {
     )
 
     const colors = page.getByTestId(`tab-group-editor-colors-${groupId}`)
-    const colorsScreenshot = await colors.screenshot()
+    const colorsScreenshot = await colors.screenshot({ animations: 'disabled' })
     expect(colorsScreenshot).toMatchSnapshot('group-editor-color-palette.png', {
       maxDiffPixelRatio: 0.08,
       threshold: 0.2,
@@ -372,8 +512,10 @@ test.describe('The Extension page should', () => {
     await searchInput.click()
     await searchInput.fill('>sort')
     const firstOption = page.locator('.MuiAutocomplete-option').first()
-    await expect(firstOption).toBeVisible()
-    const commandOptionScreenshot = await firstOption.screenshot()
+    await waitForSurfaceToFullyAppear(page, firstOption)
+    const commandOptionScreenshot = await firstOption.screenshot({
+      animations: 'disabled',
+    })
     expect(commandOptionScreenshot).toMatchSnapshot(
       'command-suggestion-option-atom.png',
       {
@@ -586,8 +728,10 @@ test.describe('The Extension page should', () => {
     await tabMenuButton.click()
     await waitForTestId(page, `tab-menu-option-${atomTabId}-close`)
     const tabMenuPanel = page.locator('.MuiPopover-root .MuiPaper-root').last()
-    await expect(tabMenuPanel).toBeVisible()
-    const tabMenuPanelScreenshot = await tabMenuPanel.screenshot()
+    await waitForSurfaceToFullyAppear(page, tabMenuPanel)
+    const tabMenuPanelScreenshot = await tabMenuPanel.screenshot({
+      animations: 'disabled',
+    })
     expect(tabMenuPanelScreenshot).toMatchSnapshot('tab-menu-panel-atom.png', {
       maxDiffPixelRatio: 0.08,
       threshold: 0.2,
@@ -710,8 +854,10 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
     const settingsDialog = page.locator('.MuiDialog-paper').first()
-    await expect(settingsDialog).toBeVisible()
-    const settingsDialogScreenshot = await settingsDialog.screenshot()
+    await waitForDialogToFullyAppear(page, settingsDialog)
+    const settingsDialogScreenshot = await settingsDialog.screenshot({
+      animations: 'disabled',
+    })
     expect(settingsDialogScreenshot).toMatchSnapshot(
       'settings-dialog-medium.png',
       {
@@ -1390,8 +1536,10 @@ test.describe('The Extension page should', () => {
 
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     const groupMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
-    await expect(groupMenu).toBeVisible()
-    const groupMenuScreenshot = await groupMenu.screenshot()
+    await waitForSurfaceToFullyAppear(page, groupMenu)
+    const groupMenuScreenshot = await groupMenu.screenshot({
+      animations: 'disabled',
+    })
     expect(groupMenuScreenshot).toMatchSnapshot('group-header-menu-open.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
@@ -1400,7 +1548,10 @@ test.describe('The Extension page should', () => {
     await page.getByTestId(`tab-group-menu-move-window-${groupId}`).click()
     await waitForTestId(page, `tab-group-move-dialog-${groupId}`)
     const moveDialog = page.getByTestId(`tab-group-move-dialog-${groupId}`)
-    const moveDialogScreenshot = await moveDialog.screenshot()
+    await waitForSurfaceToFullyAppear(page, moveDialog)
+    const moveDialogScreenshot = await moveDialog.screenshot({
+      animations: 'disabled',
+    })
     expect(moveDialogScreenshot).toMatchSnapshot(
       'group-header-move-dialog.png',
       {
@@ -1713,8 +1864,10 @@ test.describe('The Extension page should', () => {
     const themeSelect = page.locator('#theme-select').first()
     await themeSelect.click()
     const themeMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
-    await expect(themeMenu).toBeVisible()
-    const themeMenuShot = await themeMenu.screenshot()
+    await waitForSurfaceToFullyAppear(page, themeMenu)
+    const themeMenuShot = await themeMenu.screenshot({
+      animations: 'disabled',
+    })
     expect(themeMenuShot).toMatchSnapshot('settings-theme-dropdown-open.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
