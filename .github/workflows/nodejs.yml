@@ -48,17 +48,12 @@ jobs:
       - name: Install xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
-      - name: Install Firefox
-        run: sudo apt-get install -y firefox
+      - name: Setup Firefox
+        id: setup-firefox
+        uses: browser-actions/setup-firefox@v1
 
       - name: Install Playwright
-        run: pnpm --filter integration-test exec playwright install --with-deps chromium firefox
-
-      - name: Resolve Firefox Binary
-        run: |
-          FIREFOX_BINARY=$(pnpm --filter integration-test exec node -e "const { firefox } = require('@playwright/test'); console.log(firefox.executablePath())")
-          echo "FIREFOX_BINARY=$FIREFOX_BINARY" >> $GITHUB_ENV
-          echo "Using Firefox binary: $FIREFOX_BINARY"
+        run: pnpm --filter integration-test exec playwright install --with-deps chromium webkit
 
       - name: Build Firefox Extension
         run: pnpm --filter tab-manager-v2 build:firefox
@@ -72,7 +67,7 @@ jobs:
       - name: Firefox Integration Test
         env:
           FIREFOX_E2E: '1'
-          FIREFOX_BINARY: ${{ env.FIREFOX_BINARY }}
+          FIREFOX_BINARY: ${{ steps.setup-firefox.outputs.firefox-path }}
         run: pnpm --filter integration-test-firefox test:firefox
 
       # Run all test
