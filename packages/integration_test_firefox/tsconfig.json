@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "lib": ["es2018", "dom"],
+    "types": ["jasmine", "jest", "node"],
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2019",
+    "allowJs": true
+  },
+  "exclude": ["node_modules"]
+}
