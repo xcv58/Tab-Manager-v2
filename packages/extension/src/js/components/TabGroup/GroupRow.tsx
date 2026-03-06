@@ -315,7 +315,7 @@ export default observer((props: Props) => {
                 onToggle()
               }}
             >
-              {tabGroup.collapsed ? 'Expand group' : 'Collapse group'}
+              {collapsed ? 'Expand group' : 'Collapse group'}
             </MenuItem>
             <MenuItem
               data-testid={`tab-group-menu-rename-${row.groupId}`}
