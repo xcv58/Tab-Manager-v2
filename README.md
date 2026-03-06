@@ -21,6 +21,12 @@
 
 Tab Manager v2 is Chrome Extension that helps you manage your Chrome tabs easily. ~It's a forked version of https://github.com/joshperry/Tab-Manager.~ But the Tab Manager v2 is completely rewritten by React, MobX, TypeScript, and has different features with original Tab Manager.
 
+## Browser support
+
+Supported browsers: Chrome, Edge, and Firefox.
+
+Safari is not supported. The extension depends on tab moving APIs for core features such as drag-and-drop reordering, moving tabs between windows, and sorting tabs. Safari does not support the `tabs.move()` WebExtension API, so those core workflows cannot work reliably there. The investigation and Safari prototype results are documented in [issue #2545](https://github.com/xcv58/Tab-Manager-v2/issues/2545).
+
 ## Usage
 
 There is a playlist contains how to videos: https://www.youtube.com/playlist?list=PLtWVZzutpoqLdwaoAVhQPGCXU9sLwT3S7

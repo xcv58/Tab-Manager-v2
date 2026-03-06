@@ -24,7 +24,6 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
   const transform = `translate(${x}px, ${y}px)`
   return {
     transform,
-    WebkitTransform: transform,
   }
 }
 
