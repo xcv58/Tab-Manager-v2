@@ -41,6 +41,9 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL)
     await page.evaluate(async () => {
       await chrome.storage.local.clear()
+      if (chrome.storage.sync?.clear) {
+        await chrome.storage.sync.clear()
+      }
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
@@ -235,6 +238,1614 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.08,
       threshold: 0.2,
     })
+  })
+
+  test('render group count label as compact element', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Count',
+      color: 'green',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const count = page.getByTestId(`tab-group-count-${groupId}`)
+    await expect(count).toHaveText('2')
+    const countScreenshot = await count.screenshot()
+    expect(countScreenshot).toMatchSnapshot('group-count-label-compact.png', {
+      maxDiffPixelRatio: 0.2,
+      threshold: 0.2,
+    })
+  })
+
+  test('render group drag handle icon on header hover', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Drag',
+      color: 'cyan',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await page.waitForTimeout(200)
+    const handle = page.getByTestId(`tab-group-drag-handle-${groupId}`)
+    await expect(handle).toBeVisible()
+    const handleScreenshot = await handle.screenshot()
+    expect(handleScreenshot).toMatchSnapshot('group-drag-handle-hover.png', {
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.2,
+    })
+  })
+
+  test('render group editor input and color palette', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Editor',
+      color: 'pink',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    await page.getByTestId(`tab-group-menu-${groupId}`).click()
+    await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
+    await waitForTestId(page, `tab-group-editor-${groupId}`)
+
+    const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
+    const titleInputScreenshot = await titleInput.screenshot()
+    expect(titleInputScreenshot).toMatchSnapshot(
+      'group-editor-title-input.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const colors = page.getByTestId(`tab-group-editor-colors-${groupId}`)
+    const colorsScreenshot = await colors.screenshot()
+    expect(colorsScreenshot).toMatchSnapshot('group-editor-color-palette.png', {
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.2,
+    })
+  })
+
+  test('render search input atom', async () => {
+    const searchInput = page.locator(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await page.mouse.click(12, 120)
+    const searchInputScreenshot = await searchInput.screenshot()
+    expect(searchInputScreenshot).toMatchSnapshot('search-input-atom.png', {
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.2,
+    })
+  })
+
+  test('render command suggestion atom', async () => {
+    const searchInput = page.locator(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await searchInput.fill('>sort')
+    const firstOption = page.locator('.MuiAutocomplete-option').first()
+    await expect(firstOption).toBeVisible()
+    const commandOptionScreenshot = await firstOption.screenshot()
+    expect(commandOptionScreenshot).toMatchSnapshot(
+      'command-suggestion-option-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render toolbar action icon atoms', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+    await page.reload()
+
+    const settingsButton = page.locator('button[aria-label="Settings"]').first()
+    await expect(settingsButton).toBeVisible()
+    const settingsButtonScreenshot = await settingsButton.screenshot()
+    expect(settingsButtonScreenshot).toMatchSnapshot(
+      'toolbar-button-settings-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const shortcutButton = page
+      .locator('button[aria-label="Show shortcut hints"]')
+      .first()
+    await expect(shortcutButton).toBeVisible()
+    const shortcutButtonScreenshot = await shortcutButton.screenshot()
+    expect(shortcutButtonScreenshot).toMatchSnapshot(
+      'toolbar-button-shortcuts-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const clusterButton = page
+      .locator('button[aria-label="Cluster Ungrouped & Sort Tabs"]')
+      .first()
+    await expect(clusterButton).toBeVisible()
+    const clusterButtonScreenshot = await clusterButton.screenshot()
+    expect(clusterButtonScreenshot).toMatchSnapshot(
+      'toolbar-button-cluster-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const cleanDuplicatedButton = page
+      .locator('button[aria-label="Clean duplicated tabs"]')
+      .first()
+    await expect(cleanDuplicatedButton).toBeVisible()
+    const cleanDuplicatedScreenshot = await cleanDuplicatedButton.screenshot()
+    expect(cleanDuplicatedScreenshot).toMatchSnapshot(
+      'toolbar-button-clean-duplicated-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const themeToggleButton = page
+      .locator('[aria-label="Toggle light/dark theme"]')
+      .first()
+    await expect(themeToggleButton).toBeVisible()
+    const themeToggleScreenshot = await themeToggleButton.screenshot()
+    expect(themeToggleScreenshot).toMatchSnapshot(
+      'toolbar-button-theme-toggle-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render window control icon atoms', async () => {
+    await openPages(browserContext, ['data:text/html,window-controls-atom'])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+    await page.reload()
+
+    const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
+    await expect(sortButton).toBeVisible()
+    const sortButtonScreenshot = await sortButton.screenshot()
+    expect(sortButtonScreenshot).toMatchSnapshot(
+      'window-sort-button-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const reloadButton = page
+      .locator('button[aria-label="Reload all tabs"]')
+      .first()
+    await expect(reloadButton).toBeVisible()
+    const reloadButtonScreenshot = await reloadButton.screenshot()
+    expect(reloadButtonScreenshot).toMatchSnapshot(
+      'window-reload-button-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render settings control atoms', async () => {
+    const settingsButton = page.locator('button[aria-label="Settings"]').first()
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
+    await page.waitForSelector('[aria-label="Update Font Size"]')
+
+    const tabWidthSlider = page
+      .locator('[aria-label="Update Tab Width"]')
+      .first()
+    await expect(tabWidthSlider).toBeVisible()
+    const tabWidthSliderScreenshot = await tabWidthSlider.screenshot()
+    expect(tabWidthSliderScreenshot).toMatchSnapshot(
+      'settings-tab-width-slider-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const fontSizeSlider = page
+      .locator('[aria-label="Update Font Size"]')
+      .first()
+    await expect(fontSizeSlider).toBeVisible()
+    const fontSizeSliderScreenshot = await fontSizeSlider.screenshot()
+    expect(fontSizeSliderScreenshot).toMatchSnapshot(
+      'settings-font-size-slider-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const toolbarToggle = page
+      .locator('[aria-labelledby="toggle-always-show-toolbar"]')
+      .first()
+    await expect(toolbarToggle).toBeVisible()
+    const toolbarToggleScreenshot = await toolbarToggle.screenshot()
+    expect(toolbarToggleScreenshot).toMatchSnapshot(
+      'settings-toolbar-toggle-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const themeSelect = page.locator('#theme-select').first()
+    await expect(themeSelect).toBeVisible()
+    const themeSelectScreenshot = await themeSelect.screenshot()
+    expect(themeSelectScreenshot).toMatchSnapshot(
+      'settings-theme-select-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+  })
+
+  test('render tab row action atoms', async () => {
+    const atomTabUrl = 'data:text/html,<title>Atom%20Row</title>atom-row'
+    await openPages(browserContext, [atomTabUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+
+    const atomTabId = await page.evaluate(async (url) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const target = tabs.find((tab) => tab.url === url)
+      return target?.id ?? -1
+    }, atomTabUrl)
+    expect(atomTabId).toBeGreaterThan(0)
+    await page.reload()
+    await waitForTestId(page, `tab-row-${atomTabId}`)
+
+    const row = page.getByTestId(`tab-row-${atomTabId}`)
+    await expect(row).toBeVisible()
+    await row.hover()
+    await page.waitForTimeout(250)
+
+    const tabMenuButton = page.getByTestId(`tab-menu-${atomTabId}`)
+    await expect(tabMenuButton).toBeVisible()
+    const tabMenuButtonScreenshot = await tabMenuButton.screenshot()
+    expect(tabMenuButtonScreenshot).toMatchSnapshot(
+      'tab-menu-button-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const closeButton = row.locator('button', { hasText: 'x' }).first()
+    await expect(closeButton).toBeVisible()
+    const closeButtonScreenshot = await closeButton.screenshot()
+    expect(closeButtonScreenshot).toMatchSnapshot('tab-close-button-atom.png', {
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.2,
+    })
+
+    await tabMenuButton.click()
+    await waitForTestId(page, `tab-menu-option-${atomTabId}-close`)
+    const tabMenuPanel = page.locator('.MuiPopover-root .MuiPaper-root').last()
+    await expect(tabMenuPanel).toBeVisible()
+    const tabMenuPanelScreenshot = await tabMenuPanel.screenshot()
+    expect(tabMenuPanelScreenshot).toMatchSnapshot('tab-menu-panel-atom.png', {
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.2,
+    })
+  })
+
+  test('render medium tab row component', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+
+    const mediumTabUrlA =
+      'data:text/html,<title>Medium%20Tab%20Snapshot</title>medium-tab-snapshot-a'
+    const mediumTabUrlB =
+      'data:text/html,<title>Medium%20Tab%20Snapshot</title>medium-tab-snapshot-b'
+    await openPages(browserContext, [mediumTabUrlA, mediumTabUrlB])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const mediumTabId = await page.evaluate(async () => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const target = tabs.find((tab) =>
+        (tab.url || '').includes('medium-tab-snapshot-a'),
+      )
+      return target?.id ?? -1
+    })
+    expect(mediumTabId).toBeGreaterThan(0)
+    await page.reload()
+    await waitForTestId(page, `tab-row-${mediumTabId}`)
+
+    const tabRow = page.getByTestId(`tab-row-${mediumTabId}`)
+    await expect(tabRow).toBeVisible()
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(200)
+    const tabRowScreenshot = await tabRow.screenshot()
+    expect(tabRowScreenshot).toMatchSnapshot('tab-row-medium.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+  })
+
+  test('render medium window card component', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,<title>WindowCard1</title>window-card-1',
+      'data:text/html,<title>WindowCard2</title>window-card-2',
+      'data:text/html,<title>WindowCard3</title>window-card-3',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(1000)
+    await page.reload()
+    await page.waitForTimeout(600)
+
+    const windowCard = page.locator('.shadow-2xl,.shadow-sm').first()
+    await expect(windowCard).toBeVisible()
+    const windowCardScreenshot = await windowCard.screenshot()
+    expect(windowCardScreenshot).toMatchSnapshot('window-card-medium.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+  })
+
+  test('render medium toolbar strip component', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        toolbarAutoHide: false,
+      })
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,<title>Toolbar1</title>toolbar-1',
+      'data:text/html,<title>Toolbar2</title>toolbar-2',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+    await page.reload()
+    await page.waitForTimeout(500)
+
+    const toolbar = page.locator('.toolbar').first()
+    await expect(toolbar).toBeVisible()
+    const toolbarScreenshot = await toolbar.screenshot()
+    expect(toolbarScreenshot).toMatchSnapshot('toolbar-strip-medium.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+  })
+
+  test('render medium settings dialog component', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        toolbarAutoHide: false,
+      })
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,<title>Settings</title>settings',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+
+    const settingsButton = page.locator('button[aria-label="Settings"]').first()
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
+    const settingsDialog = page.locator('.MuiDialog-paper').first()
+    await expect(settingsDialog).toBeVisible()
+    const settingsDialogScreenshot = await settingsDialog.screenshot()
+    expect(settingsDialogScreenshot).toMatchSnapshot(
+      'settings-dialog-medium.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+  })
+
+  test('render dnd row and window drop indicators', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,dnd-source',
+      'data:text/html,dnd-target',
+      'data:text/html,dnd-extra',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+
+    const ids = await page.evaluate(async () => {
+      const tabs = (
+        await chrome.tabs.query({
+          currentWindow: true,
+        })
+      )
+        .filter((tab) => !(tab.url || '').startsWith('chrome-extension://'))
+        .sort((a, b) => a.index - b.index)
+      return {
+        sourceId: tabs[0]?.id ?? -1,
+        targetId: tabs[1]?.id ?? -1,
+        winId: tabs[0]?.windowId ?? -1,
+      }
+    })
+    expect(ids.sourceId).toBeGreaterThan(0)
+    expect(ids.targetId).toBeGreaterThan(0)
+    expect(ids.winId).toBeGreaterThan(0)
+    await page.reload()
+    await waitForTestId(page, `tab-row-${ids.sourceId}`)
+    await waitForTestId(page, `tab-row-${ids.targetId}`)
+    await waitForTestId(page, `window-drop-zone-top-${ids.winId}`)
+    await waitForTestId(page, `window-drop-zone-bottom-${ids.winId}`)
+
+    const targetRow = page.getByTestId(`tab-row-${ids.targetId}`)
+    const targetDraggable = targetRow.locator(
+      'xpath=ancestor::*[@draggable="true"][1]',
+    )
+
+    await page.evaluate(
+      ({ sourceId, targetId, position }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        const targetNode = document.querySelector(
+          `[data-testid="tab-row-${targetId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode || !targetNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        const dropTarget =
+          (targetNode.parentElement as HTMLElement | null) || targetNode
+        const sourceRect = source.getBoundingClientRect()
+        const targetRect = dropTarget.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+        const targetX = targetRect.left + Math.min(16, targetRect.width / 2)
+        const targetY =
+          position === 'before' ? targetRect.top + 2 : targetRect.bottom - 2
+        const dataTransfer = new DataTransfer()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: sourceX,
+            clientY: sourceY,
+            dataTransfer,
+          }),
+        )
+        dropTarget.dispatchEvent(
+          new DragEvent('dragenter', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        dropTarget.dispatchEvent(
+          new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId, targetId: ids.targetId, position: 'before' },
+    )
+    await expect(
+      targetDraggable.locator('hr.border-red-700').first(),
+    ).toBeVisible()
+    const beforeIndicator = await targetDraggable.screenshot()
+    expect(beforeIndicator).toMatchSnapshot('dnd-row-indicator-before.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.evaluate(
+      ({ sourceId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer(),
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId },
+    )
+
+    await page.evaluate(
+      ({ sourceId, targetId, position }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        const targetNode = document.querySelector(
+          `[data-testid="tab-row-${targetId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode || !targetNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        const dropTarget =
+          (targetNode.parentElement as HTMLElement | null) || targetNode
+        const sourceRect = source.getBoundingClientRect()
+        const targetRect = dropTarget.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+        const targetX = targetRect.left + Math.min(16, targetRect.width / 2)
+        const targetY =
+          position === 'before' ? targetRect.top + 2 : targetRect.bottom - 2
+        const dataTransfer = new DataTransfer()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: sourceX,
+            clientY: sourceY,
+            dataTransfer,
+          }),
+        )
+        dropTarget.dispatchEvent(
+          new DragEvent('dragenter', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        dropTarget.dispatchEvent(
+          new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId, targetId: ids.targetId, position: 'after' },
+    )
+    await expect(
+      targetDraggable.locator('hr.border-red-700').first(),
+    ).toBeVisible()
+    const afterIndicator = await targetDraggable.screenshot()
+    expect(afterIndicator).toMatchSnapshot('dnd-row-indicator-after.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.evaluate(
+      ({ sourceId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer(),
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId },
+    )
+
+    const topZone = page.getByTestId(`window-drop-zone-top-${ids.winId}`)
+    await page.evaluate(
+      ({ sourceId, winId, position }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        const zoneNode = document.querySelector(
+          `[data-testid="window-drop-zone-${position}-${winId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode || !zoneNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        const sourceRect = source.getBoundingClientRect()
+        const zoneRect = zoneNode.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+        const targetX = zoneRect.left + zoneRect.width / 2
+        const targetY = zoneRect.top + zoneRect.height / 2
+        const dataTransfer = new DataTransfer()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: sourceX,
+            clientY: sourceY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragenter', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId, winId: ids.winId, position: 'top' },
+    )
+    await expect(topZone.locator('hr.border-red-700')).toHaveCount(1)
+    const topZoneIndicator = await topZone.screenshot()
+    expect(topZoneIndicator).toMatchSnapshot(
+      'dnd-window-zone-top-indicator.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+    await page.evaluate(
+      ({ sourceId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer(),
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId },
+    )
+
+    const bottomZone = page.getByTestId(`window-drop-zone-bottom-${ids.winId}`)
+    await page.evaluate(
+      ({ sourceId, winId, position }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        const zoneNode = document.querySelector(
+          `[data-testid="window-drop-zone-${position}-${winId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode || !zoneNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        const sourceRect = source.getBoundingClientRect()
+        const zoneRect = zoneNode.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+        const targetX = zoneRect.left + zoneRect.width / 2
+        const targetY = zoneRect.top + zoneRect.height / 2
+        const dataTransfer = new DataTransfer()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: sourceX,
+            clientY: sourceY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragenter', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId, winId: ids.winId, position: 'bottom' },
+    )
+    await expect(bottomZone.locator('hr.border-red-700')).toHaveCount(1)
+    const bottomZoneIndicator = await bottomZone.screenshot()
+    expect(bottomZoneIndicator).toMatchSnapshot(
+      'dnd-window-zone-bottom-indicator.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+    await page.evaluate(
+      ({ sourceId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer(),
+          }),
+        )
+        return true
+      },
+      { sourceId: ids.sourceId },
+    )
+  })
+
+  test('render drag preview for single tab and group drag', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,drag-preview-1',
+      'data:text/html,drag-preview-2',
+      'data:text/html,drag-preview-3',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['data:text/html,drag-preview-2', 'data:text/html,drag-preview-3'],
+      title: 'Preview Group',
+      color: 'purple',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(700)
+
+    const sourceState = await page.evaluate(async () => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const source = tabs.find((tab) =>
+        (tab.url || '').includes('drag-preview-1'),
+      )
+      return {
+        sourceTabId: source?.id ?? -1,
+        windowId: source?.windowId ?? -1,
+      }
+    })
+    expect(sourceState.sourceTabId).toBeGreaterThan(0)
+    expect(sourceState.windowId).toBeGreaterThan(0)
+    await page.reload()
+    await waitForTestId(page, `tab-row-${sourceState.sourceTabId}`)
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `window-drop-zone-top-${sourceState.windowId}`)
+
+    await page.evaluate(
+      ({ sourceId, targetZoneTestId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        const zoneNode = document.querySelector(
+          `[data-testid="${targetZoneTestId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode || !zoneNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        const sourceRect = source.getBoundingClientRect()
+        const zoneRect = zoneNode.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+        const targetX = zoneRect.left + zoneRect.width / 2
+        const targetY = zoneRect.top + zoneRect.height / 2
+        const dataTransfer = new DataTransfer()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: sourceX,
+            clientY: sourceY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragenter', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        return true
+      },
+      {
+        sourceId: sourceState.sourceTabId,
+        targetZoneTestId: `window-drop-zone-top-${sourceState.windowId}`,
+      },
+    )
+    const singlePreviewHead = page
+      .locator('h3')
+      .filter({ hasText: '1 tab' })
+      .first()
+    await expect(singlePreviewHead).toBeVisible()
+    const singlePreview = await singlePreviewHead
+      .locator('xpath=..')
+      .screenshot()
+    expect(singlePreview).toMatchSnapshot('drag-preview-single-tab.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.evaluate(
+      ({ sourceId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-row-${sourceId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer(),
+          }),
+        )
+        return true
+      },
+      { sourceId: sourceState.sourceTabId },
+    )
+
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    const groupHandle = page.getByTestId(`tab-group-drag-handle-${groupId}`)
+    await expect(groupHandle).toBeVisible()
+    await page.evaluate(
+      ({ groupId, targetZoneTestId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-group-drag-handle-${groupId}"]`,
+        ) as HTMLElement | null
+        const zoneNode = document.querySelector(
+          `[data-testid="${targetZoneTestId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode || !zoneNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        const sourceRect = source.getBoundingClientRect()
+        const zoneRect = zoneNode.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+        const targetX = zoneRect.left + zoneRect.width / 2
+        const targetY = zoneRect.top + zoneRect.height / 2
+        const dataTransfer = new DataTransfer()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: sourceX,
+            clientY: sourceY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragenter', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        zoneNode.dispatchEvent(
+          new DragEvent('dragover', {
+            bubbles: true,
+            cancelable: true,
+            clientX: targetX,
+            clientY: targetY,
+            dataTransfer,
+          }),
+        )
+        return true
+      },
+      {
+        groupId,
+        targetZoneTestId: `window-drop-zone-top-${sourceState.windowId}`,
+      },
+    )
+    const groupPreviewHead = page
+      .locator('h3')
+      .filter({ hasText: '2 tabs' })
+      .first()
+    await expect(groupPreviewHead).toBeVisible()
+    const groupPreview = await groupPreviewHead.locator('xpath=..').screenshot()
+    expect(groupPreview).toMatchSnapshot('drag-preview-group-tabs.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.evaluate(
+      ({ groupId }) => {
+        const sourceNode = document.querySelector(
+          `[data-testid="tab-group-drag-handle-${groupId}"]`,
+        ) as HTMLElement | null
+        if (!sourceNode) {
+          return false
+        }
+        const source =
+          (sourceNode.closest('[draggable="true"]') as HTMLElement | null) ||
+          sourceNode
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: new DataTransfer(),
+          }),
+        )
+        return true
+      },
+      { groupId },
+    )
+  })
+
+  test('render group header state variants', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+      await chrome.windows.create({
+        url: 'data:text/html,group-header-move-target',
+        focused: false,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,gh-state-a',
+      'data:text/html,gh-state-b',
+      'data:text/html,gh-state-c',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: [
+        'data:text/html,gh-state-a',
+        'data:text/html,gh-state-b',
+        'data:text/html,gh-state-c',
+      ],
+      title: 'Header States',
+      color: 'orange',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(700)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
+    await page.waitForTimeout(500)
+    const queryInput = page.locator(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    await queryInput.fill('gh-state-b')
+    await page.waitForTimeout(500)
+
+    const header = page.getByTestId(`tab-group-header-${groupId}`)
+    await expect(page.getByTestId(`tab-group-count-${groupId}`)).toHaveText(
+      '1/3',
+    )
+    const collapsedHeader = await header.screenshot()
+    expect(collapsedHeader).toMatchSnapshot(
+      'group-header-collapsed-matched-count.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+
+    await page.getByTestId(`tab-group-menu-${groupId}`).click()
+    const groupMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
+    await expect(groupMenu).toBeVisible()
+    const groupMenuScreenshot = await groupMenu.screenshot()
+    expect(groupMenuScreenshot).toMatchSnapshot('group-header-menu-open.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    await page.getByTestId(`tab-group-menu-move-window-${groupId}`).click()
+    await waitForTestId(page, `tab-group-move-dialog-${groupId}`)
+    const moveDialog = page.getByTestId(`tab-group-move-dialog-${groupId}`)
+    const moveDialogScreenshot = await moveDialog.screenshot()
+    expect(moveDialogScreenshot).toMatchSnapshot(
+      'group-header-move-dialog.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render tab row state variants', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,dup-row-state',
+      'data:text/html,dup-row-state',
+      'data:text/html,pinned-row-state',
+      'data:text/html,unmatched-row-state',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+
+    const ids = await page.evaluate(async () => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const duplicated = tabs.find((tab) =>
+        (tab.url || '').includes('dup-row-state'),
+      )
+      const pinned = tabs.find((tab) =>
+        (tab.url || '').includes('pinned-row-state'),
+      )
+      const unmatched = tabs.find((tab) =>
+        (tab.url || '').includes('unmatched-row-state'),
+      )
+      if (pinned?.id) {
+        await chrome.tabs.update(pinned.id, { pinned: true })
+      }
+      return {
+        duplicatedId: duplicated?.id ?? -1,
+        pinnedId: pinned?.id ?? -1,
+        unmatchedId: unmatched?.id ?? -1,
+      }
+    })
+    expect(ids.duplicatedId).toBeGreaterThan(0)
+    expect(ids.pinnedId).toBeGreaterThan(0)
+    expect(ids.unmatchedId).toBeGreaterThan(0)
+
+    await page.reload()
+    await waitForTestId(page, `tab-row-${ids.duplicatedId}`)
+    await waitForTestId(page, `tab-row-${ids.pinnedId}`)
+    await waitForTestId(page, `tab-row-${ids.unmatchedId}`)
+
+    const queryInput = page.locator(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    await queryInput.fill('pinned-row-state')
+    await page.waitForTimeout(500)
+
+    const pinnedRow = page.getByTestId(`tab-row-${ids.pinnedId}`)
+    const pinnedShot = await pinnedRow.screenshot()
+    expect(pinnedShot).toMatchSnapshot('tab-row-state-pinned.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const duplicatedRow = page.getByTestId(`tab-row-${ids.duplicatedId}`)
+    await expect(duplicatedRow.locator('button.text-red-400')).toHaveCount(1)
+    const duplicatedShot = await duplicatedRow.screenshot()
+    expect(duplicatedShot).toMatchSnapshot('tab-row-state-duplicated.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const unmatchedRow = page.getByTestId(`tab-row-${ids.unmatchedId}`)
+    await expect(unmatchedRow).toHaveClass(/opacity-25/)
+    const unmatchedShot = await unmatchedRow.screenshot()
+    expect(unmatchedShot).toMatchSnapshot('tab-row-state-unmatched.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+    const selectButton = pinnedRow
+      .locator('[aria-label="Toggle select"]')
+      .first()
+    await selectButton.click({ force: true })
+    await expect(pinnedRow).toHaveClass(/bg-blue-300|bg-gray-900/)
+    const selectedShot = await pinnedRow.screenshot()
+    expect(selectedShot).toMatchSnapshot('tab-row-state-selected.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const focusButton = unmatchedRow
+      .locator('[aria-label="Toggle select"]')
+      .first()
+    await focusButton.focus()
+    const focusedControlShot = await focusButton.screenshot()
+    expect(focusedControlShot).toMatchSnapshot(
+      'tab-row-state-focused-control.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render search history and no-results states', async () => {
+    await openPages(browserContext, [
+      'https://pinboard.in/',
+      'https://nextjs.org/',
+      'https://duckduckgo.com/',
+    ])
+    await CLOSE_PAGES(browserContext)
+    await page.bringToFront()
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.fill('pinboard')
+    await page.waitForTimeout(700)
+    const historyDivider = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'History' })
+      .first()
+    await expect(historyDivider).toBeVisible()
+    const historyList = page.locator('.MuiAutocomplete-listbox').first()
+    const historyListShot = await historyList.screenshot()
+    expect(historyListShot).toMatchSnapshot('search-history-list-medium.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    await searchInput.fill('zzzz-no-results-state')
+    await page.waitForTimeout(500)
+    await expect(page.locator('.MuiAutocomplete-option')).toHaveCount(0)
+    const noResultsInputShot = await searchInput.screenshot()
+    expect(noResultsInputShot).toMatchSnapshot(
+      'search-no-results-input-state.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render window title state variants', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+      await chrome.windows.create({
+        url: 'data:text/html,window-state-second',
+        focused: false,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,window-state-match',
+      'data:text/html,window-state-hidden-a',
+      'data:text/html,window-state-hidden-b',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+    await page.reload()
+
+    const allWindows = page.locator('.shadow-2xl,.shadow-sm')
+    await expect(allWindows.first()).toBeVisible()
+    await expect(allWindows.nth(1)).toBeVisible()
+    const focusedWindowCandidate = page.locator('.shadow-2xl').first()
+    const focusedWindowCount = await page.locator('.shadow-2xl').count()
+    const unfocusedWindowCount = await page.locator('.shadow-sm').count()
+    const focusedWindow =
+      focusedWindowCount > 0 ? focusedWindowCandidate : allWindows.first()
+    const unfocusedWindow =
+      unfocusedWindowCount > 0
+        ? page.locator('.shadow-sm').first()
+        : allWindows.nth(1)
+    const focusedShot = await focusedWindow.screenshot()
+    expect(focusedShot).toMatchSnapshot('window-card-focused-state.png', {
+      maxDiffPixelRatio: 0.2,
+      threshold: 0.2,
+    })
+    const unfocusedShot = await unfocusedWindow.screenshot()
+    expect(unfocusedShot).toMatchSnapshot('window-card-unfocused-state.png', {
+      maxDiffPixelRatio: 0.2,
+      threshold: 0.2,
+    })
+
+    const hiddenGroupId = await groupTabsByUrl(page, {
+      urls: [
+        'data:text/html,window-state-hidden-a',
+        'data:text/html,window-state-hidden-b',
+      ],
+      title: 'Window Hidden Counter',
+      color: 'blue',
+    })
+    expect(hiddenGroupId).toBeGreaterThan(-1)
+    await page.evaluate(async (groupId) => {
+      await chrome.tabGroups.update(groupId, { collapsed: true })
+    }, hiddenGroupId)
+    await page.waitForTimeout(500)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${hiddenGroupId}`)
+    const hiddenCounter = page
+      .locator('h5')
+      .filter({ hasText: 'hidden' })
+      .first()
+    await expect(hiddenCounter).toBeVisible()
+    const hiddenCounterShot = await hiddenCounter
+      .locator('xpath=..')
+      .screenshot()
+    expect(hiddenCounterShot).toMatchSnapshot(
+      'window-title-hidden-counter.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+
+    const hideToggle = page
+      .locator('button[aria-label="Toggle window hide"]')
+      .first()
+    await hideToggle.click()
+    await page.waitForTimeout(400)
+    const hiddenWindowCard = page.locator('.shadow-2xl,.shadow-sm').first()
+    const hiddenWindowShot = await hiddenWindowCard.screenshot()
+    expect(hiddenWindowShot).toMatchSnapshot('window-card-hidden-state.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+  })
+
+  test('render toolbar state variants', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        toolbarAutoHide: true,
+      })
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(500)
+
+    const toolbar = page.locator('.toolbar').first()
+    await expect(toolbar).toBeVisible()
+    const indicatorOnlyShot = await toolbar.screenshot()
+    expect(indicatorOnlyShot).toMatchSnapshot(
+      'toolbar-indicator-only-state.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+
+    const toggleToolbarButton = page
+      .locator('button[aria-label="Toggle toolbar"]')
+      .first()
+    await expect(toggleToolbarButton).toBeVisible()
+    await toggleToolbarButton.click()
+    await page.waitForTimeout(400)
+    const cleanDuplicatedButton = page
+      .locator('button[aria-label="Clean duplicated tabs"]')
+      .first()
+    await expect(cleanDuplicatedButton).toBeVisible()
+    await expect(cleanDuplicatedButton).toBeDisabled()
+    const disabledCleanShot = await cleanDuplicatedButton.screenshot()
+    expect(disabledCleanShot).toMatchSnapshot(
+      'toolbar-clean-duplicated-disabled-state.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render settings state variants', async () => {
+    const settingsButton = page.locator('button[aria-label="Settings"]').first()
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
+    await page.waitForSelector('[aria-label="Update Font Size"]')
+
+    const toolbarToggle = page
+      .locator('[aria-labelledby="toggle-always-show-toolbar"]')
+      .first()
+    await expect(toolbarToggle).toBeVisible()
+    const toggleBefore = await toolbarToggle.screenshot()
+    expect(toggleBefore).toMatchSnapshot('settings-toggle-before.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await toolbarToggle.click()
+    await page.waitForTimeout(300)
+    const toggleAfter = await toolbarToggle.screenshot()
+    expect(toggleAfter).toMatchSnapshot('settings-toggle-after.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const themeSelect = page.locator('#theme-select').first()
+    await themeSelect.click()
+    const themeMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
+    await expect(themeMenu).toBeVisible()
+    const themeMenuShot = await themeMenu.screenshot()
+    expect(themeMenuShot).toMatchSnapshot('settings-theme-dropdown-open.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.keyboard.press('Escape')
+
+    const fontSlider = page.locator('[aria-label="Update Font Size"]').first()
+    await expect(fontSlider).toBeVisible()
+    const fontSliderBox = await fontSlider.boundingBox()
+    if (!fontSliderBox) {
+      throw new Error('Failed to resolve font-size slider geometry')
+    }
+    await page.mouse.click(
+      fontSliderBox.x + 4,
+      fontSliderBox.y + fontSliderBox.height / 2,
+    )
+    await page.waitForTimeout(300)
+    const sliderMinShot = await fontSlider.screenshot()
+    expect(sliderMinShot).toMatchSnapshot('settings-font-slider-min.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.mouse.click(
+      fontSliderBox.x + fontSliderBox.width - 4,
+      fontSliderBox.y + fontSliderBox.height / 2,
+    )
+    await page.waitForTimeout(300)
+    const sliderMaxShot = await fontSlider.screenshot()
+    expect(sliderMaxShot).toMatchSnapshot('settings-font-slider-max.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+  })
+
+  test('render light and dark theme parity snapshots', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, ['data:text/html,theme-parity-row'])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+
+    const tabId = await page.evaluate(async () => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const tab = tabs.find((item) =>
+        (item.url || '').includes('theme-parity-row'),
+      )
+      return tab?.id ?? -1
+    })
+    expect(tabId).toBeGreaterThan(0)
+    await page.reload()
+    await waitForTestId(page, `tab-row-${tabId}`)
+
+    const row = page.getByTestId(`tab-row-${tabId}`)
+    const toolbar = page.locator('.toolbar').first()
+    const rowLight = await row.screenshot()
+    expect(rowLight).toMatchSnapshot('theme-parity-row-light.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    const toolbarLight = await toolbar.screenshot()
+    expect(toolbarLight).toMatchSnapshot('theme-parity-toolbar-light.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const toggleThemeButton = page
+      .locator('[aria-label="Toggle light/dark theme"]')
+      .first()
+    await toggleThemeButton.click()
+    await page.waitForTimeout(600)
+
+    const rowDark = await row.screenshot()
+    expect(rowDark).toMatchSnapshot('theme-parity-row-dark.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    const toolbarDark = await toolbar.screenshot()
+    expect(toolbarDark).toMatchSnapshot('theme-parity-toolbar-dark.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+  })
+
+  test('render loading spinner and typing summary states', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,loading-1',
+      'data:text/html,loading-2',
+      'data:text/html,loading-3',
+      'data:text/html,loading-4',
+      'data:text/html,loading-5',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search your tab title or URL"]',
+    )
+    await searchInput.click()
+    await searchInput.fill('typing-state')
+    const summary = page.locator('p.fixed.top-0').first()
+    await expect(summary).toHaveClass(/opacity-50/)
+    const typingSummaryShot = await summary.screenshot()
+    expect(typingSummaryShot).toMatchSnapshot('summary-typing-state.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const syncButton = page.locator('[aria-label="Sync All Windows"]').first()
+    await expect(syncButton).toBeVisible()
+    await syncButton.click()
+    await page.waitForTimeout(250)
+    const loadingTriggerShot = await syncButton.screenshot()
+    expect(loadingTriggerShot).toMatchSnapshot(
+      'loading-sync-trigger-state.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
   })
 
   test('search by group title should reveal tabs from a collapsed group', async () => {
