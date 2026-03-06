@@ -538,16 +538,31 @@ export default class GroupStore {
       return
     }
     const tabGroup = this.getTabGroup(groupId)
+    const previousTitle = tabGroup?.title
     if (tabGroup) {
       this.tabGroupMap.set(groupId, {
         ...tabGroup,
         title,
       })
     }
-    const updated = await this.updateTabGroup(groupId, { title })
-    const latest = updated || (await this.getGroup(groupId))
-    if (latest) {
-      this.tabGroupMap.set(latest.id, latest)
+    try {
+      const updated = await this.updateTabGroup(groupId, { title })
+      const latest = updated || (await this.getGroup(groupId))
+      if (latest) {
+        this.tabGroupMap.set(latest.id, latest)
+      }
+    } catch (error) {
+      if (tabGroup) {
+        this.tabGroupMap.set(groupId, {
+          ...tabGroup,
+          title: previousTitle,
+        })
+      }
+      log.error('TabGroupStore.renameGroup failed', {
+        groupId,
+        title,
+        error,
+      })
     }
   }
 
@@ -556,16 +571,31 @@ export default class GroupStore {
       return
     }
     const tabGroup = this.getTabGroup(groupId)
+    const previousColor = tabGroup?.color
     if (tabGroup) {
       this.tabGroupMap.set(groupId, {
         ...tabGroup,
         color,
       })
     }
-    const updated = await this.updateTabGroup(groupId, { color })
-    const latest = updated || (await this.getGroup(groupId))
-    if (latest) {
-      this.tabGroupMap.set(latest.id, latest)
+    try {
+      const updated = await this.updateTabGroup(groupId, { color })
+      const latest = updated || (await this.getGroup(groupId))
+      if (latest) {
+        this.tabGroupMap.set(latest.id, latest)
+      }
+    } catch (error) {
+      if (tabGroup) {
+        this.tabGroupMap.set(groupId, {
+          ...tabGroup,
+          color: previousColor,
+        })
+      }
+      log.error('TabGroupStore.recolorGroup failed', {
+        groupId,
+        color,
+        error,
+      })
     }
   }
 

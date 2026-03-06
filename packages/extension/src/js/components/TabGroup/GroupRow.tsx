@@ -7,6 +7,14 @@ import IconButton from '@mui/material/IconButton'
 import Popover from '@mui/material/Popover'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Select from '@mui/material/Select'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -29,10 +37,9 @@ export default observer((props: Props) => {
   const theme = useTheme()
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
+  const [moveDialogOpen, setMoveDialogOpen] = useState(false)
+  const [moveTargetWindowId, setMoveTargetWindowId] = useState<number | ''>('')
   const tabGroup = tabGroupStore.getTabGroup(row.groupId)
-  if (!tabGroup) {
-    return null
-  }
   const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
   const canMoveGroups = !!tabGroupStore?.canMoveGroups?.()
   const headerRef = useRef<HTMLDivElement | null>(null)
@@ -40,8 +47,31 @@ export default observer((props: Props) => {
     'join-group' | 'before-group'
   >('join-group')
 
-  const groupColorId = (tabGroup.color || 'grey') as chrome.tabGroups.ColorEnum
+  const groupColorId = (tabGroup?.color ||
+    row.color ||
+    'grey') as chrome.tabGroups.ColorEnum
   const groupColor = getChromeTabGroupColor(groupColorId)
+  const collapsed = tabGroup?.collapsed ?? row.collapsed
+  const availableWindows = windowStore.windows
+    .filter((win) => win.canDrop && win.id !== row.windowId)
+    .map((win) => ({ id: win.id, tabCount: win.tabs.length }))
+
+  useEffect(() => {
+    if (!moveDialogOpen) {
+      return
+    }
+    if (!availableWindows.length) {
+      setMoveTargetWindowId('')
+      setMoveDialogOpen(false)
+      return
+    }
+    if (
+      moveTargetWindowId === '' ||
+      !availableWindows.some((win) => win.id === moveTargetWindowId)
+    ) {
+      setMoveTargetWindowId(availableWindows[0].id)
+    }
+  }, [availableWindows, moveDialogOpen, moveTargetWindowId])
 
   const onToggle = () => {
     if (!canMutateGroups) {
@@ -77,32 +107,29 @@ export default observer((props: Props) => {
     })
   }
 
-  const onMoveToAnotherWindow = () => {
+  const onOpenMoveToAnotherWindowDialog = () => {
     if (!canMoveGroups) {
       return
     }
-    if (!window.prompt) {
+    if (!availableWindows.length) {
       return
     }
-    const availableWindowIds = windowStore.windows
-      .filter((win) => win.canDrop && win.id !== row.windowId)
-      .map((win) => win.id)
-    if (!availableWindowIds.length) {
+    setMoveTargetWindowId(availableWindows[0].id)
+    setMoveDialogOpen(true)
+  }
+
+  const onMoveToAnotherWindow = () => {
+    if (!canMoveGroups || moveTargetWindowId === '') {
       return
     }
-    const targetWindowId = Number(
-      window.prompt(
-        `Move to window ID (${availableWindowIds.join(', ')})`,
-        String(availableWindowIds[0]),
-      ),
-    )
-    if (!availableWindowIds.includes(targetWindowId)) {
+    if (!availableWindows.some((win) => win.id === moveTargetWindowId)) {
       return
     }
     tabGroupStore.moveGroup(row.groupId, {
-      windowId: targetWindowId,
+      windowId: moveTargetWindowId,
       index: -1,
     })
+    setMoveDialogOpen(false)
   }
 
   const countLabel = useMemo(() => {
@@ -214,7 +241,7 @@ export default observer((props: Props) => {
             data-testid={`tab-group-toggle-${row.groupId}`}
           >
             <span className="mr-1 text-gray-500">
-              {tabGroup.collapsed ? (
+              {collapsed ? (
                 <ChevronRightIcon fontSize="small" />
               ) : (
                 <ExpandMoreIcon fontSize="small" />
@@ -236,7 +263,7 @@ export default observer((props: Props) => {
             >
               {countLabel}
             </span>
-            {tabGroup.shared && (
+            {tabGroup?.shared && (
               <span
                 className="ml-2 px-1 py-0.5 text-xs border rounded opacity-80"
                 data-testid={`tab-group-shared-${row.groupId}`}
@@ -335,8 +362,9 @@ export default observer((props: Props) => {
               data-testid={`tab-group-menu-move-window-${row.groupId}`}
               onClick={() => {
                 setMenuAnchorEl(null)
-                onMoveToAnotherWindow()
+                onOpenMoveToAnotherWindowDialog()
               }}
+              disabled={!availableWindows.length}
             >
               Move group to another window
             </MenuItem>
@@ -357,12 +385,60 @@ export default observer((props: Props) => {
           </>
         )}
       </Popover>
+      <Dialog
+        open={moveDialogOpen}
+        onClose={() => setMoveDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+        data-testid={`tab-group-move-dialog-${row.groupId}`}
+      >
+        <DialogTitle>Move group to another window</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth margin="dense">
+            <InputLabel id={`tab-group-move-window-label-${row.groupId}`}>
+              Window
+            </InputLabel>
+            <Select
+              native
+              label="Window"
+              labelId={`tab-group-move-window-label-${row.groupId}`}
+              value={moveTargetWindowId}
+              onChange={(event) => {
+                setMoveTargetWindowId(Number(event.target.value))
+              }}
+              data-testid={`tab-group-move-window-select-${row.groupId}`}
+            >
+              {availableWindows.map((win) => (
+                <option key={win.id} value={win.id}>
+                  Window {win.id} ({win.tabCount} tabs)
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setMoveDialogOpen(false)}
+            data-testid={`tab-group-move-window-cancel-${row.groupId}`}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={onMoveToAnotherWindow}
+            disabled={moveTargetWindowId === ''}
+            data-testid={`tab-group-move-window-confirm-${row.groupId}`}
+          >
+            Move
+          </Button>
+        </DialogActions>
+      </Dialog>
       {canMutateGroups && (
         <GroupEditorPopover
           anchorEl={editorAnchorEl}
           groupId={row.groupId}
           initialColor={groupColorId}
-          initialTitle={tabGroup.title || ''}
+          initialTitle={tabGroup?.title || row.title || ''}
           open={Boolean(editorAnchorEl)}
           onClose={() => setEditorAnchorEl(null)}
           onRename={(title) => {

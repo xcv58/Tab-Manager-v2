@@ -31,6 +31,7 @@ export default class DragStore {
 
   dragStartTab = (tab: Tab) => {
     tab.unhover()
+    this.dropped = false
     this.dragging = true
     this.dragSource = 'tab-row'
     const { selection, unselectAll } = this.store.tabStore
@@ -42,6 +43,7 @@ export default class DragStore {
   }
 
   dragStartGroup = (groupId: number) => {
+    this.dropped = false
     this.dragging = true
     this.dragSource = 'group-header'
     const { selection, unselectAll } = this.store.tabStore
@@ -66,8 +68,12 @@ export default class DragStore {
   }
 
   clear = () => {
-    this.store.tabStore.selection.clear()
+    this.clearSelection()
     this.dropped = false
+  }
+
+  clearSelection = () => {
+    this.store.tabStore.selection.clear()
   }
 
   getUnselectedTabs = (tabs: Tab[]) => {
@@ -311,8 +317,8 @@ export default class DragStore {
           }
         }
       }
-      this.clear()
       this.dropped = true
+      this.clearSelection()
     } catch (error) {
       log.error('DragStore.drop failed', {
         error,
@@ -325,6 +331,7 @@ export default class DragStore {
   dropToNewWindow = async () => {
     const { sources } = this.store.tabStore
     this.store.windowStore.createNewWindow(sources)
-    this.clear()
+    this.dropped = true
+    this.clearSelection()
   }
 }
