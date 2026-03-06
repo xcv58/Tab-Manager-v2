@@ -183,7 +183,10 @@ const options = {
                   !['contextualIdentities', 'cookies'].includes(permission),
               )
             }
-            if (process.env.TARGET_BROWSER === 'chrome') {
+            if (
+              process.env.TARGET_BROWSER === 'chrome' ||
+              process.env.TARGET_BROWSER === 'firefox'
+            ) {
               json.permissions = json.permissions.concat('tabGroups')
             }
             return Buffer.from(

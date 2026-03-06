@@ -132,11 +132,10 @@ export default class FocusStore {
 
   getNoGroupId = () => this.store.tabGroupStore?.getNoGroupId?.() ?? -1
 
+  canMutateTabGroups = () => !!this.store.tabGroupStore?.canMutateGroups?.()
+
   toggleFocusedTabGroup = () => {
-    if (
-      process.env.TARGET_BROWSER !== 'chrome' ||
-      !(this.focusedItem instanceof Tab)
-    ) {
+    if (!this.canMutateTabGroups() || !(this.focusedItem instanceof Tab)) {
       return
     }
     const { groupId } = this.focusedItem
@@ -147,10 +146,7 @@ export default class FocusStore {
   }
 
   ungroupFocusedTab = () => {
-    if (
-      process.env.TARGET_BROWSER !== 'chrome' ||
-      !(this.focusedItem instanceof Tab)
-    ) {
+    if (!this.canMutateTabGroups() || !(this.focusedItem instanceof Tab)) {
       return
     }
     const { groupId } = this.focusedItem
@@ -162,7 +158,7 @@ export default class FocusStore {
 
   ungroupFocusedSingleTab = () => {
     if (
-      process.env.TARGET_BROWSER !== 'chrome' ||
+      !this.canMutateTabGroups() ||
       !(this.focusedItem instanceof Tab) ||
       !this.store.tabGroupStore
     ) {
@@ -176,7 +172,7 @@ export default class FocusStore {
   }
 
   createGroupFromFocusedOrSelectedTabs = () => {
-    if (process.env.TARGET_BROWSER !== 'chrome' || !this.store.tabGroupStore) {
+    if (!this.canMutateTabGroups() || !this.store.tabGroupStore) {
       return
     }
     const selectedTabs = this.store.tabStore.sources

@@ -76,6 +76,12 @@ export default class DragStore {
 
   getNoGroupId = () => this.store.tabGroupStore?.getNoGroupId?.() ?? -1
 
+  hasTabGroupsApi = () => !!this.store.tabGroupStore?.hasTabGroupsApi?.()
+
+  canMutateGroups = () => !!this.store.tabGroupStore?.canMutateGroups?.()
+
+  canMoveGroups = () => !!this.store.tabGroupStore?.canMoveGroups?.()
+
   isNoGroupId = (groupId: number) => groupId === this.getNoGroupId()
 
   getGroupBounds = (tabs: Tab[], groupId: number) => {
@@ -129,7 +135,7 @@ export default class DragStore {
   getTargetIndex = (winTabs: Tab[], targetTab: Tab, before: boolean) => {
     const targetGroupId = targetTab.groupId
     if (
-      process.env.TARGET_BROWSER !== 'chrome' ||
+      !this.hasTabGroupsApi() ||
       this.isNoGroupId(targetGroupId) ||
       !this.store.tabGroupStore
     ) {
@@ -221,8 +227,8 @@ export default class DragStore {
       const index = this.getUnselectedTabs(
         win.tabs.slice(0, targetIndex),
       ).length
-      const isChromeGroupFlow =
-        process.env.TARGET_BROWSER === 'chrome' && !!this.store.tabGroupStore
+      const hasTabGroupFlow =
+        this.hasTabGroupsApi() && !!this.store.tabGroupStore
       const hasTargetGroup = !this.isNoGroupId(targetGroupId)
       const targetGroupOffset = this.getTargetGroupOffset(
         win.tabs,
@@ -230,19 +236,22 @@ export default class DragStore {
         targetIndex,
       )
       const canMoveGroup =
-        isChromeGroupFlow &&
+        hasTabGroupFlow &&
+        this.canMoveGroups() &&
         !this.isNoGroupId(sourceGroupId) &&
         sourceGroupId !== targetGroupId &&
         wholeGroupSelection &&
         !options.forceUngroup
       const shouldJoinTargetGroup =
-        isChromeGroupFlow &&
+        hasTabGroupFlow &&
+        this.canMutateGroups() &&
         hasTargetGroup &&
         sourceGroupId !== targetGroupId &&
         !wholeGroupSelection &&
         !options.forceUngroup
       const shouldDetachFromSourceGroup =
-        isChromeGroupFlow &&
+        hasTabGroupFlow &&
+        this.canMutateGroups() &&
         !wholeGroupSelection &&
         groupedSourceTabIds.length > 0 &&
         (!!options.forceUngroup || !hasTargetGroup)
@@ -288,7 +297,8 @@ export default class DragStore {
         } else {
           await moveTabs(sources, windowId, index)
           if (
-            isChromeGroupFlow &&
+            hasTabGroupFlow &&
+            this.canMutateGroups() &&
             !this.isNoGroupId(sourceGroupId) &&
             wholeGroupSelection &&
             sourceGroupId !== targetGroupId &&

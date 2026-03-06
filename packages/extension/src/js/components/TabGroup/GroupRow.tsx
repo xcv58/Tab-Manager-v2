@@ -33,6 +33,8 @@ export default observer((props: Props) => {
   if (!tabGroup) {
     return null
   }
+  const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
+  const canMoveGroups = !!tabGroupStore?.canMoveGroups?.()
   const headerRef = useRef<HTMLDivElement | null>(null)
   const [headerDropMode, setHeaderDropMode] = useState<
     'join-group' | 'before-group'
@@ -42,14 +44,23 @@ export default observer((props: Props) => {
   const groupColor = getChromeTabGroupColor(groupColorId)
 
   const onToggle = () => {
+    if (!canMutateGroups) {
+      return
+    }
     tabGroupStore.toggleCollapsed(row.groupId)
   }
 
   const onUngroup = () => {
+    if (!canMutateGroups) {
+      return
+    }
     tabGroupStore.ungroup(row.groupId)
   }
 
   const onMoveToTop = () => {
+    if (!canMoveGroups) {
+      return
+    }
     tabGroupStore.moveGroup(row.groupId, {
       windowId: row.windowId,
       index: 0,
@@ -57,6 +68,9 @@ export default observer((props: Props) => {
   }
 
   const onMoveToBottom = () => {
+    if (!canMoveGroups) {
+      return
+    }
     tabGroupStore.moveGroup(row.groupId, {
       windowId: row.windowId,
       index: -1,
@@ -64,6 +78,9 @@ export default observer((props: Props) => {
   }
 
   const onMoveToAnotherWindow = () => {
+    if (!canMoveGroups) {
+      return
+    }
     if (!window.prompt) {
       return
     }
@@ -228,14 +245,16 @@ export default observer((props: Props) => {
               </span>
             )}
           </button>
-          <GroupDragHandle
-            groupId={row.groupId}
-            className={classNames(
-              'opacity-0 pointer-events-none transition-opacity',
-              'group-hover/tab-group:opacity-100 group-hover/tab-group:pointer-events-auto',
-              'group-focus-within/tab-group:opacity-100 group-focus-within/tab-group:pointer-events-auto',
-            )}
-          />
+          {canMutateGroups && (
+            <GroupDragHandle
+              groupId={row.groupId}
+              className={classNames(
+                'opacity-0 pointer-events-none transition-opacity',
+                'group-hover/tab-group:opacity-100 group-hover/tab-group:pointer-events-auto',
+                'group-focus-within/tab-group:opacity-100 group-focus-within/tab-group:pointer-events-auto',
+              )}
+            />
+          )}
           <IconButton
             onClick={(event) => setMenuAnchorEl(event.currentTarget)}
             className="focus:outline-none"
@@ -260,86 +279,100 @@ export default observer((props: Props) => {
         }}
         style={{ zIndex: theme.zIndex.tooltip + 1 }}
       >
-        <MenuItem
-          data-testid={`tab-group-menu-toggle-${row.groupId}`}
-          onClick={() => {
-            setMenuAnchorEl(null)
-            onToggle()
-          }}
-        >
-          {tabGroup.collapsed ? 'Expand group' : 'Collapse group'}
-        </MenuItem>
-        <MenuItem
-          data-testid={`tab-group-menu-rename-${row.groupId}`}
-          onClick={() => {
-            setEditorAnchorEl(menuAnchorEl)
-            setMenuAnchorEl(null)
-          }}
-        >
-          Rename group
-        </MenuItem>
-        <MenuItem
-          data-testid={`tab-group-menu-recolor-${row.groupId}`}
-          onClick={() => {
-            setEditorAnchorEl(menuAnchorEl)
-            setMenuAnchorEl(null)
-          }}
-        >
-          Change color
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          data-testid={`tab-group-menu-move-top-${row.groupId}`}
-          onClick={() => {
-            setMenuAnchorEl(null)
-            onMoveToTop()
-          }}
-        >
-          Move group to top
-        </MenuItem>
-        <MenuItem
-          data-testid={`tab-group-menu-move-bottom-${row.groupId}`}
-          onClick={() => {
-            setMenuAnchorEl(null)
-            onMoveToBottom()
-          }}
-        >
-          Move group to bottom
-        </MenuItem>
-        <MenuItem
-          data-testid={`tab-group-menu-move-window-${row.groupId}`}
-          onClick={() => {
-            setMenuAnchorEl(null)
-            onMoveToAnotherWindow()
-          }}
-        >
-          Move group to another window
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          data-testid={`tab-group-menu-ungroup-${row.groupId}`}
-          onClick={() => {
-            setMenuAnchorEl(null)
-            onUngroup()
-          }}
-        >
-          Ungroup tabs
-        </MenuItem>
+        {canMutateGroups && (
+          <>
+            <MenuItem
+              data-testid={`tab-group-menu-toggle-${row.groupId}`}
+              onClick={() => {
+                setMenuAnchorEl(null)
+                onToggle()
+              }}
+            >
+              {tabGroup.collapsed ? 'Expand group' : 'Collapse group'}
+            </MenuItem>
+            <MenuItem
+              data-testid={`tab-group-menu-rename-${row.groupId}`}
+              onClick={() => {
+                setEditorAnchorEl(menuAnchorEl)
+                setMenuAnchorEl(null)
+              }}
+            >
+              Rename group
+            </MenuItem>
+            <MenuItem
+              data-testid={`tab-group-menu-recolor-${row.groupId}`}
+              onClick={() => {
+                setEditorAnchorEl(menuAnchorEl)
+                setMenuAnchorEl(null)
+              }}
+            >
+              Change color
+            </MenuItem>
+          </>
+        )}
+        {canMoveGroups && (
+          <>
+            <Divider />
+            <MenuItem
+              data-testid={`tab-group-menu-move-top-${row.groupId}`}
+              onClick={() => {
+                setMenuAnchorEl(null)
+                onMoveToTop()
+              }}
+            >
+              Move group to top
+            </MenuItem>
+            <MenuItem
+              data-testid={`tab-group-menu-move-bottom-${row.groupId}`}
+              onClick={() => {
+                setMenuAnchorEl(null)
+                onMoveToBottom()
+              }}
+            >
+              Move group to bottom
+            </MenuItem>
+            <MenuItem
+              data-testid={`tab-group-menu-move-window-${row.groupId}`}
+              onClick={() => {
+                setMenuAnchorEl(null)
+                onMoveToAnotherWindow()
+              }}
+            >
+              Move group to another window
+            </MenuItem>
+          </>
+        )}
+        {canMutateGroups && (
+          <>
+            <Divider />
+            <MenuItem
+              data-testid={`tab-group-menu-ungroup-${row.groupId}`}
+              onClick={() => {
+                setMenuAnchorEl(null)
+                onUngroup()
+              }}
+            >
+              Ungroup tabs
+            </MenuItem>
+          </>
+        )}
       </Popover>
-      <GroupEditorPopover
-        anchorEl={editorAnchorEl}
-        groupId={row.groupId}
-        initialColor={groupColorId}
-        initialTitle={tabGroup.title || ''}
-        open={Boolean(editorAnchorEl)}
-        onClose={() => setEditorAnchorEl(null)}
-        onRename={(title) => {
-          tabGroupStore.renameGroup(row.groupId, title)
-        }}
-        onRecolor={(color) => {
-          tabGroupStore.recolorGroup(row.groupId, color)
-        }}
-      />
+      {canMutateGroups && (
+        <GroupEditorPopover
+          anchorEl={editorAnchorEl}
+          groupId={row.groupId}
+          initialColor={groupColorId}
+          initialTitle={tabGroup.title || ''}
+          open={Boolean(editorAnchorEl)}
+          onClose={() => setEditorAnchorEl(null)}
+          onRename={(title) => {
+            tabGroupStore.renameGroup(row.groupId, title)
+          }}
+          onRecolor={(color) => {
+            tabGroupStore.recolorGroup(row.groupId, color)
+          }}
+        />
+      )}
     </>
   )
 })

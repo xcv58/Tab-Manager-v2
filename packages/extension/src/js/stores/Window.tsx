@@ -70,7 +70,7 @@ export default class Window extends Focusable {
   }
 
   get rows(): WindowRow[] {
-    if (process.env.TARGET_BROWSER === 'chrome' && this.store.tabGroupStore) {
+    if (this.store.tabGroupStore?.hasTabGroupsApi?.()) {
       return this.store.tabGroupStore.getRowsForWindow(this)
     }
     return this.tabs

@@ -45,6 +45,36 @@ describe('TabGroupStore', () => {
       windowStore: { tabs: [] },
     } as any)
 
+  it('should expose tab group capability flags', () => {
+    const store = groupStore()
+    expect(store.hasTabGroupsApi()).toBe(true)
+    expect(store.canMutateGroups()).toBe(true)
+    expect(store.canMoveGroups()).toBe(true)
+  })
+
+  it('should return false capabilities when tab group APIs are unavailable', () => {
+    ;(browser as any).tabGroups = undefined
+    ;(browser as any).tabs = {}
+    ;(global as any).chrome = {
+      runtime: {},
+    }
+    const store = groupStore()
+    expect(store.hasTabGroupsApi()).toBe(false)
+    expect(store.canMutateGroups()).toBe(false)
+    expect(store.canMoveGroups()).toBe(false)
+  })
+
+  it('should no-op group creation when mutation capability is unavailable', async () => {
+    ;(browser as any).tabGroups = undefined
+    ;(browser as any).tabs = {}
+    ;(global as any).chrome = { runtime: {} }
+    const store = groupStore()
+
+    const groupId = await store.createGroup([1, 2])
+
+    expect(groupId).toBeNull()
+  })
+
   it('should return grouped rows and visible tabs for collapsed groups with search', async () => {
     const tabs = [
       {

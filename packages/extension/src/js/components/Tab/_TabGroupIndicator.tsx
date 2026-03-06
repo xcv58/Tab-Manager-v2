@@ -7,6 +7,9 @@ import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 const _TabGroupIndicator = (props: Tab) => {
   const { groupId } = props
   const { tabGroupStore } = useStore()
+  if (!tabGroupStore) {
+    return null
+  }
   const tabGroup: TabGroup = tabGroupStore.getTabGroup(groupId)
   if (tabGroupStore.isNoGroupId(groupId) || !tabGroup) {
     return null

@@ -18,11 +18,14 @@ export default class ContainerStore {
   }
 
   init = async () => {
+    if (!browser.contextualIdentities?.query) {
+      return
+    }
     const containers = await browser.contextualIdentities.query({})
     containers.forEach(this._setContainer)
-    browser.contextualIdentities.onCreated.addListener(this.onCreated)
-    browser.contextualIdentities.onRemoved.addListener(this.onRemoved)
-    browser.contextualIdentities.onUpdated.addListener(this.onUpdated)
+    browser.contextualIdentities.onCreated?.addListener?.(this.onCreated)
+    browser.contextualIdentities.onRemoved?.addListener?.(this.onRemoved)
+    browser.contextualIdentities.onUpdated?.addListener?.(this.onUpdated)
   }
 
   _setContainer = (containerInfo) => {

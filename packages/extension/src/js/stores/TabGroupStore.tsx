@@ -98,6 +98,13 @@ export default class GroupStore {
     return this.tabGroupMap.get(id)
   }
 
+  hasTabGroupsApi = (): boolean => {
+    return !!(
+      browser.tabGroups ||
+      (typeof chrome !== 'undefined' && chrome.tabGroups)
+    )
+  }
+
   getNoGroupId = () => {
     if (browser.tabGroups?.TAB_GROUP_ID_NONE != null) {
       return browser.tabGroups.TAB_GROUP_ID_NONE
@@ -321,6 +328,9 @@ export default class GroupStore {
     tabIds: number[],
     createProperties?: chrome.tabs.GroupOptions['createProperties'],
   ): Promise<number | null> => {
+    if (!this.canMutateGroups()) {
+      return null
+    }
     if (!tabIds.length) {
       return null
     }
@@ -349,6 +359,9 @@ export default class GroupStore {
     tabIds: number[],
     groupId: number,
   ): Promise<number | null> => {
+    if (!this.canMutateGroups()) {
+      return null
+    }
     if (!tabIds.length) {
       return null
     }
@@ -423,6 +436,9 @@ export default class GroupStore {
     groupId: number,
     moveProperties: chrome.tabGroups.MoveProperties,
   ): Promise<TabGroup | null> => {
+    if (!this.canMoveGroups()) {
+      return null
+    }
     if (this.isNoGroupId(groupId)) {
       return null
     }
@@ -468,6 +484,23 @@ export default class GroupStore {
     )
   }
 
+  canMutateGroups = (): boolean => {
+    return !!(
+      this.canUpdateTabGroup() &&
+      (browser.tabs?.group ||
+        (typeof chrome !== 'undefined' && chrome.tabs?.group)) &&
+      (browser.tabs?.ungroup ||
+        (typeof chrome !== 'undefined' && chrome.tabs?.ungroup))
+    )
+  }
+
+  canMoveGroups = (): boolean => {
+    return !!(
+      browser.tabGroups?.move ||
+      (typeof chrome !== 'undefined' && chrome.tabGroups?.move)
+    )
+  }
+
   toggleCollapsed = async (groupId: number): Promise<void> => {
     const tabGroup = this.getTabGroup(groupId)
     if (!tabGroup || !this.canUpdateTabGroup()) {
@@ -501,6 +534,9 @@ export default class GroupStore {
   }
 
   renameGroup = async (groupId: number, title: string): Promise<void> => {
+    if (!this.canUpdateTabGroup()) {
+      return
+    }
     const tabGroup = this.getTabGroup(groupId)
     if (tabGroup) {
       this.tabGroupMap.set(groupId, {
@@ -516,6 +552,9 @@ export default class GroupStore {
   }
 
   recolorGroup = async (groupId: number, color: chrome.tabGroups.ColorEnum) => {
+    if (!this.canUpdateTabGroup()) {
+      return
+    }
     const tabGroup = this.getTabGroup(groupId)
     if (tabGroup) {
       this.tabGroupMap.set(groupId, {

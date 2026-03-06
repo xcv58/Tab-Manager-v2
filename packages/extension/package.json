@@ -25,6 +25,7 @@
     "codecov": "codecov",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "test": "jest --maxWorkers=1",
+    "test:firefox": "TARGET_BROWSER=firefox jest --maxWorkers=1",
     "test-watch": "pnpm jest --watch"
   },
   "dependencies": {

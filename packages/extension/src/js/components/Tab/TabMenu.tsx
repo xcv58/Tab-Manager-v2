@@ -72,10 +72,11 @@ export default observer((props: { tab: Tab }) => {
     duplicatedTabCount,
     closeDuplicatedTab,
   } = props.tab
-  const tabGroup =
-    process.env.TARGET_BROWSER === 'chrome'
-      ? tabGroupStore.getTabGroup(props.tab.groupId)
-      : null
+  const hasTabGroupsApi = !!tabGroupStore?.hasTabGroupsApi?.()
+  const canMutateTabGroups = !!tabGroupStore?.canMutateGroups?.()
+  const tabGroup = hasTabGroupsApi
+    ? tabGroupStore.getTabGroup(props.tab.groupId)
+    : null
   const selectedTabs = tabStore.sources
   const tabsForNewGroup = selectedTabs.length ? selectedTabs : [props.tab]
   const uniqueTabsForNewGroup = Array.from(
@@ -124,10 +125,7 @@ export default observer((props: { tab: Tab }) => {
       },
     )
   }
-  if (
-    process.env.TARGET_BROWSER === 'chrome' &&
-    uniqueTabsForNewGroup.length >= 2
-  ) {
+  if (canMutateTabGroups && uniqueTabsForNewGroup.length >= 2) {
     options.push(DIVIDER, {
       ...OPTION,
       label: `Create new group from ${uniqueTabsForNewGroup.length} selected ${getNoun(
@@ -140,7 +138,7 @@ export default observer((props: { tab: Tab }) => {
       },
     })
   }
-  if (process.env.TARGET_BROWSER === 'chrome' && tabGroup) {
+  if (canMutateTabGroups && tabGroup) {
     options.push(
       DIVIDER,
       {

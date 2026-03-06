@@ -1,13 +1,24 @@
+import React from 'react'
 import { observer } from 'mobx-react-lite'
+import { useStore } from 'components/hooks/useStore'
+import ContainerIndicator from './_ContainerIndicator'
+import TabGroupIndicator from './_TabGroupIndicator'
 
-let ContainerOrGroupIndicator = (): React.ReactNode => null
+const ContainerOrGroupIndicator = observer((props) => {
+  const { groupId } = props
+  const { tabGroupStore, containerStore } = useStore()
 
-if (process.env.TARGET_BROWSER === 'firefox') {
-  ContainerOrGroupIndicator = observer(require('./_ContainerIndicator').default)
-}
+  const hasGroupId =
+    !!tabGroupStore?.hasTabGroupsApi?.() && !tabGroupStore.isNoGroupId(groupId)
+  if (hasGroupId) {
+    return <TabGroupIndicator {...props} />
+  }
 
-if (process.env.TARGET_BROWSER === 'chrome') {
-  ContainerOrGroupIndicator = observer(require('./_TabGroupIndicator').default)
-}
+  if (process.env.TARGET_BROWSER === 'firefox' && containerStore) {
+    return <ContainerIndicator {...props} />
+  }
+
+  return null
+})
 
 export default ContainerOrGroupIndicator

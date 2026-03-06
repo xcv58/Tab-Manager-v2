@@ -11,6 +11,8 @@ import UserStore from 'stores/UserStore'
 import HoverStore from 'stores/HoverStore'
 import HiddenWindowStore from 'stores/HiddenWindowStore'
 import FocusStore from 'stores/FocusStore'
+import TabGroupStore from './TabGroupStore'
+import ContainerStore from './ContainerStore'
 
 import Tab from './Tab'
 import Window from './Window'
@@ -53,13 +55,14 @@ export default class Store {
     this.searchStore = new SearchStore(this)
     this.hiddenWindowStore = new HiddenWindowStore(this)
     this.focusStore = new FocusStore(this)
-    if (process.env.TARGET_BROWSER === 'firefox') {
-      const ContainerStore = require('./ContainerStore').default
-      this.containerStore = new ContainerStore(this)
-    }
-    if (process.env.TARGET_BROWSER === 'chrome') {
-      const TabGroupStore = require('./TabGroupStore').default
+    if (
+      process.env.TARGET_BROWSER === 'firefox' ||
+      process.env.TARGET_BROWSER === 'chrome'
+    ) {
       this.tabGroupStore = new TabGroupStore(this)
+    }
+    if (process.env.TARGET_BROWSER === 'firefox') {
+      this.containerStore = new ContainerStore(this)
     }
   }
 

@@ -429,34 +429,46 @@ export default class ShortcutStore {
       },
       'Group tabs by container',
     ],
-    process.env.TARGET_BROWSER === 'chrome' && [
+    [
       ['alt+shift+g'],
       (event: Event) => {
         preventDefault(event)
+        if (!this.store.tabGroupStore?.canMutateGroups?.()) {
+          return
+        }
         this.store.focusStore.createGroupFromFocusedOrSelectedTabs()
       },
       'Create a new group from selected/focused tabs',
     ],
-    process.env.TARGET_BROWSER === 'chrome' && [
+    [
       ['alt+g'],
       (event: Event) => {
         preventDefault(event)
+        if (!this.store.tabGroupStore?.canMutateGroups?.()) {
+          return
+        }
         this.store.focusStore.toggleFocusedTabGroup()
       },
       'Collapse/expand focused tab group',
     ],
-    process.env.TARGET_BROWSER === 'chrome' && [
+    [
       ['alt+shift+u'],
       (event: Event) => {
         preventDefault(event)
+        if (!this.store.tabGroupStore?.canMutateGroups?.()) {
+          return
+        }
         this.store.focusStore.ungroupFocusedSingleTab()
       },
       'Remove focused tab from its group',
     ],
-    process.env.TARGET_BROWSER === 'chrome' && [
+    [
       ['alt+u'],
       (event: Event) => {
         preventDefault(event)
+        if (!this.store.tabGroupStore?.canMutateGroups?.()) {
+          return
+        }
         this.store.focusStore.ungroupFocusedTab()
       },
       'Ungroup focused tab group',

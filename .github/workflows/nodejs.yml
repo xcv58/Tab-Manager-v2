@@ -51,6 +51,12 @@ jobs:
       - name: Install Playwright
         run: pnpm --filter integration-test exec playwright install --with-deps chromium
 
+      - name: Build Firefox Extension
+        run: pnpm --filter tab-manager-v2 build:firefox
+
+      - name: Firefox Target Tests
+        run: pnpm --filter tab-manager-v2 test:firefox
+
       # Run all test
       - name: Integration Test
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test --force
