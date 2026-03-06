@@ -22,7 +22,8 @@ import {
 const uniqueUrls = (prefix: string, size: number) => {
   const stamp = `${Date.now()}-${Math.floor(Math.random() * 100000)}`
   return [...Array(size)].map(
-    (_, index) => `about:blank#${prefix}-${stamp}-${index}`,
+    (_, index) =>
+      `https://example.com/?tab-manager-v2-firefox-e2e=${prefix}-${stamp}-${index}`,
   )
 }
 

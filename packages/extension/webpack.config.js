@@ -168,10 +168,7 @@ const options = {
             if (process.env.NODE_ENV === 'production') {
               delete json.content_security_policy
             }
-            if (
-              process.env.NODE_ENV === 'production' ||
-              process.env.TARGET_BROWSER !== 'firefox'
-            ) {
+            if (process.env.TARGET_BROWSER !== 'firefox') {
               delete json.browser_specific_settings
             }
             if (process.env.TARGET_BROWSER === 'firefox') {

@@ -67,7 +67,6 @@ jobs:
       - name: Firefox Integration Test
         env:
           FIREFOX_E2E: '1'
-          FIREFOX_BINARY: ${{ steps.setup-firefox.outputs.firefox-path }}
         run: pnpm --filter integration-test-firefox test:firefox
 
       # Run all test

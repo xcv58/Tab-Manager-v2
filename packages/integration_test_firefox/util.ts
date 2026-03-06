@@ -43,6 +43,36 @@ export type TabSnapshot = {
   url: string
 }
 
+const FIREFOX_E2E_DEBUG = process.env.FIREFOX_E2E_DEBUG === '1'
+
+const debugLog = (...args: unknown[]) => {
+  if (FIREFOX_E2E_DEBUG) {
+    console.log('[firefox-e2e]', ...args)
+  }
+}
+
+const withTimeout = async <T>(
+  label: string,
+  promise: Promise<T>,
+  timeoutMs: number,
+): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error(`${label} timed out after ${timeoutMs}ms`))
+        }, timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timer) {
+      clearTimeout(timer)
+    }
+  }
+}
+
 const getFirefoxBinary = () => {
   const envBinary = process.env.FIREFOX_BINARY
   if (envBinary && existsSync(envBinary)) {
@@ -85,6 +115,7 @@ const createTemporaryXpi = () => {
 
 export const initBrowserWithExtension =
   async (): Promise<FirefoxExtensionSession> => {
+    const addonArchivePath = createTemporaryXpi()
     const firefoxBinary = getFirefoxBinary()
     if (!firefoxBinary) {
       throw new Error(
@@ -105,18 +136,38 @@ export const initBrowserWithExtension =
     if (process.env.FIREFOX_E2E_HEADLESS !== 'false') {
       options.addArguments('-headless')
     }
-    const driver = await new Builder()
-      .forBrowser('firefox')
-      .setFirefoxOptions(options)
-      .build()
-
-    const addonArchivePath = createTemporaryXpi()
-    const addonId = await (driver as FirefoxDriverWithAddonApi).installAddon(
-      addonArchivePath,
-      true,
+    const serviceBuilder = new firefox.ServiceBuilder()
+    if (FIREFOX_E2E_DEBUG) {
+      serviceBuilder.enableVerboseLogging(true)
+    }
+    debugLog('launch webdriver')
+    const driver = await withTimeout(
+      'webdriver build',
+      new Builder()
+        .forBrowser('firefox')
+        .setFirefoxOptions(options)
+        .setFirefoxService(serviceBuilder)
+        .build(),
+      60000,
     )
-    await driver.get(EXTENSION_URL)
-    await waitForCss(driver, SEARCH_INPUT_SELECTOR)
+
+    debugLog('install addon', addonArchivePath)
+    const addonId = await withTimeout(
+      'installAddon',
+      (driver as FirefoxDriverWithAddonApi).installAddon(
+        addonArchivePath,
+        true,
+      ),
+      60000,
+    )
+    debugLog('addon installed', addonId)
+
+    await withTimeout('open extension URL', driver.get(EXTENSION_URL), 45000)
+    await withTimeout(
+      'wait search input',
+      waitForCss(driver, SEARCH_INPUT_SELECTOR),
+      45000,
+    )
 
     return {
       driver,
@@ -306,21 +357,39 @@ export const groupTabsByUrl = async (
   return await executeInExtension(
     driver,
     async ({ urls, title, color, windowId }) => {
-      const tabs = await browser.tabs.query(
-        typeof windowId === 'number' ? { windowId } : { currentWindow: true },
-      )
-      const tabPool = [...tabs]
-      const pickedTabIds: number[] = []
-      for (const url of urls) {
-        const index = tabPool.findIndex((tab) => tab.url === url)
-        if (index >= 0) {
-          const tab = tabPool.splice(index, 1)[0]
-          if (typeof tab.id === 'number') {
-            pickedTabIds.push(tab.id)
+      const queryInfo =
+        typeof windowId === 'number' ? { windowId } : { currentWindow: true }
+      const normalizeUrl = (url: string) => (url || '').replace(/\/$/, '')
+
+      let pickedTabIds: number[] = []
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        const tabs = await browser.tabs.query(queryInfo)
+        const tabPool = [...tabs]
+        const nextPickedIds: number[] = []
+        for (const targetUrl of urls) {
+          const index = tabPool.findIndex((tab) => {
+            const currentUrl = normalizeUrl(
+              (tab as { pendingUrl?: string; url?: string }).pendingUrl ||
+                tab.url ||
+                '',
+            )
+            return currentUrl === normalizeUrl(targetUrl)
+          })
+          if (index >= 0) {
+            const tab = tabPool.splice(index, 1)[0]
+            if (typeof tab.id === 'number') {
+              nextPickedIds.push(tab.id)
+            }
           }
         }
+        pickedTabIds = nextPickedIds
+        if (pickedTabIds.length >= Math.min(2, urls.length)) {
+          break
+        }
+        await new Promise((resolve) => setTimeout(resolve, 150))
       }
-      if (!pickedTabIds.length) {
+
+      if (pickedTabIds.length < Math.min(2, urls.length)) {
         return -1
       }
       const groupId = await browser.tabs.group({
