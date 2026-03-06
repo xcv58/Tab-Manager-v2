@@ -6,11 +6,9 @@
   "scripts": {
     "analyze": "NODE_ENV=production node utils/analyze.js",
     "release": "standard-version",
-    "build": "run-p build:firefox build:safari",
+    "build": "run-p build:chrome build:firefox",
     "_build": "NODE_ENV=production node utils/build.js",
     "build:chrome": "TARGET_BROWSER=chrome pnpm _build",
-    "build:safari": "run-s build:chrome build:safari:resources",
-    "build:safari:resources": "cp -R build/build_chrome/* 'safari/Tab Manager v2/Tab Manager v2 Extension/Resources/' && node utils/prepare-safari-manifest.js",
     "build:firefox": "TARGET_BROWSER=firefox pnpm _build",
     "start": "run-p start:*",
     "_start": "node utils/webserver.js",
@@ -26,6 +24,18 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls",
     "test": "jest --maxWorkers=1",
     "test-watch": "pnpm jest --watch"
+  },
+  "browserslist": {
+    "production": [
+      "last 2 Chrome versions",
+      "last 2 Firefox versions",
+      "last 2 Edge versions"
+    ],
+    "development": [
+      "last 1 Chrome version",
+      "last 1 Firefox version",
+      "last 1 Edge version"
+    ]
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

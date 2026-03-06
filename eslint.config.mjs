@@ -64,6 +64,4 @@ export default [...compat.extends(
             console: true,
         }
     }
-}, {
-    ignores: ["packages/extension/safari/"]
 }];
