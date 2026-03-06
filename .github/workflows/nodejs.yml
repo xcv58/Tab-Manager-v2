@@ -52,7 +52,13 @@ jobs:
         run: sudo apt-get install -y firefox
 
       - name: Install Playwright
-        run: pnpm --filter integration-test exec playwright install --with-deps chromium
+        run: pnpm --filter integration-test exec playwright install --with-deps chromium firefox
+
+      - name: Resolve Firefox Binary
+        run: |
+          FIREFOX_BINARY=$(pnpm --filter integration-test exec node -e "const { firefox } = require('@playwright/test'); console.log(firefox.executablePath())")
+          echo "FIREFOX_BINARY=$FIREFOX_BINARY" >> $GITHUB_ENV
+          echo "Using Firefox binary: $FIREFOX_BINARY"
 
       - name: Build Firefox Extension
         run: pnpm --filter tab-manager-v2 build:firefox
@@ -66,6 +72,7 @@ jobs:
       - name: Firefox Integration Test
         env:
           FIREFOX_E2E: '1'
+          FIREFOX_BINARY: ${{ env.FIREFOX_BINARY }}
         run: pnpm --filter integration-test-firefox test:firefox
 
       # Run all test

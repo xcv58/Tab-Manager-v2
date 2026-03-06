@@ -44,6 +44,10 @@ export type TabSnapshot = {
 }
 
 const getFirefoxBinary = () => {
+  const envBinary = process.env.FIREFOX_BINARY
+  if (envBinary && existsSync(envBinary)) {
+    return envBinary
+  }
   if (process.platform === 'darwin') {
     const macBinary = '/Applications/Firefox.app/Contents/MacOS/firefox'
     if (existsSync(macBinary)) {
@@ -81,13 +85,17 @@ const createTemporaryXpi = () => {
 
 export const initBrowserWithExtension =
   async (): Promise<FirefoxExtensionSession> => {
-    if (!getFirefoxBinary()) {
+    const firefoxBinary = getFirefoxBinary()
+    if (!firefoxBinary) {
       throw new Error(
         'Firefox binary not found. Install Firefox or run tests in CI where Firefox is provisioned.',
       )
     }
 
     const options = new firefox.Options()
+    if (process.env.FIREFOX_BINARY) {
+      options.setBinary(firefoxBinary)
+    }
     options.setPreference(
       'extensions.webextensions.uuids',
       JSON.stringify({ [ADDON_ID]: ADDON_UUID }),
