@@ -81,15 +81,13 @@ const createTemporaryXpi = () => {
 
 export const initBrowserWithExtension =
   async (): Promise<FirefoxExtensionSession> => {
-    const firefoxBinary = getFirefoxBinary()
-    if (!firefoxBinary) {
+    if (!getFirefoxBinary()) {
       throw new Error(
         'Firefox binary not found. Install Firefox or run tests in CI where Firefox is provisioned.',
       )
     }
 
     const options = new firefox.Options()
-    options.setBinary(firefoxBinary)
     options.setPreference(
       'extensions.webextensions.uuids',
       JSON.stringify({ [ADDON_ID]: ADDON_UUID }),
