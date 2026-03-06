@@ -248,7 +248,7 @@ export default observer((props: Props) => {
               )}
             </span>
             <span
-              className="inline-flex min-h-[1.75rem] max-w-[14rem] items-center truncate rounded-full px-4 py-1 text-sm font-medium leading-5"
+              className="inline-flex h-6 max-w-[14rem] items-center truncate rounded-[7px] px-3 text-sm font-medium leading-5"
               style={{
                 backgroundColor: groupColor.line,
                 color: groupColor.chipText,

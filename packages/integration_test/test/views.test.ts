@@ -205,6 +205,38 @@ test.describe('The Extension page should', () => {
     ).toHaveCSS('border-top-color', 'rgb(217, 48, 37)')
   })
 
+  test('render group title chip with chrome-like proportions', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Uage',
+      color: 'red',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const chip = page.getByTestId(`tab-group-title-${groupId}`)
+    await expect(chip).toHaveText('Uage')
+    const chipScreenshot = await chip.screenshot()
+    expect(chipScreenshot).toMatchSnapshot('group-title-chip-chrome-like.png', {
+      maxDiffPixelRatio: 0.08,
+      threshold: 0.2,
+    })
+  })
+
   test('search by group title should reveal tabs from a collapsed group', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
