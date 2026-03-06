@@ -24,7 +24,6 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
   const transform = `translate(${x}px, ${y}px)`
   return {
     transform,
-    WebkitTransform: transform,
   }
 }
 
@@ -34,7 +33,7 @@ export default () => {
       initialOffset: monitor.getInitialSourceClientOffset(),
       currentOffset: monitor.getClientOffset(),
       isDragging: monitor.isDragging(),
-    })
+    }),
   )
   return (
     <div style={layerStyles}>
