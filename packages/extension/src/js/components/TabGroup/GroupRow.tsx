@@ -248,10 +248,11 @@ export default observer((props: Props) => {
               )}
             </span>
             <span
-              className="inline-flex h-6 max-w-[14rem] items-center truncate rounded-[7px] px-3 text-sm font-medium leading-5"
+              className="inline-flex h-6 max-w-[14rem] items-center truncate px-3 text-sm font-medium leading-5"
               style={{
                 backgroundColor: groupColor.line,
                 color: groupColor.chipText,
+                borderRadius: 9,
               }}
               data-testid={`tab-group-title-${row.groupId}`}
             >
