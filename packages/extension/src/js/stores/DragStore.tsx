@@ -219,9 +219,6 @@ export default class DragStore {
         .map((x) => x.id)
       const { windowId } = options
       const win = getTargetWindow(windowId)
-      if (!win) {
-        return
-      }
       const targetGroupId = options.targetGroupId ?? this.getNoGroupId()
       const targetIndex = Math.max(
         0,
