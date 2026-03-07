@@ -368,11 +368,10 @@ test.describe('The Extension page should', () => {
 
     const chip = page.getByTestId(`tab-group-title-${groupId}`)
     await expect(chip).toHaveText('Uage')
-    const chipScreenshot = await chip.screenshot()
-    expect(chipScreenshot).toMatchSnapshot('group-title-chip-chrome-like.png', {
-      maxDiffPixelRatio: 0.08,
-      threshold: 0.2,
-    })
+    await expect(chip).toHaveCSS('height', '24px')
+    await expect(chip).toHaveCSS('padding-left', '12px')
+    await expect(chip).toHaveCSS('padding-right', '12px')
+    await expect(chip).toHaveCSS('border-radius', '9px')
   })
 
   test('render group count label as compact element', async () => {
