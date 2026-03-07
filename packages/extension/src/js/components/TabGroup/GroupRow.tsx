@@ -32,6 +32,8 @@ export default observer((props: Props) => {
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
   const [isHeaderHovered, setIsHeaderHovered] = useState(false)
   const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
+  const [isToggleHovered, setIsToggleHovered] = useState(false)
+  const [isToggleFocused, setIsToggleFocused] = useState(false)
   const tabGroup = tabGroupStore.getTabGroup(row.groupId)
   const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
   const headerRef = useRef<HTMLDivElement | null>(null)
@@ -145,6 +147,7 @@ export default observer((props: Props) => {
     isHeaderHovered ||
     isHeaderFocusWithin ||
     (dragStore.dragging && dragStore.dragSource === 'group-header')
+  const showToggleAffordance = isToggleHovered || isToggleFocused
 
   const setDropRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -179,13 +182,24 @@ export default observer((props: Props) => {
         {dropIndicator}
         <div className="flex items-center gap-1 pb-1">
           <button
-            className="flex min-h-10 min-w-0 flex-1 items-center text-left"
+            className="flex min-h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
             onClick={onToggle}
+            onMouseEnter={() => setIsToggleHovered(true)}
+            onMouseLeave={() => setIsToggleHovered(false)}
+            onFocus={() => setIsToggleFocused(true)}
+            onBlur={() => setIsToggleFocused(false)}
             data-testid={`tab-group-toggle-${row.groupId}`}
           >
             <span
-              className="mr-1 inline-flex h-10 w-10 shrink-0 items-center justify-center"
-              style={{ color: theme.palette.text.secondary }}
+              className="mr-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors duration-150"
+              style={{
+                backgroundColor: showToggleAffordance
+                  ? theme.palette.action.hover
+                  : 'transparent',
+                color: showToggleAffordance
+                  ? theme.palette.text.primary
+                  : theme.palette.text.secondary,
+              }}
             >
               {collapsed ? (
                 <ChevronRightIcon fontSize="small" />
