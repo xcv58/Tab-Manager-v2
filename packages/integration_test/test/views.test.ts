@@ -631,7 +631,7 @@ test.describe('The Extension page should', () => {
     await expect(windowTitle).toBeVisible()
     const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
     await expect(sortButton).toBeHidden()
-    await windowTitle.hover()
+    await windowTitle.focus()
     await page.waitForTimeout(150)
     await expect(sortButton).toBeVisible()
     const sortButtonScreenshot = await sortButton.screenshot()
