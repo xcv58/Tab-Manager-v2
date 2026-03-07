@@ -2,16 +2,9 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from '@mui/material/Tooltip'
 import SortIcon from '@mui/icons-material/Sort'
-import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
-
-const CONTROL_SX = {
-  width: 40,
-  height: 40,
-  p: 1,
-  m: 0,
-}
+import ControlIconButton from 'components/ControlIconButton'
 
 export default observer((props: WinProps) => {
   const { arrangeStore } = useStore()
@@ -19,13 +12,9 @@ export default observer((props: WinProps) => {
   const { sortTabs } = arrangeStore
   return (
     <Tooltip title="Sort tabs">
-      <IconButton
-        onClick={() => sortTabs(id)}
-        className="focus:outline-none"
-        sx={CONTROL_SX}
-      >
+      <ControlIconButton onClick={() => sortTabs(id)} aria-label="Sort tabs">
         <SortIcon />
-      </IconButton>
+      </ControlIconButton>
     </Tooltip>
   )
 })

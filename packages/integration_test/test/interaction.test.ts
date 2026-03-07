@@ -674,18 +674,10 @@ test.describe('The Extension page should', () => {
     const pages = await browserContext.pages()
     expect(tabs.length).toBe(pages.length)
     const clickCloseButton = async (tabHandle) => {
-      const closeByClass = await tabHandle.$('button.text-red-200')
-      if (closeByClass) {
-        await closeByClass.click()
+      const closeButton = await tabHandle.$('button[aria-label="Close"]')
+      if (closeButton) {
+        await closeButton.click()
         return
-      }
-      const buttons = await tabHandle.$$('button')
-      for (const button of buttons) {
-        const label = ((await button.textContent()) || '').trim().toLowerCase()
-        if (label === 'x') {
-          await button.click()
-          return
-        }
       }
       throw new Error('close button not found in tab row')
     }

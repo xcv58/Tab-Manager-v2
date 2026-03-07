@@ -3,7 +3,6 @@ import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
-import IconButton from '@mui/material/IconButton'
 import Popover from '@mui/material/Popover'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
@@ -18,6 +17,7 @@ import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { ItemTypes } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import GroupDragHandle from './GroupDragHandle'
+import ControlIconButton from 'components/ControlIconButton'
 
 type Props = {
   row: Extract<WindowRow, { kind: 'group' }>
@@ -161,9 +161,7 @@ export default observer((props: Props) => {
     <>
       <div
         ref={setDropRef}
-        className={classNames(
-          'group/tab-group sticky z-10 pr-2 pt-1 pb-0 border-b',
-        )}
+        className={classNames('group/tab-group sticky z-10 border-b')}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}
         onFocusCapture={() => setIsHeaderFocusWithin(true)}
@@ -180,9 +178,9 @@ export default observer((props: Props) => {
         data-testid={`tab-group-header-${row.groupId}`}
       >
         {dropIndicator}
-        <div className="flex items-center gap-1 pb-1">
+        <div className="flex min-h-10 items-center gap-1">
           <button
-            className="flex min-h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
+            className="flex h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
             onClick={onToggle}
             onMouseEnter={() => setIsToggleHovered(true)}
             onMouseLeave={() => setIsToggleHovered(false)}
@@ -249,13 +247,13 @@ export default observer((props: Props) => {
               )}
             />
           )}
-          <IconButton
+          <ControlIconButton
             onClick={(event) => setMenuAnchorEl(event.currentTarget)}
-            className="focus:outline-none"
+            aria-label="Group actions"
             data-testid={`tab-group-menu-${row.groupId}`}
           >
             <MoreVertIcon fontSize="small" />
-          </IconButton>
+          </ControlIconButton>
         </div>
         <div
           className="mx-0 h-px"
