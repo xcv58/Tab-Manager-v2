@@ -226,7 +226,9 @@ export default class Tab extends Focusable {
     if (this.isSelected || !this.isMatched) {
       return false
     }
-    return this.isFocused || this.isHovered || this.active
+    return (
+      this.isFocused || this.isHovered || (this.active && this.win?.lastFocused)
+    )
   }
 
   get fingerPrint() {

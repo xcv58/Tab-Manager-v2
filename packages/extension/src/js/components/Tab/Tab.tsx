@@ -68,6 +68,16 @@ export default observer((props: TabProps & { className?: string }) => {
   })
 
   const pin = pinned && PIN
+  const isSecondaryActive =
+    tab.active && !tab.win?.lastFocused && (tab.win?.tabs?.length || 0) > 1
+  const secondaryActiveStyle =
+    isSecondaryActive && !isSelected && !isFocused
+      ? {
+          boxShadow: isDarkTheme
+            ? 'inset 1px 0 0 rgba(174, 181, 192, 0.28)'
+            : 'inset 1px 0 0 rgba(100, 116, 139, 0.22)',
+        }
+      : undefined
   const darkRowStyle = isDarkTheme
     ? {
         backgroundColor: isSelected
@@ -81,6 +91,9 @@ export default observer((props: TabProps & { className?: string }) => {
         color: '#eef1f5',
       }
     : undefined
+  const rowStyle = isDarkTheme
+    ? { ...darkRowStyle, ...secondaryActiveStyle }
+    : secondaryActiveStyle
 
   return (
     <div
@@ -101,7 +114,7 @@ export default observer((props: TabProps & { className?: string }) => {
           },
         ],
       )}
-      style={darkRowStyle}
+      style={rowStyle}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}
