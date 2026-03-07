@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="system">
 
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,18 @@
     <meta name="description"
         content="Tab Manager v2 - Organize your tabs and navigate instantly with keyboard-first workflows.">
     <title>Tab Manager v2 - Keyboard-Friendly Browser Extension</title>
+
+    <script>
+        (function () {
+            let theme = 'system';
+            try {
+                theme = localStorage.getItem('theme') || 'system';
+            } catch (error) {
+                theme = 'system';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,37 +31,53 @@
 </head>
 
 <body>
-    <!-- Theme Toggler -->
-    <button id="theme-toggler" aria-label="Toggle theme" class="theme-toggler">
-        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            style="display: none;">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-        </svg>
-        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2" />
-            <path d="M12 20v2" />
-            <path d="m4.93 4.93 1.41 1.41" />
-            <path d="m17.66 17.66 1.41 1.41" />
-            <path d="M2 12h2" />
-            <path d="M20 12h2" />
-            <path d="m6.34 17.66-1.41 1.41" />
-            <path d="m19.07 4.93-1.41 1.41" />
-        </svg>
-    </button>
-
     <!-- Header / Navbar -->
     <header class="navbar fade-in">
         <div class="logo">
             <img src="assets/images/logo.png" alt="Tab Manager v2 Logo" class="logo-image">
             <span class="logo-text">Tab Manager v2</span>
         </div>
-        <nav>
-            <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </nav>
+        <div class="navbar-actions">
+            <nav>
+                <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </nav>
+            <div class="theme-switch" role="group" aria-label="Theme Toggle">
+                <button id="btn-system" class="theme-btn" type="button" aria-label="System Theme" aria-pressed="false"
+                    title="Match System">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </button>
+                <button id="btn-light" class="theme-btn" type="button" aria-label="Light Theme" aria-pressed="false"
+                    title="Light Mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <button id="btn-dark" class="theme-btn" type="button" aria-label="Dark Theme" aria-pressed="false"
+                    title="Dark Mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
     </header>
+
+    <div role="status" aria-live="polite" aria-atomic="true" class="sr-only" id="theme-announcement"></div>
 
     <!-- Hero Section -->
     <section class="hero fade-in">
@@ -59,17 +87,17 @@
                 group, and manage without bouncing between windows.</p>
             <div class="cta-group">
                 <a href="https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
-                    class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                    class="btn btn-store" target="_blank" rel="noopener noreferrer">
                     <img src="assets/images/chrome.svg" alt="Chrome Logo" class="btn-icon">
                     Chrome
                 </a>
-                <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2" class="btn btn-secondary"
+                <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2" class="btn btn-store"
                     target="_blank" rel="noopener noreferrer">
                     <img src="assets/images/firefox.svg" alt="Firefox Logo" class="btn-icon">
                     Firefox
                 </a>
                 <a href="https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb"
-                    class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+                    class="btn btn-store" target="_blank" rel="noopener noreferrer">
                     <img src="assets/images/edge.svg" alt="Edge Logo" class="btn-icon">
                     Edge
                 </a>
@@ -155,12 +183,6 @@
                     support would be incomplete.</p>
             </div>
             <div class="faq-item">
-                <h3>Why can I not rename a window?</h3>
-                <p>Custom window names would only exist inside this extension and would duplicate browser-native
-                    grouping features. Please use built-in browser tab groups; you can rename them directly from Tab
-                    Manager v2.</p>
-            </div>
-            <div class="faq-item">
                 <h3>Where are my settings stored?</h3>
                 <p>Settings are stored in browser sync storage when supported by your browser. If unavailable, it falls
                     back to local storage so the extension remains fully functional.</p>
@@ -175,7 +197,7 @@
 
     <!-- Footer -->
     <footer class="footer fade-in">
-        <p>&copy; 2024 Tab Manager v2 | Made for power users.</p>
+        <p>&copy; 2026 xcv58 | Made for power users.</p>
         <div class="footer-links">
             <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank" rel="noopener noreferrer">GitHub</a> •
             <a href="https://github.com/xcv58/Tab-Manager-v2/issues" target="_blank"
