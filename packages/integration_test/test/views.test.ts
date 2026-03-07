@@ -2,6 +2,7 @@ import { Page, Locator, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
+  WINDOW_CARD_QUERY,
   URLS,
   CLOSE_PAGES,
   initBrowserWithExtension,
@@ -198,11 +199,11 @@ test.describe('The Extension page should', () => {
   test('render correct number of windows & tabs', async () => {
     await page.waitForTimeout(1000)
     await page.reload()
-    const wins = await page.$$('.shadow-2xl,.shadow-sm')
-    expect(wins).toHaveLength(1)
+    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
     await page.reload()
+    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
+
     let tabs = await page.$$(TAB_QUERY)
-    expect(tabs).toHaveLength(1)
 
     const N = 10
 
@@ -225,10 +226,8 @@ test.describe('The Extension page should', () => {
   })
 
   test('render popup mode based on URL query', async () => {
-    const wins = await page.$$('.shadow-2xl,.shadow-sm')
-    expect(wins).toHaveLength(1)
-    const tabs = await page.$$(TAB_QUERY)
-    expect(tabs).toHaveLength(1)
+    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
+    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
     await page.goto(extensionURL.replace('not_popup=1', ''))
 
     await openPages(browserContext, URLS)
@@ -705,6 +704,11 @@ test.describe('The Extension page should', () => {
     await expect(row).toBeVisible()
     await row.hover()
     await page.waitForTimeout(250)
+    const rowRect = await row.boundingBox()
+    if (rowRect) {
+      await page.mouse.move(rowRect.x + 8, rowRect.y + rowRect.height / 2)
+      await page.waitForTimeout(120)
+    }
 
     const tabMenuButton = page.getByTestId(`tab-menu-${atomTabId}`)
     await expect(tabMenuButton).toBeVisible()
@@ -725,7 +729,9 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
-    await tabMenuButton.click()
+    await row.hover()
+    await expect(tabMenuButton).toBeVisible()
+    await tabMenuButton.click({ force: true })
     await waitForTestId(page, `tab-menu-option-${atomTabId}-close`)
     const tabMenuPanel = page.locator('.MuiPopover-root .MuiPaper-root').last()
     await waitForSurfaceToFullyAppear(page, tabMenuPanel)
@@ -795,7 +801,7 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await page.waitForTimeout(600)
 
-    const windowCard = page.locator('.shadow-2xl,.shadow-sm').first()
+    const windowCard = page.locator(WINDOW_CARD_QUERY).first()
     await expect(windowCard).toBeVisible()
     const windowCardScreenshot = await windowCard.screenshot()
     expect(windowCardScreenshot).toMatchSnapshot('window-card-medium.png', {
@@ -1711,17 +1717,25 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(900)
     await page.reload()
 
-    const allWindows = page.locator('.shadow-2xl,.shadow-sm')
+    const allWindows = page.locator(WINDOW_CARD_QUERY)
     await expect(allWindows.first()).toBeVisible()
     await expect(allWindows.nth(1)).toBeVisible()
-    const focusedWindowCandidate = page.locator('.shadow-2xl').first()
-    const focusedWindowCount = await page.locator('.shadow-2xl').count()
-    const unfocusedWindowCount = await page.locator('.shadow-sm').count()
+    const focusedWindowId = await page.evaluate(async () => {
+      const focusedWindow = await chrome.windows.getLastFocused()
+      return focusedWindow.id ?? -1
+    })
     const focusedWindow =
-      focusedWindowCount > 0 ? focusedWindowCandidate : allWindows.first()
+      focusedWindowId > -1
+        ? page.getByTestId(`window-card-${focusedWindowId}`)
+        : allWindows.first()
+    const unfocusedWindowId = await page.evaluate(async (id) => {
+      const windows = await chrome.windows.getAll()
+      const unfocusedWindow = windows.find((window) => window.id !== id)
+      return unfocusedWindow?.id ?? -1
+    }, focusedWindowId)
     const unfocusedWindow =
-      unfocusedWindowCount > 0
-        ? page.locator('.shadow-sm').first()
+      unfocusedWindowId > -1
+        ? page.getByTestId(`window-card-${unfocusedWindowId}`)
         : allWindows.nth(1)
     const focusedShot = await focusedWindow.screenshot()
     expect(focusedShot).toMatchSnapshot('window-card-focused-state.png', {
@@ -1749,14 +1763,19 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(500)
     await page.reload()
     await waitForTestId(page, `tab-group-header-${hiddenGroupId}`)
-    const hiddenCounter = page
-      .locator('h5')
-      .filter({ hasText: 'hidden' })
-      .first()
-    await expect(hiddenCounter).toBeVisible()
-    const hiddenCounterShot = await hiddenCounter
-      .locator('xpath=..')
-      .screenshot()
+    const currentWindowId = await page.evaluate(async () => {
+      const currentWindow = await chrome.windows.getCurrent()
+      return currentWindow.id ?? -1
+    })
+    expect(currentWindowId).toBeGreaterThan(-1)
+    const hiddenCounterTitle = page.getByTestId(
+      `window-title-${currentWindowId}`,
+    )
+    await expect(hiddenCounterTitle).toBeVisible()
+    await expect
+      .poll(async () => (await hiddenCounterTitle.textContent()) || '')
+      .toMatch(/hidden|·\s*\d+h/)
+    const hiddenCounterShot = await hiddenCounterTitle.screenshot()
     expect(hiddenCounterShot).toMatchSnapshot(
       'window-title-hidden-counter.png',
       {
@@ -1770,7 +1789,7 @@ test.describe('The Extension page should', () => {
       .first()
     await hideToggle.click()
     await page.waitForTimeout(400)
-    const hiddenWindowCard = page.locator('.shadow-2xl,.shadow-sm').first()
+    const hiddenWindowCard = page.locator(WINDOW_CARD_QUERY).first()
     const hiddenWindowShot = await hiddenWindowCard.screenshot()
     expect(hiddenWindowShot).toMatchSnapshot('window-card-hidden-state.png', {
       maxDiffPixelRatio: 0.12,
@@ -2160,10 +2179,8 @@ test.describe('The Extension page should', () => {
   })
 
   test('support search browser history', async () => {
-    const wins = await page.$$('.shadow-2xl,.shadow-sm')
-    expect(wins).toHaveLength(1)
-    const tabs = await page.$$(TAB_QUERY)
-    expect(tabs).toHaveLength(1)
+    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
+    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
     await page.goto(extensionURL.replace('not_popup=1', ''))
 
     await openPages(browserContext, URLS)

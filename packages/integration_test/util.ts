@@ -8,6 +8,7 @@ export const EXTENSION_PATH = join(
 )
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
+export const WINDOW_CARD_QUERY = '[data-testid^="window-card-"]'
 
 export const URLS = [
   'https://pinboard.in/',

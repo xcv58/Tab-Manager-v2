@@ -2,6 +2,7 @@ import { Page, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
+  WINDOW_CARD_QUERY,
   URLS,
   isExtensionURL,
   CLOSE_PAGES,
@@ -298,10 +299,8 @@ test.describe('The Extension page should', () => {
   test('sort the tabs', async () => {
     await page.reload()
     await page.waitForTimeout(1000)
-    const wins = await page.$$('.shadow-2xl,.shadow-sm')
-    expect(wins).toHaveLength(1)
-    const tabs = await page.$$(TAB_QUERY)
-    expect(tabs).toHaveLength(1)
+    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
+    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()
@@ -824,26 +823,32 @@ test.describe('The Extension page should', () => {
     const pages = await browserContext.pages()
     expect(tabs.length).toBe(pages.length)
     const lastTab = tabs[tabs.length - 1]
+    const lastTabTestId = await lastTab.getAttribute('data-testid')
+    expect(lastTabTestId).toBeTruthy()
     const rect = await lastTab.evaluate((node) => {
       const { top, bottom, left, right } = node.getBoundingClientRect()
       return { top, bottom, left, right }
     })
     const [x, y] = getCenterOfRect(rect)
     await page.mouse.move(x, y, { steps: 10 })
-    const innerHTMLRect = await lastTab.$eval('div.flex > button', (node) => {
+    const dragHandle = page
+      .locator(`[data-testid="${lastTabTestId}"] button.cursor-move`)
+      .first()
+    await expect(dragHandle).toBeVisible()
+    const dragHandleRect = await dragHandle.evaluate((node) => {
       const { top, bottom, left, right } = node.getBoundingClientRect()
       return { top, bottom, left, right }
     })
-    const [xx, yy] = getCenterOfRect(innerHTMLRect)
-    await page.mouse.move(xx, yy)
+    const [xx, yy] = getCenterOfRect(dragHandleRect)
+    await page.mouse.move(xx, yy, { steps: 6 })
     await page.mouse.down()
     // Playwright triggers the drag effect but it wouldn't move the cursor.
-    await page.mouse.move(100, 20, { steps: 5 })
+    await page.mouse.move(xx + 160, yy + 24, { steps: 12 })
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
-    const droppableToolSelector = '.z-10.h-12.px-1.text-3xl'
-    const dropAreaEl = await page.$(droppableToolSelector)
-    expect(await dropAreaEl.screenshot()).toMatchSnapshot(
+    const droppableTool = page.locator('div.h-12.px-1.text-3xl.z-10').first()
+    await expect(droppableTool).toBeVisible()
+    expect(await droppableTool.screenshot()).toMatchSnapshot(
       matchImageSnapshotOptions,
     )
     await page.mouse.up()
