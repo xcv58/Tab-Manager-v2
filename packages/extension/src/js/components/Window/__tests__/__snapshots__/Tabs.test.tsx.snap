@@ -15,14 +15,14 @@ exports[`Tabs render correct components 1`] = `
         tabindex="-1"
       >
         <div
-          class="group"
+          class="group relative flex h-10 w-10 shrink-0 items-center justify-center"
         >
           <div
-            class="group-hover:hidden"
+            class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 opacity-100 group-hover:pointer-events-none group-hover:opacity-0"
           >
             <button
               aria-label="Toggle select"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-53g0n7-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-2m800e-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
@@ -32,10 +32,10 @@ exports[`Tabs render correct components 1`] = `
             </button>
           </div>
           <div
-            class="focus:outline-none focus:ring hidden group-hover:block"
+            class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17ur8pj-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 aria-label="Toggle select"
@@ -69,7 +69,7 @@ exports[`Tabs render correct components 1`] = `
           />
         </button>
         <button
-          class="inline-flex justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+          class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-lg text-red-200 disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
         >
           x
         </button>
@@ -87,14 +87,14 @@ exports[`Tabs render correct components 1`] = `
         tabindex="-1"
       >
         <div
-          class="group"
+          class="group relative flex h-10 w-10 shrink-0 items-center justify-center"
         >
           <div
-            class="group-hover:hidden"
+            class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 opacity-100 group-hover:pointer-events-none group-hover:opacity-0"
           >
             <button
               aria-label="Toggle select"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-53g0n7-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-2m800e-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
@@ -104,10 +104,10 @@ exports[`Tabs render correct components 1`] = `
             </button>
           </div>
           <div
-            class="focus:outline-none focus:ring hidden group-hover:block"
+            class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17ur8pj-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 aria-label="Toggle select"
@@ -141,7 +141,7 @@ exports[`Tabs render correct components 1`] = `
           />
         </button>
         <button
-          class="inline-flex justify-center w-8 h-8 m-2 text-xl text-red-200 bg-transparent rounded-full disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+          class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-lg text-red-200 disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
         >
           x
         </button>

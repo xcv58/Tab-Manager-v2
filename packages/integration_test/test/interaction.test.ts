@@ -334,6 +334,8 @@ test.describe('The Extension page should', () => {
       ]),
     )
     expect(pages).toHaveLength(URLS.length + 1)
+    await page.locator('[data-testid^="window-title-"]').first().hover()
+    await page.waitForTimeout(150)
     const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
     await page.waitForTimeout(1000)
@@ -395,6 +397,8 @@ test.describe('The Extension page should', () => {
     const beforeGroupedTabIds = await getGroupedTabIds()
     expect(beforeGroupedTabIds).toHaveLength(2)
 
+    await page.locator('[data-testid^="window-title-"]').first().hover()
+    await page.waitForTimeout(150)
     const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
     await page.waitForTimeout(1000)
@@ -424,6 +428,8 @@ test.describe('The Extension page should', () => {
     expect(beforeGroup1.urls).toEqual([win1Urls[0], win1Urls[1]])
     expect(beforeGroup2.urls).toEqual([win2Urls[0], win2Urls[1]])
 
+    await page.locator('[data-testid^="window-title-"]').first().hover()
+    await page.waitForTimeout(150)
     const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
     await page.waitForTimeout(900)
@@ -478,6 +484,8 @@ test.describe('The Extension page should', () => {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
     }
 
+    await page.locator('[data-testid^="window-title-"]').first().hover()
+    await page.waitForTimeout(150)
     const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
     await sortTabsButton.click()
     await page.waitForTimeout(900)

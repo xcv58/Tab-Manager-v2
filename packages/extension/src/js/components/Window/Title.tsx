@@ -12,6 +12,27 @@ import useReduceMotion from 'libs/useReduceMotion'
 import { useTheme } from 'components/hooks/useTheme'
 import Tooltip from '@mui/material/Tooltip'
 
+const WindowControlSlot = ({
+  visible,
+  children,
+}: {
+  visible: boolean
+  children: React.ReactNode
+}) => (
+  <div
+    aria-hidden={!visible}
+    className={classNames(
+      'flex h-10 w-10 shrink-0 items-center justify-center transition-opacity duration-150',
+      {
+        'visible opacity-100': visible,
+        'invisible pointer-events-none opacity-0': !visible,
+      },
+    )}
+  >
+    {children}
+  </div>
+)
+
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
@@ -25,6 +46,8 @@ export default observer((props: WinProps & { className: string }) => {
   const [titleDisplayMode, setTitleDisplayMode] = useState<
     'full' | 'compact' | 'minimal'
   >('full')
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false)
+  const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
   const hiddenText = useMemo(() => {
     if (hide || invisibleLength <= 0) {
       return ''
@@ -43,6 +66,7 @@ export default observer((props: WinProps & { className: string }) => {
     }
     return `${text} / ${invisibleLength} hidden`
   }, [hide, invisibleLength, text])
+  const showWindowControls = isHeaderHovered || isHeaderFocusWithin || isFocused
   const needsTooltip =
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
   const reduceMotion = useReduceMotion()
@@ -85,7 +109,7 @@ export default observer((props: WinProps & { className: string }) => {
     return () => window.removeEventListener('resize', updateTitleMode)
   }, [])
   const titleTextNode = (
-    <div className="flex-auto text-2xl whitespace-nowrap">
+    <div className="flex-auto overflow-hidden text-2xl leading-none whitespace-nowrap">
       {text}
       {hiddenText}
     </div>
@@ -96,10 +120,19 @@ export default observer((props: WinProps & { className: string }) => {
       ref={nodeRef}
       data-testid={`window-title-${win.id}`}
       className={classNames(
-        'flex justify-between items-center font-bold border-0 px-1',
+        'flex min-h-10 items-center justify-between font-bold border-0',
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
+      onMouseEnter={() => setIsHeaderHovered(true)}
+      onMouseLeave={() => setIsHeaderHovered(false)}
+      onFocusCapture={() => setIsHeaderFocusWithin(true)}
+      onBlurCapture={(event) => {
+        const nextTarget = event.relatedTarget as Node | null
+        if (!event.currentTarget.contains(nextTarget)) {
+          setIsHeaderFocusWithin(false)
+        }
+      }}
       style={{
         backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
       }}
@@ -109,7 +142,7 @@ export default observer((props: WinProps & { className: string }) => {
         ref={titleButtonRef}
         onClick={activate}
         className={classNames(
-          'flex-auto overflow-hidden text-base text-left rounded-sm',
+          'flex h-10 flex-auto items-center overflow-hidden text-base text-left rounded-sm',
           {
             'text-gray-900': !isDarkTheme,
             'text-gray-100': isDarkTheme,
@@ -126,11 +159,17 @@ export default observer((props: WinProps & { className: string }) => {
       </button>
       {!hide && (
         <>
-          <Sort {...props} />
-          <Reload {...{ reload }} />
+          <WindowControlSlot visible={showWindowControls}>
+            <Sort {...props} />
+          </WindowControlSlot>
+          <WindowControlSlot visible={showWindowControls}>
+            <Reload {...{ reload }} />
+          </WindowControlSlot>
         </>
       )}
-      <CloseButton onClick={() => props.win.close()} />
+      <WindowControlSlot visible={showWindowControls}>
+        <CloseButton onClick={() => props.win.close()} />
+      </WindowControlSlot>
       <HideToggle
         {...{
           hide,
