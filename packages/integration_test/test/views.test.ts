@@ -627,7 +627,12 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(700)
     await page.reload()
 
+    const windowTitle = page.locator('[data-testid^="window-title-"]').first()
+    await expect(windowTitle).toBeVisible()
     const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
+    await expect(sortButton).toBeHidden()
+    await windowTitle.hover()
+    await page.waitForTimeout(150)
     await expect(sortButton).toBeVisible()
     const sortButtonScreenshot = await sortButton.screenshot()
     expect(sortButtonScreenshot).toMatchSnapshot(
@@ -831,11 +836,26 @@ test.describe('The Extension page should', () => {
 
     const windowCard = page.locator(WINDOW_CARD_QUERY).first()
     await expect(windowCard).toBeVisible()
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(150)
     const windowCardScreenshot = await windowCard.screenshot()
     expect(windowCardScreenshot).toMatchSnapshot('window-card-medium.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
+
+    const windowTitle = windowCard.locator('[data-testid^="window-title-"]')
+    await expect(windowTitle).toBeVisible()
+    await windowTitle.hover()
+    await page.waitForTimeout(150)
+    const hoveredWindowCardScreenshot = await windowCard.screenshot()
+    expect(hoveredWindowCardScreenshot).toMatchSnapshot(
+      'window-card-hovered-state.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
   })
 
   test('render medium toolbar strip component', async () => {
@@ -1803,6 +1823,21 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.2,
       threshold: 0.2,
     })
+    const focusedWindowTitle =
+      focusedWindowId > -1
+        ? page.getByTestId(`window-title-${focusedWindowId}`)
+        : focusedWindow.locator('[data-testid^="window-title-"]').first()
+    await expect(focusedWindowTitle).toBeVisible()
+    await focusedWindowTitle.focus()
+    await page.waitForTimeout(150)
+    const focusedControlsShot = await focusedWindowTitle.screenshot()
+    expect(focusedControlsShot).toMatchSnapshot(
+      'window-title-focused-controls.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
 
     const hiddenGroupId = await groupTabsByUrl(page, {
       urls: [
@@ -1831,6 +1866,8 @@ test.describe('The Extension page should', () => {
     await expect
       .poll(async () => (await hiddenCounterTitle.textContent()) || '')
       .toMatch(/hidden|·\s*\d+h/)
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(150)
     const hiddenCounterShot = await hiddenCounterTitle.screenshot()
     expect(hiddenCounterShot).toMatchSnapshot(
       'window-title-hidden-counter.png',
@@ -1840,9 +1877,12 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const hideToggle = page
-      .locator('button[aria-label="Toggle window hide"]')
-      .first()
+    await hiddenCounterTitle.hover()
+    await page.waitForTimeout(150)
+    const hideToggle = hiddenCounterTitle.locator(
+      'button[aria-label="Toggle window hide"]',
+    )
+    await expect(hideToggle).toBeVisible()
     await hideToggle.click()
     await page.waitForTimeout(400)
     const hiddenWindowCard = page.locator(WINDOW_CARD_QUERY).first()
@@ -2227,6 +2267,8 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     await page.reload()
+    await page.locator('[data-testid^="window-title-"]').first().hover()
+    await page.waitForTimeout(150)
     const selectAllButton = await page.$('[aria-label="Select all tabs"]')
     await selectAllButton.click()
     await page.waitForTimeout(1000)

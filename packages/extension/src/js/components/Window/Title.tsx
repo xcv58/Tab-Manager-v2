@@ -12,6 +12,24 @@ import useReduceMotion from 'libs/useReduceMotion'
 import { useTheme } from 'components/hooks/useTheme'
 import Tooltip from '@mui/material/Tooltip'
 
+const WindowControlSlot = ({
+  visible,
+  children,
+}: {
+  visible: boolean
+  children: React.ReactNode
+}) => (
+  <div
+    aria-hidden={!visible}
+    className={classNames('shrink-0 items-center', {
+      hidden: !visible,
+      flex: visible,
+    })}
+  >
+    {children}
+  </div>
+)
+
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
@@ -25,6 +43,8 @@ export default observer((props: WinProps & { className: string }) => {
   const [titleDisplayMode, setTitleDisplayMode] = useState<
     'full' | 'compact' | 'minimal'
   >('full')
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false)
+  const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
   const hiddenText = useMemo(() => {
     if (hide || invisibleLength <= 0) {
       return ''
@@ -43,6 +63,7 @@ export default observer((props: WinProps & { className: string }) => {
     }
     return `${text} / ${invisibleLength} hidden`
   }, [hide, invisibleLength, text])
+  const showWindowControls = isHeaderHovered || isHeaderFocusWithin || isFocused
   const needsTooltip =
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
   const reduceMotion = useReduceMotion()
@@ -100,11 +121,22 @@ export default observer((props: WinProps & { className: string }) => {
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
+      onMouseEnter={() => setIsHeaderHovered(true)}
+      onMouseLeave={() => setIsHeaderHovered(false)}
+      onFocusCapture={() => setIsHeaderFocusWithin(true)}
+      onBlurCapture={(event) => {
+        const nextTarget = event.relatedTarget as Node | null
+        if (!event.currentTarget.contains(nextTarget)) {
+          setIsHeaderFocusWithin(false)
+        }
+      }}
       style={{
         backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
       }}
     >
-      <SelectAll {...props} />
+      <WindowControlSlot visible={showWindowControls}>
+        <SelectAll {...props} />
+      </WindowControlSlot>
       <button
         ref={titleButtonRef}
         onClick={activate}
@@ -126,17 +158,25 @@ export default observer((props: WinProps & { className: string }) => {
       </button>
       {!hide && (
         <>
-          <Sort {...props} />
-          <Reload {...{ reload }} />
+          <WindowControlSlot visible={showWindowControls}>
+            <Sort {...props} />
+          </WindowControlSlot>
+          <WindowControlSlot visible={showWindowControls}>
+            <Reload {...{ reload }} />
+          </WindowControlSlot>
         </>
       )}
-      <CloseButton onClick={() => props.win.close()} />
-      <HideToggle
-        {...{
-          hide,
-          toggleHide,
-        }}
-      />
+      <WindowControlSlot visible={showWindowControls}>
+        <CloseButton onClick={() => props.win.close()} />
+      </WindowControlSlot>
+      <WindowControlSlot visible={showWindowControls}>
+        <HideToggle
+          {...{
+            hide,
+            toggleHide,
+          }}
+        />
+      </WindowControlSlot>
     </div>
   )
 })
