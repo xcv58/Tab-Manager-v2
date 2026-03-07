@@ -22,12 +22,9 @@ export default observer(() => {
   }
   return (
     <div
-      className="flex items-center justify-center h-12 px-1 text-3xl shrink-0 border-b"
+      className="flex items-center justify-center h-12 px-1 text-3xl shrink-0"
       style={{
         backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
-        borderBottomColor: isDarkTheme
-          ? 'rgba(238, 241, 245, 0.08)'
-          : 'rgba(17, 24, 39, 0.1)',
       }}
     >
       <Summary />

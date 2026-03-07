@@ -789,14 +789,37 @@ export default class WindowsStore {
     })
     this.lastFocusedWindowId = await getLastFocusedWindowId()
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
+    const previousWindowOrder = new Map(
+      this.windows.map((win, index) => [win.id, index]),
+    )
 
-    this.windows = windows
+    const nextWindows = windows
       .filter(notSelfPopup)
       .filter(
         (win: any) => this.store.userStore.showAppWindow || win.type !== 'app',
       )
       .map((win: any) => new Window(win, this.store))
-      .sort(windowComparator)
+
+    this.windows = nextWindows.sort((a, b) => {
+      const previousOrderA = previousWindowOrder.get(a.id)
+      const previousOrderB = previousWindowOrder.get(b.id)
+      const hasPreviousOrderA = typeof previousOrderA === 'number'
+      const hasPreviousOrderB = typeof previousOrderB === 'number'
+
+      if (hasPreviousOrderA && hasPreviousOrderB) {
+        return previousOrderA - previousOrderB
+      }
+
+      if (hasPreviousOrderA) {
+        return -1
+      }
+
+      if (hasPreviousOrderB) {
+        return 1
+      }
+
+      return windowComparator(a, b)
+    })
 
     if (policy === 'always') {
       this.repackLayout(

@@ -1151,15 +1151,31 @@ test.describe('The Extension page should', () => {
     }, urls[3])
     expect(setup.targetTabId).toBeGreaterThan(0)
     await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
     await waitForTestId(page, `tab-group-drag-handle-${groupId}`)
     await waitForTestId(page, `tab-row-${setup.targetTabId}`)
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await page.waitForTimeout(200)
 
-    await dragByTestId(page, {
-      sourceTestId: `tab-group-drag-handle-${groupId}`,
-      targetTestId: `tab-row-${setup.targetTabId}`,
-      targetUseParent: true,
-      dropPosition: 'bottom',
-    })
+    const sourceBox = await page
+      .getByTestId(`tab-group-drag-handle-${groupId}`)
+      .boundingBox()
+    const targetBox = await page
+      .getByTestId(`tab-row-${setup.targetTabId}`)
+      .boundingBox()
+    expect(sourceBox).not.toBeNull()
+    expect(targetBox).not.toBeNull()
+    if (!sourceBox || !targetBox) {
+      throw new Error('Unable to resolve drag source/target bounding boxes')
+    }
+    const sourceX = sourceBox.x + sourceBox.width / 2
+    const sourceY = sourceBox.y + sourceBox.height / 2
+    const targetX = targetBox.x + Math.min(16, targetBox.width / 2)
+    const targetY = targetBox.y + targetBox.height - 2
+    await page.mouse.move(sourceX, sourceY)
+    await page.mouse.down()
+    await page.mouse.move(targetX, targetY, { steps: 16 })
+    await page.mouse.up()
     await page.waitForTimeout(900)
 
     const moved = await page.evaluate(

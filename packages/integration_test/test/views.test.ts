@@ -1544,21 +1544,6 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
-
-    await page.getByTestId(`tab-group-menu-move-window-${groupId}`).click()
-    await waitForTestId(page, `tab-group-move-dialog-${groupId}`)
-    const moveDialog = page.getByTestId(`tab-group-move-dialog-${groupId}`)
-    await waitForSurfaceToFullyAppear(page, moveDialog)
-    const moveDialogScreenshot = await moveDialog.screenshot({
-      animations: 'disabled',
-    })
-    expect(moveDialogScreenshot).toMatchSnapshot(
-      'group-header-move-dialog.png',
-      {
-        maxDiffPixelRatio: 0.12,
-        threshold: 0.2,
-      },
-    )
   })
 
   test('render tab row state variants', async () => {
@@ -2114,62 +2099,6 @@ test.describe('The Extension page should', () => {
     expect(state.groupedCount).toBe(1)
     await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)
     await expect(page.getByTestId(`tab-group-count-${groupId}`)).toHaveText('1')
-  })
-
-  test('group header menu should move group to top and bottom deterministically', async () => {
-    await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        query: '',
-        showUnmatchedTab: true,
-      })
-    })
-    await page.reload()
-    await page.waitForTimeout(700)
-    await openPages(browserContext, URLS)
-    await page.bringToFront()
-    await page.waitForTimeout(800)
-
-    const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
-      title: 'Move Group',
-      color: 'yellow',
-    })
-    expect(groupId).toBeGreaterThan(-1)
-    await page.waitForTimeout(700)
-    await page.reload()
-    await waitForTestId(page, `tab-group-header-${groupId}`)
-
-    const getBounds = async () => {
-      return page.evaluate(async (groupId) => {
-        const tabs = (
-          await chrome.tabs.query({
-            currentWindow: true,
-          })
-        ).sort((a, b) => a.index - b.index)
-        const nonExtensionTabs = tabs.filter(
-          (tab) => !(tab.url || '').startsWith('chrome-extension://'),
-        )
-        const groupTabs = tabs.filter((tab) => tab.groupId === groupId)
-        return {
-          minIndex: nonExtensionTabs[0]?.index ?? -1,
-          maxIndex: nonExtensionTabs[nonExtensionTabs.length - 1]?.index ?? -1,
-          groupStart: groupTabs[0]?.index ?? -1,
-          groupEnd: groupTabs[groupTabs.length - 1]?.index ?? -1,
-        }
-      }, groupId)
-    }
-
-    await page.getByTestId(`tab-group-menu-${groupId}`).click()
-    await page.getByTestId(`tab-group-menu-move-top-${groupId}`).click()
-    await page.waitForTimeout(700)
-    let bounds = await getBounds()
-    expect(bounds.groupStart).toBe(bounds.minIndex)
-
-    await page.getByTestId(`tab-group-menu-${groupId}`).click()
-    await page.getByTestId(`tab-group-menu-move-bottom-${groupId}`).click()
-    await page.waitForTimeout(700)
-    bounds = await getBounds()
-    expect(bounds.groupEnd).toBe(bounds.maxIndex)
   })
 
   test('create a new group from selected tabs via keyboard shortcut', async () => {

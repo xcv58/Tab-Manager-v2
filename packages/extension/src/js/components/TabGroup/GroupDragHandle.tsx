@@ -14,6 +14,9 @@ type Props = {
 export default ({ groupId, className }: Props) => {
   const { dragStore } = useStore()
   const isDarkTheme = useTheme()
+  const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+  }
   const [dragProps, drag, connectDragPreview] = useDrag({
     type: ItemTypes.TAB,
     canDrag: true,
@@ -33,6 +36,7 @@ export default ({ groupId, className }: Props) => {
 
   return (
     <button
+      type="button"
       ref={drag}
       className={classNames(
         'inline-flex items-center justify-center w-7 h-7 rounded-full cursor-move focus:outline-none focus:ring text-base',
@@ -45,6 +49,8 @@ export default ({ groupId, className }: Props) => {
       )}
       data-testid={`tab-group-drag-handle-${groupId}`}
       title="Drag group"
+      aria-label="Drag group"
+      onPointerDown={onPointerDown}
     >
       &#9776;
     </button>

@@ -96,15 +96,12 @@ export default observer((props: WinProps & { className: string }) => {
       ref={nodeRef}
       data-testid={`window-title-${win.id}`}
       className={classNames(
-        'flex justify-between items-center font-bold border-0 px-1 border-b',
+        'flex justify-between items-center font-bold border-0 px-1',
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
       style={{
         backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
-        borderBottomColor: isDarkTheme
-          ? 'rgba(238, 241, 245, 0.08)'
-          : 'rgba(17, 24, 39, 0.1)',
       }}
     >
       <SelectAll {...props} />

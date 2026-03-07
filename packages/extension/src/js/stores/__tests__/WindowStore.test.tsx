@@ -217,6 +217,43 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.layoutDirty).toBe(true)
   })
 
+  it('sync keeps existing window order when browser data has same windows', async () => {
+    const windowStore = createWindowStore()
+    windowStore.initialLoading = false
+    windowStore.windows = [
+      { id: 3, tabs: [{ id: 31 }], hide: false, visibleLength: 3 },
+      { id: 1, tabs: [{ id: 11 }], hide: false, visibleLength: 3 },
+      { id: 2, tabs: [{ id: 21 }], hide: false, visibleLength: 3 },
+    ] as any
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+      {
+        id: 2,
+        tabs: [
+          { id: 21, index: 0, windowId: 2, title: '2', url: 'about:blank' },
+        ],
+      },
+      {
+        id: 3,
+        tabs: [
+          { id: 31, index: 0, windowId: 3, title: '3', url: 'about:blank' },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'sync',
+    })
+
+    expect(windowStore.windows.map((win) => win.id)).toEqual([3, 1, 2])
+  })
+
   it('suppresses duplicate lifecycle triggers in the same family', () => {
     const windowStore = createWindowStore()
     expect(windowStore.shouldSuppressLifecycleTrigger('foreground')).toBe(false)
