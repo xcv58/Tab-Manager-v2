@@ -346,6 +346,9 @@ importers:
       jest-image-snapshot:
         specifier: 6.5.1
         version: 6.5.1(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))
+      playwright:
+        specifier: 1.58.2
+        version: 1.58.2
       ts-jest:
         specifier: 29.4.6
         version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@22.10.2)(babel-plugin-macros@3.1.0)(node-notifier@10.0.1))(typescript@5.9.3)

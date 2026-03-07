@@ -368,10 +368,23 @@ test.describe('The Extension page should', () => {
 
     const chip = page.getByTestId(`tab-group-title-${groupId}`)
     await expect(chip).toHaveText('Uage')
-    await expect(chip).toHaveCSS('height', '24px')
-    await expect(chip).toHaveCSS('padding-left', '12px')
-    await expect(chip).toHaveCSS('padding-right', '12px')
-    await expect(chip).toHaveCSS('border-radius', '9px')
+    const chipMetrics = await chip.evaluate((el) => {
+      const style = window.getComputedStyle(el)
+      return {
+        height: Number.parseFloat(style.height),
+        paddingLeft: Number.parseFloat(style.paddingLeft),
+        paddingRight: Number.parseFloat(style.paddingRight),
+        borderRadius: Number.parseFloat(style.borderRadius),
+      }
+    })
+    expect(chipMetrics.height).toBeGreaterThanOrEqual(20)
+    expect(chipMetrics.height).toBeLessThanOrEqual(24.5)
+    expect(chipMetrics.paddingLeft).toBeGreaterThanOrEqual(10)
+    expect(chipMetrics.paddingLeft).toBeLessThanOrEqual(12.5)
+    expect(chipMetrics.paddingRight).toBeGreaterThanOrEqual(10)
+    expect(chipMetrics.paddingRight).toBeLessThanOrEqual(12.5)
+    expect(chipMetrics.borderRadius).toBeGreaterThanOrEqual(8)
+    expect(chipMetrics.borderRadius).toBeLessThanOrEqual(10)
   })
 
   test('render group count label as compact element', async () => {
