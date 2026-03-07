@@ -19,6 +19,8 @@ type LayoutRepackReason =
   | 'resize'
   | 'window-change'
   | 'settings-change'
+  | 'search-change'
+  | 'filter-change'
   | 'initial-load'
   | 'sync'
   | 'visibility-hidden'
@@ -244,6 +246,18 @@ export default class WindowsStore {
     return true
   }
 
+  refreshLayoutIfNeeded = (
+    reason: LayoutRepackReason,
+    dirtyReason: LayoutDirtyReason,
+    windowId?: number,
+  ) => {
+    if (!this.markLayoutDirtyIfNeeded(dirtyReason, windowId)) {
+      return false
+    }
+    this.repackLayout(reason)
+    return true
+  }
+
   isWindowLayoutDirty = (windowId?: number) => {
     if (!this.layoutDirty) {
       return false
@@ -447,8 +461,17 @@ export default class WindowsStore {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
+      const previousGroupId = tab.groupId
+      const previousWindowId = tab.windowId
       Object.assign(tab, newTab)
       tab.setUrlIcon()
+      if (previousGroupId !== tab.groupId) {
+        this.refreshLayoutIfNeeded(
+          'window-change',
+          'tab-browser-event',
+          tab.windowId || previousWindowId,
+        )
+      }
     }
   }
 
@@ -639,9 +662,6 @@ export default class WindowsStore {
       typeof window !== 'undefined' ? window.innerHeight || 0 : 0
     const viewportWidth =
       typeof window !== 'undefined' ? window.innerWidth || 0 : 0
-    const viewportChanged =
-      viewportHeight !== this.lastViewportHeight ||
-      viewportWidth !== this.lastViewportWidth
     this.lastViewportHeight = viewportHeight
     this.lastViewportWidth = viewportWidth
 
@@ -653,9 +673,7 @@ export default class WindowsStore {
         height,
       )
       this.height = height
-      if (viewportChanged) {
-        this.repackLayout('resize')
-      }
+      this.repackLayout('resize')
     }
   }
 
@@ -667,6 +685,8 @@ export default class WindowsStore {
       reason === 'resize' ||
       reason === 'window-change' ||
       reason === 'settings-change' ||
+      reason === 'search-change' ||
+      reason === 'filter-change' ||
       reason === 'initial-load' ||
       reason === 'sync' ||
       reason === 'visibility-hidden' ||

@@ -237,6 +237,7 @@ export default class UserStore {
 
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
+    this.store.windowStore?.repackLayout?.('filter-change')
     this.save()
   }
 

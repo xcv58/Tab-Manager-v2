@@ -255,6 +255,25 @@ describe('TabGroupStore', () => {
     )
   })
 
+  it('should refresh layout for browser-origin group creation', () => {
+    const refreshLayoutIfNeeded = jest.fn()
+    const store = groupStore({ refreshLayoutIfNeeded })
+
+    store.onTabGroup({
+      id: 88,
+      windowId: 3,
+      title: 'Created',
+      color: 'green',
+      collapsed: false,
+    })
+
+    expect(refreshLayoutIfNeeded).toHaveBeenCalledWith(
+      'window-change',
+      'group-browser-event',
+      3,
+    )
+  })
+
   it('should rename group through browser.tabGroups.update', async () => {
     const store = groupStore()
     store.tabGroupMap = new Map([
@@ -353,6 +372,22 @@ describe('TabGroupStore', () => {
       createProperties: undefined,
     })
     expect(result).toBe(123)
+  })
+
+  it('should refuse to create a group from tabs in different windows', async () => {
+    const store = new TabGroupStore({
+      windowStore: {
+        tabs: [
+          { id: 10, windowId: 1 },
+          { id: 11, windowId: 2 },
+        ],
+      },
+    } as any)
+
+    const result = await store.createGroup([10, 11])
+
+    expect((browser as any).tabs.group).not.toHaveBeenCalled()
+    expect(result).toBeNull()
   })
 
   it('should add tabs to an existing tab group', async () => {

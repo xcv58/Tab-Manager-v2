@@ -82,8 +82,14 @@ export default observer((props: { tab: Tab }) => {
   const uniqueTabsForNewGroup = Array.from(
     new Map(tabsForNewGroup.map((tab) => [tab.id, tab])).values(),
   )
+  const canCreateGroupFromSelection = !!tabGroupStore?.canCreateGroupFromTabs?.(
+    uniqueTabsForNewGroup,
+  )
   const addableSelectedTabs = selectedTabs.filter(
-    (tab) => tab.id !== props.tab.id && tab.groupId !== props.tab.groupId,
+    (tab) =>
+      tab.windowId === props.tab.windowId &&
+      tab.id !== props.tab.id &&
+      tab.groupId !== props.tab.groupId,
   )
 
   const options: (OptionOrDivider | false)[] = [
@@ -125,7 +131,7 @@ export default observer((props: { tab: Tab }) => {
       },
     )
   }
-  if (canMutateTabGroups && uniqueTabsForNewGroup.length >= 2) {
+  if (canMutateTabGroups && canCreateGroupFromSelection) {
     options.push(DIVIDER, {
       ...OPTION,
       label: `Create new group from ${uniqueTabsForNewGroup.length} selected ${getNoun(

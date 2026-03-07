@@ -1,4 +1,5 @@
 import WindowStore from 'stores/WindowStore'
+import Window from 'stores/Window'
 import { browser } from 'libs'
 
 jest.mock('libs', () => ({
@@ -260,5 +261,79 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.shouldSuppressLifecycleTrigger('foreground')).toBe(true)
     expect(windowStore.shouldSuppressLifecycleTrigger('background')).toBe(false)
     expect(windowStore.shouldSuppressLifecycleTrigger('background')).toBe(true)
+  })
+
+  it('repackages columns when a tab group assignment changes visible rows', () => {
+    const windowStore = createWindowStore()
+    ;(windowStore.store as any).tabGroupStore = {
+      hasTabGroupsApi: () => true,
+      isNoGroupId: (groupId: number) => groupId === -1,
+      getRowsForWindow: (win) => {
+        const rows: any[] = []
+        const seenGroupIds = new Set<number>()
+        win.tabs.forEach((tab) => {
+          if (tab.groupId === -1) {
+            rows.push({ kind: 'tab', tabId: tab.id })
+            return
+          }
+          if (!seenGroupIds.has(tab.groupId)) {
+            seenGroupIds.add(tab.groupId)
+            rows.push({ kind: 'group', groupId: tab.groupId })
+          }
+          rows.push({ kind: 'tab', tabId: tab.id })
+        })
+        return rows
+      },
+    }
+    windowStore.height = 260
+    windowStore.windows = [
+      new Window(
+        {
+          id: 1,
+          tabs: [
+            {
+              id: 11,
+              index: 0,
+              windowId: 1,
+              title: 'Window 1',
+              url: 'https://example.com/1',
+              groupId: -1,
+            },
+          ],
+        },
+        windowStore.store as any,
+      ),
+      new Window(
+        {
+          id: 2,
+          tabs: [
+            {
+              id: 21,
+              index: 0,
+              windowId: 2,
+              title: 'Window 2',
+              url: 'https://example.com/2',
+              groupId: -1,
+            },
+          ],
+        },
+        windowStore.store as any,
+      ),
+    ]
+
+    windowStore.repackLayout('manual')
+    expect(windowStore.columnCount).toBe(1)
+
+    windowStore.onUpdated(11, {}, {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      title: 'Window 1',
+      url: 'https://example.com/1',
+      groupId: 100,
+    } as any)
+
+    expect(windowStore.columnCount).toBe(2)
+    expect(windowStore.columnLayout).toEqual([[1], [2]])
   })
 })

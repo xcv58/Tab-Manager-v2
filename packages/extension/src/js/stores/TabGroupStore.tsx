@@ -89,16 +89,22 @@ export default class GroupStore {
   onTabGroup = (tabGroup: TabGroup) => {
     const previous = this.tabGroupMap.get(tabGroup.id)
     this.tabGroupMap.set(tabGroup.id, tabGroup)
-    if (previous && previous.collapsed !== tabGroup.collapsed) {
-      this.store.windowStore?.markLayoutDirtyIfNeeded?.(
-        'group-browser-event',
-        tabGroup.windowId,
+    if (
+      !previous ||
+      previous.collapsed !== tabGroup.collapsed ||
+      previous.windowId !== tabGroup.windowId
+    ) {
+      this.refreshLayoutForGroupChange(
+        previous && previous.windowId !== tabGroup.windowId
+          ? undefined
+          : tabGroup.windowId,
       )
     }
   }
 
   onRemoved = (tabGroup: TabGroup) => {
     this.tabGroupMap.delete(tabGroup.id)
+    this.refreshLayoutForGroupChange(tabGroup.windowId)
   }
 
   getTabGroup = (id: number | null) => {
@@ -140,6 +146,46 @@ export default class GroupStore {
       return []
     }
     return this.store.windowStore.tabs.filter((tab) => tab.groupId === groupId)
+  }
+
+  refreshLayoutForGroupChange = (windowId?: number) => {
+    if (this.store.windowStore?.refreshLayoutIfNeeded) {
+      this.store.windowStore.refreshLayoutIfNeeded(
+        'window-change',
+        'group-browser-event',
+        windowId,
+      )
+      return
+    }
+    this.store.windowStore?.markLayoutDirtyIfNeeded?.(
+      'group-browser-event',
+      windowId,
+    )
+  }
+
+  canCreateGroupFromTabs = (tabs: Array<{ windowId?: number }> = []) => {
+    if (tabs.length < 2) {
+      return false
+    }
+    const windowId = tabs[0]?.windowId
+    if (typeof windowId !== 'number') {
+      return false
+    }
+    return tabs.every((tab) => tab.windowId === windowId)
+  }
+
+  getSharedWindowIdForTabIds = (tabIds: number[]) => {
+    const currentTabs = this.store.windowStore?.tabs || []
+    if (!currentTabs.length) {
+      return null
+    }
+    const tabs = tabIds
+      .map((tabId) => currentTabs.find((tab) => tab.id === tabId))
+      .filter(Boolean)
+    if (tabs.length !== tabIds.length) {
+      return null
+    }
+    return this.canCreateGroupFromTabs(tabs) ? tabs[0].windowId : false
   }
 
   getRowsForWindow = (win: Window): WindowRow[] => {
@@ -350,6 +396,12 @@ export default class GroupStore {
       return null
     }
     if (!tabIds.length) {
+      return null
+    }
+    if (this.getSharedWindowIdForTabIds(tabIds) === false) {
+      log.warn('TabGroupStore.createGroup requires tabs from the same window', {
+        tabIds,
+      })
       return null
     }
     const groupId = await this.groupTabsInBrowser({

@@ -131,6 +131,7 @@ export default class SearchStore {
   _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
     this._query = this.query
+    this.store.windowStore?.repackLayout?.('search-change')
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
     }

@@ -177,12 +177,18 @@ export default class FocusStore {
     }
     const selectedTabs = this.store.tabStore.sources
     const focusedTab = this.focusedItem instanceof Tab ? [this.focusedItem] : []
-    const tabs = selectedTabs.length ? selectedTabs : focusedTab
-    if (!tabs.length || tabs.length < 2) {
+    const tabs = Array.from(
+      new Map(
+        (selectedTabs.length ? selectedTabs : focusedTab).map((tab) => [
+          tab.id,
+          tab,
+        ]),
+      ).values(),
+    )
+    if (!this.store.tabGroupStore.canCreateGroupFromTabs(tabs)) {
       return
     }
-    const uniqueTabIds = Array.from(new Set(tabs.map((tab) => tab.id)))
-    this.store.tabGroupStore.createGroup(uniqueTabIds)
+    this.store.tabGroupStore.createGroup(tabs.map((tab) => tab.id))
     this.store.tabStore.unselectAll()
   }
 
