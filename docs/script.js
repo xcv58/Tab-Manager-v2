@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const html = document.documentElement;
+    const body = document.body;
     const themeAnnouncement = document.getElementById('theme-announcement');
     const themeButtons = {
         system: document.getElementById('btn-system'),
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             localStorage.setItem('theme', nextTheme);
         } catch (error) {
-            // Ignore storage failures and keep the current in-memory selection.
+            // Ignore storage failures and keep the in-memory selection.
         }
         updateControls(nextTheme);
         if (shouldAnnounce) {
@@ -66,22 +67,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTheme(getStoredTheme(), false);
 
-    // Intersection Observer for scroll animations
-    const observerOptions = {
+    requestAnimationFrame(() => {
+        body.classList.remove('preload');
+    });
+
+    const observer = new IntersectionObserver((entries, instance) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            entry.target.classList.add('visible');
+            instance.unobserve(entry.target);
+        });
+    }, {
         root: null,
         rootMargin: '0px',
-        threshold: 0.1
-    };
+        threshold: 0.12
+    });
 
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target); // Trigger only once
-            }
-        });
-    }, observerOptions);
-
-    const fadeElements = document.querySelectorAll('.fade-in');
-    fadeElements.forEach(el => observer.observe(el));
+    document.querySelectorAll('.fade-in').forEach((element) => {
+        observer.observe(element);
+    });
 });

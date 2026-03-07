@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="Tab Manager v2 - Organize your tabs and navigate instantly with keyboard-first workflows.">
-    <title>Tab Manager v2 - Keyboard-Friendly Browser Extension</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
 
     <script>
         (function () {
@@ -20,192 +18,282 @@
         })();
     </script>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Tab Manager v2 - Organize browser tabs instantly.</title>
+    <meta name="description"
+        content="Organize tabs across windows with keyboard-first search, bulk actions, tab groups, and duplicate cleanup for Chrome, Firefox, and Edge.">
+    <meta name="keywords"
+        content="tab manager, browser extension, chrome extension, firefox add-on, edge extension, tab groups, duplicate tabs, keyboard shortcuts">
+    <meta name="author" content="xcv58">
+    <link rel="canonical" href="https://tab.jenny.media/">
 
-    <!-- CSS and JS -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tab.jenny.media/">
+    <meta property="og:title" content="Tab Manager v2 - Organize browser tabs instantly.">
+    <meta property="og:description"
+        content="Search, move, group, and clean up tabs across browser windows with a keyboard-first workflow.">
+    <meta property="og:image" content="https://tab.jenny.media/assets/images/hero.png">
+    <meta property="og:image:width" content="1280">
+    <meta property="og:image:height" content="720">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tab Manager v2 - Organize browser tabs instantly.">
+    <meta name="twitter:description"
+        content="Keyboard-first tab management for Chrome, Firefox, and Edge with search, bulk actions, groups, and duplicate cleanup.">
+    <meta name="twitter:image" content="https://tab.jenny.media/assets/images/hero.png">
+
+    <link rel="dns-prefetch" href="https://chrome.google.com">
+    <link rel="dns-prefetch" href="https://addons.mozilla.org">
+    <link rel="dns-prefetch" href="https://microsoftedge.microsoft.com">
+    <link rel="dns-prefetch" href="https://github.com">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Tab Manager v2",
+      "applicationCategory": "BrowserApplication",
+      "operatingSystem": "Chrome, Firefox, Edge",
+      "softwareVersion": "2",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Keyboard-first tab management for organizing tabs across browser windows with search, bulk actions, tab groups, and duplicate cleanup.",
+      "screenshot": "https://tab.jenny.media/assets/images/hero.png",
+      "downloadUrl": "https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
+    }
+    </script>
+
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 
-<body>
-    <!-- Header / Navbar -->
-    <header class="navbar fade-in">
-        <div class="logo">
-            <img src="assets/images/logo.png" alt="Tab Manager v2 Logo" class="logo-image">
-            <span class="logo-text">Tab Manager v2</span>
-        </div>
-        <div class="navbar-actions">
-            <nav>
+<body class="preload">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="container">
+        <header class="site-header fade-in" role="banner">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" width="40" height="40" alt="Tab Manager v2 logo" decoding="async">
+                Tab Manager v2
+            </a>
+
+            <div class="nav-wrapper">
+                <nav class="nav-links" role="navigation" aria-label="Main navigation">
+                    <a href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md" target="_blank"
+                        rel="noopener noreferrer">Privacy</a>
+                    <a href="https://github.com/xcv58/Tab-Manager-v2/issues" target="_blank"
+                        rel="noopener noreferrer">Support</a>
+                    <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank"
+                        rel="noopener noreferrer">GitHub</a>
+                </nav>
+
+                <div class="theme-switch" role="group" aria-label="Theme Toggle">
+                    <button id="btn-system" class="theme-btn" type="button" aria-label="System Theme"
+                        aria-pressed="false" title="Match System">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </button>
+
+                    <button id="btn-light" class="theme-btn" type="button" aria-label="Light Theme"
+                        aria-pressed="false" title="Light Mode">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+
+                    <button id="btn-dark" class="theme-btn" type="button" aria-label="Dark Theme"
+                        aria-pressed="false" title="Dark Mode">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div role="status" aria-live="polite" aria-atomic="true" class="sr-only" id="theme-announcement"></div>
+
+        <main id="main-content" role="main">
+            <section class="hero">
+                <h1 class="text-gradient fade-in">Organize your tabs. Navigate instantly.</h1>
+
+                <div class="hero-split">
+                    <div class="hero-text fade-in">
+                        <p class="hero-subtitle">Keyboard-first tab management for Chrome, Firefox, and Edge.</p>
+                        <p class="hero-benefit">Search across windows, select in bulk, clean duplicates, and manage tab
+                            groups without bouncing between browser windows.</p>
+                        <div class="cta-group">
+                            <a href="https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
+                                class="btn-store" target="_blank" rel="noopener noreferrer" aria-label="Get Tab Manager v2 for Chrome">
+                                <img src="assets/images/chrome.svg" width="28" height="28" alt="" aria-hidden="true">
+                                <span>Chrome</span>
+                            </a>
+                            <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2" class="btn-store"
+                                target="_blank" rel="noopener noreferrer" aria-label="Get Tab Manager v2 for Firefox">
+                                <img src="assets/images/firefox.svg" width="28" height="28" alt="" aria-hidden="true">
+                                <span>Firefox</span>
+                            </a>
+                            <a href="https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb"
+                                class="btn-store" target="_blank" rel="noopener noreferrer" aria-label="Get Tab Manager v2 for Edge">
+                                <img src="assets/images/edge.svg" width="28" height="28" alt="" aria-hidden="true">
+                                <span>Edge</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <a class="hero-frame fade-in" href="assets/images/hero.png" target="_blank" rel="noopener noreferrer"
+                        aria-label="Open Tab Manager v2 overview screenshot">
+                        <img src="assets/images/hero.png" width="1280" height="720" alt="Tab Manager v2 overview with grouped windows and search">
+                    </a>
+                </div>
+
+                <div class="gallery-toolbar fade-in">
+                    <span class="gallery-toolbar-label">Screenshots</span>
+                    <span class="gallery-toolbar-copy">Real UI states from the extension.</span>
+                </div>
+
+                <div class="gallery-grid fade-in">
+                    <a href="assets/images/Search.png" class="screenshot-frame" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/images/Search.png" width="1280" height="720"
+                            alt="Tab Manager v2 search experience">
+                        <span class="screenshot-caption">Instant Search</span>
+                    </a>
+                    <a href="assets/images/Duplicated%20tabs.png" class="screenshot-frame" target="_blank"
+                        rel="noopener noreferrer">
+                        <img src="assets/images/Duplicated%20tabs.png" width="1280" height="720"
+                            alt="Tab Manager v2 duplicate tab highlighting">
+                        <span class="screenshot-caption">Duplicate Cleanup</span>
+                    </a>
+                    <a href="assets/images/Shortcuts.png" class="screenshot-frame" target="_blank"
+                        rel="noopener noreferrer">
+                        <img src="assets/images/Shortcuts.png" width="1280" height="720"
+                            alt="Tab Manager v2 keyboard shortcuts help">
+                        <span class="screenshot-caption">Keyboard Shortcuts</span>
+                    </a>
+                    <a href="assets/images/Dark%20theme.png" class="screenshot-frame" target="_blank"
+                        rel="noopener noreferrer">
+                        <img src="assets/images/Dark%20theme.png" width="1280" height="720"
+                            alt="Tab Manager v2 dark theme interface">
+                        <span class="screenshot-caption">Dark Theme</span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="section section-divider fade-in" id="advantage">
+                <div class="section-heading">
+                    <span class="eyebrow">Why It Helps</span>
+                    <h2>Replace scanning with focused control.</h2>
+                    <p>Tab Manager v2 is built for the moment your browser stops feeling manageable: too many windows,
+                        too many tabs, too much hunting.</p>
+                </div>
+
+                <div class="versus-grid">
+                    <article class="versus-card">
+                        <span class="versus-label">Default</span>
+                        <h3>Native browser search</h3>
+                        <p>Useful for quick lookups, but thin on bulk actions, tab groups, and duplicate cleanup.</p>
+                    </article>
+                    <article class="versus-card">
+                        <span class="versus-label">Fallback</span>
+                        <h3>Mouse-heavy tab hunting</h3>
+                        <p>High context switching, endless scanning, and too much manual work when tab volume grows.</p>
+                    </article>
+                    <article class="versus-card new-way">
+                        <span class="versus-label">Tab Manager v2</span>
+                        <h3>Search, select, act</h3>
+                        <p>Keep everything in one focused view and move from intent to action with predictable keyboard workflows.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section section-divider fade-in" id="features">
+                <div class="section-heading">
+                    <span class="eyebrow">Capabilities</span>
+                    <h2>Built for real tab load.</h2>
+                    <p>The extension covers the repeated operations that become painful once your browser turns into a working set.</p>
+                </div>
+
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <h3>Instant Search</h3>
+                        <p>Find open tabs by title or URL immediately, with optional browser history integration from the main search box.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Keyboard-First Control</h3>
+                        <p>Navigate windows, tabs, and actions without leaving the keyboard or relying on pointer scanning.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Bulk Operations</h3>
+                        <p>Select multiple matches and move them, group them, or close them as a single action.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Duplicate Cleanup</h3>
+                        <p>Highlight duplicate tabs and clear them out quickly to reduce visual noise and wasted memory.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Native Tab Groups</h3>
+                        <p>Manage browser-native groups directly: rename, recolor, collapse, and reorganize them in place.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Customizable View</h3>
+                        <p>Choose theme, tab width, font size, toolbar behavior, URL visibility, and related display preferences.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section section-divider fade-in" id="faq">
+                <div class="section-heading">
+                    <span class="eyebrow">FAQ</span>
+                    <h2>Questions that matter before install.</h2>
+                </div>
+
+                <div class="faq-container">
+                    <details class="faq-item">
+                        <summary>Why is Safari not supported?</summary>
+                        <p>Safari does not support the <code>tabs.move()</code> WebExtension API that Tab Manager v2 relies on for drag-and-drop reordering and moving tabs between windows, so the experience would be incomplete.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Where are my settings stored?</summary>
+                        <p>Settings are stored in browser sync storage when the browser supports it. If sync storage is unavailable, the extension falls back to local storage so everything still works.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>What permissions does the extension need?</summary>
+                        <p>Tab Manager v2 uses tab, storage, and history permissions only to provide its core functionality locally in your browser. It does not add analytics or tracking.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Does it work with browser tab groups?</summary>
+                        <p>Yes. Tab Manager v2 works with native tab groups and lets you manage them directly without leaving the extension.</p>
+                    </details>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer fade-in">
+            <p>&copy; 2026 xcv58</p>
+            <div class="footer-links">
                 <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank" rel="noopener noreferrer">GitHub</a>
-            </nav>
-            <div class="theme-switch" role="group" aria-label="Theme Toggle">
-                <button id="btn-system" class="theme-btn" type="button" aria-label="System Theme" aria-pressed="false"
-                    title="Match System">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                        <line x1="8" y1="21" x2="16" y2="21"></line>
-                        <line x1="12" y1="17" x2="12" y2="21"></line>
-                    </svg>
-                </button>
-                <button id="btn-light" class="theme-btn" type="button" aria-label="Light Theme" aria-pressed="false"
-                    title="Light Mode">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-                <button id="btn-dark" class="theme-btn" type="button" aria-label="Dark Theme" aria-pressed="false"
-                    title="Dark Mode">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
-                    </svg>
-                </button>
+                <a href="https://github.com/xcv58/Tab-Manager-v2/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+                <a href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md" target="_blank"
+                    rel="noopener noreferrer">Privacy Policy</a>
             </div>
-        </div>
-    </header>
-
-    <div role="status" aria-live="polite" aria-atomic="true" class="sr-only" id="theme-announcement"></div>
-
-    <!-- Hero Section -->
-    <section class="hero fade-in">
-        <div class="hero-content">
-            <h1>Organize your tabs.<br>Navigate instantly.</h1>
-            <p>A keyboard-friendly browser extension for organizing a large number of tabs across windows. Search, move,
-                group, and manage without bouncing between windows.</p>
-            <div class="cta-group">
-                <a href="https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
-                    class="btn btn-store" target="_blank" rel="noopener noreferrer">
-                    <img src="assets/images/chrome.svg" alt="Chrome Logo" class="btn-icon">
-                    Chrome
-                </a>
-                <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2" class="btn btn-store"
-                    target="_blank" rel="noopener noreferrer">
-                    <img src="assets/images/firefox.svg" alt="Firefox Logo" class="btn-icon">
-                    Firefox
-                </a>
-                <a href="https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb"
-                    class="btn btn-store" target="_blank" rel="noopener noreferrer">
-                    <img src="assets/images/edge.svg" alt="Edge Logo" class="btn-icon">
-                    Edge
-                </a>
-            </div>
-        </div>
-        <div class="hero-image-container">
-            <img src="assets/images/hero.png" alt="Tab Manager v2 Default View" class="hero-image">
-        </div>
-    </section>
-
-    <!-- The Advantage Section (Problem vs Solution) -->
-    <section class="advantage section fade-in">
-        <h2>The Advantage</h2>
-        <div class="comparison-grid">
-            <div class="comparison-card old-way">
-                <h3>Native Browser Search (Cmd+Shift+A)</h3>
-                <div class="icon-box">❌</div>
-                <p><strong>Too Naive</strong><br>Lacks advanced features like bulk operations, history integration, or
-                    robust fuzzy finding.</p>
-            </div>
-
-            <div class="comparison-card old-way">
-                <h3>The Old Mouse Workflow</h3>
-                <div class="icon-box">🖱️</div>
-                <p><strong>Endless Scanning</strong><br>Reaching for the mouse, high cognitive load for finding that one
-                    tab out of a hundred.</p>
-            </div>
-
-            <div class="comparison-card new-way highlight">
-                <h3>Tab Manager v2</h3>
-                <div class="icon-box">⚡️</div>
-                <p><strong>Instant Keyboard Control</strong><br>Keyboard-driven search, bulk selection, native tab
-                    groups, and muscle memory shortcuts.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Grid -->
-    <section class="features section fade-in">
-        <h2>Features</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>🔍 Instant Search</h3>
-                <p>Find open tabs by title or URL instantly, with optional browser history integration directly from the
-                    main search box.</p>
-            </div>
-            <div class="feature-card">
-                <h3>⌨️ Keyboard-First</h3>
-                <p>Navigate the list, select items, and run actions purely via keyboard shortcuts and a dedicated
-                    Command Palette.</p>
-            </div>
-            <div class="feature-card">
-                <h3>📦 Bulk Operations</h3>
-                <p>Select multiple tabs matching a search query. Move them between windows, group them together, or
-                    close them all at once.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🧹 Deduplication</h3>
-                <p>Automatically highlights duplicate tabs. Easily select and clean them up to free system resources.
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>📁 Tab Groups</h3>
-                <p>Manage native browser tab groups. Rename, recolor, collapse, and ungroup without leaving the
-                    extension.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🎨 Customizable</h3>
-                <p>Beautiful Light and Dark themes. Adjustable tab width, font size, toolbar visibility, and URL display
-                    preferences.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="faq section fade-in">
-        <h2>Frequently Asked Questions</h2>
-        <div class="faq-list">
-            <div class="faq-item">
-                <h3>Why is Safari not supported?</h3>
-                <p>Safari does not support the <code>tabs.move()</code> WebExtension API that Tab Manager v2 depends on
-                    for drag-and-drop reordering and moving tabs between windows. Those are core features, so Safari
-                    support would be incomplete.</p>
-            </div>
-            <div class="faq-item">
-                <h3>Where are my settings stored?</h3>
-                <p>Settings are stored in browser sync storage when supported by your browser. If unavailable, it falls
-                    back to local storage so the extension remains fully functional.</p>
-            </div>
-            <div class="faq-item">
-                <h3>Privacy and Permissions</h3>
-                <p>Tab Manager v2 requires necessary tab, storage, and history permissions strictly to provide its core
-                    organizational functionality locally inside your browser. No tracking or analytics.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer fade-in">
-        <p>&copy; 2026 xcv58 | Made for power users.</p>
-        <div class="footer-links">
-            <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank" rel="noopener noreferrer">GitHub</a> •
-            <a href="https://github.com/xcv58/Tab-Manager-v2/issues" target="_blank"
-                rel="noopener noreferrer">Issues</a> •
-            <a href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md" target="_blank"
-                rel="noopener noreferrer">Privacy Policy</a>
-        </div>
-    </footer>
+        </footer>
+    </div>
 </body>
 
 </html>
