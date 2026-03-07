@@ -41,7 +41,10 @@ export default class Window extends Focusable {
 
     this.store = store
     Object.assign(this, win)
-    this.tabs = win.tabs.map((tab) => new Tab(tab, store, this))
+    this.tabs = (win.tabs || [])
+      .slice()
+      .sort((a, b) => a.index - b.index)
+      .map((tab) => new Tab(tab, store, this))
     // TODO: Remove this when we add concurrent mode
     this.showTabs = !this.store.windowStore.initialLoading
   }
@@ -192,19 +195,21 @@ export default class Window extends Focusable {
 
   onMoved = (tabId: number, moveInfo) => {
     const { fromIndex, toIndex } = moveInfo
-    const toTab = this.getTab(toIndex)
-    if (!toTab) {
-      return false
-    }
-    if (toTab.id === tabId) {
-      return true
-    }
     const fromTab = this.getTab(fromIndex)
     if (!fromTab || fromTab.id !== tabId) {
       return false
     }
-    this.tabs[fromIndex] = toTab
-    this.tabs[toIndex] = fromTab
+    if (fromIndex === toIndex) {
+      return true
+    }
+    if (toIndex < 0 || toIndex >= this.tabs.length) {
+      return false
+    }
+    this.tabs.splice(fromIndex, 1)
+    this.tabs.splice(toIndex, 0, fromTab)
+    this.tabs.forEach((tab, index) => {
+      tab.index = index
+    })
     return true
   }
 
@@ -213,20 +218,35 @@ export default class Window extends Focusable {
     const oldTab = this.getTab(oldPosition)
     if (oldTab && oldTab.id === tabId) {
       this.tabs.splice(oldPosition, 1)
+      return
+    }
+    const existingIndex = this.tabs.findIndex((tab) => tab.id === tabId)
+    if (existingIndex !== -1) {
+      this.tabs.splice(existingIndex, 1)
     }
   }
 
   onAttched = async (tabId: number, attachInfo) => {
     const { newPosition } = attachInfo
-    const tab = this.getTab(newPosition)
-    if (tab && tab.id === tabId) {
+    let targetPosition = Math.max(0, Math.min(newPosition, this.tabs.length))
+    const existingIndex = this.tabs.findIndex((tab) => tab.id === tabId)
+    if (existingIndex === targetPosition) {
       return
     }
-    const tabInfo = await browser.tabs.get(tabId)
-    if (!tabInfo) {
-      return false
+    let tabToInsert: Tab | null = null
+    if (existingIndex !== -1) {
+      ;[tabToInsert] = this.tabs.splice(existingIndex, 1)
+      if (existingIndex < targetPosition) {
+        targetPosition -= 1
+      }
+    } else {
+      const tabInfo = await browser.tabs.get(tabId)
+      if (!tabInfo) {
+        return false
+      }
+      tabToInsert = new Tab(tabInfo, this.store, this)
     }
-    this.tabs.splice(newPosition, 0, new Tab(tabInfo, this.store, this))
+    this.tabs.splice(targetPosition, 0, tabToInsert)
   }
 
   toggleHide = () => {

@@ -260,14 +260,11 @@ export default class DragStore {
         (!!options.forceUngroup || !hasTargetGroup)
       let movedByGroupApi = false
       if (canMoveGroup) {
-        const movedGroup = await this.store.tabGroupStore.moveGroup(
-          sourceGroupId,
-          {
-            windowId,
-            index,
-          },
-        )
-        movedByGroupApi = !!movedGroup
+        await this.store.tabGroupStore.moveGroup(sourceGroupId, {
+          windowId,
+          index,
+        })
+        movedByGroupApi = true
       }
       if (!movedByGroupApi) {
         if (shouldDetachFromSourceGroup) {
@@ -322,7 +319,7 @@ export default class DragStore {
         error,
       })
     } finally {
-      resume({
+      await resume({
         repackPolicy: 'never',
         reason: 'drag-drop',
       })

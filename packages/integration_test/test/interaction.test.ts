@@ -1201,6 +1201,8 @@ test.describe('The Extension page should', () => {
     )
     expect(moved.contiguous).toBe(true)
     expect(moved.groupStart).toBeGreaterThan(-1)
+    await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)
+    await expect(page.getByTestId(`tab-group-count-${groupId}`)).toHaveText('2')
   })
 
   test('window with one group should support both join-group drop and ungrouped zone drop', async () => {

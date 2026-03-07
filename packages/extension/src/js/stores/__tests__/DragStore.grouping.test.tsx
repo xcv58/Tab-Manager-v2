@@ -315,4 +315,53 @@ describe('DragStore with tab groups', () => {
     expect(moveTabs).not.toHaveBeenCalled()
     expect(groupTabs).not.toHaveBeenCalled()
   })
+
+  it('full-group selection should not fallback when moveGroup resolves null', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const tab1 = { id: 1, groupId: -1, windowId: 1, index: 0 }
+    const tab2 = { id: 2, groupId: 10, windowId: 1, index: 1 }
+    const tab3 = { id: 3, groupId: 10, windowId: 1, index: 2 }
+    const tab4 = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve(null))
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [tab2, tab3]
+          }
+          return [tab4]
+        }),
+        moveGroup,
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [tab1, tab2, tab3, tab4],
+        })),
+      },
+    } as any)
+
+    dragStore.dragStartGroup(10)
+    await dragStore.drop(tab4 as any, true)
+
+    expect(moveGroup).toHaveBeenCalledWith(10, {
+      windowId: 1,
+      index: 1,
+    })
+    expect(moveTabs).not.toHaveBeenCalled()
+    expect(groupTabs).not.toHaveBeenCalled()
+  })
 })

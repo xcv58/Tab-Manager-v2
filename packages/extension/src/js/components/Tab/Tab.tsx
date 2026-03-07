@@ -74,8 +74,8 @@ export default observer((props: TabProps & { className?: string }) => {
     isSecondaryActive && !isSelected && !isFocused
       ? {
           boxShadow: isDarkTheme
-            ? 'inset 1px 0 0 rgba(174, 181, 192, 0.28)'
-            : 'inset 1px 0 0 rgba(100, 116, 139, 0.22)',
+            ? 'inset 2px 0 0 rgba(174, 181, 192, 0.28)'
+            : 'inset 2px 0 0 rgba(100, 116, 139, 0.382)',
         }
       : undefined
   const darkRowStyle = isDarkTheme

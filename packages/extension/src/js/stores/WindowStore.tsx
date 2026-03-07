@@ -98,6 +98,8 @@ export default class WindowsStore {
 
   batching = false
 
+  suspendTabEvents = false
+
   layoutDirty = false
 
   dirtyWindowIds: Set<number> = new Set()
@@ -363,6 +365,9 @@ export default class WindowsStore {
   }
 
   onAttached = async (tabId: number, attachInfo) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     log.debug('tabs.onAttached:', { tabId, attachInfo })
     const { newWindowId } = attachInfo
     const win = await this.getOrCreateWinById(newWindowId)
@@ -390,6 +395,9 @@ export default class WindowsStore {
   }
 
   onDetached = (tabId: number, detachInfo) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     log.debug('tabs.onDetached:', { tabId, detachInfo })
     const win = this.windows.find((x) => x.id === detachInfo.oldWindowId)
     if (!win) {
@@ -411,6 +419,9 @@ export default class WindowsStore {
       isWindowClosing,
     }: { windowId: number; isWindowClosing: boolean },
   ) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
     this.store.tabStore.selection.delete(id)
     if (!isWindowClosing) {
@@ -430,6 +441,9 @@ export default class WindowsStore {
   }
 
   onUpdated = (tabId: number, changeInfo, newTab: Tab) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
@@ -452,6 +466,9 @@ export default class WindowsStore {
   }
 
   onCreated = (tab: Tab) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     log.debug('tabs.onCreated:', { tab })
     const { index, windowId } = tab
     const win = this.windows.find((x) => x.id === windowId)
@@ -473,6 +490,9 @@ export default class WindowsStore {
   }
 
   onActivated = (args: { tabId?: number; windowId?: number }) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     const { tabId, windowId } = args
     log.debug('tabs.onActivate:', { tabId, windowId })
     this.lastFocusedWindowId = windowId
@@ -492,6 +512,9 @@ export default class WindowsStore {
   }
 
   onMoved = (tabId: number, moveInfo) => {
+    if (this.suspendTabEvents) {
+      return
+    }
     log.debug('tabs.onMoved:', { tabId, moveInfo })
     const win = this.windows.find((x) => x.id === moveInfo.windowId)
     if (!win) {
@@ -506,11 +529,16 @@ export default class WindowsStore {
 
   suspend = () => {
     this.batching = true
+    this.suspendTabEvents = true
   }
 
-  resume = (options?: LoadAllWindowsOptions) => {
+  resume = async (options?: LoadAllWindowsOptions) => {
     this.batching = false
-    this.getAllWindows(options)
+    try {
+      await this.getAllWindows(options)
+    } finally {
+      this.suspendTabEvents = false
+    }
   }
 
   removeTabs = (ids: number[]) => {

@@ -148,8 +148,19 @@ export default class GroupStore {
     const { matchedSet, _query } = this.store.searchStore
     const { showUnmatchedTab } = this.store.userStore
     const queryActive = !!_query
+    const processedGroupIds = new Set<number>()
+    const groupedTabsById = new Map<number, Tab[]>()
 
-    for (let i = 0; i < tabs.length; ) {
+    tabs.forEach((tab) => {
+      if (this.isNoGroupId(tab.groupId)) {
+        return
+      }
+      const existing = groupedTabsById.get(tab.groupId) || []
+      existing.push(tab)
+      groupedTabsById.set(tab.groupId, existing)
+    })
+
+    for (let i = 0; i < tabs.length; i += 1) {
       const tab = tabs[i]
       if (this.isNoGroupId(tab.groupId)) {
         const shouldShowTab =
@@ -163,16 +174,16 @@ export default class GroupStore {
             hiddenByCollapse: false,
           })
         }
-        i += 1
         continue
       }
 
       const groupId = tab.groupId
-      const groupTabs: Tab[] = []
-      while (i < tabs.length && tabs[i].groupId === groupId) {
-        groupTabs.push(tabs[i])
-        i += 1
+      if (processedGroupIds.has(groupId)) {
+        continue
       }
+      processedGroupIds.add(groupId)
+
+      const groupTabs = groupedTabsById.get(groupId) || [tab]
 
       const tabGroup = this.getTabGroup(groupId)
       const matchedCount = groupTabs.filter((x) => matchedSet.has(x.id)).length
