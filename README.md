@@ -31,6 +31,12 @@ Safari is not supported. The extension depends on tab moving APIs for core featu
 
 There is a playlist contains how to videos: https://www.youtube.com/playlist?list=PLtWVZzutpoqLdwaoAVhQPGCXU9sLwT3S7
 
+### Window labels and tab groups
+
+Tab Manager v2 does not support custom window names. If you need labels for a set of related tabs, use your browser's built-in tab groups instead.
+
+When the browser exposes tab group APIs, Tab Manager v2 lets you rename and recolor those groups from the extension. This keeps the label visible in the browser itself instead of creating extension-only window metadata.
+
 ## Development
 
 You should be familiar with [React](https://facebook.github.io/react/), [MobX](https://mobx.js.org/), and [Chrome Extension API](https://developers.chrome.com/extensions/api_index) to develop this extension.
