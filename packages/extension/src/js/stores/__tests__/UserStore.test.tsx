@@ -23,4 +23,26 @@ describe('UserStore', () => {
     expect(userStore.loaded).toBe(true)
     expect(initSearch).toHaveBeenCalledTimes(1)
   })
+
+  it('should repack layout when tab width or font size changes', async () => {
+    const repackLayout = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+      windowStore: {
+        repackLayout,
+      },
+    } as any)
+    await flush()
+
+    repackLayout.mockClear()
+
+    userStore.updateTabWidth(24)
+    userStore.updateFontSize(16)
+
+    expect(repackLayout).toHaveBeenCalledTimes(2)
+    expect(repackLayout).toHaveBeenNthCalledWith(1, 'settings-change')
+    expect(repackLayout).toHaveBeenNthCalledWith(2, 'settings-change')
+  })
 })

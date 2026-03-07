@@ -40,9 +40,13 @@ describe('TabGroupStore', () => {
     delete (global as any).chrome
   })
 
-  const groupStore = () =>
+  const groupStore = (windowStoreOverrides = {}) =>
     new TabGroupStore({
-      windowStore: { tabs: [] },
+      windowStore: {
+        tabs: [],
+        markLayoutDirtyIfNeeded: jest.fn(),
+        ...windowStoreOverrides,
+      },
     } as any)
 
   it('should expose tab group capability flags', () => {
@@ -180,6 +184,9 @@ describe('TabGroupStore', () => {
     expect((browser as any).tabGroups.update).toHaveBeenCalledWith(42, {
       collapsed: true,
     })
+    expect(
+      (store as any).store.windowStore.markLayoutDirtyIfNeeded,
+    ).toHaveBeenCalledWith('group-toggle', 1)
   })
 
   it('should update collapsed state via chrome.tabGroups fallback API', async () => {
@@ -221,6 +228,31 @@ describe('TabGroupStore', () => {
       expect.any(Function),
     )
     expect(store.getTabGroup(42)?.collapsed).toBe(true)
+  })
+
+  it('should mark layout dirty for browser-origin collapsed changes', () => {
+    const markLayoutDirtyIfNeeded = jest.fn()
+    const store = groupStore({ markLayoutDirtyIfNeeded })
+    store.tabGroupMap.set(77, {
+      id: 77,
+      windowId: 12,
+      title: 'Group',
+      color: 'blue',
+      collapsed: false,
+    })
+
+    store.onTabGroup({
+      id: 77,
+      windowId: 12,
+      title: 'Group',
+      color: 'blue',
+      collapsed: true,
+    })
+
+    expect(markLayoutDirtyIfNeeded).toHaveBeenCalledWith(
+      'group-browser-event',
+      12,
+    )
   })
 
   it('should rename group through browser.tabGroups.update', async () => {

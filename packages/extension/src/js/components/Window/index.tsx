@@ -25,7 +25,7 @@ export default observer((props: WinProps & { width: string }) => {
     return null
   }
   return (
-    <div style={style}>
+    <div style={style} data-testid={`window-card-${win.id}`}>
       <div
         className={classNames({
           'shadow-2xl': lastFocused,

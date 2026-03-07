@@ -7,6 +7,7 @@ import SyncButton from './SyncButton'
 import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
+import LayoutRepackIndicator from './LayoutRepackIndicator'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -20,6 +21,7 @@ export default observer(() => {
   return (
     <div className="flex items-center justify-center h-12 px-1 text-3xl shrink-0">
       <Summary />
+      <LayoutRepackIndicator />
       <AutocompleteSearch />
       <SyncButton />
       <ThemeToggle />

@@ -103,6 +103,7 @@ describe('DragStore with tab groups', () => {
       windowStore: {
         suspend: jest.fn(),
         resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
         moveTabs,
         getTargetWindow: jest.fn(() => ({
           tabs: [tab1, tab2, tab3, tab4],
@@ -144,6 +145,7 @@ describe('DragStore with tab groups', () => {
       windowStore: {
         suspend: jest.fn(),
         resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
         moveTabs,
         getTargetWindow: jest.fn(() => ({
           tabs: [tab1, tab2, tab3],
@@ -185,6 +187,7 @@ describe('DragStore with tab groups', () => {
       windowStore: {
         suspend: jest.fn(),
         resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
         moveTabs,
         getTargetWindow: jest.fn(() => ({
           tabs: [tab1, tab2],
@@ -235,6 +238,7 @@ describe('DragStore with tab groups', () => {
       windowStore: {
         suspend: jest.fn(),
         resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
         moveTabs,
         getTargetWindow: jest.fn(() => ({
           tabs: [tab1, tab2, tab3],
@@ -293,6 +297,7 @@ describe('DragStore with tab groups', () => {
       windowStore: {
         suspend: jest.fn(),
         resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
         moveTabs,
         getTargetWindow: jest.fn(() => ({
           tabs: [tab1, tab2, tab3, tab4],

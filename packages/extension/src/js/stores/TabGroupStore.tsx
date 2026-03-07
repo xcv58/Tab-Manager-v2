@@ -87,7 +87,14 @@ export default class GroupStore {
   }
 
   onTabGroup = (tabGroup: TabGroup) => {
+    const previous = this.tabGroupMap.get(tabGroup.id)
     this.tabGroupMap.set(tabGroup.id, tabGroup)
+    if (previous && previous.collapsed !== tabGroup.collapsed) {
+      this.store.windowStore?.markLayoutDirtyIfNeeded?.(
+        'group-browser-event',
+        tabGroup.windowId,
+      )
+    }
   }
 
   onRemoved = (tabGroup: TabGroup) => {
@@ -512,6 +519,10 @@ export default class GroupStore {
       ...tabGroup,
       collapsed,
     })
+    this.store.windowStore?.markLayoutDirtyIfNeeded?.(
+      'group-toggle',
+      tabGroup.windowId,
+    )
     try {
       const updated = await this.updateTabGroup(groupId, {
         collapsed,

@@ -316,12 +316,16 @@ export default class DragStore {
       }
       this.dropped = true
       this.clearSelection()
+      this.store.windowStore.markLayoutDirtyIfNeeded('drag-drop')
     } catch (error) {
       log.error('DragStore.drop failed', {
         error,
       })
     } finally {
-      resume()
+      resume({
+        repackPolicy: 'never',
+        reason: 'drag-drop',
+      })
     }
   }
 

@@ -199,6 +199,68 @@ const setupMixedGroupsInCurrentWindow = async (page: Page) => {
   }
 }
 
+const setupLayoutJumpScenario = async (page: Page) => {
+  const setup = await page.evaluate(async () => {
+    const currentWindow = await chrome.windows.getCurrent({})
+    const baseWindowId = currentWindow.id
+    if (typeof baseWindowId !== 'number') {
+      return null
+    }
+
+    const groupedUrls = Array.from(
+      { length: 8 },
+      (_, index) => `about:blank#jump-group-${index}`,
+    )
+    for (const url of groupedUrls) {
+      await chrome.tabs.create({
+        windowId: baseWindowId,
+        url,
+        active: false,
+      })
+    }
+
+    const sideWindow = await chrome.windows.create({
+      url: 'about:blank#jump-side-window',
+      focused: false,
+    })
+    const sideWindowId = sideWindow.id
+    if (typeof sideWindowId !== 'number') {
+      return null
+    }
+
+    const tabs = await chrome.tabs.query({ windowId: baseWindowId })
+    const groupTabIds = tabs
+      .filter((tab) => (tab.url || '').includes('#jump-group-'))
+      .map((tab) => tab.id)
+      .filter((tabId): tabId is number => typeof tabId === 'number')
+    if (groupTabIds.length < 6) {
+      return null
+    }
+
+    const groupId = await chrome.tabs.group({
+      tabIds: groupTabIds,
+      createProperties: {
+        windowId: baseWindowId,
+      },
+    })
+    await chrome.tabGroups.update(groupId, {
+      title: 'Jump Group',
+      color: 'blue',
+      collapsed: false,
+    })
+    return {
+      groupId,
+      baseWindowId,
+      sideWindowId,
+    }
+  })
+
+  if (!setup) {
+    throw new Error('Failed to setup layout jump scenario')
+  }
+  return setup
+}
+
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.beforeAll(async () => {
@@ -1341,5 +1403,222 @@ test.describe('The Extension page should', () => {
     expect(result.sourceGroupId).toBe(result.noGroup)
     expect(result.sourceBeforeGroup).toBe(true)
     expect(result.groupedSize).toBe(2)
+  })
+
+  test('group toggle keeps stable columns until manual repack', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 420,
+    })
+    const { baseWindowId, sideWindowId, groupId } =
+      await setupLayoutJumpScenario(page)
+
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `window-card-${baseWindowId}`)
+    await waitForTestId(page, `window-card-${sideWindowId}`)
+
+    const windowCard = page.getByTestId(`window-card-${baseWindowId}`)
+    const sideWindowCard = page.getByTestId(`window-card-${sideWindowId}`)
+    const widthBefore = await windowCard.evaluate(
+      (node) => node.getBoundingClientRect().width,
+    )
+    const sideXBefore = await sideWindowCard.evaluate(
+      (node) => node.getBoundingClientRect().x,
+    )
+
+    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(async (targetGroupId) => {
+            const tabGroup = await chrome.tabGroups.get(targetGroupId)
+            return !!tabGroup.collapsed
+          }, groupId),
+        { timeout: 1500 },
+      )
+      .toBe(true)
+
+    await page.waitForTimeout(900)
+    const widthBeforeManualRepack = await windowCard.evaluate(
+      (node) => node.getBoundingClientRect().width,
+    )
+    const sideXBeforeManualRepack = await sideWindowCard.evaluate(
+      (node) => node.getBoundingClientRect().x,
+    )
+    expect(Math.abs(widthBeforeManualRepack - widthBefore)).toBeLessThan(2)
+    expect(Math.abs(sideXBeforeManualRepack - sideXBefore)).toBeLessThan(2)
+    const isDirty = await page.getByTestId('layout-repack-button').isVisible()
+
+    if (!isDirty) {
+      await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+      return
+    }
+
+    await expect(page.getByTestId('layout-repack-button')).toBeVisible()
+    await page.getByTestId('layout-repack-button').click()
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+
+    await expect
+      .poll(
+        async () => {
+          const widthAfter = await windowCard.evaluate(
+            (node) => node.getBoundingClientRect().width,
+          )
+          return Math.abs(widthAfter - widthBefore)
+        },
+        { timeout: 2200 },
+      )
+      .toBeGreaterThan(4)
+  })
+
+  test('window hide toggle keeps stable columns until manual repack', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 420,
+    })
+    const { baseWindowId, sideWindowId } = await setupLayoutJumpScenario(page)
+
+    await page.reload()
+    await waitForTestId(page, `window-title-${baseWindowId}`)
+    await waitForTestId(page, `window-card-${baseWindowId}`)
+    await waitForTestId(page, `window-card-${sideWindowId}`)
+
+    const titleRow = page.getByTestId(`window-title-${baseWindowId}`)
+    const hideToggle = titleRow
+      .locator('button[aria-label="Toggle window hide"]')
+      .first()
+    const windowCard = page.getByTestId(`window-card-${baseWindowId}`)
+    const sideWindowCard = page.getByTestId(`window-card-${sideWindowId}`)
+    const widthBefore = await windowCard.evaluate(
+      (node) => node.getBoundingClientRect().width,
+    )
+    const sideXBefore = await sideWindowCard.evaluate(
+      (node) => node.getBoundingClientRect().x,
+    )
+
+    await hideToggle.click()
+    await page.waitForTimeout(900)
+    const widthBeforeManualRepack = await windowCard.evaluate(
+      (node) => node.getBoundingClientRect().width,
+    )
+    const sideXBeforeManualRepack = await sideWindowCard.evaluate(
+      (node) => node.getBoundingClientRect().x,
+    )
+    expect(Math.abs(widthBeforeManualRepack - widthBefore)).toBeLessThan(2)
+    expect(Math.abs(sideXBeforeManualRepack - sideXBefore)).toBeLessThan(2)
+    const isDirty = await page.getByTestId('layout-repack-button').isVisible()
+
+    if (!isDirty) {
+      await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+      return
+    }
+
+    await expect(page.getByTestId('layout-repack-button')).toBeVisible()
+    await page.getByTestId('layout-repack-button').click()
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+
+    await expect
+      .poll(
+        async () => {
+          const widthAfter = await windowCard.evaluate(
+            (node) => node.getBoundingClientRect().width,
+          )
+          return Math.abs(widthAfter - widthBefore)
+        },
+        { timeout: 2200 },
+      )
+      .toBeGreaterThan(4)
+  })
+
+  test('group toggle flushes dirty layout on window blur', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 420,
+    })
+    const { baseWindowId, sideWindowId, groupId } =
+      await setupLayoutJumpScenario(page)
+
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `window-card-${baseWindowId}`)
+    await waitForTestId(page, `window-card-${sideWindowId}`)
+
+    const windowCard = page.getByTestId(`window-card-${baseWindowId}`)
+    const widthBefore = await windowCard.evaluate(
+      (node) => node.getBoundingClientRect().width,
+    )
+
+    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
+    await page.waitForTimeout(500)
+    const isDirty = await page.getByTestId('layout-repack-button').isVisible()
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event('blur'))
+    })
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+
+    if (!isDirty) {
+      const widthAfter = await windowCard.evaluate(
+        (node) => node.getBoundingClientRect().width,
+      )
+      expect(Math.abs(widthAfter - widthBefore)).toBeLessThan(2)
+      return
+    }
+
+    await expect
+      .poll(
+        async () => {
+          const widthAfter = await windowCard.evaluate(
+            (node) => node.getBoundingClientRect().width,
+          )
+          return Math.abs(widthAfter - widthBefore)
+        },
+        { timeout: 2200 },
+      )
+      .toBeGreaterThan(4)
+  })
+
+  test('sync shortcut always repacks and clears dirty state', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 420,
+    })
+    const { baseWindowId, sideWindowId, groupId } =
+      await setupLayoutJumpScenario(page)
+
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `window-card-${baseWindowId}`)
+    await waitForTestId(page, `window-card-${sideWindowId}`)
+
+    const windowCard = page.getByTestId(`window-card-${baseWindowId}`)
+    const widthBefore = await windowCard.evaluate(
+      (node) => node.getBoundingClientRect().width,
+    )
+
+    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
+    await page.waitForTimeout(500)
+    const isDirty = await page.getByTestId('layout-repack-button').isVisible()
+
+    await page.locator('main').click()
+    await page.keyboard.press('s')
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+
+    if (!isDirty) {
+      return
+    }
+
+    await expect
+      .poll(
+        async () => {
+          const widthAfter = await windowCard.evaluate(
+            (node) => node.getBoundingClientRect().width,
+          )
+          return Math.abs(widthAfter - widthBefore)
+        },
+        { timeout: 2200 },
+      )
+      .toBeGreaterThan(4)
   })
 })

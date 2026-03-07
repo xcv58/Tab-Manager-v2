@@ -28,7 +28,7 @@ export default observer((props: WinProps & { className: string }) => {
         behavior: reduceMotion ? 'auto' : 'smooth',
       })
     }
-  }, [isFocused])
+  }, [isFocused, reduceMotion])
   useEffect(() => {
     win.setNodeRef(nodeRef)
   })
@@ -36,6 +36,7 @@ export default observer((props: WinProps & { className: string }) => {
     <div
       tabIndex={-1}
       ref={nodeRef}
+      data-testid={`window-title-${win.id}`}
       className={classNames(
         'flex justify-between items-center font-bold border-0',
         className,
@@ -57,7 +58,12 @@ export default observer((props: WinProps & { className: string }) => {
         </>
       )}
       <CloseButton onClick={() => props.win.close()} />
-      <HideToggle {...{ hide, toggleHide }} />
+      <HideToggle
+        {...{
+          hide,
+          toggleHide,
+        }}
+      />
     </div>
   )
 })

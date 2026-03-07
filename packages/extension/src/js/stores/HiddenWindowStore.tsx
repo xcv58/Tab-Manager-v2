@@ -32,6 +32,7 @@ export default class HiddenWindowsStore {
     } else {
       this.hiddenWindows = {}
     }
+    this.store.windowStore.markLayoutDirtyIfNeeded('window-toggle')
     this.saveHiddenWindows()
   }
 
@@ -39,6 +40,7 @@ export default class HiddenWindowsStore {
     this.store.windowStore.windows.forEach((win) => {
       this.hiddenWindows[win.id] = !this.hiddenWindows[win.id]
     })
+    this.store.windowStore.markLayoutDirtyIfNeeded('window-toggle')
     this.saveHiddenWindows()
   }
 

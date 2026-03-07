@@ -66,6 +66,7 @@ export default class ArrangeStore {
       windows.push(...allWindows)
     }
     await this.sortInWindow(windows.map((win) => new Window(win, this.store)))
+    this.store.windowStore.markLayoutDirtyIfNeeded('arrange-change')
   }
 
   groupTab = async (tab: Tab) => {
@@ -82,6 +83,7 @@ export default class ArrangeStore {
       windowId,
       0,
     )
+    this.store.windowStore.markLayoutDirtyIfNeeded('arrange-change', windowId)
   }
 
   groupTabs = async () => {

@@ -12,6 +12,7 @@ import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 import { openOrTogglePopup } from 'libs'
+import LayoutRepackIndicator from './LayoutRepackIndicator'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -26,6 +27,7 @@ export default observer(() => {
     <>
       <div className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl">
         <Summary />
+        <LayoutRepackIndicator />
         <AutocompleteSearch autoFocus open />
       </div>
       <div className="absolute bottom-0 flex items-center justify-end w-full ">

@@ -25,7 +25,10 @@ export default observer(() => {
   useEffect(() => {
     windowStore.didMount()
     shortcutStore.didMount()
-    return () => shortcutStore.willUnmount()
+    return () => {
+      shortcutStore.willUnmount()
+      windowStore.willUnmount()
+    }
   }, [])
   useEffect(() => {
     document.getElementsByTagName('html')[0].style.fontSize = `${fontSize}px`

@@ -236,5 +236,6 @@ export default class Window extends Focusable {
       this.store.hiddenWindowStore.hideWindow(this.id)
       this.store.focusStore.focus(this)
     }
+    this.store.windowStore.markLayoutDirtyIfNeeded('window-toggle', this.id)
   }
 }

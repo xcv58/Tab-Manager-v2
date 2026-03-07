@@ -204,7 +204,10 @@ export default class UserStore {
   toggleShowAppWindow = () => {
     this.showAppWindow = !this.showAppWindow
     this.save()
-    this.store.windowStore.loadAllWindows()
+    this.store.windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+    })
   }
 
   toggleShowShortcutHint = () => {
@@ -254,11 +257,13 @@ export default class UserStore {
 
   updateTabWidth = (tabWidth: number) => {
     this.tabWidth = tabWidth
+    this.store.windowStore?.repackLayout?.('settings-change')
     this.save()
   }
 
   updateFontSize = (fontSize: number) => {
     this.fontSize = fontSize
+    this.store.windowStore?.repackLayout?.('settings-change')
     this.save()
   }
 
