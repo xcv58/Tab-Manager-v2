@@ -10,7 +10,7 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     strategy:
       matrix:
-        node: [20, 22]
+        node: [24, 25]
 
     steps:
       - name: Checkout
