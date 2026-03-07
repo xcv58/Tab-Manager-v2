@@ -274,8 +274,35 @@ describe('TabGroupStore', () => {
     )
   })
 
+  it('should refresh layout for browser-origin group title changes', () => {
+    const refreshLayoutIfNeeded = jest.fn()
+    const store = groupStore({ refreshLayoutIfNeeded })
+    store.tabGroupMap.set(77, {
+      id: 77,
+      windowId: 12,
+      title: 'Before',
+      color: 'blue',
+      collapsed: false,
+    })
+
+    store.onTabGroup({
+      id: 77,
+      windowId: 12,
+      title: 'After',
+      color: 'blue',
+      collapsed: false,
+    })
+
+    expect(refreshLayoutIfNeeded).toHaveBeenCalledWith(
+      'window-change',
+      'group-browser-event',
+      12,
+    )
+  })
+
   it('should rename group through browser.tabGroups.update', async () => {
-    const store = groupStore()
+    const refreshLayoutIfNeeded = jest.fn()
+    const store = groupStore({ refreshLayoutIfNeeded })
     store.tabGroupMap = new Map([
       [
         7,
@@ -294,6 +321,11 @@ describe('TabGroupStore', () => {
     expect((browser as any).tabGroups.update).toHaveBeenCalledWith(7, {
       title: 'After',
     })
+    expect(refreshLayoutIfNeeded).toHaveBeenCalledWith(
+      'window-change',
+      'group-browser-event',
+      1,
+    )
     expect(store.getTabGroup(7)?.title).toBe('After')
   })
 

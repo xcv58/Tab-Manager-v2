@@ -113,7 +113,7 @@ export default class Window extends Focusable {
     if (this.hide) {
       return []
     }
-    return this.tabs.filter((x) => x.isMatched)
+    return this.tabs.filter((x) => x.isMatched && x.isVisible)
   }
 
   get allTabSelected() {

@@ -54,11 +54,15 @@ export default class SearchStore {
   }
 
   get matchedTabs(): Tab[] {
+    return this.rawMatchedTabs.filter((tab) => tab.isVisible)
+  }
+
+  get rawMatchedTabs(): Tab[] {
     return this.fuzzySearch()
   }
 
   get matchedSet() {
-    return new Set(this.matchedTabs.map((x) => x.id))
+    return new Set(this.rawMatchedTabs.map((x) => x.id))
   }
 
   get allTabSelected() {

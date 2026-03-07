@@ -92,7 +92,8 @@ export default class GroupStore {
     if (
       !previous ||
       previous.collapsed !== tabGroup.collapsed ||
-      previous.windowId !== tabGroup.windowId
+      previous.windowId !== tabGroup.windowId ||
+      previous.title !== tabGroup.title
     ) {
       this.refreshLayoutForGroupChange(
         previous && previous.windowId !== tabGroup.windowId
@@ -613,11 +614,15 @@ export default class GroupStore {
     }
     const tabGroup = this.getTabGroup(groupId)
     const previousTitle = tabGroup?.title
+    const didChangeTitle = previousTitle !== title
     if (tabGroup) {
       this.tabGroupMap.set(groupId, {
         ...tabGroup,
         title,
       })
+      if (didChangeTitle) {
+        this.refreshLayoutForGroupChange(tabGroup.windowId)
+      }
     }
     try {
       const updated = await this.updateTabGroup(groupId, { title })
@@ -631,6 +636,9 @@ export default class GroupStore {
           ...tabGroup,
           title: previousTitle,
         })
+        if (didChangeTitle) {
+          this.refreshLayoutForGroupChange(tabGroup.windowId)
+        }
       }
       log.error('TabGroupStore.renameGroup failed', {
         groupId,

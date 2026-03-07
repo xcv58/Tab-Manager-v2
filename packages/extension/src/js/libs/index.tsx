@@ -29,8 +29,8 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   for (let i = 0; i < tabs.length; i++) {
     const { id, pinned } = tabs[i]
     const index = from + (from !== -1 ? i : 0)
-    await browser.tabs.move(id, { windowId, index })
     await browser.tabs.update(id, { pinned })
+    await browser.tabs.move(id, { windowId, index })
   }
 }
 
