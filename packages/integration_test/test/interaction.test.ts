@@ -1528,8 +1528,6 @@ test.describe('The Extension page should', () => {
       (node) => node.getBoundingClientRect().x,
     )
 
-    await titleRow.hover()
-    await page.waitForTimeout(150)
     await hideToggle.click()
     await page.waitForTimeout(900)
     const widthBeforeManualRepack = await windowCard.evaluate(

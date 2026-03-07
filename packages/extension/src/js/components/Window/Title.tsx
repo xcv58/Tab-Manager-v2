@@ -134,9 +134,7 @@ export default observer((props: WinProps & { className: string }) => {
         backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
       }}
     >
-      <WindowControlSlot visible={showWindowControls}>
-        <SelectAll {...props} />
-      </WindowControlSlot>
+      <SelectAll {...props} />
       <button
         ref={titleButtonRef}
         onClick={activate}
@@ -169,14 +167,12 @@ export default observer((props: WinProps & { className: string }) => {
       <WindowControlSlot visible={showWindowControls}>
         <CloseButton onClick={() => props.win.close()} />
       </WindowControlSlot>
-      <WindowControlSlot visible={showWindowControls}>
-        <HideToggle
-          {...{
-            hide,
-            toggleHide,
-          }}
-        />
-      </WindowControlSlot>
+      <HideToggle
+        {...{
+          hide,
+          toggleHide,
+        }}
+      />
     </div>
   )
 })

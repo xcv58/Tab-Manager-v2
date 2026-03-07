@@ -1863,6 +1863,10 @@ test.describe('The Extension page should', () => {
       `window-title-${currentWindowId}`,
     )
     await expect(hiddenCounterTitle).toBeVisible()
+    const hideToggle = hiddenCounterTitle.locator(
+      'button[aria-label="Toggle window hide"]',
+    )
+    await expect(hideToggle).toBeVisible()
     await expect
       .poll(async () => (await hiddenCounterTitle.textContent()) || '')
       .toMatch(/hidden|·\s*\d+h/)
@@ -1877,12 +1881,6 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    await hiddenCounterTitle.hover()
-    await page.waitForTimeout(150)
-    const hideToggle = hiddenCounterTitle.locator(
-      'button[aria-label="Toggle window hide"]',
-    )
-    await expect(hideToggle).toBeVisible()
     await hideToggle.click()
     await page.waitForTimeout(400)
     const hiddenWindowCard = page.locator(WINDOW_CARD_QUERY).first()
@@ -2267,8 +2265,6 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     await page.reload()
-    await page.locator('[data-testid^="window-title-"]').first().hover()
-    await page.waitForTimeout(150)
     const selectAllButton = await page.$('[aria-label="Select all tabs"]')
     await selectAllButton.click()
     await page.waitForTimeout(1000)
