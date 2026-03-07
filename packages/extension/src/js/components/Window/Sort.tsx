@@ -6,13 +6,24 @@ import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 
+const CONTROL_SX = {
+  width: 40,
+  height: 40,
+  p: 1,
+  m: 0,
+}
+
 export default observer((props: WinProps) => {
   const { arrangeStore } = useStore()
   const { id } = props.win
   const { sortTabs } = arrangeStore
   return (
     <Tooltip title="Sort tabs">
-      <IconButton onClick={() => sortTabs(id)} className="focus:outline-none">
+      <IconButton
+        onClick={() => sortTabs(id)}
+        className="focus:outline-none"
+        sx={CONTROL_SX}
+      >
         <SortIcon />
       </IconButton>
     </Tooltip>

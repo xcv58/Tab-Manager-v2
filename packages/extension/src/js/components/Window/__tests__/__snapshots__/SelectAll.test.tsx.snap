@@ -42,27 +42,31 @@ exports[`SelectAll should render correct components 1`] = `
 <div>
   <span
     aria-label="Unselect all tabs"
-    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+    class="flex h-10 w-10 shrink-0 items-center justify-center"
     data-mui-internal-clone-element="true"
   >
-    <input
-      aria-label="Unselect all tabs"
-      checked=""
-      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-      data-indeterminate="false"
-      type="checkbox"
-    />
-    <svg
-      aria-hidden="true"
-      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-      data-testid="CheckBoxIcon"
-      focusable="false"
-      viewBox="0 0 24 24"
+    <span
+      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17ur8pj-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
     >
-      <path
-        d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+      <input
+        aria-label="Unselect all tabs"
+        checked=""
+        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+        data-indeterminate="false"
+        type="checkbox"
       />
-    </svg>
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+        data-testid="CheckBoxIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+        />
+      </svg>
+    </span>
   </span>
 </div>
 `;

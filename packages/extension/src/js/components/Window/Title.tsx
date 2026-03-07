@@ -21,10 +21,13 @@ const WindowControlSlot = ({
 }) => (
   <div
     aria-hidden={!visible}
-    className={classNames('shrink-0 items-center', {
-      hidden: !visible,
-      flex: visible,
-    })}
+    className={classNames(
+      'flex h-10 w-10 shrink-0 items-center justify-center transition-opacity duration-150',
+      {
+        'visible opacity-100': visible,
+        'invisible pointer-events-none opacity-0': !visible,
+      },
+    )}
   >
     {children}
   </div>
@@ -106,7 +109,7 @@ export default observer((props: WinProps & { className: string }) => {
     return () => window.removeEventListener('resize', updateTitleMode)
   }, [])
   const titleTextNode = (
-    <div className="flex-auto text-2xl whitespace-nowrap">
+    <div className="flex-auto overflow-hidden text-2xl leading-none whitespace-nowrap">
       {text}
       {hiddenText}
     </div>
@@ -117,7 +120,7 @@ export default observer((props: WinProps & { className: string }) => {
       ref={nodeRef}
       data-testid={`window-title-${win.id}`}
       className={classNames(
-        'flex justify-between items-center font-bold border-0 px-1',
+        'flex min-h-10 items-center justify-between font-bold border-0',
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
@@ -139,7 +142,7 @@ export default observer((props: WinProps & { className: string }) => {
         ref={titleButtonRef}
         onClick={activate}
         className={classNames(
-          'flex-auto overflow-hidden text-base text-left rounded-sm',
+          'flex h-10 flex-auto items-center overflow-hidden text-base text-left rounded-sm',
           {
             'text-gray-900': !isDarkTheme,
             'text-gray-100': isDarkTheme,

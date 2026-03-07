@@ -159,7 +159,7 @@ export default observer((props: Props) => {
       <div
         ref={setDropRef}
         className={classNames(
-          'group/tab-group sticky z-10 px-2 pt-1 pb-0 border-b',
+          'group/tab-group sticky z-10 pr-2 pt-1 pb-0 border-b',
         )}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}
@@ -179,12 +179,12 @@ export default observer((props: Props) => {
         {dropIndicator}
         <div className="flex items-center gap-1 pb-1">
           <button
-            className="flex min-w-0 flex-1 items-center py-0.5 text-left"
+            className="flex min-h-10 min-w-0 flex-1 items-center text-left"
             onClick={onToggle}
             data-testid={`tab-group-toggle-${row.groupId}`}
           >
             <span
-              className="mr-1"
+              className="mr-1 inline-flex h-10 w-10 shrink-0 items-center justify-center"
               style={{ color: theme.palette.text.secondary }}
             >
               {collapsed ? (
