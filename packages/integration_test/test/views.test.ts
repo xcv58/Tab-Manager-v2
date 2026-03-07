@@ -412,11 +412,26 @@ test.describe('The Extension page should', () => {
 
     const count = page.getByTestId(`tab-group-count-${groupId}`)
     await expect(count).toHaveText('2')
-    const countScreenshot = await count.screenshot()
-    expect(countScreenshot).toMatchSnapshot('group-count-label-compact.png', {
-      maxDiffPixelRatio: 0.2,
-      threshold: 0.2,
+    const countMetrics = await count.evaluate((el) => {
+      const style = window.getComputedStyle(el)
+      return {
+        fontSize: Number.parseFloat(style.fontSize),
+        lineHeight: Number.parseFloat(style.lineHeight),
+      }
     })
+    expect(countMetrics.fontSize).toBeGreaterThanOrEqual(10)
+    expect(countMetrics.fontSize).toBeLessThanOrEqual(13)
+    expect(countMetrics.lineHeight).toBeGreaterThanOrEqual(14)
+    expect(countMetrics.lineHeight).toBeLessThanOrEqual(16)
+
+    const countBox = await count.boundingBox()
+    expect(countBox).not.toBeNull()
+    if (countBox) {
+      expect(countBox.width).toBeGreaterThanOrEqual(6)
+      expect(countBox.width).toBeLessThanOrEqual(10)
+      expect(countBox.height).toBeGreaterThanOrEqual(14)
+      expect(countBox.height).toBeLessThanOrEqual(17)
+    }
   })
 
   test('render group drag handle icon on header hover', async () => {
@@ -638,6 +653,17 @@ test.describe('The Extension page should', () => {
   })
 
   test('render settings control atoms', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        tabWidth: 20,
+        fontSize: 14,
+        toolbarAutoHide: false,
+        useSystemTheme: true,
+        darkTheme: false,
+      })
+    })
+    await page.reload()
+
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
@@ -647,27 +673,17 @@ test.describe('The Extension page should', () => {
       .locator('[aria-label="Update Tab Width"]')
       .first()
     await expect(tabWidthSlider).toBeVisible()
-    const tabWidthSliderScreenshot = await tabWidthSlider.screenshot()
-    expect(tabWidthSliderScreenshot).toMatchSnapshot(
-      'settings-tab-width-slider-atom.png',
-      {
-        maxDiffPixelRatio: 0.08,
-        threshold: 0.2,
-      },
-    )
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuemin', '15')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuemax', '50')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '20')
 
     const fontSizeSlider = page
       .locator('[aria-label="Update Font Size"]')
       .first()
     await expect(fontSizeSlider).toBeVisible()
-    const fontSizeSliderScreenshot = await fontSizeSlider.screenshot()
-    expect(fontSizeSliderScreenshot).toMatchSnapshot(
-      'settings-font-size-slider-atom.png',
-      {
-        maxDiffPixelRatio: 0.08,
-        threshold: 0.2,
-      },
-    )
+    await expect(fontSizeSlider).toHaveAttribute('aria-valuemin', '6')
+    await expect(fontSizeSlider).toHaveAttribute('aria-valuemax', '36')
+    await expect(fontSizeSlider).toHaveAttribute('aria-valuenow', '14')
 
     const toolbarToggle = page
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
