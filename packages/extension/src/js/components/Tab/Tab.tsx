@@ -22,6 +22,7 @@ export default observer((props: TabProps & { className?: string }) => {
     isFocused,
     isMatched,
     isSelected,
+    isHovered,
     pinned,
     shouldHighlight,
   } = tab
@@ -67,6 +68,19 @@ export default observer((props: TabProps & { className?: string }) => {
   })
 
   const pin = pinned && PIN
+  const darkRowStyle = isDarkTheme
+    ? {
+        backgroundColor: isSelected
+          ? 'rgba(181, 199, 230, 0.2)'
+          : shouldHighlight
+            ? 'rgba(181, 199, 230, 0.14)'
+            : isActionable && isHovered
+              ? 'rgba(238, 241, 245, 0.08)'
+              : 'transparent',
+        borderBottom: '1px solid transparent',
+        color: '#eef1f5',
+      }
+    : undefined
 
   return (
     <div
@@ -85,13 +99,9 @@ export default observer((props: TabProps & { className?: string }) => {
             'bg-blue-100': shouldHighlight,
             'bg-blue-300': isSelected,
           },
-          isDarkTheme && {
-            'hover:bg-gray-800': isActionable,
-            'bg-gray-800': shouldHighlight,
-            'bg-gray-900': isSelected,
-          },
         ],
       )}
+      style={darkRowStyle}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}

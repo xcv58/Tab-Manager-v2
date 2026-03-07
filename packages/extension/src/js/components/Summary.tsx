@@ -3,6 +3,7 @@ import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
 import { getNoun } from 'libs'
 import { useStore } from './hooks/useStore'
+import { useTheme } from './hooks/useTheme'
 
 const Title = ({ title }) => {
   useEffect(() => {
@@ -13,6 +14,7 @@ const Title = ({ title }) => {
 
 export default observer(() => {
   const { searchStore, tabStore, windowStore } = useStore()
+  const isDarkTheme = useTheme()
   const { windows, tabCount } = windowStore
   const { typing } = searchStore
   const selected = tabStore.selection.size
@@ -28,6 +30,9 @@ export default observer(() => {
           'opacity-50': typing,
         },
       )}
+      style={{
+        color: isDarkTheme ? '#c3cad6' : undefined,
+      }}
     >
       <Title {...{ title }} />, {selected} {getNoun('tab', selected)} selected
     </p>

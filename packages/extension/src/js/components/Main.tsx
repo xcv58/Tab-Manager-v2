@@ -7,7 +7,7 @@ import Toolbar from 'components/Toolbar'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { useStore, useFontSize } from './hooks/useStore'
 import DragLayer from './DragLayer'
-import { useTextClasses } from './hooks/useTheme'
+import { useTextClasses, useTheme } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
 import { useLocation } from 'react-router-dom'
 import { NOT_POPUP } from 'libs'
@@ -19,6 +19,7 @@ export default observer(() => {
   const query = useQuery()
   const isPopup = !query.has(NOT_POPUP)
   const { windowStore, shortcutStore, userStore } = useStore()
+  const isDarkTheme = useTheme()
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   const fontSize = useFontSize()
@@ -40,6 +41,10 @@ export default observer(() => {
         { 'pb-12': !toolbarAutoHide },
         useTextClasses(),
       )}
+      style={{
+        backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
+        color: isDarkTheme ? '#eef1f5' : '#111827',
+      }}
     >
       {liteMode ? (
         <PopupView />

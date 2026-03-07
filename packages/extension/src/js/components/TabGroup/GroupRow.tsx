@@ -35,10 +35,13 @@ export default observer((props: Props) => {
   const { row } = props
   const { tabGroupStore, searchStore, windowStore, dragStore } = useStore()
   const theme = useTheme()
+  const isDarkMode = theme.palette.mode === 'dark'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
   const [moveDialogOpen, setMoveDialogOpen] = useState(false)
   const [moveTargetWindowId, setMoveTargetWindowId] = useState<number | ''>('')
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false)
+  const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
   const tabGroup = tabGroupStore.getTabGroup(row.groupId)
   const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
   const canMoveGroups = !!tabGroupStore?.canMoveGroups?.()
@@ -214,6 +217,8 @@ export default observer((props: Props) => {
     canDrop && isOver && headerDropMode === 'before-group' ? (
       <DropIndicator position="before" />
     ) : null
+  const showGroupDragHandle =
+    !dragStore.dragging && (isHeaderHovered || isHeaderFocusWithin)
 
   const setDropRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -229,8 +234,20 @@ export default observer((props: Props) => {
         ref={setDropRef}
         className={classNames(
           'group/tab-group sticky z-10 px-2 pt-1 pb-0 border-b',
-          'bg-white border-gray-100',
         )}
+        onMouseEnter={() => setIsHeaderHovered(true)}
+        onMouseLeave={() => setIsHeaderHovered(false)}
+        onFocusCapture={() => setIsHeaderFocusWithin(true)}
+        onBlurCapture={(event) => {
+          const nextTarget = event.relatedTarget as Node | null
+          if (!event.currentTarget.contains(nextTarget)) {
+            setIsHeaderFocusWithin(false)
+          }
+        }}
+        style={{
+          backgroundColor: theme.palette.background.paper,
+          borderColor: theme.palette.divider,
+        }}
         data-testid={`tab-group-header-${row.groupId}`}
       >
         {dropIndicator}
@@ -240,7 +257,10 @@ export default observer((props: Props) => {
             onClick={onToggle}
             data-testid={`tab-group-toggle-${row.groupId}`}
           >
-            <span className="mr-1 text-gray-500">
+            <span
+              className="mr-1"
+              style={{ color: theme.palette.text.secondary }}
+            >
               {collapsed ? (
                 <ChevronRightIcon fontSize="small" />
               ) : (
@@ -260,6 +280,7 @@ export default observer((props: Props) => {
             </span>
             <span
               className="ml-2 text-xs opacity-70"
+              style={{ color: theme.palette.text.secondary }}
               data-testid={`tab-group-count-${row.groupId}`}
             >
               {countLabel}
@@ -267,6 +288,10 @@ export default observer((props: Props) => {
             {tabGroup?.shared && (
               <span
                 className="ml-2 px-1 py-0.5 text-xs border rounded opacity-80"
+                style={{
+                  color: theme.palette.text.secondary,
+                  borderColor: isDarkMode ? theme.palette.grey[700] : undefined,
+                }}
                 data-testid={`tab-group-shared-${row.groupId}`}
               >
                 Shared
@@ -277,9 +302,10 @@ export default observer((props: Props) => {
             <GroupDragHandle
               groupId={row.groupId}
               className={classNames(
-                'opacity-0 pointer-events-none transition-opacity',
-                'group-hover/tab-group:opacity-100 group-hover/tab-group:pointer-events-auto',
-                'group-focus-within/tab-group:opacity-100 group-focus-within/tab-group:pointer-events-auto',
+                'transition-opacity',
+                showGroupDragHandle
+                  ? 'opacity-100 pointer-events-auto'
+                  : 'opacity-0 pointer-events-none',
               )}
             />
           )}

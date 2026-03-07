@@ -1,5 +1,4 @@
 import React from 'react'
-import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
@@ -13,7 +12,7 @@ export default observer((props: WinProps & { width: string }) => {
   const { userStore } = useStore()
   const tabHeight = useTabHeight()
   const { win, width } = props
-  const { lastFocused, showTabs, visibleLength } = win
+  const { showTabs, visibleLength } = win
   const style: CSSProperties = {
     minWidth: `${userStore.tabWidth}rem`,
     width,
@@ -26,12 +25,7 @@ export default observer((props: WinProps & { width: string }) => {
   }
   return (
     <div style={style} data-testid={`window-card-${win.id}`}>
-      <div
-        className={classNames({
-          'shadow-2xl': lastFocused,
-          'shadow-sm hover:shadow-lg': !lastFocused,
-        })}
-      >
+      <div className="overflow-hidden rounded-sm">
         <DroppableTitle {...props} />
         {showTabs && <Tabs {...props} />}
         {!showTabs && (

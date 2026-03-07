@@ -91,12 +91,48 @@ export const darkTheme = merge(
   {
     palette: {
       mode: 'dark',
+      background: {
+        default: '#2d2f33',
+        paper: '#2d2f33',
+      },
+      text: {
+        primary: '#eef1f5',
+        secondary: '#aeb5c0',
+      },
+      divider: 'rgba(238, 241, 245, 0.08)',
+      action: {
+        hover: 'rgba(238, 241, 245, 0.08)',
+        selected: 'rgba(238, 241, 245, 0.12)',
+        disabled: 'rgba(174, 181, 192, 0.42)',
+      },
     },
   },
   {
     ...lightTheme,
     components: {
       ...components,
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: 'none',
+          },
+        },
+      },
+      MuiInput: {
+        styleOverrides: {
+          underline: {
+            '&:before': {
+              borderBottomColor: 'rgba(238, 241, 245, 0.24)',
+            },
+            '&:hover:not(.Mui-disabled):before': {
+              borderBottomColor: 'rgba(238, 241, 245, 0.44)',
+            },
+            '&:after': {
+              borderBottomColor: '#b5c7e6',
+            },
+          },
+        },
+      },
       MuiSnackbarContent: {
         styleOverrides: {
           root: {
@@ -111,7 +147,7 @@ export const darkTheme = merge(
     app: {
       focusedColor: '#292B2E',
       highlightBorderColor: pink.A400,
-      highlightColor: '#323639',
+      highlightColor: '#343940',
     },
   },
 )

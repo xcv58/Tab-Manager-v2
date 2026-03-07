@@ -1,8 +1,8 @@
 import React from 'react'
-import { useTextClasses } from '../hooks/useTheme'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
+import { useTheme } from '@mui/material/styles'
 import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
@@ -135,6 +135,7 @@ type Props = { autoFocus?: boolean; open?: boolean }
 
 const AutocompleteSearch = observer((props: Props) => {
   const { autoFocus, open } = props
+  const theme = useTheme()
   const searchInputRef = useSearchInputRef()
   const options = useOptions()
   const { userStore, searchStore } = useStore()
@@ -155,8 +156,18 @@ const AutocompleteSearch = observer((props: Props) => {
       value={query}
       disableListWrap
       PaperComponent={(props) => (
-        <Paper elevation={24}>
-          <div className={useTextClasses()}>{props.children}</div>
+        <Paper
+          elevation={24}
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            border:
+              theme.palette.mode === 'dark'
+                ? `1px solid ${theme.palette.divider}`
+                : undefined,
+          }}
+        >
+          <div>{props.children}</div>
         </Paper>
       )}
       open={open}
