@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
@@ -19,11 +19,12 @@ export default observer(() => {
     const { height } = scrollbarRef.current.getBoundingClientRect()
     windowStore.updateHeight(height)
   }
+  const { initialLoading, windowsByColumn, visibleColumn } = windowStore
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
     onResize()
-  }, [setContainerRef])
+  }, [initialLoading, setContainerRef, userStore.toolbarAutoHide])
 
   const resizeDetector = (
     <ReactResizeDetector
@@ -34,10 +35,12 @@ export default observer(() => {
       onResize={onResize}
     />
   )
-  const { initialLoading, windowsByColumn, visibleColumn } = windowStore
   if (initialLoading) {
     return (
-      <div ref={scrollbarRef}>
+      <div
+        ref={scrollbarRef}
+        className="flex flex-auto items-center justify-center overflow-hidden"
+      >
         <Loading />
         {resizeDetector}
       </div>
