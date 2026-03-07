@@ -1680,6 +1680,34 @@ test.describe('The Extension page should', () => {
         threshold: 0.2,
       },
     )
+
+    const focusRowButton = unmatchedRow.getByRole('button', {
+      name: /unmatched-row-state/i,
+    })
+    await focusRowButton.focus()
+    await unmatchedRow.focus()
+    await expect(unmatchedRow).toBeFocused()
+    const focusedRowShot = await unmatchedRow.screenshot()
+    expect(focusedRowShot).toMatchSnapshot('tab-row-state-focused-row.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+
+    const toggleThemeButton = page
+      .locator('[aria-label="Toggle light/dark theme"]')
+      .first()
+    await toggleThemeButton.click()
+    await page.waitForTimeout(600)
+    await unmatchedRow.focus()
+    await expect(unmatchedRow).toBeFocused()
+    const focusedRowDarkShot = await unmatchedRow.screenshot()
+    expect(focusedRowDarkShot).toMatchSnapshot(
+      'tab-row-state-focused-row-dark.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
   })
 
   test('render search history and no-results states', async () => {

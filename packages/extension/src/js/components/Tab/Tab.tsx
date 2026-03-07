@@ -92,8 +92,20 @@ export default observer((props: TabProps & { className?: string }) => {
       }
     : undefined
   const rowStyle = isDarkTheme
-    ? { ...darkRowStyle, ...secondaryActiveStyle }
-    : secondaryActiveStyle
+    ? {
+        ...darkRowStyle,
+        ...secondaryActiveStyle,
+        ...(isFocused ? { outline: 'none' } : undefined),
+      }
+    : {
+        ...secondaryActiveStyle,
+        ...(isFocused ? { outline: 'none' } : undefined),
+      }
+  const focusOutlineStyle = isFocused
+    ? {
+        boxShadow: `inset 0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
+      }
+    : undefined
 
   return (
     <div
@@ -128,6 +140,13 @@ export default observer((props: TabProps & { className?: string }) => {
         groupId={tab.groupId}
         cookieStoreId={tab.cookieStoreId}
       />
+      {isFocused && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 rounded-sm"
+          style={focusOutlineStyle}
+        />
+      )}
     </div>
   )
 })
