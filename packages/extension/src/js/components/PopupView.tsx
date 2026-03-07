@@ -12,9 +12,12 @@ import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 import { openOrTogglePopup } from 'libs'
+import LayoutRepackIndicator from './LayoutRepackIndicator'
+import { useTheme } from './hooks/useTheme'
 
 export default observer(() => {
   const { userStore } = useStore()
+  const isDarkTheme = useTheme()
   if (!userStore.loaded) {
     return (
       <div className="shrink-0 h-12">
@@ -24,8 +27,17 @@ export default observer(() => {
   }
   return (
     <>
-      <div className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl">
+      <div
+        className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl border-b"
+        style={{
+          backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
+          borderBottomColor: isDarkTheme
+            ? 'rgba(238, 241, 245, 0.08)'
+            : 'rgba(17, 24, 39, 0.1)',
+        }}
+      >
         <Summary />
+        <LayoutRepackIndicator />
         <AutocompleteSearch autoFocus open />
       </div>
       <div className="absolute bottom-0 flex items-center justify-end w-full ">

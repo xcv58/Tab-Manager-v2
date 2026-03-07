@@ -33,7 +33,7 @@ export default () => {
       initialOffset: monitor.getInitialSourceClientOffset(),
       currentOffset: monitor.getClientOffset(),
       isDragging: monitor.isDragging(),
-    })
+    }),
   )
   return (
     <div style={layerStyles}>

@@ -2,6 +2,7 @@ import { action, observable, computed, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
+import log from 'libs/log'
 
 const DEFAULT_SETTINGS = {
   showAppWindow: false,
@@ -83,12 +84,44 @@ export default class UserStore {
     this.init()
   }
 
+  readSettings = async (): Promise<{ [key: string]: unknown }> => {
+    try {
+      return await browser.storage.sync.get(DEFAULT_SETTINGS)
+    } catch (error) {
+      log.warn('UserStore.readSettings fallback to storage.local', { error })
+      try {
+        return await browser.storage.local.get(DEFAULT_SETTINGS)
+      } catch (localError) {
+        log.error('UserStore.readSettings fallback failed', { localError })
+        return DEFAULT_SETTINGS
+      }
+    }
+  }
+
+  writeSettings = async (settings: { [key: string]: unknown }) => {
+    try {
+      await browser.storage.sync.set(settings)
+    } catch (error) {
+      log.warn('UserStore.writeSettings fallback to storage.local', { error })
+      try {
+        await browser.storage.local.set(settings)
+      } catch (localError) {
+        log.error('UserStore.writeSettings fallback failed', { localError })
+      }
+    }
+  }
+
   init = async () => {
-    const result = await browser.storage.sync.get(DEFAULT_SETTINGS)
-    Object.assign(this, result)
-    this.toolbarVisible = !this.toolbarAutoHide
-    this.store.searchStore.init()
-    this.loaded = true
+    try {
+      const result = await this.readSettings()
+      Object.assign(this, result)
+    } catch (error) {
+      log.error('UserStore.init failed to load settings', { error })
+    } finally {
+      this.toolbarVisible = !this.toolbarAutoHide
+      this.store.searchStore?.init?.()
+      this.loaded = true
+    }
   }
 
   loaded = false
@@ -130,7 +163,7 @@ export default class UserStore {
       this.useSystemTheme = false
       this.darkTheme = theme === DARK
     }
-    browser.storage.sync.set({
+    this.writeSettings({
       useSystemTheme: this.useSystemTheme,
       darkTheme: this.darkTheme,
     })
@@ -155,7 +188,7 @@ export default class UserStore {
   }
 
   save = () => {
-    browser.storage.sync.set(
+    this.writeSettings(
       Object.assign(
         {},
         ...Object.keys(DEFAULT_SETTINGS).map((key) => ({ [key]: this[key] })),
@@ -171,7 +204,10 @@ export default class UserStore {
   toggleShowAppWindow = () => {
     this.showAppWindow = !this.showAppWindow
     this.save()
-    this.store.windowStore.loadAllWindows()
+    this.store.windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+    })
   }
 
   toggleShowShortcutHint = () => {
@@ -201,6 +237,7 @@ export default class UserStore {
 
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
+    this.store.windowStore?.repackLayout?.('filter-change')
     this.save()
   }
 
@@ -221,11 +258,13 @@ export default class UserStore {
 
   updateTabWidth = (tabWidth: number) => {
     this.tabWidth = tabWidth
+    this.store.windowStore?.repackLayout?.('settings-change')
     this.save()
   }
 
   updateFontSize = (fontSize: number) => {
     this.fontSize = fontSize
+    this.store.windowStore?.repackLayout?.('settings-change')
     this.save()
   }
 
@@ -236,12 +275,12 @@ export default class UserStore {
 
   toggleAutoHide = () => {
     this._hideToolbar.cancel()
-    browser.storage.sync.set({ toolbarAutoHide: !this.toolbarAutoHide })
+    this.writeSettings({ toolbarAutoHide: !this.toolbarAutoHide })
     this.init()
   }
 
   toggleDarkTheme = (currentTheme: boolean) => {
-    browser.storage.sync.set({
+    this.writeSettings({
       useSystemTheme: false,
       darkTheme: !currentTheme,
     })
@@ -249,7 +288,7 @@ export default class UserStore {
   }
 
   toggleUseSystemTheme = () => {
-    browser.storage.sync.set({ useSystemTheme: !this.useSystemTheme })
+    this.writeSettings({ useSystemTheme: !this.useSystemTheme })
     this.init()
   }
 

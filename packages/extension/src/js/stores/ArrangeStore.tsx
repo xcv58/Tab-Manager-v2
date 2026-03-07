@@ -13,16 +13,47 @@ export default class ArrangeStore {
     this.store = store
   }
 
+  get noGroupId() {
+    return this.store.tabGroupStore?.getNoGroupId?.() ?? -1
+  }
+
+  isNoGroupId = (groupId: number) => groupId === this.noGroupId
+
   get domainTabsMap() {
-    return this.store.windowStore.tabs.reduce(
-      (acc: { [key: string]: Tab[] }, tab) => {
+    return this.store.windowStore.tabs
+      .filter((tab) => this.isNoGroupId(tab.groupId))
+      .reduce((acc: { [key: string]: Tab[] }, tab) => {
         const { domain } = tab
         acc[domain] = acc[domain] || []
         acc[domain].push(tab)
         return acc
-      },
-      {},
-    )
+      }, {})
+  }
+
+  getTabsForDomain = (domain: string) => {
+    return this.domainTabsMap[domain] || []
+  }
+
+  getTabBlocks = (tabs: Tab[]) => {
+    const blocks: Tab[][] = []
+    for (let i = 0; i < tabs.length; ) {
+      const tab = tabs[i]
+      const groupId = tab.groupId
+      const block: Tab[] = []
+      if (this.isNoGroupId(groupId)) {
+        while (i < tabs.length && this.isNoGroupId(tabs[i].groupId)) {
+          block.push(tabs[i])
+          i += 1
+        }
+      } else {
+        while (i < tabs.length && tabs[i].groupId === groupId) {
+          block.push(tabs[i])
+          i += 1
+        }
+      }
+      blocks.push(block)
+    }
+    return blocks
   }
 
   sortTabs = async (windowId?: string) => {
@@ -35,11 +66,15 @@ export default class ArrangeStore {
       windows.push(...allWindows)
     }
     await this.sortInWindow(windows.map((win) => new Window(win, this.store)))
+    this.store.windowStore.markLayoutDirtyIfNeeded('arrange-change')
   }
 
   groupTab = async (tab: Tab) => {
     const { domain } = tab
-    const tabs = this.domainTabsMap[domain]
+    const tabs = this.getTabsForDomain(domain)
+    if (!tabs.length) {
+      return
+    }
     const pinned = tabs.reduce((acc, cur) => acc || cur.pinned, false)
     const sortedTabs = tabs.sort(tabComparator)
     const { windowId } = tab
@@ -48,6 +83,7 @@ export default class ArrangeStore {
       windowId,
       0,
     )
+    this.store.windowStore.markLayoutDirtyIfNeeded('arrange-change', windowId)
   }
 
   groupTabs = async () => {
@@ -69,14 +105,20 @@ export default class ArrangeStore {
   }
 
   sortInWindow = async (windows: Window[] = []) => {
-    windows.forEach((win) => {
-      const sortedTabs = [...win.tabs].sort(tabComparator)
-      const differentTabIndex = sortedTabs
-        .map((tab, i) => tab.id !== win.tabs[i].id)
-        .findIndex((x) => x)
-      if (differentTabIndex !== -1) {
-        moveTabs(sortedTabs.slice(differentTabIndex), win.id, -1)
+    for (const win of windows) {
+      const blocks = this.getTabBlocks(win.tabs)
+      let fromIndex = 0
+      for (const block of blocks) {
+        const sortedBlock = [...block].sort(tabComparator)
+        const hasDiff = sortedBlock.some((tab, i) => tab.id !== block[i].id)
+        if (hasDiff) {
+          await moveTabs(sortedBlock, win.id, fromIndex)
+          for (let i = 0; i < sortedBlock.length; i++) {
+            win.tabs[fromIndex + i] = sortedBlock[i]
+          }
+        }
+        fromIndex += block.length
       }
-    })
+    }
   }
 }

@@ -54,11 +54,15 @@ export default class SearchStore {
   }
 
   get matchedTabs(): Tab[] {
+    return this.rawMatchedTabs.filter((tab) => tab.isVisible)
+  }
+
+  get rawMatchedTabs(): Tab[] {
     return this.fuzzySearch()
   }
 
   get matchedSet() {
-    return new Set(this.matchedTabs.map((x) => x.id))
+    return new Set(this.rawMatchedTabs.map((x) => x.id))
   }
 
   get allTabSelected() {
@@ -131,6 +135,7 @@ export default class SearchStore {
   _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
     this._query = this.query
+    this.store.windowStore?.repackLayout?.('search-change')
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
     }
@@ -168,6 +173,9 @@ export default class SearchStore {
     const keys = ['title']
     if (this.store.userStore.showUrl) {
       keys.push('url')
+    }
+    if (this.store.tabGroupStore?.hasTabGroupsApi?.()) {
+      keys.push('groupTitle')
     }
     return matchSorter(tabs, this._query, { keys })
   }

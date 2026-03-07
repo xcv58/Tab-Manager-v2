@@ -130,6 +130,68 @@ export default class FocusStore {
     }
   }
 
+  getNoGroupId = () => this.store.tabGroupStore?.getNoGroupId?.() ?? -1
+
+  canMutateTabGroups = () => !!this.store.tabGroupStore?.canMutateGroups?.()
+
+  toggleFocusedTabGroup = () => {
+    if (!this.canMutateTabGroups() || !(this.focusedItem instanceof Tab)) {
+      return
+    }
+    const { groupId } = this.focusedItem
+    if (groupId === this.getNoGroupId() || !this.store.tabGroupStore) {
+      return
+    }
+    this.store.tabGroupStore.toggleCollapsed(groupId)
+  }
+
+  ungroupFocusedTab = () => {
+    if (!this.canMutateTabGroups() || !(this.focusedItem instanceof Tab)) {
+      return
+    }
+    const { groupId } = this.focusedItem
+    if (groupId === this.getNoGroupId() || !this.store.tabGroupStore) {
+      return
+    }
+    this.store.tabGroupStore.ungroup(groupId)
+  }
+
+  ungroupFocusedSingleTab = () => {
+    if (
+      !this.canMutateTabGroups() ||
+      !(this.focusedItem instanceof Tab) ||
+      !this.store.tabGroupStore
+    ) {
+      return
+    }
+    const { groupId, id } = this.focusedItem
+    if (groupId === this.getNoGroupId()) {
+      return
+    }
+    this.store.tabGroupStore.ungroupTab(id)
+  }
+
+  createGroupFromFocusedOrSelectedTabs = () => {
+    if (!this.canMutateTabGroups() || !this.store.tabGroupStore) {
+      return
+    }
+    const selectedTabs = this.store.tabStore.sources
+    const focusedTab = this.focusedItem instanceof Tab ? [this.focusedItem] : []
+    const tabs = Array.from(
+      new Map(
+        (selectedTabs.length ? selectedTabs : focusedTab).map((tab) => [
+          tab.id,
+          tab,
+        ]),
+      ).values(),
+    )
+    if (!this.store.tabGroupStore.canCreateGroupFromTabs(tabs)) {
+      return
+    }
+    this.store.tabGroupStore.createGroup(tabs.map((tab) => tab.id))
+    this.store.tabStore.unselectAll()
+  }
+
   _getGrid = (focusedItem: Focusable) => {
     const { scrollTop } = this.containerRef.current
     const { windows } = this.store.windowStore
@@ -273,10 +335,14 @@ export default class FocusStore {
     if (lastFocusedWindow.hide) {
       return this.focus(lastFocusedWindow)
     }
-    const tab = lastFocusedWindow.tabs.find((x) => x.active && x.isMatched)
+    const tab = lastFocusedWindow.tabs.find((x) => x.active && x.isVisible)
     log.debug('setDefaultFocusedTab active tab:', { tab })
     if (tab) {
-      this.focus(tab)
+      return this.focus(tab)
+    }
+    const firstVisibleTab = lastFocusedWindow.matchedTabs[0]
+    if (firstVisibleTab) {
+      this.focus(firstVisibleTab)
     }
   }
 

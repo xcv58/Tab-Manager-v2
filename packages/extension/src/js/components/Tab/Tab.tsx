@@ -22,6 +22,7 @@ export default observer((props: TabProps & { className?: string }) => {
     isFocused,
     isMatched,
     isSelected,
+    isHovered,
     pinned,
     shouldHighlight,
   } = tab
@@ -67,11 +68,38 @@ export default observer((props: TabProps & { className?: string }) => {
   })
 
   const pin = pinned && PIN
+  const isSecondaryActive =
+    tab.active && !tab.win?.lastFocused && (tab.win?.tabs?.length || 0) > 1
+  const secondaryActiveStyle =
+    isSecondaryActive && !isSelected && !isFocused
+      ? {
+          boxShadow: isDarkTheme
+            ? 'inset 2px 0 0 rgba(174, 181, 192, 0.28)'
+            : 'inset 2px 0 0 rgba(100, 116, 139, 0.382)',
+        }
+      : undefined
+  const darkRowStyle = isDarkTheme
+    ? {
+        backgroundColor: isSelected
+          ? 'rgba(181, 199, 230, 0.2)'
+          : shouldHighlight
+            ? 'rgba(181, 199, 230, 0.14)'
+            : isActionable && isHovered
+              ? 'rgba(238, 241, 245, 0.08)'
+              : 'transparent',
+        borderBottom: '1px solid transparent',
+        color: '#eef1f5',
+      }
+    : undefined
+  const rowStyle = isDarkTheme
+    ? { ...darkRowStyle, ...secondaryActiveStyle }
+    : secondaryActiveStyle
 
   return (
     <div
       ref={nodeRef}
       tabIndex={-1}
+      data-testid={`tab-row-${tab.id}`}
       className={classNames(
         className,
         'flex relative items-center',
@@ -84,13 +112,9 @@ export default observer((props: TabProps & { className?: string }) => {
             'bg-blue-100': shouldHighlight,
             'bg-blue-300': isSelected,
           },
-          isDarkTheme && {
-            'hover:bg-gray-800': isActionable,
-            'bg-gray-800': shouldHighlight,
-            'bg-gray-900': isSelected,
-          },
         ],
       )}
+      style={rowStyle}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}

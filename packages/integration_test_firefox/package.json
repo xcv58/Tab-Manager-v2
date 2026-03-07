@@ -1,0 +1,21 @@
+{
+  "name": "integration-test-firefox",
+  "version": "0.0.1",
+  "description": "Firefox extension integration test via Selenium + geckodriver",
+  "scripts": {
+    "test:firefox": "jest --runInBand",
+    "test:firefox:headed": "FIREFOX_E2E_HEADLESS=false jest --runInBand"
+  },
+  "devDependencies": {
+    "@types/jest": "29.5.14",
+    "@types/selenium-webdriver": "4.1.28",
+    "jest": "29.7.0",
+    "ts-jest": "29.4.6",
+    "typescript": "5.9.3"
+  },
+  "private": true,
+  "dependencies": {
+    "selenium-webdriver": "4.38.0",
+    "tab-manager-v2": "workspace:*"
+  }
+}

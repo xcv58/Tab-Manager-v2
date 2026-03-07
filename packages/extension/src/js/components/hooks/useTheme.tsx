@@ -6,5 +6,5 @@ export const useTheme = () => useContext(ThemeContext)
 
 export const useTextClasses = () => {
   const isDarkTheme = useTheme()
-  return isDarkTheme ? 'bg-charcoal text-white' : 'bg-white text-black'
+  return isDarkTheme ? 'text-gray-100' : 'text-gray-900'
 }

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
@@ -11,16 +11,20 @@ export default observer(() => {
     userStore,
     focusStore: { setContainerRef },
   } = useStore()
-  const scrollbarRef = useRef(null)
+  const scrollbarRef = useRef<HTMLDivElement | null>(null)
   const onResize = () => {
+    if (!scrollbarRef.current) {
+      return
+    }
     const { height } = scrollbarRef.current.getBoundingClientRect()
     windowStore.updateHeight(height)
   }
+  const { initialLoading, windowsByColumn, visibleColumn } = windowStore
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
     onResize()
-  }, [])
+  }, [initialLoading, setContainerRef, userStore.toolbarAutoHide])
 
   const resizeDetector = (
     <ReactResizeDetector
@@ -31,25 +35,39 @@ export default observer(() => {
       onResize={onResize}
     />
   )
-  const { initialLoading, windows, visibleColumn } = windowStore
   if (initialLoading) {
     return (
-      <div ref={scrollbarRef}>
+      <div
+        ref={scrollbarRef}
+        className="flex flex-auto items-center justify-center overflow-hidden"
+      >
         <Loading />
         {resizeDetector}
       </div>
     )
   }
-  const width = `calc(max(${100 / visibleColumn}%, ${userStore.tabWidth}rem))`
-  const list = windows.map((window) => (
-    <Window key={window.id} width={width} win={window} />
+  const columnWidth = `calc(max(${100 / visibleColumn}%, ${userStore.tabWidth}rem))`
+  const columns = windowsByColumn.map((column, columnIndex) => (
+    <div
+      key={`window-column-${columnIndex}`}
+      data-testid={`window-column-${columnIndex}`}
+      className="flex flex-col"
+      style={{
+        width: columnWidth,
+        minWidth: `${userStore.tabWidth}rem`,
+      }}
+    >
+      {column.map((window) => (
+        <Window key={window.id} width="100%" win={window} />
+      ))}
+    </div>
   ))
   return (
     <div
       ref={scrollbarRef}
-      className="flex flex-col flex-wrap content-start flex-auto mb-0 mr-0 overflow-scroll border-red-700"
+      className="flex flex-row items-start flex-auto mb-0 mr-0 overflow-scroll border-red-700"
     >
-      {list}
+      {columns}
       {resizeDetector}
     </div>
   )
