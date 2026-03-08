@@ -526,7 +526,7 @@ test.describe('The Extension page should', () => {
     await getGroupMembers(page, betaId)
     const gammaMembers = await getGroupMembers(page, gammaId)
 
-    const inputSelector = 'input[placeholder*="Search your tab title or URL"]'
+    const inputSelector = 'input[placeholder*="Search tabs or URLs"]'
     await page.fill(inputSelector, 'Alpha Docs')
     await page.waitForTimeout(700)
     for (const tabId of alphaMembers.tabIds) {
@@ -647,7 +647,7 @@ test.describe('The Extension page should', () => {
 
     // Verify initial state
     const searchInput = await page.$(
-      'input[placeholder*="Search your tab title or URL"]',
+      'input[placeholder*="Search tabs or URLs"]',
     )
     expect(searchInput).toBeTruthy()
 
@@ -834,7 +834,7 @@ test.describe('The Extension page should', () => {
     const [x, y] = getCenterOfRect(rect)
     await page.mouse.move(x, y, { steps: 10 })
     const dragHandle = page
-      .locator(`[data-testid="${lastTabTestId}"] button.cursor-move`)
+      .locator(`[data-testid="${lastTabTestId}"] [aria-label="Drag tab"]`)
       .first()
     await expect(dragHandle).toBeVisible()
     const dragHandleRect = await dragHandle.evaluate((node) => {

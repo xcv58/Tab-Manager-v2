@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
@@ -14,20 +15,25 @@ import Tooltip from '@mui/material/Tooltip'
 
 const WindowControlSlot = ({
   visible,
+  idleOpacity = 0,
   children,
 }: {
   visible: boolean
+  idleOpacity?: number
   children: React.ReactNode
 }) => (
   <div
-    aria-hidden={!visible}
+    aria-hidden={!visible && idleOpacity === 0}
     className={classNames(
       'flex h-10 w-10 shrink-0 items-center justify-center transition-opacity duration-150',
       {
-        'visible opacity-100': visible,
-        'invisible pointer-events-none opacity-0': !visible,
+        'visible pointer-events-auto opacity-100': visible,
+        'visible pointer-events-auto': !visible && idleOpacity > 0,
+        'invisible pointer-events-none opacity-0':
+          !visible && idleOpacity === 0,
       },
     )}
+    style={!visible && idleOpacity > 0 ? { opacity: idleOpacity } : undefined}
   >
     {children}
   </div>
@@ -36,6 +42,7 @@ const WindowControlSlot = ({
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
+  const theme = useMuiTheme()
   const isDarkTheme = useTheme()
   const { className, win } = props
   const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
@@ -108,6 +115,7 @@ export default observer((props: WinProps & { className: string }) => {
     window.addEventListener('resize', updateTitleMode)
     return () => window.removeEventListener('resize', updateTitleMode)
   }, [])
+  const headerSurface = theme.palette.mode === 'dark' ? '#343941' : '#f8fafc'
   const titleTextNode = (
     <div className="flex-auto overflow-hidden text-2xl leading-none whitespace-nowrap">
       {text}
@@ -120,7 +128,7 @@ export default observer((props: WinProps & { className: string }) => {
       ref={nodeRef}
       data-testid={`window-title-${win.id}`}
       className={classNames(
-        'flex min-h-10 items-center justify-between font-bold border-0',
+        'flex min-h-10 items-center justify-between font-bold border-0 border-b',
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
@@ -134,7 +142,8 @@ export default observer((props: WinProps & { className: string }) => {
         }
       }}
       style={{
-        backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
+        backgroundColor: headerSurface,
+        borderColor: theme.palette.divider,
       }}
     >
       <SelectAll {...props} />
@@ -159,7 +168,7 @@ export default observer((props: WinProps & { className: string }) => {
       </button>
       {!hide && (
         <>
-          <WindowControlSlot visible={showWindowControls}>
+          <WindowControlSlot visible={showWindowControls} idleOpacity={0.38}>
             <Sort {...props} />
           </WindowControlSlot>
           <WindowControlSlot visible={showWindowControls}>
@@ -167,15 +176,15 @@ export default observer((props: WinProps & { className: string }) => {
           </WindowControlSlot>
         </>
       )}
-      <WindowControlSlot visible={showWindowControls}>
-        <CloseButton onClick={() => props.win.close()} />
-      </WindowControlSlot>
       <HideToggle
         {...{
           hide,
           toggleHide,
         }}
       />
+      <WindowControlSlot visible={showWindowControls}>
+        <CloseButton onClick={() => props.win.close()} />
+      </WindowControlSlot>
     </div>
   )
 })

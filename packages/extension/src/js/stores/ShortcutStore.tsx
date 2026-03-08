@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 import Mousetrap from 'mousetrap'
-import { openInNewTab } from 'libs'
+import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 
@@ -95,7 +95,16 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.windowStore.cleanDuplicatedTabs()
       },
-      'Clean duplicated tabs',
+      () => {
+        const duplicatedTabsToRemoveCount =
+          this.store.windowStore.getDuplicateTabsToRemoveCount()
+        return duplicatedTabsToRemoveCount
+          ? `Clean ${duplicatedTabsToRemoveCount} duplicate ${getNoun(
+              'tab',
+              duplicatedTabsToRemoveCount,
+            )}`
+          : 'Clean duplicated tabs'
+      },
     ],
     [
       ['enter', 'ctrl+enter'],

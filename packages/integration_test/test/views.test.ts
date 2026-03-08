@@ -435,7 +435,7 @@ test.describe('The Extension page should', () => {
 
   test('render search input atom', async () => {
     const searchInput = page.locator(
-      'input[placeholder*="Search your tab title or URL"]',
+      'input[placeholder*="Search tabs or URLs"]',
     )
     await expect(searchInput).toBeVisible()
     await page.mouse.click(12, 120)
@@ -448,7 +448,7 @@ test.describe('The Extension page should', () => {
 
   test('render command suggestion atom', async () => {
     const searchInput = page.locator(
-      'input[placeholder*="Search your tab title or URL"]',
+      'input[placeholder*="Search tabs or URLs"]',
     )
     await expect(searchInput).toBeVisible()
     await searchInput.click()
@@ -511,7 +511,7 @@ test.describe('The Extension page should', () => {
     )
 
     const cleanDuplicatedButton = page
-      .locator('button[aria-label="Clean duplicated tabs"]')
+      .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
       .first()
     await expect(cleanDuplicatedButton).toBeVisible()
     const cleanDuplicatedScreenshot = await cleanDuplicatedButton.screenshot()
@@ -546,10 +546,13 @@ test.describe('The Extension page should', () => {
     const windowTitle = page.locator('[data-testid^="window-title-"]').first()
     await expect(windowTitle).toBeVisible()
     const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
-    await expect(sortButton).toBeHidden()
+    const sortButtonSlot = sortButton.locator('xpath=ancestor::div[1]')
+    await expect(sortButton).toBeVisible()
+    await expect(sortButtonSlot).toHaveCSS('opacity', '0.38')
     await windowTitle.focus()
     await page.waitForTimeout(150)
     await expect(sortButton).toBeVisible()
+    await expect(sortButtonSlot).toHaveCSS('opacity', '1')
     const sortButtonScreenshot = await sortButton.screenshot()
     expect(sortButtonScreenshot).toMatchSnapshot(
       'window-sort-button-atom.png',

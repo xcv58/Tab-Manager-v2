@@ -12,7 +12,12 @@ export default observer((props: WinProps) => {
   const { sortTabs } = arrangeStore
   return (
     <Tooltip title="Sort tabs">
-      <ControlIconButton onClick={() => sortTabs(id)} aria-label="Sort tabs">
+      <ControlIconButton
+        onClick={() => sortTabs(id)}
+        className="text-slate-400"
+        controlSize="medium"
+        aria-label="Sort tabs"
+      >
         <SortIcon />
       </ControlIconButton>
     </Tooltip>

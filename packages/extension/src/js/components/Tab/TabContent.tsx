@@ -6,12 +6,12 @@ import React, {
   SyntheticEvent,
 } from 'react'
 import { observer } from 'mobx-react-lite'
-import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
 import Tooltip from '@mui/material/Tooltip'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
+import { getNoun } from 'libs'
 
 const TabContent = observer(
   (
@@ -23,8 +23,17 @@ const TabContent = observer(
   ) => {
     const { faked, buttonClassName, content, onAuxClick } = props
     const { hoverStore, dragStore } = useStore()
-    const { activate, title, url, isDuplicated, focus, isFocused, isHovered } =
-      props.tab
+    const {
+      activate,
+      title,
+      url,
+      focus,
+      isFocused,
+      isHovered,
+      duplicatedTabCount,
+      isDuplicated,
+    } = props.tab
+    const { userStore } = useStore()
     const buttonRef = useRef(null)
     useEffect(() => {
       const button = buttonRef.current
@@ -36,11 +45,17 @@ const TabContent = observer(
     const { dragging } = dragStore
     const { hovered } = hoverStore
     const open = !(faked || dragging || !isHovered || !hovered)
+    const duplicateText =
+      userStore.highlightDuplicatedTab && isDuplicated
+        ? `${duplicatedTabCount} ${getNoun('tab', duplicatedTabCount)} share this page`
+        : ''
     const tooltip = open && (
       <div className="leading-tight break-all whitespace-normal">
         <p>{title}</p>
         <p style={{ opacity: 0.8 }}>{url}</p>
-        {isDuplicated && <p>There is duplicated tab!</p>}
+        {duplicateText ? (
+          <p style={{ opacity: 0.72 }}>{duplicateText}</p>
+        ) : null}
       </div>
     )
     return (
@@ -62,14 +77,14 @@ const TabContent = observer(
 export default observer((props: TabProps) => {
   const { userStore } = useStore()
   const { faked } = props
-  const { title, isDuplicated, isMatched, query, removing, remove } = props.tab
+  const { title, isMatched, query, removing, remove } = props.tab
   const onAuxClick = (event: SyntheticEvent) => {
     // Middle mouse button
     if (event.button === 1 && !removing) {
       remove()
     }
   }
-  const { showUrl, highlightDuplicatedTab } = userStore
+  const { showUrl } = userStore
   const getHighlightNode = useCallback(
     (text) => {
       if (!isMatched || !query) {
@@ -79,19 +94,14 @@ export default observer((props: TabProps) => {
     },
     [isMatched, query],
   )
-  const duplicated = highlightDuplicatedTab && isDuplicated
-  const buttonClassName = classNames(
-    'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base',
-    {
-      'text-red-400': duplicated,
-    },
-  )
+  const buttonClassName =
+    'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base'
   const content = (
     <>
-      <div className="w-full overflow-hidden truncate">
+      <div className="w-full min-w-0 overflow-hidden truncate">
         {getHighlightNode(title)}
       </div>
-      {showUrl && <Url {...props} {...{ getHighlightNode, duplicated }} />}
+      {showUrl && <Url {...props} {...{ getHighlightNode }} />}
     </>
   )
   if (faked) {

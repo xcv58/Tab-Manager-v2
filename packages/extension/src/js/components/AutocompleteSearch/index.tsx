@@ -17,8 +17,8 @@ import Tab from 'stores/Tab'
 import { HistoryItem } from 'stores/SearchStore'
 import { openURL } from 'libs'
 
-const ARIA_LABLE =
-  'Search your tab title or URL ... (Press "/" to focus, ">" to search commands)'
+const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
+const SEARCH_HINT = '/ focus · > commands'
 
 const commandFilter = (options, { inputValue }) => {
   const keys = ['name', 'shortcut']
@@ -127,10 +127,6 @@ const renderCommand = (command, state) => {
   )
 }
 
-const Input = (props) => (
-  <TextField fullWidth placeholder={ARIA_LABLE} variant="standard" {...props} />
-)
-
 type Props = { autoFocus?: boolean; open?: boolean }
 
 const AutocompleteSearch = observer((props: Props) => {
@@ -199,7 +195,32 @@ const AutocompleteSearch = observer((props: Props) => {
         search('')
       }}
       renderInput={(props) => (
-        <Input {...props} autoFocus={autoFocus || userStore.autoFocusSearch} />
+        <TextField
+          {...props}
+          fullWidth
+          autoFocus={autoFocus || userStore.autoFocusSearch}
+          placeholder={SEARCH_PLACEHOLDER}
+          variant="standard"
+          InputProps={{
+            ...props.InputProps,
+            endAdornment: (
+              <>
+                {!query && (
+                  <span
+                    className="pr-2 text-[0.72rem] whitespace-nowrap select-none"
+                    style={{
+                      color: theme.palette.text.secondary,
+                      opacity: 0.8,
+                    }}
+                  >
+                    {SEARCH_HINT}
+                  </span>
+                )}
+                {props.InputProps?.endAdornment}
+              </>
+            ),
+          }}
+        />
       )}
       options={options}
       getOptionLabel={(option) =>

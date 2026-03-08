@@ -27,8 +27,9 @@ export default observer(() => {
       timeout={reduceMotion ? 1 : duration.enteringScreen}
     >
       <div
-        className="flex items-center"
+        className="flex items-center px-1"
         style={{
+          minHeight: 40,
           maxWidth: 'calc(100vw - 60px)',
           overflowX: 'auto',
         }}

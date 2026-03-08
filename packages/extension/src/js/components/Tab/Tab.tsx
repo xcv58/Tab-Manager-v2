@@ -9,6 +9,7 @@ import { useStore } from 'components/hooks/useStore'
 import { useTheme } from 'components/hooks/useTheme'
 import { TabProps } from 'components/types'
 import PIN from './Pin'
+import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 import useReduceMotion from 'libs/useReduceMotion'
 
@@ -68,16 +69,22 @@ export default observer((props: TabProps & { className?: string }) => {
   })
 
   const pin = pinned && PIN
-  const isSecondaryActive =
-    tab.active && !tab.win?.lastFocused && (tab.win?.tabs?.length || 0) > 1
-  const secondaryActiveStyle =
-    isSecondaryActive && !isSelected && !isFocused
-      ? {
-          boxShadow: isDarkTheme
-            ? 'inset 2px 0 0 rgba(174, 181, 192, 0.28)'
-            : 'inset 2px 0 0 rgba(100, 116, 139, 0.382)',
-        }
-      : undefined
+  const isPrimaryActive = tab.active && !!tab.win?.lastFocused
+  const activeIndicatorColor = tab.active
+    ? isPrimaryActive
+      ? isDarkTheme
+        ? '#b5c7e6'
+        : '#1a73e8'
+      : isDarkTheme
+        ? 'rgba(174, 181, 192, 0.34)'
+        : 'rgba(100, 116, 139, 0.44)'
+    : undefined
+  const activeIndicatorStyle = activeIndicatorColor
+    ? {
+        backgroundImage: `linear-gradient(to right, transparent 1px, ${activeIndicatorColor} 1px, ${activeIndicatorColor} 3px, transparent 3px)`,
+        backgroundRepeat: 'no-repeat',
+      }
+    : undefined
   const darkRowStyle = isDarkTheme
     ? {
         backgroundColor: isSelected
@@ -90,20 +97,31 @@ export default observer((props: TabProps & { className?: string }) => {
         borderBottom: '1px solid transparent',
         color: '#eef1f5',
       }
-    : undefined
+    : {
+        backgroundColor: isSelected
+          ? 'rgba(26, 115, 232, 0.14)'
+          : shouldHighlight
+            ? 'rgba(26, 115, 232, 0.08)'
+            : isActionable && isHovered
+              ? 'rgba(15, 23, 42, 0.04)'
+              : 'transparent',
+        borderBottom: '1px solid transparent',
+        color: '#111827',
+      }
   const rowStyle = isDarkTheme
     ? {
         ...darkRowStyle,
-        ...secondaryActiveStyle,
+        ...activeIndicatorStyle,
         ...(isFocused ? { outline: 'none' } : undefined),
       }
     : {
-        ...secondaryActiveStyle,
+        ...darkRowStyle,
+        ...activeIndicatorStyle,
         ...(isFocused ? { outline: 'none' } : undefined),
       }
   const focusOutlineStyle = isFocused
     ? {
-        boxShadow: `inset 0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
+        boxShadow: `0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
       }
     : undefined
 
@@ -112,20 +130,10 @@ export default observer((props: TabProps & { className?: string }) => {
       ref={nodeRef}
       tabIndex={-1}
       data-testid={`tab-row-${tab.id}`}
-      className={classNames(
-        className,
-        'flex relative items-center',
-        {
-          'opacity-25': !isMatched,
-        },
-        !className && [
-          !isDarkTheme && {
-            'hover:bg-blue-300': isActionable,
-            'bg-blue-100': shouldHighlight,
-            'bg-blue-300': isSelected,
-          },
-        ],
-      )}
+      className={classNames(className, 'flex relative items-center', {
+        'opacity-25': !isMatched,
+        'z-10': isFocused,
+      })}
       style={rowStyle}
       onMouseEnter={onMouseEnter}
       onMouseOver={onMouseEnter}
@@ -134,8 +142,15 @@ export default observer((props: TabProps & { className?: string }) => {
       {pin}
       <Icon tab={tab} />
       <TabContent tab={tab} />
-      <TabTools tab={tab} />
-      <CloseButton onClick={onRemove} disabled={tab.removing} />
+      <div className="flex h-10 shrink-0 items-center gap-0.5 pr-1">
+        <TabTools tab={tab} />
+        <CloseButton
+          onClick={onRemove}
+          disabled={tab.removing}
+          size="compact"
+        />
+        <DuplicateMarker tab={tab} />
+      </div>
       <ContainerOrGroupIndicator
         id={tab.id}
         groupId={tab.groupId}

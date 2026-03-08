@@ -17,11 +17,34 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
+import Typography from '@mui/material/Typography'
 import { THEMES } from 'stores/UserStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
+
+const SettingsSection = ({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description?: string
+  children: React.ReactNode
+}) => (
+  <div className="py-4">
+    <div className="mb-3">
+      <Typography component="h3" sx={{ fontSize: '0.92rem', fontWeight: 700 }}>
+        {title}
+      </Typography>
+      {description && (
+        <FormHelperText sx={{ mt: 0.5 }}>{description}</FormHelperText>
+      )}
+    </div>
+    <FormGroup>{children}</FormGroup>
+  </div>
+)
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -58,14 +81,13 @@ export default observer(() => {
     toggleShowTabIcon,
     theme,
     selectTheme,
-    ignoreHash,
-    toggleIgnoreHash,
   } = userStore
   const reduceMotion = useReduceMotion()
   return (
     <Dialog
       open={dialogOpen}
       fullWidth
+      maxWidth="md"
       TransitionComponent={Fade}
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
@@ -82,10 +104,12 @@ export default observer(() => {
       </DialogTitle>
       <DialogContent>
         <FormControl className="w-full">
-          <FormGroup>
-            <FormHelperText>Search</FormHelperText>
+          <SettingsSection
+            title="Search"
+            description="Tune how the search box behaves when the popup opens and while you search."
+          >
             <FormControlLabel
-              label="Preserve Search"
+              label="Preserve search"
               control={
                 <Switch
                   color="primary"
@@ -95,7 +119,7 @@ export default observer(() => {
               }
             />
             <FormControlLabel
-              label="Search Browser History"
+              label="Include browser history in results"
               control={
                 <Switch
                   color="primary"
@@ -105,7 +129,7 @@ export default observer(() => {
               }
             />
             <FormControlLabel
-              label="Auto Focus Search Box"
+              label="Focus search on open"
               control={
                 <Switch
                   color="primary"
@@ -114,149 +138,13 @@ export default observer(() => {
                 />
               }
             />
-            <Divider />
-          </FormGroup>
-          <FormGroup>
-            <FormHelperText>Views</FormHelperText>
-            <FormControlLabel
-              label="Highlight Duplicated Tabs"
-              control={
-                <Switch
-                  color="primary"
-                  checked={highlightDuplicatedTab}
-                  onChange={toggleHighlightDuplicatedTab}
-                />
-              }
-            />
-            <FormControlLabel
-              label="Ignore Hash in URL when count duplication"
-              control={
-                <Switch
-                  color="primary"
-                  checked={ignoreHash}
-                  onChange={toggleIgnoreHash}
-                />
-              }
-            />
-            <FormControlLabel
-              label="Show Unmatched Tab"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showUnmatchedTab}
-                  onChange={toggleShowUnmatchedTab}
-                />
-              }
-            />
-            <FormLabel>Minimum Tab Width: `{tabWidth}rem`</FormLabel>
-            <Slider
-              defaultValue={tabWidth}
-              step={1}
-              min={15}
-              max={50}
-              marks
-              onChange={(_, value: number) => updateTabWidth(value)}
-              valueLabelDisplay="auto"
-              aria-labelledby="update-tab-width"
-              aria-label="Update Tab Width"
-            />
-            <FormLabel>Font Size: `{fontSize}px`</FormLabel>
-            <Slider
-              defaultValue={fontSize}
-              step={1}
-              min={6}
-              max={36}
-              marks
-              onChange={(_, value: number) => updateFontSize(value)}
-              valueLabelDisplay="auto"
-              aria-labelledby="update-font-size"
-              aria-label="Update Font Size"
-            />
-            <Divider />
-          </FormGroup>
-          <FormGroup>
-            <FormHelperText>Individual Tab</FormHelperText>
-            <FormControlLabel
-              label="Show Tab Icon"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showTabIcon}
-                  onChange={toggleShowTabIcon}
-                />
-              }
-            />
-            <FormControlLabel
-              label="Show URL"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showUrl}
-                  onChange={toggleShowUrl}
-                />
-              }
-            />
-            <FormControlLabel
-              label="Show Tab Tooltip"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showTabTooltip}
-                  onChange={toggleShowTabTooltip}
-                />
-              }
-            />
-            <Divider />
-          </FormGroup>
-          <FormGroup>
-            <FormHelperText>Filter</FormHelperText>
-            <FormControlLabel
-              label="Show App Window"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showAppWindow}
-                  onChange={toggleShowAppWindow}
-                />
-              }
-            />
-            <Divider />
-          </FormGroup>
-          <FormGroup>
-            <FormHelperText>Others</FormHelperText>
-            <FormControlLabel
-              label="Lite Popup Mode"
-              control={
-                <Switch
-                  color="primary"
-                  checked={litePopupMode}
-                  onChange={toggleLitePopupMode}
-                />
-              }
-            />
-            <FormControlLabel
-              label="Show Shortcut Hint"
-              control={
-                <Switch
-                  color="primary"
-                  checked={showShortcutHint}
-                  onChange={toggleShowShortcutHint}
-                />
-              }
-            />
-            <FormControlLabel
-              label="Always Show Toolbar"
-              aria-labelledby="toggle-always-show-toolbar"
-              aria-label="Toggle Always Show Toolbar"
-              control={
-                <Switch
-                  color="primary"
-                  checked={!toolbarAutoHide}
-                  onChange={toggleAutoHide}
-                />
-              }
-            />
-            <FormControl variant="standard">
+          </SettingsSection>
+          <Divider />
+          <SettingsSection
+            title="Appearance"
+            description="Control density, theme, and how much detail each tab row shows."
+          >
+            <FormControl variant="standard" sx={{ mb: 2 }}>
               <InputLabel id="theme-label">Theme</InputLabel>
               <Select
                 id="theme-select"
@@ -273,7 +161,129 @@ export default observer(() => {
                 ))}
               </Select>
             </FormControl>
-          </FormGroup>
+            <FormLabel>Font size: `{fontSize}px`</FormLabel>
+            <Slider
+              defaultValue={fontSize}
+              step={1}
+              min={6}
+              max={36}
+              marks
+              onChange={(_, value: number) => updateFontSize(value)}
+              valueLabelDisplay="auto"
+              aria-labelledby="update-font-size"
+              aria-label="Update Font Size"
+            />
+            <FormLabel>Minimum tab width: `{tabWidth}rem`</FormLabel>
+            <Slider
+              defaultValue={tabWidth}
+              step={1}
+              min={15}
+              max={50}
+              marks
+              onChange={(_, value: number) => updateTabWidth(value)}
+              valueLabelDisplay="auto"
+              aria-labelledby="update-tab-width"
+              aria-label="Update Tab Width"
+            />
+            <FormControlLabel
+              label="Mark duplicate tabs"
+              control={
+                <Switch
+                  color="primary"
+                  checked={highlightDuplicatedTab}
+                  onChange={toggleHighlightDuplicatedTab}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Show tab icons"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showTabIcon}
+                  onChange={toggleShowTabIcon}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Show URLs"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showUrl}
+                  onChange={toggleShowUrl}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Show tab tooltips"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showTabTooltip}
+                  onChange={toggleShowTabTooltip}
+                />
+              }
+            />
+          </SettingsSection>
+          <Divider />
+          <SettingsSection
+            title="Behavior"
+            description="Choose what stays visible and how the extension behaves in compact mode."
+          >
+            <FormControlLabel
+              label="Keep non-matching tabs visible"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showUnmatchedTab}
+                  onChange={toggleShowUnmatchedTab}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Include app windows"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showAppWindow}
+                  onChange={toggleShowAppWindow}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Use lite popup mode"
+              control={
+                <Switch
+                  color="primary"
+                  checked={litePopupMode}
+                  onChange={toggleLitePopupMode}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Show shortcut hints"
+              control={
+                <Switch
+                  color="primary"
+                  checked={showShortcutHint}
+                  onChange={toggleShowShortcutHint}
+                />
+              }
+            />
+            <FormControlLabel
+              label="Keep toolbar visible"
+              aria-labelledby="toggle-always-show-toolbar"
+              aria-label="Toggle Always Show Toolbar"
+              control={
+                <Switch
+                  color="primary"
+                  checked={!toolbarAutoHide}
+                  onChange={toggleAutoHide}
+                />
+              }
+            />
+          </SettingsSection>
         </FormControl>
         <Divider />
         <div className="flex justify-end">

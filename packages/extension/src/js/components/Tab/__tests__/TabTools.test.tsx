@@ -33,8 +33,7 @@ describe('TabTools', () => {
     container = render(
       <TabTools {...props} tab={{ isHovered: false }} />,
     ).container
-    // expect(el.getElement()).toBe(null)
-    expect(container.firstChild).toBeNull()
+    expect(container.firstChild).not.toBeNull()
 
     jest
       .spyOn(StoreContext, 'useStore')

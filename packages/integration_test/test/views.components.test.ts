@@ -317,9 +317,7 @@ test.describe('The Extension page should', () => {
       },
       { sourceId: ids.sourceId, targetId: ids.targetId, position: 'before' },
     )
-    await expect(
-      targetDraggable.locator('hr.border-red-700').first(),
-    ).toBeVisible()
+    await expect(targetDraggable.locator('hr').first()).toBeVisible()
     const beforeIndicator = await targetDraggable.screenshot()
     expect(beforeIndicator).toMatchSnapshot('dnd-row-indicator-before.png', {
       maxDiffPixelRatio: 0.12,
@@ -403,9 +401,7 @@ test.describe('The Extension page should', () => {
       },
       { sourceId: ids.sourceId, targetId: ids.targetId, position: 'after' },
     )
-    await expect(
-      targetDraggable.locator('hr.border-red-700').first(),
-    ).toBeVisible()
+    await expect(targetDraggable.locator('hr').first()).toBeVisible()
     const afterIndicator = await targetDraggable.screenshot()
     expect(afterIndicator).toMatchSnapshot('dnd-row-indicator-after.png', {
       maxDiffPixelRatio: 0.12,
@@ -487,7 +483,7 @@ test.describe('The Extension page should', () => {
       },
       { sourceId: ids.sourceId, winId: ids.winId, position: 'top' },
     )
-    await expect(topZone.locator('hr.border-red-700')).toHaveCount(1)
+    await expect(topZone.locator('hr')).toHaveCount(1)
     const topZoneIndicator = await topZone.screenshot()
     expect(topZoneIndicator).toMatchSnapshot(
       'dnd-window-zone-top-indicator.png',
@@ -572,7 +568,7 @@ test.describe('The Extension page should', () => {
       },
       { sourceId: ids.sourceId, winId: ids.winId, position: 'bottom' },
     )
-    await expect(bottomZone.locator('hr.border-red-700')).toHaveCount(1)
+    await expect(bottomZone.locator('hr')).toHaveCount(1)
     const bottomZoneIndicator = await bottomZone.screenshot()
     expect(bottomZoneIndicator).toMatchSnapshot(
       'dnd-window-zone-bottom-indicator.png',
@@ -864,9 +860,7 @@ test.describe('The Extension page should', () => {
 
     await page.getByTestId(`tab-group-toggle-${groupId}`).click()
     await page.waitForTimeout(500)
-    const queryInput = page.locator(
-      'input[placeholder*="Search your tab title or URL"]',
-    )
+    const queryInput = page.locator('input[placeholder*="Search tabs or URLs"]')
     await queryInput.fill('gh-state-b')
     await page.waitForTimeout(500)
 
@@ -941,9 +935,7 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-row-${ids.pinnedId}`)
     await waitForTestId(page, `tab-row-${ids.unmatchedId}`)
 
-    const queryInput = page.locator(
-      'input[placeholder*="Search your tab title or URL"]',
-    )
+    const queryInput = page.locator('input[placeholder*="Search tabs or URLs"]')
     await queryInput.fill('pinned-row-state')
     await page.waitForTimeout(500)
 
@@ -955,7 +947,6 @@ test.describe('The Extension page should', () => {
     })
 
     const duplicatedRow = page.getByTestId(`tab-row-${ids.duplicatedId}`)
-    await expect(duplicatedRow.locator('button.text-red-400')).toHaveCount(1)
     const duplicatedShot = await duplicatedRow.screenshot()
     expect(duplicatedShot).toMatchSnapshot('tab-row-state-duplicated.png', {
       maxDiffPixelRatio: 0.12,
@@ -976,7 +967,12 @@ test.describe('The Extension page should', () => {
       .locator('[aria-label="Toggle select"]')
       .first()
     await selectButton.click({ force: true })
-    await expect(pinnedRow).toHaveClass(/bg-blue-300|bg-gray-900/)
+    const selectedBackground = await pinnedRow.evaluate(
+      (node) => (node as HTMLElement).style.backgroundColor,
+    )
+    expect(selectedBackground).toMatch(
+      /rgba\(26, 115, 232, 0\.14\)|rgba\(181, 199, 230, 0\.2\)/,
+    )
     const selectedShot = await pinnedRow.screenshot()
     expect(selectedShot).toMatchSnapshot('tab-row-state-selected.png', {
       maxDiffPixelRatio: 0.12,

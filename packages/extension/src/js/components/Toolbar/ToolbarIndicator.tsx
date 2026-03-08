@@ -1,5 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
+import { useTheme } from '@mui/material/styles'
 import Fade from '@mui/material/Fade'
 import Slide from '@mui/material/Slide'
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
@@ -17,6 +18,7 @@ const IndicatorIcon = ({ toolbarVisible }: { toolbarVisible: boolean }) => {
 }
 
 export default observer(() => {
+  const theme = useTheme()
   const { userStore } = useStore()
   const { showToolbar, toolbarAutoHide, toolbarVisible } = userStore
   const reduceMotion = useReduceMotion()
@@ -28,7 +30,13 @@ export default observer(() => {
     >
       <IconButton
         style={{
-          opacity: toolbarAutoHide ? 1 : 0.2,
+          opacity: toolbarAutoHide ? (toolbarVisible ? 1 : 0.78) : 0.38,
+          width: 44,
+          height: 40,
+          borderLeft: toolbarVisible
+            ? `1px solid ${theme.palette.divider}`
+            : undefined,
+          borderRadius: 0,
         }}
         className="focus:outline-none"
         disabled={!toolbarAutoHide}

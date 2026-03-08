@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import Popover from '@mui/material/Popover'
@@ -9,6 +8,7 @@ import { getNoun } from 'libs'
 import { useTheme } from '@mui/material'
 import Tab from 'stores/Tab'
 import { useStore } from 'components/hooks/useStore'
+import ControlIconButton from 'components/ControlIconButton'
 
 interface IDivider {
   __typename: 'DIVIDER'
@@ -26,22 +26,11 @@ type OptionOrDivider = IDivider | Option
 
 const DIVIDER: IDivider = { __typename: 'DIVIDER' }
 const OPTION: Option = { __typename: 'OPTION', label: '' }
-const CHROME_TAB_GROUP_COLORS: chrome.tabGroups.ColorEnum[] = [
-  'grey',
-  'blue',
-  'red',
-  'yellow',
-  'green',
-  'pink',
-  'purple',
-  'cyan',
-  'orange',
-]
 
 export default observer((props: { tab: Tab }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const theme = useTheme()
-  const { tabGroupStore, tabStore } = useStore()
+  const { tabGroupStore } = useStore()
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
@@ -65,8 +54,6 @@ export default observer((props: { tab: Tab }) => {
     closeOtherTabs,
     win,
     remove,
-    groupTab,
-    sameDomainTabs,
     pinned,
     togglePin,
     duplicatedTabCount,
@@ -77,20 +64,6 @@ export default observer((props: { tab: Tab }) => {
   const tabGroup = hasTabGroupsApi
     ? tabGroupStore.getTabGroup(props.tab.groupId)
     : null
-  const selectedTabs = tabStore.sources
-  const tabsForNewGroup = selectedTabs.length ? selectedTabs : [props.tab]
-  const uniqueTabsForNewGroup = Array.from(
-    new Map(tabsForNewGroup.map((tab) => [tab.id, tab])).values(),
-  )
-  const canCreateGroupFromSelection = !!tabGroupStore?.canCreateGroupFromTabs?.(
-    uniqueTabsForNewGroup,
-  )
-  const addableSelectedTabs = selectedTabs.filter(
-    (tab) =>
-      tab.windowId === props.tab.windowId &&
-      tab.id !== props.tab.id &&
-      tab.groupId !== props.tab.groupId,
-  )
 
   const options: (OptionOrDivider | false)[] = [
     {
@@ -107,7 +80,7 @@ export default observer((props: { tab: Tab }) => {
       ...OPTION,
       label: 'Close other tabs',
       onClick: closeOtherTabs,
-      disabled: win.tabs.length <= 1,
+      disabled: (win?.tabs?.length ?? 0) <= 1,
     },
   ]
   if (process.env.TARGET_BROWSER === 'firefox') {
@@ -131,85 +104,11 @@ export default observer((props: { tab: Tab }) => {
       },
     )
   }
-  if (canMutateTabGroups && canCreateGroupFromSelection) {
-    options.push(DIVIDER, {
-      ...OPTION,
-      label: `Create new group from ${uniqueTabsForNewGroup.length} selected ${getNoun(
-        'tab',
-        uniqueTabsForNewGroup.length,
-      )}`,
-      onClick: () => {
-        tabGroupStore.createGroup(uniqueTabsForNewGroup.map((tab) => tab.id))
-        tabStore.unselectAll()
-      },
-    })
-  }
   if (canMutateTabGroups && tabGroup) {
-    options.push(
-      DIVIDER,
-      {
-        ...OPTION,
-        label: tabGroup.collapsed ? 'Expand group' : 'Collapse group',
-        onClick: () => tabGroupStore.toggleCollapsed(props.tab.groupId),
-      },
-      {
-        ...OPTION,
-        label: 'Rename group',
-        onClick: () => {
-          if (!window.prompt) {
-            return
-          }
-          const title =
-            window.prompt('Rename group', tabGroup.title || '') || ''
-          tabGroupStore.renameGroup(props.tab.groupId, title)
-        },
-      },
-      {
-        ...OPTION,
-        label: 'Change group color',
-        onClick: () => {
-          if (!window.prompt) {
-            return
-          }
-          const value = (window.prompt(
-            `Set group color (${CHROME_TAB_GROUP_COLORS.join(', ')})`,
-            tabGroup.color || 'grey',
-          ) || '') as chrome.tabGroups.ColorEnum
-          if (!CHROME_TAB_GROUP_COLORS.includes(value)) {
-            return
-          }
-          tabGroupStore.recolorGroup(props.tab.groupId, value)
-        },
-      },
-      addableSelectedTabs.length > 0 && {
-        ...OPTION,
-        label: `Add ${addableSelectedTabs.length} selected ${getNoun(
-          'tab',
-          addableSelectedTabs.length,
-        )} to this group`,
-        onClick: () =>
-          tabGroupStore.addTabsToGroup(
-            addableSelectedTabs.map((tab) => tab.id),
-            props.tab.groupId,
-          ),
-      },
-      {
-        ...OPTION,
-        label: 'Remove this tab from group',
-        onClick: () => tabGroupStore.ungroupTab(props.tab.id),
-      },
-      {
-        ...OPTION,
-        label: 'Ungroup tabs',
-        onClick: () => tabGroupStore.ungroup(props.tab.groupId),
-      },
-    )
-  }
-  if (sameDomainTabs && sameDomainTabs.length > 1) {
     options.push(DIVIDER, {
       ...OPTION,
-      label: `Cluster ${sameDomainTabs.length} same domain ungrouped tabs to this window`,
-      onClick: groupTab,
+      label: 'Remove this tab from group',
+      onClick: () => tabGroupStore.ungroupTab(props.tab.id),
     })
   }
   if (duplicatedTabCount > 1) {
@@ -243,13 +142,15 @@ export default observer((props: { tab: Tab }) => {
     })
   return (
     <>
-      <IconButton
+      <ControlIconButton
         onClick={handleClick}
-        className="focus:outline-none"
+        className="text-slate-400"
+        controlSize="compact"
+        aria-label="Tab actions"
         data-testid={`tab-menu-${props.tab.id}`}
       >
-        <MoreVertIcon />
-      </IconButton>
+        <MoreVertIcon fontSize="small" />
+      </ControlIconButton>
       <Popover
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

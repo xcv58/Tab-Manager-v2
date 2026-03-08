@@ -5,7 +5,12 @@ import ControlIconButton from 'components/ControlIconButton'
 
 export default ({ reload }) => (
   <Tooltip title="Reload all tabs">
-    <ControlIconButton onClick={reload} aria-label="Reload all tabs">
+    <ControlIconButton
+      onClick={reload}
+      className="text-slate-400"
+      controlSize="medium"
+      aria-label="Reload all tabs"
+    >
       <Refresh />
     </ControlIconButton>
   </Tooltip>

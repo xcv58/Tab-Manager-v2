@@ -10,7 +10,12 @@ export default ({ hide, toggleHide }) => {
     <ExpandMoreIcon fontSize="small" />
   )
   return (
-    <ControlIconButton onClick={toggleHide} aria-label="Toggle window hide">
+    <ControlIconButton
+      onClick={toggleHide}
+      className="text-slate-400"
+      controlSize="medium"
+      aria-label="Toggle window hide"
+    >
       {icon}
     </ControlIconButton>
   )

@@ -1,6 +1,7 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
+import { useTheme } from '@mui/material/styles'
 import { useDrop } from 'react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import { ItemTypes } from 'libs/react-dnd'
@@ -12,6 +13,7 @@ type Props = WinProps & {
 }
 
 export default observer((props: Props) => {
+  const theme = useTheme()
   const { position, win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({
@@ -44,8 +46,12 @@ export default observer((props: Props) => {
     <div
       ref={drop}
       className={classNames('w-full h-2', {
-        'bg-red-500': isOver && !canDrop,
+        'bg-blue-100': isOver && !canDrop,
       })}
+      style={{
+        backgroundColor:
+          isOver && !canDrop ? theme.palette.action.hover : undefined,
+      }}
       data-testid={`window-drop-zone-${position}-${win.id}`}
     >
       {preview}
