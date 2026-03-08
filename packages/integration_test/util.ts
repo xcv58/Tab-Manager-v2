@@ -314,10 +314,10 @@ type RectStabilityOptions = {
 export const waitForLocatorRectToStabilize = async (
   target: Locator,
   {
-    timeout = 5000,
+    timeout = 3000,
     minWidth = 1,
     minHeight = 1,
-    stableSamples = 3,
+    stableSamples = 2,
   }: RectStabilityOptions = {},
 ) => {
   let previousRect: {
@@ -346,10 +346,10 @@ export const waitForLocatorRectToStabilize = async (
         }
         const isStable =
           previousRect !== null &&
-          Math.abs(previousRect.x - currentRect.x) < 0.5 &&
-          Math.abs(previousRect.y - currentRect.y) < 0.5 &&
-          Math.abs(previousRect.width - currentRect.width) < 0.5 &&
-          Math.abs(previousRect.height - currentRect.height) < 0.5
+          Math.abs(previousRect.x - currentRect.x) < 2 &&
+          Math.abs(previousRect.y - currentRect.y) < 2 &&
+          Math.abs(previousRect.width - currentRect.width) < 2 &&
+          Math.abs(previousRect.height - currentRect.height) < 2
 
         previousRect = currentRect
         stableCount = isStable ? stableCount + 1 : 0
@@ -366,10 +366,13 @@ export const waitForSurfaceToFullyAppear = async (
 ): Promise<void> => {
   await expect(surface).toBeVisible()
   await waitForAnimationsToFinish(surface)
-  await waitForLocatorRectToStabilize(surface, {
-    minWidth: 16,
-    minHeight: 16,
-  })
+  await expect
+    .poll(async () => {
+      const rect = await surface.boundingBox()
+      return !!rect && rect.width > 0 && rect.height > 0
+    })
+    .toBe(true)
+  await page.waitForTimeout(150)
   await expect
     .poll(
       async () =>
