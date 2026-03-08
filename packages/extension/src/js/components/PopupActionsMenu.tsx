@@ -30,7 +30,7 @@ export default observer(() => {
         onClick={(event) => setAnchorEl(event.currentTarget)}
         aria-label="More actions"
       >
-        <MoreHorizIcon fontSize="small" />
+        <MoreHorizIcon sx={{ fontSize: 20 }} />
       </ControlIconButton>
       <Menu
         anchorEl={anchorEl}

@@ -5,6 +5,12 @@ import Tooltip from '@mui/material/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
+const CHECKBOX_SX = {
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
+}
+
 export default observer(() => {
   const { searchStore } = useStore()
   const { allTabSelected, someTabSelected, matchedTabs } = searchStore
@@ -16,6 +22,7 @@ export default observer(() => {
           color="primary"
           checked={allTabSelected}
           disabled={matchedTabs.length === 0}
+          sx={CHECKBOX_SX}
           onChange={(e) => {
             e.target.blur()
             searchStore.toggleSelectAll()

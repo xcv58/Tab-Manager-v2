@@ -148,7 +148,7 @@ export default observer((props: { tab: Tab }) => {
         aria-label="Tab actions"
         data-testid={`tab-menu-${props.tab.id}`}
       >
-        <MoreVertIcon fontSize="small" />
+        <MoreVertIcon sx={{ fontSize: 16 }} />
       </ControlIconButton>
       <Popover
         anchorEl={anchorEl}

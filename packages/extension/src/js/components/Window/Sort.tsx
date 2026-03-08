@@ -17,7 +17,7 @@ export default observer((props: WinProps) => {
         controlSize="compact"
         aria-label="Sort tabs"
       >
-        <SortIcon fontSize="small" />
+        <SortIcon sx={{ fontSize: 16 }} />
       </ControlIconButton>
     </Tooltip>
   )

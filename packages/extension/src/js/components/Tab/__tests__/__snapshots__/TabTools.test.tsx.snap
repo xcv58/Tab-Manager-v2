@@ -8,6 +8,7 @@ exports[`TabTools should render correct components 1`] = `
     <div
       aria-hidden="false"
       class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+      style="width: 28px; height: 40px;"
     >
       <tabmenu
         classes="[object Object]"
@@ -17,6 +18,7 @@ exports[`TabTools should render correct components 1`] = `
     <div
       aria-hidden="false"
       class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+      style="width: 28px; height: 40px;"
     >
       <button
         aria-label="Drag tab"

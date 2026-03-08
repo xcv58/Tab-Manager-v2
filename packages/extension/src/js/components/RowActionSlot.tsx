@@ -9,6 +9,7 @@ type Props = {
 export default ({ visible = true, children }: Props) => (
   <div
     aria-hidden={!visible}
+    style={{ width: 28, height: 40 }}
     className={classNames(
       'flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150',
       {

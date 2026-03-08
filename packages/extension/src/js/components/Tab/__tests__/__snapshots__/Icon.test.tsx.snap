@@ -4,19 +4,21 @@ exports[`Icon should render correct component 1`] = `
 <div>
   <div
     class="group relative flex h-10 w-10 shrink-0 items-center justify-center"
+    style="width: 40px; height: 40px;"
   >
     <div
       class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 opacity-100 group-hover:pointer-events-none group-hover:opacity-0"
     >
       <button
         aria-label="Toggle select"
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-2m800e-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-10x550z-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
         <img
           class="w-6 h-6"
           src="url"
+          style="width: 20px; height: 20px;"
         />
       </button>
     </div>
@@ -24,7 +26,7 @@ exports[`Icon should render correct component 1`] = `
       class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
     >
       <span
-        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17ur8pj-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-kyi5rz-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
       >
         <input
           aria-label="Toggle select"

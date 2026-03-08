@@ -722,6 +722,144 @@ test.describe('The Extension page should', () => {
     })
   })
 
+  test('keep control icons balanced at large font sizes', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        fontSize: 30,
+      })
+    })
+    const atomTabUrl =
+      'data:text/html,<title>Large%20Font%20Row</title>large-font-row'
+    await openPages(browserContext, [atomTabUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+
+    const atomTab = await page.evaluate(async (url) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const target = tabs.find((tab) => tab.url === url)
+      return target
+        ? {
+            id: target.id ?? -1,
+            windowId: target.windowId ?? -1,
+          }
+        : null
+    }, atomTabUrl)
+    expect(atomTab?.id ?? -1).toBeGreaterThan(0)
+    expect(atomTab?.windowId ?? -1).toBeGreaterThan(-1)
+    await page.reload()
+    await waitForTestId(page, `tab-row-${atomTab!.id}`)
+    await waitForTestId(page, `window-title-${atomTab!.windowId}`)
+
+    const row = page.getByTestId(`tab-row-${atomTab!.id}`)
+    const windowTitle = page.getByTestId(`window-title-${atomTab!.windowId}`)
+    await expect(row).toBeVisible()
+    await expect(windowTitle).toBeVisible()
+    const tabMenuButton = page.getByTestId(`tab-menu-${atomTab!.id}`)
+    const dragHandleButton = row.getByRole('button', { name: 'Drag tab' })
+    await expect
+      .poll(
+        async () => {
+          await row.hover()
+          await page.waitForTimeout(120)
+          return (
+            (await tabMenuButton.isVisible()) &&
+            (await dragHandleButton.isVisible())
+          )
+        },
+        { timeout: 2000 },
+      )
+      .toBe(true)
+
+    const rowMetrics = await row.evaluate((rowNode, id) => {
+      const measure = (selector: string) => {
+        const button = rowNode.querySelector(selector) as HTMLElement | null
+        const icon = button?.querySelector('svg') as SVGElement | null
+        if (!button || !icon) {
+          return null
+        }
+        const buttonRect = button.getBoundingClientRect()
+        const iconRect = icon.getBoundingClientRect()
+        return {
+          buttonWidth: buttonRect.width,
+          buttonHeight: buttonRect.height,
+          iconWidth: iconRect.width,
+          iconHeight: iconRect.height,
+        }
+      }
+
+      return {
+        menu: measure(`[data-testid="tab-menu-${id}"]`),
+        drag: measure('[aria-label="Drag tab"]'),
+        favicon: (() => {
+          const button = rowNode.querySelector(
+            'button[aria-label="Toggle select"]',
+          ) as HTMLElement | null
+          const icon = button?.querySelector('img') as HTMLImageElement | null
+          const rowRect = rowNode.getBoundingClientRect()
+          if (!button || !icon) {
+            return null
+          }
+          const buttonRect = button.getBoundingClientRect()
+          const iconRect = icon.getBoundingClientRect()
+          return {
+            buttonWidth: buttonRect.width,
+            buttonHeight: buttonRect.height,
+            iconWidth: iconRect.width,
+            iconHeight: iconRect.height,
+            buttonLeft: buttonRect.left - rowRect.left,
+            buttonRight: buttonRect.right - rowRect.left,
+            iconLeft: iconRect.left - rowRect.left,
+            iconRight: iconRect.right - rowRect.left,
+          }
+        })(),
+      }
+    }, atomTab!.id)
+
+    const windowMetrics = await windowTitle.evaluate((titleNode) => {
+      const checkbox = titleNode.querySelector(
+        '.MuiCheckbox-root',
+      ) as HTMLElement | null
+      const icon = checkbox?.querySelector('svg') as SVGElement | null
+      if (!checkbox || !icon) {
+        return null
+      }
+      const checkboxRect = checkbox.getBoundingClientRect()
+      const iconRect = icon.getBoundingClientRect()
+      return {
+        buttonWidth: checkboxRect.width,
+        buttonHeight: checkboxRect.height,
+        iconWidth: iconRect.width,
+        iconHeight: iconRect.height,
+      }
+    })
+
+    expect(rowMetrics.menu).not.toBeNull()
+    expect(rowMetrics.drag).not.toBeNull()
+    expect(rowMetrics.favicon).not.toBeNull()
+    expect(windowMetrics).not.toBeNull()
+    const menuMetrics = rowMetrics.menu!
+    const dragMetrics = rowMetrics.drag!
+    const faviconMetrics = rowMetrics.favicon!
+    const selectAllMetrics = windowMetrics!
+    expect(menuMetrics.iconWidth).toBeLessThanOrEqual(menuMetrics.buttonWidth)
+    expect(menuMetrics.iconHeight).toBeLessThanOrEqual(menuMetrics.buttonHeight)
+    expect(
+      Math.abs(menuMetrics.iconHeight - dragMetrics.iconHeight),
+    ).toBeLessThanOrEqual(4)
+    expect(faviconMetrics.iconWidth).toBeLessThanOrEqual(22)
+    expect(faviconMetrics.iconHeight).toBeLessThanOrEqual(22)
+    expect(faviconMetrics.buttonWidth).toBeLessThanOrEqual(40)
+    expect(faviconMetrics.buttonHeight).toBeLessThanOrEqual(40)
+    expect(faviconMetrics.buttonLeft).toBeGreaterThanOrEqual(0)
+    expect(faviconMetrics.buttonRight).toBeLessThanOrEqual(40.5)
+    expect(faviconMetrics.iconLeft).toBeGreaterThanOrEqual(8)
+    expect(faviconMetrics.iconRight).toBeLessThanOrEqual(32)
+    expect(selectAllMetrics.iconWidth).toBeLessThanOrEqual(22)
+    expect(selectAllMetrics.iconHeight).toBeLessThanOrEqual(22)
+    expect(selectAllMetrics.buttonWidth).toBeLessThanOrEqual(40)
+    expect(selectAllMetrics.buttonHeight).toBeLessThanOrEqual(40)
+  })
+
   test('align action rails across group and tab rows', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({

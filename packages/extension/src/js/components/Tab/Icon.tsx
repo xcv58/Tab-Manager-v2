@@ -16,6 +16,9 @@ const CONTROL_SX = {
   height: 40,
   p: 1,
   m: 0,
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
 }
 
 export const Icon = observer((props: TabProps) => {
@@ -44,10 +47,14 @@ export const Icon = observer((props: TabProps) => {
     />
   )
   if (!userStore.showTabIcon) {
-    return <div className={CONTROL_SLOT_CLASS}>{checkbox}</div>
+    return (
+      <div className={CONTROL_SLOT_CLASS} style={{ width: 40, height: 40 }}>
+        {checkbox}
+      </div>
+    )
   }
   return (
-    <div className={CONTROL_SLOT_CLASS}>
+    <div className={CONTROL_SLOT_CLASS} style={{ width: 40, height: 40 }}>
       <div
         className={classNames(CONTROL_LAYER_CLASS, {
           'pointer-events-none opacity-0': isSelected,
@@ -62,7 +69,11 @@ export const Icon = observer((props: TabProps) => {
           onFocus={focus}
           sx={CONTROL_SX}
         >
-          <img className="w-6 h-6" src={iconUrl} />
+          <img
+            className="w-6 h-6"
+            style={{ width: 20, height: 20 }}
+            src={iconUrl}
+          />
         </IconButton>
       </div>
       <div
@@ -85,14 +96,18 @@ export default observer((props: TabProps) => {
   }
   const { iconUrl } = tab
   return (
-    <div className={CONTROL_SLOT_CLASS}>
+    <div className={CONTROL_SLOT_CLASS} style={{ width: 40, height: 40 }}>
       <IconButton
         disabled
         aria-label={ARIA_LABEL}
         className="focus:outline-none focus:ring"
         sx={CONTROL_SX}
       >
-        <img className="w-6 h-6" src={iconUrl} />
+        <img
+          className="w-6 h-6"
+          style={{ width: 20, height: 20 }}
+          src={iconUrl}
+        />
       </IconButton>
     </div>
   )

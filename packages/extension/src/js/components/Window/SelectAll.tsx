@@ -8,6 +8,9 @@ const CONTROL_SX = {
   height: 40,
   p: 1,
   m: 0,
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
 }
 
 export default observer(({ win }) => {
@@ -16,7 +19,10 @@ export default observer(({ win }) => {
   const title = `${allTabSelected ? 'Unselect' : 'Select'} all tabs`
   return (
     <Tooltip title={title}>
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center">
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center"
+        style={{ width: 40, height: 40 }}
+      >
         <Checkbox
           color="primary"
           inputProps={{

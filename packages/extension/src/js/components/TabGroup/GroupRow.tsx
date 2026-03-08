@@ -244,6 +244,8 @@ export default observer((props: Props) => {
             <span
               className="mr-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors duration-150"
               style={{
+                width: 40,
+                height: 40,
                 backgroundColor: showToggleAffordance
                   ? theme.palette.action.hover
                   : 'transparent',
@@ -253,9 +255,9 @@ export default observer((props: Props) => {
               }}
             >
               {collapsed ? (
-                <ChevronRightIcon fontSize="small" />
+                <ChevronRightIcon sx={{ fontSize: 18 }} />
               ) : (
-                <ExpandMoreIcon fontSize="small" />
+                <ExpandMoreIcon sx={{ fontSize: 18 }} />
               )}
             </span>
             <span
@@ -297,7 +299,7 @@ export default observer((props: Props) => {
                 aria-label="Group actions"
                 data-testid={`tab-group-menu-${row.groupId}`}
               >
-                <MoreVertIcon fontSize="small" />
+                <MoreVertIcon sx={{ fontSize: 16 }} />
               </ControlIconButton>
             </RowActionSlot>
             <RowActionSlot visible={canMutateGroups && showGroupDragHandle}>
