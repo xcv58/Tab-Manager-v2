@@ -1,13 +1,17 @@
-import { Page, Locator, ChromiumBrowserContext } from 'playwright'
+import { Page, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
   WINDOW_CARD_QUERY,
   URLS,
   CLOSE_PAGES,
+  closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
   openPages,
   groupTabsByUrl,
+  waitForDefaultExtensionView,
+  waitForLocatorRectToStabilize,
+  waitForSurfaceToFullyAppear,
   waitForTestId,
 } from '../util'
 
@@ -16,132 +20,6 @@ let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
-
-const waitForAnimationsToFinish = async (target: Locator): Promise<void> => {
-  await target.evaluate(async (node) => {
-    const nextFrame = () =>
-      new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-    let stableFrames = 0
-    for (let i = 0; i < 180; i += 1) {
-      const animations = node
-        .getAnimations({ subtree: true })
-        .filter(
-          (animation) =>
-            animation.playState !== 'finished' &&
-            animation.playState !== 'idle',
-        )
-      if (animations.length > 0) {
-        stableFrames = 0
-        await Promise.all(
-          animations.map((animation) =>
-            animation.finished.catch(() => undefined),
-          ),
-        )
-      } else {
-        stableFrames += 1
-      }
-      if (stableFrames >= 3) {
-        return
-      }
-      await nextFrame()
-    }
-  })
-}
-
-const waitForSurfaceToFullyAppear = async (
-  page: Page,
-  surface: Locator,
-): Promise<void> => {
-  await expect(surface).toBeVisible()
-  await waitForAnimationsToFinish(surface)
-  await expect
-    .poll(
-      async () =>
-        surface.evaluate((node) => {
-          const isIdentityTransform = (transform: string): boolean => {
-            if (transform === 'none') {
-              return true
-            }
-            const matrix2d = /^matrix\(([^)]+)\)$/.exec(transform)
-            if (matrix2d) {
-              const values = matrix2d[1]
-                .split(',')
-                .map((value) => Number(value.trim()))
-              if (values.length !== 6) {
-                return false
-              }
-              return (
-                Math.abs(values[0] - 1) < 0.001 &&
-                Math.abs(values[1]) < 0.001 &&
-                Math.abs(values[2]) < 0.001 &&
-                Math.abs(values[3] - 1) < 0.001 &&
-                Number.isFinite(values[4]) &&
-                Number.isFinite(values[5])
-              )
-            }
-            const matrix3d = /^matrix3d\(([^)]+)\)$/.exec(transform)
-            if (!matrix3d) {
-              return false
-            }
-            const values = matrix3d[1]
-              .split(',')
-              .map((value) => Number(value.trim()))
-            if (values.length !== 16) {
-              return false
-            }
-            return (
-              Math.abs(values[0] - 1) < 0.001 &&
-              Math.abs(values[5] - 1) < 0.001 &&
-              Math.abs(values[10] - 1) < 0.001 &&
-              Math.abs(values[15] - 1) < 0.001 &&
-              Math.abs(values[1]) < 0.001 &&
-              Math.abs(values[2]) < 0.001 &&
-              Math.abs(values[3]) < 0.001 &&
-              Math.abs(values[4]) < 0.001 &&
-              Math.abs(values[6]) < 0.001 &&
-              Math.abs(values[7]) < 0.001 &&
-              Math.abs(values[8]) < 0.001 &&
-              Math.abs(values[9]) < 0.001 &&
-              Math.abs(values[11]) < 0.001 &&
-              Number.isFinite(values[12]) &&
-              Number.isFinite(values[13]) &&
-              Number.isFinite(values[14])
-            )
-          }
-
-          let current: HTMLElement | null = node as HTMLElement
-          while (current) {
-            const style = window.getComputedStyle(current)
-            const opacity = Number.parseFloat(style.opacity || '1')
-            if (opacity < 0.999) {
-              return false
-            }
-            current = current.parentElement
-          }
-
-          const style = window.getComputedStyle(node)
-          const opacity = Number.parseFloat(style.opacity || '1')
-          const rect = (node as HTMLElement).getBoundingClientRect()
-          const hasSize = rect.width > 0 && rect.height > 0
-
-          if (
-            !hasSize ||
-            opacity < 0.999 ||
-            !isIdentityTransform(style.transform)
-          ) {
-            return false
-          }
-          return true
-        }),
-      { timeout: 5000 },
-    )
-    .toBe(true)
-  await page.evaluate(async () => {
-    if (document.fonts?.status !== 'loaded') {
-      await document.fonts?.ready
-    }
-  })
-}
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
@@ -173,7 +51,9 @@ test.describe('The Extension page should', () => {
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
-    await page.waitForTimeout(1000)
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    await page.goto(extensionURL)
+    await waitForDefaultExtensionView(page)
   })
 
   test.afterEach(async () => {
@@ -244,6 +124,8 @@ test.describe('The Extension page should', () => {
     await page.reload()
 
     const allWindows = page.locator(WINDOW_CARD_QUERY)
+    await expect(allWindows).toHaveCount(2)
+    await expect(page.locator(TAB_QUERY)).toHaveCount(5)
     await expect(allWindows.first()).toBeVisible()
     await expect(allWindows.nth(1)).toBeVisible()
     const focusedWindowId = await page.evaluate(async () => {
@@ -263,6 +145,8 @@ test.describe('The Extension page should', () => {
       unfocusedWindowId > -1
         ? page.getByTestId(`window-card-${unfocusedWindowId}`)
         : allWindows.nth(1)
+    await waitForLocatorRectToStabilize(focusedWindow, { minHeight: 200 })
+    await waitForLocatorRectToStabilize(unfocusedWindow, { minHeight: 200 })
     const focusedShot = await focusedWindow.screenshot()
     expect(focusedShot).toMatchSnapshot('window-card-focused-state.png', {
       maxDiffPixelRatio: 0.2,

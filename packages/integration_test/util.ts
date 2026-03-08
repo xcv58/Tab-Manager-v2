@@ -1,4 +1,5 @@
-import { chromium, ChromiumBrowserContext } from 'playwright'
+import { expect } from '@playwright/test'
+import { chromium, ChromiumBrowserContext, Locator } from 'playwright'
 import { join } from 'path'
 import { Page } from 'playwright'
 
@@ -226,6 +227,173 @@ export const waitForTestId = async (page: Page, testId: string, count = 1) => {
     },
     { selector: `[data-testid="${testId}"]`, count },
   )
+}
+
+export const closeCurrentWindowTabsExceptActive = async (
+  page: Page,
+  extensionURL?: string,
+) => {
+  await page.evaluate(async (expectedExtensionURL) => {
+    const currentWindow = await chrome.windows.getCurrent()
+    if (typeof currentWindow.id !== 'number') {
+      return
+    }
+
+    const currentTab = chrome.tabs.getCurrent
+      ? await chrome.tabs.getCurrent()
+      : null
+    const currentLocation = window.location.href
+    const tabs = await chrome.tabs.query({ windowId: currentWindow.id })
+    const keepTabId =
+      currentTab?.id ??
+      tabs.find((tab) => tab.url === currentLocation)?.id ??
+      tabs.find((tab) => tab.url === expectedExtensionURL)?.id ??
+      tabs.find((tab) => (tab.url || '').startsWith('chrome-extension://'))?.id
+
+    if (typeof keepTabId !== 'number') {
+      return
+    }
+
+    const tabIdsToClose = tabs
+      .map((tab) => tab.id)
+      .filter(
+        (tabId): tabId is number =>
+          typeof tabId === 'number' && tabId !== keepTabId,
+      )
+    if (tabIdsToClose.length > 0) {
+      await chrome.tabs.remove(tabIdsToClose)
+    }
+  }, extensionURL)
+}
+
+export const waitForDefaultExtensionView = async (page: Page) => {
+  await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
+  await expect(page.locator(TAB_QUERY)).toHaveCount(1)
+}
+
+export const waitForAnimationsToFinish = async (
+  target: Locator,
+): Promise<void> => {
+  await target.evaluate(async (node) => {
+    const nextFrame = () =>
+      new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    let stableFrames = 0
+    for (let i = 0; i < 180; i += 1) {
+      const animations = node
+        .getAnimations({ subtree: true })
+        .filter(
+          (animation) =>
+            animation.playState !== 'finished' &&
+            animation.playState !== 'idle',
+        )
+      if (animations.length > 0) {
+        stableFrames = 0
+        await Promise.all(
+          animations.map((animation) =>
+            animation.finished.catch(() => undefined),
+          ),
+        )
+      } else {
+        stableFrames += 1
+      }
+      if (stableFrames >= 3) {
+        return
+      }
+      await nextFrame()
+    }
+  })
+}
+
+type RectStabilityOptions = {
+  timeout?: number
+  minWidth?: number
+  minHeight?: number
+  stableSamples?: number
+}
+
+export const waitForLocatorRectToStabilize = async (
+  target: Locator,
+  {
+    timeout = 5000,
+    minWidth = 1,
+    minHeight = 1,
+    stableSamples = 3,
+  }: RectStabilityOptions = {},
+) => {
+  let previousRect: {
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null = null
+  let stableCount = 0
+
+  await expect
+    .poll(
+      async () => {
+        const rect = await target.boundingBox()
+        if (!rect || rect.width < minWidth || rect.height < minHeight) {
+          previousRect = null
+          stableCount = 0
+          return false
+        }
+
+        const currentRect = {
+          x: Math.round(rect.x * 10) / 10,
+          y: Math.round(rect.y * 10) / 10,
+          width: Math.round(rect.width * 10) / 10,
+          height: Math.round(rect.height * 10) / 10,
+        }
+        const isStable =
+          previousRect !== null &&
+          Math.abs(previousRect.x - currentRect.x) < 0.5 &&
+          Math.abs(previousRect.y - currentRect.y) < 0.5 &&
+          Math.abs(previousRect.width - currentRect.width) < 0.5 &&
+          Math.abs(previousRect.height - currentRect.height) < 0.5
+
+        previousRect = currentRect
+        stableCount = isStable ? stableCount + 1 : 0
+        return stableCount >= stableSamples - 1
+      },
+      { timeout },
+    )
+    .toBe(true)
+}
+
+export const waitForSurfaceToFullyAppear = async (
+  page: Page,
+  surface: Locator,
+): Promise<void> => {
+  await expect(surface).toBeVisible()
+  await waitForAnimationsToFinish(surface)
+  await waitForLocatorRectToStabilize(surface, {
+    minWidth: 16,
+    minHeight: 16,
+  })
+  await expect
+    .poll(
+      async () =>
+        surface.evaluate((node) => {
+          let current: HTMLElement | null = node as HTMLElement
+          while (current) {
+            const opacity = Number.parseFloat(
+              window.getComputedStyle(current).opacity || '1',
+            )
+            if (opacity < 0.999) {
+              return false
+            }
+            current = current.parentElement
+          }
+          return true
+        }),
+      { timeout: 3000 },
+    )
+    .toBe(true)
+  await page.evaluate(async () => {
+    if (document.fonts?.status !== 'loaded') {
+      await document.fonts?.ready
+    }
+  })
 }
 
 export const dragByTestId = async (
