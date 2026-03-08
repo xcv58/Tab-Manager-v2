@@ -137,6 +137,7 @@ export default observer((props: TabProps & { className?: string }) => {
       <TabTools tab={tab} />
       <CloseButton onClick={onRemove} disabled={tab.removing} />
       <ContainerOrGroupIndicator
+        id={tab.id}
         groupId={tab.groupId}
         cookieStoreId={tab.cookieStoreId}
       />

@@ -4,6 +4,7 @@ import TabGroupIndicator from '../_TabGroupIndicator'
 import { render } from '@testing-library/react'
 
 const VALID_GROUP_ID = 42
+const VALID_TAB_ID = 7
 
 const mockStore = {
   tabGroupStore: {
@@ -24,7 +25,9 @@ describe('TabGroupIndicator', () => {
 
   it('render valid content if groupId is valid', () => {
     const { container } = render(
-      <TabGroupIndicator {...({ groupId: VALID_GROUP_ID } as any)} />,
+      <TabGroupIndicator
+        {...({ id: VALID_TAB_ID, groupId: VALID_GROUP_ID } as any)}
+      />,
     )
     expect(container).toMatchSnapshot()
   })
