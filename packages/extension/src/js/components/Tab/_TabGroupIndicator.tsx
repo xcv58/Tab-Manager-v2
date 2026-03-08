@@ -4,8 +4,10 @@ import Tab from 'stores/Tab'
 import { TabGroup } from 'stores/TabGroupStore'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 
+const GROUP_INDICATOR_INSET = 6
+
 const _TabGroupIndicator = (props: Tab) => {
-  const { groupId } = props
+  const { groupId, id } = props
   const { tabGroupStore } = useStore()
   if (!tabGroupStore) {
     return null
@@ -18,9 +20,10 @@ const _TabGroupIndicator = (props: Tab) => {
   return (
     <hr
       className="absolute border-0"
+      data-testid={`tab-group-indicator-${id}`}
       style={{
-        left: 12,
-        right: 12,
+        left: GROUP_INDICATOR_INSET,
+        right: GROUP_INDICATOR_INSET,
         bottom: 1,
         margin: 0,
         borderTopColor: color,

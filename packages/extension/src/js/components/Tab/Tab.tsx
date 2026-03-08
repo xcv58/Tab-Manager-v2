@@ -152,6 +152,7 @@ export default observer((props: TabProps & { className?: string }) => {
         <DuplicateMarker tab={tab} />
       </div>
       <ContainerOrGroupIndicator
+        id={tab.id}
         groupId={tab.groupId}
         cookieStoreId={tab.cookieStoreId}
       />

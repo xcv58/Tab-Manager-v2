@@ -208,6 +208,14 @@ test.describe('The Extension page should', () => {
     expect(groupedTabIds).toHaveLength(2)
     for (const tabId of groupedTabIds) {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
+      await expect(page.getByTestId(`tab-group-indicator-${tabId}`)).toHaveCSS(
+        'left',
+        '6px',
+      )
+      await expect(page.getByTestId(`tab-group-indicator-${tabId}`)).toHaveCSS(
+        'right',
+        '6px',
+      )
     }
 
     await page.getByTestId(`tab-group-toggle-${groupId}`).click()
