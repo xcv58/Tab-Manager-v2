@@ -724,11 +724,7 @@ test.describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    const themedPanel = page
-      .locator('.MuiDialogContent-root section')
-      .nth(1)
-      .locator('.rounded-xl.border')
-      .first()
+    const themedPanel = page.getByTestId('settings-panel-theme-density')
     await expect(themedPanel).toBeVisible()
     expect(await themedPanel.screenshot()).toMatchSnapshot(
       matchImageSnapshotOptions,
@@ -1185,7 +1181,9 @@ test.describe('The Extension page should', () => {
     const sourceX = sourceBox.x + sourceBox.width / 2
     const sourceY = sourceBox.y + sourceBox.height / 2
     const targetX = targetBox.x + Math.min(16, targetBox.width / 2)
-    const targetY = targetBox.y + targetBox.height - 2
+    // Stay within the row's lower half so the drop targets the tab row,
+    // not the absolute bottom window drop zone overlay.
+    const targetY = targetBox.y + targetBox.height * 0.75
     await page.mouse.move(sourceX, sourceY)
     await page.mouse.down()
     await page.mouse.move(targetX, targetY, { steps: 16 })

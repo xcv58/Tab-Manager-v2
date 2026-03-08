@@ -24,7 +24,7 @@ const _TabGroupIndicator = (props: Tab) => {
       style={{
         left: GROUP_INDICATOR_INSET,
         right: GROUP_INDICATOR_INSET,
-        bottom: 1,
+        bottom: 3,
         margin: 0,
         borderTopColor: color,
         borderTopWidth: 1,

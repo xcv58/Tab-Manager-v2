@@ -39,7 +39,7 @@ export default observer(() => {
     return (
       <div
         ref={scrollbarRef}
-        className="flex flex-auto items-center justify-center overflow-hidden"
+        className="flex items-center justify-center flex-auto overflow-hidden"
       >
         <Loading />
         {resizeDetector}
@@ -65,7 +65,7 @@ export default observer(() => {
   return (
     <div
       ref={scrollbarRef}
-      className="flex flex-row items-start flex-auto mb-0 mr-0 overflow-scroll border-red-700"
+      className="flex flex-row items-start flex-auto px-1 mb-0 mr-0 overflow-scroll"
     >
       {columns}
       {resizeDetector}

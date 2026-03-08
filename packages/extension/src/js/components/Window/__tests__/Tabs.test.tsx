@@ -32,6 +32,12 @@ const getRows = (inputTabs = tabs) =>
       groupId: -1,
       hiddenByCollapse: false,
     }))
+const renderTabs = (win = props.win) =>
+  render(
+    <DndProvider backend={HTML5Backend}>
+      <Tabs {...props} win={win} />
+    </DndProvider>,
+  )
 const windowMounted = jest.fn()
 const props = {
   connectDropTarget,
@@ -52,11 +58,7 @@ const props = {
 
 describe('Tabs', () => {
   it('render correct components', () => {
-    const { container } = render(
-      <DndProvider backend={HTML5Backend}>
-        <Tabs {...props} />
-      </DndProvider>,
-    )
+    const { container } = renderTabs()
     expect(container).toMatchSnapshot()
   })
 
@@ -73,6 +75,32 @@ describe('Tabs', () => {
       />,
     )
     expect(container).toMatchSnapshot()
+  })
+
+  it('does not render active indicator when the window has only one tab', () => {
+    const singleTab = {
+      id: 1,
+      active: true,
+      isVisible: true,
+      setNodeRef: jest.fn(),
+      unhover: jest.fn(),
+      hover: jest.fn(),
+    }
+    const win = {
+      ...props.win,
+      tabs: [singleTab],
+      rows: getRows([singleTab]),
+      getTabById: () => singleTab,
+    }
+    singleTab.win = win
+
+    const { container } = renderTabs(win)
+
+    expect(
+      container.querySelector(
+        `[data-testid="tab-active-indicator-${singleTab.id}"]`,
+      ),
+    ).toBeNull()
   })
 
   it('call requestAnimationFrame with windowStore.windowMounted', () => {
