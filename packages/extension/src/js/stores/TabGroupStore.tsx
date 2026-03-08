@@ -149,6 +149,21 @@ export default class GroupStore {
     return this.store.windowStore.tabs.filter((tab) => tab.groupId === groupId)
   }
 
+  toggleSelectGroup = (groupId: number) => {
+    const groupTabs = this.getTabsForGroup(groupId).filter(
+      (tab) => !tab.removing,
+    )
+    if (!groupTabs.length) {
+      return
+    }
+    const allSelected = groupTabs.every(this.store.tabStore.isTabSelected)
+    if (allSelected) {
+      this.store.tabStore.unselectAll(groupTabs)
+      return
+    }
+    this.store.tabStore.selectAll(groupTabs)
+  }
+
   refreshLayoutForGroupChange = (windowId?: number) => {
     if (this.store.windowStore?.refreshLayoutIfNeeded) {
       this.store.windowStore.refreshLayoutIfNeeded(

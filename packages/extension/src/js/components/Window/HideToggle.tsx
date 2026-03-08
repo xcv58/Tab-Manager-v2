@@ -13,7 +13,7 @@ export default ({ hide, toggleHide }) => {
     <ControlIconButton
       onClick={toggleHide}
       className="text-slate-400"
-      controlSize="medium"
+      controlSize="compact"
       aria-label="Toggle window hide"
     >
       {icon}

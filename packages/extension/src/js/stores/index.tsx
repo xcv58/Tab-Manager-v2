@@ -15,6 +15,7 @@ import TabGroupStore from './TabGroupStore'
 import ContainerStore from './ContainerStore'
 
 import Tab from './Tab'
+import TabGroupRow from './TabGroupRow'
 import Window from './Window'
 
 export default class Store {
@@ -67,22 +68,18 @@ export default class Store {
   }
 
   remove = () => {
-    const { down, focusedTabId } = this.focusStore
-    const { tabs } = this.windowStore
+    const { down, focusedItem } = this.focusStore
     let tabsToRemove: Tab[] = []
     if (this.tabStore.selection.size > 0) {
-      while (this.tabStore.selection.has(this.focusStore.focusedTabId)) {
-        down()
-        if (focusedTabId === this.focusStore.focusedTabId) {
-          this.focusStore.defocus()
-          break
-        }
-      }
-      tabsToRemove = tabs.filter((x) => x.isSelected)
+      tabsToRemove = this.tabStore.sources
     } else {
-      if (focusedTabId) {
-        tabsToRemove = tabs.filter((x) => x.isFocused)
-        down()
+      tabsToRemove = this._getFocusedOrSelectedTab()
+    }
+    while (this._isFocusedItemAffectedByTabs(tabsToRemove)) {
+      down()
+      if (focusedItem === this.focusStore.focusedItem) {
+        this.focusStore.defocus()
+        break
       }
     }
     this.tabStore.unselectAll()
@@ -90,16 +87,12 @@ export default class Store {
   }
 
   reload = () => {
-    const { focusedItem } = this.focusStore
-    const { tabs } = this.windowStore
     const { selection, unselectAll } = this.tabStore
     let tabsToReload: Tab[] = []
     if (selection.size > 0) {
-      tabsToReload = tabs.filter((x) => x.isSelected)
+      tabsToReload = this.tabStore.sources
     } else {
-      if (focusedItem) {
-        tabsToReload = tabs.filter((x) => x.isFocused)
-      }
+      tabsToReload = this._getFocusedOrSelectedTab()
     }
     unselectAll()
     tabsToReload.forEach((x) => x.reload())
@@ -110,11 +103,9 @@ export default class Store {
     const { selection, unselectAll } = this.tabStore
     if (selection.size === 0 && focusedItem) {
       log.debug('togglePin for focusedItem:', { focusedItem })
-      if (focusedItem instanceof Tab) {
-        await togglePinTabs([focusedItem])
-      }
-      if (focusedItem instanceof Window) {
-        await togglePinTabs(focusedItem.tabs)
+      const tabs = this._getFocusedOrSelectedTab()
+      if (tabs.length) {
+        await togglePinTabs(tabs)
       }
     } else {
       await togglePinTabs([...selection.values()])
@@ -123,7 +114,10 @@ export default class Store {
   }
 
   get hasFocusedOrSelectedTab() {
-    return this.tabStore.selection.size > 0 || !!this.focusStore.focusedItem
+    return (
+      this.tabStore.selection.size > 0 ||
+      this._getFocusedOrSelectedTab().length > 0
+    )
   }
 
   _getFocusedOrSelectedTab = () => {
@@ -138,9 +132,36 @@ export default class Store {
     if (focusedItem instanceof Tab) {
       return [focusedItem]
     }
+    if (focusedItem instanceof TabGroupRow) {
+      return this.tabGroupStore?.getTabsForGroup?.(focusedItem.groupId) || []
+    }
     if (focusedItem instanceof Window) {
       return focusedItem.tabs
     }
+    return []
+  }
+
+  _isFocusedItemAffectedByTabs = (tabs: Tab[]) => {
+    const { focusedItem } = this.focusStore
+    if (!focusedItem || !tabs.length) {
+      return false
+    }
+    const tabIds = new Set(tabs.map((tab) => tab.id))
+    if (focusedItem instanceof Tab) {
+      return tabIds.has(focusedItem.id)
+    }
+    if (focusedItem instanceof TabGroupRow) {
+      const groupTabIds = new Set(
+        this.tabGroupStore
+          ?.getTabsForGroup?.(focusedItem.groupId)
+          ?.map((tab) => tab.id) || [],
+      )
+      return (
+        groupTabIds.size > 0 &&
+        Array.from(groupTabIds).every((tabId) => tabIds.has(tabId))
+      )
+    }
+    return false
   }
 
   copyTabsInfo = async ({ includeTitle = false, delimiter = '\n' } = {}) => {

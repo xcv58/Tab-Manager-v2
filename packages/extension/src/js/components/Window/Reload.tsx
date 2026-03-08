@@ -8,10 +8,10 @@ export default ({ reload }) => (
     <ControlIconButton
       onClick={reload}
       className="text-slate-400"
-      controlSize="medium"
+      controlSize="compact"
       aria-label="Reload all tabs"
     >
-      <Refresh />
+      <Refresh fontSize="small" />
     </ControlIconButton>
   </Tooltip>
 )

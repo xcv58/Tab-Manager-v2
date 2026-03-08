@@ -17,7 +17,7 @@ export default observer((props: WinProps) => {
   }
   const content = win.rows.map((row) => {
     if (row.kind === 'group') {
-      return <GroupRow key={`group-${row.groupId}`} row={row} />
+      return <GroupRow key={`group-${row.groupId}`} row={row} win={win} />
     }
     const tab = win.getTabById(row.tabId)
     if (!tab) {

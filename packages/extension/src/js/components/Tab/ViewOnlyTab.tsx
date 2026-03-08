@@ -8,6 +8,7 @@ import PIN from './Pin'
 import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 import CloseButton from 'components/CloseButton'
+import RowActionSlot from 'components/RowActionSlot'
 
 export default observer((props: TabProps) => {
   const { tab } = props
@@ -28,11 +29,13 @@ export default observer((props: TabProps) => {
       <TabContent tab={tab} faked />
       <div className="flex h-10 shrink-0 items-center gap-0.5 pr-1">
         <TabTools tab={tab} faked />
-        <CloseButton
-          onClick={onRemove}
-          disabled={tab.removing}
-          size="compact"
-        />
+        <RowActionSlot>
+          <CloseButton
+            onClick={onRemove}
+            disabled={tab.removing}
+            size="compact"
+          />
+        </RowActionSlot>
         <DuplicateMarker tab={tab} faked />
       </div>
       <ContainerOrGroupIndicator
