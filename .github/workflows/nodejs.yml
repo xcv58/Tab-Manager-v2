@@ -5,9 +5,6 @@ on: [push]
 jobs:
   test-build-integration-test:
     runs-on: ubuntu-latest
-    env:
-      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     strategy:
       matrix:
         node: [24, 25]
@@ -71,7 +68,7 @@ jobs:
 
       # Run all test
       - name: Integration Test
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test --force
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
