@@ -1,5 +1,6 @@
 import React from 'react'
-import classNames from 'classnames'
+import CloseIcon from '@mui/icons-material/Close'
+import ControlIconButton from 'components/ControlIconButton'
 
 export interface CloseButtonProps {
   /**
@@ -9,29 +10,24 @@ export interface CloseButtonProps {
   /**
    * The click handler
    */
-  onClick: () => void
+  onClick: React.MouseEventHandler<HTMLButtonElement>
+  /**
+   * Accessible label for the button
+   */
+  'aria-label'?: string
 }
 
 const CloseButton: React.FC<CloseButtonProps> = (props) => {
-  const { onClick, disabled, ...restProps } = props
+  const { onClick, disabled, 'aria-label': ariaLabel = 'Close' } = props
   return (
-    <button
-      {...restProps}
-      {...{
-        onClick,
-        disabled,
-      }}
-      className={classNames(
-        'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-lg text-red-200 disabled:opacity-75',
-        {
-          'hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700':
-            !disabled,
-          'cursor-not-allowed': disabled,
-        },
-      )}
+    <ControlIconButton
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      tone="danger"
     >
-      x
-    </button>
+      <CloseIcon fontSize="small" />
+    </ControlIconButton>
   )
 }
 

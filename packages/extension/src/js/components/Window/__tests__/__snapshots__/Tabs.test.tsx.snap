@@ -69,9 +69,22 @@ exports[`Tabs render correct components 1`] = `
           />
         </button>
         <button
-          class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-lg text-red-200 disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+          aria-label="Close"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xti9kj-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
         >
-          x
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+            data-testid="CloseIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
         </button>
       </div>
     </div>
@@ -141,9 +154,22 @@ exports[`Tabs render correct components 1`] = `
           />
         </button>
         <button
-          class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-transparent text-lg text-red-200 disabled:opacity-75 hover:text-red-500 hover:bg-red-100 focus:outline-none focus:ring active:bg-red-300 active:text-red-700"
+          aria-label="Close"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xti9kj-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
         >
-          x
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+            data-testid="CloseIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
         </button>
       </div>
     </div>
