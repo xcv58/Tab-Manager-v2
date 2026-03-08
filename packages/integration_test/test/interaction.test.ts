@@ -724,8 +724,13 @@ test.describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    const dialogContent = await page.$('.MuiDialogContent-root')
-    expect(await dialogContent.screenshot()).toMatchSnapshot(
+    const themedPanel = page
+      .locator('.MuiDialogContent-root section')
+      .nth(1)
+      .locator('.rounded-xl.border')
+      .first()
+    await expect(themedPanel).toBeVisible()
+    expect(await themedPanel.screenshot()).toMatchSnapshot(
       matchImageSnapshotOptions,
     )
 
