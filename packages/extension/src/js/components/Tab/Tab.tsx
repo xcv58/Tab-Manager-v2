@@ -4,6 +4,7 @@ import Icon from 'components/Tab/Icon'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
+import RowActionSlot from 'components/RowActionSlot'
 import classNames from 'classnames'
 import { useStore } from 'components/hooks/useStore'
 import { useTheme } from 'components/hooks/useTheme'
@@ -144,11 +145,13 @@ export default observer((props: TabProps & { className?: string }) => {
       <TabContent tab={tab} />
       <div className="flex h-10 shrink-0 items-center gap-0.5 pr-1">
         <TabTools tab={tab} />
-        <CloseButton
-          onClick={onRemove}
-          disabled={tab.removing}
-          size="compact"
-        />
+        <RowActionSlot>
+          <CloseButton
+            onClick={onRemove}
+            disabled={tab.removing}
+            size="compact"
+          />
+        </RowActionSlot>
         <DuplicateMarker tab={tab} />
       </div>
       <ContainerOrGroupIndicator

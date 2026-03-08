@@ -11,20 +11,26 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useTheme } from '@mui/material'
 import { useStore } from 'components/hooks/useStore'
+import CloseButton from 'components/CloseButton'
+import RowActionSlot from 'components/RowActionSlot'
+import useReduceMotion from 'libs/useReduceMotion'
 import { WindowRow } from 'stores/TabGroupStore'
+import Window from 'stores/Window'
 import GroupEditorPopover from './GroupEditorPopover'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { ItemTypes } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import GroupDragHandle from './GroupDragHandle'
 import ControlIconButton from 'components/ControlIconButton'
+import { browser } from 'libs'
 
 type Props = {
   row: Extract<WindowRow, { kind: 'group' }>
+  win: Window
 }
 
 export default observer((props: Props) => {
-  const { row } = props
+  const { row, win } = props
   const { tabGroupStore, searchStore, windowStore, dragStore } = useStore()
   const theme = useTheme()
   const isDarkMode = theme.palette.mode === 'dark'
@@ -35,11 +41,14 @@ export default observer((props: Props) => {
   const [isToggleHovered, setIsToggleHovered] = useState(false)
   const [isToggleFocused, setIsToggleFocused] = useState(false)
   const tabGroup = tabGroupStore.getTabGroup(row.groupId)
+  const groupRow = win.getGroupRow(row.groupId)
   const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
   const headerRef = useRef<HTMLDivElement | null>(null)
+  const nodeRef = useRef<HTMLDivElement | null>(null)
   const [headerDropMode, setHeaderDropMode] = useState<
     'join-group' | 'before-group'
   >('join-group')
+  const reduceMotion = useReduceMotion()
 
   const groupColorId = (tabGroup?.color ||
     row.color ||
@@ -69,6 +78,15 @@ export default observer((props: Props) => {
       return
     }
     windowStore.cleanDuplicateTabs(groupTabs)
+  }
+
+  const onCloseGroup = () => {
+    const tabIds = groupTabs.map((tab) => tab.id)
+    if (!tabIds.length) {
+      return
+    }
+    windowStore.removeTabs(tabIds)
+    browser.tabs.remove(tabIds)
   }
 
   const countLabel = useMemo(() => {
@@ -157,11 +175,32 @@ export default observer((props: Props) => {
     isHeaderHovered ||
     isHeaderFocusWithin ||
     (dragStore.dragging && dragStore.dragSource === 'group-header')
+  const showGroupControls =
+    isHeaderHovered ||
+    isHeaderFocusWithin ||
+    Boolean(menuAnchorEl) ||
+    Boolean(editorAnchorEl)
   const showToggleAffordance = isToggleHovered || isToggleFocused
+  const isFocused = groupRow.isFocused
+
+  useEffect(() => {
+    groupRow.setNodeRef(nodeRef)
+  })
+  useEffect(() => {
+    if (isFocused) {
+      nodeRef.current?.focus({ preventScroll: true })
+      nodeRef.current?.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      })
+    }
+  }, [groupRow, isFocused, reduceMotion])
 
   const setDropRef = useCallback(
     (node: HTMLDivElement | null) => {
       headerRef.current = node
+      nodeRef.current = node
       drop(node)
     },
     [drop],
@@ -171,7 +210,10 @@ export default observer((props: Props) => {
     <>
       <div
         ref={setDropRef}
-        className={classNames('group/tab-group sticky z-10 border-b')}
+        tabIndex={-1}
+        className={classNames('group/tab-group sticky relative border-b', {
+          'z-20': isFocused,
+        })}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}
         onFocusCapture={() => setIsHeaderFocusWithin(true)}
@@ -247,27 +289,34 @@ export default observer((props: Props) => {
               </span>
             )}
           </button>
-          <div className="flex h-10 items-center gap-0.5 pr-1">
-            {canMutateGroups && (
-              <GroupDragHandle
-                groupId={row.groupId}
-                className={classNames(
-                  'transition-opacity',
-                  showGroupDragHandle
-                    ? 'opacity-100 pointer-events-auto'
-                    : 'opacity-0 pointer-events-none',
-                )}
+          <div className="flex h-10 shrink-0 items-center gap-0.5 pr-1">
+            <RowActionSlot visible={showGroupControls}>
+              <ControlIconButton
+                onClick={(event) => setMenuAnchorEl(event.currentTarget)}
+                className="text-slate-400"
+                controlSize="compact"
+                aria-label="Group actions"
+                data-testid={`tab-group-menu-${row.groupId}`}
+              >
+                <MoreVertIcon fontSize="small" />
+              </ControlIconButton>
+            </RowActionSlot>
+            <RowActionSlot visible={canMutateGroups && showGroupDragHandle}>
+              {canMutateGroups && (
+                <GroupDragHandle
+                  groupId={row.groupId}
+                  className={classNames('transition-opacity')}
+                />
+              )}
+            </RowActionSlot>
+            <RowActionSlot visible={showGroupControls}>
+              <CloseButton
+                onClick={onCloseGroup}
+                size="compact"
+                aria-label="Close group"
               />
-            )}
-            <ControlIconButton
-              onClick={(event) => setMenuAnchorEl(event.currentTarget)}
-              className="text-slate-400"
-              controlSize="medium"
-              aria-label="Group actions"
-              data-testid={`tab-group-menu-${row.groupId}`}
-            >
-              <MoreVertIcon fontSize="small" />
-            </ControlIconButton>
+            </RowActionSlot>
+            <div aria-hidden="true" className="h-10 w-2 shrink-0" />
           </div>
         </div>
         <div
@@ -275,6 +324,17 @@ export default observer((props: Props) => {
           style={{ backgroundColor: groupColor.line }}
           data-testid={`tab-group-bar-${row.groupId}`}
         />
+        {isFocused && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-10 rounded-sm"
+            style={{
+              boxShadow: `0 0 0 2px ${
+                theme.palette.mode === 'dark' ? '#b5c7e6' : '#1a73e8'
+              }`,
+            }}
+          />
+        )}
       </div>
       <Popover
         anchorEl={menuAnchorEl}

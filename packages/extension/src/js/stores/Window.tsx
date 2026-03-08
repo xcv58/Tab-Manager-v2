@@ -5,9 +5,12 @@ import Store from 'stores'
 import log from 'libs/log'
 import Focusable from './Focusable'
 import type { WindowRow } from './TabGroupStore'
+import TabGroupRow from './TabGroupRow'
 
 export default class Window extends Focusable {
   store: Store
+
+  groupRowMap = new Map<number, TabGroupRow>()
 
   constructor(win, store: Store) {
     super(store)
@@ -20,6 +23,7 @@ export default class Window extends Focusable {
       hide: computed,
       visibleLength: computed,
       rows: computed,
+      focusableRows: computed,
       lastFocused: computed,
       canDrop: computed,
       invisibleTabs: computed,
@@ -87,6 +91,17 @@ export default class Window extends Focusable {
       }))
   }
 
+  get focusableRows(): Focusable[] {
+    return this.rows
+      .map((row) => {
+        if (row.kind === 'group') {
+          return this.getGroupRow(row.groupId)
+        }
+        return this.getTabById(row.tabId)
+      })
+      .filter((item): item is Focusable => !!item)
+  }
+
   get lastFocused() {
     return this.id === this.store.windowStore.lastFocusedWindowId
   }
@@ -138,6 +153,33 @@ export default class Window extends Focusable {
 
   getTabById = (tabId: number) => {
     return this.tabs.find((x) => x.id === tabId)
+  }
+
+  getGroupRow = (groupId: number) => {
+    let groupRow = this.groupRowMap.get(groupId)
+    if (!groupRow) {
+      groupRow = new TabGroupRow(
+        {
+          groupId,
+          windowId: this.id,
+        },
+        this.store,
+      )
+      this.groupRowMap.set(groupId, groupRow)
+    } else {
+      groupRow.updateWindow(this.id)
+    }
+    return groupRow
+  }
+
+  getVisibleGroupRow = (groupId: number) => {
+    const visibleGroupRow = this.rows.find(
+      (row) => row.kind === 'group' && row.groupId === groupId,
+    )
+    if (!visibleGroupRow) {
+      return null
+    }
+    return this.getGroupRow(groupId)
   }
 
   add = (tab: Tab, index: number) => {

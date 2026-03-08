@@ -235,6 +235,8 @@ test.describe('The Extension page should', () => {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
     }
 
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)
@@ -407,6 +409,8 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)
@@ -547,8 +551,8 @@ test.describe('The Extension page should', () => {
     await expect(windowTitle).toBeVisible()
     const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
     const sortButtonSlot = sortButton.locator('xpath=ancestor::div[1]')
-    await expect(sortButton).toBeVisible()
-    await expect(sortButtonSlot).toHaveCSS('opacity', '0.38')
+    await expect(sortButton).toBeHidden()
+    await expect(sortButtonSlot).toHaveCSS('opacity', '0')
     await windowTitle.focus()
     await page.waitForTimeout(150)
     await expect(sortButton).toBeVisible()

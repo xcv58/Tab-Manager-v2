@@ -95,12 +95,62 @@ export const groupTabsByUrl = async (
 ) => {
   return page.evaluate(
     async ({ urls, title, color }) => {
-      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const allTabs = await chrome.tabs.query({})
+      const requestedCounts = urls.reduce(
+        (counts, url) => {
+          counts[url] = (counts[url] || 0) + 1
+          return counts
+        },
+        {} as Record<string, number>,
+      )
+      const tabsByWindow = new Map<number, chrome.tabs.Tab[]>()
+      for (const tab of allTabs) {
+        if (typeof tab.windowId !== 'number') {
+          continue
+        }
+        const windowTabs = tabsByWindow.get(tab.windowId) || []
+        windowTabs.push(tab)
+        tabsByWindow.set(tab.windowId, windowTabs)
+      }
+      const candidateTabs = Array.from(tabsByWindow.values()).find(
+        (windowTabs) => {
+          const windowCounts = windowTabs.reduce(
+            (counts, tab) => {
+              if (tab.url && requestedCounts[tab.url]) {
+                counts[tab.url] = (counts[tab.url] || 0) + 1
+              }
+              return counts
+            },
+            {} as Record<string, number>,
+          )
+          return Object.entries(requestedCounts).every(
+            ([url, count]) => (windowCounts[url] || 0) >= count,
+          )
+        },
+      )
+      if (!candidateTabs?.length) {
+        return -1
+      }
+      const sortedTabs = candidateTabs
+        .slice()
+        .sort((a, b) => (a.index || 0) - (b.index || 0))
+      const usedTabIds = new Set<number>()
       const pickedTabIds = urls
-        .map((url) => tabs.find((tab) => tab.url === url))
-        .filter((tab) => !!tab)
-        .map((tab) => tab.id)
-      if (!pickedTabIds.length) {
+        .map((url) => {
+          const matchingTab = sortedTabs.find(
+            (tab) =>
+              typeof tab.id === 'number' &&
+              !usedTabIds.has(tab.id) &&
+              tab.url === url,
+          )
+          if (typeof matchingTab?.id !== 'number') {
+            return -1
+          }
+          usedTabIds.add(matchingTab.id)
+          return matchingTab.id
+        })
+        .filter((id) => id > -1)
+      if (pickedTabIds.length !== urls.length) {
         return -1
       }
       const groupId = await chrome.tabs.group({
@@ -152,11 +202,26 @@ export const groupTabsByUrlInWindow = async (
   return page.evaluate(
     async ({ windowId, urls, title, color }) => {
       const tabs = await chrome.tabs.query({ windowId })
+      const sortedTabs = tabs
+        .slice()
+        .sort((a, b) => (a.index || 0) - (b.index || 0))
+      const usedTabIds = new Set<number>()
       const pickedTabIds = urls
-        .map((url) => tabs.find((tab) => tab.url === url))
-        .filter((tab) => !!tab)
-        .map((tab) => tab.id)
-      if (!pickedTabIds.length) {
+        .map((url) => {
+          const matchingTab = sortedTabs.find(
+            (tab) =>
+              typeof tab.id === 'number' &&
+              !usedTabIds.has(tab.id) &&
+              tab.url === url,
+          )
+          if (typeof matchingTab?.id !== 'number') {
+            return -1
+          }
+          usedTabIds.add(matchingTab.id)
+          return matchingTab.id
+        })
+        .filter((id) => id > -1)
+      if (pickedTabIds.length !== urls.length) {
         return -1
       }
       const groupId = await chrome.tabs.group({

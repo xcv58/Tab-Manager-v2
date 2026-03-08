@@ -5,6 +5,7 @@ import Tab from './Tab'
 import Window from './Window'
 import Focusable from './Focusable'
 import { MutableRefObject } from 'react'
+import TabGroupRow from './TabGroupRow'
 
 const getNextItem = (
   items: any[],
@@ -21,9 +22,9 @@ const getNextItem = (
 
 const getFocusableItems = (win: Window, focusedItem: Focusable) => {
   if (win.hide || win === focusedItem) {
-    return [win, ...win.matchedTabs]
+    return [win, ...win.focusableRows]
   }
-  return win.matchedTabs
+  return win.focusableRows
 }
 
 export default class FocusStore {
@@ -39,14 +40,23 @@ export default class FocusStore {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
       return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
+    } else if (this.focusedGroupId != null) {
+      return (
+        windows
+          .find((win) => !!win.getVisibleGroupRow(this.focusedGroupId))
+          ?.getVisibleGroupRow(this.focusedGroupId) || null
+      )
     } else if (this.focusedWindowId) {
       return windows.find((x) => x.id === this.focusedWindowId)
     }
+    return null
   }
 
   focusedWindowId: number = null
 
   focusedTabId: number = null
+
+  focusedGroupId: number = null
 
   containerRef: MutableRefObject<HTMLElement> = null
 
@@ -64,13 +74,19 @@ export default class FocusStore {
     log.debug('_setFocusedItem:', item)
     if (item instanceof Window) {
       this.focusedTabId = null
+      this.focusedGroupId = null
       this.focusedWindowId = item.id
     } else if (item instanceof Tab) {
       this.focusedTabId = item.id
+      this.focusedGroupId = null
+      this.focusedWindowId = null
+    } else if (item instanceof TabGroupRow) {
+      this.focusedTabId = null
+      this.focusedGroupId = item.groupId
       this.focusedWindowId = null
     } else {
       log.error(
-        'invalid input item for _setFocusedItem, it is not Window nor Tab:',
+        'invalid input item for _setFocusedItem, it is not Window, Tab, or TabGroupRow:',
         { item },
       )
     }
@@ -78,6 +94,7 @@ export default class FocusStore {
 
   defocus = () => {
     this.focusedTabId = null
+    this.focusedGroupId = null
     this.focusedWindowId = null
     this._top = -1
   }
@@ -135,7 +152,13 @@ export default class FocusStore {
   canMutateTabGroups = () => !!this.store.tabGroupStore?.canMutateGroups?.()
 
   toggleFocusedTabGroup = () => {
-    if (!this.canMutateTabGroups() || !(this.focusedItem instanceof Tab)) {
+    if (
+      !this.canMutateTabGroups() ||
+      !(
+        this.focusedItem instanceof Tab ||
+        this.focusedItem instanceof TabGroupRow
+      )
+    ) {
       return
     }
     const { groupId } = this.focusedItem
@@ -146,7 +169,13 @@ export default class FocusStore {
   }
 
   ungroupFocusedTab = () => {
-    if (!this.canMutateTabGroups() || !(this.focusedItem instanceof Tab)) {
+    if (
+      !this.canMutateTabGroups() ||
+      !(
+        this.focusedItem instanceof Tab ||
+        this.focusedItem instanceof TabGroupRow
+      )
+    ) {
       return
     }
     const { groupId } = this.focusedItem
@@ -311,13 +340,18 @@ export default class FocusStore {
   }
 
   _focusOnFirstItem = () => {
-    const { matchedTabs } = this.store.searchStore
-    if (matchedTabs.length) {
-      return this._setFocusedItem(matchedTabs[0])
-    }
     const { windows } = this.store.windowStore
+    for (const win of windows) {
+      if (win.hide) {
+        return this._setFocusedItem(win)
+      }
+      const [firstItem] = win.focusableRows
+      if (firstItem) {
+        return this._setFocusedItem(firstItem)
+      }
+    }
     if (windows.length) {
-      this._setFocusedItem(windows[0])
+      return this._setFocusedItem(windows[0])
     }
   }
 
@@ -340,9 +374,9 @@ export default class FocusStore {
     if (tab) {
       return this.focus(tab)
     }
-    const firstVisibleTab = lastFocusedWindow.matchedTabs[0]
-    if (firstVisibleTab) {
-      this.focus(firstVisibleTab)
+    const [firstVisibleItem] = lastFocusedWindow.focusableRows
+    if (firstVisibleItem) {
+      this.focus(firstVisibleItem)
     }
   }
 

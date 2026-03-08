@@ -3,14 +3,14 @@
 exports[`Sort should call arrangeStore.sortTabs 1`] = `
 <button
   aria-label="Sort tabs"
-  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1066741-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1kwcf79-MuiButtonBase-root-MuiIconButton-root"
   data-mui-internal-clone-element="true"
   tabindex="0"
   type="button"
 >
   <svg
     aria-hidden="true"
-    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
     data-testid="SortIcon"
     focusable="false"
     viewBox="0 0 24 24"
@@ -45,14 +45,14 @@ exports[`Sort should have correct tooltip 2`] = `
 <div>
   <button
     aria-label="Sort tabs"
-    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1066741-MuiButtonBase-root-MuiIconButton-root"
+    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1kwcf79-MuiButtonBase-root-MuiIconButton-root"
     data-mui-internal-clone-element="true"
     tabindex="0"
     type="button"
   >
     <svg
       aria-hidden="true"
-      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+      class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
       data-testid="SortIcon"
       focusable="false"
       viewBox="0 0 24 24"

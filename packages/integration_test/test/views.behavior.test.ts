@@ -199,6 +199,7 @@ test.describe('The Extension page should', () => {
     const hideToggle = hiddenCounterTitle.locator(
       'button[aria-label="Toggle window hide"]',
     )
+    await hiddenCounterTitle.hover()
     await expect(hideToggle).toBeVisible()
     await expect
       .poll(async () => (await hiddenCounterTitle.textContent()) || '')
@@ -214,6 +215,8 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await hiddenCounterTitle.hover()
+    await expect(hideToggle).toBeVisible()
     await hideToggle.click()
     await page.waitForTimeout(400)
     const hiddenWindowCard = page.locator(WINDOW_CARD_QUERY).first()

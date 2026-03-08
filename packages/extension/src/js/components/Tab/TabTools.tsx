@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import classNames from 'classnames'
 import DragHandle from 'components/Tab/DragHandle'
 import TabMenu from 'components/Tab/TabMenu'
+import RowActionSlot from 'components/RowActionSlot'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 
@@ -18,21 +18,13 @@ export default observer((props: TabProps) => {
   }
   const emphasizeTools = isHovered || isFocused
   return (
-    <div className="flex h-10 items-center gap-0.5">
-      <div
-        className={classNames('shrink-0 transition-opacity duration-150', {
-          'opacity-100': emphasizeTools,
-          'pointer-events-none opacity-0': !emphasizeTools,
-        })}
-      >
+    <div className="flex h-10 shrink-0 items-center gap-0.5">
+      <RowActionSlot visible={emphasizeTools}>
         <TabMenu {...props} />
-      </div>
-      <DragHandle
-        className={classNames({
-          'opacity-100 pointer-events-auto': emphasizeTools,
-          'opacity-0 pointer-events-none': !emphasizeTools,
-        })}
-      />
+      </RowActionSlot>
+      <RowActionSlot visible={emphasizeTools}>
+        <DragHandle />
+      </RowActionSlot>
     </div>
   )
 })

@@ -40,7 +40,7 @@ export default ({ groupId, className }: Props) => {
       className={classNames('text-slate-400', className, {
         'opacity-50': isDragging,
       })}
-      controlSize="medium"
+      controlSize="compact"
       sx={{
         cursor: 'move',
         '&:hover': {
@@ -52,7 +52,7 @@ export default ({ groupId, className }: Props) => {
       aria-label="Drag group"
       onPointerDown={onPointerDown}
     >
-      <DragHandleIcon sx={{ fontSize: 17 }} />
+      <DragHandleIcon sx={{ fontSize: 15 }} />
     </ControlIconButton>
   )
 }

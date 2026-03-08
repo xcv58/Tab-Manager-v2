@@ -122,7 +122,16 @@ export default class Tab extends Focusable {
 
   toggleHide = () => this.win.toggleHide()
 
-  toggleSelectAll = () => this.win.toggleSelectAll()
+  toggleSelectAll = () => {
+    if (
+      this.store.tabGroupStore &&
+      !this.store.tabGroupStore.isNoGroupId(this.groupId)
+    ) {
+      this.store.tabGroupStore.toggleSelectGroup(this.groupId)
+      return
+    }
+    this.win.toggleSelectAll()
+  }
 
   reload = () => browser.tabs.reload(this.id)
 

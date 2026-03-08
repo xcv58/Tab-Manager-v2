@@ -4,6 +4,7 @@ import { useTheme as useMuiTheme } from '@mui/material/styles'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
+import RowActionSlot from 'components/RowActionSlot'
 import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
@@ -12,32 +13,6 @@ import { WinProps } from 'components/types'
 import useReduceMotion from 'libs/useReduceMotion'
 import { useTheme } from 'components/hooks/useTheme'
 import Tooltip from '@mui/material/Tooltip'
-
-const WindowControlSlot = ({
-  visible,
-  idleOpacity = 0,
-  children,
-}: {
-  visible: boolean
-  idleOpacity?: number
-  children: React.ReactNode
-}) => (
-  <div
-    aria-hidden={!visible && idleOpacity === 0}
-    className={classNames(
-      'flex h-10 w-10 shrink-0 items-center justify-center transition-opacity duration-150',
-      {
-        'visible pointer-events-auto opacity-100': visible,
-        'visible pointer-events-auto': !visible && idleOpacity > 0,
-        'invisible pointer-events-none opacity-0':
-          !visible && idleOpacity === 0,
-      },
-    )}
-    style={!visible && idleOpacity > 0 ? { opacity: idleOpacity } : undefined}
-  >
-    {children}
-  </div>
-)
 
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
@@ -166,25 +141,26 @@ export default observer((props: WinProps & { className: string }) => {
           titleTextNode
         )}
       </button>
-      {!hide && (
-        <>
-          <WindowControlSlot visible={showWindowControls} idleOpacity={0.38}>
-            <Sort {...props} />
-          </WindowControlSlot>
-          <WindowControlSlot visible={showWindowControls}>
-            <Reload {...{ reload }} />
-          </WindowControlSlot>
-        </>
-      )}
-      <HideToggle
-        {...{
-          hide,
-          toggleHide,
-        }}
-      />
-      <WindowControlSlot visible={showWindowControls}>
-        <CloseButton onClick={() => props.win.close()} />
-      </WindowControlSlot>
+      <div className="flex h-10 shrink-0 items-center gap-0.5 pr-1">
+        <RowActionSlot visible={showWindowControls && !hide}>
+          {!hide && <Sort {...props} />}
+        </RowActionSlot>
+        <RowActionSlot visible={showWindowControls && !hide}>
+          {!hide && <Reload {...{ reload }} />}
+        </RowActionSlot>
+        <RowActionSlot visible={showWindowControls}>
+          <HideToggle
+            {...{
+              hide,
+              toggleHide,
+            }}
+          />
+        </RowActionSlot>
+        <RowActionSlot visible={showWindowControls}>
+          <CloseButton onClick={() => props.win.close()} size="compact" />
+        </RowActionSlot>
+        <div aria-hidden="true" className="h-10 w-2 shrink-0" />
+      </div>
     </div>
   )
 })
