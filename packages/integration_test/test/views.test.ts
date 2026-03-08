@@ -1,4 +1,4 @@
-import { Page, ChromiumBrowserContext } from 'playwright'
+import { Page, Locator, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
@@ -20,6 +20,45 @@ let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
+
+const screenshotLocatorWithRetry = async (
+  page: Page,
+  getLocator: () => Locator,
+  {
+    beforeCapture,
+    attempts = 3,
+    screenshotOptions,
+  }: {
+    beforeCapture?: () => Promise<void>
+    attempts?: number
+    screenshotOptions?: Parameters<Locator['screenshot']>[0]
+  } = {},
+) => {
+  let lastError: unknown
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (beforeCapture) {
+      await beforeCapture()
+    }
+    const locator = getLocator()
+    await expect(locator).toBeVisible()
+    try {
+      return await locator.screenshot(screenshotOptions)
+    } catch (error) {
+      lastError = error
+      const message = String(error)
+      if (
+        !message.includes('Element is not attached to the DOM') ||
+        attempt === attempts - 1
+      ) {
+        throw error
+      }
+      await page.waitForTimeout(100)
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('Failed to capture locator screenshot')
+}
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
@@ -612,9 +651,19 @@ test.describe('The Extension page should', () => {
       await page.waitForTimeout(120)
     }
 
-    const tabMenuButton = page.getByTestId(`tab-menu-${atomTabId}`)
-    await expect(tabMenuButton).toBeVisible()
-    const tabMenuButtonScreenshot = await tabMenuButton.screenshot()
+    const getTabMenuButton = () => page.getByTestId(`tab-menu-${atomTabId}`)
+    const hoverActionRow = async () => {
+      await row.hover()
+      await page.waitForTimeout(120)
+    }
+
+    const tabMenuButtonScreenshot = await screenshotLocatorWithRetry(
+      page,
+      getTabMenuButton,
+      {
+        beforeCapture: hoverActionRow,
+      },
+    )
     expect(tabMenuButtonScreenshot).toMatchSnapshot(
       'tab-menu-button-atom.png',
       {
@@ -623,15 +672,20 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const closeButton = row.getByRole('button', { name: 'Close' }).first()
-    await expect(closeButton).toBeVisible()
-    const closeButtonScreenshot = await closeButton.screenshot()
+    const closeButtonScreenshot = await screenshotLocatorWithRetry(
+      page,
+      () => row.getByRole('button', { name: 'Close' }).first(),
+      {
+        beforeCapture: hoverActionRow,
+      },
+    )
     expect(closeButtonScreenshot).toMatchSnapshot('tab-close-button-atom.png', {
       maxDiffPixelRatio: 0.08,
       threshold: 0.2,
     })
 
-    await row.hover()
+    await hoverActionRow()
+    const tabMenuButton = getTabMenuButton()
     await expect(tabMenuButton).toBeVisible()
     await tabMenuButton.click({ force: true })
     await waitForTestId(page, `tab-menu-option-${atomTabId}-close`)
