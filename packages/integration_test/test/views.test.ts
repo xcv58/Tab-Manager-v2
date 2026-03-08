@@ -754,7 +754,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const closeButton = row.locator('button', { hasText: 'x' }).first()
+    const closeButton = row.getByRole('button', { name: 'Close' }).first()
     await expect(closeButton).toBeVisible()
     const closeButtonScreenshot = await closeButton.screenshot()
     expect(closeButtonScreenshot).toMatchSnapshot('tab-close-button-atom.png', {
