@@ -10,6 +10,7 @@ export const EXTENSION_PATH = join(
 
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const WINDOW_CARD_QUERY = '[data-testid^="window-card-"]'
+export const INTEGRATION_VIEWPORT = { width: 1920, height: 1080 }
 
 export const URLS = [
   'https://pinboard.in/',
@@ -37,6 +38,8 @@ export const initBrowserWithExtension = async () => {
   const userDataDir = `/tmp/test-user-data-${Math.random()}`
   const browserContext = (await chromium.launchPersistentContext(userDataDir, {
     headless: false,
+    screen: INTEGRATION_VIEWPORT,
+    viewport: INTEGRATION_VIEWPORT,
     args: [
       // Follow suggestions on https://playwright.dev/docs/ci#docker
       '--disable-dev-shm-usage',

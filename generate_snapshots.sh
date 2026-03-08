@@ -22,6 +22,6 @@ docker run --rm --ipc=host \
     echo 'Running update-snapshots...'
     # Directly reuse the test script from packages/integration_test/package.json
     # CI=true ensures it runs with xvfb-run
-    xvfb-run --auto-servernum --server-args='-screen 0 1280x960x24' pnpm --filter integration-test run test --update-snapshots
+    xvfb-run --auto-servernum --server-args='-screen 0 2560x1440x24' pnpm --filter integration-test run test --update-snapshots
     echo 'Finished.'
   "
