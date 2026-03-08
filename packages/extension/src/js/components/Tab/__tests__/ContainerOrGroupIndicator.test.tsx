@@ -32,7 +32,7 @@ describe('ContainerOrGroupIndicator', () => {
     )
 
     expect(container.firstChild).toHaveStyle({
-      bottom: '1px',
+      bottom: '3px',
     })
   })
 
