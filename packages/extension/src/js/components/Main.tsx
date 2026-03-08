@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
 import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { useStore, useFontSize } from './hooks/useStore'
 import DragLayer from './DragLayer'
-import { useTextClasses, useTheme } from './hooks/useTheme'
+import { useTextClasses } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
 import { useLocation } from 'react-router-dom'
 import { NOT_POPUP } from 'libs'
@@ -18,8 +19,8 @@ const useQuery = () => new URLSearchParams(useLocation().search)
 export default observer(() => {
   const query = useQuery()
   const isPopup = !query.has(NOT_POPUP)
+  const theme = useMuiTheme()
   const { windowStore, shortcutStore, userStore } = useStore()
-  const isDarkTheme = useTheme()
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   const fontSize = useFontSize()
@@ -42,8 +43,8 @@ export default observer(() => {
         useTextClasses(),
       )}
       style={{
-        backgroundColor: isDarkTheme ? '#2d2f33' : '#ffffff',
-        color: isDarkTheme ? '#eef1f5' : '#111827',
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.text.primary,
       }}
     >
       {liteMode ? (

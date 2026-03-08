@@ -15,18 +15,28 @@ export interface CloseButtonProps {
    * Accessible label for the button
    */
   'aria-label'?: string
+  /**
+   * Size variant
+   */
+  size?: 'default' | 'compact'
 }
 
 const CloseButton: React.FC<CloseButtonProps> = (props) => {
-  const { onClick, disabled, 'aria-label': ariaLabel = 'Close' } = props
+  const {
+    onClick,
+    disabled,
+    size = 'default',
+    'aria-label': ariaLabel = 'Close',
+  } = props
   return (
     <ControlIconButton
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
       tone="danger"
+      controlSize={size === 'compact' ? 'compact' : 'medium'}
     >
-      <CloseIcon fontSize="small" />
+      <CloseIcon sx={{ fontSize: size === 'compact' ? 14 : 16 }} />
     </ControlIconButton>
   )
 }

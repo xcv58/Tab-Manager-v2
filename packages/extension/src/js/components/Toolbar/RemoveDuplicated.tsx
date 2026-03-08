@@ -3,22 +3,27 @@ import { observer } from 'mobx-react-lite'
 import DeleteSweep from '@mui/icons-material/DeleteSweep'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import { TOOLTIP_DELAY } from 'libs'
+import { TOOLTIP_DELAY, getNoun } from 'libs'
 import { useStore } from 'components/hooks/useStore'
-
-const TITLE = 'Clean duplicated tabs'
 
 export default observer(() => {
   const { windowStore } = useStore()
-  const { cleanDuplicatedTabs, duplicatedTabs } = windowStore
+  const { cleanDuplicatedTabs, getDuplicateTabsToRemoveCount } = windowStore
+  const duplicatedTabsToRemoveCount = getDuplicateTabsToRemoveCount()
+  const title = duplicatedTabsToRemoveCount
+    ? `Clean ${duplicatedTabsToRemoveCount} duplicate ${getNoun(
+        'tab',
+        duplicatedTabsToRemoveCount,
+      )}`
+    : 'Clean duplicated tabs'
   return (
-    <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
+    <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <IconButton
           onClick={cleanDuplicatedTabs}
-          disabled={duplicatedTabs.length === 0}
+          disabled={duplicatedTabsToRemoveCount === 0}
           className="focus:outline-none"
-          aria-label={TITLE}
+          aria-label={title}
         >
           <DeleteSweep />
         </IconButton>

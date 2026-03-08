@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
 import classNames from 'classnames'
+import DragHandleIcon from '@mui/icons-material/DragHandle'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from 'components/hooks/useStore'
-import { useTheme } from 'components/hooks/useTheme'
+import ControlIconButton from 'components/ControlIconButton'
 
 type Props = {
   groupId: number
@@ -13,7 +14,6 @@ type Props = {
 
 export default ({ groupId, className }: Props) => {
   const { dragStore } = useStore()
-  const isDarkTheme = useTheme()
   const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     event.stopPropagation()
   }
@@ -35,24 +35,24 @@ export default ({ groupId, className }: Props) => {
   }, [connectDragPreview])
 
   return (
-    <button
-      type="button"
+    <ControlIconButton
       ref={drag}
-      className={classNames(
-        'inline-flex items-center justify-center w-7 h-7 rounded-full cursor-move focus:outline-none focus:ring text-base',
-        className,
-        {
-          'opacity-50': isDragging,
-          'hover:bg-blue-200 active:bg-blue-300': !isDarkTheme,
-          'hover:bg-gray-600 active:bg-gray-800': isDarkTheme,
+      className={classNames('text-slate-400', className, {
+        'opacity-50': isDragging,
+      })}
+      controlSize="medium"
+      sx={{
+        cursor: 'move',
+        '&:hover': {
+          cursor: 'move',
         },
-      )}
+      }}
       data-testid={`tab-group-drag-handle-${groupId}`}
       title="Drag group"
       aria-label="Drag group"
       onPointerDown={onPointerDown}
     >
-      &#9776;
-    </button>
+      <DragHandleIcon sx={{ fontSize: 17 }} />
+    </ControlIconButton>
   )
 }

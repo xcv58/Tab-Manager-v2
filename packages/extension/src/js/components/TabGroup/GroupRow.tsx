@@ -46,6 +46,9 @@ export default observer((props: Props) => {
     'grey') as chrome.tabGroups.ColorEnum
   const groupColor = getChromeTabGroupColor(groupColorId)
   const collapsed = tabGroup?.collapsed ?? row.collapsed
+  const groupTabs = tabGroupStore.getTabsForGroup(row.groupId)
+  const duplicatedTabsToRemoveInGroup =
+    windowStore.getDuplicateTabsToRemoveCount(groupTabs)
 
   const onToggle = () => {
     if (!canMutateGroups) {
@@ -59,6 +62,13 @@ export default observer((props: Props) => {
       return
     }
     tabGroupStore.ungroup(row.groupId)
+  }
+
+  const onCleanDuplicatesInGroup = () => {
+    if (!duplicatedTabsToRemoveInGroup) {
+      return
+    }
+    windowStore.cleanDuplicateTabs(groupTabs)
   }
 
   const countLabel = useMemo(() => {
@@ -172,7 +182,8 @@ export default observer((props: Props) => {
           }
         }}
         style={{
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor:
+            theme.palette.mode === 'dark' ? '#343941' : '#f8fafc',
           borderColor: theme.palette.divider,
         }}
         data-testid={`tab-group-header-${row.groupId}`}
@@ -236,24 +247,28 @@ export default observer((props: Props) => {
               </span>
             )}
           </button>
-          {canMutateGroups && (
-            <GroupDragHandle
-              groupId={row.groupId}
-              className={classNames(
-                'transition-opacity',
-                showGroupDragHandle
-                  ? 'opacity-100 pointer-events-auto'
-                  : 'opacity-0 pointer-events-none',
-              )}
-            />
-          )}
-          <ControlIconButton
-            onClick={(event) => setMenuAnchorEl(event.currentTarget)}
-            aria-label="Group actions"
-            data-testid={`tab-group-menu-${row.groupId}`}
-          >
-            <MoreVertIcon fontSize="small" />
-          </ControlIconButton>
+          <div className="flex h-10 items-center gap-0.5 pr-1">
+            {canMutateGroups && (
+              <GroupDragHandle
+                groupId={row.groupId}
+                className={classNames(
+                  'transition-opacity',
+                  showGroupDragHandle
+                    ? 'opacity-100 pointer-events-auto'
+                    : 'opacity-0 pointer-events-none',
+                )}
+              />
+            )}
+            <ControlIconButton
+              onClick={(event) => setMenuAnchorEl(event.currentTarget)}
+              className="text-slate-400"
+              controlSize="medium"
+              aria-label="Group actions"
+              data-testid={`tab-group-menu-${row.groupId}`}
+            >
+              <MoreVertIcon fontSize="small" />
+            </ControlIconButton>
+          </div>
         </div>
         <div
           className="mx-0 h-px"
@@ -304,6 +319,21 @@ export default observer((props: Props) => {
         )}
         {canMutateGroups && (
           <>
+            {duplicatedTabsToRemoveInGroup > 0 && (
+              <>
+                <Divider />
+                <MenuItem
+                  data-testid={`tab-group-menu-clean-duplicates-${row.groupId}`}
+                  onClick={() => {
+                    setMenuAnchorEl(null)
+                    onCleanDuplicatesInGroup()
+                  }}
+                >
+                  Clean {duplicatedTabsToRemoveInGroup} duplicate
+                  {duplicatedTabsToRemoveInGroup > 1 ? ' tabs' : ' tab'}
+                </MenuItem>
+              </>
+            )}
             <Divider />
             <MenuItem
               data-testid={`tab-group-menu-ungroup-${row.groupId}`}

@@ -613,29 +613,41 @@ export default class WindowsStore {
     return this.tabs.filter((tab) => tab.isDuplicated)
   }
 
+  getDuplicateFamilies = (tabs: Tab[] = this.tabs) => {
+    return tabs.reduce((acc: { [key: string]: Tab[] }, tab) => {
+      const { fingerPrint } = tab
+      if (acc[fingerPrint]) {
+        acc[fingerPrint].push(tab)
+      } else {
+        acc[fingerPrint] = [tab]
+      }
+      return acc
+    }, {})
+  }
+
+  getDuplicateTabsToRemove = (tabs: Tab[] = this.tabs) => {
+    return Object.values(this.getDuplicateFamilies(tabs))
+      .filter((family) => family.length > 1)
+      .flatMap((family) => family.slice(1))
+  }
+
+  getDuplicateTabsToRemoveCount = (tabs: Tab[] = this.tabs) => {
+    return this.getDuplicateTabsToRemove(tabs).length
+  }
+
   closeDuplicatedTab = (tab: Tab) => {
-    const { id, url } = tab
+    const { id, fingerPrint } = tab
     this.tabs
-      .filter((x) => x.url === url && x.id !== id)
+      .filter((x) => x.fingerPrint === fingerPrint && x.id !== id)
       .forEach((x) => x.remove())
   }
 
+  cleanDuplicateTabs = (tabs: Tab[] = this.tabs) => {
+    this.getDuplicateTabsToRemove(tabs).forEach((tab) => tab.remove())
+  }
+
   cleanDuplicatedTabs = () => {
-    const tabMap = this.duplicatedTabs.reduce(
-      (acc: { [key: string]: Tab[] }, tab) => {
-        const { fingerPrint } = tab
-        if (acc[fingerPrint]) {
-          acc[fingerPrint].push(tab)
-        } else {
-          acc[fingerPrint] = [tab]
-        }
-        return acc
-      },
-      {},
-    )
-    Object.values(tabMap).forEach((tabs) => {
-      tabs.slice(1).forEach((x) => x.remove())
-    })
+    this.cleanDuplicateTabs(this.tabs)
   }
 
   getTargetWindow = (windowId: number) => {

@@ -44,11 +44,7 @@ export const Icon = observer((props: TabProps) => {
     />
   )
   if (!userStore.showTabIcon) {
-    return (
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center">
-        {checkbox}
-      </div>
-    )
+    return <div className={CONTROL_SLOT_CLASS}>{checkbox}</div>
   }
   return (
     <div className={CONTROL_SLOT_CLASS}>
@@ -89,7 +85,7 @@ export default observer((props: TabProps) => {
   }
   const { iconUrl } = tab
   return (
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+    <div className={CONTROL_SLOT_CLASS}>
       <IconButton
         disabled
         aria-label={ARIA_LABEL}

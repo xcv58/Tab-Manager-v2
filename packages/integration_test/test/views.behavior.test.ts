@@ -71,7 +71,7 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(700)
 
     const searchInput = page.locator(
-      'input[placeholder*="Search your tab title or URL"]',
+      'input[placeholder*="Search tabs or URLs"]',
     )
     await expect(searchInput).toBeVisible()
     await searchInput.fill('pinboard')
@@ -255,7 +255,7 @@ test.describe('The Extension page should', () => {
     await toggleToolbarButton.click()
     await page.waitForTimeout(400)
     const cleanDuplicatedButton = page
-      .locator('button[aria-label="Clean duplicated tabs"]')
+      .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
       .first()
     await expect(cleanDuplicatedButton).toBeVisible()
     await expect(cleanDuplicatedButton).toBeDisabled()
@@ -406,7 +406,7 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(700)
 
     const searchInput = page.locator(
-      'input[placeholder*="Search your tab title or URL"]',
+      'input[placeholder*="Search tabs or URLs"]',
     )
     await searchInput.click()
     await searchInput.fill('typing-state')
@@ -467,7 +467,7 @@ test.describe('The Extension page should', () => {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(0)
     }
 
-    const inputSelector = 'input[placeholder*="Search your tab title or URL"]'
+    const inputSelector = 'input[placeholder*="Search tabs or URLs"]'
     await page.fill(inputSelector, 'SearchDocs')
     await page.waitForTimeout(600)
     await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)

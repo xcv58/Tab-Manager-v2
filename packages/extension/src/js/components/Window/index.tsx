@@ -1,5 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
+import { useTheme } from '@mui/material/styles'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
@@ -9,6 +10,7 @@ import { WinProps } from 'components/types'
 import WindowDropZone from './WindowDropZone'
 
 export default observer((props: WinProps & { width: string }) => {
+  const theme = useTheme()
   const { userStore } = useStore()
   const tabHeight = useTabHeight()
   const { win, width } = props
@@ -25,9 +27,22 @@ export default observer((props: WinProps & { width: string }) => {
   }
   return (
     <div style={style} data-testid={`window-card-${win.id}`}>
-      <div className="overflow-hidden rounded-sm">
+      <div
+        className="overflow-hidden rounded-lg border"
+        style={{
+          backgroundColor: theme.palette.background.paper,
+          borderColor:
+            theme.palette.mode === 'dark'
+              ? 'rgba(238, 241, 245, 0.16)'
+              : 'rgba(148, 163, 184, 0.38)',
+        }}
+      >
         <DroppableTitle {...props} />
-        {showTabs && <Tabs {...props} />}
+        {showTabs && (
+          <div className="px-1">
+            <Tabs {...props} />
+          </div>
+        )}
         {!showTabs && (
           <div style={{ height: tabHeight * (visibleLength - 2) }}>
             <Loading small />

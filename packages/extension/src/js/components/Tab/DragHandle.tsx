@@ -1,20 +1,28 @@
 import React from 'react'
 import classNames from 'classnames'
-import { useTheme } from 'components/hooks/useTheme'
+import DragHandleIcon from '@mui/icons-material/DragHandle'
+import ControlIconButton from 'components/ControlIconButton'
 
-export default () => {
-  const isDarkTheme = useTheme()
+type Props = {
+  className?: string
+}
+
+export default ({ className }: Props) => {
   return (
-    <button
-      className={classNames(
-        'inline-flex items-center justify-center w-8 h-8 m-2 rounded-full hover:shadow-xs focus:outline-none focus:ring cursor-move',
-        {
-          'hover:bg-blue-200 active:bg-blue-300': !isDarkTheme,
-          'hover:bg-gray-600 active:bg-gray-800': isDarkTheme,
-        }
-      )}
+    <ControlIconButton
+      tabIndex={-1}
+      className={classNames('text-slate-400', className)}
+      controlSize="compact"
+      sx={{
+        cursor: 'move',
+        '&:hover': {
+          cursor: 'move',
+        },
+      }}
+      aria-label="Drag tab"
+      title="Drag tab"
     >
-      &#9776;
-    </button>
+      <DragHandleIcon sx={{ fontSize: 15 }} />
+    </ControlIconButton>
   )
 }

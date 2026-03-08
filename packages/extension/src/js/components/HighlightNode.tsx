@@ -1,7 +1,8 @@
 import React from 'react'
 import { match } from 'fuzzy'
 
-const pre = "<span class='text-red-500'>"
+const pre =
+  "<span class='font-semibold underline decoration-2 underline-offset-2 decoration-current'>"
 const post = '</span>'
 
 export default function HighlightNode({
