@@ -115,16 +115,37 @@ Load the appropriate folder as an unpacked extension in your target browser.
 
 ### Run tests
 
-Run the workspace test pipeline:
+Run the default local test pipeline:
 
 ```shell
 pnpm test
 ```
 
-Run the Playwright integration suite directly:
+This runs the extension unit tests plus the Chromium Playwright integration suite.
+
+Run only the extension unit tests:
 
 ```shell
-pnpm --filter integration-test test
+pnpm run test:unit
+```
+
+Run the Chromium Playwright integration suite, including the required Chrome extension build:
+
+```shell
+pnpm run test:integration
+```
+
+Run the Playwright suite directly against an existing Chrome build:
+
+```shell
+pnpm run test:integration:run
+```
+
+Run the Firefox-specific coverage used in CI:
+
+```shell
+pnpm --filter tab-manager-v2 test:firefox
+pnpm --filter integration-test-firefox test:firefox
 ```
 
 ### Build production bundles

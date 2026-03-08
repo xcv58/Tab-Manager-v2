@@ -10,8 +10,6 @@ docker run --rm --ipc=host \
   -v /work/packages/integration_test/node_modules \
   -w /work \
   -e CI=true \
-  -e TURBO_TEAM="$TURBO_TEAM" \
-  -e TURBO_TOKEN="$TURBO_TOKEN" \
   -e DEBUG=pw:browser* \
   mcr.microsoft.com/playwright:v1.58.0-noble \
   /bin/bash -c "
