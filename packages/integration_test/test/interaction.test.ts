@@ -1159,10 +1159,12 @@ test.describe('The Extension page should', () => {
     expect(setup.targetTabId).toBeGreaterThan(0)
     await page.reload()
     await waitForTestId(page, `tab-group-header-${groupId}`)
-    await waitForTestId(page, `tab-group-drag-handle-${groupId}`)
     await waitForTestId(page, `tab-row-${setup.targetTabId}`)
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
     await page.waitForTimeout(200)
+    await expect(
+      page.getByTestId(`tab-group-drag-handle-${groupId}`),
+    ).toBeVisible()
 
     const sourceBox = await page
       .getByTestId(`tab-group-drag-handle-${groupId}`)
@@ -1522,6 +1524,8 @@ test.describe('The Extension page should', () => {
       (node) => node.getBoundingClientRect().x,
     )
 
+    await titleRow.hover()
+    await expect(hideToggle).toBeVisible()
     await hideToggle.click()
     await page.waitForTimeout(900)
     const widthBeforeManualRepack = await windowCard.evaluate(

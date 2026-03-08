@@ -235,6 +235,8 @@ test.describe('The Extension page should', () => {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
     }
 
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)
@@ -407,6 +409,8 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)

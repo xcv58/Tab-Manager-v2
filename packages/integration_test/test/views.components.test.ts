@@ -877,6 +877,10 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(150)
+    await header.hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     const groupMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
     await waitForSurfaceToFullyAppear(page, groupMenu)
