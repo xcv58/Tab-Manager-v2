@@ -1,5 +1,4 @@
 import { chromium, ChromiumBrowserContext } from 'playwright'
-import { expect } from '@playwright/test'
 import { join } from 'path'
 import { Page } from 'playwright'
 
@@ -31,12 +30,6 @@ export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
       await page.close()
     }
   }
-}
-
-export const waitForCleanExtensionState = async (page: Page) => {
-  await expect(page.locator('input[type="text"]')).toBeVisible()
-  await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
-  await expect(page.locator(TAB_QUERY)).toHaveCount(1)
 }
 
 export const initBrowserWithExtension = async () => {
