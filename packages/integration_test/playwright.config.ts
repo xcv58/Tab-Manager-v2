@@ -1,5 +1,6 @@
 import { defineConfig, devices, expect } from '@playwright/test'
 import { configureToMatchImageSnapshot } from '@ayroblu/playwright-image-snapshot'
+import { INTEGRATION_VIEWPORT } from './util'
 
 const toMatchImageSnapshot = configureToMatchImageSnapshot({
   failureThreshold: 0.01,
@@ -18,14 +19,19 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     headless: false,
-    viewport: { width: 1280, height: 720 },
+    screen: INTEGRATION_VIEWPORT,
+    viewport: INTEGRATION_VIEWPORT,
     actionTimeout: 15000,
     navigationTimeout: 30000,
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        screen: INTEGRATION_VIEWPORT,
+        viewport: INTEGRATION_VIEWPORT,
+      },
     },
     // {
     //   name: 'firefox',
