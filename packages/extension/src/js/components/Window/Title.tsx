@@ -13,6 +13,7 @@ import { WinProps } from 'components/types'
 import useReduceMotion from 'libs/useReduceMotion'
 import { useTheme } from 'components/hooks/useTheme'
 import Tooltip from '@mui/material/Tooltip'
+import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
@@ -120,9 +121,13 @@ export default observer((props: WinProps & { className: string }) => {
       style={{
         backgroundColor: headerSurface,
         borderColor: theme.palette.divider,
+        minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
       }}
     >
-      <div className="flex min-h-10 w-full items-center justify-between px-1">
+      <div
+        className="flex min-h-10 w-full items-center justify-between px-1"
+        style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
+      >
         <SelectAll {...props} />
         <button
           ref={titleButtonRef}
@@ -134,6 +139,7 @@ export default observer((props: WinProps & { className: string }) => {
               'text-gray-100': isDarkTheme,
             },
           )}
+          style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
         >
           {needsTooltip ? (
             <Tooltip title={fullTitleText}>
@@ -143,7 +149,10 @@ export default observer((props: WinProps & { className: string }) => {
             titleTextNode
           )}
         </button>
-        <div className="mr-1 flex h-10 shrink-0 items-center gap-0.5">
+        <div
+          className="mr-1 flex h-10 shrink-0 items-center gap-0.5"
+          style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
+        >
           <RowActionSlot visible={!hide}>
             {!hide && <Sort {...props} />}
           </RowActionSlot>

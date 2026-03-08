@@ -722,6 +722,66 @@ test.describe('The Extension page should', () => {
     })
   })
 
+  test('keep group headers aligned with window and tab rows at small font sizes', async () => {
+    const groupedUrls = [
+      'data:text/html,small-font-group-a',
+      'data:text/html,small-font-group-b',
+    ]
+    await openPages(browserContext, groupedUrls)
+    await page.bringToFront()
+    const groupId = await groupTabsByUrl(page, {
+      urls: groupedUrls,
+      title: 'Small font',
+      color: 'orange',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+
+    const groupState = await page.evaluate(async (id) => {
+      const tabs = await chrome.tabs.query({ groupId: id })
+      const firstTab = tabs.sort((a, b) => a.index - b.index)[0]
+      return {
+        groupId: id,
+        tabId: firstTab?.id ?? -1,
+        windowId: firstTab?.windowId ?? -1,
+      }
+    }, groupId)
+    expect(groupState.tabId).toBeGreaterThan(0)
+    expect(groupState.windowId).toBeGreaterThan(-1)
+
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        fontSize: 8,
+      })
+    })
+    await page.reload()
+    await waitForTestId(page, `window-title-${groupState.windowId}`)
+    await waitForTestId(page, `tab-group-header-${groupState.groupId}`)
+    await waitForTestId(page, `tab-row-${groupState.tabId}`)
+
+    const metrics = await page.evaluate(({ groupId, tabId, windowId }) => {
+      const readHeight = (testId: string) => {
+        const node = document.querySelector(
+          `[data-testid="${testId}"]`,
+        ) as HTMLElement | null
+        return node?.getBoundingClientRect().height ?? 0
+      }
+
+      return {
+        windowHeight: readHeight(`window-title-${windowId}`),
+        groupHeight: readHeight(`tab-group-header-${groupId}`),
+        tabHeight: readHeight(`tab-row-${tabId}`),
+      }
+    }, groupState)
+
+    expect(metrics.groupHeight).toBeGreaterThanOrEqual(39.5)
+    expect(
+      Math.abs(metrics.groupHeight - metrics.windowHeight),
+    ).toBeLessThanOrEqual(1.5)
+    expect(
+      Math.abs(metrics.groupHeight - metrics.tabHeight),
+    ).toBeLessThanOrEqual(1.5)
+  })
+
   test('keep control icons balanced at large font sizes', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({

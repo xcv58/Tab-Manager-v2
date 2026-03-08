@@ -63,6 +63,7 @@ exports[`Tabs render correct components 1`] = `
         <button
           class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
           data-mui-internal-clone-element="true"
+          style="min-height: 40px;"
         >
           <div
             class="w-full min-w-0 overflow-hidden truncate"
@@ -74,9 +75,11 @@ exports[`Tabs render correct components 1`] = `
         </button>
         <div
           class="flex h-10 shrink-0 items-center gap-0.5 pr-1"
+          style="min-height: 40px;"
         >
           <div
             class="flex h-10 shrink-0 items-center gap-0.5"
+            style="min-height: 40px;"
           >
             <div
               aria-hidden="false"
@@ -227,6 +230,7 @@ exports[`Tabs render correct components 1`] = `
         <button
           class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
           data-mui-internal-clone-element="true"
+          style="min-height: 40px;"
         >
           <div
             class="w-full min-w-0 overflow-hidden truncate"
@@ -238,9 +242,11 @@ exports[`Tabs render correct components 1`] = `
         </button>
         <div
           class="flex h-10 shrink-0 items-center gap-0.5 pr-1"
+          style="min-height: 40px;"
         >
           <div
             class="flex h-10 shrink-0 items-center gap-0.5"
+            style="min-height: 40px;"
           >
             <div
               aria-hidden="false"

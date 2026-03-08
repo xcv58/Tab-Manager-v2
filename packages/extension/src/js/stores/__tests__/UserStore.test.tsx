@@ -46,6 +46,30 @@ describe('UserStore', () => {
     expect(repackLayout).toHaveBeenNthCalledWith(2, 'settings-change')
   })
 
+  it('should repack layout after loading stored font size or tab width', async () => {
+    const repackLayout = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+      windowStore: {
+        repackLayout,
+      },
+    } as any)
+    await flush()
+
+    repackLayout.mockClear()
+    jest.spyOn(userStore, 'readSettings').mockResolvedValueOnce({
+      fontSize: 10,
+      tabWidth: 24,
+    })
+
+    await userStore.init()
+
+    expect(repackLayout).toHaveBeenCalledTimes(1)
+    expect(repackLayout).toHaveBeenCalledWith('settings-change')
+  })
+
   it('should repack layout when toggling unmatched tabs visibility', async () => {
     const repackLayout = jest.fn()
     const userStore = new UserStore({

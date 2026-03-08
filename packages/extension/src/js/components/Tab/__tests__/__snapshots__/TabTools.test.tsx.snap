@@ -4,6 +4,7 @@ exports[`TabTools should render correct components 1`] = `
 <div>
   <div
     class="flex h-10 shrink-0 items-center gap-0.5"
+    style="min-height: 40px;"
   >
     <div
       aria-hidden="false"

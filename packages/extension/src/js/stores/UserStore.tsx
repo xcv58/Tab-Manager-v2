@@ -112,9 +112,18 @@ export default class UserStore {
   }
 
   init = async () => {
+    const previousFontSize = this.fontSize
+    const previousTabWidth = this.tabWidth
     try {
       const result = await this.readSettings()
       Object.assign(this, result)
+      if (
+        this.store.windowStore &&
+        (this.fontSize !== previousFontSize ||
+          this.tabWidth !== previousTabWidth)
+      ) {
+        this.store.windowStore.repackLayout('settings-change')
+      }
     } catch (error) {
       log.error('UserStore.init failed to load settings', { error })
     } finally {
