@@ -3,35 +3,41 @@
 exports[`TabTools should render correct components 1`] = `
 <div>
   <div
-    class="flex h-10 items-center gap-0.5"
+    class="flex h-10 shrink-0 items-center gap-0.5"
   >
     <div
-      class="shrink-0 transition-opacity duration-150 opacity-100"
+      aria-hidden="false"
+      class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
     >
       <tabmenu
         classes="[object Object]"
         tab="[object Object]"
       />
     </div>
-    <button
-      aria-label="Drag tab"
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 opacity-100 pointer-events-auto css-1n0ihfg-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="-1"
-      title="Drag tab"
-      type="button"
+    <div
+      aria-hidden="false"
+      class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
     >
-      <svg
-        aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-5x0j4u-MuiSvgIcon-root"
-        data-testid="DragHandleIcon"
-        focusable="false"
-        viewBox="0 0 24 24"
+      <button
+        aria-label="Drag tab"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1n0ihfg-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="-1"
+        title="Drag tab"
+        type="button"
       >
-        <path
-          d="M20 9H4v2h16zM4 15h16v-2H4z"
-        />
-      </svg>
-    </button>
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-5x0j4u-MuiSvgIcon-root"
+          data-testid="DragHandleIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M20 9H4v2h16zM4 15h16v-2H4z"
+          />
+        </svg>
+      </button>
+    </div>
   </div>
 </div>
 `;

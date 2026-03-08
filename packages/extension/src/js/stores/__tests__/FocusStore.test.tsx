@@ -30,6 +30,58 @@ describe('FocusStore', () => {
             : null,
         getTabsForGroup: (groupId: number) =>
           store.windowStore.tabs.filter((tab) => tab.groupId === groupId),
+        getRowsForWindow: (win) => {
+          const rows = []
+          const seenGroupIds = new Set<number>()
+          win.tabs.forEach((tab) => {
+            if (tab.groupId === -1) {
+              rows.push({
+                kind: 'tab',
+                tabId: tab.id,
+                windowId: tab.windowId,
+                groupId: tab.groupId,
+                hiddenByCollapse: false,
+              })
+              return
+            }
+            if (seenGroupIds.has(tab.groupId)) {
+              if (!collapsed) {
+                rows.push({
+                  kind: 'tab',
+                  tabId: tab.id,
+                  windowId: tab.windowId,
+                  groupId: tab.groupId,
+                  hiddenByCollapse: false,
+                })
+              }
+              return
+            }
+            seenGroupIds.add(tab.groupId)
+            const groupTabs = win.tabs.filter(
+              (candidate) => candidate.groupId === tab.groupId,
+            )
+            rows.push({
+              kind: 'group',
+              groupId: tab.groupId,
+              windowId: tab.windowId,
+              title: 'Collapsed',
+              color: 'blue',
+              collapsed,
+              tabIds: groupTabs.map((groupTab) => groupTab.id),
+              matchedCount: groupTabs.length,
+            })
+            if (!collapsed) {
+              rows.push({
+                kind: 'tab',
+                tabId: tab.id,
+                windowId: tab.windowId,
+                groupId: tab.groupId,
+                hiddenByCollapse: false,
+              })
+            }
+          })
+          return rows
+        },
         hasTabGroupsApi: () => true,
         isNoGroupId: (groupId: number) => groupId === -1,
         toggleSelectGroup: (groupId: number) => {
