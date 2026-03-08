@@ -354,7 +354,7 @@ test.describe('The Extension page should', () => {
     }
   })
 
-  test('render group drag handle icon on header hover', async () => {
+  test('render group drag handle icon on header emphasis', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
         query: '',
@@ -378,6 +378,7 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await page.getByTestId(`tab-group-toggle-${groupId}`).focus()
     await page.waitForTimeout(200)
     const handle = page.getByTestId(`tab-group-drag-handle-${groupId}`)
     await expect(handle).toBeVisible()
@@ -571,6 +572,8 @@ test.describe('The Extension page should', () => {
     const reloadButton = page
       .locator('button[aria-label="Reload all tabs"]')
       .first()
+    await windowTitle.hover()
+    await page.waitForTimeout(150)
     await expect(reloadButton).toBeVisible()
     const reloadButtonScreenshot = await reloadButton.screenshot()
     expect(reloadButtonScreenshot).toMatchSnapshot(
