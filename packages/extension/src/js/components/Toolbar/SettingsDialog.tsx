@@ -30,13 +30,15 @@ const SettingsPanel = ({
   description,
   children,
   style,
+  testId,
 }: {
   title: string
   description?: string
   children: React.ReactNode
   style: React.CSSProperties
+  testId?: string
 }) => (
-  <div className="rounded-xl border p-4" style={style}>
+  <div className="rounded-xl border p-4" style={style} data-testid={testId}>
     <div className="mb-3">
       <Typography component="h4" sx={{ fontSize: '0.92rem', fontWeight: 700 }}>
         {title}
@@ -200,6 +202,7 @@ export default observer(() => {
       <DialogContent>
         <div className="grid gap-3 py-1 lg:grid-cols-2">
           <SettingsPanel
+            testId="settings-panel-search"
             title="Search behavior"
             description="Tune how the search box behaves when the popup opens and while you search."
             style={panelStyle}
@@ -238,6 +241,7 @@ export default observer(() => {
             </FormGroup>
           </SettingsPanel>
           <SettingsPanel
+            testId="settings-panel-theme-density"
             title="Theme & density"
             description="Set the overall tone and reading size for the page."
             style={panelStyle}
@@ -285,6 +289,7 @@ export default observer(() => {
             />
           </SettingsPanel>
           <SettingsPanel
+            testId="settings-panel-tab-display"
             title="Tab display"
             description="Choose which details each tab shows by default."
             style={panelStyle}
@@ -401,6 +406,7 @@ export default observer(() => {
             </div>
           </SettingsPanel>
           <SettingsPanel
+            testId="settings-panel-behavior"
             title="Behavior"
             description="Choose what stays visible and how the extension behaves in compact mode."
             style={panelStyle}

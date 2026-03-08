@@ -724,11 +724,7 @@ test.describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    const themedPanel = page
-      .locator('.MuiDialogContent-root section')
-      .nth(1)
-      .locator('.rounded-xl.border')
-      .first()
+    const themedPanel = page.getByTestId('settings-panel-theme-density')
     await expect(themedPanel).toBeVisible()
     expect(await themedPanel.screenshot()).toMatchSnapshot(
       matchImageSnapshotOptions,
