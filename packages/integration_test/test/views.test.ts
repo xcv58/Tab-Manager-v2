@@ -7,6 +7,7 @@ import {
   CLOSE_PAGES,
   initBrowserWithExtension,
   openPages,
+  waitForCleanExtensionState,
   groupTabsByUrl,
   waitForTestId,
 } from '../util'
@@ -184,7 +185,7 @@ test.describe('The Extension page should', () => {
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
-    await page.waitForTimeout(1000)
+    await waitForCleanExtensionState(page)
   })
 
   test.afterEach(async () => {
@@ -197,11 +198,8 @@ test.describe('The Extension page should', () => {
   })
 
   test('render correct number of windows & tabs', async () => {
-    await page.waitForTimeout(1000)
     await page.reload()
-    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
-    await page.reload()
-    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
+    await waitForCleanExtensionState(page)
 
     let tabs = await page.$$(TAB_QUERY)
 
