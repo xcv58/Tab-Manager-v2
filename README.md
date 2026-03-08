@@ -135,18 +135,11 @@ pnpm build
 
 This outputs packaged browser builds under `packages/extension/build/`.
 
-### Run Storybook
-
-```shell
-pnpm --filter storybook storybook
-```
-
 ## Repository Layout
 
 - `packages/extension`: main extension source, assets, build scripts, and unit tests
 - `packages/integration_test`: Playwright-based integration and visual regression tests
 - `packages/integration_test_firefox`: Firefox-specific integration coverage
-- `packages/storybook`: Storybook for isolated component work
 
 ## Release Notes
 
