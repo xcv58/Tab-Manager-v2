@@ -35,9 +35,9 @@ jobs:
       - *restore_cache
       - *pnpm_setup
       - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test
-      - run: pnpm run deploy
+      - run: pnpm run deploy:chrome
       - *save_cache
-      - run: rm -rf packages/extension/build/build_chrome packages/extension/build/build_firefox
+      - run: rm -rf packages/extension/build/build_chrome
       - store_artifacts:
           path: packages/extension/build
           destination: dist
