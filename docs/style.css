@@ -222,15 +222,16 @@ code {
 }
 
 .hero {
-  padding: 56px 0 40px;
+  padding: 84px 0 56px;
 }
 
 .hero > h1 {
   text-align: center;
   font-size: clamp(2.8rem, 5vw, 4.6rem);
-  line-height: 1.04;
+  line-height: 1.12;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
+  padding-bottom: 0.08em;
   margin-bottom: 48px;
 }
 
@@ -255,16 +256,21 @@ code {
 }
 
 .hero-split {
-  display: grid;
-  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
-  gap: 40px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 28px;
+  max-width: 1120px;
+  margin: 0 auto;
 }
 
 .hero-text {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-width: 760px;
+  text-align: center;
+  align-items: center;
 }
 
 .hero-subtitle {
@@ -282,6 +288,7 @@ code {
   flex-wrap: wrap;
   gap: 16px;
   margin-top: 8px;
+  justify-content: center;
 }
 
 .btn-store,
@@ -318,6 +325,8 @@ code {
 
 .hero-frame {
   display: block;
+  width: 100%;
+  max-width: 1120px;
   border-radius: 22px;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -624,14 +633,8 @@ code {
 }
 
 @media (max-width: 960px) {
-  .hero-split,
   .versus-grid {
     grid-template-columns: 1fr;
-  }
-
-  .hero-text {
-    text-align: center;
-    align-items: center;
   }
 
   .gallery-grid {
