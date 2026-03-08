@@ -146,18 +146,20 @@ test.describe('The Extension page should', () => {
       [...Array(10)].map((_) => 'https://ops-class.org/'),
     )
     await page.bringToFront()
+    const expectedTabCount = URLS.length + 10 + 1
+    await expect
+      .poll(
+        async () =>
+          await page.evaluate(async () => (await chrome.tabs.query({})).length),
+        { timeout: 5000 },
+      )
+      .toBe(expectedTabCount)
     await page.reload()
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
-    await page.waitForTimeout(3000)
-    // Wait for the UI to be stable and all tabs (URLS count + 10 ops-classes self) to be rendered
-    await expect(page.locator(TAB_QUERY)).toHaveCount(URLS.length + 10 + 1)
-    await page.waitForTimeout(3000)
-    // Wait for the UI to be stable and all tabs (URLS count + 10 ops-classes self) to be rendered
-    // Reload to ensure all tabs are detected
-    await page.reload()
-    await page.waitForTimeout(3000)
-    await page.waitForSelector(inputSelector)
+    await expect(page.locator(TAB_QUERY)).toHaveCount(expectedTabCount, {
+      timeout: 10000,
+    })
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot('popup 1a.png', snapShotOptions)
 
@@ -663,18 +665,18 @@ test.describe('The Extension page should', () => {
 
     const row = page.getByTestId(`tab-row-${atomTabId}`)
     await expect(row).toBeVisible()
-    await row.hover()
-    await page.waitForTimeout(250)
-    const rowRect = await row.boundingBox()
-    if (rowRect) {
-      await page.mouse.move(rowRect.x + 8, rowRect.y + rowRect.height / 2)
-      await page.waitForTimeout(120)
-    }
-
     const getTabMenuButton = () => page.getByTestId(`tab-menu-${atomTabId}`)
     const hoverActionRow = async () => {
-      await row.hover()
-      await page.waitForTimeout(120)
+      await expect
+        .poll(
+          async () => {
+            await row.hover()
+            await page.waitForTimeout(120)
+            return await getTabMenuButton().isVisible()
+          },
+          { timeout: 2000 },
+        )
+        .toBe(true)
     }
 
     const tabMenuButtonScreenshot = await screenshotLocatorWithRetry(
