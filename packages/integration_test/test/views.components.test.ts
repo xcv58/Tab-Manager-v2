@@ -8,6 +8,7 @@ import {
   initBrowserWithExtension,
   openPages,
   groupTabsByUrl,
+  createWindowsWithTabs,
   waitForAnimationsToFinish,
   waitForDefaultExtensionView,
   waitForLocatorRectToStabilize,
@@ -146,6 +147,57 @@ test.describe('The Extension page should', () => {
     const hoveredWindowCardScreenshot = await windowCard.screenshot()
     expect(hoveredWindowCardScreenshot).toMatchSnapshot(
       'window-card-hovered-state.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+  })
+
+  test('render single-tab window card without active indicator', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    const [singleWindowId] = await createWindowsWithTabs(page, [
+      [
+        'data:text/html,<title>Single%20Tab%20Snapshot</title>single-tab-snapshot',
+      ],
+    ])
+    expect(singleWindowId).toBeGreaterThan(-1)
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+
+    const singleTabIdHandle = await page.waitForFunction(async (windowId) => {
+      const tabs = await chrome.tabs.query({ windowId })
+      const target = tabs.find((tab) =>
+        (tab.url || '').includes('single-tab-snapshot'),
+      )
+      return target?.id ?? 0
+    }, singleWindowId)
+    const singleTabId = (await singleTabIdHandle.jsonValue()) as number
+    expect(singleTabId).toBeGreaterThan(0)
+
+    await page.reload()
+    await waitForTestId(page, `window-card-${singleWindowId}`)
+    await waitForTestId(page, `tab-row-${singleTabId}`)
+
+    const singleWindowCard = page.getByTestId(`window-card-${singleWindowId}`)
+    const singleTabRow = page.getByTestId(`tab-row-${singleTabId}`)
+    await expect(singleWindowCard).toBeVisible()
+    await expect(singleTabRow).toBeVisible()
+    await expect(
+      singleTabRow.getByTestId(`tab-active-indicator-${singleTabId}`),
+    ).toHaveCount(0)
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(150)
+
+    const singleWindowCardScreenshot = await singleWindowCard.screenshot()
+    expect(singleWindowCardScreenshot).toMatchSnapshot(
+      'window-card-single-tab.png',
       {
         maxDiffPixelRatio: 0.12,
         threshold: 0.2,

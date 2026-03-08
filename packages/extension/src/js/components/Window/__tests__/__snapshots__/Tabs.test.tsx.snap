@@ -12,7 +12,7 @@ exports[`Tabs render correct components 1`] = `
       <div
         class="flex relative items-center opacity-25"
         data-testid="tab-row-1"
-        style="background-color: transparent; border-bottom: 1px solid transparent; color: rgb(17, 24, 39);"
+        style="background-color: transparent; color: rgb(17, 24, 39);"
         tabindex="-1"
       >
         <div
@@ -156,7 +156,7 @@ exports[`Tabs render correct components 1`] = `
               aria-hidden="true"
               class="block rounded-full transition-opacity duration-150"
               data-testid="tab-duplicate-marker-1"
-              style="opacity: 0; background-color: rgba(100, 116, 139, 0.72); width: 2px; height: 11px;"
+              style="opacity: 0; background-color: rgba(100, 116, 139, 0.72); width: 2px; height: 12px;"
             />
           </div>
         </div>
@@ -171,7 +171,7 @@ exports[`Tabs render correct components 1`] = `
       <div
         class="flex relative items-center opacity-25"
         data-testid="tab-row-2"
-        style="background-color: transparent; border-bottom: 1px solid transparent; color: rgb(17, 24, 39);"
+        style="background-color: transparent; color: rgb(17, 24, 39);"
         tabindex="-1"
       >
         <div
@@ -315,7 +315,7 @@ exports[`Tabs render correct components 1`] = `
               aria-hidden="true"
               class="block rounded-full transition-opacity duration-150"
               data-testid="tab-duplicate-marker-2"
-              style="opacity: 0; background-color: rgba(100, 116, 139, 0.72); width: 2px; height: 11px;"
+              style="opacity: 0; background-color: rgba(100, 116, 139, 0.72); width: 2px; height: 12px;"
             />
           </div>
         </div>

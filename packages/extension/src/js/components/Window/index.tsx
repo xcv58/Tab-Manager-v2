@@ -20,7 +20,7 @@ export default observer((props: WinProps & { width: string }) => {
     width,
     height: 'fit-content',
     boxSizing: 'border-box',
-    padding: `0px 1px ${tabHeight}px 1px`,
+    padding: '0px 1px',
   }
   if (!win.visibleLength) {
     return null
@@ -28,7 +28,7 @@ export default observer((props: WinProps & { width: string }) => {
   return (
     <div style={style} data-testid={`window-card-${win.id}`}>
       <div
-        className="overflow-hidden rounded-lg border"
+        className="relative overflow-hidden rounded-t-lg border"
         style={{
           backgroundColor: theme.palette.background.paper,
           borderColor:
@@ -39,7 +39,7 @@ export default observer((props: WinProps & { width: string }) => {
       >
         <DroppableTitle {...props} />
         {showTabs && (
-          <div className="px-1">
+          <div>
             <Tabs {...props} />
           </div>
         )}

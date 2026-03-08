@@ -301,10 +301,10 @@ test.describe('The Extension page should', () => {
     })
     expect(chipMetrics.height).toBeGreaterThanOrEqual(20)
     expect(chipMetrics.height).toBeLessThanOrEqual(24.5)
-    expect(chipMetrics.paddingLeft).toBeGreaterThanOrEqual(10)
-    expect(chipMetrics.paddingLeft).toBeLessThanOrEqual(12.5)
-    expect(chipMetrics.paddingRight).toBeGreaterThanOrEqual(10)
-    expect(chipMetrics.paddingRight).toBeLessThanOrEqual(12.5)
+    expect(chipMetrics.paddingLeft).toBeGreaterThanOrEqual(7)
+    expect(chipMetrics.paddingLeft).toBeLessThanOrEqual(9.5)
+    expect(chipMetrics.paddingRight).toBeGreaterThanOrEqual(7)
+    expect(chipMetrics.paddingRight).toBeLessThanOrEqual(9.5)
     expect(chipMetrics.borderRadius).toBeGreaterThanOrEqual(8)
     expect(chipMetrics.borderRadius).toBeLessThanOrEqual(10)
   })
@@ -741,21 +741,40 @@ test.describe('The Extension page should', () => {
     await page.bringToFront()
     await page.waitForTimeout(900)
 
-    const groupId = await groupTabsByUrlInWindow(page, {
-      windowId: targetWindowId,
-      urls: ['data:text/html,action-align-a', 'data:text/html,action-align-b'],
-      title: 'Alignment',
-      color: 'blue',
-    })
-    expect(groupId).toBeGreaterThan(-1)
-    const groupedTab = await page.evaluate(async (currentGroupId) => {
-      const tabs = await chrome.tabs.query({})
-      const target = tabs.find((tab) => tab.groupId === currentGroupId)
-      return {
-        id: target?.id ?? -1,
-        windowId: target?.windowId ?? -1,
+    let groupId = -1
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      groupId = await groupTabsByUrlInWindow(page, {
+        windowId: targetWindowId,
+        urls: [
+          'data:text/html,action-align-a',
+          'data:text/html,action-align-b',
+        ],
+        title: 'Alignment',
+        color: 'blue',
+      })
+      if (groupId > -1) {
+        break
       }
-    }, groupId)
+      await page.waitForTimeout(250)
+    }
+    expect(groupId).toBeGreaterThan(-1)
+    const groupedTabHandle = await page.waitForFunction(
+      async (currentGroupId) => {
+        const tabs = await chrome.tabs.query({})
+        const target = tabs.find((tab) => tab.groupId === currentGroupId)
+        return target
+          ? {
+              id: target.id ?? -1,
+              windowId: target.windowId ?? -1,
+            }
+          : null
+      },
+      groupId,
+    )
+    const groupedTab = (await groupedTabHandle.jsonValue()) as {
+      id: number
+      windowId: number
+    }
     const groupedTabId = groupedTab.id
     const groupedWindowId = groupedTab.windowId
     expect(groupedTabId).toBeGreaterThan(0)

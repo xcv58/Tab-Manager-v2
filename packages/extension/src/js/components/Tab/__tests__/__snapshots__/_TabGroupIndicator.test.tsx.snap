@@ -7,7 +7,7 @@ exports[`TabGroupIndicator render valid content if groupId is valid 1`] = `
   <hr
     class="absolute border-0"
     data-testid="tab-group-indicator-7"
-    style="left: 6px; right: 6px; bottom: 1px; margin: 0px; border-top-color: #1a73e8; border-top-width: 1px; border-top-style: solid;"
+    style="left: 6px; right: 6px; bottom: 3px; margin: 0px; border-top-color: #1a73e8; border-top-width: 1px; border-top-style: solid;"
   />
 </div>
 `;

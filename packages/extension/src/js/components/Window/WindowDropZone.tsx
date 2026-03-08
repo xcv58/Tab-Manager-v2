@@ -48,7 +48,7 @@ export default observer((props: Props) => {
       className={classNames(
         {
           'absolute inset-x-0 top-0 z-20 h-2': position === 'top',
-          'w-full h-2': position === 'bottom',
+          'absolute inset-x-0 bottom-0 z-20 h-2': position === 'bottom',
         },
         {
           'bg-blue-100': isOver && !canDrop,

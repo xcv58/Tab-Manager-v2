@@ -33,7 +33,7 @@ export default observer((props: TabProps) => {
           opacity: visible ? 1 : 0,
           backgroundColor: lineColor,
           width: 2,
-          height: 11,
+          height: 12,
         }}
       />
     </div>

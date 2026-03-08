@@ -71,6 +71,7 @@ export default observer((props: TabProps & { className?: string }) => {
 
   const pin = pinned && PIN
   const isPrimaryActive = tab.active && !!tab.win?.lastFocused
+  const showActiveIndicator = (tab.win?.tabs?.length || 0) > 1
   const activeIndicatorColor = tab.active
     ? isPrimaryActive
       ? isDarkTheme
@@ -89,7 +90,6 @@ export default observer((props: TabProps & { className?: string }) => {
             : isActionable && isHovered
               ? 'rgba(238, 241, 245, 0.08)'
               : 'transparent',
-        borderBottom: '1px solid transparent',
         color: '#eef1f5',
       }
     : {
@@ -100,7 +100,6 @@ export default observer((props: TabProps & { className?: string }) => {
             : isActionable && isHovered
               ? 'rgba(15, 23, 42, 0.04)'
               : 'transparent',
-        borderBottom: '1px solid transparent',
         color: '#111827',
       }
   const rowStyle = isDarkTheme
@@ -114,7 +113,7 @@ export default observer((props: TabProps & { className?: string }) => {
       }
   const focusOutlineStyle = isFocused
     ? {
-        boxShadow: `0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
+        boxShadow: `inset 0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
       }
     : undefined
 
@@ -132,14 +131,16 @@ export default observer((props: TabProps & { className?: string }) => {
       onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {activeIndicatorColor && (
+      {showActiveIndicator && activeIndicatorColor && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute left-px top-1/2 z-10 block -translate-y-1/2 rounded-full"
+          data-testid={`tab-active-indicator-${tab.id}`}
+          className="absolute z-10 block -translate-y-1/2 rounded-full pointer-events-none top-1/2"
           style={{
             backgroundColor: activeIndicatorColor,
+            left: 2,
             width: 2,
-            height: 11,
+            height: 16,
           }}
         />
       )}
@@ -165,7 +166,7 @@ export default observer((props: TabProps & { className?: string }) => {
       {isFocused && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 rounded-sm"
+          className="absolute inset-0 z-10 pointer-events-none"
           style={focusOutlineStyle}
         />
       )}
