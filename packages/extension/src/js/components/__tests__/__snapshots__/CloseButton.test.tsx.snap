@@ -3,14 +3,14 @@
 exports[`CloseButton should honor disabled 1`] = `
 <button
   aria-label="Close"
-  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring cursor-not-allowed css-1xti9kj-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring cursor-not-allowed css-ciwlrc-MuiButtonBase-root-MuiIconButton-root"
   disabled=""
   tabindex="-1"
   type="button"
 >
   <svg
     aria-hidden="true"
-    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-6dq5bp-MuiSvgIcon-root"
     data-testid="CloseIcon"
     focusable="false"
     viewBox="0 0 24 24"
@@ -25,13 +25,13 @@ exports[`CloseButton should honor disabled 1`] = `
 exports[`CloseButton should render correct components 1`] = `
 <button
   aria-label="Close"
-  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xti9kj-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-ciwlrc-MuiButtonBase-root-MuiIconButton-root"
   tabindex="0"
   type="button"
 >
   <svg
     aria-hidden="true"
-    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-6dq5bp-MuiSvgIcon-root"
     data-testid="CloseIcon"
     focusable="false"
     viewBox="0 0 24 24"

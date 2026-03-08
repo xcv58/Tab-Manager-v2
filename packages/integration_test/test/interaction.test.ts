@@ -834,7 +834,7 @@ test.describe('The Extension page should', () => {
     const [x, y] = getCenterOfRect(rect)
     await page.mouse.move(x, y, { steps: 10 })
     const dragHandle = page
-      .locator(`[data-testid="${lastTabTestId}"] button.cursor-move`)
+      .locator(`[data-testid="${lastTabTestId}"] [aria-label="Drag tab"]`)
       .first()
     await expect(dragHandle).toBeVisible()
     const dragHandleRect = await dragHandle.evaluate((node) => {

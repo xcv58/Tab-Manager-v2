@@ -80,7 +80,7 @@ export default observer((props: { tab: Tab }) => {
       ...OPTION,
       label: 'Close other tabs',
       onClick: closeOtherTabs,
-      disabled: win.tabs.length <= 1,
+      disabled: (win?.tabs?.length ?? 0) <= 1,
     },
   ]
   if (process.env.TARGET_BROWSER === 'firefox') {
