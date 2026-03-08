@@ -7,7 +7,7 @@ import WindowDropZone from './WindowDropZone'
 export default observer((props: WinProps) => {
   const { win } = props
   return (
-    <div>
+    <div className="relative">
       <WindowDropZone win={win} position="top" />
       <Title {...props} className="" />
     </div>

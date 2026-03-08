@@ -144,7 +144,6 @@ export default observer((props: { tab: Tab }) => {
     <>
       <ControlIconButton
         onClick={handleClick}
-        className="text-slate-400"
         controlSize="compact"
         aria-label="Tab actions"
         data-testid={`tab-menu-${props.tab.id}`}

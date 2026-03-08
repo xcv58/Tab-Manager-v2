@@ -84,14 +84,14 @@ const app = {
 export const lightTheme = {
   palette: {
     background: {
-      default: '#f4f6fb',
+      default: '#e7edf5',
       paper: '#ffffff',
     },
     text: {
       primary: '#111827',
       secondary: '#6b7280',
     },
-    divider: 'rgba(15, 23, 42, 0.12)',
+    divider: 'rgba(15, 23, 42, 0.16)',
     primary: {
       main: '#1a73e8',
       light: '#5b9cf0',
@@ -114,14 +114,14 @@ export const darkTheme = merge({}, lightTheme, {
   palette: {
     mode: 'dark',
     background: {
-      default: '#252a31',
-      paper: '#2f353d',
+      default: '#1f242b',
+      paper: '#2e343c',
     },
     text: {
       primary: '#eef1f5',
       secondary: '#aeb5c0',
     },
-    divider: 'rgba(238, 241, 245, 0.12)',
+    divider: 'rgba(238, 241, 245, 0.18)',
     primary: {
       main: '#b5c7e6',
       light: '#d8e4f7',

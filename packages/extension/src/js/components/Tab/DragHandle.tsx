@@ -11,7 +11,7 @@ export default ({ className }: Props) => {
   return (
     <ControlIconButton
       tabIndex={-1}
-      className={classNames('text-slate-400', className)}
+      className={classNames(className)}
       controlSize="compact"
       sx={{
         cursor: 'move',

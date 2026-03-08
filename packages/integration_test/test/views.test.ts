@@ -9,6 +9,8 @@ import {
   initBrowserWithExtension,
   openPages,
   groupTabsByUrl,
+  createWindowsWithTabs,
+  groupTabsByUrlInWindow,
   waitForDefaultExtensionView,
   waitForSurfaceToFullyAppear,
   waitForTestId,
@@ -551,9 +553,9 @@ test.describe('The Extension page should', () => {
     await expect(windowTitle).toBeVisible()
     const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
     const sortButtonSlot = sortButton.locator('xpath=ancestor::div[1]')
-    await expect(sortButton).toBeHidden()
-    await expect(sortButtonSlot).toHaveCSS('opacity', '0')
-    await windowTitle.focus()
+    await expect(sortButton).toBeVisible()
+    await expect(sortButtonSlot).toHaveCSS('opacity', '1')
+    await windowTitle.hover()
     await page.waitForTimeout(150)
     await expect(sortButton).toBeVisible()
     await expect(sortButtonSlot).toHaveCSS('opacity', '1')
@@ -713,5 +715,97 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.08,
       threshold: 0.2,
     })
+  })
+
+  test('align action rails across group and tab rows', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    const [targetWindowId] = await createWindowsWithTabs(page, [
+      [
+        'data:text/html,action-align-a',
+        'data:text/html,action-align-b',
+        'data:text/html,action-align-c',
+      ],
+    ])
+    expect(targetWindowId).toBeGreaterThan(-1)
+    await page.bringToFront()
+    await page.waitForTimeout(900)
+
+    const groupId = await groupTabsByUrlInWindow(page, {
+      windowId: targetWindowId,
+      urls: ['data:text/html,action-align-a', 'data:text/html,action-align-b'],
+      title: 'Alignment',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    const groupedTab = await page.evaluate(async (currentGroupId) => {
+      const tabs = await chrome.tabs.query({})
+      const target = tabs.find((tab) => tab.groupId === currentGroupId)
+      return {
+        id: target?.id ?? -1,
+        windowId: target?.windowId ?? -1,
+      }
+    }, groupId)
+    const groupedTabId = groupedTab.id
+    const groupedWindowId = groupedTab.windowId
+    expect(groupedTabId).toBeGreaterThan(0)
+    expect(groupedWindowId).toBeGreaterThan(-1)
+
+    await page.reload()
+    await waitForTestId(page, `window-card-${groupedWindowId}`)
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `tab-row-${groupedTabId}`)
+
+    const groupHeader = page.getByTestId(`tab-group-header-${groupId}`)
+    const tabRow = page.getByTestId(`tab-row-${groupedTabId}`)
+    await groupHeader.focus()
+    await page.waitForTimeout(150)
+    await tabRow.hover()
+    await page.waitForTimeout(150)
+    const tabRowHandle = await tabRow.elementHandle()
+    expect(tabRowHandle).not.toBeNull()
+    const railPositions = await groupHeader.evaluate(
+      (groupHeaderNode, tabRowNode) => {
+        const readLeft = (node: Element | null) =>
+          (node as HTMLElement | null)?.getBoundingClientRect().left ?? -1
+
+        return {
+          groupMenu: readLeft(
+            groupHeaderNode?.querySelector(
+              '[data-testid^="tab-group-menu-"]',
+            ) || null,
+          ),
+          groupClose: readLeft(
+            groupHeaderNode?.querySelector(
+              'button[aria-label="Close group"]',
+            ) || null,
+          ),
+          tabMenu: readLeft(
+            tabRowNode?.querySelector('[data-testid^="tab-menu-"]') || null,
+          ),
+          tabClose: readLeft(
+            tabRowNode?.querySelector('button[aria-label="Close"]') || null,
+          ),
+        }
+      },
+      tabRowHandle,
+    )
+
+    expect(railPositions.groupMenu).toBeGreaterThan(0)
+    expect(railPositions.groupClose).toBeGreaterThan(0)
+    expect(railPositions.tabMenu).toBeGreaterThan(0)
+    expect(railPositions.tabClose).toBeGreaterThan(0)
+
+    expect(
+      Math.abs(railPositions.groupMenu - railPositions.tabMenu),
+    ).toBeLessThan(1.5)
+    expect(
+      Math.abs(railPositions.groupClose - railPositions.tabClose),
+    ).toBeLessThan(1.5)
   })
 })

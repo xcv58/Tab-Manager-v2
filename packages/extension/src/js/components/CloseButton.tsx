@@ -36,7 +36,7 @@ const CloseButton: React.FC<CloseButtonProps> = (props) => {
       tone="danger"
       controlSize={size === 'compact' ? 'compact' : 'medium'}
     >
-      <CloseIcon sx={{ fontSize: size === 'compact' ? 14 : 16 }} />
+      <CloseIcon sx={{ fontSize: size === 'compact' ? 13 : 16 }} />
     </ControlIconButton>
   )
 }

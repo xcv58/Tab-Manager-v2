@@ -12,7 +12,6 @@ export default ({ hide, toggleHide }) => {
   return (
     <ControlIconButton
       onClick={toggleHide}
-      className="text-slate-400"
       controlSize="compact"
       aria-label="Toggle window hide"
     >

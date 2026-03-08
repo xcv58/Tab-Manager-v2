@@ -45,9 +45,15 @@ export default observer((props: Props) => {
   return (
     <div
       ref={drop}
-      className={classNames('w-full h-2', {
-        'bg-blue-100': isOver && !canDrop,
-      })}
+      className={classNames(
+        {
+          'absolute inset-x-0 top-0 z-20 h-2': position === 'top',
+          'w-full h-2': position === 'bottom',
+        },
+        {
+          'bg-blue-100': isOver && !canDrop,
+        },
+      )}
       style={{
         backgroundColor:
           isOver && !canDrop ? theme.palette.action.hover : undefined,
