@@ -3,7 +3,7 @@
 exports[`CloseButton should honor disabled 1`] = `
 <button
   aria-label="Close"
-  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring cursor-not-allowed css-ciwlrc-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring cursor-not-allowed css-h4buey-MuiButtonBase-root-MuiIconButton-root"
   disabled=""
   tabindex="-1"
   type="button"
@@ -25,7 +25,7 @@ exports[`CloseButton should honor disabled 1`] = `
 exports[`CloseButton should render correct components 1`] = `
 <button
   aria-label="Close"
-  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-ciwlrc-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-h4buey-MuiButtonBase-root-MuiIconButton-root"
   tabindex="0"
   type="button"
 >
