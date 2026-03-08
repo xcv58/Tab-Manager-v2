@@ -7,7 +7,6 @@ export default ({ reload }) => (
   <Tooltip title="Reload all tabs">
     <ControlIconButton
       onClick={reload}
-      className="text-slate-400"
       controlSize="compact"
       aria-label="Reload all tabs"
     >

@@ -77,14 +77,8 @@ export default observer((props: TabProps & { className?: string }) => {
         ? '#b5c7e6'
         : '#1a73e8'
       : isDarkTheme
-        ? 'rgba(174, 181, 192, 0.34)'
-        : 'rgba(100, 116, 139, 0.44)'
-    : undefined
-  const activeIndicatorStyle = activeIndicatorColor
-    ? {
-        backgroundImage: `linear-gradient(to right, transparent 1px, ${activeIndicatorColor} 1px, ${activeIndicatorColor} 3px, transparent 3px)`,
-        backgroundRepeat: 'no-repeat',
-      }
+        ? 'rgba(167, 188, 217, 0.72)'
+        : 'rgba(91, 124, 173, 0.68)'
     : undefined
   const darkRowStyle = isDarkTheme
     ? {
@@ -112,12 +106,10 @@ export default observer((props: TabProps & { className?: string }) => {
   const rowStyle = isDarkTheme
     ? {
         ...darkRowStyle,
-        ...activeIndicatorStyle,
         ...(isFocused ? { outline: 'none' } : undefined),
       }
     : {
         ...darkRowStyle,
-        ...activeIndicatorStyle,
         ...(isFocused ? { outline: 'none' } : undefined),
       }
   const focusOutlineStyle = isFocused
@@ -140,6 +132,17 @@ export default observer((props: TabProps & { className?: string }) => {
       onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {activeIndicatorColor && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-px top-1/2 z-10 block -translate-y-1/2 rounded-full"
+          style={{
+            backgroundColor: activeIndicatorColor,
+            width: 2,
+            height: 11,
+          }}
+        />
+      )}
       {pin}
       <Icon tab={tab} />
       <TabContent tab={tab} />

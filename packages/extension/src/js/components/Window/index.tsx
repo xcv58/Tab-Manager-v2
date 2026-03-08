@@ -33,8 +33,8 @@ export default observer((props: WinProps & { width: string }) => {
           backgroundColor: theme.palette.background.paper,
           borderColor:
             theme.palette.mode === 'dark'
-              ? 'rgba(238, 241, 245, 0.16)'
-              : 'rgba(148, 163, 184, 0.38)',
+              ? 'rgba(238, 241, 245, 0.26)'
+              : 'rgba(148, 163, 184, 0.58)',
         }}
       >
         <DroppableTitle {...props} />

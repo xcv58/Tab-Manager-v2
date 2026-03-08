@@ -37,7 +37,7 @@ export default ({ groupId, className }: Props) => {
   return (
     <ControlIconButton
       ref={drag}
-      className={classNames('text-slate-400', className, {
+      className={classNames(className, {
         'opacity-50': isDragging,
       })}
       controlSize="compact"

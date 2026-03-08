@@ -20,7 +20,7 @@ exports[`TabTools should render correct components 1`] = `
     >
       <button
         aria-label="Drag tab"
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1n0ihfg-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xsbpuz-MuiButtonBase-root-MuiIconButton-root"
         tabindex="-1"
         title="Drag tab"
         type="button"

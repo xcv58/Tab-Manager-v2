@@ -82,7 +82,7 @@ exports[`Tabs render correct components 1`] = `
             >
               <button
                 aria-label="Tab actions"
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1kwcf79-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xl87gq-MuiButtonBase-root-MuiIconButton-root"
                 data-testid="tab-menu-1"
                 tabindex="0"
                 type="button"
@@ -106,7 +106,7 @@ exports[`Tabs render correct components 1`] = `
             >
               <button
                 aria-label="Drag tab"
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1n0ihfg-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xsbpuz-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="-1"
                 title="Drag tab"
                 type="button"
@@ -131,13 +131,13 @@ exports[`Tabs render correct components 1`] = `
           >
             <button
               aria-label="Close"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1x6cmce-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1200tu8-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-18yka4h-MuiSvgIcon-root"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1j6wgg5-MuiSvgIcon-root"
                 data-testid="CloseIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -149,13 +149,14 @@ exports[`Tabs render correct components 1`] = `
             </button>
           </div>
           <div
-            class="flex h-10 w-2 shrink-0 items-center justify-end"
+            class="flex h-10 shrink-0 items-center justify-end"
+            style="width: 4px; padding-right: 1px;"
           >
             <span
               aria-hidden="true"
-              class="block h-5 w-px rounded-full"
+              class="block rounded-full transition-opacity duration-150"
               data-testid="tab-duplicate-marker-1"
-              style="opacity: 0; background-color: rgba(100, 116, 139, 0.52);"
+              style="opacity: 0; background-color: rgba(100, 116, 139, 0.72); width: 2px; height: 11px;"
             />
           </div>
         </div>
@@ -240,7 +241,7 @@ exports[`Tabs render correct components 1`] = `
             >
               <button
                 aria-label="Tab actions"
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1kwcf79-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xl87gq-MuiButtonBase-root-MuiIconButton-root"
                 data-testid="tab-menu-2"
                 tabindex="0"
                 type="button"
@@ -264,7 +265,7 @@ exports[`Tabs render correct components 1`] = `
             >
               <button
                 aria-label="Drag tab"
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1n0ihfg-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xsbpuz-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="-1"
                 title="Drag tab"
                 type="button"
@@ -289,13 +290,13 @@ exports[`Tabs render correct components 1`] = `
           >
             <button
               aria-label="Close"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1x6cmce-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1200tu8-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-18yka4h-MuiSvgIcon-root"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1j6wgg5-MuiSvgIcon-root"
                 data-testid="CloseIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -307,13 +308,14 @@ exports[`Tabs render correct components 1`] = `
             </button>
           </div>
           <div
-            class="flex h-10 w-2 shrink-0 items-center justify-end"
+            class="flex h-10 shrink-0 items-center justify-end"
+            style="width: 4px; padding-right: 1px;"
           >
             <span
               aria-hidden="true"
-              class="block h-5 w-px rounded-full"
+              class="block rounded-full transition-opacity duration-150"
               data-testid="tab-duplicate-marker-2"
-              style="opacity: 0; background-color: rgba(100, 116, 139, 0.52);"
+              style="opacity: 0; background-color: rgba(100, 116, 139, 0.72); width: 2px; height: 11px;"
             />
           </div>
         </div>

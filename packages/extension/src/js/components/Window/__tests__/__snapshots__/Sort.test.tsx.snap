@@ -3,7 +3,7 @@
 exports[`Sort should call arrangeStore.sortTabs 1`] = `
 <button
   aria-label="Sort tabs"
-  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1kwcf79-MuiButtonBase-root-MuiIconButton-root"
+  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xl87gq-MuiButtonBase-root-MuiIconButton-root"
   data-mui-internal-clone-element="true"
   tabindex="0"
   type="button"
@@ -45,7 +45,7 @@ exports[`Sort should have correct tooltip 2`] = `
 <div>
   <button
     aria-label="Sort tabs"
-    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring text-slate-400 css-1kwcf79-MuiButtonBase-root-MuiIconButton-root"
+    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xl87gq-MuiButtonBase-root-MuiIconButton-root"
     data-mui-internal-clone-element="true"
     tabindex="0"
     type="button"

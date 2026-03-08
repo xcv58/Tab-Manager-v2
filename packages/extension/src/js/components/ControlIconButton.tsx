@@ -39,11 +39,31 @@ const CONTROL_SIZES: Record<ControlSize, SxProps<Theme>> = {
   },
 }
 
+const DEFAULT_CONTROL_SX: SxProps<Theme> = (theme) => ({
+  color:
+    theme.palette.mode === 'dark'
+      ? 'rgba(203, 213, 225, 0.74)'
+      : 'rgba(71, 85, 105, 0.76)',
+  '&:hover': {
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.action.hover,
+  },
+  '&:active': {
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.action.selected,
+  },
+  '&.Mui-disabled': {
+    color: theme.palette.action.disabled,
+    cursor: 'not-allowed',
+    opacity: 0.72,
+  },
+})
+
 const DANGER_CONTROL_SX: SxProps<Theme> = (theme) => ({
   color:
     theme.palette.mode === 'dark'
-      ? 'rgba(252, 202, 202, 0.84)'
-      : 'rgba(239, 68, 68, 0.44)',
+      ? 'rgba(252, 202, 202, 0.7)'
+      : 'rgba(239, 68, 68, 0.36)',
   '&:hover': {
     color: theme.palette.mode === 'dark' ? '#fecaca' : '#ef4444',
     backgroundColor:
@@ -92,7 +112,7 @@ const ControlIconButton = React.forwardRef<HTMLButtonElement, Props>(
       )}
       sx={[
         CONTROL_SIZES[controlSize],
-        tone === 'danger' ? DANGER_CONTROL_SX : undefined,
+        tone === 'danger' ? DANGER_CONTROL_SX : DEFAULT_CONTROL_SX,
         sx,
       ]}
     >

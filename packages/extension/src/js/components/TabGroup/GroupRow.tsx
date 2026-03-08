@@ -225,7 +225,7 @@ export default observer((props: Props) => {
         }}
         style={{
           backgroundColor:
-            theme.palette.mode === 'dark' ? '#343941' : '#f8fafc',
+            theme.palette.mode === 'dark' ? '#373d46' : '#f6f8fc',
           borderColor: theme.palette.divider,
         }}
         data-testid={`tab-group-header-${row.groupId}`}
@@ -293,7 +293,6 @@ export default observer((props: Props) => {
             <RowActionSlot visible={showGroupControls}>
               <ControlIconButton
                 onClick={(event) => setMenuAnchorEl(event.currentTarget)}
-                className="text-slate-400"
                 controlSize="compact"
                 aria-label="Group actions"
                 data-testid={`tab-group-menu-${row.groupId}`}
@@ -316,7 +315,11 @@ export default observer((props: Props) => {
                 aria-label="Close group"
               />
             </RowActionSlot>
-            <div aria-hidden="true" className="h-10 w-2 shrink-0" />
+            <div
+              aria-hidden="true"
+              className="h-10 shrink-0"
+              style={{ width: 4 }}
+            />
           </div>
         </div>
         <div

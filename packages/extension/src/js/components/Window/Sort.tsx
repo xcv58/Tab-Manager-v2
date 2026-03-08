@@ -14,7 +14,6 @@ export default observer((props: WinProps) => {
     <Tooltip title="Sort tabs">
       <ControlIconButton
         onClick={() => sortTabs(id)}
-        className="text-slate-400"
         controlSize="compact"
         aria-label="Sort tabs"
       >
