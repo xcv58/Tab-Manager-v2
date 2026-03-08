@@ -17,6 +17,6 @@ module.exports = {
   testEnvironmentOptions: {
     url: 'http://localhost/',
   },
-  collectCoverage: true,
+  collectCoverage: process.env.JEST_COLLECT_COVERAGE === '1',
   coverageDirectory: './coverage/',
 }

@@ -2,10 +2,10 @@ import { Page, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
-  WINDOW_CARD_QUERY,
   URLS,
   isExtensionURL,
   CLOSE_PAGES,
+  closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
   openPages,
   matchImageSnapshotOptions,
@@ -15,6 +15,7 @@ import {
   ungroupTabGroup,
   ungroupTabGroupById,
   waitForTestId,
+  waitForDefaultExtensionView,
   dragByTestId,
 } from '../util'
 
@@ -289,7 +290,9 @@ test.describe('The Extension page should', () => {
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
-    await page.waitForTimeout(1000)
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    await page.goto(extensionURL)
+    await waitForDefaultExtensionView(page)
   })
 
   test.afterEach(async () => {
@@ -297,10 +300,9 @@ test.describe('The Extension page should', () => {
   })
 
   test('sort the tabs', async () => {
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
     await page.reload()
-    await page.waitForTimeout(1000)
-    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
-    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
+    await waitForDefaultExtensionView(page)
     await openPages(browserContext, URLS)
     await page.bringToFront()
     let screenshot = await page.screenshot()

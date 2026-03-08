@@ -45,26 +45,8 @@ jobs:
       - name: Install xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
-      - name: Setup Firefox
-        id: setup-firefox
-        uses: browser-actions/setup-firefox@v1
-
       - name: Install Playwright
         run: pnpm --filter integration-test exec playwright install --with-deps chromium webkit
-
-      - name: Build Firefox Extension
-        run: pnpm --filter tab-manager-v2 build:firefox
-
-      - name: Zip Firefox Extension
-        run: pnpm --filter tab-manager-v2 zip:firefox
-
-      - name: Firefox Target Tests
-        run: pnpm --filter tab-manager-v2 test:firefox
-
-      - name: Firefox Integration Test
-        env:
-          FIREFOX_E2E: '1'
-        run: pnpm --filter integration-test-firefox test:firefox
 
       # Run all test
       - name: Integration Test
