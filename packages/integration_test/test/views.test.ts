@@ -941,7 +941,7 @@ test.describe('The Extension page should', () => {
     expect(selectAllMetrics.buttonHeight).toBeLessThanOrEqual(30.5)
   })
 
-  test('align action rails across group and tab rows', async () => {
+  test('align action rails across window, group, and tab rows', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
         query: '',
@@ -1001,23 +1001,35 @@ test.describe('The Extension page should', () => {
 
     await page.reload()
     await waitForTestId(page, `window-card-${groupedWindowId}`)
+    await waitForTestId(page, `window-title-${groupedWindowId}`)
     await waitForTestId(page, `tab-group-header-${groupId}`)
     await waitForTestId(page, `tab-row-${groupedTabId}`)
 
+    const windowTitle = page.getByTestId(`window-title-${groupedWindowId}`)
     const groupHeader = page.getByTestId(`tab-group-header-${groupId}`)
     const tabRow = page.getByTestId(`tab-row-${groupedTabId}`)
+    await windowTitle.hover()
+    await page.waitForTimeout(150)
     await groupHeader.focus()
     await page.waitForTimeout(150)
     await tabRow.hover()
     await page.waitForTimeout(150)
+    const windowTitleHandle = await windowTitle.elementHandle()
     const tabRowHandle = await tabRow.elementHandle()
+    expect(windowTitleHandle).not.toBeNull()
     expect(tabRowHandle).not.toBeNull()
     const railPositions = await groupHeader.evaluate(
-      (groupHeaderNode, tabRowNode) => {
+      (groupHeaderNode, nodes) => {
+        const windowTitleNode = nodes.windowTitleNode
+        const tabRowNode = nodes.tabRowNode
         const readLeft = (node: Element | null) =>
           (node as HTMLElement | null)?.getBoundingClientRect().left ?? -1
 
         return {
+          windowClose: readLeft(
+            windowTitleNode?.querySelector('button[aria-label="Close"]') ||
+              null,
+          ),
           groupMenu: readLeft(
             groupHeaderNode?.querySelector(
               '[data-testid^="tab-group-menu-"]',
@@ -1036,9 +1048,13 @@ test.describe('The Extension page should', () => {
           ),
         }
       },
-      tabRowHandle,
+      {
+        windowTitleNode: windowTitleHandle,
+        tabRowNode: tabRowHandle,
+      },
     )
 
+    expect(railPositions.windowClose).toBeGreaterThan(0)
     expect(railPositions.groupMenu).toBeGreaterThan(0)
     expect(railPositions.groupClose).toBeGreaterThan(0)
     expect(railPositions.tabMenu).toBeGreaterThan(0)
@@ -1049,6 +1065,12 @@ test.describe('The Extension page should', () => {
     ).toBeLessThan(1.5)
     expect(
       Math.abs(railPositions.groupClose - railPositions.tabClose),
+    ).toBeLessThan(1.5)
+    expect(
+      Math.abs(railPositions.windowClose - railPositions.groupClose),
+    ).toBeLessThan(1.5)
+    expect(
+      Math.abs(railPositions.windowClose - railPositions.tabClose),
     ).toBeLessThan(1.5)
   })
 })

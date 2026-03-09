@@ -5,6 +5,7 @@ import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
+import RowActionRail from 'components/RowActionRail'
 import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
@@ -125,7 +126,7 @@ export default observer((props: WinProps & { className: string }) => {
       }}
     >
       <div
-        className="flex min-h-10 w-full items-center justify-between px-1"
+        className="flex min-h-10 w-full items-center justify-between pl-1"
         style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
       >
         <SelectAll {...props} />
@@ -149,10 +150,7 @@ export default observer((props: WinProps & { className: string }) => {
             titleTextNode
           )}
         </button>
-        <div
-          className="mr-1 flex h-10 shrink-0 items-center gap-0.5"
-          style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
-        >
+        <RowActionRail>
           <RowActionSlot visible={!hide}>
             {!hide && <Sort {...props} />}
           </RowActionSlot>
@@ -170,12 +168,7 @@ export default observer((props: WinProps & { className: string }) => {
           <RowActionSlot visible={emphasizeWindowControls}>
             <CloseButton onClick={() => props.win.close()} size="compact" />
           </RowActionSlot>
-          <div
-            aria-hidden="true"
-            className="h-10 shrink-0"
-            style={{ width: 4 }}
-          />
-        </div>
+        </RowActionRail>
       </div>
     </div>
   )

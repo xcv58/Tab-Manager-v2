@@ -13,6 +13,7 @@ import { useTheme } from '@mui/material'
 import { useStore } from 'components/hooks/useStore'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
+import RowActionRail from 'components/RowActionRail'
 import useReduceMotion from 'libs/useReduceMotion'
 import { WindowRow } from 'stores/TabGroupStore'
 import Window from 'stores/Window'
@@ -299,10 +300,7 @@ export default observer((props: Props) => {
               </span>
             )}
           </button>
-          <div
-            className="flex h-10 shrink-0 items-center gap-0.5 pr-1"
-            style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
-          >
+          <RowActionRail>
             <RowActionSlot visible={showGroupControls}>
               <ControlIconButton
                 onClick={(event) => setMenuAnchorEl(event.currentTarget)}
@@ -328,12 +326,7 @@ export default observer((props: Props) => {
                 aria-label="Close group"
               />
             </RowActionSlot>
-            <div
-              aria-hidden="true"
-              className="h-10 shrink-0"
-              style={{ width: 4 }}
-            />
-          </div>
+          </RowActionRail>
         </div>
         <div
           className="mx-0 h-px"

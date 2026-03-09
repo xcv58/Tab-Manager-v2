@@ -9,7 +9,7 @@ import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
-import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
+import RowActionRail from 'components/RowActionRail'
 
 export default observer((props: TabProps) => {
   const { tab } = props
@@ -28,10 +28,7 @@ export default observer((props: TabProps) => {
       {pin}
       <Icon tab={tab} faked />
       <TabContent tab={tab} faked />
-      <div
-        className="flex h-10 shrink-0 items-center gap-0.5 pr-1"
-        style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
-      >
+      <RowActionRail tail={<DuplicateMarker tab={tab} faked />}>
         <TabTools tab={tab} faked />
         <RowActionSlot>
           <CloseButton
@@ -40,8 +37,7 @@ export default observer((props: TabProps) => {
             size="compact"
           />
         </RowActionSlot>
-        <DuplicateMarker tab={tab} faked />
-      </div>
+      </RowActionRail>
       <ContainerOrGroupIndicator
         groupId={tab.groupId}
         cookieStoreId={tab.cookieStoreId}
