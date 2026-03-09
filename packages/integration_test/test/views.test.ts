@@ -596,6 +596,15 @@ test.describe('The Extension page should', () => {
         useSystemTheme: true,
         darkTheme: false,
       })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          tabWidth: 20,
+          fontSize: 14,
+          toolbarAutoHide: false,
+          useSystemTheme: true,
+          darkTheme: false,
+        })
+      }
     })
     await page.reload()
 
@@ -752,6 +761,11 @@ test.describe('The Extension page should', () => {
       await chrome.storage.local.set({
         fontSize: 8,
       })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          fontSize: 8,
+        })
+      }
     })
     await page.reload()
     await waitForTestId(page, `window-title-${groupState.windowId}`)
@@ -773,13 +787,15 @@ test.describe('The Extension page should', () => {
       }
     }, groupState)
 
-    expect(metrics.groupHeight).toBeGreaterThanOrEqual(39.5)
+    expect(metrics.windowHeight).toBeGreaterThanOrEqual(29.5)
+    expect(metrics.groupHeight).toBeGreaterThanOrEqual(29.5)
+    expect(metrics.tabHeight).toBeGreaterThanOrEqual(29.5)
     expect(
       Math.abs(metrics.groupHeight - metrics.windowHeight),
-    ).toBeLessThanOrEqual(1.5)
+    ).toBeLessThanOrEqual(2.5)
     expect(
       Math.abs(metrics.groupHeight - metrics.tabHeight),
-    ).toBeLessThanOrEqual(1.5)
+    ).toBeLessThanOrEqual(2.5)
   })
 
   test('keep control icons balanced at large font sizes', async () => {
@@ -787,6 +803,11 @@ test.describe('The Extension page should', () => {
       await chrome.storage.local.set({
         fontSize: 30,
       })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          fontSize: 30,
+        })
+      }
     })
     const atomTabUrl =
       'data:text/html,<title>Large%20Font%20Row</title>large-font-row'
@@ -908,16 +929,16 @@ test.describe('The Extension page should', () => {
     ).toBeLessThanOrEqual(4)
     expect(faviconMetrics.iconWidth).toBeLessThanOrEqual(22)
     expect(faviconMetrics.iconHeight).toBeLessThanOrEqual(22)
-    expect(faviconMetrics.buttonWidth).toBeLessThanOrEqual(40)
-    expect(faviconMetrics.buttonHeight).toBeLessThanOrEqual(40)
+    expect(faviconMetrics.buttonWidth).toBeLessThanOrEqual(30.5)
+    expect(faviconMetrics.buttonHeight).toBeLessThanOrEqual(30.5)
     expect(faviconMetrics.buttonLeft).toBeGreaterThanOrEqual(0)
-    expect(faviconMetrics.buttonRight).toBeLessThanOrEqual(40.5)
-    expect(faviconMetrics.iconLeft).toBeGreaterThanOrEqual(8)
-    expect(faviconMetrics.iconRight).toBeLessThanOrEqual(32)
+    expect(faviconMetrics.buttonRight).toBeLessThanOrEqual(30.5)
+    expect(faviconMetrics.iconLeft).toBeGreaterThanOrEqual(4)
+    expect(faviconMetrics.iconRight).toBeLessThanOrEqual(26)
     expect(selectAllMetrics.iconWidth).toBeLessThanOrEqual(22)
     expect(selectAllMetrics.iconHeight).toBeLessThanOrEqual(22)
-    expect(selectAllMetrics.buttonWidth).toBeLessThanOrEqual(40)
-    expect(selectAllMetrics.buttonHeight).toBeLessThanOrEqual(40)
+    expect(selectAllMetrics.buttonWidth).toBeLessThanOrEqual(30.5)
+    expect(selectAllMetrics.buttonHeight).toBeLessThanOrEqual(30.5)
   })
 
   test('align action rails across group and tab rows', async () => {

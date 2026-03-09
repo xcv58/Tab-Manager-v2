@@ -44,10 +44,10 @@ exports[`SelectAll should render correct components 1`] = `
     aria-label="Unselect all tabs"
     class="flex h-10 w-10 shrink-0 items-center justify-center"
     data-mui-internal-clone-element="true"
-    style="width: 40px; height: 40px;"
+    style="width: 30px; height: 30px;"
   >
     <span
-      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-kyi5rz-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1331ojr-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
     >
       <input
         aria-label="Unselect all tabs"

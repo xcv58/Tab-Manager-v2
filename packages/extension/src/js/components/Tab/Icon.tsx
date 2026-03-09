@@ -5,6 +5,7 @@ import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
+import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
 
 const ARIA_LABEL = 'Toggle select'
 const CONTROL_SLOT_CLASS =
@@ -12,9 +13,9 @@ const CONTROL_SLOT_CLASS =
 const CONTROL_LAYER_CLASS =
   'absolute inset-0 flex items-center justify-center transition-opacity duration-150'
 const CONTROL_SX = {
-  width: 40,
-  height: 40,
-  p: 1,
+  width: DEFAULT_CONTROL_SIZE,
+  height: DEFAULT_CONTROL_SIZE,
+  p: 0.625,
   m: 0,
   '& .MuiSvgIcon-root': {
     fontSize: 20,
@@ -48,13 +49,19 @@ export const Icon = observer((props: TabProps) => {
   )
   if (!userStore.showTabIcon) {
     return (
-      <div className={CONTROL_SLOT_CLASS} style={{ width: 40, height: 40 }}>
+      <div
+        className={CONTROL_SLOT_CLASS}
+        style={{ width: DEFAULT_CONTROL_SIZE, height: DEFAULT_CONTROL_SIZE }}
+      >
         {checkbox}
       </div>
     )
   }
   return (
-    <div className={CONTROL_SLOT_CLASS} style={{ width: 40, height: 40 }}>
+    <div
+      className={CONTROL_SLOT_CLASS}
+      style={{ width: DEFAULT_CONTROL_SIZE, height: DEFAULT_CONTROL_SIZE }}
+    >
       <div
         className={classNames(CONTROL_LAYER_CLASS, {
           'pointer-events-none opacity-0': isSelected,
@@ -96,7 +103,10 @@ export default observer((props: TabProps) => {
   }
   const { iconUrl } = tab
   return (
-    <div className={CONTROL_SLOT_CLASS} style={{ width: 40, height: 40 }}>
+    <div
+      className={CONTROL_SLOT_CLASS}
+      style={{ width: DEFAULT_CONTROL_SIZE, height: DEFAULT_CONTROL_SIZE }}
+    >
       <IconButton
         disabled
         aria-label={ARIA_LABEL}

@@ -160,7 +160,7 @@ describe('WindowStore layout policy', () => {
 
   it('uses a minimum row height when font size is very small', () => {
     const windowStore = createWindowStore()
-    windowStore.height = 120
+    windowStore.height = 100
     windowStore.store.userStore.fontSize = 8
     setVisibleLengths(windowStore, [2, 2])
 

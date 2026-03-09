@@ -23,7 +23,10 @@ import DropIndicator from 'components/DropIndicator'
 import GroupDragHandle from './GroupDragHandle'
 import ControlIconButton from 'components/ControlIconButton'
 import { browser } from 'libs'
-import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
+import {
+  DEFAULT_CONTROL_SIZE,
+  MIN_INTERACTIVE_ROW_HEIGHT,
+} from 'libs/layoutMetrics'
 
 type Props = {
   row: Extract<WindowRow, { kind: 'group' }>
@@ -249,8 +252,8 @@ export default observer((props: Props) => {
             <span
               className="mr-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors duration-150"
               style={{
-                width: 40,
-                height: 40,
+                width: DEFAULT_CONTROL_SIZE,
+                height: DEFAULT_CONTROL_SIZE,
                 backgroundColor: showToggleAffordance
                   ? theme.palette.action.hover
                   : 'transparent',

@@ -3,6 +3,7 @@ import IconButton from '@mui/material/IconButton'
 import type { IconButtonProps } from '@mui/material/IconButton'
 import { SxProps, Theme } from '@mui/material/styles'
 import classNames from 'classnames'
+import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
 
 type Tone = 'default' | 'danger'
 type ControlSize = 'default' | 'medium' | 'compact'
@@ -14,11 +15,11 @@ type Props = Omit<IconButtonProps, 'color'> & {
 
 const CONTROL_SIZES: Record<ControlSize, SxProps<Theme>> = {
   default: {
-    width: 40,
-    height: 40,
-    minWidth: 40,
-    minHeight: 40,
-    p: 1,
+    width: DEFAULT_CONTROL_SIZE,
+    height: DEFAULT_CONTROL_SIZE,
+    minWidth: DEFAULT_CONTROL_SIZE,
+    minHeight: DEFAULT_CONTROL_SIZE,
+    p: 0.625,
     m: 0,
   },
   medium: {
