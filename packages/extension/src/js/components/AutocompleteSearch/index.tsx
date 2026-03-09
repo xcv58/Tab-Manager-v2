@@ -3,18 +3,18 @@ import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import { useTheme } from '@mui/material/styles'
-import ViewOnlyTab from 'components/Tab/ViewOnlyTab'
 import { useStore } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
 import ListboxComponent from './ListboxComponent'
+import TabOption from './TabOption'
 import { matchSorter, defaultBaseSortFn } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
 import Shortcuts from 'components/Shortcut/Shortcuts'
 import HistoryItemTab from 'components/Tab/HistoryItemTab'
 import Tab from 'stores/Tab'
-import { HistoryItem } from 'stores/SearchStore'
+import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
 import { openURL } from 'libs'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
@@ -52,15 +52,15 @@ function sortRankedValues(a, b, baseSort): number {
   }
 }
 
-const getFilterOptions = (showUrl, isCommand) => {
+const getFilterOptions = (showUrl, isCommand, hasTabGroupsApi) => {
   if (isCommand) {
     return commandFilter
   }
   return (options, { inputValue }) => {
-    const keys = ['title']
-    if (showUrl) {
-      keys.push('url')
-    }
+    const keys = getTabSearchKeys({
+      showUrl,
+      hasTabGroupsApi,
+    })
     return matchSorter(options, inputValue, {
       keys,
       sorter: (rankedItems) => {
@@ -84,9 +84,9 @@ const getFilterOptions = (showUrl, isCommand) => {
   }
 }
 
-type TabOption = HistoryItem | Tab | { isDivider: boolean; title: string }
+type SearchOption = HistoryItem | Tab | { isDivider: boolean; title: string }
 
-const renderTabOption = (tab: TabOption) => {
+const renderTabOption = (tab: SearchOption) => {
   if (tab.isDivider) {
     return (
       <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
@@ -101,7 +101,7 @@ const renderTabOption = (tab: TabOption) => {
   if (tab.visitCount) {
     return <HistoryItemTab tab={tab} />
   }
-  return <ViewOnlyTab tab={tab} />
+  return <TabOption tab={tab} />
 }
 
 const renderCommand = (command, state) => {
@@ -134,9 +134,13 @@ const AutocompleteSearch = observer((props: Props) => {
   const theme = useTheme()
   const searchInputRef = useSearchInputRef()
   const options = useOptions()
-  const { userStore, searchStore } = useStore()
+  const { userStore, searchStore, tabGroupStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
-  const filterOptions = getFilterOptions(userStore.showUrl, isCommand)
+  const filterOptions = getFilterOptions(
+    userStore.showUrl,
+    isCommand,
+    !!tabGroupStore?.hasTabGroupsApi?.(),
+  )
 
   return (
     <Autocomplete
@@ -224,7 +228,14 @@ const AutocompleteSearch = observer((props: Props) => {
       )}
       options={options}
       getOptionLabel={(option) =>
-        `${option.name} ${option.title} ${option.url}`
+        [
+          option.name,
+          option.title,
+          option.url,
+          option.visitCount ? '' : option.groupTitle,
+        ]
+          .filter(Boolean)
+          .join(' ')
       }
       getOptionDisabled={(option) => option.isDivider}
       renderOption={(props, option, state) => (

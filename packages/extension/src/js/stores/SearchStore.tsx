@@ -11,6 +11,32 @@ const hasCommandPrefix = (value: string) => value.startsWith('>')
 
 const DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24
 
+export const matchesSearchText = (text: string, query: string) => {
+  const normalizedText = (text || '').trim()
+  const normalizedQuery = (query || '').trim()
+  if (!normalizedText || !normalizedQuery) {
+    return false
+  }
+  return matchSorter([normalizedText], normalizedQuery).length > 0
+}
+
+export const getTabSearchKeys = ({
+  showUrl,
+  hasTabGroupsApi,
+}: {
+  showUrl: boolean
+  hasTabGroupsApi: boolean
+}) => {
+  const keys = ['title']
+  if (showUrl) {
+    keys.push('url')
+  }
+  if (hasTabGroupsApi) {
+    keys.push('groupTitle')
+  }
+  return keys
+}
+
 export type HistoryItem = {
   id: string
   lastVisitTime?: number
@@ -170,13 +196,10 @@ export default class SearchStore {
     if (!this._query) {
       return tabs
     }
-    const keys = ['title']
-    if (this.store.userStore.showUrl) {
-      keys.push('url')
-    }
-    if (this.store.tabGroupStore?.hasTabGroupsApi?.()) {
-      keys.push('groupTitle')
-    }
+    const keys = getTabSearchKeys({
+      showUrl: this.store.userStore.showUrl,
+      hasTabGroupsApi: !!this.store.tabGroupStore?.hasTabGroupsApi?.(),
+    })
     return matchSorter(tabs, this._query, { keys })
   }
 

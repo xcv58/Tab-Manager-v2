@@ -479,6 +479,56 @@ test.describe('The Extension page should', () => {
     }
   })
 
+  test('show group title metadata only when the search query matches the group title', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const alphaUrl =
+      'data:text/html,<title>Alpha%20Guide</title>alpha-group-search'
+    const betaUrl =
+      'data:text/html,<title>Beta%20Guide</title>beta-group-search'
+    await openPages(browserContext, [alphaUrl, betaUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: [alphaUrl, betaUrl],
+      title: 'SearchDocs',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+
+    await searchInput.fill('SearchDocs')
+    await page.waitForTimeout(700)
+    const groupMatchedOption = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'Alpha Guide' })
+      .first()
+    await expect(groupMatchedOption).toContainText('in SearchDocs')
+
+    await searchInput.fill('Alpha Guide')
+    await page.waitForTimeout(700)
+    const titleMatchedOption = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'Alpha Guide' })
+      .first()
+    await expect(titleMatchedOption).not.toContainText('in SearchDocs')
+  })
+
   test('remove one tab from a group without breaking remaining grouped tabs', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
