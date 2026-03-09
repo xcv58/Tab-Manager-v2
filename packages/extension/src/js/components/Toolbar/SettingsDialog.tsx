@@ -194,6 +194,7 @@ export default observer(() => {
       fullWidth
       maxWidth="lg"
       TransitionComponent={Fade}
+      disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
       onBackdropClick={closeDialog}

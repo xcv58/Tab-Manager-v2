@@ -3,6 +3,10 @@ import { browser } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import log from 'libs/log'
+import {
+  captureDialogFocusTarget,
+  restoreDialogFocusTarget,
+} from 'libs/dialogFocus'
 
 const DEFAULT_SETTINGS = {
   showAppWindow: false,
@@ -152,6 +156,7 @@ export default class UserStore {
   fontSize = 14
   showTabIcon = true
   dialogOpen = false
+  dialogFocusTarget: HTMLElement | null = null
   toolbarVisible = true
   ignoreHash = false
 
@@ -185,15 +190,22 @@ export default class UserStore {
   }
 
   openDialog = () => {
+    this.dialogFocusTarget = captureDialogFocusTarget()
     this.dialogOpen = true
   }
 
   closeDialog = () => {
     this.dialogOpen = false
+    restoreDialogFocusTarget(this.dialogFocusTarget)
+    this.dialogFocusTarget = null
   }
 
   toggleDialog = () => {
-    this.dialogOpen = !this.dialogOpen
+    if (this.dialogOpen) {
+      this.closeDialog()
+      return
+    }
+    this.openDialog()
   }
 
   save = () => {

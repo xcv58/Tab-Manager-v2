@@ -3,6 +3,11 @@ import UserStore from 'stores/UserStore'
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 describe('UserStore', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+    document.body.innerHTML = ''
+  })
+
   it('should always set loaded even when settings read fails', async () => {
     const initSearch = jest.fn()
     const userStore = new UserStore({
@@ -88,5 +93,30 @@ describe('UserStore', () => {
 
     expect(repackLayout).toHaveBeenCalledTimes(1)
     expect(repackLayout).toHaveBeenCalledWith('filter-change')
+  })
+
+  it('should blur focused content when opening the dialog and restore it on close', async () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0)
+      return 0
+    })
+    document.body.innerHTML = '<button id="trigger">Open</button>'
+    const trigger = document.getElementById('trigger') as HTMLButtonElement
+    trigger.focus()
+
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+    } as any)
+    await flush()
+
+    userStore.openDialog()
+    expect(userStore.dialogOpen).toBe(true)
+    expect(document.activeElement).toBe(document.body)
+
+    userStore.closeDialog()
+    expect(userStore.dialogOpen).toBe(false)
+    expect(document.activeElement).toBe(trigger)
   })
 })

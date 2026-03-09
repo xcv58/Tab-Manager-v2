@@ -24,6 +24,7 @@ export default observer(() => {
     <Dialog
       open={dialogOpen}
       TransitionComponent={Fade}
+      disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
