@@ -10,7 +10,7 @@ export default ({ reload }) => (
       controlSize="compact"
       aria-label="Reload all tabs"
     >
-      <Refresh fontSize="small" />
+      <Refresh sx={{ fontSize: 16 }} />
     </ControlIconButton>
   </Tooltip>
 )

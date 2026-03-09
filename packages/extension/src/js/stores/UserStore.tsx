@@ -3,6 +3,10 @@ import { browser } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import log from 'libs/log'
+import {
+  captureDialogFocusTarget,
+  restoreDialogFocusTarget,
+} from 'libs/dialogFocus'
 
 const DEFAULT_SETTINGS = {
   showAppWindow: false,
@@ -112,9 +116,18 @@ export default class UserStore {
   }
 
   init = async () => {
+    const previousFontSize = this.fontSize
+    const previousTabWidth = this.tabWidth
     try {
       const result = await this.readSettings()
       Object.assign(this, result)
+      if (
+        this.store.windowStore &&
+        (this.fontSize !== previousFontSize ||
+          this.tabWidth !== previousTabWidth)
+      ) {
+        this.store.windowStore.repackLayout('settings-change')
+      }
     } catch (error) {
       log.error('UserStore.init failed to load settings', { error })
     } finally {
@@ -143,6 +156,7 @@ export default class UserStore {
   fontSize = 14
   showTabIcon = true
   dialogOpen = false
+  dialogFocusTarget: HTMLElement | null = null
   toolbarVisible = true
   ignoreHash = false
 
@@ -176,15 +190,22 @@ export default class UserStore {
   }
 
   openDialog = () => {
+    this.dialogFocusTarget = captureDialogFocusTarget()
     this.dialogOpen = true
   }
 
   closeDialog = () => {
     this.dialogOpen = false
+    restoreDialogFocusTarget(this.dialogFocusTarget)
+    this.dialogFocusTarget = null
   }
 
   toggleDialog = () => {
-    this.dialogOpen = !this.dialogOpen
+    if (this.dialogOpen) {
+      this.closeDialog()
+      return
+    }
+    this.openDialog()
   }
 
   save = () => {

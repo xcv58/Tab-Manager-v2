@@ -5,6 +5,7 @@ import TabMenu from 'components/Tab/TabMenu'
 import RowActionSlot from 'components/RowActionSlot'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
+import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 
 export default observer((props: TabProps) => {
   const { dragStore } = useStore()
@@ -18,7 +19,10 @@ export default observer((props: TabProps) => {
   }
   const emphasizeTools = isHovered || isFocused
   return (
-    <div className="flex h-10 shrink-0 items-center gap-0.5">
+    <div
+      className="flex h-10 shrink-0 items-center gap-0.5"
+      style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
+    >
       <RowActionSlot visible={emphasizeTools}>
         <TabMenu {...props} />
       </RowActionSlot>

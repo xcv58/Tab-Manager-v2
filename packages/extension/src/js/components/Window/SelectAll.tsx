@@ -2,12 +2,16 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Checkbox from '@mui/material/Checkbox'
 import Tooltip from '@mui/material/Tooltip'
+import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
 
 const CONTROL_SX = {
-  width: 40,
-  height: 40,
-  p: 1,
+  width: DEFAULT_CONTROL_SIZE,
+  height: DEFAULT_CONTROL_SIZE,
+  p: 0.625,
   m: 0,
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
 }
 
 export default observer(({ win }) => {
@@ -16,7 +20,10 @@ export default observer(({ win }) => {
   const title = `${allTabSelected ? 'Unselect' : 'Select'} all tabs`
   return (
     <Tooltip title={title}>
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center">
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center"
+        style={{ width: DEFAULT_CONTROL_SIZE, height: DEFAULT_CONTROL_SIZE }}
+      >
         <Checkbox
           color="primary"
           inputProps={{

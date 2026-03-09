@@ -17,18 +17,20 @@ exports[`Tabs render correct components 1`] = `
       >
         <div
           class="group relative flex h-10 w-10 shrink-0 items-center justify-center"
+          style="width: 30px; height: 30px;"
         >
           <div
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 opacity-100 group-hover:pointer-events-none group-hover:opacity-0"
           >
             <button
               aria-label="Toggle select"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-2m800e-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-1iz5xrj-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
               <img
                 class="w-6 h-6"
+                style="width: 20px; height: 20px;"
               />
             </button>
           </div>
@@ -36,7 +38,7 @@ exports[`Tabs render correct components 1`] = `
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17ur8pj-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1331ojr-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 aria-label="Toggle select"
@@ -61,6 +63,7 @@ exports[`Tabs render correct components 1`] = `
         <button
           class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
           data-mui-internal-clone-element="true"
+          style="min-height: 30px;"
         >
           <div
             class="w-full min-w-0 overflow-hidden truncate"
@@ -72,13 +75,16 @@ exports[`Tabs render correct components 1`] = `
         </button>
         <div
           class="flex h-10 shrink-0 items-center gap-0.5 pr-1"
+          style="min-height: 30px;"
         >
           <div
             class="flex h-10 shrink-0 items-center gap-0.5"
+            style="min-height: 30px;"
           >
             <div
               aria-hidden="false"
               class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+              style="width: 28px; height: 30px;"
             >
               <button
                 aria-label="Tab actions"
@@ -89,7 +95,7 @@ exports[`Tabs render correct components 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-6dq5bp-MuiSvgIcon-root"
                   data-testid="MoreVertIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -103,6 +109,7 @@ exports[`Tabs render correct components 1`] = `
             <div
               aria-hidden="false"
               class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+              style="width: 28px; height: 30px;"
             >
               <button
                 aria-label="Drag tab"
@@ -128,6 +135,7 @@ exports[`Tabs render correct components 1`] = `
           <div
             aria-hidden="false"
             class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+            style="width: 28px; height: 30px;"
           >
             <button
               aria-label="Close"
@@ -176,18 +184,20 @@ exports[`Tabs render correct components 1`] = `
       >
         <div
           class="group relative flex h-10 w-10 shrink-0 items-center justify-center"
+          style="width: 30px; height: 30px;"
         >
           <div
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 opacity-100 group-hover:pointer-events-none group-hover:opacity-0"
           >
             <button
               aria-label="Toggle select"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-2m800e-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium focus:outline-none focus:ring css-1iz5xrj-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
               <img
                 class="w-6 h-6"
+                style="width: 20px; height: 20px;"
               />
             </button>
           </div>
@@ -195,7 +205,7 @@ exports[`Tabs render correct components 1`] = `
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17ur8pj-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1331ojr-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 aria-label="Toggle select"
@@ -220,6 +230,7 @@ exports[`Tabs render correct components 1`] = `
         <button
           class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
           data-mui-internal-clone-element="true"
+          style="min-height: 30px;"
         >
           <div
             class="w-full min-w-0 overflow-hidden truncate"
@@ -231,13 +242,16 @@ exports[`Tabs render correct components 1`] = `
         </button>
         <div
           class="flex h-10 shrink-0 items-center gap-0.5 pr-1"
+          style="min-height: 30px;"
         >
           <div
             class="flex h-10 shrink-0 items-center gap-0.5"
+            style="min-height: 30px;"
           >
             <div
               aria-hidden="false"
               class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+              style="width: 28px; height: 30px;"
             >
               <button
                 aria-label="Tab actions"
@@ -248,7 +262,7 @@ exports[`Tabs render correct components 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-6dq5bp-MuiSvgIcon-root"
                   data-testid="MoreVertIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -262,6 +276,7 @@ exports[`Tabs render correct components 1`] = `
             <div
               aria-hidden="false"
               class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+              style="width: 28px; height: 30px;"
             >
               <button
                 aria-label="Drag tab"
@@ -287,6 +302,7 @@ exports[`Tabs render correct components 1`] = `
           <div
             aria-hidden="false"
             class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+            style="width: 28px; height: 30px;"
           >
             <button
               aria-label="Close"

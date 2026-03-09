@@ -12,16 +12,18 @@ import Tooltip from '@mui/material/Tooltip'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 import { getNoun } from 'libs'
+import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 
 const TabContent = observer(
   (
     props: TabProps & {
       buttonClassName: string
+      buttonStyle: React.CSSProperties
       content: ReactElement
       onAuxClick: (e: SyntheticEvent) => void
     },
   ) => {
-    const { faked, buttonClassName, content, onAuxClick } = props
+    const { faked, buttonClassName, buttonStyle, content, onAuxClick } = props
     const { hoverStore, dragStore } = useStore()
     const {
       activate,
@@ -66,6 +68,7 @@ const TabContent = observer(
           onAuxClick={onAuxClick}
           onFocus={focus}
           className={buttonClassName}
+          style={buttonStyle}
         >
           {content}
         </button>
@@ -96,6 +99,9 @@ export default observer((props: TabProps) => {
   )
   const buttonClassName =
     'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base'
+  const buttonStyle = {
+    minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
+  }
   const content = (
     <>
       <div className="w-full min-w-0 overflow-hidden truncate">
@@ -106,7 +112,11 @@ export default observer((props: TabProps) => {
   )
   if (faked) {
     return (
-      <button className={buttonClassName} onAuxClick={onAuxClick}>
+      <button
+        className={buttonClassName}
+        style={buttonStyle}
+        onAuxClick={onAuxClick}
+      >
         {content}
       </button>
     )
@@ -114,7 +124,13 @@ export default observer((props: TabProps) => {
   return (
     <TabContent
       {...props}
-      {...{ getHighlightNode, buttonClassName, content, onAuxClick }}
+      {...{
+        getHighlightNode,
+        buttonClassName,
+        buttonStyle,
+        content,
+        onAuxClick,
+      }}
     />
   )
 })

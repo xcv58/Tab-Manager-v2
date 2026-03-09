@@ -158,6 +158,18 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnLayout).toEqual([[1, 2]])
   })
 
+  it('uses a minimum row height when font size is very small', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 100
+    windowStore.store.userStore.fontSize = 8
+    setVisibleLengths(windowStore, [2, 2])
+
+    windowStore.repackLayout('manual')
+
+    expect(windowStore.columnCount).toBe(2)
+    expect(windowStore.columnLayout).toEqual([[1], [2]])
+  })
+
   it('clearWindow repacks immediately when removed window is the only one in its column', () => {
     const windowStore = createWindowStore()
     windowStore.height = 350

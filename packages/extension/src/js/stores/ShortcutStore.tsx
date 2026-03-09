@@ -3,6 +3,10 @@ import Mousetrap from 'mousetrap'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
+import {
+  captureDialogFocusTarget,
+  restoreDialogFocusTarget,
+} from 'libs/dialogFocus'
 
 export const getDescription = (description: string | (() => string)) => {
   if (typeof description === 'string') {
@@ -29,7 +33,9 @@ export default class ShortcutStore {
   store: Store
 
   constructor(store: Store) {
-    makeAutoObservable(this)
+    makeAutoObservable(this, {
+      dialogFocusTarget: false,
+    })
 
     this.store = store
   }
@@ -39,6 +45,7 @@ export default class ShortcutStore {
   toastOpen = false
 
   dialogOpen = false
+  dialogFocusTarget: HTMLElement | null = null
 
   inputShortcutSet = new Set([
     'escape',
@@ -537,10 +544,13 @@ export default class ShortcutStore {
   }, 500)
 
   openDialog = () => {
+    this.dialogFocusTarget = captureDialogFocusTarget()
     this.dialogOpen = true
   }
 
   closeDialog = () => {
     this.dialogOpen = false
+    restoreDialogFocusTarget(this.dialogFocusTarget)
+    this.dialogFocusTarget = null
   }
 }

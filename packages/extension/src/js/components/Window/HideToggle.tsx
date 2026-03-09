@@ -5,9 +5,9 @@ import ControlIconButton from 'components/ControlIconButton'
 
 export default ({ hide, toggleHide }) => {
   const icon = hide ? (
-    <ChevronRightIcon fontSize="small" />
+    <ChevronRightIcon sx={{ fontSize: 16 }} />
   ) : (
-    <ExpandMoreIcon fontSize="small" />
+    <ExpandMoreIcon sx={{ fontSize: 16 }} />
   )
   return (
     <ControlIconButton

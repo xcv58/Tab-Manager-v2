@@ -9,6 +9,7 @@ import {
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
+import { getWindowRowHeight } from 'libs/layoutMetrics'
 import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Store from 'stores'
@@ -279,7 +280,7 @@ export default class WindowsStore {
       }
     }
 
-    const tabHeight = (this.store.userStore?.fontSize || 14) * 3
+    const tabHeight = getWindowRowHeight(this.store.userStore?.fontSize || 14)
     const layout: number[][] = [[]]
     let columnIndex = 0
     let currentHeight = 0

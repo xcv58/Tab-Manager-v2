@@ -23,6 +23,10 @@ import DropIndicator from 'components/DropIndicator'
 import GroupDragHandle from './GroupDragHandle'
 import ControlIconButton from 'components/ControlIconButton'
 import { browser } from 'libs'
+import {
+  DEFAULT_CONTROL_SIZE,
+  MIN_INTERACTIVE_ROW_HEIGHT,
+} from 'libs/layoutMetrics'
 
 type Props = {
   row: Extract<WindowRow, { kind: 'group' }>
@@ -231,7 +235,10 @@ export default observer((props: Props) => {
         data-testid={`tab-group-header-${row.groupId}`}
       >
         {dropIndicator}
-        <div className="flex min-h-10 items-center gap-1">
+        <div
+          className="flex min-h-10 items-center gap-1"
+          style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
+        >
           <button
             className="flex h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
             onClick={onToggle}
@@ -240,10 +247,13 @@ export default observer((props: Props) => {
             onFocus={() => setIsToggleFocused(true)}
             onBlur={() => setIsToggleFocused(false)}
             data-testid={`tab-group-toggle-${row.groupId}`}
+            style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
           >
             <span
               className="mr-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors duration-150"
               style={{
+                width: DEFAULT_CONTROL_SIZE,
+                height: DEFAULT_CONTROL_SIZE,
                 backgroundColor: showToggleAffordance
                   ? theme.palette.action.hover
                   : 'transparent',
@@ -253,9 +263,9 @@ export default observer((props: Props) => {
               }}
             >
               {collapsed ? (
-                <ChevronRightIcon fontSize="small" />
+                <ChevronRightIcon sx={{ fontSize: 18 }} />
               ) : (
-                <ExpandMoreIcon fontSize="small" />
+                <ExpandMoreIcon sx={{ fontSize: 18 }} />
               )}
             </span>
             <span
@@ -289,7 +299,10 @@ export default observer((props: Props) => {
               </span>
             )}
           </button>
-          <div className="flex h-10 shrink-0 items-center gap-0.5 pr-1">
+          <div
+            className="flex h-10 shrink-0 items-center gap-0.5 pr-1"
+            style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
+          >
             <RowActionSlot visible={showGroupControls}>
               <ControlIconButton
                 onClick={(event) => setMenuAnchorEl(event.currentTarget)}
@@ -297,7 +310,7 @@ export default observer((props: Props) => {
                 aria-label="Group actions"
                 data-testid={`tab-group-menu-${row.groupId}`}
               >
-                <MoreVertIcon fontSize="small" />
+                <MoreVertIcon sx={{ fontSize: 16 }} />
               </ControlIconButton>
             </RowActionSlot>
             <RowActionSlot visible={canMutateGroups && showGroupDragHandle}>
