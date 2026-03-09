@@ -1,4 +1,4 @@
-import SearchStore from 'stores/SearchStore'
+import SearchStore, { matchesSearchText } from 'stores/SearchStore'
 
 describe('SearchStore', () => {
   it('should repack layout after updating the active search query', async () => {
@@ -71,5 +71,12 @@ describe('SearchStore', () => {
 
     expect(searchStore.matchedTabs.map((tab) => tab.id)).toEqual([2])
     expect(Array.from(searchStore.matchedSet)).toEqual([1, 2])
+  })
+
+  it('should detect when a query matches a group title', () => {
+    expect(matchesSearchText('SearchDocs', 'SearchDocs')).toBe(true)
+    expect(matchesSearchText('SearchDocs', 'docs')).toBe(true)
+    expect(matchesSearchText('SearchDocs', 'nextjs')).toBe(false)
+    expect(matchesSearchText('', 'docs')).toBe(false)
   })
 })
