@@ -21,6 +21,13 @@
   --toggle-active: #ffffff;
   --hero-glow: rgba(99, 102, 241, 0.06);
   --card-hover-shadow: rgba(99, 102, 241, 0.1);
+  --tap-target-size: 44px;
+  --theme-toggle-size: 40px;
+  --screenshot-shell-light: #e8edf4;
+  --screenshot-shell-dark: #1e242b;
+  --screenshot-shell-radius: 8px;
+  --screenshot-shell-padding: 6px;
+  --screenshot-image-radius: 5px;
 }
 
 [data-theme='dark'] {
@@ -103,6 +110,10 @@ a {
   color: inherit;
   text-decoration: none;
   transition: 0.2s ease;
+}
+
+:where(a[href], button, summary) {
+  touch-action: manipulation;
 }
 
 img {
@@ -258,6 +269,7 @@ code {
   display: inline-flex;
   align-items: center;
   gap: 12px;
+  min-height: var(--tap-target-size);
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -284,6 +296,10 @@ code {
 }
 
 .nav-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-size);
+  padding: 0 4px;
   color: var(--text-secondary);
   font-weight: 500;
   font-size: 0.95rem;
@@ -310,8 +326,8 @@ code {
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  width: 36px;
-  height: 36px;
+  width: var(--theme-toggle-size);
+  height: var(--theme-toggle-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -439,6 +455,7 @@ code {
   justify-content: center;
   gap: 10px;
   min-width: 160px;
+  min-height: 48px;
   padding: 14px 20px;
   border-radius: 14px;
   background: var(--surface);
@@ -474,19 +491,19 @@ code {
   display: block;
   width: 100%;
   max-width: 1120px;
-  padding: 8px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  padding: var(--screenshot-shell-padding);
+  border-radius: var(--screenshot-shell-radius);
+  border: 1px solid var(--screenshot-shell-light);
   box-shadow: 0 24px 48px -16px var(--shadow-lg);
-  background: var(--surface);
+  background: var(--screenshot-shell-light);
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease;
 }
 
 .hero-frame[data-screenshot-theme='dark'] {
-  background: #272c36;
-  border-color: #3e4452;
+  background: var(--screenshot-shell-dark);
+  border-color: var(--screenshot-shell-dark);
 }
 
 .hero-frame img {
@@ -495,6 +512,7 @@ code {
   aspect-ratio: 16 / 9;
   object-fit: cover;
   object-position: top center;
+  border-radius: var(--screenshot-image-radius);
 }
 
 /* --- Gallery Toolbar --- */
@@ -555,7 +573,8 @@ code {
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  padding: 7px 14px;
+  min-height: var(--theme-toggle-size);
+  padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
@@ -608,10 +627,10 @@ code {
 .screenshot-frame {
   display: flex;
   flex-direction: column;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  padding: var(--screenshot-shell-padding);
+  border-radius: var(--screenshot-shell-radius);
+  border: 1px solid var(--screenshot-shell-light);
+  background: var(--screenshot-shell-light);
   box-shadow: 0 8px 24px -8px var(--shadow);
   transition:
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
@@ -621,8 +640,8 @@ code {
 }
 
 .screenshot-frame[data-screenshot-theme='dark'] {
-  background: #272c36;
-  border-color: #3e4452;
+  background: var(--screenshot-shell-dark);
+  border-color: var(--screenshot-shell-dark);
 }
 
 .screenshot-frame[data-screenshot-theme='dark'] .screenshot-caption {
@@ -633,7 +652,6 @@ code {
   .screenshot-frame:hover {
     transform: translateY(-4px);
     box-shadow: 0 20px 40px -12px var(--shadow-lg);
-    border-color: var(--accent);
   }
 }
 
@@ -648,6 +666,7 @@ code {
   aspect-ratio: 16 / 9;
   object-fit: cover;
   object-position: top center;
+  border-radius: var(--screenshot-image-radius);
 }
 
 .screenshot-caption {
@@ -949,6 +968,7 @@ code {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  min-height: 52px;
   padding: 22px 24px;
   cursor: pointer;
   font-size: 1.05rem;
@@ -1004,6 +1024,10 @@ code {
 }
 
 .footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target-size);
+  padding: 0 4px;
   color: var(--text-secondary);
   font-weight: 500;
 }
@@ -1018,8 +1042,8 @@ code {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  width: 50px;
-  height: 50px;
+  width: 54px;
+  height: 54px;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 50%;
@@ -1131,11 +1155,11 @@ code {
   }
 
   .screenshot-theme-switch {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
   }
 
   .screenshot-theme-btn {
-    flex: 1;
     justify-content: center;
   }
 
@@ -1146,12 +1170,13 @@ code {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     gap: 12px;
+    scroll-padding-inline: 24px;
     padding-bottom: 8px;
   }
 
   .gallery-grid .screenshot-frame {
-    flex: 0 0 80vw;
-    max-width: 320px;
+    flex: 0 0 clamp(280px, 84vw, 340px);
+    max-width: 340px;
     scroll-snap-align: center;
   }
 
@@ -1174,6 +1199,7 @@ code {
   }
 
   .faq-item summary {
+    min-height: 48px;
     padding: 16px 18px;
     font-size: 0.95rem;
   }
@@ -1220,6 +1246,12 @@ code {
 .glightbox-clean .gclose,
 .glightbox-clean .gnext,
 .glightbox-clean .gprev {
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-primary);
 }
 
@@ -1232,4 +1264,49 @@ code {
 .glightbox-clean .gslide-image img {
   max-width: 95vw;
   max-height: 90vh;
+}
+
+@media (pointer: coarse) {
+  .nav-links a,
+  .footer-links a {
+    padding: 0 8px;
+  }
+
+  .theme-switch,
+  .screenshot-theme-switch {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .theme-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .screenshot-theme-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  .btn-store {
+    min-height: 52px;
+  }
+
+  .gallery-grid::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .glightbox-clean .gclose,
+  .glightbox-clean .gnext,
+  .glightbox-clean .gprev {
+    min-width: 56px;
+    min-height: 56px;
+  }
+
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+  }
 }

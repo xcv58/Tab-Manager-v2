@@ -17,8 +17,9 @@ references:
     run:
       name: Install pnpm and run `pnpm install`
       command: |
-        corepack enable
-        corepack prepare pnpm@9.15.9 --activate
+        export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+        export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+        npm install --global pnpm@9.15.9
         pnpm config set store-dir /home/circleci/.pnpm-store
         pnpm install --frozen-lockfile
 
@@ -26,8 +27,9 @@ references:
     run:
       name: Install Playwright Chromium runtime
       command: |
-        corepack enable
-        corepack prepare pnpm@9.15.9 --activate
+        export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+        export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+        npm install --global pnpm@9.15.9
         pnpm config set store-dir /home/circleci/.pnpm-store
         pnpm --filter integration-test exec playwright install --with-deps chromium
 
