@@ -335,8 +335,8 @@ code {
   display: block;
   width: 100%;
   max-width: 1120px;
+  padding: 8px;
   border-radius: 22px;
-  overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: 0 30px 60px -28px var(--shadow);
   background:
@@ -344,8 +344,14 @@ code {
     var(--surface);
 }
 
+.hero-frame[data-screenshot-theme='dark'] {
+  background: #1c1c1e;
+  border-color: #2c2c2e;
+}
+
 .hero-frame img {
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
   object-position: top center;
@@ -445,7 +451,7 @@ code {
 .gallery-grid {
   margin-top: 28px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 18px;
   align-items: start;
 }
@@ -453,7 +459,6 @@ code {
 .screenshot-frame {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   padding: 8px;
   border-radius: 18px;
   border: 1px solid var(--border);
@@ -462,7 +467,17 @@ code {
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.screenshot-frame[data-screenshot-theme='dark'] {
+  background: #1c1c1e;
+  border-color: #2c2c2e;
+}
+
+.screenshot-frame[data-screenshot-theme='dark'] .screenshot-caption {
+  color: #f5f5f7;
 }
 
 .screenshot-frame:hover {
@@ -472,13 +487,10 @@ code {
 
 .screenshot-frame img {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: contain;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background:
-    radial-gradient(circle at top, var(--hero-glow), transparent 65%),
-    var(--bg-color);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: top center;
 }
 
 .screenshot-caption {
@@ -692,17 +704,9 @@ code {
   .versus-grid {
     grid-template-columns: 1fr;
   }
-
-  .gallery-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {
-  .gallery-grid {
-    grid-template-columns: 1fr;
-  }
-
   .site-header,
   .nav-wrapper,
   .nav-links,

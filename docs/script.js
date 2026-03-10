@@ -8,9 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     light: document.getElementById('btn-light'),
     dark: document.getElementById('btn-dark'),
   }
-  const screenshotThemeSwitch = document.querySelector(
-    '.screenshot-theme-switch',
-  )
   const screenshotThemeButtons = {
     light: document.getElementById('screenshot-btn-light'),
     dark: document.getElementById('screenshot-btn-dark'),
@@ -23,8 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   )
   const supportedThemes = new Set(Object.keys(themeButtons))
   let lightbox = null
-  let pinnedScreenshotTheme = null
-  let previewedScreenshotTheme = null
+  let selectedScreenshotTheme = null
 
   function normalizeTheme(theme) {
     return supportedThemes.has(theme) ? theme : 'system'
@@ -103,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const title = frame.dataset[`${theme}Title`]
       const alt = frame.dataset[`${theme}Alt`]
 
+      frame.setAttribute('data-screenshot-theme', theme)
+
       if (href) {
         frame.setAttribute('href', href)
       }
@@ -130,32 +128,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getActiveScreenshotTheme() {
-    return (
-      previewedScreenshotTheme || pinnedScreenshotTheme || getResolvedTheme()
-    )
+    return selectedScreenshotTheme || getResolvedTheme()
   }
 
   function syncScreenshotThemeWithPage(options = {}) {
     applyScreenshotTheme(getActiveScreenshotTheme(), options)
   }
 
-  function previewScreenshotTheme(theme) {
-    previewedScreenshotTheme = theme
-    syncScreenshotThemeWithPage()
-  }
-
-  function pinScreenshotTheme(theme, announce = true) {
-    pinnedScreenshotTheme = theme
-    previewedScreenshotTheme = null
+  function selectScreenshotTheme(theme, announce = true) {
+    selectedScreenshotTheme = theme
     syncScreenshotThemeWithPage({ announce })
-  }
-
-  function clearPreviewScreenshotTheme() {
-    if (!previewedScreenshotTheme) {
-      return
-    }
-    previewedScreenshotTheme = null
-    syncScreenshotThemeWithPage()
   }
 
   function setTheme(theme, shouldAnnounce = true) {
@@ -166,8 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch {
       // Ignore storage failures and keep the in-memory selection.
     }
-    pinnedScreenshotTheme = null
-    previewedScreenshotTheme = null
+    selectedScreenshotTheme = null
     updateControls(nextTheme)
     syncScreenshotThemeWithPage()
     if (shouldAnnounce) {
@@ -193,43 +174,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.pointerType === 'touch') {
         return
       }
-      previewScreenshotTheme(theme)
-    })
-
-    button.addEventListener('focus', () => {
-      previewScreenshotTheme(theme)
+      selectScreenshotTheme(theme)
     })
 
     button.addEventListener('click', (event) => {
       event.preventDefault()
-      pinScreenshotTheme(theme, true)
+      selectScreenshotTheme(theme)
     })
   })
-
-  if (screenshotThemeSwitch) {
-    screenshotThemeSwitch.addEventListener('pointerleave', (event) => {
-      if (event.pointerType === 'touch') {
-        return
-      }
-      clearPreviewScreenshotTheme()
-    })
-
-    screenshotThemeSwitch.addEventListener('focusout', (event) => {
-      const nextTarget = event.relatedTarget
-      if (
-        nextTarget instanceof Node &&
-        screenshotThemeSwitch.contains(nextTarget)
-      ) {
-        return
-      }
-      clearPreviewScreenshotTheme()
-    })
-  }
 
   const handleSystemThemeChange = () => {
     if (
       normalizeTheme(html.getAttribute('data-theme')) !== 'system' ||
-      pinnedScreenshotTheme
+      selectedScreenshotTheme
     ) {
       return
     }
