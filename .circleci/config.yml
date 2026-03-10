@@ -1,13 +1,13 @@
 version: 2.1
 
 references:
-  pnpm_key: &pnpm_key pnpm-lock.yaml-{{ checksum "pnpm-lock.yaml" }}
+  pnpm_key: &pnpm_key v1-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
 
   save_cache: &save_cache
     save_cache:
       key: *pnpm_key
       paths:
-        - node_modules
+        - /home/circleci/.pnpm-store
 
   restore_cache: &restore_cache
     restore_cache:
@@ -17,13 +17,18 @@ references:
     run:
       name: Install pnpm and run `pnpm install`
       command: |
-        echo "BASH_ENV: ${BASH_ENV}"
-        curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
-        echo 'export PNPM_HOME="/home/circleci/.local/share/pnpm"' >> ${BASH_ENV}
-        echo 'export PATH="$PNPM_HOME:$PATH"' >> ${BASH_ENV}
-        source ${BASH_ENV}
-        pnpm install
-        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        corepack enable
+        corepack prepare pnpm@9.15.9 --activate
+        pnpm config set store-dir /home/circleci/.pnpm-store
+        pnpm install --frozen-lockfile
+
+  playwright_setup: &playwright_setup
+    run:
+      name: Install Playwright Chromium runtime
+      command: |
+        corepack enable
+        corepack prepare pnpm@9.15.9 --activate
+        pnpm config set store-dir /home/circleci/.pnpm-store
         pnpm --filter integration-test exec playwright install --with-deps chromium
 
 jobs:
@@ -34,6 +39,7 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
+      - *playwright_setup
       - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test
       - run: pnpm run deploy:chrome
       - *save_cache
