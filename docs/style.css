@@ -629,10 +629,17 @@ code {
   color: #eef0f4;
 }
 
-.screenshot-frame:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px -12px var(--shadow-lg);
-  border-color: var(--accent);
+@media (hover: hover) {
+  .screenshot-frame:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -12px var(--shadow-lg);
+    border-color: var(--accent);
+  }
+}
+
+.screenshot-frame:active {
+  transform: scale(0.98);
+  transition: transform 0.1s;
 }
 
 .screenshot-frame img {
@@ -750,10 +757,18 @@ code {
     border-color 0.3s ease;
 }
 
-.versus-card:hover,
-.feature-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 32px -12px var(--shadow-lg);
+@media (hover: hover) {
+  .versus-card:hover,
+  .feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px -12px var(--shadow-lg);
+  }
+}
+
+.versus-card:active,
+.feature-card:active {
+  transform: scale(0.98);
+  transition: transform 0.1s;
 }
 
 .versus-card.old-way {

@@ -242,6 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshLightbox()
   })
 
+  // Enable :active states on iOS Safari
+  document.addEventListener('touchstart', () => {}, { passive: true })
+
   requestAnimationFrame(() => {
     body.classList.remove('preload')
   })
