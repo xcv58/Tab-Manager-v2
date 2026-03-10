@@ -22,7 +22,7 @@
   --hero-glow: rgba(99, 102, 241, 0.06);
   --card-hover-shadow: rgba(99, 102, 241, 0.1);
   --tap-target-size: 44px;
-  --theme-toggle-size: 40px;
+  --theme-toggle-size: 32px;
   --screenshot-shell-light: #e8edf4;
   --screenshot-shell-dark: #1e242b;
   --screenshot-shell-radius: 8px;
@@ -314,8 +314,8 @@ code {
 .theme-switch {
   display: flex;
   align-items: center;
-  gap: 2px;
-  padding: 3px;
+  gap: 1px;
+  padding: 2px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--toggle-bg);
@@ -340,8 +340,8 @@ code {
 }
 
 .theme-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .theme-btn.active {
@@ -561,8 +561,8 @@ code {
 
 .screenshot-theme-switch {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
+  gap: 2px;
+  padding: 2px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -573,14 +573,13 @@ code {
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  min-height: var(--theme-toggle-size);
-  padding: 8px 14px;
+  padding: 6px 10px;
   border-radius: 999px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.94rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.15;
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
@@ -591,8 +590,8 @@ code {
 }
 
 .screenshot-theme-icon {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 
@@ -1274,18 +1273,17 @@ code {
 
   .theme-switch,
   .screenshot-theme-switch {
-    gap: 4px;
-    padding: 4px;
+    gap: 2px;
+    padding: 2px;
   }
 
   .theme-btn {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
   }
 
   .screenshot-theme-btn {
-    min-height: 44px;
-    padding: 10px 16px;
+    padding: 7px 12px;
   }
 
   .btn-store {
