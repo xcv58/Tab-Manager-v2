@@ -6,6 +6,8 @@
     "preinstall": "npx only-allow pnpm",
     "start": "pnpm --filter tab-manager-v2 start",
     "capture:release-screenshots": "pnpm --filter integration-test exec node scripts/capture-release-screenshots.mjs",
+    "convert:release-screenshots": "pnpm --filter integration-test exec node scripts/convert-release-screenshots-to-webp.mjs",
+    "build:release-screenshots": "run-s capture:release-screenshots convert:release-screenshots",
     "release": "pnpm --filter tab-manager-v2 exec standard-version",
     "release-it": "release-it --ci",
     "test": "run-s test:unit test:integration",

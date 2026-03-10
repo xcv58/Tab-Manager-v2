@@ -24,6 +24,7 @@ export default [...compat.extends(
         ".claude/**",
         "**/build/**",
         "**/coverage/**",
+        "docs/assets/vendor/**",
         "**/playwright-report/**",
         "**/test-results/**",
     ],

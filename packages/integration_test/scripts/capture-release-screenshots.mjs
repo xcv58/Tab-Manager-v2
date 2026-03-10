@@ -9,14 +9,9 @@ import { chromium } from 'playwright'
 
 const VIEWPORT = { width: 1280, height: 800 }
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
-const OUTPUT_DIR = join(
-  ROOT_DIR,
-  'docs/assets/images/release-candidates',
-)
-const EXTENSION_PATH = join(
-  ROOT_DIR,
-  'packages/extension/build/build_chrome',
-)
+const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
+const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
+const EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
 
 const THEME_VARIANTS = [
   {
@@ -257,7 +252,9 @@ async function initExtensionPage() {
   const workerText = await serviceWorkerUrl.textContent()
   const [, , extensionId] = String(workerText).split('/')
   if (!extensionId) {
-    throw new Error(`Failed to parse extension id from service worker url: ${workerText}`)
+    throw new Error(
+      `Failed to parse extension id from service worker url: ${workerText}`,
+    )
   }
 
   const fullPageUrl = `chrome-extension://${extensionId}/popup.html?not_popup=1`
@@ -285,8 +282,10 @@ async function initExtensionPage() {
     popupPage =
       context
         .pages()
-        .find((candidate) => candidate.url() === fullPageUrl && candidate !== controlPage) ||
-      null
+        .find(
+          (candidate) =>
+            candidate.url() === fullPageUrl && candidate !== controlPage,
+        ) || null
     if (popupPage) {
       break
     }
@@ -374,7 +373,9 @@ async function createDemoWindows(page, windows) {
         }
         await new Promise((resolve) => setTimeout(resolve, 80))
       }
-      return (await chrome.tabs.query({ windowId })).slice().sort((a, b) => a.index - b.index)
+      return (await chrome.tabs.query({ windowId }))
+        .slice()
+        .sort((a, b) => a.index - b.index)
     }
 
     const createWindowWithTabs = async (urls) => {
@@ -406,7 +407,8 @@ async function createDemoWindows(page, windows) {
       const picked = []
       for (const groupUrl of groupUrls) {
         const index = allUrls.findIndex(
-          (url, candidateIndex) => url === groupUrl && !usedIndexes.has(candidateIndex),
+          (url, candidateIndex) =>
+            url === groupUrl && !usedIndexes.has(candidateIndex),
         )
         if (index >= 0 && typeof tabIds[index] === 'number') {
           usedIndexes.add(index)
@@ -444,8 +446,8 @@ async function createDemoWindows(page, windows) {
 }
 
 function pathForScreenshot(name) {
-  mkdirSync(OUTPUT_DIR, { recursive: true })
-  return join(OUTPUT_DIR, `${name}.png`)
+  mkdirSync(PNG_OUTPUT_DIR, { recursive: true })
+  return join(PNG_OUTPUT_DIR, `${name}.png`)
 }
 
 function convertToPng24(sourcePath, outputPath) {
@@ -587,16 +589,15 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
         {
           title: 'Operations',
           color: 'orange',
-          urls: [
-            realUrl('ops/duplicate-tabs'),
-            realUrl('ops/window-groups'),
-          ],
+          urls: [realUrl('ops/duplicate-tabs'), realUrl('ops/window-groups')],
         },
       ],
     },
   ])
   await reloadPopup(page)
-  await page.waitForSelector('button[aria-label^="Clean "][aria-label*="duplicate"]')
+  await page.waitForSelector(
+    'button[aria-label^="Clean "][aria-label*="duplicate"]',
+  )
   await saveScreenshot(page, screenshotName('04-duplicate-cleanup', theme.name))
 }
 
@@ -628,7 +629,10 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme) {
     .getByRole('heading', { name: 'Keyboard Shortcuts', exact: true })
     .waitFor()
   await page.getByRole('searchbox', { name: 'Search' }).fill('group')
-  await saveScreenshot(page, screenshotName('05-keyboard-shortcuts', theme.name))
+  await saveScreenshot(
+    page,
+    screenshotName('05-keyboard-shortcuts', theme.name),
+  )
 }
 
 async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
@@ -638,7 +642,10 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
   })
   await createDemoWindows(page, resolveWindows(GROUPED_TABS_FOCUS_WINDOWS))
   await reloadPopup(page)
-  await saveScreenshot(page, screenshotName('06-grouped-tabs-focus', theme.name))
+  await saveScreenshot(
+    page,
+    screenshotName('06-grouped-tabs-focus', theme.name),
+  )
 }
 
 async function captureSettings(page, fullPageUrl, theme) {
@@ -700,8 +707,8 @@ async function captureCommandPalette(page, fullPageUrl, theme) {
 async function main() {
   ensureBuildExists()
   ensureMagickExists()
-  rmSync(OUTPUT_DIR, { recursive: true, force: true })
-  mkdirSync(OUTPUT_DIR, { recursive: true })
+  rmSync(PNG_OUTPUT_DIR, { recursive: true, force: true })
+  mkdirSync(OUTPUT_ROOT_DIR, { recursive: true })
 
   let context = null
   let userDataDir = null

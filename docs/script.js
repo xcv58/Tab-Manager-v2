@@ -1,13 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
   const html = document.documentElement
   const body = document.body
+  const prefersDarkMedia = window.matchMedia('(prefers-color-scheme: dark)')
   const themeAnnouncement = document.getElementById('theme-announcement')
   const themeButtons = {
     system: document.getElementById('btn-system'),
     light: document.getElementById('btn-light'),
     dark: document.getElementById('btn-dark'),
   }
+  const screenshotThemeSwitch = document.querySelector(
+    '.screenshot-theme-switch',
+  )
+  const screenshotThemeButtons = {
+    light: document.getElementById('screenshot-btn-light'),
+    dark: document.getElementById('screenshot-btn-dark'),
+  }
+  const screenshotThemeAnnouncement = document.getElementById(
+    'screenshot-theme-announcement',
+  )
+  const screenshotVariantFrames = Array.from(
+    document.querySelectorAll('.screenshot-variant'),
+  )
   const supportedThemes = new Set(Object.keys(themeButtons))
+  let lightbox = null
+  let pinnedScreenshotTheme = null
+  let previewedScreenshotTheme = null
 
   function normalizeTheme(theme) {
     return supportedThemes.has(theme) ? theme : 'system'
@@ -21,6 +38,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function getResolvedTheme(
+    theme = html.getAttribute('data-theme') || 'system',
+  ) {
+    const normalizedTheme = normalizeTheme(theme)
+    if (normalizedTheme === 'light' || normalizedTheme === 'dark') {
+      return normalizedTheme
+    }
+    return prefersDarkMedia.matches ? 'dark' : 'light'
+  }
+
   function announceTheme(theme) {
     if (!themeAnnouncement) {
       return
@@ -30,6 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ? 'System theme selected'
         : `${theme.charAt(0).toUpperCase()}${theme.slice(1)} theme selected`
     themeAnnouncement.textContent = label
+  }
+
+  function announceScreenshotTheme(theme) {
+    if (!screenshotThemeAnnouncement) {
+      return
+    }
+    screenshotThemeAnnouncement.textContent = `${theme.charAt(0).toUpperCase()}${theme.slice(1)} screenshots selected`
   }
 
   function updateControls(activeTheme) {
@@ -43,6 +77,87 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  function updateScreenshotControls(activeTheme) {
+    Object.entries(screenshotThemeButtons).forEach(([theme, button]) => {
+      if (!button) {
+        return
+      }
+      const isActive = theme === activeTheme
+      button.classList.toggle('active', isActive)
+      button.setAttribute('aria-pressed', String(isActive))
+    })
+  }
+
+  function applyScreenshotTheme(theme, options = {}) {
+    if (theme !== 'light' && theme !== 'dark') {
+      return
+    }
+
+    const { announce = false } = options
+
+    screenshotVariantFrames.forEach((frame) => {
+      const image = frame.querySelector('img')
+      const href = frame.dataset[`${theme}Href`]
+      const src = frame.dataset[`${theme}Src`]
+      const srcset = frame.dataset[`${theme}Srcset`]
+      const title = frame.dataset[`${theme}Title`]
+      const alt = frame.dataset[`${theme}Alt`]
+
+      if (href) {
+        frame.setAttribute('href', href)
+      }
+      if (title) {
+        frame.setAttribute('data-title', title)
+      }
+      if (image && src) {
+        image.setAttribute('src', src)
+      }
+      if (image && srcset) {
+        image.setAttribute('srcset', srcset)
+      }
+      if (image && alt) {
+        image.setAttribute('alt', alt)
+      }
+    })
+
+    updateScreenshotControls(theme)
+
+    if (announce) {
+      announceScreenshotTheme(theme)
+    }
+
+    document.dispatchEvent(new CustomEvent('screenshots-theme-updated'))
+  }
+
+  function getActiveScreenshotTheme() {
+    return (
+      previewedScreenshotTheme || pinnedScreenshotTheme || getResolvedTheme()
+    )
+  }
+
+  function syncScreenshotThemeWithPage(options = {}) {
+    applyScreenshotTheme(getActiveScreenshotTheme(), options)
+  }
+
+  function previewScreenshotTheme(theme) {
+    previewedScreenshotTheme = theme
+    syncScreenshotThemeWithPage()
+  }
+
+  function pinScreenshotTheme(theme, announce = true) {
+    pinnedScreenshotTheme = theme
+    previewedScreenshotTheme = null
+    syncScreenshotThemeWithPage({ announce })
+  }
+
+  function clearPreviewScreenshotTheme() {
+    if (!previewedScreenshotTheme) {
+      return
+    }
+    previewedScreenshotTheme = null
+    syncScreenshotThemeWithPage()
+  }
+
   function setTheme(theme, shouldAnnounce = true) {
     const nextTheme = normalizeTheme(theme)
     html.setAttribute('data-theme', nextTheme)
@@ -51,7 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch {
       // Ignore storage failures and keep the in-memory selection.
     }
+    pinnedScreenshotTheme = null
+    previewedScreenshotTheme = null
     updateControls(nextTheme)
+    syncScreenshotThemeWithPage()
     if (shouldAnnounce) {
       announceTheme(nextTheme)
     }
@@ -66,7 +184,106 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   })
 
+  Object.entries(screenshotThemeButtons).forEach(([theme, button]) => {
+    if (!button) {
+      return
+    }
+
+    button.addEventListener('pointerenter', (event) => {
+      if (event.pointerType === 'touch') {
+        return
+      }
+      previewScreenshotTheme(theme)
+    })
+
+    button.addEventListener('focus', () => {
+      previewScreenshotTheme(theme)
+    })
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault()
+      pinScreenshotTheme(theme, true)
+    })
+  })
+
+  if (screenshotThemeSwitch) {
+    screenshotThemeSwitch.addEventListener('pointerleave', (event) => {
+      if (event.pointerType === 'touch') {
+        return
+      }
+      clearPreviewScreenshotTheme()
+    })
+
+    screenshotThemeSwitch.addEventListener('focusout', (event) => {
+      const nextTarget = event.relatedTarget
+      if (
+        nextTarget instanceof Node &&
+        screenshotThemeSwitch.contains(nextTarget)
+      ) {
+        return
+      }
+      clearPreviewScreenshotTheme()
+    })
+  }
+
+  const handleSystemThemeChange = () => {
+    if (
+      normalizeTheme(html.getAttribute('data-theme')) !== 'system' ||
+      pinnedScreenshotTheme
+    ) {
+      return
+    }
+    syncScreenshotThemeWithPage()
+  }
+
+  if (typeof prefersDarkMedia.addEventListener === 'function') {
+    prefersDarkMedia.addEventListener('change', handleSystemThemeChange)
+  } else if (typeof prefersDarkMedia.addListener === 'function') {
+    prefersDarkMedia.addListener(handleSystemThemeChange)
+  }
+
+  function getLightboxSkin() {
+    return getResolvedTheme()
+  }
+
+  function createLightbox() {
+    if (typeof window.GLightbox !== 'function') {
+      return null
+    }
+    return window.GLightbox({
+      selector: '.glightbox',
+      touchNavigation: true,
+      loop: true,
+      autoplayVideos: false,
+      skin: getLightboxSkin(),
+    })
+  }
+
+  function refreshLightbox() {
+    if (!lightbox) {
+      lightbox = createLightbox()
+      return
+    }
+    lightbox.destroy()
+    lightbox = createLightbox()
+  }
+
   setTheme(getStoredTheme(), false)
+  refreshLightbox()
+
+  const themeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'data-theme') {
+        refreshLightbox()
+      }
+    })
+  })
+
+  themeObserver.observe(html, { attributes: true })
+
+  document.addEventListener('screenshots-theme-updated', () => {
+    refreshLightbox()
+  })
 
   requestAnimationFrame(() => {
     body.classList.remove('preload')
