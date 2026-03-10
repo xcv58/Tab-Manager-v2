@@ -266,4 +266,41 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.fade-in').forEach((element) => {
     observer.observe(element)
   })
+
+  // Infinite wrap for horizontal gallery scroll (mobile)
+  const gallery = document.querySelector('.gallery-grid')
+
+  if (gallery) {
+    let wrapTimer = null
+
+    gallery.addEventListener('scroll', () => {
+      clearTimeout(wrapTimer)
+      wrapTimer = setTimeout(() => {
+        const maxScroll = gallery.scrollWidth - gallery.clientWidth
+        if (maxScroll <= 0) return
+        if (gallery.scrollLeft >= maxScroll - 2) {
+          gallery.scrollTo({ left: 0, behavior: 'smooth' })
+        }
+      }, 250)
+    })
+  }
+
+  const backToTopBtn = document.getElementById('backToTop')
+
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopBtn.classList.add('visible')
+      } else {
+        backToTopBtn.classList.remove('visible')
+      }
+    })
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    })
+  }
 })

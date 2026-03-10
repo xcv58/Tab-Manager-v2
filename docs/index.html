@@ -65,6 +65,13 @@
     <link rel="dns-prefetch" href="https://microsoftedge.microsoft.com" />
     <link rel="dns-prefetch" href="https://github.com" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -327,8 +334,7 @@
               <span class="gallery-toolbar-label">Screenshots</span>
               <span class="gallery-toolbar-separator" aria-hidden="true"></span>
               <span class="gallery-toolbar-copy"
-                >Screenshots follow the page theme. Hover or tap to switch
-                variant.</span
+                >Screenshots match your theme.</span
               >
             </div>
             <div
@@ -647,30 +653,104 @@
           </div>
 
           <div class="versus-grid">
-            <article class="versus-card">
-              <span class="versus-label">Default</span>
-              <h3>Native browser search</h3>
-              <p>
-                Useful for quick lookups, but thin on bulk actions, tab groups,
-                and duplicate cleanup.
-              </p>
-            </article>
-            <article class="versus-card">
-              <span class="versus-label">Fallback</span>
-              <h3>Mouse-heavy tab hunting</h3>
-              <p>
-                High context switching, endless scanning, and too much manual
-                work when tab volume grows.
-              </p>
-            </article>
-            <article class="versus-card new-way">
-              <span class="versus-label">Tab Manager v2</span>
-              <h3>Search, select, act</h3>
-              <p>
-                Keep everything in one focused view and move from intent to
-                action with predictable keyboard workflows.
-              </p>
-            </article>
+            <div class="versus-card old-way">
+              <div class="versus-header">
+                <h3>The Old Way</h3>
+                <p>Native browser tab management</p>
+              </div>
+              <ul class="versus-list">
+                <li class="versus-item">
+                  <span class="versus-icon">🔍</span>
+                  <div class="versus-content">
+                    <strong>Manual Scanning</strong>
+                    <span
+                      >Squint at tiny favicons across multiple windows to find
+                      the tab you need.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🖱️</span>
+                  <div class="versus-content">
+                    <strong>One at a Time</strong>
+                    <span
+                      >Close, move, or group tabs individually — no bulk
+                      selection.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🔄</span>
+                  <div class="versus-content">
+                    <strong>Duplicates Pile Up</strong>
+                    <span
+                      >No way to detect or clean up duplicate tabs across
+                      windows.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🪟</span>
+                  <div class="versus-content">
+                    <strong>Window Hopping</strong>
+                    <span
+                      >Alt-Tab between windows just to see what's open
+                      where.</span
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="versus-card new-way">
+              <div class="card-badge">The Better Way</div>
+              <div class="versus-header">
+                <h3>Tab Manager v2</h3>
+                <p>Keyboard-first tab control</p>
+              </div>
+              <ul class="versus-list">
+                <li class="versus-item">
+                  <span class="versus-icon">⚡️</span>
+                  <div class="versus-content">
+                    <strong>Instant Search</strong>
+                    <span
+                      >Type to find any tab by title or URL across all windows
+                      instantly.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">✅</span>
+                  <div class="versus-content">
+                    <strong>Bulk Operations</strong>
+                    <span
+                      >Select multiple tabs and move, group, or close them in
+                      one action.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🧹</span>
+                  <div class="versus-content">
+                    <strong>Duplicate Cleanup</strong>
+                    <span
+                      >Detect and remove duplicate tabs automatically across all
+                      windows.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🎯</span>
+                  <div class="versus-content">
+                    <strong>Unified View</strong>
+                    <span
+                      >See every window and tab group in one focused
+                      panel.</span
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -686,42 +766,60 @@
 
           <div class="features-grid">
             <article class="feature-card">
-              <h3>Instant Search</h3>
+              <div class="feature-card-title">
+                <span class="feature-icon">🔍</span>
+                <h3>Instant Search</h3>
+              </div>
               <p>
                 Find open tabs by title or URL immediately, with optional
                 browser history integration from the main search box.
               </p>
             </article>
             <article class="feature-card">
-              <h3>Keyboard-First Control</h3>
+              <div class="feature-card-title">
+                <span class="feature-icon">⌨️</span>
+                <h3>Keyboard-First Control</h3>
+              </div>
               <p>
                 Navigate windows, tabs, and actions without leaving the keyboard
                 or relying on pointer scanning.
               </p>
             </article>
             <article class="feature-card">
-              <h3>Bulk Operations</h3>
+              <div class="feature-card-title">
+                <span class="feature-icon">✅</span>
+                <h3>Bulk Operations</h3>
+              </div>
               <p>
                 Select multiple matches and move them, group them, or close them
                 as a single action.
               </p>
             </article>
             <article class="feature-card">
-              <h3>Duplicate Cleanup</h3>
+              <div class="feature-card-title">
+                <span class="feature-icon">🧹</span>
+                <h3>Duplicate Cleanup</h3>
+              </div>
               <p>
                 Highlight duplicate tabs and clear them out quickly to reduce
                 visual noise and wasted memory.
               </p>
             </article>
             <article class="feature-card">
-              <h3>Native Tab Groups</h3>
+              <div class="feature-card-title">
+                <span class="feature-icon">🏷️</span>
+                <h3>Native Tab Groups</h3>
+              </div>
               <p>
                 Manage browser-native groups directly: rename, recolor,
                 collapse, and reorganize them in place.
               </p>
             </article>
             <article class="feature-card">
-              <h3>Customizable View</h3>
+              <div class="feature-card-title">
+                <span class="feature-icon">🎨</span>
+                <h3>Customizable View</h3>
+              </div>
               <p>
                 Choose theme, tab width, font size, toolbar behavior, URL
                 visibility, and related display preferences.
@@ -797,5 +895,10 @@
         </div>
       </footer>
     </div>
+    <button id="backToTop" class="back-to-top" aria-label="Back to Top">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 4l-8 8h6v8h4v-8h6z" />
+      </svg>
+    </button>
   </body>
 </html>
