@@ -91,7 +91,7 @@ body.preload * {
 body {
   overflow-x: clip;
   font-family:
-    'Outfit',
+    'Plus Jakarta Sans',
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
@@ -379,7 +379,9 @@ code {
   position: relative;
   z-index: 1;
   text-align: center;
-  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
   font-size: clamp(3rem, 6vw, 5.2rem);
   line-height: 1.08;
   font-weight: 800;
@@ -393,19 +395,30 @@ code {
   background-image: linear-gradient(
     120deg,
     #6366f1 0%,
-    #7a5df5 14%,
-    #a855f7 32%,
-    #cf50ef 48%,
-    #ec4899 64%,
-    #cf50ef 78%,
-    #a855f7 90%,
+    #7a5df5 6.25%,
+    #a855f7 12.5%,
+    #cf50ef 18.75%,
+    #ec4899 25%,
+    #cf50ef 31.25%,
+    #a855f7 37.5%,
+    #7a5df5 43.75%,
+    #6366f1 50%,
+    #7a5df5 56.25%,
+    #a855f7 62.5%,
+    #cf50ef 68.75%,
+    #ec4899 75%,
+    #cf50ef 81.25%,
+    #a855f7 87.5%,
+    #7a5df5 93.75%,
     #6366f1 100%
   );
-  background-size: 220% 100%;
+  background-size: 200% 100%;
   background-position: 0% 50%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-user-select: none;
+  user-select: none;
   animation: gradient-shine 8s linear infinite;
 }
 
@@ -524,7 +537,7 @@ code {
 .hero-frame img {
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
   object-position: top center;
   border-radius: var(--screenshot-image-radius);
@@ -677,7 +690,7 @@ code {
 .screenshot-frame img {
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
   object-position: top center;
   border-radius: var(--screenshot-image-radius);
@@ -724,7 +737,12 @@ code {
 }
 
 .section-heading h2 {
-  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-family:
+    'Plus Jakarta Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -839,7 +857,12 @@ code {
 }
 
 .versus-header h3 {
-  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-family:
+    'Plus Jakarta Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -900,7 +923,12 @@ code {
 
 .feature-card h3 {
   margin: 0;
-  font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+  font-family:
+    'Plus Jakarta Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: 1.22rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -1200,8 +1228,14 @@ code {
 
   .site-footer {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     gap: 12px;
+  }
+
+  .site-footer .footer-links {
+    width: 100%;
+    justify-content: center;
   }
 
   .section {
