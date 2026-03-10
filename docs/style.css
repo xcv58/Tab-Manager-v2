@@ -28,6 +28,9 @@
   --screenshot-shell-radius: 8px;
   --screenshot-shell-padding: 6px;
   --screenshot-image-radius: 5px;
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
 }
 
 [data-theme='dark'] {
@@ -90,12 +93,7 @@ body.preload * {
 
 body {
   overflow-x: clip;
-  font-family:
-    'Plus Jakarta Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--bg-color);
   color: var(--text-primary);
   line-height: 1.65;
@@ -379,9 +377,7 @@ code {
   position: relative;
   z-index: 1;
   text-align: center;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(3rem, 6vw, 5.2rem);
   line-height: 1.08;
   font-weight: 800;
@@ -737,12 +733,7 @@ code {
 }
 
 .section-heading h2 {
-  font-family:
-    'Plus Jakarta Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -857,12 +848,7 @@ code {
 }
 
 .versus-header h3 {
-  font-family:
-    'Plus Jakarta Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -923,12 +909,7 @@ code {
 
 .feature-card h3 {
   margin: 0;
-  font-family:
-    'Plus Jakarta Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.22rem;
   font-weight: 600;
   letter-spacing: -0.01em;
