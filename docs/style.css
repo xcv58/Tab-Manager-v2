@@ -1078,7 +1078,7 @@ code {
 
 /* --- Responsive --- */
 
-@media (max-width: 960px) {
+@media (max-width: 960px) and (orientation: portrait) {
   .versus-grid {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -1086,6 +1086,16 @@ code {
 
   .versus-grid::after {
     display: none;
+  }
+}
+
+@media (max-width: 960px) and (orientation: landscape) {
+  .versus-grid {
+    gap: 24px;
+  }
+
+  .versus-card {
+    padding: 24px 20px;
   }
 }
 
