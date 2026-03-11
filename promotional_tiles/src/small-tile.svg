@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="280" viewBox="0 0 440 280">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8faff"/>
+      <stop offset="100%" stop-color="#e8edf7"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5b5cf0" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#5b5cf0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#25a55f" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#25a55f" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="overviewClip">
+      <rect x="258" y="58" width="148" height="122" rx="18"/>
+    </clipPath>
+    <clipPath id="editClip">
+      <rect x="216" y="182" width="102" height="54" rx="14"/>
+    </clipPath>
+  </defs>
+
+  <rect width="440" height="280" fill="url(#bg)"/>
+  <circle cx="54" cy="246" r="118" fill="url(#glowB)"/>
+  <circle cx="344" cy="42" r="112" fill="url(#glowA)"/>
+
+  <g transform="translate(0 -2) rotate(-3 312 138)">
+    <rect x="266" y="70" width="148" height="122" rx="18" fill="#cfd7e7" opacity="0.75"/>
+    <rect x="258" y="58" width="148" height="122" rx="18" fill="#ffffff" stroke="#d0d8e8"/>
+    <image
+      href="{{OVERVIEW_IMAGE}}"
+      x="258"
+      y="58"
+      width="148"
+      height="122"
+      preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#overviewClip)"
+    />
+  </g>
+
+  <g transform="translate(0 4) rotate(5 240 210)">
+    <rect x="224" y="190" width="102" height="54" rx="14" fill="#c1cadc" opacity="0.85"/>
+    <rect x="216" y="182" width="102" height="54" rx="14" fill="#ffffff" stroke="#d0d8e8"/>
+    <image
+      href="{{GROUP_EDITING_IMAGE}}"
+      x="216"
+      y="182"
+      width="102"
+      height="54"
+      preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#editClip)"
+    />
+  </g>
+
+  <g transform="translate(34 28)">
+    <image href="{{ICON_IMAGE}}" x="0" y="0" width="30" height="30" preserveAspectRatio="xMidYMid meet"/>
+    <text x="42" y="21" fill="#182132" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="0.02em">
+      Tab Manager v2
+    </text>
+  </g>
+
+  <g transform="translate(34 80)">
+    <text fill="#182132" font-family="Helvetica, Arial, sans-serif" font-size="31" font-weight="800" letter-spacing="-0.04em">
+      <tspan x="0" y="0">Too many tabs,</tspan>
+      <tspan x="0" y="34">handled.</tspan>
+    </text>
+    <text x="0" y="66" fill="#54607c" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="500">
+      Search, group, and clean up tabs.
+    </text>
+  </g>
+
+  <g transform="translate(34 226)">
+    <rect width="90" height="24" rx="12" fill="#eef1f8" stroke="#d9dfec"/>
+    <text x="16" y="16.5" fill="#46516d" font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700">
+      Keyboard-first
+    </text>
+  </g>
+</svg>

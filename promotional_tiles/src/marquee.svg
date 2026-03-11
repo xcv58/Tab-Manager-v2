@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8faff"/>
+      <stop offset="100%" stop-color="#e6ebf6"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5b5cf0" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#5b5cf0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#25a55f" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#25a55f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="overviewClip">
+      <rect x="720" y="86" width="610" height="372" rx="30"/>
+    </clipPath>
+    <clipPath id="editClip">
+      <rect x="598" y="302" width="356" height="190" rx="24"/>
+    </clipPath>
+    <clipPath id="shortcutClip">
+      <rect x="1002" y="340" width="270" height="148" rx="22"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1400" height="560" fill="url(#bg)"/>
+  <circle cx="132" cy="480" r="220" fill="url(#glowB)"/>
+  <circle cx="1180" cy="58" r="220" fill="url(#glowA)"/>
+  <circle cx="760" cy="510" r="170" fill="url(#glowC)"/>
+
+  <g transform="translate(92 74)">
+    <image href="{{ICON_IMAGE}}" x="0" y="0" width="44" height="44" preserveAspectRatio="xMidYMid meet"/>
+    <text x="62" y="21" fill="#46516d" font-family="Helvetica, Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="0.1em">
+      TAB MANAGER V2
+    </text>
+    <text x="62" y="46" fill="#6d7893" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="600">
+      Chrome, Firefox, and Edge
+    </text>
+  </g>
+
+  <g transform="translate(92 214)">
+    <text fill="#182132" font-family="Helvetica, Arial, sans-serif" font-size="68" font-weight="800" letter-spacing="-0.055em">
+      <tspan x="0" y="0">Too many tabs,</tspan>
+      <tspan x="0" y="72">handled.</tspan>
+    </text>
+    <text x="0" y="176" fill="#54607c" font-family="Helvetica, Arial, sans-serif" font-size="27" font-weight="500">
+      Search, group, move, and clean up tabs across windows.
+    </text>
+  </g>
+
+  <g transform="translate(92 440)">
+    <rect width="122" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
+    <text x="22" y="22.5" fill="#3a66dd" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+      Search
+    </text>
+    <rect x="136" width="144" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
+    <text x="160" y="22.5" fill="#1f8f53" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+      Tab groups
+    </text>
+    <rect x="294" width="146" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
+    <text x="318" y="22.5" fill="#ed7b18" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+      Bulk actions
+    </text>
+    <rect x="454" width="132" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
+    <text x="478" y="22.5" fill="#6a5ef3" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+      Cleanup
+    </text>
+  </g>
+
+  <g transform="rotate(-2 1025 272)">
+    <rect x="734" y="100" width="610" height="372" rx="30" fill="#cfd7e7" opacity="0.75"/>
+    <rect x="720" y="86" width="610" height="372" rx="30" fill="#ffffff" stroke="#ced6e7"/>
+    <image
+      href="{{OVERVIEW_IMAGE}}"
+      x="720"
+      y="86"
+      width="610"
+      height="372"
+      preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#overviewClip)"
+    />
+  </g>
+
+  <g transform="rotate(4 776 397)">
+    <rect x="610" y="314" width="356" height="190" rx="24" fill="#c5cee0" opacity="0.8"/>
+    <rect x="598" y="302" width="356" height="190" rx="24" fill="#ffffff" stroke="#cfd7e7"/>
+    <image
+      href="{{GROUP_EDITING_IMAGE}}"
+      x="598"
+      y="302"
+      width="356"
+      height="190"
+      preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#editClip)"
+    />
+  </g>
+
+  <g transform="rotate(-3 1137 414)">
+    <rect x="1012" y="350" width="270" height="148" rx="22" fill="#c5cee0" opacity="0.75"/>
+    <rect x="1002" y="340" width="270" height="148" rx="22" fill="#ffffff" stroke="#cfd7e7"/>
+    <image
+      href="{{KEYBOARD_SHORTCUTS_IMAGE}}"
+      x="1002"
+      y="340"
+      width="270"
+      height="148"
+      preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#shortcutClip)"
+    />
+  </g>
+</svg>
