@@ -8,10 +8,34 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 
 const VIEWPORT = { width: 1280, height: 800 }
+const UI_READY_TIMEOUT_MS = 120000
+const UI_SETTLE_DELAY_MS = 700
+const NAVIGATION_TIMEOUT_MS = 120000
+const TAB_LOAD_TIMEOUT_MS = 90000
+const TAB_LOAD_POLL_INTERVAL_MS = 250
+const TAB_LOAD_STABLE_POLLS = 4
+const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
+const SCREENSHOT_SETTLE_DELAY_MS = 600
+const TAB_CREATE_BATCH_SIZE = 6
+const TAB_CREATE_BATCH_DELAY_MS = 2500
+const DENSE_OVERVIEW_FOCUS_WINDOW_INDEX = 5
+const DENSE_OVERVIEW_FOCUS_TAB_INDEX = 1
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
 const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
 const EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
+const REQUESTED_THEMES = String(
+  process.env.RELEASE_SCREENSHOT_THEMES || '',
+)
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean)
+const REQUESTED_SCENARIOS = new Set(
+  String(process.env.RELEASE_SCREENSHOT_SCENARIOS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)
 
 const THEME_VARIANTS = [
   {
@@ -51,140 +75,356 @@ const DEFAULT_SETTINGS = {
 }
 
 const REAL_URLS = {
-  'launch/release-roadmap': 'https://jenny.media/',
-  'launch/store-copy': 'https://chatgpt.com/',
-  'launch/final-checklist': 'https://claude.ai/login',
-  'launch/support-plan': 'https://gemini.google.com/',
-  'launch/qa-signoff': 'https://github.com/xcv58/Tab-Manager-v2',
-  'launch/rollout-plan': 'https://tab.jenny.media/',
+  'launch/release-roadmap': 'https://openai.com/chatgpt/',
+  'launch/store-copy': 'https://www.anthropic.com/claude',
+  'launch/final-checklist': 'https://gemini.google.com/',
+  'launch/support-plan': 'https://www.perplexity.ai/',
+  'launch/qa-signoff': 'https://github.com/',
+  'launch/rollout-plan': 'https://vercel.com/',
   'research/tab-groups-api':
-    'https://developer.chrome.com/docs/extensions/reference/api/tabGroups',
+    'https://developer.chrome.com/',
   'research/firefox-parity':
-    'https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabGroups',
-  'research/edge-review': 'https://www.reddit.com/',
-  'research/keyboard-flows': 'https://github.com/trending',
-  'research/ux-followups': 'https://www.youtube.com/@JennyTV1',
+    'https://developer.mozilla.org/',
+  'research/edge-review': 'https://stackoverflow.com/',
+  'research/keyboard-flows': 'https://react.dev/',
+  'research/ux-followups': 'https://www.figma.com/',
   'research/screenshot-brief': 'https://news.ycombinator.com/',
   'reading/design-refresh': 'https://www.nytimes.com/',
   'reading/accessibility-audit': 'https://www.bbc.com/news',
   'reading/performance-review': 'https://www.theverge.com/',
-  'reading/changelog-draft': 'https://www.cnn.com/',
+  'reading/changelog-draft': 'https://techcrunch.com/',
   'support/customer-4821': 'https://www.reuters.com/',
   'support/customer-5104': 'https://www.npr.org/',
   'support/release-mail': 'https://www.reddit.com/r/chrome_extensions/',
   'support/docs-ticket':
     'https://stackoverflow.com/questions/tagged/google-chrome-extension',
-  'ops/duplicate-tabs': 'https://jenny.media/',
-  'ops/window-groups': 'https://chatgpt.com/',
+  'ops/duplicate-tabs': 'https://openai.com/chatgpt/',
+  'ops/window-groups': 'https://vercel.com/',
 }
 
-const OVERVIEW_WINDOWS = [
+function buildWindowsFromGroupLayout(groups, layout) {
+  const windows = []
+  let index = 0
+  for (const groupCount of layout) {
+    const windowGroups = groups.slice(index, index + groupCount)
+    if (windowGroups.length !== groupCount) {
+      throw new Error(
+        `Group layout overflow: expected ${groupCount} groups at index ${index}`,
+      )
+    }
+    windows.push({
+      tabs: windowGroups.flatMap((group) => group.urls),
+      groups: windowGroups,
+    })
+    index += groupCount
+  }
+  if (index !== groups.length) {
+    throw new Error(`Group layout mismatch: used ${index} of ${groups.length}`)
+  }
+  return windows
+}
+
+const DENSE_OVERVIEW_GROUPS = [
   {
-    tabs: [
-      'launch/release-roadmap',
-      'launch/store-copy',
-      'launch/final-checklist',
-      'launch/support-plan',
-      'reading/design-refresh',
-      'reading/accessibility-audit',
-      'reading/changelog-draft',
-      'support/customer-4821',
-    ],
-    groups: [
-      {
-        title: 'AI Tools',
-        color: 'blue',
-        urls: [
-          'launch/release-roadmap',
-          'launch/store-copy',
-          'launch/final-checklist',
-          'launch/support-plan',
-        ],
-      },
-      {
-        title: 'Newsroom',
-        color: 'red',
-        urls: [
-          'reading/design-refresh',
-          'reading/accessibility-audit',
-          'reading/changelog-draft',
-          'support/customer-4821',
-        ],
-      },
+    title: 'AI Workspace',
+    color: 'blue',
+    urls: [
+      'https://openai.com/chatgpt/',
+      'https://www.anthropic.com/claude',
+      'https://gemini.google.com/',
+      'https://www.perplexity.ai/',
     ],
   },
   {
-    tabs: [
-      'research/tab-groups-api',
-      'research/firefox-parity',
-      'launch/rollout-plan',
-      'reading/performance-review',
-      'launch/qa-signoff',
-      'research/edge-review',
-      'support/release-mail',
-      'research/keyboard-flows',
-      'research/ux-followups',
+    title: 'Productivity',
+    color: 'green',
+    urls: [
+      'https://www.notion.so/',
+      'https://linear.app/',
+      'https://www.figma.com/',
+      'https://slack.com/',
     ],
-    groups: [
-      {
-        title: 'Docs',
-        color: 'green',
-        urls: [
-          'research/tab-groups-api',
-          'research/firefox-parity',
-          'launch/qa-signoff',
-        ],
-      },
-      {
-        title: 'Community',
-        color: 'yellow',
-        urls: [
-          'research/edge-review',
-          'support/release-mail',
-          'research/keyboard-flows',
-          'research/ux-followups',
-        ],
-      },
+  },
+  {
+    title: 'Planning',
+    color: 'orange',
+    collapsed: true,
+    urls: [
+      'https://zoom.us/',
+      'https://calendly.com/',
+      'https://airtable.com/',
+      'https://www.canva.com/',
+    ],
+  },
+  {
+    title: 'Collaboration',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://github.com/',
+      'https://gitlab.com/',
+      'https://bitbucket.org/',
+      'https://stackoverflow.com/',
+    ],
+  },
+  {
+    title: 'Platforms',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://vercel.com/',
+      'https://www.netlify.com/',
+      'https://supabase.com/',
+      'https://firebase.google.com/',
+    ],
+  },
+  {
+    title: 'Tooling',
+    color: 'yellow',
+    collapsed: true,
+    urls: [
+      'https://www.postman.com/',
+      'https://www.docker.com/',
+      'https://kubernetes.io/',
+      'https://www.typescriptlang.org/',
+    ],
+  },
+  {
+    title: 'Frontend',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://react.dev/',
+      'https://vuejs.org/',
+      'https://svelte.dev/',
+      'https://nextjs.org/',
+    ],
+  },
+  {
+    title: 'Web Docs',
+    color: 'green',
+    urls: [
+      'https://astro.build/',
+      'https://developer.mozilla.org/',
+      'https://developer.chrome.com/',
+      'https://nodejs.org/',
+    ],
+  },
+  {
+    title: 'Languages',
+    color: 'red',
+    urls: [
+      'https://go.dev/',
+      'https://www.python.org/',
+      'https://www.rust-lang.org/',
+      'https://www.postgresql.org/',
+    ],
+  },
+  {
+    title: 'Cloud',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://aws.amazon.com/',
+      'https://azure.microsoft.com/',
+      'https://cloud.google.com/',
+      'https://www.cloudflare.com/',
+    ],
+  },
+  {
+    title: 'Hosting',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://render.com/',
+      'https://railway.com/',
+      'https://fly.io/',
+      'https://www.digitalocean.com/',
+    ],
+  },
+  {
+    title: 'Backend',
+    color: 'orange',
+    collapsed: true,
+    urls: [
+      'https://www.heroku.com/',
+      'https://www.mongodb.com/',
+      'https://redis.io/',
+      'https://stripe.com/',
+    ],
+  },
+  {
+    title: 'Visuals',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://miro.com/',
+      'https://www.grammarly.com/',
+      'https://trello.com/',
+      'https://asana.com/',
+    ],
+  },
+  {
+    title: 'Workflows',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://monday.com/',
+      'https://clickup.com/',
+      'https://todoist.com/',
+      'https://readwise.io/',
+    ],
+  },
+  {
+    title: 'Assets',
+    color: 'orange',
+    collapsed: true,
+    urls: [
+      'https://www.loom.com/',
+      'https://www.dropbox.com/',
+      'https://www.box.com/',
+      'https://zapier.com/',
+    ],
+  },
+  {
+    title: 'Communities',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://news.ycombinator.com/',
+      'https://www.reddit.com/',
+      'https://dev.to/',
+      'https://medium.com/',
+    ],
+  },
+  {
+    title: 'Creators',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://substack.com/',
+      'https://www.producthunt.com/',
+      'https://lobste.rs/',
+      'https://www.youtube.com/',
+    ],
+  },
+  {
+    title: 'Social',
+    color: 'purple',
+    collapsed: true,
+    urls: [
+      'https://www.wikipedia.org/',
+      'https://www.linkedin.com/',
+      'https://discord.com/',
+      'https://www.twitch.tv/',
+    ],
+  },
+  {
+    title: 'Newsroom',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://www.reuters.com/',
+      'https://www.npr.org/',
+      'https://www.bbc.com/',
+      'https://www.nytimes.com/',
+    ],
+  },
+  {
+    title: 'Tech News',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://www.theverge.com/',
+      'https://techcrunch.com/',
+      'https://arstechnica.com/',
+      'https://www.wired.com/',
+    ],
+  },
+  {
+    title: 'Briefing',
+    color: 'red',
+    collapsed: true,
+    urls: [
+      'https://www.bloomberg.com/',
+      'https://www.cnn.com/',
+      'https://www.wsj.com/',
+      'https://www.theguardian.com/',
+    ],
+  },
+  {
+    title: 'Models',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://openrouter.ai/',
+      'https://huggingface.co/',
+      'https://replicate.com/',
+      'https://cohere.com/',
+    ],
+  },
+  {
+    title: 'AI Labs',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://mistral.ai/',
+      'https://stability.ai/',
+      'https://deepmind.google/',
+      'https://www.langchain.com/',
+    ],
+  },
+  {
+    title: 'Observability',
+    color: 'orange',
+    collapsed: true,
+    urls: [
+      'https://www.datadoghq.com/',
+      'https://sentry.io/',
+      'https://grafana.com/',
+      'https://prometheus.io/',
+    ],
+  },
+  {
+    title: 'Styling',
+    color: 'blue',
+    collapsed: true,
+    urls: [
+      'https://tailwindcss.com/',
+      'https://vite.dev/',
+      'https://pnpm.io/',
+      'https://bun.sh/',
+    ],
+  },
+  {
+    title: 'Runtime',
+    color: 'green',
+    collapsed: true,
+    urls: [
+      'https://deno.com/',
+      'https://eslint.org/',
+      'https://prettier.io/',
+      'https://vitest.dev/',
+    ],
+  },
+  {
+    title: 'Testing',
+    color: 'yellow',
+    collapsed: true,
+    urls: [
+      'https://playwright.dev/',
+      'https://jestjs.io/',
+      'https://storybook.js.org/',
+      'https://turbo.build/',
     ],
   },
 ]
 
-const GROUPED_TABS_FOCUS_WINDOWS = [
-  {
-    tabs: [
-      'launch/release-roadmap',
-      'launch/store-copy',
-      'launch/final-checklist',
-      'launch/rollout-plan',
-      'launch/support-plan',
-      'reading/design-refresh',
-      'reading/accessibility-audit',
-      'support/customer-4821',
-    ],
-    groups: [
-      {
-        title: 'AI Tools',
-        color: 'blue',
-        urls: [
-          'launch/release-roadmap',
-          'launch/store-copy',
-          'launch/final-checklist',
-          'launch/rollout-plan',
-          'launch/support-plan',
-        ],
-      },
-      {
-        title: 'News',
-        color: 'green',
-        urls: [
-          'reading/design-refresh',
-          'reading/accessibility-audit',
-          'support/customer-4821',
-        ],
-      },
-    ],
-  },
-]
+const DENSE_OVERVIEW_GROUP_LAYOUT = [2, 5, 2, 8, 3, 3, 2, 1, 1]
+const DENSE_OVERVIEW_WINDOWS = buildWindowsFromGroupLayout(
+  DENSE_OVERVIEW_GROUPS,
+  DENSE_OVERVIEW_GROUP_LAYOUT,
+)
 
 function realUrl(key) {
   const url = REAL_URLS[key]
@@ -206,6 +446,15 @@ function resolveWindows(definitions) {
 
 function screenshotName(baseName, themeName) {
   return `${baseName}-${themeName}`
+}
+
+function scenarioCounts(definitions) {
+  return {
+    windowCount: definitions.length + 1,
+    tabCount:
+      definitions.reduce((sum, definition) => sum + definition.tabs.length, 0) +
+      1,
+  }
 }
 
 function sleep(ms) {
@@ -304,9 +553,9 @@ async function initExtensionPage() {
 async function waitForUi(page) {
   await page.waitForLoadState('domcontentloaded')
   await page.waitForSelector('input[placeholder*="Search tabs or URLs"]', {
-    timeout: 45000,
+    timeout: UI_READY_TIMEOUT_MS,
   })
-  await page.waitForTimeout(400)
+  await page.waitForTimeout(UI_SETTLE_DELAY_MS)
 }
 
 async function clearAllDemoWindows(page, fullPageUrl) {
@@ -351,98 +600,276 @@ async function resetScenario(page, fullPageUrl, settings = {}) {
   })
   await clearAllDemoWindows(page, fullPageUrl)
   await setSettings(page, settings)
-  await page.goto(fullPageUrl, { waitUntil: 'domcontentloaded' })
+  await page.goto(fullPageUrl, {
+    waitUntil: 'domcontentloaded',
+    timeout: NAVIGATION_TIMEOUT_MS,
+  })
   await waitForUi(page)
 }
 
 async function reloadPopup(page) {
-  await page.reload({ waitUntil: 'domcontentloaded' })
+  await page.reload({
+    waitUntil: 'domcontentloaded',
+    timeout: NAVIGATION_TIMEOUT_MS,
+  })
   await waitForUi(page)
 }
 
-async function createDemoWindows(page, windows) {
-  return page.evaluate(async (definitions) => {
-    const waitForTabCount = async (windowId, expectedCount) => {
-      for (let attempt = 0; attempt < 100; attempt += 1) {
-        const tabs = await chrome.tabs.query({ windowId })
-        if (
-          tabs.length >= expectedCount &&
-          tabs.every((tab) => tab.status === 'complete')
-        ) {
-          return tabs.slice().sort((a, b) => a.index - b.index)
-        }
-        await new Promise((resolve) => setTimeout(resolve, 80))
-      }
-      return (await chrome.tabs.query({ windowId }))
-        .slice()
-        .sort((a, b) => a.index - b.index)
-    }
+async function waitForScenarioReady(page, counts) {
+  await page.waitForFunction(
+    async ({ expectedWindowCount, expectedTabCount }) => {
+      const allWindows = await chrome.windows.getAll({ populate: true })
+      const totalTabs = allWindows.reduce(
+        (sum, win) => sum + (win.tabs || []).length,
+        0,
+      )
+      return (
+        allWindows.length === expectedWindowCount &&
+        totalTabs === expectedTabCount
+      )
+    },
+    {
+      timeout: TAB_LOAD_TIMEOUT_MS,
+      polling: TAB_LOAD_POLL_INTERVAL_MS,
+    },
+    {
+      expectedWindowCount: counts.windowCount,
+      expectedTabCount: counts.tabCount,
+    },
+  )
+  await page.waitForTimeout(UI_SETTLE_DELAY_MS + 2000)
+}
 
-    const createWindowWithTabs = async (urls) => {
-      const [firstUrl, ...restUrls] = urls
-      const created = await chrome.windows.create({
-        url: firstUrl,
-        focused: false,
+async function focusDemoWindow(page, createdWindows, windowIndex, tabIndex = 0) {
+  const targetWindow =
+    createdWindows[
+      Math.max(0, Math.min(windowIndex, Math.max(createdWindows.length - 1, 0)))
+    ]
+  if (!targetWindow) {
+    throw new Error(`Missing target demo window at index ${windowIndex}`)
+  }
+  const targetTabId =
+    targetWindow.tabIds[
+      Math.max(0, Math.min(tabIndex, Math.max(targetWindow.tabIds.length - 1, 0)))
+    ]
+  if (typeof targetTabId !== 'number') {
+    throw new Error(`Missing target demo tab for window ${targetWindow.windowId}`)
+  }
+  await page.evaluate(
+    async ({ windowId, tabId }) => {
+      await chrome.storage.local.set({
+        lastFocusedWindowId: windowId,
+        _selfPopupActive: false,
       })
-      const windowId = created.id
-      if (typeof windowId !== 'number') {
-        throw new Error('Failed to create demo window')
+      await chrome.tabs.update(tabId, { active: true })
+    },
+    {
+      windowId: targetWindow.windowId,
+      tabId: targetTabId,
+    },
+  )
+  await page.waitForTimeout(UI_SETTLE_DELAY_MS)
+  return targetWindow.windowId
+}
+
+async function scrollWindowIntoView(page, windowId) {
+  const selector = `[data-testid="window-card-${windowId}"]`
+  await page.waitForSelector(selector, { timeout: UI_READY_TIMEOUT_MS })
+  await page.evaluate((targetSelector) => {
+    const target = document.querySelector(targetSelector)
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'center',
+      })
+    }
+  }, selector)
+  await page.waitForTimeout(UI_SETTLE_DELAY_MS)
+}
+
+async function createDemoWindows(page, windows) {
+  return page.evaluate(
+    async ({ definitions, waitOptions }) => {
+      const delay = (ms) =>
+        new Promise((resolve) => {
+          setTimeout(resolve, ms)
+        })
+
+      const toBatches = (urls, size) => {
+        const batches = []
+        for (let index = 0; index < urls.length; index += size) {
+          batches.push(urls.slice(index, index + size))
+        }
+        return batches
       }
-      for (const url of restUrls) {
-        await chrome.tabs.create({
+
+      const waitForTabCount = async (windowId, expectedCount) => {
+        for (let attempt = 0; attempt < waitOptions.maxAttempts; attempt += 1) {
+          const tabs = await chrome.tabs.query({ windowId })
+          if (tabs.length >= expectedCount) {
+            return tabs.slice().sort((a, b) => a.index - b.index)
+          }
+          await delay(waitOptions.pollIntervalMs)
+        }
+        const tabs = await chrome.tabs.query({ windowId })
+        return tabs.slice().sort((a, b) => a.index - b.index)
+      }
+
+      const waitForCreatedWindows = async (createdWindows) => {
+        let highestLoadedCount = -1
+        let stablePolls = 0
+        for (let attempt = 0; attempt < waitOptions.maxAttempts; attempt += 1) {
+          let hasExpectedCounts = true
+          let expectedTabCount = 0
+          let loadedTabCount = 0
+          for (const createdWindow of createdWindows) {
+            const tabs = await chrome.tabs.query({ windowId: createdWindow.id })
+            expectedTabCount += createdWindow.expectedCount
+            if (tabs.length !== createdWindow.expectedCount) {
+              hasExpectedCounts = false
+              break
+            }
+            loadedTabCount += tabs.filter(
+              (tab) =>
+                tab.status === 'complete' &&
+                String(tab.title || '').trim().length > 0,
+            ).length
+          }
+          if (!hasExpectedCounts) {
+            await delay(waitOptions.pollIntervalMs)
+            continue
+          }
+          if (loadedTabCount > highestLoadedCount) {
+            highestLoadedCount = loadedTabCount
+            stablePolls = 0
+          } else {
+            stablePolls += 1
+          }
+          if (
+            loadedTabCount === expectedTabCount ||
+            stablePolls >= waitOptions.stablePolls
+          ) {
+            await delay(waitOptions.postLoadSettleMs)
+            return
+          }
+          await delay(waitOptions.pollIntervalMs)
+        }
+      }
+
+      const createWindowWithTabs = async (urls) => {
+        const batches = toBatches(urls, waitOptions.batchSize)
+        const [firstBatch = [], ...restBatches] = batches
+        const created = await chrome.windows.create({
+          url: firstBatch,
+          focused: false,
+        })
+        const windowId = created.id
+        if (typeof windowId !== 'number') {
+          throw new Error('Failed to create demo window')
+        }
+        let expectedCount = firstBatch.length
+        if (restBatches.length > 0) {
+          await delay(waitOptions.batchPauseMs)
+        }
+        for (const batch of restBatches) {
+          for (const url of batch) {
+            await chrome.tabs.create({
+              windowId,
+              url,
+              active: false,
+            })
+            expectedCount += 1
+          }
+          await waitForTabCount(windowId, expectedCount)
+          await delay(waitOptions.batchPauseMs)
+        }
+        const tabs = await waitForTabCount(windowId, urls.length)
+        return {
           windowId,
-          url,
-          active: false,
+          tabIds: tabs.map((tab) => tab.id),
+          expectedCount: urls.length,
+        }
+      }
+
+      const pickTabIds = (allUrls, tabIds, groupUrls) => {
+        const usedIndexes = new Set()
+        const picked = []
+        for (const groupUrl of groupUrls) {
+          const index = allUrls.findIndex(
+            (url, candidateIndex) =>
+              url === groupUrl && !usedIndexes.has(candidateIndex),
+          )
+          if (index >= 0 && typeof tabIds[index] === 'number') {
+            usedIndexes.add(index)
+            picked.push(tabIds[index])
+          }
+        }
+        return picked
+      }
+
+      const createdBase = []
+      for (const definition of definitions) {
+        const urls = definition.tabs
+        const createdWindow = await createWindowWithTabs(urls)
+        createdBase.push({
+          definition,
+          urls,
+          ...createdWindow,
         })
       }
-      const tabs = await waitForTabCount(windowId, urls.length)
-      return {
+
+      const created = []
+      for (const {
+        definition,
+        urls,
         windowId,
-        tabIds: tabs.map((tab) => tab.id),
-      }
-    }
-
-    const pickTabIds = (allUrls, tabIds, groupUrls) => {
-      const usedIndexes = new Set()
-      const picked = []
-      for (const groupUrl of groupUrls) {
-        const index = allUrls.findIndex(
-          (url, candidateIndex) =>
-            url === groupUrl && !usedIndexes.has(candidateIndex),
-        )
-        if (index >= 0 && typeof tabIds[index] === 'number') {
-          usedIndexes.add(index)
-          picked.push(tabIds[index])
+        tabIds,
+        expectedCount,
+      } of createdBase) {
+        const groups = []
+        for (const group of definition.groups || []) {
+          const groupTabIds = pickTabIds(urls, tabIds, group.urls)
+          if (groupTabIds.length !== group.urls.length) {
+            throw new Error(`Failed to resolve group tabs for ${group.title}`)
+          }
+          const groupId = await chrome.tabs.group({
+            tabIds: groupTabIds,
+            createProperties: { windowId },
+          })
+          await chrome.tabGroups.update(groupId, {
+            title: group.title,
+            color: group.color,
+            collapsed: !!group.collapsed,
+          })
+          groups.push({ groupId, title: group.title })
         }
+        created.push({ windowId, tabIds, expectedCount, groups })
       }
-      return picked
-    }
-
-    const created = []
-    for (const definition of definitions) {
-      const urls = definition.tabs
-      const { windowId, tabIds } = await createWindowWithTabs(urls)
-      const groups = []
-      for (const group of definition.groups || []) {
-        const groupTabIds = pickTabIds(urls, tabIds, group.urls)
-        if (groupTabIds.length !== group.urls.length) {
-          throw new Error(`Failed to resolve group tabs for ${group.title}`)
-        }
-        const groupId = await chrome.tabs.group({
-          tabIds: groupTabIds,
-          createProperties: { windowId },
-        })
-        await chrome.tabGroups.update(groupId, {
-          title: group.title,
-          color: group.color,
-          collapsed: !!group.collapsed,
-        })
-        groups.push({ groupId, title: group.title })
-      }
-      created.push({ windowId, groups })
-    }
-    return created
-  }, windows)
+      await waitForCreatedWindows(
+        created.map((item) => ({
+          id: item.windowId,
+          expectedCount: item.expectedCount,
+        })),
+      )
+      return created.map((item) => ({
+        windowId: item.windowId,
+        tabIds: item.tabIds,
+        groups: item.groups,
+      }))
+    },
+    {
+      definitions: windows,
+      waitOptions: {
+        maxAttempts: Math.ceil(TAB_LOAD_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
+        pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
+        stablePolls: TAB_LOAD_STABLE_POLLS,
+        postLoadSettleMs: TAB_POST_LOAD_SETTLE_DELAY_MS,
+        batchSize: TAB_CREATE_BATCH_SIZE,
+        batchPauseMs: TAB_CREATE_BATCH_DELAY_MS,
+      },
+    },
+  )
 }
 
 function pathForScreenshot(name) {
@@ -476,7 +903,7 @@ async function saveScreenshot(page, name) {
   const rawPath = join(rawDir, `${name}-raw.png`)
   const outputPath = pathForScreenshot(name)
   await page.bringToFront()
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
   await page.screenshot({
     path: rawPath,
     animations: 'disabled',
@@ -493,14 +920,27 @@ async function saveScreenshot(page, name) {
 
 async function captureOverview(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, theme.settings)
-  await createDemoWindows(page, resolveWindows(OVERVIEW_WINDOWS))
+  console.log('    creating overview demo windows')
+  const createdWindows = await createDemoWindows(page, DENSE_OVERVIEW_WINDOWS)
+  console.log('    focusing overview target window')
+  const targetWindowId = await focusDemoWindow(
+    page,
+    createdWindows,
+    DENSE_OVERVIEW_FOCUS_WINDOW_INDEX,
+    DENSE_OVERVIEW_FOCUS_TAB_INDEX,
+  )
+  console.log('    reloading overview popup')
   await reloadPopup(page)
+  console.log('    waiting for overview scenario counts')
+  await waitForScenarioReady(page, scenarioCounts(DENSE_OVERVIEW_WINDOWS))
+  console.log('    scrolling overview target window into view')
+  await scrollWindowIntoView(page, targetWindowId)
   await saveScreenshot(page, screenshotName('01-overview-groups', theme.name))
 }
 
 async function captureGroupEditing(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, theme.settings)
-  const [windowData] = await createDemoWindows(page, [
+  const windows = [
     {
       tabs: [
         realUrl('launch/release-roadmap'),
@@ -522,9 +962,11 @@ async function captureGroupEditing(page, fullPageUrl, theme) {
         },
       ],
     },
-  ])
+  ]
+  const [windowData] = await createDemoWindows(page, windows)
   const groupId = windowData.groups[0].groupId
   await reloadPopup(page)
+  await waitForScenarioReady(page, scenarioCounts(windows))
   await page.getByTestId(`tab-group-header-${groupId}`).hover()
   await page.getByTestId(`tab-group-menu-${groupId}`).click()
   await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
@@ -537,7 +979,7 @@ async function captureGroupEditing(page, fullPageUrl, theme) {
 
 async function captureSearchGroups(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, theme.settings)
-  const [windowData] = await createDemoWindows(page, [
+  const windows = [
     {
       tabs: [
         realUrl('launch/release-roadmap'),
@@ -560,9 +1002,11 @@ async function captureSearchGroups(page, fullPageUrl, theme) {
         },
       ],
     },
-  ])
+  ]
+  const [windowData] = await createDemoWindows(page, windows)
   const groupId = windowData.groups[0].groupId
   await reloadPopup(page)
+  await waitForScenarioReady(page, scenarioCounts(windows))
   await page.waitForSelector(`[data-testid="tab-group-header-${groupId}"]`)
   const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
   await searchInput.fill('jenny')
@@ -576,25 +1020,61 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
     highlightDuplicatedTab: true,
     ignoreHash: false,
   })
-  await createDemoWindows(page, [
+  const windows = [
     {
       tabs: [
         realUrl('ops/duplicate-tabs'),
         realUrl('ops/duplicate-tabs'),
         realUrl('ops/window-groups'),
+        realUrl('ops/window-groups'),
+        realUrl('launch/final-checklist'),
         realUrl('launch/final-checklist'),
         realUrl('support/release-mail'),
+        realUrl('research/firefox-parity'),
+        realUrl('research/firefox-parity'),
+        realUrl('support/docs-ticket'),
       ],
       groups: [
         {
           title: 'Operations',
           color: 'orange',
-          urls: [realUrl('ops/duplicate-tabs'), realUrl('ops/window-groups')],
+          urls: [
+            realUrl('ops/duplicate-tabs'),
+            realUrl('ops/window-groups'),
+            realUrl('launch/final-checklist'),
+            realUrl('support/release-mail'),
+          ],
         },
       ],
     },
-  ])
+    {
+      tabs: [
+        realUrl('support/customer-4821'),
+        realUrl('support/customer-5104'),
+        realUrl('research/tab-groups-api'),
+        realUrl('research/tab-groups-api'),
+        realUrl('launch/store-copy'),
+        realUrl('launch/store-copy'),
+      ],
+      groups: [
+        {
+          title: 'Cleanup Queue',
+          color: 'green',
+          urls: [
+            realUrl('support/customer-4821'),
+            realUrl('research/tab-groups-api'),
+            realUrl('launch/store-copy'),
+          ],
+        },
+      ],
+    },
+  ]
+  console.log('    creating duplicate cleanup demo windows')
+  await createDemoWindows(page, windows)
+  console.log('    reloading duplicate cleanup popup')
   await reloadPopup(page)
+  console.log('    waiting for duplicate cleanup scenario counts')
+  await waitForScenarioReady(page, scenarioCounts(windows))
   await page.waitForSelector(
     'button[aria-label^="Clean "][aria-label*="duplicate"]',
   )
@@ -603,7 +1083,7 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
 
 async function captureKeyboardShortcuts(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, theme.settings)
-  await createDemoWindows(page, [
+  const windows = [
     {
       tabs: [
         realUrl('launch/release-roadmap'),
@@ -622,8 +1102,10 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme) {
         },
       ],
     },
-  ])
+  ]
+  await createDemoWindows(page, windows)
   await reloadPopup(page)
+  await waitForScenarioReady(page, scenarioCounts(windows))
   await page.locator('button[aria-label="Show shortcut hints"]').first().click()
   await page
     .getByRole('heading', { name: 'Keyboard Shortcuts', exact: true })
@@ -640,8 +1122,21 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
     ...theme.settings,
     tabWidth: 22,
   })
-  await createDemoWindows(page, resolveWindows(GROUPED_TABS_FOCUS_WINDOWS))
+  console.log('    creating grouped focus demo windows')
+  const createdWindows = await createDemoWindows(page, DENSE_OVERVIEW_WINDOWS)
+  console.log('    focusing grouped focus target window')
+  const targetWindowId = await focusDemoWindow(
+    page,
+    createdWindows,
+    DENSE_OVERVIEW_FOCUS_WINDOW_INDEX,
+    DENSE_OVERVIEW_FOCUS_TAB_INDEX,
+  )
+  console.log('    reloading grouped focus popup')
   await reloadPopup(page)
+  console.log('    waiting for grouped focus scenario counts')
+  await waitForScenarioReady(page, scenarioCounts(DENSE_OVERVIEW_WINDOWS))
+  console.log('    scrolling grouped focus target window into view')
+  await scrollWindowIntoView(page, targetWindowId)
   await saveScreenshot(
     page,
     screenshotName('06-grouped-tabs-focus', theme.name),
@@ -650,7 +1145,7 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
 
 async function captureSettings(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, theme.settings)
-  await createDemoWindows(page, [
+  const windows = [
     {
       tabs: [
         realUrl('launch/release-roadmap'),
@@ -668,8 +1163,10 @@ async function captureSettings(page, fullPageUrl, theme) {
         },
       ],
     },
-  ])
+  ]
+  await createDemoWindows(page, windows)
   await reloadPopup(page)
+  await waitForScenarioReady(page, scenarioCounts(windows))
   await page.locator('button[aria-label="Settings"]').first().click()
   await page.getByText('Theme & density').waitFor()
   await saveScreenshot(page, screenshotName('07-settings', theme.name))
@@ -677,7 +1174,7 @@ async function captureSettings(page, fullPageUrl, theme) {
 
 async function captureCommandPalette(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, theme.settings)
-  await createDemoWindows(page, [
+  const windows = [
     {
       tabs: [
         realUrl('launch/release-roadmap'),
@@ -696,8 +1193,10 @@ async function captureCommandPalette(page, fullPageUrl, theme) {
         },
       ],
     },
-  ])
+  ]
+  await createDemoWindows(page, windows)
   await reloadPopup(page)
+  await waitForScenarioReady(page, scenarioCounts(windows))
   const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
   await searchInput.fill('>sort')
   await page.waitForSelector('.MuiAutocomplete-option')
@@ -707,8 +1206,60 @@ async function captureCommandPalette(page, fullPageUrl, theme) {
 async function main() {
   ensureBuildExists()
   ensureMagickExists()
-  rmSync(PNG_OUTPUT_DIR, { recursive: true, force: true })
+  if (REQUESTED_THEMES.length === 0 && REQUESTED_SCENARIOS.size === 0) {
+    rmSync(PNG_OUTPUT_DIR, { recursive: true, force: true })
+  }
   mkdirSync(OUTPUT_ROOT_DIR, { recursive: true })
+
+  const scenarioSteps = [
+    {
+      id: 'overview',
+      label: '01 overview groups',
+      run: captureOverview,
+    },
+    {
+      id: 'group-editing',
+      label: '02 group editing',
+      run: captureGroupEditing,
+    },
+    {
+      id: 'search-groups',
+      label: '03 search groups',
+      run: captureSearchGroups,
+    },
+    {
+      id: 'duplicate-cleanup',
+      label: '04 duplicate cleanup',
+      run: captureDuplicateCleanup,
+    },
+    {
+      id: 'keyboard-shortcuts',
+      label: '05 keyboard shortcuts',
+      run: captureKeyboardShortcuts,
+    },
+    {
+      id: 'grouped-tabs-focus',
+      label: '06 grouped tabs focus',
+      run: captureGroupedTabsFocus,
+    },
+    {
+      id: 'settings',
+      label: '07 settings',
+      run: captureSettings,
+    },
+    {
+      id: 'command-palette',
+      label: '08 command palette',
+      run: captureCommandPalette,
+    },
+  ].filter(
+    (scenario) =>
+      REQUESTED_SCENARIOS.size === 0 || REQUESTED_SCENARIOS.has(scenario.id),
+  )
+  const themeVariants = THEME_VARIANTS.filter(
+    (theme) =>
+      REQUESTED_THEMES.length === 0 || REQUESTED_THEMES.includes(theme.name),
+  )
 
   let context = null
   let userDataDir = null
@@ -718,16 +1269,12 @@ async function main() {
     userDataDir = init.userDataDir
     const { page, fullPageUrl } = init
 
-    for (const theme of THEME_VARIANTS) {
+    for (const theme of themeVariants) {
       console.log(`Capturing ${theme.name} theme`)
-      await captureOverview(page, fullPageUrl, theme)
-      await captureGroupEditing(page, fullPageUrl, theme)
-      await captureSearchGroups(page, fullPageUrl, theme)
-      await captureDuplicateCleanup(page, fullPageUrl, theme)
-      await captureKeyboardShortcuts(page, fullPageUrl, theme)
-      await captureGroupedTabsFocus(page, fullPageUrl, theme)
-      await captureSettings(page, fullPageUrl, theme)
-      await captureCommandPalette(page, fullPageUrl, theme)
+      for (const scenario of scenarioSteps) {
+        console.log(`  ${scenario.label}`)
+        await scenario.run(page, fullPageUrl, theme)
+      }
     }
   } finally {
     if (context) {
