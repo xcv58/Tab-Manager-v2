@@ -321,6 +321,47 @@ const RowDetailsOption = ({
   </div>
 )
 
+const SettingsSwitchOption = ({
+  title,
+  description,
+  checked,
+  onChange,
+  style,
+  testId,
+}: {
+  title: string
+  description: string
+  checked: boolean
+  onChange: () => void
+  style: React.CSSProperties
+  testId?: string
+}) => (
+  <div
+    data-testid={testId}
+    className="flex items-start justify-between gap-3 rounded-lg border px-3 py-3"
+    style={style}
+  >
+    <div className="min-w-0">
+      <Typography
+        component="h5"
+        sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
+      >
+        {title}
+      </Typography>
+      <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
+        {description}
+      </FormHelperText>
+    </div>
+    <Switch
+      color="primary"
+      checked={checked}
+      onChange={onChange}
+      inputProps={{ 'aria-label': title }}
+      sx={{ mt: -0.25, mr: -0.5 }}
+    />
+  </div>
+)
+
 export default observer(() => {
   const { userStore } = useStore()
   const muiTheme = useTheme()
@@ -404,38 +445,32 @@ export default observer(() => {
             description="Tune how the search box behaves when the popup opens and while you search."
             style={panelStyle}
           >
-            <FormGroup>
-              <FormControlLabel
-                label="Preserve search"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={preserveSearch}
-                    onChange={togglePreserveSearch}
-                  />
-                }
+            <div className="space-y-3">
+              <SettingsSwitchOption
+                testId="settings-search-preserve"
+                title="Preserve search"
+                description="Keep your last query when reopening the popup so you can continue scanning the same result set."
+                checked={preserveSearch}
+                onChange={togglePreserveSearch}
+                style={rowDetailOptionStyle}
               />
-              <FormControlLabel
-                label="Include browser history in results"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={searchHistory}
-                    onChange={toggleSearchHistory}
-                  />
-                }
+              <SettingsSwitchOption
+                testId="settings-search-history"
+                title="Include browser history in results"
+                description="Mix recent history entries into the results list when the tab you want is not currently open."
+                checked={searchHistory}
+                onChange={toggleSearchHistory}
+                style={rowDetailOptionStyle}
               />
-              <FormControlLabel
-                label="Focus search on open"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={autoFocusSearch}
-                    onChange={toggleAutoFocusSearch}
-                  />
-                }
+              <SettingsSwitchOption
+                testId="settings-search-focus"
+                title="Focus search on open"
+                description="Place the cursor in the search box as soon as the popup opens so you can type immediately."
+                checked={autoFocusSearch}
+                onChange={toggleAutoFocusSearch}
+                style={rowDetailOptionStyle}
               />
-            </FormGroup>
+            </div>
           </SettingsPanel>
           <SettingsPanel
             testId="settings-panel-theme-density"
