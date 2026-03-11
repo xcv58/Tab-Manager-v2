@@ -442,6 +442,52 @@ test.describe('The Extension page should', () => {
     })
   })
 
+  test('render group editor input with dark theme colors', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+        useSystemTheme: false,
+        darkTheme: true,
+      })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          useSystemTheme: false,
+          darkTheme: true,
+        })
+      }
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Dark Editor',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
+    await page.getByTestId(`tab-group-menu-${groupId}`).click()
+    await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
+    await waitForTestId(page, `tab-group-editor-${groupId}`)
+    const groupEditor = page.getByTestId(`tab-group-editor-${groupId}`)
+    await waitForSurfaceToFullyAppear(page, groupEditor)
+
+    const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
+    await expect(titleInput).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+    await expect(titleInput).toHaveCSS('border-top-color', 'rgb(181, 199, 230)')
+    await expect(titleInput).toHaveCSS('color', 'rgb(238, 241, 245)')
+    await expect(titleInput).toHaveCSS('color-scheme', 'dark')
+  })
+
   test('render search input atom', async () => {
     const searchInput = page.locator(
       'input[placeholder*="Search tabs or URLs"]',
