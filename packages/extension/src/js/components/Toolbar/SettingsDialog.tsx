@@ -19,6 +19,9 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
 import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded'
+import DesktopWindowsRoundedIcon from '@mui/icons-material/DesktopWindowsRounded'
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded'
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
@@ -79,17 +82,17 @@ const themeOptions = [
   {
     value: 'system',
     label: 'System',
-    description: 'Follow the browser or OS color scheme.',
-  },
-  {
-    value: 'dark',
-    label: 'Dark',
-    description: 'Use the darker surface palette all the time.',
+    icon: DesktopWindowsRoundedIcon,
   },
   {
     value: 'light',
     label: 'Light',
-    description: 'Keep the lighter palette active at all times.',
+    icon: LightModeRoundedIcon,
+  },
+  {
+    value: 'dark',
+    label: 'Dark',
+    icon: DarkModeRoundedIcon,
   },
 ] as const
 
@@ -452,12 +455,8 @@ export default observer(() => {
                 >
                   Theme
                 </Typography>
-                <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
-                  Pick the palette directly instead of cycling through a menu.
-                </FormHelperText>
                 <ToggleButtonGroup
                   exclusive
-                  fullWidth
                   value={theme}
                   aria-label="Choose theme"
                   onChange={(_, nextTheme) => {
@@ -467,17 +466,41 @@ export default observer(() => {
                     selectTheme(nextTheme)
                   }}
                   sx={{
-                    mt: 1.75,
+                    mt: 1.5,
+                    display: 'inline-flex',
+                    borderRadius: 999,
+                    p: 0.5,
+                    gap: 0.5,
+                    backgroundColor: isDarkMode
+                      ? 'rgba(15, 23, 42, 0.44)'
+                      : 'rgba(226, 232, 240, 0.7)',
+                    border: `1px solid ${rowDetailOptionStyle.borderColor}`,
                     '& .MuiToggleButtonGroup-grouped': {
-                      textTransform: 'none',
-                      justifyContent: 'flex-start',
-                      alignItems: 'stretch',
-                      px: 1.5,
-                      py: 1.1,
-                      gap: 0.25,
+                      m: 0,
+                      border: 0,
+                      borderRadius: 999,
+                      minWidth: 52,
+                      height: 44,
+                      color: muiTheme.palette.text.secondary,
                     },
                     '& .Mui-selected': {
-                      fontWeight: 700,
+                      color: muiTheme.palette.text.primary,
+                      backgroundColor: isDarkMode
+                        ? 'rgba(255, 255, 255, 0.12)'
+                        : 'rgba(255, 255, 255, 0.96)',
+                      boxShadow: isDarkMode
+                        ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                        : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                    },
+                    '& .Mui-selected:hover': {
+                      backgroundColor: isDarkMode
+                        ? 'rgba(255, 255, 255, 0.16)'
+                        : 'rgba(255, 255, 255, 0.98)',
+                    },
+                    '& .MuiToggleButton-root:hover': {
+                      backgroundColor: isDarkMode
+                        ? 'rgba(255, 255, 255, 0.07)'
+                        : 'rgba(255, 255, 255, 0.58)',
                     },
                   }}
                 >
@@ -487,12 +510,7 @@ export default observer(() => {
                       value={option.value}
                       aria-label={`Use ${option.value} theme`}
                     >
-                      <span className="flex flex-col items-start text-left">
-                        <span>{option.label}</span>
-                        <span className="text-[0.72rem] opacity-70">
-                          {option.description}
-                        </span>
-                      </span>
+                      <option.icon fontSize="small" />
                     </ToggleButton>
                   ))}
                 </ToggleButtonGroup>
