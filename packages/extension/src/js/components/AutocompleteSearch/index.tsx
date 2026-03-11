@@ -16,13 +16,13 @@ import HistoryItemTab from 'components/Tab/HistoryItemTab'
 import Tab from 'stores/Tab'
 import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
 import { openURL } from 'libs'
+import { filterCommandOptions } from './filterOptions'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
 
 const commandFilter = (options, { inputValue }) => {
-  const keys = ['name', 'shortcut']
-  return matchSorter(options, inputValue.slice(1).trim(), { keys })
+  return filterCommandOptions(options, inputValue.slice(1).trim())
 }
 
 /**
