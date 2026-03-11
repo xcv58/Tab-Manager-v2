@@ -11,14 +11,18 @@ import Fade from '@mui/material/Fade'
 import Switch from '@mui/material/Switch'
 import { useStore } from 'components/hooks/useStore'
 import Slider from '@mui/material/Slider'
-import FormLabel from '@mui/material/FormLabel'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
+import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTheme } from '@mui/material/styles'
-import { THEMES } from 'stores/UserStore'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded'
+import DesktopWindowsRoundedIcon from '@mui/icons-material/DesktopWindowsRounded'
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded'
+import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
@@ -71,6 +75,202 @@ const PreviewSurface = ({
   </div>
 )
 
+const clampValue = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value))
+
+const themeOptions = [
+  {
+    value: 'system',
+    label: 'System',
+    icon: DesktopWindowsRoundedIcon,
+  },
+  {
+    value: 'light',
+    label: 'Light',
+    icon: LightModeRoundedIcon,
+  },
+  {
+    value: 'dark',
+    label: 'Dark',
+    icon: DarkModeRoundedIcon,
+  },
+] as const
+
+const DensityControl = ({
+  title,
+  description,
+  value,
+  min,
+  max,
+  step,
+  unit,
+  defaultValue,
+  sliderAriaLabel,
+  inputAriaLabel,
+  decrementAriaLabel,
+  incrementAriaLabel,
+  onChange,
+  style,
+  testId,
+}: {
+  title: string
+  description: string
+  value: number
+  min: number
+  max: number
+  step: number
+  unit: string
+  defaultValue: number
+  sliderAriaLabel: string
+  inputAriaLabel: string
+  decrementAriaLabel: string
+  incrementAriaLabel: string
+  onChange: (value: number) => void
+  style: React.CSSProperties
+  testId?: string
+}) => {
+  const [draftValue, setDraftValue] = React.useState(String(value))
+
+  React.useEffect(() => {
+    setDraftValue(String(value))
+  }, [value])
+
+  const commitValue = (nextValue: number) => {
+    const clampedValue = clampValue(nextValue, min, max)
+    setDraftValue(String(clampedValue))
+    if (clampedValue !== value) {
+      onChange(clampedValue)
+    }
+  }
+
+  const commitDraftValue = () => {
+    if (!draftValue) {
+      setDraftValue(String(value))
+      return
+    }
+    const parsedValue = Number.parseInt(draftValue, 10)
+    if (Number.isNaN(parsedValue)) {
+      setDraftValue(String(value))
+      return
+    }
+    commitValue(parsedValue)
+  }
+
+  return (
+    <div
+      className="rounded-lg border px-3 py-3"
+      style={style}
+      data-testid={testId}
+    >
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <Typography
+            component="h5"
+            sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
+          >
+            {title}
+          </Typography>
+          <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
+            {description}
+          </FormHelperText>
+        </div>
+        <div className="flex items-center gap-1 self-start md:shrink-0">
+          <IconButton
+            size="small"
+            aria-label={decrementAriaLabel}
+            onClick={() => commitValue(value - step)}
+          >
+            <RemoveRoundedIcon fontSize="small" />
+          </IconButton>
+          <TextField
+            size="small"
+            value={draftValue}
+            onChange={(event) => {
+              const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
+              setDraftValue(sanitizedValue)
+              if (!sanitizedValue) {
+                return
+              }
+              const parsedValue = Number.parseInt(sanitizedValue, 10)
+              if (
+                Number.isNaN(parsedValue) ||
+                parsedValue < min ||
+                parsedValue > max
+              ) {
+                return
+              }
+              if (parsedValue !== value) {
+                onChange(parsedValue)
+              }
+            }}
+            onBlur={commitDraftValue}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                commitDraftValue()
+                ;(event.currentTarget as HTMLInputElement).blur()
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                setDraftValue(String(value))
+                ;(event.currentTarget as HTMLInputElement).blur()
+              }
+            }}
+            inputProps={{
+              'aria-label': inputAriaLabel,
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{unit}</InputAdornment>
+              ),
+            }}
+            sx={{
+              width: 104,
+              '& input': {
+                textAlign: 'right',
+                fontVariantNumeric: 'tabular-nums',
+              },
+            }}
+          />
+          <IconButton
+            size="small"
+            aria-label={incrementAriaLabel}
+            onClick={() => commitValue(value + step)}
+          >
+            <AddRoundedIcon fontSize="small" />
+          </IconButton>
+        </div>
+      </div>
+      <Slider
+        value={value}
+        step={step}
+        min={min}
+        max={max}
+        marks={[
+          { value: min, label: `${min}${unit}` },
+          { value: defaultValue, label: 'Default' },
+          { value: max, label: `${max}${unit}` },
+        ]}
+        onChange={(_, nextValue) => {
+          if (typeof nextValue !== 'number') {
+            return
+          }
+          setDraftValue(String(nextValue))
+          onChange(nextValue)
+        }}
+        aria-label={sliderAriaLabel}
+        sx={{
+          mt: 2.5,
+          mx: 2.5,
+          width: 'calc(100% - 40px)',
+        }}
+      />
+    </div>
+  )
+}
+
 const RowDetailsOption = ({
   title,
   description,
@@ -122,6 +322,47 @@ const RowDetailsOption = ({
         </FormHelperText>
       )}
     </div>
+  </div>
+)
+
+const SettingsSwitchOption = ({
+  title,
+  description,
+  checked,
+  onChange,
+  style,
+  testId,
+}: {
+  title: string
+  description: string
+  checked: boolean
+  onChange: () => void
+  style: React.CSSProperties
+  testId?: string
+}) => (
+  <div
+    data-testid={testId}
+    className="flex items-start justify-between gap-3 rounded-lg border px-3 py-3"
+    style={style}
+  >
+    <div className="min-w-0">
+      <Typography
+        component="h5"
+        sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
+      >
+        {title}
+      </Typography>
+      <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
+        {description}
+      </FormHelperText>
+    </div>
+    <Switch
+      color="primary"
+      checked={checked}
+      onChange={onChange}
+      inputProps={{ 'aria-label': title }}
+      sx={{ mt: -0.25, mr: -0.5 }}
+    />
   </div>
 )
 
@@ -208,38 +449,32 @@ export default observer(() => {
             description="Tune how the search box behaves when the popup opens and while you search."
             style={panelStyle}
           >
-            <FormGroup>
-              <FormControlLabel
-                label="Preserve search"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={preserveSearch}
-                    onChange={togglePreserveSearch}
-                  />
-                }
+            <div className="space-y-3">
+              <SettingsSwitchOption
+                testId="settings-search-preserve"
+                title="Preserve search"
+                description="Keep your last query when you reopen the popup."
+                checked={preserveSearch}
+                onChange={togglePreserveSearch}
+                style={rowDetailOptionStyle}
               />
-              <FormControlLabel
-                label="Include browser history in results"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={searchHistory}
-                    onChange={toggleSearchHistory}
-                  />
-                }
+              <SettingsSwitchOption
+                testId="settings-search-history"
+                title="Include browser history in results"
+                description="Show recent history when the page is not open in a tab."
+                checked={searchHistory}
+                onChange={toggleSearchHistory}
+                style={rowDetailOptionStyle}
               />
-              <FormControlLabel
-                label="Focus search on open"
-                control={
-                  <Switch
-                    color="primary"
-                    checked={autoFocusSearch}
-                    onChange={toggleAutoFocusSearch}
-                  />
-                }
+              <SettingsSwitchOption
+                testId="settings-search-focus"
+                title="Focus search on open"
+                description="Put the cursor in search as soon as the popup opens."
+                checked={autoFocusSearch}
+                onChange={toggleAutoFocusSearch}
+                style={rowDetailOptionStyle}
               />
-            </FormGroup>
+            </div>
           </SettingsPanel>
           <SettingsPanel
             testId="settings-panel-theme-density"
@@ -247,47 +482,123 @@ export default observer(() => {
             description="Set the overall tone and reading size for the page."
             style={panelStyle}
           >
-            <FormControl variant="standard" sx={{ mb: 2 }} className="w-full">
-              <InputLabel id="theme-label">Theme</InputLabel>
-              <Select
-                id="theme-select"
-                value={theme}
-                onChange={(e) => {
-                  selectTheme(e.target.value)
-                }}
-                className="capitalize"
+            <div className="space-y-4">
+              <div
+                className="rounded-lg border px-3 py-3"
+                style={rowDetailOptionStyle}
+                data-testid="settings-theme-toggle-group"
               >
-                {THEMES.map((t) => (
-                  <MenuItem key={t} value={t} className="capitalize">
-                    {t}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormLabel>Font size: `{fontSize}px`</FormLabel>
-            <Slider
-              defaultValue={fontSize}
-              step={1}
-              min={6}
-              max={36}
-              marks
-              onChange={(_, value: number) => updateFontSize(value)}
-              valueLabelDisplay="auto"
-              aria-labelledby="update-font-size"
-              aria-label="Update Font Size"
-            />
-            <FormLabel>Minimum tab width: `{tabWidth}rem`</FormLabel>
-            <Slider
-              defaultValue={tabWidth}
-              step={1}
-              min={15}
-              max={50}
-              marks
-              onChange={(_, value: number) => updateTabWidth(value)}
-              valueLabelDisplay="auto"
-              aria-labelledby="update-tab-width"
-              aria-label="Update Tab Width"
-            />
+                <div className="flex items-center justify-between gap-3">
+                  <Typography
+                    component="h5"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    Theme
+                  </Typography>
+                  <ToggleButtonGroup
+                    exclusive
+                    value={theme}
+                    aria-label="Choose theme"
+                    onChange={(_, nextTheme) => {
+                      if (!nextTheme) {
+                        return
+                      }
+                      selectTheme(nextTheme)
+                    }}
+                    sx={{
+                      display: 'inline-flex',
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      p: 0.375,
+                      gap: 0.375,
+                      backgroundColor: isDarkMode
+                        ? 'rgba(15, 23, 42, 0.44)'
+                        : 'rgba(226, 232, 240, 0.7)',
+                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+                      '& .MuiToggleButtonGroup-grouped': {
+                        m: 0,
+                        border: 0,
+                        borderRadius: 999,
+                        minWidth: 40,
+                        height: 34,
+                        px: 0.75,
+                        color: muiTheme.palette.text.secondary,
+                      },
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 18,
+                      },
+                      '& .Mui-selected': {
+                        color: muiTheme.palette.text.primary,
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(255, 255, 255, 0.96)',
+                        boxShadow: isDarkMode
+                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                      },
+                      '& .Mui-selected:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.16)'
+                          : 'rgba(255, 255, 255, 0.98)',
+                      },
+                      '& .MuiToggleButton-root:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.07)'
+                          : 'rgba(255, 255, 255, 0.58)',
+                      },
+                    }}
+                  >
+                    {themeOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.value} theme`}
+                      >
+                        <option.icon fontSize="small" />
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                </div>
+              </div>
+              <DensityControl
+                testId="settings-font-size-control"
+                title="Font size"
+                description="Use the number field for precise values, or drag the slider for a quick preview."
+                value={fontSize}
+                min={6}
+                max={36}
+                step={1}
+                unit="px"
+                defaultValue={14}
+                sliderAriaLabel="Update Font Size"
+                inputAriaLabel="Font Size Value"
+                decrementAriaLabel="Decrease Font Size"
+                incrementAriaLabel="Increase Font Size"
+                onChange={updateFontSize}
+                style={rowDetailOptionStyle}
+              />
+              <DensityControl
+                testId="settings-tab-width-control"
+                title="Minimum tab width"
+                description="This minimum width is applied to the window columns and cards, so wider values keep titles easier to scan."
+                value={tabWidth}
+                min={15}
+                max={50}
+                step={1}
+                unit="rem"
+                defaultValue={20}
+                sliderAriaLabel="Update Tab Width"
+                inputAriaLabel="Minimum Tab Width Value"
+                decrementAriaLabel="Decrease Minimum Tab Width"
+                incrementAriaLabel="Increase Minimum Tab Width"
+                onChange={updateTabWidth}
+                style={rowDetailOptionStyle}
+              />
+            </div>
           </SettingsPanel>
           <SettingsPanel
             testId="settings-panel-tab-display"

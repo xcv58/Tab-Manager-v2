@@ -664,6 +664,16 @@ test.describe('The Extension page should', () => {
     })
     await page.reload()
 
+    const windowCard = page.locator('[data-testid^="window-card-"]').first()
+    await expect(windowCard).toBeVisible()
+    await expect
+      .poll(async () => {
+        return await windowCard.evaluate(
+          (node) => getComputedStyle(node).minWidth,
+        )
+      })
+      .toBe('280px')
+
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
@@ -685,6 +695,16 @@ test.describe('The Extension page should', () => {
     await expect(fontSizeSlider).toHaveAttribute('aria-valuemax', '36')
     await expect(fontSizeSlider).toHaveAttribute('aria-valuenow', '14')
 
+    const tabWidthInput = page
+      .locator('[aria-label="Minimum Tab Width Value"]')
+      .first()
+    await expect(tabWidthInput).toBeVisible()
+    await expect(tabWidthInput).toHaveValue('20')
+
+    const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
+    await expect(fontSizeInput).toBeVisible()
+    await expect(fontSizeInput).toHaveValue('14')
+
     const toolbarToggle = page
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
       .first()
@@ -698,16 +718,29 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const themeSelect = page.locator('#theme-select').first()
-    await expect(themeSelect).toBeVisible()
-    const themeSelectScreenshot = await themeSelect.screenshot()
-    expect(themeSelectScreenshot).toMatchSnapshot(
-      'settings-theme-select-atom.png',
+    const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
+    await expect(themeToggleGroup).toBeVisible()
+    await expect(
+      themeToggleGroup.getByRole('button', { name: 'Use system theme' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    const themeToggleScreenshot = await themeToggleGroup.screenshot()
+    expect(themeToggleScreenshot).toMatchSnapshot(
+      'settings-theme-toggle-group-atom.png',
       {
         maxDiffPixelRatio: 0.08,
         threshold: 0.2,
       },
     )
+
+    await tabWidthInput.fill('28')
+    await expect
+      .poll(async () => {
+        return await windowCard.evaluate(
+          (node) => getComputedStyle(node).minWidth,
+        )
+      })
+      .toBe('392px')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '28')
 
     await page.keyboard.press('Escape')
     await page.waitForTimeout(200)

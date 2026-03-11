@@ -749,7 +749,7 @@ test.describe('The Extension page should', () => {
 
     await page.keyboard.press('Control+,')
     await page.waitForTimeout(500)
-    await page.waitForSelector('[aria-labelledby="update-font-size"]')
+    await page.waitForSelector('[aria-label="Update Font Size"]')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
@@ -784,29 +784,22 @@ test.describe('The Extension page should', () => {
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
     await page.keyboard.press('Control+,')
     await page.waitForTimeout(500)
-    await page.waitForSelector('[aria-labelledby="update-font-size"]')
+    await page.waitForSelector('[aria-label="Font Size Value"]')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
-    const minFontSize = (
-      await page.$$('span[data-index="0"].MuiSlider-mark')
-    )[1]
-    await minFontSize.click()
+
+    const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
+    await fontSizeInput.fill('6')
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    const largeFontSize = (
-      await page.$$('span[data-index="15"].MuiSlider-mark')
-    )[1]
-    await largeFontSize.click()
+    await fontSizeInput.fill('36')
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    const defaultFontSize = (
-      await page.$$('span[data-index="8"].MuiSlider-mark')
-    )[1]
-    await defaultFontSize.click()
+    await fontSizeInput.fill('14')
     await page.waitForTimeout(500)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
