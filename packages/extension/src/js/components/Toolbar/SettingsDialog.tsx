@@ -509,8 +509,8 @@ export default observer(() => {
                       display: 'inline-flex',
                       flexShrink: 0,
                       borderRadius: 999,
-                      p: 0.5,
-                      gap: 0.5,
+                      p: 0.375,
+                      gap: 0.375,
                       backgroundColor: isDarkMode
                         ? 'rgba(15, 23, 42, 0.44)'
                         : 'rgba(226, 232, 240, 0.7)',
@@ -519,9 +519,13 @@ export default observer(() => {
                         m: 0,
                         border: 0,
                         borderRadius: 999,
-                        minWidth: 52,
-                        height: 44,
+                        minWidth: 40,
+                        height: 34,
+                        px: 0.75,
                         color: muiTheme.palette.text.secondary,
+                      },
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 18,
                       },
                       '& .Mui-selected': {
                         color: muiTheme.palette.text.primary,
