@@ -449,7 +449,7 @@ export default observer(() => {
               <SettingsSwitchOption
                 testId="settings-search-preserve"
                 title="Preserve search"
-                description="Keep your last query when reopening the popup so you can continue scanning the same result set."
+                description="Keep your last query when you reopen the popup."
                 checked={preserveSearch}
                 onChange={togglePreserveSearch}
                 style={rowDetailOptionStyle}
@@ -457,7 +457,7 @@ export default observer(() => {
               <SettingsSwitchOption
                 testId="settings-search-history"
                 title="Include browser history in results"
-                description="Mix recent history entries into the results list when the tab you want is not currently open."
+                description="Show recent history when the page is not open in a tab."
                 checked={searchHistory}
                 onChange={toggleSearchHistory}
                 style={rowDetailOptionStyle}
@@ -465,7 +465,7 @@ export default observer(() => {
               <SettingsSwitchOption
                 testId="settings-search-focus"
                 title="Focus search on open"
-                description="Place the cursor in the search box as soon as the popup opens so you can type immediately."
+                description="Put the cursor in search as soon as the popup opens."
                 checked={autoFocusSearch}
                 onChange={toggleAutoFocusSearch}
                 style={rowDetailOptionStyle}
