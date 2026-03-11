@@ -442,6 +442,62 @@ test.describe('The Extension page should', () => {
     })
   })
 
+  test('render group editor input with dark theme colors', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+        useSystemTheme: false,
+        darkTheme: true,
+      })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          useSystemTheme: false,
+          darkTheme: true,
+        })
+      }
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Dark Editor',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
+    await page.getByTestId(`tab-group-menu-${groupId}`).click()
+    await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
+    await waitForTestId(page, `tab-group-editor-${groupId}`)
+    const groupEditor = page.getByTestId(`tab-group-editor-${groupId}`)
+    await waitForSurfaceToFullyAppear(page, groupEditor)
+
+    const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
+    const titleInputScreenshot = await titleInput.screenshot({
+      animations: 'disabled',
+    })
+    expect(titleInputScreenshot).toMatchSnapshot(
+      'group-editor-title-input-dark.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+    await expect(titleInput).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+    await expect(titleInput).toHaveCSS('border-top-color', 'rgb(181, 199, 230)')
+    await expect(titleInput).toHaveCSS('color', 'rgb(238, 241, 245)')
+    await expect(titleInput).toHaveCSS('color-scheme', 'dark')
+  })
+
   test('render search input atom', async () => {
     const searchInput = page.locator(
       'input[placeholder*="Search tabs or URLs"]',
@@ -608,6 +664,16 @@ test.describe('The Extension page should', () => {
     })
     await page.reload()
 
+    const windowCard = page.locator('[data-testid^="window-card-"]').first()
+    await expect(windowCard).toBeVisible()
+    await expect
+      .poll(async () => {
+        return await windowCard.evaluate(
+          (node) => getComputedStyle(node).minWidth,
+        )
+      })
+      .toBe('280px')
+
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
@@ -629,6 +695,16 @@ test.describe('The Extension page should', () => {
     await expect(fontSizeSlider).toHaveAttribute('aria-valuemax', '36')
     await expect(fontSizeSlider).toHaveAttribute('aria-valuenow', '14')
 
+    const tabWidthInput = page
+      .locator('[aria-label="Minimum Tab Width Value"]')
+      .first()
+    await expect(tabWidthInput).toBeVisible()
+    await expect(tabWidthInput).toHaveValue('20')
+
+    const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
+    await expect(fontSizeInput).toBeVisible()
+    await expect(fontSizeInput).toHaveValue('14')
+
     const toolbarToggle = page
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
       .first()
@@ -642,16 +718,29 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const themeSelect = page.locator('#theme-select').first()
-    await expect(themeSelect).toBeVisible()
-    const themeSelectScreenshot = await themeSelect.screenshot()
-    expect(themeSelectScreenshot).toMatchSnapshot(
-      'settings-theme-select-atom.png',
+    const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
+    await expect(themeToggleGroup).toBeVisible()
+    await expect(
+      themeToggleGroup.getByRole('button', { name: 'Use system theme' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    const themeToggleScreenshot = await themeToggleGroup.screenshot()
+    expect(themeToggleScreenshot).toMatchSnapshot(
+      'settings-theme-toggle-group-atom.png',
       {
         maxDiffPixelRatio: 0.08,
         threshold: 0.2,
       },
     )
+
+    await tabWidthInput.fill('28')
+    await expect
+      .poll(async () => {
+        return await windowCard.evaluate(
+          (node) => getComputedStyle(node).minWidth,
+        )
+      })
+      .toBe('392px')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '28')
 
     await page.keyboard.press('Escape')
     await page.waitForTimeout(200)

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Popover from '@mui/material/Popover'
+import { useTheme } from '@mui/material/styles'
 import {
   CHROME_TAB_GROUP_COLOR_ORDER,
   getChromeTabGroupColor,
@@ -31,6 +32,7 @@ export default (props: Props) => {
   const titleInputRef = useRef<HTMLInputElement>(null)
   const committedTitleRef = useRef(initialTitle)
   const skipBlurCommitRef = useRef(false)
+  const theme = useTheme()
 
   useEffect(() => {
     if (!open) {
@@ -83,7 +85,11 @@ export default (props: Props) => {
           ref={titleInputRef}
           className="w-full rounded-2xl border-2 px-4 py-2 text-2xl font-medium outline-none"
           style={{
-            borderColor: '#1a73e8',
+            backgroundColor: 'transparent',
+            borderColor: theme.palette.primary.main,
+            caretColor: theme.palette.text.primary,
+            color: theme.palette.text.primary,
+            colorScheme: theme.palette.mode,
           }}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
