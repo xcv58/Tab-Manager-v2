@@ -482,6 +482,16 @@ test.describe('The Extension page should', () => {
     await waitForSurfaceToFullyAppear(page, groupEditor)
 
     const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
+    const titleInputScreenshot = await titleInput.screenshot({
+      animations: 'disabled',
+    })
+    expect(titleInputScreenshot).toMatchSnapshot(
+      'group-editor-title-input-dark.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
     await expect(titleInput).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
     await expect(titleInput).toHaveCSS('border-top-color', 'rgb(181, 199, 230)')
     await expect(titleInput).toHaveCSS('color', 'rgb(238, 241, 245)')
