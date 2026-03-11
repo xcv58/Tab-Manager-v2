@@ -1212,7 +1212,7 @@ async function captureSettings(page, fullPageUrl, theme) {
   await reloadPopup(page)
   await waitForScenarioReady(page, scenarioCounts(windows))
   await page.locator('button[aria-label="Settings"]').first().click()
-  await page.getByText('Theme & density').waitFor()
+  await page.getByTestId('settings-panel-theme-density').waitFor()
   await saveScreenshot(page, screenshotName('07-settings', theme.name))
 }
 
