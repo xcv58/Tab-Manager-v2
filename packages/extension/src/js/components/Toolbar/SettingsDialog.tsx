@@ -261,7 +261,11 @@ const DensityControl = ({
           onChange(nextValue)
         }}
         aria-label={sliderAriaLabel}
-        sx={{ mt: 2.5 }}
+        sx={{
+          mt: 2.5,
+          mx: 2.5,
+          width: 'calc(100% - 40px)',
+        }}
       />
     </div>
   )
