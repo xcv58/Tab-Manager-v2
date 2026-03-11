@@ -4,8 +4,6 @@ import { browser } from 'libs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
-import FormGroup from '@mui/material/FormGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
 import Fade from '@mui/material/Fade'
 import Switch from '@mui/material/Switch'
@@ -29,28 +27,56 @@ import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
 import TabRowPreview from './TabRowPreview'
 
+const panelTitleSx = {
+  fontSize: '0.92rem',
+  fontWeight: 700,
+  lineHeight: 1.3,
+} as const
+
+const panelDescriptionSx = {
+  mt: 0.5,
+  fontSize: '0.8rem',
+  lineHeight: 1.45,
+} as const
+
+const controlTitleSx = {
+  fontSize: '0.88rem',
+  fontWeight: 600,
+  lineHeight: 1.35,
+} as const
+
+const controlDescriptionSx = {
+  mt: 0.5,
+  fontSize: '0.76rem',
+  lineHeight: 1.45,
+} as const
+
 const SettingsPanel = ({
   title,
   description,
   children,
   style,
   testId,
+  className,
 }: {
   title: string
   description?: string
   children: React.ReactNode
   style: React.CSSProperties
   testId?: string
+  className?: string
 }) => (
-  <div className="rounded-xl border p-4" style={style} data-testid={testId}>
+  <div
+    className={`rounded-xl border p-4 ${className || ''}`}
+    style={style}
+    data-testid={testId}
+  >
     <div className="mb-3">
-      <Typography component="h4" sx={{ fontSize: '0.92rem', fontWeight: 700 }}>
+      <Typography component="h4" sx={panelTitleSx}>
         {title}
       </Typography>
       {description && (
-        <FormHelperText sx={{ mt: 0.5, fontSize: '0.8rem' }}>
-          {description}
-        </FormHelperText>
+        <FormHelperText sx={panelDescriptionSx}>{description}</FormHelperText>
       )}
     </div>
     {children}
@@ -114,12 +140,12 @@ const DensityControl = ({
   testId,
 }: {
   title: string
-  description: string
+  description?: string
   value: number
   min: number
   max: number
   step: number
-  unit: string
+  unit?: string
   defaultValue: number
   sliderAriaLabel: string
   inputAriaLabel: string
@@ -162,23 +188,27 @@ const DensityControl = ({
       style={style}
       data-testid={testId}
     >
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div
+        className={`flex flex-col gap-3 md:flex-row md:justify-between ${
+          description ? 'md:items-start' : 'md:items-center'
+        }`}
+      >
         <div className="min-w-0">
-          <Typography
-            component="h5"
-            sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
-          >
+          <Typography component="h5" sx={controlTitleSx}>
             {title}
           </Typography>
-          <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
-            {description}
-          </FormHelperText>
+          {description && (
+            <FormHelperText sx={controlDescriptionSx}>
+              {description}
+            </FormHelperText>
+          )}
         </div>
-        <div className="flex items-center gap-1 self-start md:shrink-0">
+        <div className="flex items-center gap-0.5 self-start md:shrink-0">
           <IconButton
             size="small"
             aria-label={decrementAriaLabel}
             onClick={() => commitValue(value - step)}
+            sx={{ width: 30, height: 30, p: 0 }}
           >
             <RemoveRoundedIcon fontSize="small" />
           </IconButton>
@@ -222,12 +252,23 @@ const DensityControl = ({
               pattern: '[0-9]*',
             }}
             InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">{unit}</InputAdornment>
-              ),
+              ...(unit
+                ? {
+                    endAdornment: (
+                      <InputAdornment position="end">{unit}</InputAdornment>
+                    ),
+                  }
+                : {}),
             }}
             sx={{
-              width: 104,
+              width: 92,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: '0.92rem',
+              },
+              '& .MuiInputAdornment-root': {
+                fontSize: '0.82rem',
+              },
               '& input': {
                 textAlign: 'right',
                 fontVariantNumeric: 'tabular-nums',
@@ -238,6 +279,7 @@ const DensityControl = ({
             size="small"
             aria-label={incrementAriaLabel}
             onClick={() => commitValue(value + step)}
+            sx={{ width: 30, height: 30, p: 0 }}
           >
             <AddRoundedIcon fontSize="small" />
           </IconButton>
@@ -249,9 +291,9 @@ const DensityControl = ({
         min={min}
         max={max}
         marks={[
-          { value: min, label: `${min}${unit}` },
+          { value: min, label: unit ? `${min}${unit}` : String(min) },
           { value: defaultValue, label: 'Default' },
-          { value: max, label: `${max}${unit}` },
+          { value: max, label: unit ? `${max}${unit}` : String(max) },
         ]}
         onChange={(_, nextValue) => {
           if (typeof nextValue !== 'number') {
@@ -282,7 +324,7 @@ const RowDetailsOption = ({
   testId,
 }: {
   title: string
-  description: string
+  description?: string
   checked: boolean
   onChange: () => void
   preview: React.ReactNode
@@ -296,11 +338,12 @@ const RowDetailsOption = ({
     style={style}
   >
     <div className="min-w-0 xl:w-64 xl:shrink-0">
-      <div className="mb-1 flex items-start justify-between gap-3">
-        <Typography
-          component="h5"
-          sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
-        >
+      <div
+        className={`flex justify-between gap-3 ${
+          description ? 'items-start' : 'items-center'
+        }`}
+      >
+        <Typography component="h5" sx={controlTitleSx}>
           {title}
         </Typography>
         <Switch
@@ -310,14 +353,16 @@ const RowDetailsOption = ({
           inputProps={{ 'aria-label': title }}
         />
       </div>
-      <FormHelperText sx={{ mt: 0, fontSize: '0.78rem' }}>
-        {description}
-      </FormHelperText>
+      {description && (
+        <FormHelperText sx={controlDescriptionSx}>{description}</FormHelperText>
+      )}
     </div>
     <div className="min-w-0 xl:flex-1">
       {preview}
       {previewHint && (
-        <FormHelperText sx={{ mt: 0.75, fontSize: '0.74rem' }}>
+        <FormHelperText
+          sx={{ ...controlDescriptionSx, mt: 0.75, fontSize: '0.74rem' }}
+        >
           {previewHint}
         </FormHelperText>
       )}
@@ -332,38 +377,48 @@ const SettingsSwitchOption = ({
   onChange,
   style,
   testId,
+  containerAriaLabelledBy,
+  containerAriaLabel,
 }: {
   title: string
-  description: string
+  description?: string
   checked: boolean
   onChange: () => void
   style: React.CSSProperties
   testId?: string
+  containerAriaLabelledBy?: string
+  containerAriaLabel?: string
 }) => (
-  <div
+  <label
     data-testid={testId}
-    className="flex items-start justify-between gap-3 rounded-lg border px-3 py-3"
+    className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 ${
+      description ? 'items-start py-3.5' : 'items-center py-3'
+    }`}
     style={style}
+    aria-labelledby={containerAriaLabelledBy}
+    aria-label={containerAriaLabel}
   >
-    <div className="min-w-0">
-      <Typography
-        component="h5"
-        sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
-      >
+    <div className="min-w-0 pr-3">
+      <Typography component="h5" sx={controlTitleSx}>
         {title}
       </Typography>
-      <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
-        {description}
-      </FormHelperText>
+      {description && (
+        <FormHelperText sx={controlDescriptionSx}>{description}</FormHelperText>
+      )}
     </div>
     <Switch
       color="primary"
+      size="small"
       checked={checked}
       onChange={onChange}
       inputProps={{ 'aria-label': title }}
-      sx={{ mt: -0.25, mr: -0.5 }}
+      sx={{
+        mt: description ? -0.25 : 0,
+        mr: -0.5,
+        flexShrink: 0,
+      }}
     />
-  </div>
+  </label>
 )
 
 export default observer(() => {
@@ -442,61 +497,58 @@ export default observer(() => {
     >
       <DialogTitle>Settings</DialogTitle>
       <DialogContent>
-        <div className="grid gap-3 py-1 lg:grid-cols-2">
+        <div className="grid gap-3 py-1 lg:grid-cols-2 xl:grid-cols-3">
           <SettingsPanel
             testId="settings-panel-search"
-            title="Search behavior"
-            description="Tune how the search box behaves when the popup opens and while you search."
+            title="Search"
+            description="Control how search starts and what stays visible while filtering."
             style={panelStyle}
           >
             <div className="space-y-3">
               <SettingsSwitchOption
                 testId="settings-search-preserve"
                 title="Preserve search"
-                description="Keep your last query when you reopen the popup."
                 checked={preserveSearch}
                 onChange={togglePreserveSearch}
                 style={rowDetailOptionStyle}
               />
               <SettingsSwitchOption
+                testId="settings-search-focus"
+                title="Focus search on open"
+                checked={autoFocusSearch}
+                onChange={toggleAutoFocusSearch}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
                 testId="settings-search-history"
                 title="Include browser history in results"
-                description="Show recent history when the page is not open in a tab."
                 checked={searchHistory}
                 onChange={toggleSearchHistory}
                 style={rowDetailOptionStyle}
               />
               <SettingsSwitchOption
-                testId="settings-search-focus"
-                title="Focus search on open"
-                description="Put the cursor in search as soon as the popup opens."
-                checked={autoFocusSearch}
-                onChange={toggleAutoFocusSearch}
+                title="Keep non-matching tabs visible"
+                description="Keep unmatched tabs in view while you search."
+                checked={showUnmatchedTab}
+                onChange={toggleShowUnmatchedTab}
                 style={rowDetailOptionStyle}
               />
             </div>
           </SettingsPanel>
           <SettingsPanel
             testId="settings-panel-theme-density"
-            title="Theme & density"
-            description="Set the overall tone and reading size for the page."
+            title="Appearance"
+            description="Adjust theme, reading size, and layout density."
             style={panelStyle}
           >
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div
                 className="rounded-lg border px-3 py-3"
                 style={rowDetailOptionStyle}
                 data-testid="settings-theme-toggle-group"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <Typography
-                    component="h5"
-                    sx={{
-                      fontSize: '0.9rem',
-                      fontWeight: 600,
-                      lineHeight: 1.35,
-                    }}
-                  >
+                  <Typography component="h5" sx={controlTitleSx}>
                     Theme
                   </Typography>
                   <ToggleButtonGroup
@@ -514,7 +566,7 @@ export default observer(() => {
                       flexShrink: 0,
                       borderRadius: 999,
                       p: 0.375,
-                      gap: 0.375,
+                      gap: 0.25,
                       backgroundColor: isDarkMode
                         ? 'rgba(15, 23, 42, 0.44)'
                         : 'rgba(226, 232, 240, 0.7)',
@@ -523,13 +575,13 @@ export default observer(() => {
                         m: 0,
                         border: 0,
                         borderRadius: 999,
-                        minWidth: 40,
-                        height: 34,
-                        px: 0.75,
+                        minWidth: 36,
+                        height: 32,
+                        px: 0.625,
                         color: muiTheme.palette.text.secondary,
                       },
                       '& .MuiSvgIcon-root': {
-                        fontSize: 18,
+                        fontSize: 16,
                       },
                       '& .Mui-selected': {
                         color: muiTheme.palette.text.primary,
@@ -567,7 +619,6 @@ export default observer(() => {
               <DensityControl
                 testId="settings-font-size-control"
                 title="Font size"
-                description="Use the number field for precise values, or drag the slider for a quick preview."
                 value={fontSize}
                 min={6}
                 max={36}
@@ -584,12 +635,11 @@ export default observer(() => {
               <DensityControl
                 testId="settings-tab-width-control"
                 title="Minimum tab width"
-                description="This minimum width is applied to the window columns and cards, so wider values keep titles easier to scan."
+                description="Affects window columns and cards; wider values make titles easier to scan."
                 value={tabWidth}
                 min={15}
                 max={50}
                 step={1}
-                unit="rem"
                 defaultValue={20}
                 sliderAriaLabel="Update Tab Width"
                 inputAriaLabel="Minimum Tab Width Value"
@@ -601,16 +651,56 @@ export default observer(() => {
             </div>
           </SettingsPanel>
           <SettingsPanel
+            testId="settings-panel-behavior"
+            title="View"
+            description="Choose which windows and popup controls stay visible."
+            style={panelStyle}
+            className="xl:order-3"
+          >
+            <div className="space-y-3">
+              <SettingsSwitchOption
+                title="Show app windows in list"
+                description="Include standalone app windows in the main list."
+                checked={showAppWindow}
+                onChange={toggleShowAppWindow}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
+                title="Use lite popup mode"
+                description="Use the lite layout for the browser action popup window only."
+                checked={litePopupMode}
+                onChange={toggleLitePopupMode}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
+                title="Show shortcut hints"
+                description="Show the shortcut and its action when a shortcut is pressed."
+                checked={showShortcutHint}
+                onChange={toggleShowShortcutHint}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
+                title="Keep toolbar visible"
+                description="Always show the bottom-right toolbar."
+                checked={!toolbarAutoHide}
+                onChange={toggleAutoHide}
+                style={rowDetailOptionStyle}
+                containerAriaLabelledBy="toggle-always-show-toolbar"
+                containerAriaLabel="Toggle Always Show Toolbar"
+              />
+            </div>
+          </SettingsPanel>
+          <SettingsPanel
             testId="settings-panel-tab-display"
             title="Tab display"
-            description="Choose which details each tab shows by default."
+            description="Choose which details each tab shows."
             style={panelStyle}
+            className="xl:order-4 xl:col-span-3"
           >
             <div className="space-y-3" data-testid="row-details-options">
               <RowDetailsOption
                 testId="row-details-option-duplicates"
                 title="Mark duplicate tabs"
-                description="Show the duplicate marker on tabs that share the same page."
                 checked={highlightDuplicatedTab}
                 onChange={toggleHighlightDuplicatedTab}
                 style={rowDetailOptionStyle}
@@ -637,11 +727,10 @@ export default observer(() => {
               <RowDetailsOption
                 testId="row-details-option-icons"
                 title="Show tab icons"
-                description="Use the real tab leading slot so hover reveals the same selection and action controls."
                 checked={showTabIcon}
                 onChange={toggleShowTabIcon}
                 style={rowDetailOptionStyle}
-                previewHint="Hover the preview tab to inspect the real hover state."
+                previewHint="Hover preview to inspect controls."
                 preview={
                   <PreviewSurface
                     style={previewSurfaceStyle}
@@ -664,7 +753,6 @@ export default observer(() => {
               <RowDetailsOption
                 testId="row-details-option-urls"
                 title="Show URLs"
-                description="Add the URL line below the title so similar pages are easier to scan."
                 checked={showUrl}
                 onChange={toggleShowUrl}
                 style={rowDetailOptionStyle}
@@ -690,11 +778,10 @@ export default observer(() => {
               <RowDetailsOption
                 testId="row-details-option-tooltips"
                 title="Show tab tooltips"
-                description="Use the actual tooltip so the preview tab can surface the full title and URL on hover."
                 checked={showTabTooltip}
                 onChange={toggleShowTabTooltip}
                 style={rowDetailOptionStyle}
-                previewHint="Hover the preview tab to open the tooltip."
+                previewHint="Hover preview to open the tooltip."
                 preview={
                   <PreviewSurface
                     style={previewSurfaceStyle}
@@ -715,97 +802,6 @@ export default observer(() => {
                   </PreviewSurface>
                 }
               />
-            </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-behavior"
-            title="Behavior"
-            description="Choose what stays visible and how the extension behaves in compact mode."
-            style={panelStyle}
-          >
-            <div className="space-y-4">
-              <div>
-                <Typography
-                  component="h5"
-                  sx={{ fontSize: '0.84rem', fontWeight: 700 }}
-                >
-                  Results visibility
-                </Typography>
-                <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
-                  Decide how much stays on screen while filtering and scanning.
-                </FormHelperText>
-                <FormGroup sx={{ mt: 1.25 }}>
-                  <FormControlLabel
-                    label="Keep non-matching tabs visible"
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={showUnmatchedTab}
-                        onChange={toggleShowUnmatchedTab}
-                      />
-                    }
-                  />
-                  <FormControlLabel
-                    label="Include app windows"
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={showAppWindow}
-                        onChange={toggleShowAppWindow}
-                      />
-                    }
-                  />
-                </FormGroup>
-              </div>
-              <div
-                className="border-t pt-4"
-                style={{ borderColor: rowDetailOptionStyle.borderColor }}
-              >
-                <Typography
-                  component="h5"
-                  sx={{ fontSize: '0.84rem', fontWeight: 700 }}
-                >
-                  Compact mode
-                </Typography>
-                <FormHelperText sx={{ mt: 0.5, fontSize: '0.76rem' }}>
-                  Tune how much UI stays visible when the extension is used in
-                  tight spaces.
-                </FormHelperText>
-                <FormGroup sx={{ mt: 1.25 }}>
-                  <FormControlLabel
-                    label="Use lite popup mode"
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={litePopupMode}
-                        onChange={toggleLitePopupMode}
-                      />
-                    }
-                  />
-                  <FormControlLabel
-                    label="Show shortcut hints"
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={showShortcutHint}
-                        onChange={toggleShowShortcutHint}
-                      />
-                    }
-                  />
-                  <FormControlLabel
-                    label="Keep toolbar visible"
-                    aria-labelledby="toggle-always-show-toolbar"
-                    aria-label="Toggle Always Show Toolbar"
-                    control={
-                      <Switch
-                        color="primary"
-                        checked={!toolbarAutoHide}
-                        onChange={toggleAutoHide}
-                      />
-                    }
-                  />
-                </FormGroup>
-              </div>
             </div>
           </SettingsPanel>
         </div>

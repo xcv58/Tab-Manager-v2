@@ -20,6 +20,15 @@ export default [...compat.extends(
     "plugin:jest/recommended",
     "prettier",
 ), {
+    ignores: [
+        ".claude/**",
+        "**/build/**",
+        "**/coverage/**",
+        "docs/assets/vendor/**",
+        "**/playwright-report/**",
+        "**/test-results/**",
+    ],
+}, {
     plugins: {
         "@typescript-eslint": typescriptEslint,
         jest,

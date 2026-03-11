@@ -309,6 +309,12 @@ test.describe('The Extension page should', () => {
     await lightThemeButton.click()
     await page.waitForTimeout(300)
     await expect(lightThemeButton).toHaveAttribute('aria-pressed', 'true')
+    const systemThemeButton = themeToggleGroup.getByRole('button', {
+      name: 'Use system theme',
+    })
+    await systemThemeButton.click()
+    await page.waitForTimeout(300)
+    await expect(systemThemeButton).toHaveAttribute('aria-pressed', 'true')
 
     const fontSizeControl = page.getByTestId('settings-font-size-control')
     const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()

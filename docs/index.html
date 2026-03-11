@@ -1,304 +1,863 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="system">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/images/logo.png" />
 
     <script>
-        (function () {
-            let theme = 'system';
-            try {
-                theme = localStorage.getItem('theme') || 'system';
-            } catch (error) {
-                theme = 'system';
-            }
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
+      ;(function () {
+        let theme = 'system'
+        try {
+          theme = localStorage.getItem('theme') || 'system'
+        } catch (error) {
+          theme = 'system'
+        }
+        document.documentElement.setAttribute('data-theme', theme)
+      })()
     </script>
 
     <title>Tab Manager v2 - Organize browser tabs instantly.</title>
-    <meta name="description"
-        content="Organize tabs across windows with keyboard-first search, bulk actions, tab groups, and duplicate cleanup for Chrome, Firefox, and Edge.">
-    <meta name="keywords"
-        content="tab manager, browser extension, chrome extension, firefox add-on, edge extension, tab groups, duplicate tabs, keyboard shortcuts">
-    <meta name="author" content="xcv58">
-    <link rel="canonical" href="https://tab.jenny.media/">
+    <meta
+      name="description"
+      content="Organize tabs across windows with keyboard-first search, bulk actions, tab groups, and duplicate cleanup for Chrome, Firefox, and Edge."
+    />
+    <meta
+      name="keywords"
+      content="tab manager, browser extension, chrome extension, firefox add-on, edge extension, tab groups, duplicate tabs, keyboard shortcuts"
+    />
+    <meta name="author" content="xcv58" />
+    <link rel="canonical" href="https://tab.jenny.media/" />
 
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tab.jenny.media/">
-    <meta property="og:title" content="Tab Manager v2 - Organize browser tabs instantly.">
-    <meta property="og:description"
-        content="Search, move, group, and clean up tabs across browser windows with a keyboard-first workflow.">
-    <meta property="og:image" content="https://tab.jenny.media/assets/images/hero.png">
-    <meta property="og:image:width" content="1280">
-    <meta property="og:image:height" content="720">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tab.jenny.media/" />
+    <meta
+      property="og:title"
+      content="Tab Manager v2 - Organize browser tabs instantly."
+    />
+    <meta
+      property="og:description"
+      content="Search, move, group, and clean up tabs across browser windows with a keyboard-first workflow."
+    />
+    <meta
+      property="og:image"
+      content="https://tab.jenny.media/assets/images/release-candidates/png/01-overview-groups-light.png"
+    />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Tab Manager v2 - Organize browser tabs instantly.">
-    <meta name="twitter:description"
-        content="Keyboard-first tab management for Chrome, Firefox, and Edge with search, bulk actions, groups, and duplicate cleanup.">
-    <meta name="twitter:image" content="https://tab.jenny.media/assets/images/hero.png">
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Tab Manager v2 - Organize browser tabs instantly."
+    />
+    <meta
+      name="twitter:description"
+      content="Keyboard-first tab management for Chrome, Firefox, and Edge with search, bulk actions, groups, and duplicate cleanup."
+    />
+    <meta
+      name="twitter:image"
+      content="https://tab.jenny.media/assets/images/release-candidates/png/01-overview-groups-light.png"
+    />
 
-    <link rel="dns-prefetch" href="https://chrome.google.com">
-    <link rel="dns-prefetch" href="https://addons.mozilla.org">
-    <link rel="dns-prefetch" href="https://microsoftedge.microsoft.com">
-    <link rel="dns-prefetch" href="https://github.com">
+    <link rel="dns-prefetch" href="https://chrome.google.com" />
+    <link rel="dns-prefetch" href="https://addons.mozilla.org" />
+    <link rel="dns-prefetch" href="https://microsoftedge.microsoft.com" />
+    <link rel="dns-prefetch" href="https://github.com" />
 
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Tab Manager v2",
-      "applicationCategory": "BrowserApplication",
-      "operatingSystem": "Chrome, Firefox, Edge",
-      "softwareVersion": "2",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "description": "Keyboard-first tab management for organizing tabs across browser windows with search, bulk actions, tab groups, and duplicate cleanup.",
-      "screenshot": "https://tab.jenny.media/assets/images/hero.png",
-      "downloadUrl": "https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Tab Manager v2",
+        "applicationCategory": "BrowserApplication",
+        "operatingSystem": "Chrome, Firefox, Edge",
+        "softwareVersion": "2",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Keyboard-first tab management for organizing tabs across browser windows with search, bulk actions, tab groups, and duplicate cleanup.",
+        "screenshot": "https://tab.jenny.media/assets/images/release-candidates/png/01-overview-groups-light.png",
+        "downloadUrl": "https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
+      }
     </script>
 
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
-</head>
+    <link
+      rel="stylesheet"
+      href="assets/vendor/glightbox/glightbox.min.css"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="assets/vendor/glightbox/glightbox.min.css" />
+    </noscript>
 
-<body class="preload">
+    <link rel="stylesheet" href="style.css" />
+    <script src="assets/vendor/glightbox/glightbox.min.js" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+
+  <body class="preload">
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <div class="container">
-        <header class="site-header fade-in" role="banner">
-            <a href="index.html" class="logo">
-                <img src="assets/images/logo.png" width="40" height="40" alt="Tab Manager v2 logo" decoding="async">
-                Tab Manager v2
+      <header class="site-header fade-in" role="banner">
+        <a href="index.html" class="logo">
+          <img
+            src="assets/images/logo.png"
+            width="40"
+            height="40"
+            alt="Tab Manager v2 logo"
+            decoding="async"
+          />
+          Tab Manager v2
+        </a>
+
+        <div class="nav-wrapper">
+          <nav class="nav-links" role="navigation" aria-label="Main navigation">
+            <a
+              href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Privacy</a
+            >
+            <a
+              href="https://github.com/xcv58/Tab-Manager-v2/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Support</a
+            >
+            <a
+              href="https://github.com/xcv58/Tab-Manager-v2"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+          </nav>
+
+          <div class="theme-switch" role="group" aria-label="Theme Toggle">
+            <button
+              id="btn-system"
+              class="theme-btn"
+              type="button"
+              aria-label="System Theme"
+              aria-pressed="false"
+              title="Match System"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </button>
+
+            <button
+              id="btn-light"
+              class="theme-btn"
+              type="button"
+              aria-label="Light Theme"
+              aria-pressed="false"
+              title="Light Mode"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+
+            <button
+              id="btn-dark"
+              class="theme-btn"
+              type="button"
+              aria-label="Dark Theme"
+              aria-pressed="false"
+              title="Dark Mode"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        class="sr-only"
+        id="theme-announcement"
+      ></div>
+
+      <main id="main-content" role="main">
+        <section class="hero">
+          <h1 class="text-gradient fade-in">Too many tabs, handled.</h1>
+
+          <div class="hero-split">
+            <div class="hero-text fade-in">
+              <p class="hero-subtitle">
+                Keyboard-first tab management for Chrome, Firefox, and Edge.
+              </p>
+              <p class="hero-benefit">
+                Search across windows, select in bulk, clean duplicates, and
+                manage tab groups without bouncing between browser windows.
+              </p>
+              <div class="cta-group">
+                <a
+                  href="https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
+                  class="btn-store"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get Tab Manager v2 for Chrome"
+                >
+                  <img
+                    src="assets/images/chrome.svg"
+                    width="28"
+                    height="28"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span>Chrome</span>
+                </a>
+                <a
+                  href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2"
+                  class="btn-store"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get Tab Manager v2 for Firefox"
+                >
+                  <img
+                    src="assets/images/firefox.svg"
+                    width="28"
+                    height="28"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span>Firefox</span>
+                </a>
+                <a
+                  href="https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb"
+                  class="btn-store"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get Tab Manager v2 for Edge"
+                >
+                  <img
+                    src="assets/images/edge.svg"
+                    width="28"
+                    height="28"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span>Edge</span>
+                </a>
+              </div>
+            </div>
+
+            <a
+              class="hero-frame screenshot-variant glightbox fade-in"
+              href="assets/images/release-candidates/webp/01-overview-groups-light.webp"
+              aria-label="Open Tab Manager v2 overview screenshot"
+              data-gallery="screenshots"
+              data-title="Cross-window overview"
+              data-light-href="assets/images/release-candidates/webp/01-overview-groups-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/01-overview-groups-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/01-overview-groups-light.webp"
+              data-dark-src="assets/images/release-candidates/webp/01-overview-groups-dark.webp"
+              data-light-srcset="assets/images/release-candidates/webp/01-overview-groups-light-small.webp 640w, assets/images/release-candidates/webp/01-overview-groups-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/01-overview-groups-dark-small.webp 640w, assets/images/release-candidates/webp/01-overview-groups-dark.webp 1280w"
+              data-light-title="Cross-window overview"
+              data-dark-title="Cross-window overview"
+              data-light-alt="Overview screenshot in light theme with grouped tabs across multiple windows"
+              data-dark-alt="Overview screenshot in dark theme with grouped tabs across multiple windows"
+            >
+              <img
+                src="assets/images/release-candidates/webp/01-overview-groups-light.webp"
+                srcset="
+                  assets/images/release-candidates/webp/01-overview-groups-light-small.webp  640w,
+                  assets/images/release-candidates/webp/01-overview-groups-light.webp       1280w
+                "
+                sizes="(max-width: 1120px) 100vw, 1120px"
+                width="1280"
+                height="800"
+                alt="Overview screenshot in light theme with grouped tabs across multiple windows"
+                decoding="async"
+                fetchpriority="high"
+              />
             </a>
+          </div>
 
-            <div class="nav-wrapper">
-                <nav class="nav-links" role="navigation" aria-label="Main navigation">
-                    <a href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md" target="_blank"
-                        rel="noopener noreferrer">Privacy</a>
-                    <a href="https://github.com/xcv58/Tab-Manager-v2/issues" target="_blank"
-                        rel="noopener noreferrer">Support</a>
-                    <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank"
-                        rel="noopener noreferrer">GitHub</a>
-                </nav>
-
-                <div class="theme-switch" role="group" aria-label="Theme Toggle">
-                    <button id="btn-system" class="theme-btn" type="button" aria-label="System Theme"
-                        aria-pressed="false" title="Match System">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                            <line x1="8" y1="21" x2="16" y2="21"></line>
-                            <line x1="12" y1="17" x2="12" y2="21"></line>
-                        </svg>
-                    </button>
-
-                    <button id="btn-light" class="theme-btn" type="button" aria-label="Light Theme"
-                        aria-pressed="false" title="Light Mode">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                    </button>
-
-                    <button id="btn-dark" class="theme-btn" type="button" aria-label="Dark Theme"
-                        aria-pressed="false" title="Dark Mode">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
-                        </svg>
-                    </button>
-                </div>
+          <div class="gallery-toolbar fade-in">
+            <div class="gallery-toolbar-copy-wrap">
+              <span class="gallery-toolbar-label">Screenshots</span>
+              <span class="gallery-toolbar-separator" aria-hidden="true"></span>
+              <span class="gallery-toolbar-copy"
+                >Screenshots match your theme.</span
+              >
             </div>
-        </header>
-
-        <div role="status" aria-live="polite" aria-atomic="true" class="sr-only" id="theme-announcement"></div>
-
-        <main id="main-content" role="main">
-            <section class="hero">
-                <h1 class="text-gradient fade-in">Too many tabs, handled.</h1>
-
-                <div class="hero-split">
-                    <div class="hero-text fade-in">
-                        <p class="hero-subtitle">Keyboard-first tab management for Chrome, Firefox, and Edge.</p>
-                        <p class="hero-benefit">Search across windows, select in bulk, clean duplicates, and manage tab
-                            groups without bouncing between browser windows.</p>
-                        <div class="cta-group">
-                            <a href="https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
-                                class="btn-store" target="_blank" rel="noopener noreferrer" aria-label="Get Tab Manager v2 for Chrome">
-                                <img src="assets/images/chrome.svg" width="28" height="28" alt="" aria-hidden="true">
-                                <span>Chrome</span>
-                            </a>
-                            <a href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2" class="btn-store"
-                                target="_blank" rel="noopener noreferrer" aria-label="Get Tab Manager v2 for Firefox">
-                                <img src="assets/images/firefox.svg" width="28" height="28" alt="" aria-hidden="true">
-                                <span>Firefox</span>
-                            </a>
-                            <a href="https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb"
-                                class="btn-store" target="_blank" rel="noopener noreferrer" aria-label="Get Tab Manager v2 for Edge">
-                                <img src="assets/images/edge.svg" width="28" height="28" alt="" aria-hidden="true">
-                                <span>Edge</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <a class="hero-frame fade-in" href="assets/images/hero.png" target="_blank" rel="noopener noreferrer"
-                        aria-label="Open Tab Manager v2 overview screenshot">
-                        <img src="assets/images/hero.png" width="1280" height="720" alt="Tab Manager v2 overview with grouped windows and search">
-                    </a>
-                </div>
-
-                <div class="gallery-toolbar fade-in">
-                    <span class="gallery-toolbar-label">Screenshots</span>
-                    <span class="gallery-toolbar-copy">Placeholders for final product shots.</span>
-                </div>
-
-                <div class="gallery-grid fade-in">
-                    <article class="screenshot-frame screenshot-placeholder">
-                        <div class="screenshot-artboard" aria-hidden="true">
-                            <span class="screenshot-chip">Coming Soon</span>
-                            <strong>Instant Search</strong>
-                        </div>
-                        <span class="screenshot-caption">Replace with the search workflow screenshot.</span>
-                    </article>
-                    <article class="screenshot-frame screenshot-placeholder">
-                        <div class="screenshot-artboard" aria-hidden="true">
-                            <span class="screenshot-chip">Coming Soon</span>
-                            <strong>Duplicate Cleanup</strong>
-                        </div>
-                        <span class="screenshot-caption">Replace with duplicate detection and cleanup UI.</span>
-                    </article>
-                    <article class="screenshot-frame screenshot-placeholder">
-                        <div class="screenshot-artboard" aria-hidden="true">
-                            <span class="screenshot-chip">Coming Soon</span>
-                            <strong>Keyboard Shortcuts</strong>
-                        </div>
-                        <span class="screenshot-caption">Replace with the shortcut reference or command workflow.</span>
-                    </article>
-                    <article class="screenshot-frame screenshot-placeholder">
-                        <div class="screenshot-artboard" aria-hidden="true">
-                            <span class="screenshot-chip">Coming Soon</span>
-                            <strong>Dark Theme</strong>
-                        </div>
-                        <span class="screenshot-caption">Replace with the final dark mode product shot.</span>
-                    </article>
-                </div>
-            </section>
-
-            <section class="section section-divider fade-in" id="advantage">
-                <div class="section-heading">
-                    <span class="eyebrow">Why It Helps</span>
-                    <h2>Replace scanning with focused control.</h2>
-                    <p>Tab Manager v2 is built for the moment your browser stops feeling manageable: too many windows,
-                        too many tabs, too much hunting.</p>
-                </div>
-
-                <div class="versus-grid">
-                    <article class="versus-card">
-                        <span class="versus-label">Default</span>
-                        <h3>Native browser search</h3>
-                        <p>Useful for quick lookups, but thin on bulk actions, tab groups, and duplicate cleanup.</p>
-                    </article>
-                    <article class="versus-card">
-                        <span class="versus-label">Fallback</span>
-                        <h3>Mouse-heavy tab hunting</h3>
-                        <p>High context switching, endless scanning, and too much manual work when tab volume grows.</p>
-                    </article>
-                    <article class="versus-card new-way">
-                        <span class="versus-label">Tab Manager v2</span>
-                        <h3>Search, select, act</h3>
-                        <p>Keep everything in one focused view and move from intent to action with predictable keyboard workflows.</p>
-                    </article>
-                </div>
-            </section>
-
-            <section class="section section-divider fade-in" id="features">
-                <div class="section-heading">
-                    <span class="eyebrow">Capabilities</span>
-                    <h2>Built for real tab load.</h2>
-                    <p>The extension covers the repeated operations that become painful once your browser turns into a working set.</p>
-                </div>
-
-                <div class="features-grid">
-                    <article class="feature-card">
-                        <h3>Instant Search</h3>
-                        <p>Find open tabs by title or URL immediately, with optional browser history integration from the main search box.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3>Keyboard-First Control</h3>
-                        <p>Navigate windows, tabs, and actions without leaving the keyboard or relying on pointer scanning.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3>Bulk Operations</h3>
-                        <p>Select multiple matches and move them, group them, or close them as a single action.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3>Duplicate Cleanup</h3>
-                        <p>Highlight duplicate tabs and clear them out quickly to reduce visual noise and wasted memory.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3>Native Tab Groups</h3>
-                        <p>Manage browser-native groups directly: rename, recolor, collapse, and reorganize them in place.</p>
-                    </article>
-                    <article class="feature-card">
-                        <h3>Customizable View</h3>
-                        <p>Choose theme, tab width, font size, toolbar behavior, URL visibility, and related display preferences.</p>
-                    </article>
-                </div>
-            </section>
-
-            <section class="section section-divider fade-in" id="faq">
-                <div class="section-heading">
-                    <span class="eyebrow">FAQ</span>
-                    <h2>Questions that matter before install.</h2>
-                </div>
-
-                <div class="faq-container">
-                    <details class="faq-item">
-                        <summary>Why is Safari not supported?</summary>
-                        <p>Safari does not support the <code>tabs.move()</code> WebExtension API that Tab Manager v2 relies on for drag-and-drop reordering and moving tabs between windows, so the experience would be incomplete.</p>
-                    </details>
-                    <details class="faq-item">
-                        <summary>Where are my settings stored?</summary>
-                        <p>Settings are stored in browser sync storage when the browser supports it. If sync storage is unavailable, the extension falls back to local storage so everything still works.</p>
-                    </details>
-                    <details class="faq-item">
-                        <summary>What permissions does the extension need?</summary>
-                        <p>Tab Manager v2 uses tab, storage, and history permissions only to provide its core functionality locally in your browser. It does not add analytics or tracking.</p>
-                    </details>
-                    <details class="faq-item">
-                        <summary>Does it work with browser tab groups?</summary>
-                        <p>Yes. Tab Manager v2 works with native tab groups and lets you manage them directly without leaving the extension.</p>
-                    </details>
-                </div>
-            </section>
-        </main>
-
-        <footer class="site-footer fade-in">
-            <p>&copy; 2026 xcv58</p>
-            <div class="footer-links">
-                <a href="https://github.com/xcv58/Tab-Manager-v2" target="_blank" rel="noopener noreferrer">GitHub</a>
-                <a href="https://github.com/xcv58/Tab-Manager-v2/issues" target="_blank" rel="noopener noreferrer">Issues</a>
-                <a href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md" target="_blank"
-                    rel="noopener noreferrer">Privacy Policy</a>
+            <div
+              class="screenshot-theme-switch"
+              role="group"
+              aria-label="Screenshot Theme Toggle"
+            >
+              <button
+                id="screenshot-btn-light"
+                class="screenshot-theme-btn"
+                type="button"
+                data-screenshot-theme="light"
+                aria-pressed="false"
+                title="Show light screenshots"
+              >
+                <svg
+                  class="screenshot-theme-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <span>Light</span>
+              </button>
+              <button
+                id="screenshot-btn-dark"
+                class="screenshot-theme-btn"
+                type="button"
+                data-screenshot-theme="dark"
+                aria-pressed="false"
+                title="Show dark screenshots"
+              >
+                <svg
+                  class="screenshot-theme-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"
+                  ></path>
+                </svg>
+                <span>Dark</span>
+              </button>
             </div>
-        </footer>
+            <div
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              class="sr-only"
+              id="screenshot-theme-announcement"
+            ></div>
+          </div>
+
+          <div class="gallery-grid fade-in">
+            <a
+              class="screenshot-frame screenshot-variant glightbox"
+              href="assets/images/release-candidates/webp/02-group-editing-light.webp"
+              aria-label="Open tab group editing screenshot"
+              data-gallery="screenshots"
+              data-title="Group editing"
+              data-light-href="assets/images/release-candidates/webp/02-group-editing-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/02-group-editing-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/02-group-editing-light-small.webp"
+              data-dark-src="assets/images/release-candidates/webp/02-group-editing-dark-small.webp"
+              data-light-srcset="assets/images/release-candidates/webp/02-group-editing-light-small.webp 640w, assets/images/release-candidates/webp/02-group-editing-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/02-group-editing-dark-small.webp 640w, assets/images/release-candidates/webp/02-group-editing-dark.webp 1280w"
+              data-light-title="Group editing"
+              data-dark-title="Group editing"
+              data-light-alt="Tab group editing screenshot in light theme"
+              data-dark-alt="Tab group editing screenshot in dark theme"
+            >
+              <img
+                src="assets/images/release-candidates/webp/02-group-editing-light-small.webp"
+                srcset="
+                  assets/images/release-candidates/webp/02-group-editing-light-small.webp  640w,
+                  assets/images/release-candidates/webp/02-group-editing-light.webp       1280w
+                "
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="1280"
+                height="800"
+                alt="Tab group editing screenshot in light theme"
+                decoding="async"
+                loading="lazy"
+              />
+              <span class="screenshot-caption">Edit tab groups in place.</span>
+            </a>
+            <a
+              class="screenshot-frame screenshot-variant glightbox"
+              href="assets/images/release-candidates/webp/03-search-groups-light.webp"
+              aria-label="Open search with tab groups screenshot"
+              data-gallery="screenshots"
+              data-title="Search with tab groups"
+              data-light-href="assets/images/release-candidates/webp/03-search-groups-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/03-search-groups-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/03-search-groups-light-small.webp"
+              data-dark-src="assets/images/release-candidates/webp/03-search-groups-dark-small.webp"
+              data-light-srcset="assets/images/release-candidates/webp/03-search-groups-light-small.webp 640w, assets/images/release-candidates/webp/03-search-groups-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/03-search-groups-dark-small.webp 640w, assets/images/release-candidates/webp/03-search-groups-dark.webp 1280w"
+              data-light-title="Search with tab groups"
+              data-dark-title="Search with tab groups"
+              data-light-alt="Search across grouped tabs in light theme"
+              data-dark-alt="Search across grouped tabs in dark theme"
+            >
+              <img
+                src="assets/images/release-candidates/webp/03-search-groups-light-small.webp"
+                srcset="
+                  assets/images/release-candidates/webp/03-search-groups-light-small.webp  640w,
+                  assets/images/release-candidates/webp/03-search-groups-light.webp       1280w
+                "
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="1280"
+                height="800"
+                alt="Search across grouped tabs in light theme"
+                decoding="async"
+                loading="lazy"
+              />
+              <span class="screenshot-caption"
+                >Search across grouped tabs.</span
+              >
+            </a>
+            <a
+              class="screenshot-frame screenshot-variant glightbox"
+              href="assets/images/release-candidates/webp/04-duplicate-cleanup-light.webp"
+              aria-label="Open duplicate cleanup screenshot"
+              data-gallery="screenshots"
+              data-title="Duplicate cleanup"
+              data-light-href="assets/images/release-candidates/webp/04-duplicate-cleanup-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/04-duplicate-cleanup-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/04-duplicate-cleanup-light-small.webp"
+              data-dark-src="assets/images/release-candidates/webp/04-duplicate-cleanup-dark-small.webp"
+              data-light-srcset="assets/images/release-candidates/webp/04-duplicate-cleanup-light-small.webp 640w, assets/images/release-candidates/webp/04-duplicate-cleanup-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/04-duplicate-cleanup-dark-small.webp 640w, assets/images/release-candidates/webp/04-duplicate-cleanup-dark.webp 1280w"
+              data-light-title="Duplicate cleanup"
+              data-dark-title="Duplicate cleanup"
+              data-light-alt="Duplicate tab cleanup screenshot in light theme"
+              data-dark-alt="Duplicate tab cleanup screenshot in dark theme"
+            >
+              <img
+                src="assets/images/release-candidates/webp/04-duplicate-cleanup-light-small.webp"
+                srcset="
+                  assets/images/release-candidates/webp/04-duplicate-cleanup-light-small.webp  640w,
+                  assets/images/release-candidates/webp/04-duplicate-cleanup-light.webp       1280w
+                "
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="1280"
+                height="800"
+                alt="Duplicate tab cleanup screenshot in light theme"
+                decoding="async"
+                loading="lazy"
+              />
+              <span class="screenshot-caption">Find and close duplicates.</span>
+            </a>
+            <a
+              class="screenshot-frame screenshot-variant glightbox"
+              href="assets/images/release-candidates/webp/05-keyboard-shortcuts-light.webp"
+              aria-label="Open keyboard shortcuts screenshot"
+              data-gallery="screenshots"
+              data-title="Keyboard shortcuts"
+              data-light-href="assets/images/release-candidates/webp/05-keyboard-shortcuts-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/05-keyboard-shortcuts-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/05-keyboard-shortcuts-light-small.webp"
+              data-dark-src="assets/images/release-candidates/webp/05-keyboard-shortcuts-dark-small.webp"
+              data-light-srcset="assets/images/release-candidates/webp/05-keyboard-shortcuts-light-small.webp 640w, assets/images/release-candidates/webp/05-keyboard-shortcuts-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/05-keyboard-shortcuts-dark-small.webp 640w, assets/images/release-candidates/webp/05-keyboard-shortcuts-dark.webp 1280w"
+              data-light-title="Keyboard shortcuts"
+              data-dark-title="Keyboard shortcuts"
+              data-light-alt="Keyboard shortcuts screenshot in light theme"
+              data-dark-alt="Keyboard shortcuts screenshot in dark theme"
+            >
+              <img
+                src="assets/images/release-candidates/webp/05-keyboard-shortcuts-light-small.webp"
+                srcset="
+                  assets/images/release-candidates/webp/05-keyboard-shortcuts-light-small.webp  640w,
+                  assets/images/release-candidates/webp/05-keyboard-shortcuts-light.webp       1280w
+                "
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="1280"
+                height="800"
+                alt="Keyboard shortcuts screenshot in light theme"
+                decoding="async"
+                loading="lazy"
+              />
+              <span class="screenshot-caption"
+                >Keyboard shortcuts at a glance.</span
+              >
+            </a>
+            <a
+              class="screenshot-frame screenshot-variant glightbox"
+              href="assets/images/release-candidates/webp/06-grouped-tabs-focus-light.webp"
+              aria-label="Open grouped tabs support screenshot"
+              data-gallery="screenshots"
+              data-title="Grouped tab support"
+              data-light-href="assets/images/release-candidates/webp/06-grouped-tabs-focus-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/06-grouped-tabs-focus-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/06-grouped-tabs-focus-light-small.webp"
+              data-dark-src="assets/images/release-candidates/webp/06-grouped-tabs-focus-dark-small.webp"
+              data-light-srcset="assets/images/release-candidates/webp/06-grouped-tabs-focus-light-small.webp 640w, assets/images/release-candidates/webp/06-grouped-tabs-focus-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/06-grouped-tabs-focus-dark-small.webp 640w, assets/images/release-candidates/webp/06-grouped-tabs-focus-dark.webp 1280w"
+              data-light-title="Grouped tab support"
+              data-dark-title="Grouped tab support"
+              data-light-alt="Grouped tabs support screenshot in light theme"
+              data-dark-alt="Grouped tabs support screenshot in dark theme"
+            >
+              <img
+                src="assets/images/release-candidates/webp/06-grouped-tabs-focus-light-small.webp"
+                srcset="
+                  assets/images/release-candidates/webp/06-grouped-tabs-focus-light-small.webp  640w,
+                  assets/images/release-candidates/webp/06-grouped-tabs-focus-light.webp       1280w
+                "
+                sizes="(max-width: 768px) 100vw, 50vw"
+                width="1280"
+                height="800"
+                alt="Grouped tabs support screenshot in light theme"
+                decoding="async"
+                loading="lazy"
+              />
+              <span class="screenshot-caption">Group-focused tab view.</span>
+            </a>
+            <a
+              class="screenshot-frame screenshot-variant glightbox"
+              href="assets/images/release-candidates/webp/07-settings-light.webp"
+              aria-label="Open settings screenshot"
+              data-gallery="screenshots"
+              data-title="Settings customization"
+              data-light-href="assets/images/release-candidates/webp/07-settings-light.webp"
+              data-dark-href="assets/images/release-candidates/webp/07-settings-dark.webp"
+              data-light-src="assets/images/release-candidates/webp/07-settings-light-small.webp"
+              data-dark-src="assets/images/release-candidates/webp/07-settings-dark-small.webp"
+              data-light-srcset="assets/images/release-candidates/webp/07-settings-light-small.webp 640w, assets/images/release-candidates/webp/07-settings-light.webp 1280w"
+              data-dark-srcset="assets/images/release-candidates/webp/07-settings-dark-small.webp 640w, assets/images/release-candidates/webp/07-settings-dark.webp 1280w"
+              data-light-title="Settings customization"
+              data-dark-title="Settings customization"
+              data-light-alt="Settings screenshot in light theme"
+              data-dark-alt="Settings screenshot in dark theme"
+            >
+              <img
+                src="assets/images/release-candidates/webp/07-settings-light-small.webp"
+                srcset="
+                  assets/images/release-candidates/webp/07-settings-light-small.webp  640w,
+                  assets/images/release-candidates/webp/07-settings-light.webp       1280w
+                "
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 50vw"
+                width="1280"
+                height="800"
+                alt="Settings screenshot in light theme"
+                decoding="async"
+                loading="lazy"
+              />
+              <span class="screenshot-caption"
+                >Theme and display settings.</span
+              >
+            </a>
+          </div>
+        </section>
+
+        <section class="section section-divider fade-in" id="advantage">
+          <div class="section-heading">
+            <span class="eyebrow">Why It Helps</span>
+            <h2>Replace scanning with focused control.</h2>
+            <p>
+              Tab Manager v2 is built for the moment your browser stops feeling
+              manageable: too many windows, too many tabs, too much hunting.
+            </p>
+          </div>
+
+          <div class="versus-grid">
+            <div class="versus-card old-way">
+              <div class="versus-header">
+                <h3>The Old Way</h3>
+                <p>Native browser tab management</p>
+              </div>
+              <ul class="versus-list">
+                <li class="versus-item">
+                  <span class="versus-icon">🔍</span>
+                  <div class="versus-content">
+                    <strong>Manual Scanning</strong>
+                    <span
+                      >Squint at tiny favicons across multiple windows to find
+                      the tab you need.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🖱️</span>
+                  <div class="versus-content">
+                    <strong>One at a Time</strong>
+                    <span
+                      >Close, move, or group tabs individually — no bulk
+                      selection.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🔄</span>
+                  <div class="versus-content">
+                    <strong>Duplicates Pile Up</strong>
+                    <span
+                      >No way to detect or clean up duplicate tabs across
+                      windows.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🪟</span>
+                  <div class="versus-content">
+                    <strong>Window Hopping</strong>
+                    <span
+                      >Alt-Tab between windows just to see what's open
+                      where.</span
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="versus-card new-way">
+              <div class="card-badge">The Better Way</div>
+              <div class="versus-header">
+                <h3>Tab Manager v2</h3>
+                <p>Keyboard-first tab control</p>
+              </div>
+              <ul class="versus-list">
+                <li class="versus-item">
+                  <span class="versus-icon">⚡️</span>
+                  <div class="versus-content">
+                    <strong>Instant Search</strong>
+                    <span
+                      >Type to find any tab by title or URL across all windows
+                      instantly.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">✅</span>
+                  <div class="versus-content">
+                    <strong>Bulk Operations</strong>
+                    <span
+                      >Select multiple tabs and move, group, or close them in
+                      one action.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🧹</span>
+                  <div class="versus-content">
+                    <strong>Duplicate Cleanup</strong>
+                    <span
+                      >Detect and remove duplicate tabs automatically across all
+                      windows.</span
+                    >
+                  </div>
+                </li>
+                <li class="versus-item">
+                  <span class="versus-icon">🎯</span>
+                  <div class="versus-content">
+                    <strong>Unified View</strong>
+                    <span
+                      >See every window and tab group in one focused
+                      panel.</span
+                    >
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section section-divider fade-in" id="features">
+          <div class="section-heading">
+            <span class="eyebrow">Capabilities</span>
+            <h2>Built for real tab load.</h2>
+            <p>
+              The extension covers the repeated operations that become painful
+              once your browser turns into a working set.
+            </p>
+          </div>
+
+          <div class="features-grid">
+            <article class="feature-card">
+              <div class="feature-card-title">
+                <span class="feature-icon">🔍</span>
+                <h3>Instant Search</h3>
+              </div>
+              <p>
+                Find open tabs by title or URL immediately, with optional
+                browser history integration from the main search box.
+              </p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-card-title">
+                <span class="feature-icon">⌨️</span>
+                <h3>Keyboard-First Control</h3>
+              </div>
+              <p>
+                Navigate windows, tabs, and actions without leaving the keyboard
+                or relying on pointer scanning.
+              </p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-card-title">
+                <span class="feature-icon">✅</span>
+                <h3>Bulk Operations</h3>
+              </div>
+              <p>
+                Select multiple matches and move them, group them, or close them
+                as a single action.
+              </p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-card-title">
+                <span class="feature-icon">🧹</span>
+                <h3>Duplicate Cleanup</h3>
+              </div>
+              <p>
+                Highlight duplicate tabs and clear them out quickly to reduce
+                visual noise and wasted memory.
+              </p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-card-title">
+                <span class="feature-icon">🏷️</span>
+                <h3>Native Tab Groups</h3>
+              </div>
+              <p>
+                Manage browser-native groups directly: rename, recolor,
+                collapse, and reorganize them in place.
+              </p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-card-title">
+                <span class="feature-icon">🎨</span>
+                <h3>Customizable View</h3>
+              </div>
+              <p>
+                Choose theme, tab width, font size, toolbar behavior, URL
+                visibility, and related display preferences.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section section-divider fade-in" id="faq">
+          <div class="section-heading">
+            <span class="eyebrow">FAQ</span>
+            <h2>Questions that matter before install.</h2>
+          </div>
+
+          <div class="faq-container">
+            <details class="faq-item">
+              <summary>Why is Safari not supported?</summary>
+              <p>
+                Safari does not support the
+                <code>tabs.move()</code> WebExtension API that Tab Manager v2
+                relies on for drag-and-drop reordering and moving tabs between
+                windows, so the experience would be incomplete.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>Where are my settings stored?</summary>
+              <p>
+                Settings are stored in browser sync storage when the browser
+                supports it. If sync storage is unavailable, the extension falls
+                back to local storage so everything still works.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>What permissions does the extension need?</summary>
+              <p>
+                Tab Manager v2 uses tab, storage, and history permissions only
+                to provide its core functionality locally in your browser. It
+                does not add analytics or tracking.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>Does it work with browser tab groups?</summary>
+              <p>
+                Yes. Tab Manager v2 works with native tab groups and lets you
+                manage them directly without leaving the extension.
+              </p>
+            </details>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer fade-in">
+        <p>&copy; 2026 xcv58</p>
+        <div class="footer-links">
+          <a
+            href="https://github.com/xcv58/Tab-Manager-v2"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >
+          <a
+            href="https://github.com/xcv58/Tab-Manager-v2/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Issues</a
+          >
+          <a
+            href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Privacy Policy</a
+          >
+        </div>
+      </footer>
     </div>
-</body>
-
+    <button id="backToTop" class="back-to-top" aria-label="Back to Top">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 4l-8 8h6v8h4v-8h6z" />
+      </svg>
+    </button>
+  </body>
 </html>
