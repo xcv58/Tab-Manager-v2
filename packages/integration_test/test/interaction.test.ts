@@ -666,6 +666,35 @@ test.describe('The Extension page should', () => {
     expect(inputValue).toBe('')
   })
 
+  test('command search should match regardless of word order', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(1000)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+
+    const getCommandOptions = async (query: string) => {
+      await searchInput.click()
+      await searchInput.fill(query)
+      const options = page.locator('.MuiAutocomplete-option')
+      await expect(options.first()).toBeVisible()
+      return (await options.allTextContents()).map((text) =>
+        text.replace(/\s+/g, ' ').trim(),
+      )
+    }
+
+    const canonicalOptions = await getCommandOptions('>expand window')
+    const reorderedOptions = await getCommandOptions('>window expand')
+
+    expect(reorderedOptions).toEqual(canonicalOptions)
+    expect(
+      reorderedOptions.some((text) => text.includes('Expand all windows')),
+    ).toBe(true)
+  })
+
   test('close tab when click close button', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
