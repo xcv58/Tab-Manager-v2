@@ -10,7 +10,6 @@ import {
   openPages,
   groupTabsByUrl,
   waitForDefaultExtensionView,
-  waitForSurfaceToFullyAppear,
   waitForTestId,
 } from '../util'
 
@@ -295,45 +294,45 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
-    const themeSelect = page.locator('#theme-select').first()
-    await themeSelect.click()
-    const themeMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
-    await waitForSurfaceToFullyAppear(page, themeMenu)
-    const themeMenuShot = await themeMenu.screenshot({
+    const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
+    await expect(themeToggleGroup).toBeVisible()
+    const themeToggleShot = await themeToggleGroup.screenshot({
       animations: 'disabled',
     })
-    expect(themeMenuShot).toMatchSnapshot('settings-theme-dropdown-open.png', {
+    expect(themeToggleShot).toMatchSnapshot('settings-theme-toggle-group.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
-    await page.keyboard.press('Escape')
+    const lightThemeButton = themeToggleGroup.getByRole('button', {
+      name: 'Use light theme',
+    })
+    await lightThemeButton.click()
+    await page.waitForTimeout(300)
+    await expect(lightThemeButton).toHaveAttribute('aria-pressed', 'true')
 
-    const fontSlider = page.locator('[aria-label="Update Font Size"]').first()
-    await expect(fontSlider).toBeVisible()
-    const fontSliderBox = await fontSlider.boundingBox()
-    if (!fontSliderBox) {
-      throw new Error('Failed to resolve font-size slider geometry')
-    }
-    await page.mouse.click(
-      fontSliderBox.x + 4,
-      fontSliderBox.y + fontSliderBox.height / 2,
-    )
+    const fontSizeControl = page.getByTestId('settings-font-size-control')
+    const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
+    await expect(fontSizeControl).toBeVisible()
+    await fontSizeInput.fill('6')
     await page.waitForTimeout(300)
-    const sliderMinShot = await fontSlider.screenshot()
-    expect(sliderMinShot).toMatchSnapshot('settings-font-slider-min.png', {
-      maxDiffPixelRatio: 0.12,
-      threshold: 0.2,
-    })
-    await page.mouse.click(
-      fontSliderBox.x + fontSliderBox.width - 4,
-      fontSliderBox.y + fontSliderBox.height / 2,
+    const fontControlMinShot = await fontSizeControl.screenshot()
+    expect(fontControlMinShot).toMatchSnapshot(
+      'settings-font-control-min.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
     )
+    await fontSizeInput.fill('36')
     await page.waitForTimeout(300)
-    const sliderMaxShot = await fontSlider.screenshot()
-    expect(sliderMaxShot).toMatchSnapshot('settings-font-slider-max.png', {
-      maxDiffPixelRatio: 0.12,
-      threshold: 0.2,
-    })
+    const fontControlMaxShot = await fontSizeControl.screenshot()
+    expect(fontControlMaxShot).toMatchSnapshot(
+      'settings-font-control-max.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
   })
 
   test('render light and dark theme parity snapshots', async () => {
