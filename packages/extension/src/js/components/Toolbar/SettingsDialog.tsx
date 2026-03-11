@@ -484,71 +484,77 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 data-testid="settings-theme-toggle-group"
               >
-                <Typography
-                  component="h5"
-                  sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.35 }}
-                >
-                  Theme
-                </Typography>
-                <ToggleButtonGroup
-                  exclusive
-                  value={theme}
-                  aria-label="Choose theme"
-                  onChange={(_, nextTheme) => {
-                    if (!nextTheme) {
-                      return
-                    }
-                    selectTheme(nextTheme)
-                  }}
-                  sx={{
-                    mt: 1.5,
-                    display: 'inline-flex',
-                    borderRadius: 999,
-                    p: 0.5,
-                    gap: 0.5,
-                    backgroundColor: isDarkMode
-                      ? 'rgba(15, 23, 42, 0.44)'
-                      : 'rgba(226, 232, 240, 0.7)',
-                    border: `1px solid ${rowDetailOptionStyle.borderColor}`,
-                    '& .MuiToggleButtonGroup-grouped': {
-                      m: 0,
-                      border: 0,
+                <div className="flex items-center justify-between gap-3">
+                  <Typography
+                    component="h5"
+                    sx={{
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    Theme
+                  </Typography>
+                  <ToggleButtonGroup
+                    exclusive
+                    value={theme}
+                    aria-label="Choose theme"
+                    onChange={(_, nextTheme) => {
+                      if (!nextTheme) {
+                        return
+                      }
+                      selectTheme(nextTheme)
+                    }}
+                    sx={{
+                      display: 'inline-flex',
+                      flexShrink: 0,
                       borderRadius: 999,
-                      minWidth: 52,
-                      height: 44,
-                      color: muiTheme.palette.text.secondary,
-                    },
-                    '& .Mui-selected': {
-                      color: muiTheme.palette.text.primary,
+                      p: 0.5,
+                      gap: 0.5,
                       backgroundColor: isDarkMode
-                        ? 'rgba(255, 255, 255, 0.12)'
-                        : 'rgba(255, 255, 255, 0.96)',
-                      boxShadow: isDarkMode
-                        ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
-                        : '0 1px 2px rgba(15, 23, 42, 0.14)',
-                    },
-                    '& .Mui-selected:hover': {
-                      backgroundColor: isDarkMode
-                        ? 'rgba(255, 255, 255, 0.16)'
-                        : 'rgba(255, 255, 255, 0.98)',
-                    },
-                    '& .MuiToggleButton-root:hover': {
-                      backgroundColor: isDarkMode
-                        ? 'rgba(255, 255, 255, 0.07)'
-                        : 'rgba(255, 255, 255, 0.58)',
-                    },
-                  }}
-                >
-                  {themeOptions.map((option) => (
-                    <ToggleButton
-                      key={option.value}
-                      value={option.value}
-                      aria-label={`Use ${option.value} theme`}
-                    >
-                      <option.icon fontSize="small" />
-                    </ToggleButton>
-                  ))}
-                </ToggleButtonGroup>
+                        ? 'rgba(15, 23, 42, 0.44)'
+                        : 'rgba(226, 232, 240, 0.7)',
+                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+                      '& .MuiToggleButtonGroup-grouped': {
+                        m: 0,
+                        border: 0,
+                        borderRadius: 999,
+                        minWidth: 52,
+                        height: 44,
+                        color: muiTheme.palette.text.secondary,
+                      },
+                      '& .Mui-selected': {
+                        color: muiTheme.palette.text.primary,
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(255, 255, 255, 0.96)',
+                        boxShadow: isDarkMode
+                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                      },
+                      '& .Mui-selected:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.16)'
+                          : 'rgba(255, 255, 255, 0.98)',
+                      },
+                      '& .MuiToggleButton-root:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.07)'
+                          : 'rgba(255, 255, 255, 0.58)',
+                      },
+                    }}
+                  >
+                    {themeOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.value} theme`}
+                      >
+                        <option.icon fontSize="small" />
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                </div>
               </div>
               <DensityControl
                 testId="settings-font-size-control"

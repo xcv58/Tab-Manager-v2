@@ -270,6 +270,41 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(200)
   })
 
+  test('render full settings view when dialog is open', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        toolbarAutoHide: false,
+      })
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await openPages(browserContext, [
+      'data:text/html,<title>Settings</title>settings-full-view',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(700)
+
+    const settingsButton = page.locator('button[aria-label="Settings"]').first()
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
+    const settingsDialog = page.locator('.MuiDialog-paper').first()
+    await waitForDialogToFullyAppear(page, settingsDialog)
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(150)
+    const settingsViewScreenshot = await page.screenshot({
+      animations: 'disabled',
+    })
+    expect(settingsViewScreenshot).toMatchSnapshot('settings-view-open.png', {
+      maxDiffPixelRatio: 0.12,
+      threshold: 0.2,
+    })
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+  })
+
   test('render dnd row and window drop indicators', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
