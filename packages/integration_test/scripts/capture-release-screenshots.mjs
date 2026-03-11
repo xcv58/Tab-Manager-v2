@@ -16,10 +16,18 @@ const TAB_LOAD_POLL_INTERVAL_MS = 250
 const TAB_LOAD_STABLE_POLLS = 4
 const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
 const SCREENSHOT_SETTLE_DELAY_MS = 600
+const SCROLLBAR_FADE_DELAY_MS = 2400
 const TAB_CREATE_BATCH_SIZE = 6
 const TAB_CREATE_BATCH_DELAY_MS = 2500
 const DENSE_OVERVIEW_FOCUS_WINDOW_INDEX = 5
 const DENSE_OVERVIEW_FOCUS_TAB_INDEX = 1
+const INTERSTITIAL_TITLE_SNIPPETS = [
+  'just a moment',
+  'are you a robot',
+  'attention required',
+  'checking your browser',
+  'please wait',
+]
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
 const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
@@ -74,32 +82,37 @@ const DEFAULT_SETTINGS = {
   fontSize: 14,
 }
 
+// Avoid URLs that frequently trigger bot checks during automation captures.
 const REAL_URLS = {
-  'launch/release-roadmap': 'https://openai.com/chatgpt/',
-  'launch/store-copy': 'https://www.anthropic.com/claude',
-  'launch/final-checklist': 'https://gemini.google.com/',
-  'launch/support-plan': 'https://www.perplexity.ai/',
-  'launch/qa-signoff': 'https://github.com/',
-  'launch/rollout-plan': 'https://vercel.com/',
+  'brand/jenny-home': 'https://jenny.media/',
+  'brand/jenny-short': 'https://s.jenny.media/',
+  'brand/jenny-youtube': 'https://www.youtube.com/@JennyTV1',
+  'launch/release-roadmap': 'https://developer.chrome.com/',
+  'launch/store-copy': 'https://developer.mozilla.org/',
+  'launch/final-checklist': 'https://github.com/',
+  'launch/support-plan': 'https://vercel.com/',
+  'launch/qa-signoff': 'https://react.dev/',
+  'launch/rollout-plan': 'https://nodejs.org/',
   'research/tab-groups-api':
-    'https://developer.chrome.com/',
+    'https://developer.chrome.com/docs/extensions/',
   'research/firefox-parity':
-    'https://developer.mozilla.org/',
-  'research/edge-review': 'https://stackoverflow.com/',
-  'research/keyboard-flows': 'https://react.dev/',
-  'research/ux-followups': 'https://www.figma.com/',
+    'https://extensionworkshop.com/',
+  'research/edge-review':
+    'https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/',
+  'research/keyboard-flows': 'https://playwright.dev/',
+  'research/ux-followups': 'https://vite.dev/',
   'research/screenshot-brief': 'https://news.ycombinator.com/',
-  'reading/design-refresh': 'https://www.nytimes.com/',
-  'reading/accessibility-audit': 'https://www.bbc.com/news',
-  'reading/performance-review': 'https://www.theverge.com/',
-  'reading/changelog-draft': 'https://techcrunch.com/',
+  'reading/design-refresh': 'https://www.smashingmagazine.com/',
+  'reading/accessibility-audit': 'https://web.dev/',
+  'reading/performance-review': 'https://pagespeed.web.dev/',
+  'reading/changelog-draft': 'https://css-tricks.com/',
   'support/customer-4821': 'https://www.reuters.com/',
-  'support/customer-5104': 'https://www.npr.org/',
+  'support/customer-5104': 'https://apnews.com/',
   'support/release-mail': 'https://www.reddit.com/r/chrome_extensions/',
   'support/docs-ticket':
-    'https://stackoverflow.com/questions/tagged/google-chrome-extension',
-  'ops/duplicate-tabs': 'https://openai.com/chatgpt/',
-  'ops/window-groups': 'https://vercel.com/',
+    'https://developer.chrome.com/docs/extensions/get-started/',
+  'ops/duplicate-tabs': 'https://jenny.media/',
+  'ops/window-groups': 'https://s.jenny.media/',
 }
 
 function buildWindowsFromGroupLayout(groups, layout) {
@@ -132,7 +145,7 @@ const DENSE_OVERVIEW_GROUPS = [
       'https://openai.com/chatgpt/',
       'https://www.anthropic.com/claude',
       'https://gemini.google.com/',
-      'https://www.perplexity.ai/',
+      'https://ai.google.dev/',
     ],
   },
   {
@@ -164,7 +177,7 @@ const DENSE_OVERVIEW_GROUPS = [
       'https://github.com/',
       'https://gitlab.com/',
       'https://bitbucket.org/',
-      'https://stackoverflow.com/',
+      'https://about.gitlab.com/',
     ],
   },
   {
@@ -204,10 +217,10 @@ const DENSE_OVERVIEW_GROUPS = [
     title: 'Web Docs',
     color: 'green',
     urls: [
-      'https://astro.build/',
+      'https://jenny.media/',
+      'https://s.jenny.media/',
       'https://developer.mozilla.org/',
       'https://developer.chrome.com/',
-      'https://nodejs.org/',
     ],
   },
   {
@@ -325,9 +338,9 @@ const DENSE_OVERVIEW_GROUPS = [
     collapsed: true,
     urls: [
       'https://www.reuters.com/',
-      'https://www.npr.org/',
       'https://www.bbc.com/',
-      'https://www.nytimes.com/',
+      'https://www.theguardian.com/international',
+      'https://apnews.com/',
     ],
   },
   {
@@ -336,9 +349,9 @@ const DENSE_OVERVIEW_GROUPS = [
     collapsed: true,
     urls: [
       'https://www.theverge.com/',
-      'https://techcrunch.com/',
       'https://arstechnica.com/',
-      'https://www.wired.com/',
+      'https://techcrunch.com/',
+      'https://www.engadget.com/',
     ],
   },
   {
@@ -346,10 +359,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'red',
     collapsed: true,
     urls: [
-      'https://www.bloomberg.com/',
-      'https://www.cnn.com/',
-      'https://www.wsj.com/',
-      'https://www.theguardian.com/',
+      'https://www.smashingmagazine.com/',
+      'https://css-tricks.com/',
+      'https://web.dev/',
+      'https://blog.mozilla.org/',
     ],
   },
   {
@@ -410,12 +423,11 @@ const DENSE_OVERVIEW_GROUPS = [
   {
     title: 'Testing',
     color: 'yellow',
-    collapsed: true,
     urls: [
+      'https://www.youtube.com/@JennyTV1',
       'https://playwright.dev/',
       'https://jestjs.io/',
       'https://storybook.js.org/',
-      'https://turbo.build/',
     ],
   },
 ]
@@ -686,6 +698,7 @@ async function scrollWindowIntoView(page, windowId) {
     }
   }, selector)
   await page.waitForTimeout(UI_SETTLE_DELAY_MS)
+  await page.waitForTimeout(SCROLLBAR_FADE_DELAY_MS)
 }
 
 async function createDemoWindows(page, windows) {
@@ -717,6 +730,19 @@ async function createDemoWindows(page, windows) {
       }
 
       const waitForCreatedWindows = async (createdWindows) => {
+        const blockedTitleSnippets = waitOptions.blockedTitleSnippets.map(
+          (snippet) => snippet.toLowerCase(),
+        )
+        const isSettledTab = (tab) => {
+          const title = String(tab.title || '').trim().toLowerCase()
+          const url = String(tab.url || '').trim().toLowerCase()
+          return (
+            tab.status === 'complete' &&
+            title.length > 0 &&
+            !url.startsWith('chrome-error://') &&
+            !blockedTitleSnippets.some((snippet) => title.includes(snippet))
+          )
+        }
         let highestLoadedCount = -1
         let stablePolls = 0
         for (let attempt = 0; attempt < waitOptions.maxAttempts; attempt += 1) {
@@ -730,11 +756,7 @@ async function createDemoWindows(page, windows) {
               hasExpectedCounts = false
               break
             }
-            loadedTabCount += tabs.filter(
-              (tab) =>
-                tab.status === 'complete' &&
-                String(tab.title || '').trim().length > 0,
-            ).length
+            loadedTabCount += tabs.filter(isSettledTab).length
           }
           if (!hasExpectedCounts) {
             await delay(waitOptions.pollIntervalMs)
@@ -867,6 +889,7 @@ async function createDemoWindows(page, windows) {
         postLoadSettleMs: TAB_POST_LOAD_SETTLE_DELAY_MS,
         batchSize: TAB_CREATE_BATCH_SIZE,
         batchPauseMs: TAB_CREATE_BATCH_DELAY_MS,
+        blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
       },
     },
   )
@@ -897,12 +920,33 @@ function convertToPng24(sourcePath, outputPath) {
   }
 }
 
+async function waitForNoVisibleInterstitialText(page, name) {
+  try {
+    await page.waitForFunction(
+      (snippets) => {
+        const bodyText = String(document.body?.innerText || '').toLowerCase()
+        return !snippets.some((snippet) => bodyText.includes(snippet))
+      },
+      {
+        timeout: 15000,
+        polling: 500,
+      },
+      INTERSTITIAL_TITLE_SNIPPETS,
+    )
+  } catch {
+    console.log(
+      `    continuing despite visible interstitial text before ${name}.png`,
+    )
+  }
+}
+
 async function saveScreenshot(page, name) {
   const rawDir = join(tmpdir(), 'tmv2-release-raw')
   mkdirSync(rawDir, { recursive: true })
   const rawPath = join(rawDir, `${name}-raw.png`)
   const outputPath = pathForScreenshot(name)
   await page.bringToFront()
+  await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
   await page.screenshot({
     path: rawPath,
@@ -943,21 +987,21 @@ async function captureGroupEditing(page, fullPageUrl, theme) {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('launch/store-copy'),
-        realUrl('launch/final-checklist'),
+        realUrl('brand/jenny-home'),
+        realUrl('brand/jenny-short'),
+        realUrl('brand/jenny-youtube'),
         realUrl('launch/support-plan'),
         realUrl('launch/rollout-plan'),
         realUrl('research/tab-groups-api'),
       ],
       groups: [
         {
-          title: 'AI Tools',
+          title: 'Jenny Media',
           color: 'green',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('launch/store-copy'),
-            realUrl('launch/final-checklist'),
+            realUrl('brand/jenny-home'),
+            realUrl('brand/jenny-short'),
+            realUrl('brand/jenny-youtube'),
           ],
         },
       ],
@@ -982,22 +1026,22 @@ async function captureSearchGroups(page, fullPageUrl, theme) {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('launch/store-copy'),
-        realUrl('launch/final-checklist'),
+        realUrl('brand/jenny-home'),
+        realUrl('brand/jenny-short'),
+        realUrl('brand/jenny-youtube'),
+        realUrl('research/tab-groups-api'),
         realUrl('launch/support-plan'),
         realUrl('launch/rollout-plan'),
-        realUrl('research/tab-groups-api'),
       ],
       groups: [
         {
-          title: 'AI Tools',
+          title: 'Jenny Media',
           color: 'blue',
           collapsed: true,
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('launch/store-copy'),
-            realUrl('launch/rollout-plan'),
+            realUrl('brand/jenny-home'),
+            realUrl('brand/jenny-short'),
+            realUrl('brand/jenny-youtube'),
           ],
         },
       ],
@@ -1023,12 +1067,12 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
   const windows = [
     {
       tabs: [
-        realUrl('ops/duplicate-tabs'),
-        realUrl('ops/duplicate-tabs'),
-        realUrl('ops/window-groups'),
-        realUrl('ops/window-groups'),
         realUrl('launch/final-checklist'),
         realUrl('launch/final-checklist'),
+        realUrl('launch/support-plan'),
+        realUrl('launch/support-plan'),
+        realUrl('brand/jenny-youtube'),
+        realUrl('brand/jenny-youtube'),
         realUrl('support/release-mail'),
         realUrl('research/firefox-parity'),
         realUrl('research/firefox-parity'),
@@ -1039,9 +1083,9 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
           title: 'Operations',
           color: 'orange',
           urls: [
-            realUrl('ops/duplicate-tabs'),
-            realUrl('ops/window-groups'),
             realUrl('launch/final-checklist'),
+            realUrl('launch/support-plan'),
+            realUrl('brand/jenny-youtube'),
             realUrl('support/release-mail'),
           ],
         },
@@ -1049,21 +1093,21 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
     },
     {
       tabs: [
+        realUrl('brand/jenny-home'),
+        realUrl('brand/jenny-home'),
+        realUrl('brand/jenny-short'),
+        realUrl('brand/jenny-short'),
         realUrl('support/customer-4821'),
         realUrl('support/customer-5104'),
-        realUrl('research/tab-groups-api'),
-        realUrl('research/tab-groups-api'),
-        realUrl('launch/store-copy'),
-        realUrl('launch/store-copy'),
       ],
       groups: [
         {
           title: 'Cleanup Queue',
           color: 'green',
           urls: [
+            realUrl('brand/jenny-home'),
+            realUrl('brand/jenny-short'),
             realUrl('support/customer-4821'),
-            realUrl('research/tab-groups-api'),
-            realUrl('launch/store-copy'),
           ],
         },
       ],
@@ -1181,6 +1225,7 @@ async function captureCommandPalette(page, fullPageUrl, theme) {
         realUrl('launch/store-copy'),
         realUrl('reading/accessibility-audit'),
         realUrl('reading/changelog-draft'),
+        realUrl('brand/jenny-youtube'),
       ],
       groups: [
         {
