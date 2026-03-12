@@ -1,19 +1,58 @@
 # Privacy Policy
 
-Your privacy is important to us. It is Tab Manager v2's policy to respect your privacy regarding any information we may collect from you across this extension.
+Effective date: March 11, 2026
 
-We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.
+Tab Manager v2 is a browser extension for managing tabs and windows. Its core functionality runs locally in your browser. We do not operate an account system, do not send your tab, window, history, or settings data to our own servers, and do not include analytics or advertising trackers.
 
-We only retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.
+## What the extension accesses
 
-We don’t share any personally identifying information publicly or with third-parties, except when required to by law.
+To provide its features, the extension may access:
 
-The extension may link to external sites that are not operated by us. Please be aware that we have no control over the content and practices of these sites, and cannot accept responsibility or liability for their respective privacy policies.
+- open tabs and windows
+- native tab groups on browsers that support them
+- browser history results when you enable the "Include browser history in results" setting
+- Firefox container identities and related cookie-store information for container-aware features
+- installed extension metadata for `chrome-extension://` pages so the UI can show the correct icon
 
-You are free to refuse our request for your personal information, with the understanding that we may be unable to provide you with some of your desired services.
+## What the extension stores in your browser
 
-Your continued use of the extension will be regarded as acceptance of our practices around privacy and personal information. If you have any questions about how we handle user data and personal information, feel free to contact us.
+Tab Manager v2 stores data in browser `storage.sync` when available, with `storage.local` as a fallback.
 
-This policy is effective as of 1 January 2020.
+Stored data may include:
 
-Privacy Policy created with GetTerms.
+- user settings such as theme, font size, tab width, toolbar behavior, and search preferences
+- local UI state such as hidden windows, popup placement, last focused window, and popup active state
+- preserved search text and the last command, when those features are enabled
+- recent tab history used for the "last active tab" shortcut
+- display information such as screen bounds and detected system theme, used to size and place the popup window
+
+If your browser sync service is enabled, settings saved through `storage.sync` may be synchronized by your browser vendor under that vendor's privacy policy.
+
+## Permissions
+
+The extension requests these permissions to support its features:
+
+- `tabs`: read and manage open tabs and windows
+- `storage`: save settings and UI state
+- `management`: look up installed extension metadata for `chrome-extension://` tabs
+- `history`: support the optional browser history search feature
+- `tabGroups`: read and manage native tab groups on supported browsers
+- `contextualIdentities` and `cookies`: support Firefox container-aware features
+
+## Network and third parties
+
+Tab Manager v2 does not send your browsing data to Tab Manager v2 servers because no such service is used for core functionality.
+
+The extension and docs include links to third-party sites such as browser stores, GitHub, and support pages. If you open those links, your interaction with those sites is governed by their privacy policies.
+
+The extension popup currently references Google Fonts. When your browser loads that stylesheet or related font assets, those requests are made directly to Google and are governed by Google's privacy policy.
+
+## Data retention and control
+
+Data stored by the extension remains in your browser storage until you change it, clear extension/browser storage, or uninstall the extension.
+
+You can disable the browser history search feature in settings if you do not want history results included in search.
+
+## Contact
+
+If you have privacy questions or want to report an issue, open an issue at <https://github.com/xcv58/Tab-Manager-v2/issues>.

@@ -461,6 +461,13 @@ code {
   line-height: 1.6;
 }
 
+.hero-note {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
 /* CTA Buttons */
 
 .cta-group {

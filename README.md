@@ -1,6 +1,6 @@
 # Tab Manager v2
 
-Tab Manager v2 is a keyboard-friendly browser extension for organizing a large number of tabs across windows. It gives you a fast searchable overview of your current browser state and lets you move, group, select, and clean up tabs without bouncing between browser windows.
+Tab Manager v2 turns crowded browser sessions into a searchable workspace. Find tabs across windows, move matching tabs in bulk, manage native tab groups where supported by the browser, and clean up duplicates without bouncing between browser windows.
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)](https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 [![Mozilla Add-on](https://img.shields.io/amo/users/tab-manager-v2)](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2/)
@@ -13,30 +13,23 @@ Tab Manager v2 is a keyboard-friendly browser extension for organizing a large n
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2)
 - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb)
 
-## Highlights
+## Quick Start
 
-- Search open tabs by title or URL, with optional browser history search.
-- Navigate and manage tabs with keyboard shortcuts, command palette, and built-in shortcut help.
-- Select matching tabs in bulk, move them across windows, or open them in a new window.
-- Highlight duplicated tabs and optionally ignore URL hashes when checking duplicates.
-- Work with browser tab groups from the extension, including rename, recolor, collapse, and ungroup actions when the browser API is available.
-- Customize the UI with light, dark, or system theme, tab width, font size, toolbar visibility, URL display, and more.
-- Support Firefox container-aware workflows when those browser APIs are available.
+- Open Tab Manager v2 from the browser toolbar, or open it in its own tab/window for a larger view.
+- Press `/` to search all open tabs, `>` to open the command palette, and `?` to view shortcut help.
+- Select matching tabs, then move, group, or close them in bulk.
 
-## Browser Support
+## Why People Use It
 
-| Browser | Status        | Notes                                                                      |
-| ------- | ------------- | -------------------------------------------------------------------------- |
-| Chrome  | Supported     | Full core workflow, including tab group integration                        |
-| Edge    | Supported     | Chromium-based behavior; feature availability follows exposed browser APIs |
-| Firefox | Supported     | Core workflow plus Firefox-specific container support                      |
-| Safari  | Not supported | See the FAQ below for the limitation                                       |
+- Find open tabs across all windows from one search box, with optional browser history search.
+- Move, group, or close matching tabs in bulk instead of handling them one at a time.
+- Manage browser-native tab groups directly where supported by the browser, including rename, recolor, collapse, and ungroup actions.
+- Clean up duplicate tabs quickly, with an option to ignore URL hashes when checking.
+- Stay on the keyboard with shortcuts, the command palette, and built-in shortcut help.
+- Tune the interface with theme, tab width, font size, toolbar visibility, URL display, and more.
+- Use Firefox container-aware workflows when the browser exposes those APIs.
 
-## Usage
-
-Tab Manager v2 can be opened from the browser action popup or in its own tab/window. Once open, the fastest way to learn the UI is to use the built-in shortcut help and command palette.
-
-### Useful shortcuts
+## Useful Shortcuts
 
 | Action                                    | Shortcut                         |
 | ----------------------------------------- | -------------------------------- |
@@ -52,19 +45,24 @@ Tab Manager v2 can be opened from the browser action popup or in its own tab/win
 
 Shortcut behavior can vary slightly by platform and browser. Use the in-app shortcut help for the full list.
 
-### Window labels and tab groups
+## Browser Support
 
-Tab Manager v2 does not support custom window names. If you need labels for a set of related tabs, use your browser's built-in tab groups instead.
-
-When the browser exposes tab group APIs, Tab Manager v2 lets you rename and recolor those groups from the extension. This keeps the label visible in the browser itself instead of creating extension-only window metadata.
+| Browser | Status        | Notes                                                                      |
+| ------- | ------------- | -------------------------------------------------------------------------- |
+| Chrome  | Supported     | Full core workflow, including tab group integration                        |
+| Edge    | Supported     | Chromium-based behavior; feature availability follows exposed browser APIs |
+| Firefox | Supported     | Core workflow plus Firefox-specific container support                      |
+| Safari  | Not supported | See the FAQ below for the limitation                                       |
 
 ## Privacy and Permissions
 
-Tab Manager v2 uses browser APIs to read and organize your current tabs, windows, and optional history search results.
+Tab Manager v2 uses browser APIs to read and organize your current tabs, windows, and optional history search results. Its core tab and window management stays in your browser, and the extension does not add analytics or tracking.
 
 - `tabs`: read, move, group, select, and close tabs and windows
 - `storage`: save settings and UI state
-- `history`: support history search from the main search box
+- `management`: look up installed extension metadata when showing `chrome-extension://` tabs
+- `history`: support the optional "Include browser history in results" setting
+- `tabGroups`: read and manage native tab groups on supported browsers
 - `contextualIdentities` and `cookies`: enable Firefox container-related features
 
 User preferences are stored in browser sync storage when available, with a local storage fallback. See [privacy_policy.md](privacy_policy.md) for the privacy policy.
@@ -75,9 +73,13 @@ User preferences are stored in browser sync storage when available, with a local
 
 Safari does not support the `tabs.move()` WebExtension API that Tab Manager v2 depends on for drag-and-drop reordering, moving tabs between windows, and sorting workflows. Those are core features rather than optional extras, so Safari support would be incomplete and misleading. The current investigation is tracked in [issue #2545](https://github.com/xcv58/Tab-Manager-v2/issues/2545).
 
-### Why can I not rename a window?
+### Does it work with browser tab groups?
 
-Custom window names would only exist inside this extension and would duplicate browser-native grouping features. The current window title area is kept focused on window activation and summary, while labels belong to browser tab groups. If you want named buckets of tabs, use built-in tab groups and rename them from Tab Manager v2 when the browser supports that API.
+Yes, where supported by the browser. Tab Manager v2 lets you manage native tab groups directly without leaving the extension.
+
+### Can I rename windows?
+
+Custom window names would only exist inside this extension and would duplicate browser-native grouping features. The current window title area is kept focused on window activation and summary, while labels belong to browser tab groups. If you want named buckets of tabs, use built-in tab groups and rename them from Tab Manager v2 where supported by the browser.
 
 ### Where are my settings stored?
 

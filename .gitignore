@@ -16,6 +16,7 @@ storybook-static
 .turbo
 playwright-report
 test-results
+.playwright-mcp/
 
 # macOS
 .DS_Store

@@ -1,34 +1,51 @@
 # Chrome Web Store Listing Source
 
-This folder stores the Chrome Web Store collateral for Tab Manager v2.
+This folder stores approved Chrome Web Store messaging and promo collateral for Tab Manager v2.
 
-## Summary
+## Approved Summary
 
 `Search, group, move, and clean up tabs across browser windows with a keyboard-first workflow`
 
 This summary is mirrored in `../packages/extension/package.json` so production manifests inherit the same short description.
 
-## Description
+## Approved Description
 
 ```text
-Tab Manager v2 gives you a fast, keyboard-first view of every open tab across browser windows.
+Tab Manager v2 turns crowded browser sessions into a searchable workspace.
 
-Search by title or URL, manage browser tab groups, move tabs between windows, clean up duplicates, and handle large browsing sessions without bouncing around the tab strip.
+See every tab across every window, find what you need fast, move matching tabs in bulk, manage native tab groups where supported by the browser, and clean up duplicates without window hopping.
 
 Highlights
 
-- Search open tabs by title or URL, with optional browser history search from the same box
-- Select matched tabs in bulk, move them between windows, or open them in a new window
-- Create, rename, recolor, collapse, and ungroup browser tab groups when the browser API is available
-- Reorder tabs with drag and drop and keep cross-window workflows in one place
-- Highlight duplicate tabs and optionally ignore URL hashes while checking
-- Use keyboard shortcuts, focus mode, and the command palette for fast navigation
-- Customize theme, tab width, font size, toolbar visibility, URL display, and more
+- Search open tabs by title or URL, with optional browser history results in the same search box
+- Select matching tabs and move, group, or close them in bulk
+- Manage native tab groups directly where supported by the browser: rename, recolor, collapse, and ungroup them in place
+- Reorder tabs with drag and drop across windows from one focused view
+- Highlight duplicate tabs and clean them up quickly, with an option to ignore URL hashes
+- Stay on the keyboard with shortcuts, focus mode, and the command palette
+- Adjust theme, tab width, font size, toolbar visibility, URL display, and more
 - Support Firefox container-aware workflows when the browser exposes those APIs
+
+Free and open source. Core functionality runs locally in your browser.
 
 Open source: https://github.com/xcv58/Tab-Manager-v2
 Support and issues: https://github.com/xcv58/Tab-Manager-v2/issues
 ```
+
+## Messaging Pillars
+
+- One searchable workspace for every tab across every window
+- Bulk control instead of one-tab-at-a-time cleanup
+- Native tab groups where supported by the browser, not an extension-only grouping system
+- Keyboard-first speed without forcing jargon or setup complexity
+- Free, open source, with core functionality running locally in the browser
+
+## Tone Guidance
+
+- Lead with relief, control, and clarity rather than generic efficiency claims.
+- Prefer outcomes over feature labels when writing headlines and descriptions.
+- Use `native tab groups` when that browser-level distinction matters.
+- Avoid vague phrases such as `manage tabs efficiently`.
 
 ## Promo Assets
 

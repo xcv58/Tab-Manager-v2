@@ -2,9 +2,11 @@
 
 Date: 2026-03-07
 
+## Context
+
 This document records the agreed design changes for the current UI refresh so the work can continue without relying on chat context.
 
-## Agreed Direction
+## Goals
 
 - Keep the flat canvas. Do not reintroduce window shadows.
 - Improve hierarchy with tone and boundary, not depth.
@@ -17,6 +19,12 @@ This document records the agreed design changes for the current UI refresh so th
 - Keep secondary controls hidden when appropriate, but leave a persistent lightweight affordance so action areas remain discoverable.
 - Keep tooltip behavior predictable. Do not make tooltip visibility depend on truncation.
 - Remove redundant tooltip state text when the same information is already visible in the row.
+
+## Non-Goals
+
+- Do not add shadows back to windows.
+- Do not make tooltips appear only for truncated content.
+- Do not keep duplicate state styled as an error.
 
 ## Interaction Rules
 
@@ -59,7 +67,7 @@ This document records the agreed design changes for the current UI refresh so th
 - Advanced options should be visually demoted or collapsed by default.
 - Rewrite technical labels into plain language.
 
-## Planned Changes
+## Implementation Plan
 
 1. Define the visual grammar in theme and shared component styles.
    - Surface hierarchy for page, window, and header planes
@@ -96,6 +104,14 @@ This document records the agreed design changes for the current UI refresh so th
 
 6. Verify against existing snapshot coverage and adjust contrast and spacing as needed.
 
+## Success Criteria
+
+- Search and navigation feel easier to scan and teach at first use.
+- Focus, selection, drag, and duplicate states share one visual language.
+- Popup lite mode centers search and switching, with secondary actions clearly demoted.
+- Settings are grouped into plain-language sections with less technical phrasing.
+- Snapshot coverage passes after Linux baselines are refreshed where needed.
+
 ## Files Likely To Change
 
 - `packages/extension/src/js/libs/themes.tsx`
@@ -109,9 +125,3 @@ This document records the agreed design changes for the current UI refresh so th
 - `packages/extension/src/js/components/TabGroup/GroupRow.tsx`
 - `packages/extension/src/js/components/Toolbar/SettingsDialog.tsx`
 - `packages/extension/src/js/components/PopupView.tsx`
-
-## Explicit Non-Decisions
-
-- Do not add shadows back to windows.
-- Do not make tooltips appear only for truncated content.
-- Do not keep duplicate state styled as an error.
