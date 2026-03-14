@@ -621,6 +621,17 @@ test.describe('The Extension page should', () => {
     await expect(clusteredHeader).toBeVisible()
     await expect(clusteredHeader).toContainText('SearchDocs')
     await expect(clusteredHeader).toContainText('2 tabs')
+    const clusteredHeaderChip = page.getByTestId(
+      `search-group-header-chip-${clusteredGroupId}`,
+    )
+    await expect(clusteredHeaderChip).toContainText('SearchDocs')
+    await expect
+      .poll(() =>
+        clusteredHeaderChip.evaluate(
+          (element) => getComputedStyle(element).backgroundColor,
+        ),
+      )
+      .toBe('rgb(26, 115, 232)')
     await expect(
       page.getByTestId(`search-group-header-${singleHitGroupId}`),
     ).toHaveCount(0)

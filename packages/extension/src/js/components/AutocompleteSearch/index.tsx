@@ -193,11 +193,16 @@ const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
           data-testid={`search-group-header-${tab.groupId}`}
         >
           <div className="flex items-center min-w-0 gap-2">
-            <span
-              className="h-2.5 w-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: groupColor.line }}
-            />
-            <div className="truncate">{tab.title}</div>
+            <div
+              className="inline-flex min-w-0 max-w-full items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+              style={{
+                backgroundColor: groupColor.line,
+                color: groupColor.chipText,
+              }}
+              data-testid={`search-group-header-chip-${tab.groupId}`}
+            >
+              <span className="truncate">{tab.title}</span>
+            </div>
           </div>
           <div
             className="ml-2 text-xs shrink-0 opacity-70"
