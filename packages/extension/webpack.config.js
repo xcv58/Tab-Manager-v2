@@ -173,6 +173,15 @@ const options = {
             }
             if (process.env.TARGET_BROWSER === 'firefox') {
               delete json.offline_enabled
+              json.browser_specific_settings = {
+                ...json.browser_specific_settings,
+                gecko: {
+                  ...json.browser_specific_settings?.gecko,
+                  data_collection_permissions: {
+                    required: ['none'],
+                  },
+                },
+              }
             }
             if (process.env.TARGET_BROWSER !== 'firefox') {
               json.permissions = json.permissions.filter(
