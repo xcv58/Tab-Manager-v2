@@ -21,10 +21,11 @@ import Tab from 'stores/Tab'
 
 type Props = {
   tab: Tab
+  showInlineGroupBadge?: boolean
 }
 
 export default observer(function TabOption(props: Props) {
-  const { tab } = props
+  const { tab, showInlineGroupBadge = true } = props
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
   const theme = useTheme()
@@ -35,6 +36,7 @@ export default observer(function TabOption(props: Props) {
       : null
   const groupLabel = tabGroup ? tab.groupTitle || 'Unnamed group' : ''
   const showGroupContext = !!groupLabel
+  const showInlineGroupContext = showGroupContext && showInlineGroupBadge
   const groupColor = tabGroup ? getChromeTabGroupColor(tabGroup.color) : null
   const showGroupTitle = matchesSearchText(groupLabel, query)
   const pin = tab.pinned && PIN
@@ -80,7 +82,7 @@ export default observer(function TabOption(props: Props) {
       <div className="w-full min-w-0 overflow-hidden truncate">
         {getHighlightNode(tab.title)}
       </div>
-      {(userStore.showUrl || showGroupContext) && (
+      {(userStore.showUrl || showInlineGroupContext) && (
         <div
           className={classNames(
             'flex w-full items-center gap-1 overflow-hidden text-xs opacity-75 transition-colors group-hover:opacity-100',
@@ -93,7 +95,7 @@ export default observer(function TabOption(props: Props) {
             color: theme.palette.mode === 'dark' ? '#aeb5c0' : '#64748b',
           }}
         >
-          {showGroupContext && (
+          {showInlineGroupContext && (
             <span
               className={classNames(
                 'inline-flex h-5 min-w-0 items-center truncate rounded-md px-1.5 text-[0.68rem] font-medium leading-4',
@@ -114,8 +116,8 @@ export default observer(function TabOption(props: Props) {
           {userStore.showUrl && (
             <div
               className={classNames('min-w-0 overflow-hidden truncate', {
-                'flex-1': showGroupContext,
-                'w-full': !showGroupContext,
+                'flex-1': showInlineGroupContext,
+                'w-full': !showInlineGroupContext,
               })}
             >
               {getHighlightNode(tab.url)}

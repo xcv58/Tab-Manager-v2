@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import { TextField, Paper } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -54,8 +54,10 @@ function sortRankedValues(a, b, baseSort): number {
 }
 
 const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
+  const sectionTabIds = new Set()
+
   if (!tabGroupStore?.hasTabGroupsApi?.()) {
-    return rankedTabs
+    return { items: rankedTabs, sectionTabIds }
   }
 
   const groupedRankedTabs = new Map()
@@ -80,11 +82,11 @@ const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
       .map(([groupId]) => groupId),
   )
   if (!qualifyingGroupIds.size) {
-    return rankedTabs
+    return { items: rankedTabs, sectionTabIds }
   }
 
   const emittedGroupIds = new Set()
-  return rankedTabs.flatMap((rankedTab) => {
+  const items = rankedTabs.flatMap((rankedTab) => {
     const { item: tab } = rankedTab
     if (!qualifyingGroupIds.has(tab.groupId)) {
       return [rankedTab]
@@ -96,6 +98,9 @@ const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
     emittedGroupIds.add(tab.groupId)
     const tabGroup = tabGroupStore.getTabGroup(tab.groupId)
     const groupTabs = groupedRankedTabs.get(tab.groupId) || []
+    groupTabs.forEach(({ item: groupTab }) => {
+      sectionTabIds.add(groupTab.id)
+    })
     return [
       {
         rankedValue: '',
@@ -111,13 +116,24 @@ const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
       ...groupTabs,
     ]
   })
+
+  return { items, sectionTabIds }
 }
 
-const getFilterOptions = (showUrl, isCommand, tabGroupStore) => {
+const getFilterOptions = (
+  showUrl,
+  isCommand,
+  tabGroupStore,
+  groupedSectionTabIdsRef,
+) => {
   if (isCommand) {
-    return commandFilter
+    return (options, state) => {
+      groupedSectionTabIdsRef.current = new Set()
+      return commandFilter(options, state)
+    }
   }
   return (options, { inputValue }) => {
+    groupedSectionTabIdsRef.current = new Set()
     const keys = getTabSearchKeys({
       showUrl,
       hasTabGroupsApi: !!tabGroupStore?.hasTabGroupsApi?.(),
@@ -128,10 +144,11 @@ const getFilterOptions = (showUrl, isCommand, tabGroupStore) => {
         const tabs = rankedItems
           .filter((x) => !x.item.visitCount)
           .sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn))
-        const groupedTabs =
+        const { items: groupedTabs, sectionTabIds } =
           inputValue.trim().length > 0
             ? buildGroupedTabSections(tabs, tabGroupStore)
-            : tabs
+            : { items: tabs, sectionTabIds: new Set() }
+        groupedSectionTabIdsRef.current = sectionTabIds
         const history = rankedItems.filter((x) => x.item.visitCount)
         if (history.length) {
           return [
@@ -165,7 +182,7 @@ type SearchOption =
       matchCount?: number
     }
 
-const renderTabOption = (tab: SearchOption, theme) => {
+const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
   if (tab.isDivider) {
     if (tab.dividerType === 'group') {
       const groupColor = getChromeTabGroupColor(tab.color)
@@ -204,7 +221,12 @@ const renderTabOption = (tab: SearchOption, theme) => {
   if (tab.visitCount) {
     return <HistoryItemTab tab={tab} />
   }
-  return <TabOption tab={tab} />
+  return (
+    <TabOption
+      tab={tab}
+      showInlineGroupBadge={!groupedSectionTabIds.has(tab.id)}
+    />
+  )
 }
 
 const renderCommand = (command, state) => {
@@ -239,10 +261,12 @@ const AutocompleteSearch = observer((props: Props) => {
   const options = useOptions()
   const { userStore, searchStore, tabGroupStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
+  const groupedSectionTabIdsRef = useRef(new Set())
   const filterOptions = getFilterOptions(
     userStore.showUrl,
     isCommand,
     tabGroupStore,
+    groupedSectionTabIdsRef,
   )
 
   return (
@@ -345,7 +369,7 @@ const AutocompleteSearch = observer((props: Props) => {
         <li {...props}>
           {isCommand
             ? renderCommand(option, state)
-            : renderTabOption(option, theme)}
+            : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
         </li>
       )}
       filterOptions={filterOptions}

@@ -519,11 +519,14 @@ test.describe('The Extension page should', () => {
 
     await searchInput.fill('SearchDocs')
     await page.waitForTimeout(700)
+    const groupedHeader = page.getByTestId(`search-group-header-${groupId}`)
+    await expect(groupedHeader).toBeVisible()
+    await expect(groupedHeader).toContainText('SearchDocs')
     const groupMatchedOption = page
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(groupMatchedOption).toContainText('SearchDocs')
+    await expect(groupMatchedOption).not.toContainText('SearchDocs')
 
     await searchInput.fill('Alpha Guide')
     await page.waitForTimeout(700)
