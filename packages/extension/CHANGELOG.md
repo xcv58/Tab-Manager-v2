@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.0...v2.0.1) (2026-03-14)
+
+### Bug Fixes
+
+- add Firefox `data_collection_permissions` metadata required for AMO submissions
+
+### Maintenance
+
+- temporarily disable the broken CircleCI tag-driven auto release publish job
+
 ## [2.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v1.25.3...v2.0.0) (2026-03-14)
 
 ### Features

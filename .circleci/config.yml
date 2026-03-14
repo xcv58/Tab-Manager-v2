@@ -73,11 +73,14 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - publish:
-          requires:
-            - build-test
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
+      # Temporarily disable tag-driven auto release publishing while the
+      # store upload credentials/flow are broken. Re-enable this job after
+      # the publish pipeline is healthy again.
+      # - publish:
+      #     requires:
+      #       - build-test
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /^v.*/
