@@ -10,7 +10,11 @@ import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 import LayoutRepackIndicator from './LayoutRepackIndicator'
 
-export default observer(() => {
+type Props = {
+  showUtilityActions?: boolean
+}
+
+export default observer(({ showUtilityActions = true }: Props) => {
   const { userStore } = useStore()
   const theme = useMuiTheme()
   if (!userStore.loaded) {
@@ -31,9 +35,13 @@ export default observer(() => {
       <Summary />
       <LayoutRepackIndicator />
       <AutocompleteSearch />
-      <SyncButton />
-      <ThemeToggle />
-      <OpenInTab />
+      {showUtilityActions && (
+        <>
+          <SyncButton />
+          <ThemeToggle />
+          <OpenInTab />
+        </>
+      )}
     </div>
   )
 })

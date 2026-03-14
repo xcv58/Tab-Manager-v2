@@ -706,6 +706,46 @@ test.describe('The Extension page should', () => {
     await page.fill(inputSelector, '')
   })
 
+  test('reduce popup action density while keeping secondary actions accessible', async () => {
+    await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
+    await expect(page.locator(TAB_QUERY)).toHaveCount(1)
+    await page.goto(extensionURL.replace('not_popup=1', ''))
+
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(1000)
+    await page.reload()
+
+    await expect(page.locator('[aria-label="Sync All Windows"]')).toHaveCount(0)
+    await expect(page.locator('[aria-label="Open in new tab"]')).toHaveCount(0)
+    await expect(
+      page.locator('button[aria-label="Show shortcut hints"]'),
+    ).toHaveCount(0)
+
+    await expect(
+      page.locator('button[aria-label="Settings"]').first(),
+    ).toBeVisible()
+    await expect(
+      page.locator('[aria-label="Toggle light/dark theme"]').first(),
+    ).toBeVisible()
+
+    const moreActionsButton = page
+      .locator('button[aria-label="More actions"]')
+      .first()
+    await expect(moreActionsButton).toBeVisible()
+    await moreActionsButton.click()
+
+    await expect(
+      page.getByRole('menuitem', { name: 'Open in new tab' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('menuitem', { name: 'Sync all windows' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('menuitem', { name: 'Keyboard shortcuts' }),
+    ).toBeVisible()
+  })
+
   test('check duplicated tabs and is case insensitive', async () => {
     await openPages(browserContext, URLS)
     await openPages(browserContext, [
