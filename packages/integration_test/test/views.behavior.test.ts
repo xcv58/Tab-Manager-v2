@@ -742,6 +742,13 @@ test.describe('The Extension page should', () => {
         ),
       )
       .toBe('rgb(26, 115, 232)')
+    await expect
+      .poll(() =>
+        clusteredHeader.evaluate(
+          (element) => getComputedStyle(element.closest('li')!).opacity,
+        ),
+      )
+      .toBe('1')
     const singleHitHeader = page.getByTestId(
       `search-group-header-${singleHitGroupId}`,
     )

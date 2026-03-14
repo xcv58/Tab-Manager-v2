@@ -13,6 +13,7 @@ const renderRow = (props: ListChildComponentProps) => {
   const { data, index, style } = props
   return cloneElement(data[index], {
     style: {
+      ...(data[index].props.style || {}),
       ...style,
       top: style.top + LISTBOX_PADDING,
     },

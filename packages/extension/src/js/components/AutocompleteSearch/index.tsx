@@ -385,7 +385,17 @@ const AutocompleteSearch = observer((props: Props) => {
       }
       getOptionDisabled={(option) => option.isDivider}
       renderOption={(props, option, state) => (
-        <li {...props}>
+        <li
+          {...props}
+          style={
+            option.isDivider
+              ? {
+                  ...props.style,
+                  opacity: 1,
+                }
+              : props.style
+          }
+        >
           {isCommand
             ? renderCommand(option, state)
             : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
