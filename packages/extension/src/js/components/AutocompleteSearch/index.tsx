@@ -15,7 +15,8 @@ import Shortcuts from 'components/Shortcut/Shortcuts'
 import HistoryItemTab from 'components/Tab/HistoryItemTab'
 import Tab from 'stores/Tab'
 import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
-import { openURL } from 'libs'
+import { getNoun, openURL } from 'libs'
+import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { filterCommandOptions } from './filterOptions'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
@@ -52,14 +53,74 @@ function sortRankedValues(a, b, baseSort): number {
   }
 }
 
-const getFilterOptions = (showUrl, isCommand, hasTabGroupsApi) => {
+const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
+  if (!tabGroupStore?.hasTabGroupsApi?.()) {
+    return rankedTabs
+  }
+
+  const groupedRankedTabs = new Map()
+  rankedTabs.forEach((rankedTab) => {
+    const { item: tab } = rankedTab
+    if (tabGroupStore.isNoGroupId(tab.groupId)) {
+      return
+    }
+    const tabGroup = tabGroupStore.getTabGroup(tab.groupId)
+    if (!tabGroup) {
+      return
+    }
+    groupedRankedTabs.set(tab.groupId, [
+      ...(groupedRankedTabs.get(tab.groupId) || []),
+      rankedTab,
+    ])
+  })
+
+  const qualifyingGroupIds = new Set(
+    Array.from(groupedRankedTabs.entries())
+      .filter(([, tabs]) => tabs.length > 1)
+      .map(([groupId]) => groupId),
+  )
+  if (!qualifyingGroupIds.size) {
+    return rankedTabs
+  }
+
+  const emittedGroupIds = new Set()
+  return rankedTabs.flatMap((rankedTab) => {
+    const { item: tab } = rankedTab
+    if (!qualifyingGroupIds.has(tab.groupId)) {
+      return [rankedTab]
+    }
+    if (emittedGroupIds.has(tab.groupId)) {
+      return []
+    }
+
+    emittedGroupIds.add(tab.groupId)
+    const tabGroup = tabGroupStore.getTabGroup(tab.groupId)
+    const groupTabs = groupedRankedTabs.get(tab.groupId) || []
+    return [
+      {
+        rankedValue: '',
+        item: {
+          isDivider: true,
+          dividerType: 'group',
+          groupId: tab.groupId,
+          title: tabGroup?.title || 'Unnamed group',
+          color: tabGroup?.color,
+          matchCount: groupTabs.length,
+        },
+      },
+      ...groupTabs,
+    ]
+  })
+}
+
+const getFilterOptions = (showUrl, isCommand, tabGroupStore) => {
   if (isCommand) {
     return commandFilter
   }
   return (options, { inputValue }) => {
     const keys = getTabSearchKeys({
       showUrl,
-      hasTabGroupsApi,
+      hasTabGroupsApi: !!tabGroupStore?.hasTabGroupsApi?.(),
     })
     return matchSorter(options, inputValue, {
       keys,
@@ -67,27 +128,69 @@ const getFilterOptions = (showUrl, isCommand, hasTabGroupsApi) => {
         const tabs = rankedItems
           .filter((x) => !x.item.visitCount)
           .sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn))
+        const groupedTabs =
+          inputValue.trim().length > 0
+            ? buildGroupedTabSections(tabs, tabGroupStore)
+            : tabs
         const history = rankedItems.filter((x) => x.item.visitCount)
         if (history.length) {
           return [
-            ...tabs,
+            ...groupedTabs,
             {
               rankedValue: '',
-              item: { isDivider: true, title: 'History' },
+              item: {
+                isDivider: true,
+                dividerType: 'history',
+                title: 'History',
+              },
             },
             ...history,
           ]
         }
-        return rankedItems
+        return groupedTabs
       },
     })
   }
 }
 
-type SearchOption = HistoryItem | Tab | { isDivider: boolean; title: string }
+type SearchOption =
+  | HistoryItem
+  | Tab
+  | {
+      isDivider: boolean
+      dividerType: 'history' | 'group'
+      title: string
+      groupId?: number
+      color?: chrome.tabGroups.ColorEnum
+      matchCount?: number
+    }
 
-const renderTabOption = (tab: SearchOption) => {
+const renderTabOption = (tab: SearchOption, theme) => {
   if (tab.isDivider) {
+    if (tab.dividerType === 'group') {
+      const groupColor = getChromeTabGroupColor(tab.color)
+      return (
+        <div
+          className="flex items-center justify-between w-full h-full px-2 text-sm font-medium border-t"
+          style={{ borderTopColor: theme.palette.divider }}
+          data-testid={`search-group-header-${tab.groupId}`}
+        >
+          <div className="flex items-center min-w-0 gap-2">
+            <span
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: groupColor.line }}
+            />
+            <div className="truncate">{tab.title}</div>
+          </div>
+          <div
+            className="ml-2 text-xs shrink-0 opacity-70"
+            style={{ color: theme.palette.text.secondary }}
+          >
+            {tab.matchCount} {getNoun('tab', tab.matchCount)}
+          </div>
+        </div>
+      )
+    }
     return (
       <div className="flex items-center justify-between w-full h-full pl-2 font-bold border-t-2">
         <div className="text-lg">{tab.title}</div>
@@ -139,7 +242,7 @@ const AutocompleteSearch = observer((props: Props) => {
   const filterOptions = getFilterOptions(
     userStore.showUrl,
     isCommand,
-    !!tabGroupStore?.hasTabGroupsApi?.(),
+    tabGroupStore,
   )
 
   return (
@@ -240,7 +343,9 @@ const AutocompleteSearch = observer((props: Props) => {
       getOptionDisabled={(option) => option.isDivider}
       renderOption={(props, option, state) => (
         <li {...props}>
-          {isCommand ? renderCommand(option, state) : renderTabOption(option)}
+          {isCommand
+            ? renderCommand(option, state)
+            : renderTabOption(option, theme)}
         </li>
       )}
       filterOptions={filterOptions}

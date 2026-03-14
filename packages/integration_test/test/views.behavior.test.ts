@@ -556,6 +556,84 @@ test.describe('The Extension page should', () => {
     await expect(titleMatchedWithoutUrl).toContainText('SearchDocs')
   })
 
+  test('soft-group clustered search results without blocking tab selection', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const alphaUrl =
+      'data:text/html,<title>Alpha%20Guide</title>alpha-soft-group'
+    const betaUrl = 'data:text/html,<title>Beta%20Guide</title>beta-soft-group'
+    const soloUrl =
+      'data:text/html,<title>Gamma%20Guide</title>gamma-soft-group'
+    await openPages(browserContext, [alphaUrl, betaUrl, soloUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const clusteredGroupId = await groupTabsByUrl(page, {
+      urls: [alphaUrl, betaUrl],
+      title: 'SearchDocs',
+      color: 'blue',
+    })
+    expect(clusteredGroupId).toBeGreaterThan(-1)
+
+    const singleHitGroupId = await groupTabsByUrl(page, {
+      urls: [soloUrl],
+      title: 'SoloDocs',
+      color: 'green',
+    })
+    expect(singleHitGroupId).toBeGreaterThan(-1)
+
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${clusteredGroupId}`)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.fill('Guide')
+    await page.waitForTimeout(700)
+
+    const clusteredHeader = page.getByTestId(
+      `search-group-header-${clusteredGroupId}`,
+    )
+    await expect(clusteredHeader).toBeVisible()
+    await expect(clusteredHeader).toContainText('SearchDocs')
+    await expect(clusteredHeader).toContainText('2 tabs')
+    await expect(
+      page.getByTestId(`search-group-header-${singleHitGroupId}`),
+    ).toHaveCount(0)
+
+    const optionTexts = await page
+      .locator('.MuiAutocomplete-option')
+      .allTextContents()
+    expect(optionTexts[0]).toContain('SearchDocs')
+    expect(optionTexts[1]).toContain('Alpha Guide')
+    expect(optionTexts[2]).toContain('Beta Guide')
+    expect(optionTexts.some((text) => text.includes('SoloDocs2 tabs'))).toBe(
+      false,
+    )
+
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Alpha Guide')
+  })
+
   test('remove one tab from a group without breaking remaining grouped tabs', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
