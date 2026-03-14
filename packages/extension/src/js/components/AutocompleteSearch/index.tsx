@@ -165,6 +165,7 @@ const getFilterOptions = (
     const { items: groupedTabs, sectionTabIds } = buildGroupedTabSections(
       matchedTabs,
       tabGroupStore,
+      1,
     )
     groupedSectionTabIdsRef.current = sectionTabIds
     const matchedHistory = matchSorter(history, inputValue, { keys })

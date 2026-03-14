@@ -530,11 +530,12 @@ test.describe('The Extension page should', () => {
 
     await searchInput.fill('Alpha Guide')
     await page.waitForTimeout(700)
+    await expect(groupedHeader).toBeVisible()
     const titleMatchedOption = page
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(titleMatchedOption).toContainText('SearchDocs')
+    await expect(titleMatchedOption).not.toContainText('SearchDocs')
     await titleMatchedOption.hover()
     await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
 
@@ -552,11 +553,14 @@ test.describe('The Extension page should', () => {
     await expect(searchInputWithoutUrl).toBeVisible()
     await searchInputWithoutUrl.fill('Alpha Guide')
     await page.waitForTimeout(700)
+    await expect(
+      page.getByTestId(`search-group-header-${groupId}`),
+    ).toBeVisible()
     const titleMatchedWithoutUrl = page
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(titleMatchedWithoutUrl).toContainText('SearchDocs')
+    await expect(titleMatchedWithoutUrl).not.toContainText('SearchDocs')
   })
 
   test('use natural tab order and grouped sections when the search box is empty', async () => {
@@ -665,7 +669,7 @@ test.describe('The Extension page should', () => {
       .toContain('Beta Guide')
   })
 
-  test('soft-group clustered search results without blocking tab selection', async () => {
+  test('always group grouped search results without blocking tab selection', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
         query: '',
@@ -738,9 +742,12 @@ test.describe('The Extension page should', () => {
         ),
       )
       .toBe('rgb(26, 115, 232)')
-    await expect(
-      page.getByTestId(`search-group-header-${singleHitGroupId}`),
-    ).toHaveCount(0)
+    const singleHitHeader = page.getByTestId(
+      `search-group-header-${singleHitGroupId}`,
+    )
+    await expect(singleHitHeader).toBeVisible()
+    await expect(singleHitHeader).toContainText('SoloDocs')
+    await expect(singleHitHeader).toContainText('1 tab')
 
     const optionTexts = await page
       .locator('.MuiAutocomplete-option')
@@ -748,9 +755,8 @@ test.describe('The Extension page should', () => {
     expect(optionTexts[0]).toContain('SearchDocs')
     expect(optionTexts[1]).toContain('Alpha Guide')
     expect(optionTexts[2]).toContain('Beta Guide')
-    expect(optionTexts.some((text) => text.includes('SoloDocs2 tabs'))).toBe(
-      false,
-    )
+    expect(optionTexts[3]).toContain('SoloDocs')
+    expect(optionTexts[4]).toContain('Gamma Guide')
     for (const tabId of clusteredTabIds) {
       await expect(
         page.getByTestId(`search-tab-group-chip-${tabId}`),
@@ -758,7 +764,7 @@ test.describe('The Extension page should', () => {
     }
     await expect(
       page.getByTestId(`search-tab-group-chip-${singleHitTabIds[0]}`),
-    ).toContainText('SoloDocs')
+    ).toHaveCount(0)
 
     const groupedRow = page
       .locator('.MuiAutocomplete-option')
