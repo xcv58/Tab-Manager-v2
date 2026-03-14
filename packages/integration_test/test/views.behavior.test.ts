@@ -484,7 +484,7 @@ test.describe('The Extension page should', () => {
     }
   })
 
-  test('show group title metadata only when the search query matches the group title', async () => {
+  test('show grouped search context even when the query matches only the tab title', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
         query: '',
@@ -523,7 +523,7 @@ test.describe('The Extension page should', () => {
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(groupMatchedOption).toContainText('in SearchDocs')
+    await expect(groupMatchedOption).toContainText('SearchDocs')
 
     await searchInput.fill('Alpha Guide')
     await page.waitForTimeout(700)
@@ -531,7 +531,29 @@ test.describe('The Extension page should', () => {
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(titleMatchedOption).not.toContainText('in SearchDocs')
+    await expect(titleMatchedOption).toContainText('SearchDocs')
+    await titleMatchedOption.hover()
+    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        showUrl: false,
+      })
+    })
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const searchInputWithoutUrl = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInputWithoutUrl).toBeVisible()
+    await searchInputWithoutUrl.fill('Alpha Guide')
+    await page.waitForTimeout(700)
+    const titleMatchedWithoutUrl = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'Alpha Guide' })
+      .first()
+    await expect(titleMatchedWithoutUrl).toContainText('SearchDocs')
   })
 
   test('remove one tab from a group without breaking remaining grouped tabs', async () => {
