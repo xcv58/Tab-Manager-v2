@@ -1,6 +1,6 @@
 {
   "name": "tab-manager-v2",
-  "version": "1.25.3",
+  "version": "2.0.0",
   "description": "Search, group, move, and clean up tabs across browser windows with a keyboard-first workflow",
   "private": true,
   "scripts": {
