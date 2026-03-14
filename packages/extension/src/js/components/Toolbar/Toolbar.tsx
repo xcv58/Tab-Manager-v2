@@ -10,12 +10,18 @@ import GroupAndSort from 'components/Toolbar/GroupAndSort'
 import Settings from 'components/Toolbar/Settings'
 import Help from 'components/Toolbar/Help'
 import RemoveDuplicated from 'components/Toolbar/RemoveDuplicated'
+import ThemeToggle from 'components/ThemeToggle'
 import VerticalDivider from 'components/Toolbar/VerticalDivider'
 import { useStore } from 'components/hooks/useStore'
 import useReduceMotion from 'libs/useReduceMotion'
 import { duration } from '@mui/material'
+import PopupOverflowMenu from './PopupOverflowMenu'
 
-export default observer(() => {
+type Props = {
+  isPopup?: boolean
+}
+
+export default observer(({ isPopup = false }: Props) => {
   const { userStore } = useStore()
   const { toolbarVisible } = userStore
   const reduceMotion = useReduceMotion()
@@ -34,18 +40,34 @@ export default observer(() => {
           overflowX: 'auto',
         }}
       >
-        <Settings />
-        <Help />
-        <VerticalDivider />
-        <GroupAndSort />
-        <SelectAll />
-        <InvertSelect />
-        <NewWindow />
-        <VerticalDivider />
-        <Reload />
-        <RemoveDuplicated />
-        <Close />
-        <VerticalDivider />
+        {isPopup ? (
+          <>
+            <Settings />
+            <ThemeToggle />
+            <VerticalDivider />
+            <GroupAndSort />
+            <SelectAll />
+            <NewWindow />
+            <Close />
+            <VerticalDivider />
+            <PopupOverflowMenu />
+          </>
+        ) : (
+          <>
+            <Settings />
+            <Help />
+            <VerticalDivider />
+            <GroupAndSort />
+            <SelectAll />
+            <InvertSelect />
+            <NewWindow />
+            <VerticalDivider />
+            <Reload />
+            <RemoveDuplicated />
+            <Close />
+            <VerticalDivider />
+          </>
+        )}
       </div>
     </Slide>
   )
