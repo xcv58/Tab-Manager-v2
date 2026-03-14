@@ -6,7 +6,7 @@ import { execFileSync } from 'child_process'
 import { Builder, By, until, WebDriver } from 'selenium-webdriver'
 import firefox from 'selenium-webdriver/firefox'
 
-export const ADDON_ID = 'tab-manager-v2@xcv58.com'
+export const ADDON_ID = '{dd627932-80c4-43bf-8432-db8f47e918ae}'
 export const ADDON_UUID = '8ac5f9eb-0647-420d-ad26-fabe93273531'
 export const EXTENSION_URL = `moz-extension://${ADDON_UUID}/popup.html?not_popup=1`
 export const SEARCH_INPUT_SELECTOR =

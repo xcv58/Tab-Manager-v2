@@ -69,7 +69,7 @@
   "offline_enabled": true,
   "browser_specific_settings": {
     "gecko": {
-      "id": "tab-manager-v2@xcv58.com"
+      "id": "{dd627932-80c4-43bf-8432-db8f47e918ae}"
     }
   },
   "content_security_policy": "script-src 'self'; object-src 'self'"
