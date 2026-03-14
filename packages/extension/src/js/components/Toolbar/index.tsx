@@ -5,7 +5,11 @@ import Toolbar from './Toolbar'
 import ToolbarIndicator from './ToolbarIndicator'
 import { useStore } from 'components/hooks/useStore'
 
-export default observer(() => {
+type Props = {
+  isPopup?: boolean
+}
+
+export default observer(({ isPopup = false }: Props) => {
   const theme = useTheme()
   const { userStore } = useStore()
 
@@ -29,7 +33,7 @@ export default observer(() => {
         borderTopLeftRadius: 16,
       }}
     >
-      {toolbarVisible && <Toolbar />}
+      {toolbarVisible && <Toolbar isPopup={isPopup} />}
       <ToolbarIndicator />
     </div>
   )
