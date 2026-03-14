@@ -110,6 +110,15 @@ describe('DragStore with tab groups', () => {
         })),
       },
     } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValueOnce([tab1, tab2, tab3, tab4])
+      .mockResolvedValueOnce([
+        tab2,
+        tab3,
+        tab4,
+        { ...tab1, groupId: 20, windowId: 1, index: 4 },
+      ])
     const draggedTab = {
       ...tab1,
       unhover: jest.fn(),
@@ -118,8 +127,19 @@ describe('DragStore with tab groups', () => {
     dragStore.dragStartTab(draggedTab as any)
     await dragStore.drop(tab3 as any, false)
 
-    expect(moveTabs).not.toHaveBeenCalled()
-    expect(groupTabs).toHaveBeenCalledWith([2, 3, 1, 4], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      1,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      4,
+    )
+    expect(groupTabs).toHaveBeenCalledWith([1], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      2,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      2,
+    )
     expect(moveGroup).not.toHaveBeenCalled()
   })
 
@@ -152,6 +172,14 @@ describe('DragStore with tab groups', () => {
         })),
       },
     } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValueOnce([tab1, tab2, tab3])
+      .mockResolvedValueOnce([
+        tab2,
+        tab3,
+        { ...tab1, groupId: 20, windowId: 1, index: 3 },
+      ])
     const draggedTab = {
       ...tab1,
       unhover: jest.fn(),
@@ -160,8 +188,19 @@ describe('DragStore with tab groups', () => {
     dragStore.dragStartTab(draggedTab as any)
     await dragStore.drop(tab3 as any, false)
 
-    expect(moveTabs).not.toHaveBeenCalled()
-    expect(groupTabs).toHaveBeenCalledWith([2, 3, 1], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      1,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      3,
+    )
+    expect(groupTabs).toHaveBeenCalledWith([1], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      2,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      2,
+    )
   })
 
   it('dropAt forceUngroup should detach only dragged grouped tab', async () => {
@@ -245,6 +284,14 @@ describe('DragStore with tab groups', () => {
         })),
       },
     } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValueOnce([tab1, tab2, tab3])
+      .mockResolvedValueOnce([
+        tab2,
+        tab3,
+        { ...tab1, groupId: 20, windowId: 1, index: 3 },
+      ])
     const draggedTab = {
       ...tab1,
       unhover: jest.fn(),
@@ -259,8 +306,80 @@ describe('DragStore with tab groups', () => {
       source: 'group-header',
     })
 
-    expect(moveTabs).not.toHaveBeenCalled()
-    expect(groupTabs).toHaveBeenCalledWith([1, 2, 3], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      1,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      3,
+    )
+    expect(groupTabs).toHaveBeenCalledWith([1], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      2,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      0,
+    )
+  })
+
+  it('drop into grouped target from another window should stage after group before joining', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const sourceTab = { id: 1, groupId: -1, windowId: 2, index: 0 }
+    const tab2 = { id: 2, groupId: 20, windowId: 1, index: 1 }
+    const tab3 = { id: 3, groupId: 20, windowId: 1, index: 2 }
+    const tab4 = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn(() => [tab2, tab3, tab4]),
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [tab2, tab3, tab4],
+        })),
+      },
+    } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValueOnce([tab2, tab3, tab4])
+      .mockResolvedValueOnce([
+        tab2,
+        tab3,
+        tab4,
+        { ...sourceTab, groupId: 20, windowId: 1, index: 4 },
+      ])
+
+    dragStore.dragStartTab({
+      ...sourceTab,
+      unhover: jest.fn(),
+    } as any)
+    await dragStore.drop(tab3 as any, false)
+
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      1,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      3,
+    )
+    expect(groupTabs).toHaveBeenCalledWith([1], 20)
+    expect(moveTabs).toHaveBeenNthCalledWith(
+      2,
+      [expect.objectContaining({ id: 1 })],
+      1,
+      2,
+    )
   })
 
   it('full-group selection should use moveGroup fast path', async () => {

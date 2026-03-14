@@ -916,7 +916,7 @@ test.describe('The Extension page should', () => {
           })
         ).sort((a, b) => a.index - b.index)
         const sourceTabId = tabs.find((tab) => tab.url === sourceUrl)?.id ?? -1
-        const dropTargetTabId = groupedTabs[1]?.id ?? -1
+        const dropTargetTabId = groupedTabs[2]?.id ?? -1
         return {
           sourceTabId,
           dropTargetTabId,
@@ -941,7 +941,7 @@ test.describe('The Extension page should', () => {
     await dragByTestId(page, {
       sourceTestId: `tab-row-${sourceTabId}`,
       targetTestId: `tab-row-${dropTargetTabId}`,
-      dropPosition: 'bottom',
+      dropPosition: 'top',
       targetUseParent: true,
     })
     await page.waitForTimeout(900)
@@ -967,6 +967,7 @@ test.describe('The Extension page should', () => {
           (tab) => tab.id === dropTargetTabId,
         )
         return {
+          groupUrls: groupTabs.map((tab) => tab.url),
           sourceGroupId: source?.groupId ?? chrome.tabGroups.TAB_GROUP_ID_NONE,
           groupCount: groupTabs.length,
           contiguous,
@@ -985,8 +986,147 @@ test.describe('The Extension page should', () => {
     expect(result.sourceGroupId).toBe(groupId)
     expect(result.groupCount).toBe(4)
     expect(result.contiguous).toBe(true)
+    expect(result.groupUrls).toEqual([
+      groupedUrls[0],
+      groupedUrls[1],
+      sourceUrl,
+      groupedUrls[2],
+    ])
     await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)
     await expect(page.getByTestId(`tab-group-count-${groupId}`)).toHaveText('4')
+  })
+
+  test('drop ungrouped tab from another window into grouped tabs should keep dropped order', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(600)
+
+    const setup = await page.evaluate(async () => {
+      const sourceUrl = 'data:text/html,cross-drop-source'
+      const groupedUrls = [
+        'data:text/html,cross-drop-group-1',
+        'data:text/html,cross-drop-group-2',
+        'data:text/html,cross-drop-group-3',
+      ]
+      const sourceWindow = await chrome.windows.create({
+        url: sourceUrl,
+        focused: false,
+      })
+      const targetWindow = await chrome.windows.create({
+        url: groupedUrls[0],
+        focused: false,
+      })
+      if (
+        typeof sourceWindow.id !== 'number' ||
+        typeof targetWindow.id !== 'number'
+      ) {
+        return null
+      }
+
+      await chrome.tabs.create({
+        windowId: targetWindow.id,
+        url: groupedUrls[1],
+        active: false,
+      })
+      await chrome.tabs.create({
+        windowId: targetWindow.id,
+        url: groupedUrls[2],
+        active: false,
+      })
+      await new Promise((resolve) => setTimeout(resolve, 700))
+
+      const targetTabs = (
+        await chrome.tabs.query({
+          windowId: targetWindow.id,
+        })
+      ).sort((a, b) => a.index - b.index)
+      const groupedTabIds = groupedUrls.map(
+        (url) => targetTabs.find((tab) => tab.url === url)?.id ?? -1,
+      )
+      const groupId = await chrome.tabs.group({
+        tabIds: groupedTabIds,
+      })
+      await chrome.tabGroups.update(groupId, {
+        title: 'Cross Drop Group',
+        color: 'green',
+      })
+
+      const sourceTabs = await chrome.tabs.query({
+        windowId: sourceWindow.id,
+      })
+      const groupedTabs = (
+        await chrome.tabs.query({
+          groupId,
+        })
+      ).sort((a, b) => a.index - b.index)
+      return {
+        sourceUrl,
+        groupedUrls,
+        groupId,
+        sourceWindowId: sourceWindow.id,
+        targetWindowId: targetWindow.id,
+        sourceTabId: sourceTabs.find((tab) => tab.url === sourceUrl)?.id ?? -1,
+        dropTargetTabId: groupedTabs[2]?.id ?? -1,
+      }
+    })
+    expect(setup).toBeTruthy()
+    expect(setup!.sourceTabId).toBeGreaterThan(0)
+    expect(setup!.dropTargetTabId).toBeGreaterThan(0)
+
+    await page.waitForTimeout(700)
+    await page.reload()
+    await page.waitForTimeout(1200)
+    await waitForTestId(page, `tab-row-${setup!.sourceTabId}`)
+    await waitForTestId(page, `tab-row-${setup!.dropTargetTabId}`)
+
+    const sourceRow = page.getByTestId(`tab-row-${setup!.sourceTabId}`)
+    const targetRow = page.getByTestId(`tab-row-${setup!.dropTargetTabId}`)
+    await expect(sourceRow).toHaveCount(1)
+    await expect(targetRow).toHaveCount(1)
+
+    await dragByTestId(page, {
+      sourceTestId: `tab-row-${setup!.sourceTabId}`,
+      targetTestId: `tab-row-${setup!.dropTargetTabId}`,
+      dropPosition: 'top',
+      targetUseParent: true,
+    })
+    await page.waitForTimeout(1200)
+
+    const result = await page.evaluate(async (data) => {
+      const sourceTab = await chrome.tabs.get(data.sourceTabId)
+      const groupTabs = (
+        await chrome.tabs.query({
+          groupId: data.groupId,
+        })
+      ).sort((a, b) => a.index - b.index)
+      return {
+        sourceWindowId: sourceTab.windowId,
+        sourceGroupId: sourceTab.groupId,
+        groupedWindowId: groupTabs[0]?.windowId ?? -1,
+        groupUrls: groupTabs.map((tab) => tab.url),
+      }
+    }, setup)
+
+    expect(result.sourceWindowId).not.toBe(setup!.sourceWindowId)
+    expect(result.sourceWindowId).toBe(result.groupedWindowId)
+    expect(result.sourceGroupId).toBe(setup!.groupId)
+    expect(result.groupUrls).toEqual([
+      setup!.groupedUrls[0],
+      setup!.groupedUrls[1],
+      setup!.sourceUrl,
+      setup!.groupedUrls[2],
+    ])
+    await expect(
+      page.getByTestId(`tab-group-header-${setup!.groupId}`),
+    ).toHaveCount(1)
+    await expect(
+      page.getByTestId(`tab-group-count-${setup!.groupId}`),
+    ).toHaveText('4')
   })
 
   test('drag single grouped tab should reorder within same group', async () => {

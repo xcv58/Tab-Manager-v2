@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx'
 import Store from 'stores'
 import Tab from './Tab'
 import log from 'libs/log'
+import { browser } from 'libs'
 
 export type DropSource = 'tab-row' | 'group-header' | 'window-zone'
 
@@ -9,6 +10,7 @@ export type DropAtOptions = {
   windowId: number
   index: number
   targetGroupId?: number
+  targetTabId?: number
   before?: boolean
   forceUngroup?: boolean
   source?: DropSource
@@ -189,11 +191,87 @@ export default class DragStore {
     return Math.max(0, Math.min(targetIndex - bounds.start, groupSize))
   }
 
+  getWindowTabsFromBrowser = async (windowId: number) => {
+    const tabs = await browser.tabs.query({ windowId })
+    return tabs.slice().sort((a, b) => {
+      return (a.index ?? 0) - (b.index ?? 0)
+    })
+  }
+
+  joinUngroupedTabsToTargetGroup = async ({
+    sources,
+    sourceTabIds,
+    windowId,
+    targetGroupId,
+    targetGroupOffset,
+    targetTabId,
+    before,
+    fallbackIndex,
+  }: {
+    sources: Tab[]
+    sourceTabIds: number[]
+    windowId: number
+    targetGroupId: number
+    targetGroupOffset: number
+    targetTabId?: number
+    before?: boolean
+    fallbackIndex: number
+  }) => {
+    const initialTabs = await this.getWindowTabsFromBrowser(windowId)
+    const initialBounds = this.getGroupBounds(initialTabs as any, targetGroupId)
+    const { moveTabs } = this.store.windowStore
+    const inSameWindow = sources.every((tab) => tab.windowId === windowId)
+
+    if (!initialBounds) {
+      if (!inSameWindow) {
+        await moveTabs(sources, windowId, fallbackIndex)
+      }
+      await this.store.tabGroupStore.groupTabs(sourceTabIds, targetGroupId)
+      return
+    }
+
+    const stageIndex = Math.min(initialBounds.end + 1, initialTabs.length)
+    let resolvedTargetGroupOffset = targetGroupOffset
+    if (typeof targetTabId === 'number') {
+      const actualTargetIndex = initialTabs.findIndex(
+        (tab) => tab.id === targetTabId,
+      )
+      if (actualTargetIndex > -1) {
+        const groupSize = initialBounds.end - initialBounds.start + 1
+        resolvedTargetGroupOffset = Math.max(
+          0,
+          Math.min(
+            actualTargetIndex - initialBounds.start + (before ? 0 : 1),
+            groupSize,
+          ),
+        )
+      }
+    }
+    await moveTabs(sources, windowId, stageIndex)
+    await this.store.tabGroupStore.groupTabs(sourceTabIds, targetGroupId)
+
+    const groupedTabs = await this.getWindowTabsFromBrowser(windowId)
+    const groupedBounds = this.getGroupBounds(groupedTabs as any, targetGroupId)
+    if (!groupedBounds) {
+      return
+    }
+
+    const finalIndex = Math.max(
+      groupedBounds.start,
+      Math.min(
+        groupedBounds.start + resolvedTargetGroupOffset,
+        groupedBounds.end + 1,
+      ),
+    )
+    await moveTabs(sources, windowId, finalIndex)
+  }
+
   drop = async (tab: Tab, before = true) => {
     return this.dropAt({
       windowId: tab.windowId,
       index: tab.index + (before ? 0 : 1),
       targetGroupId: tab.groupId,
+      targetTabId: tab.id,
       before,
       source: 'tab-row',
     })
@@ -271,29 +349,49 @@ export default class DragStore {
           await this.store.tabGroupStore.ungroupTabs(groupedSourceTabIds)
         }
         if (shouldJoinTargetGroup) {
-          const inSameWindow = sources.every((tab) => tab.windowId === windowId)
-          if (!inSameWindow) {
-            await moveTabs(sources, windowId, index)
+          const isUngroupedJoin =
+            this.isNoGroupId(sourceGroupId) && groupedSourceTabIds.length === 0
+          if (isUngroupedJoin) {
+            await this.joinUngroupedTabsToTargetGroup({
+              sources,
+              sourceTabIds,
+              windowId,
+              targetGroupId,
+              targetGroupOffset,
+              targetTabId: options.targetTabId,
+              before: options.before,
+              fallbackIndex: index,
+            })
+          } else {
+            const inSameWindow = sources.every(
+              (tab) => tab.windowId === windowId,
+            )
+            if (!inSameWindow) {
+              await moveTabs(sources, windowId, index)
+            }
+            const targetGroupTabIds = this.store.tabGroupStore
+              .getTabsForGroup(targetGroupId)
+              .slice()
+              .sort((a, b) => a.index - b.index)
+              .map((tab) => tab.id)
+            const sourceTabIdSet = new Set(sourceTabIds)
+            const preservedTargetTabIds = targetGroupTabIds.filter(
+              (tabId) => !sourceTabIdSet.has(tabId),
+            )
+            const insertOffset = Math.max(
+              0,
+              Math.min(targetGroupOffset, preservedTargetTabIds.length),
+            )
+            const orderedTabIds = [
+              ...preservedTargetTabIds.slice(0, insertOffset),
+              ...sourceTabIds,
+              ...preservedTargetTabIds.slice(insertOffset),
+            ]
+            await this.store.tabGroupStore.groupTabs(
+              orderedTabIds,
+              targetGroupId,
+            )
           }
-          const targetGroupTabIds = this.store.tabGroupStore
-            .getTabsForGroup(targetGroupId)
-            .slice()
-            .sort((a, b) => a.index - b.index)
-            .map((tab) => tab.id)
-          const sourceTabIdSet = new Set(sourceTabIds)
-          const preservedTargetTabIds = targetGroupTabIds.filter(
-            (tabId) => !sourceTabIdSet.has(tabId),
-          )
-          const insertOffset = Math.max(
-            0,
-            Math.min(targetGroupOffset, preservedTargetTabIds.length),
-          )
-          const orderedTabIds = [
-            ...preservedTargetTabIds.slice(0, insertOffset),
-            ...sourceTabIds,
-            ...preservedTargetTabIds.slice(insertOffset),
-          ]
-          await this.store.tabGroupStore.groupTabs(orderedTabIds, targetGroupId)
         } else {
           await moveTabs(sources, windowId, index)
           if (
