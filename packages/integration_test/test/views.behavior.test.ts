@@ -484,7 +484,7 @@ test.describe('The Extension page should', () => {
     }
   })
 
-  test('show group title metadata only when the search query matches the group title', async () => {
+  test('show grouped search context even when the query matches only the tab title', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
         query: '',
@@ -519,19 +519,279 @@ test.describe('The Extension page should', () => {
 
     await searchInput.fill('SearchDocs')
     await page.waitForTimeout(700)
+    const groupedHeader = page.getByTestId(`search-group-header-${groupId}`)
+    await expect(groupedHeader).toBeVisible()
+    await expect(groupedHeader).toContainText('SearchDocs')
     const groupMatchedOption = page
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(groupMatchedOption).toContainText('in SearchDocs')
+    await expect(groupMatchedOption).not.toContainText('SearchDocs')
 
     await searchInput.fill('Alpha Guide')
     await page.waitForTimeout(700)
+    await expect(groupedHeader).toBeVisible()
     const titleMatchedOption = page
       .locator('.MuiAutocomplete-option')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await expect(titleMatchedOption).not.toContainText('in SearchDocs')
+    await expect(titleMatchedOption).not.toContainText('SearchDocs')
+    await titleMatchedOption.hover()
+    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        showUrl: false,
+      })
+    })
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const searchInputWithoutUrl = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInputWithoutUrl).toBeVisible()
+    await searchInputWithoutUrl.fill('Alpha Guide')
+    await page.waitForTimeout(700)
+    await expect(
+      page.getByTestId(`search-group-header-${groupId}`),
+    ).toBeVisible()
+    const titleMatchedWithoutUrl = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'Alpha Guide' })
+      .first()
+    await expect(titleMatchedWithoutUrl).not.toContainText('SearchDocs')
+  })
+
+  test('use natural tab order and grouped sections when the search box is empty', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const zuluUrl = 'data:text/html,<title>Zulu%20Guide</title>zulu-empty-order'
+    const alphaUrl =
+      'data:text/html,<title>Alpha%20Guide</title>alpha-empty-order'
+    const betaUrl = 'data:text/html,<title>Beta%20Guide</title>beta-empty-order'
+    await openPages(browserContext, [zuluUrl, alphaUrl, betaUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const primaryGroupId = await groupTabsByUrl(page, {
+      urls: [zuluUrl, alphaUrl],
+      title: 'BrowseDocs',
+      color: 'blue',
+    })
+    expect(primaryGroupId).toBeGreaterThan(-1)
+
+    const singleHitGroupId = await groupTabsByUrl(page, {
+      urls: [betaUrl],
+      title: 'SoloBrowse',
+      color: 'green',
+    })
+    expect(singleHitGroupId).toBeGreaterThan(-1)
+
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${primaryGroupId}`)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await page.waitForTimeout(500)
+
+    await expect(
+      page.getByTestId(`search-group-header-${primaryGroupId}`),
+    ).toBeVisible()
+    await expect(
+      page.getByTestId(`search-group-header-${singleHitGroupId}`),
+    ).toBeVisible()
+
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Tab Manager v2')
+
+    await searchInput.press('ArrowDown')
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Zulu Guide')
+
+    await searchInput.press('ArrowDown')
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Alpha Guide')
+
+    await searchInput.press('ArrowDown')
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Beta Guide')
+  })
+
+  test('always group grouped search results without blocking tab selection', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const alphaUrl =
+      'data:text/html,<title>Alpha%20Guide</title>alpha-soft-group'
+    const betaUrl = 'data:text/html,<title>Beta%20Guide</title>beta-soft-group'
+    const soloUrl =
+      'data:text/html,<title>Gamma%20Guide</title>gamma-soft-group'
+    await openPages(browserContext, [alphaUrl, betaUrl, soloUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const clusteredGroupId = await groupTabsByUrl(page, {
+      urls: [alphaUrl, betaUrl],
+      title: 'SearchDocs',
+      color: 'blue',
+    })
+    expect(clusteredGroupId).toBeGreaterThan(-1)
+
+    const singleHitGroupId = await groupTabsByUrl(page, {
+      urls: [soloUrl],
+      title: 'SoloDocs',
+      color: 'green',
+    })
+    expect(singleHitGroupId).toBeGreaterThan(-1)
+
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${clusteredGroupId}`)
+
+    const clusteredTabIds = await page.evaluate(async (groupId) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true, groupId })
+      return tabs.map((tab) => tab.id)
+    }, clusteredGroupId)
+    expect(clusteredTabIds).toHaveLength(2)
+
+    const singleHitTabIds = await page.evaluate(async (groupId) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true, groupId })
+      return tabs.map((tab) => tab.id)
+    }, singleHitGroupId)
+    expect(singleHitTabIds).toHaveLength(1)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.fill('Guide')
+    await page.waitForTimeout(700)
+
+    const clusteredHeader = page.getByTestId(
+      `search-group-header-${clusteredGroupId}`,
+    )
+    await expect(clusteredHeader).toBeVisible()
+    await expect(clusteredHeader).toContainText('SearchDocs')
+    await expect(clusteredHeader).toContainText('2 tabs')
+    const clusteredHeaderChip = page.getByTestId(
+      `search-group-header-chip-${clusteredGroupId}`,
+    )
+    await expect(clusteredHeaderChip).toContainText('SearchDocs')
+    await expect
+      .poll(() =>
+        clusteredHeaderChip.evaluate(
+          (element) => getComputedStyle(element).backgroundColor,
+        ),
+      )
+      .toBe('rgb(26, 115, 232)')
+    await expect
+      .poll(() =>
+        clusteredHeader.evaluate(
+          (element) => getComputedStyle(element.closest('li')!).opacity,
+        ),
+      )
+      .toBe('1')
+    const singleHitHeader = page.getByTestId(
+      `search-group-header-${singleHitGroupId}`,
+    )
+    await expect(singleHitHeader).toBeVisible()
+    await expect(singleHitHeader).toContainText('SoloDocs')
+    await expect(singleHitHeader).toContainText('1 tab')
+
+    const optionTexts = await page
+      .locator('.MuiAutocomplete-option')
+      .allTextContents()
+    expect(optionTexts[0]).toContain('SearchDocs')
+    expect(optionTexts[1]).toContain('Alpha Guide')
+    expect(optionTexts[2]).toContain('Beta Guide')
+    expect(optionTexts[3]).toContain('SoloDocs')
+    expect(optionTexts[4]).toContain('Gamma Guide')
+    for (const tabId of clusteredTabIds) {
+      await expect(
+        page.getByTestId(`search-tab-group-chip-${tabId}`),
+      ).toHaveCount(0)
+    }
+    await expect(
+      page.getByTestId(`search-tab-group-chip-${singleHitTabIds[0]}`),
+    ).toHaveCount(0)
+
+    const groupedRow = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'Alpha Guide' })
+      .first()
+    await groupedRow.hover()
+    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
+
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Alpha Guide')
   })
 
   test('remove one tab from a group without breaking remaining grouped tabs', async () => {
