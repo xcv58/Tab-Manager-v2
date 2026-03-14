@@ -596,6 +596,18 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await waitForTestId(page, `tab-group-header-${clusteredGroupId}`)
 
+    const clusteredTabIds = await page.evaluate(async (groupId) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true, groupId })
+      return tabs.map((tab) => tab.id)
+    }, clusteredGroupId)
+    expect(clusteredTabIds).toHaveLength(2)
+
+    const singleHitTabIds = await page.evaluate(async (groupId) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true, groupId })
+      return tabs.map((tab) => tab.id)
+    }, singleHitGroupId)
+    expect(singleHitTabIds).toHaveLength(1)
+
     const searchInput = page.locator(
       'input[placeholder*="Search tabs or URLs"]',
     )
@@ -622,6 +634,21 @@ test.describe('The Extension page should', () => {
     expect(optionTexts.some((text) => text.includes('SoloDocs2 tabs'))).toBe(
       false,
     )
+    for (const tabId of clusteredTabIds) {
+      await expect(
+        page.getByTestId(`search-tab-group-chip-${tabId}`),
+      ).toHaveCount(0)
+    }
+    await expect(
+      page.getByTestId(`search-tab-group-chip-${singleHitTabIds[0]}`),
+    ).toContainText('SoloDocs')
+
+    const groupedRow = page
+      .locator('.MuiAutocomplete-option')
+      .filter({ hasText: 'Alpha Guide' })
+      .first()
+    await groupedRow.hover()
+    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
 
     await expect
       .poll(async () => {
