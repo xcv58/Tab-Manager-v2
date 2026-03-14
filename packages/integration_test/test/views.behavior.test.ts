@@ -559,6 +559,112 @@ test.describe('The Extension page should', () => {
     await expect(titleMatchedWithoutUrl).toContainText('SearchDocs')
   })
 
+  test('use natural tab order and grouped sections when the search box is empty', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const zuluUrl = 'data:text/html,<title>Zulu%20Guide</title>zulu-empty-order'
+    const alphaUrl =
+      'data:text/html,<title>Alpha%20Guide</title>alpha-empty-order'
+    const betaUrl = 'data:text/html,<title>Beta%20Guide</title>beta-empty-order'
+    await openPages(browserContext, [zuluUrl, alphaUrl, betaUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const primaryGroupId = await groupTabsByUrl(page, {
+      urls: [zuluUrl, alphaUrl],
+      title: 'BrowseDocs',
+      color: 'blue',
+    })
+    expect(primaryGroupId).toBeGreaterThan(-1)
+
+    const singleHitGroupId = await groupTabsByUrl(page, {
+      urls: [betaUrl],
+      title: 'SoloBrowse',
+      color: 'green',
+    })
+    expect(singleHitGroupId).toBeGreaterThan(-1)
+
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${primaryGroupId}`)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await page.waitForTimeout(500)
+
+    await expect(
+      page.getByTestId(`search-group-header-${primaryGroupId}`),
+    ).toBeVisible()
+    await expect(
+      page.getByTestId(`search-group-header-${singleHitGroupId}`),
+    ).toBeVisible()
+
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Tab Manager v2')
+
+    await searchInput.press('ArrowDown')
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Zulu Guide')
+
+    await searchInput.press('ArrowDown')
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Alpha Guide')
+
+    await searchInput.press('ArrowDown')
+    await expect
+      .poll(async () => {
+        const activeDescendant = await searchInput.getAttribute(
+          'aria-activedescendant',
+        )
+        return activeDescendant
+          ? (
+              await page.locator(`[id="${activeDescendant}"]`).textContent()
+            )?.replace(/\s+/g, ' ')
+          : null
+      })
+      .toContain('Beta Guide')
+  })
+
   test('soft-group clustered search results without blocking tab selection', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({

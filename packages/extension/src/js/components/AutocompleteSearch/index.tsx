@@ -53,16 +53,19 @@ function sortRankedValues(a, b, baseSort): number {
   }
 }
 
-const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
+const buildGroupedTabSections = (
+  tabs,
+  tabGroupStore,
+  minGroupMatchCount = 2,
+) => {
   const sectionTabIds = new Set()
 
   if (!tabGroupStore?.hasTabGroupsApi?.()) {
-    return { items: rankedTabs, sectionTabIds }
+    return { items: tabs, sectionTabIds }
   }
 
-  const groupedRankedTabs = new Map()
-  rankedTabs.forEach((rankedTab) => {
-    const { item: tab } = rankedTab
+  const groupedTabs = new Map()
+  tabs.forEach((tab) => {
     if (tabGroupStore.isNoGroupId(tab.groupId)) {
       return
     }
@@ -70,26 +73,22 @@ const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
     if (!tabGroup) {
       return
     }
-    groupedRankedTabs.set(tab.groupId, [
-      ...(groupedRankedTabs.get(tab.groupId) || []),
-      rankedTab,
-    ])
+    groupedTabs.set(tab.groupId, [...(groupedTabs.get(tab.groupId) || []), tab])
   })
 
   const qualifyingGroupIds = new Set(
-    Array.from(groupedRankedTabs.entries())
-      .filter(([, tabs]) => tabs.length > 1)
+    Array.from(groupedTabs.entries())
+      .filter(([, groupTabs]) => groupTabs.length >= minGroupMatchCount)
       .map(([groupId]) => groupId),
   )
   if (!qualifyingGroupIds.size) {
-    return { items: rankedTabs, sectionTabIds }
+    return { items: tabs, sectionTabIds }
   }
 
   const emittedGroupIds = new Set()
-  const items = rankedTabs.flatMap((rankedTab) => {
-    const { item: tab } = rankedTab
+  const items = tabs.flatMap((tab) => {
     if (!qualifyingGroupIds.has(tab.groupId)) {
-      return [rankedTab]
+      return [tab]
     }
     if (emittedGroupIds.has(tab.groupId)) {
       return []
@@ -97,23 +96,20 @@ const buildGroupedTabSections = (rankedTabs, tabGroupStore) => {
 
     emittedGroupIds.add(tab.groupId)
     const tabGroup = tabGroupStore.getTabGroup(tab.groupId)
-    const groupTabs = groupedRankedTabs.get(tab.groupId) || []
-    groupTabs.forEach(({ item: groupTab }) => {
+    const matchedTabs = groupedTabs.get(tab.groupId) || []
+    matchedTabs.forEach((groupTab) => {
       sectionTabIds.add(groupTab.id)
     })
     return [
       {
-        rankedValue: '',
-        item: {
-          isDivider: true,
-          dividerType: 'group',
-          groupId: tab.groupId,
-          title: tabGroup?.title || 'Unnamed group',
-          color: tabGroup?.color,
-          matchCount: groupTabs.length,
-        },
+        isDivider: true,
+        dividerType: 'group',
+        groupId: tab.groupId,
+        title: tabGroup?.title || 'Unnamed group',
+        color: tabGroup?.color,
+        matchCount: matchedTabs.length,
       },
-      ...groupTabs,
+      ...matchedTabs,
     ]
   })
 
@@ -134,39 +130,56 @@ const getFilterOptions = (
   }
   return (options, { inputValue }) => {
     groupedSectionTabIdsRef.current = new Set()
+    const tabs = options.filter((option) => !option.visitCount)
+    const history = options.filter((option) => option.visitCount)
+    const trimmedValue = inputValue.trim()
+    if (!trimmedValue) {
+      const { items: groupedTabs, sectionTabIds } = buildGroupedTabSections(
+        tabs,
+        tabGroupStore,
+        1,
+      )
+      groupedSectionTabIdsRef.current = sectionTabIds
+      if (history.length) {
+        return [
+          ...groupedTabs,
+          {
+            isDivider: true,
+            dividerType: 'history',
+            title: 'History',
+          },
+          ...history,
+        ]
+      }
+      return groupedTabs
+    }
     const keys = getTabSearchKeys({
       showUrl,
       hasTabGroupsApi: !!tabGroupStore?.hasTabGroupsApi?.(),
     })
-    return matchSorter(options, inputValue, {
+    const matchedTabs = matchSorter(tabs, inputValue, {
       keys,
-      sorter: (rankedItems) => {
-        const tabs = rankedItems
-          .filter((x) => !x.item.visitCount)
-          .sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn))
-        const { items: groupedTabs, sectionTabIds } =
-          inputValue.trim().length > 0
-            ? buildGroupedTabSections(tabs, tabGroupStore)
-            : { items: tabs, sectionTabIds: new Set() }
-        groupedSectionTabIdsRef.current = sectionTabIds
-        const history = rankedItems.filter((x) => x.item.visitCount)
-        if (history.length) {
-          return [
-            ...groupedTabs,
-            {
-              rankedValue: '',
-              item: {
-                isDivider: true,
-                dividerType: 'history',
-                title: 'History',
-              },
-            },
-            ...history,
-          ]
-        }
-        return groupedTabs
-      },
+      sorter: (rankedItems) =>
+        rankedItems.sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn)),
     })
+    const { items: groupedTabs, sectionTabIds } = buildGroupedTabSections(
+      matchedTabs,
+      tabGroupStore,
+    )
+    groupedSectionTabIdsRef.current = sectionTabIds
+    const matchedHistory = matchSorter(history, inputValue, { keys })
+    if (matchedHistory.length) {
+      return [
+        ...groupedTabs,
+        {
+          isDivider: true,
+          dividerType: 'history',
+          title: 'History',
+        },
+        ...matchedHistory,
+      ]
+    }
+    return groupedTabs
   }
 }
 
