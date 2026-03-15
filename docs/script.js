@@ -437,15 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
       promoVideoPlayer = window.videojs(promoVideo, {
         fluid: true,
         preload: 'auto',
-        playbackRates: [1, 1.25, 1.5, 2],
-        controlBar: {
-          remainingTimeDisplay: false,
-          skipButtons: {
-            backward: 10,
-            forward: 10,
-          },
-          pictureInPictureToggle: false,
-        },
       })
     }
 
