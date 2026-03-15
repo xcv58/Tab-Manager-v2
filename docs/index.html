@@ -94,8 +94,10 @@
       <link rel="stylesheet" href="assets/vendor/glightbox/glightbox.min.css" />
     </noscript>
 
+    <link rel="stylesheet" href="assets/vendor/videojs/video-js.min.css" />
     <link rel="stylesheet" href="style.css" />
     <script src="assets/vendor/glightbox/glightbox.min.js" defer></script>
+    <script src="assets/vendor/videojs/video.min.js" defer></script>
     <script src="script.js" defer></script>
   </head>
 
@@ -610,6 +612,126 @@
                 >Adjust the view to match your workflow.</span
               >
             </a>
+          </div>
+        </section>
+
+        <section class="section section-divider fade-in" id="video-tour">
+          <div class="section-heading">
+            <span class="eyebrow">See It In Motion</span>
+            <h2>Watch Tab Manager v2 in action.</h2>
+            <p>
+              Search, clean up, organize, and customize tabs in one quick
+              walkthrough.
+            </p>
+          </div>
+
+          <div class="video-tour-layout">
+            <div class="video-tour-frame">
+              <div class="video-tour-player" data-vjs-player>
+                <video
+                  id="promo-video-player"
+                  class="promo-video video-js vjs-big-play-centered"
+                  controls
+                  preload="auto"
+                  playsinline
+                  poster="assets/images/tab-manager-v2-feature-promo-poster.png"
+                >
+                  <source
+                    src="assets/videos/tab-manager-v2-feature-promo.mp4"
+                    type="video/mp4"
+                  />
+                  <track
+                    kind="chapters"
+                    src="assets/tracks/tab-manager-v2-feature-promo.vtt"
+                    srclang="en"
+                    label="Scenes"
+                    default
+                  />
+                  <p class="vjs-no-js">
+                    Your browser does not support embedded videos. You can
+                    download the promo video directly instead.
+                  </p>
+                </video>
+              </div>
+            </div>
+
+            <div class="video-tour-copy">
+              <p class="video-tour-label">Jump To A Scene</p>
+              <ul class="video-tour-list">
+                <li>
+                  <button
+                    class="video-tour-chapter"
+                    type="button"
+                    data-video-seek="2.22"
+                  >
+                    <span class="video-tour-chapter-time">00:02</span>
+                    <span class="video-tour-chapter-copy"
+                      >Find tabs across windows fast.</span
+                    >
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="video-tour-chapter"
+                    type="button"
+                    data-video-seek="6.04"
+                  >
+                    <span class="video-tour-chapter-time">00:06</span>
+                    <span class="video-tour-chapter-copy"
+                      >Clear duplicates before they pile up.</span
+                    >
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="video-tour-chapter"
+                    type="button"
+                    data-video-seek="9.26"
+                  >
+                    <span class="video-tour-chapter-time">00:09</span>
+                    <span class="video-tour-chapter-copy"
+                      >Rename and organize groups.</span
+                    >
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="video-tour-chapter"
+                    type="button"
+                    data-video-seek="17.12"
+                  >
+                    <span class="video-tour-chapter-time">00:17</span>
+                    <span class="video-tour-chapter-copy"
+                      >Stay oriented in large workspaces.</span
+                    >
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="video-tour-chapter"
+                    type="button"
+                    data-video-seek="20.06"
+                  >
+                    <span class="video-tour-chapter-time">00:20</span>
+                    <span class="video-tour-chapter-copy"
+                      >Move faster with shortcuts.</span
+                    >
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="video-tour-chapter"
+                    type="button"
+                    data-video-seek="25.84"
+                  >
+                    <span class="video-tour-chapter-time">00:25</span>
+                    <span class="video-tour-chapter-copy"
+                      >Customize the view.</span
+                    >
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 
