@@ -32,6 +32,10 @@ const TAB_LOAD_STABLE_POLLS = 4
 const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
 const TAB_CREATE_BATCH_SIZE = 6
 const TAB_CREATE_BATCH_DELAY_MS = 2500
+const DEMO_CURSOR_MOVE_MULTIPLIER = 0.62
+const DEMO_MICRO_PAUSE_MULTIPLIER = 0.58
+const DEMO_HOLD_MULTIPLIER = 0.82
+const DEMO_TYPE_DELAY_MULTIPLIER = 0.72
 const INTERSTITIAL_TITLE_SNIPPETS = [
   'just a moment',
   'are you a robot',
@@ -97,6 +101,34 @@ function realUrl(key) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function scaledDemoDuration(ms, multiplier, minimum) {
+  return Math.max(minimum, Math.round(ms * multiplier))
+}
+
+function paceMove(ms) {
+  return scaledDemoDuration(ms, DEMO_CURSOR_MOVE_MULTIPLIER, 220)
+}
+
+function pacePause(ms) {
+  return scaledDemoDuration(ms, DEMO_MICRO_PAUSE_MULTIPLIER, 70)
+}
+
+function paceHold(ms) {
+  return scaledDemoDuration(ms, DEMO_HOLD_MULTIPLIER, 360)
+}
+
+function paceType(ms) {
+  return scaledDemoDuration(ms, DEMO_TYPE_DELAY_MULTIPLIER, 90)
+}
+
+async function demoPause(page, ms) {
+  await page.waitForTimeout(pacePause(ms))
+}
+
+async function demoHold(page, ms) {
+  await page.waitForTimeout(paceHold(ms))
 }
 
 function scenarioCounts(definitions) {
@@ -637,8 +669,10 @@ async function moveCursor(
   durationMs,
   steps = Math.max(10, Math.round(durationMs / 16)),
 ) {
-  for (let index = 1; index <= steps; index += 1) {
-    const progress = index / steps
+  const pacedDurationMs = paceMove(durationMs)
+  const pacedSteps = Math.max(10, Math.round(pacedDurationMs / 16))
+  for (let index = 1; index <= pacedSteps; index += 1) {
+    const progress = index / pacedSteps
     const eased = 1 - Math.pow(1 - progress, 2)
     const x = from.x + (to.x - from.x) * eased
     const y = from.y + (to.y - from.y) * eased
@@ -650,7 +684,9 @@ async function moveCursor(
       },
       { nextX: x, nextY: y },
     )
-    await page.waitForTimeout(Math.max(8, Math.round(durationMs / steps)))
+    await page.waitForTimeout(
+      Math.max(8, Math.round(pacedDurationMs / pacedSteps)),
+    )
   }
 }
 
@@ -659,7 +695,7 @@ async function clickCurrent(page) {
   await page.evaluate(() => {
     window.__demoCursorApi.click()
   })
-  await page.waitForTimeout(70)
+  await page.waitForTimeout(pacePause(70))
   await page.mouse.up()
 }
 
@@ -769,7 +805,7 @@ async function withScenario(clipName, windows, settings, runClip) {
       startPoint,
     )
     await popupPage.mouse.move(startPoint.x, startPoint.y)
-    await popupPage.waitForTimeout(200)
+    await demoPause(popupPage, 200)
 
     const screencast = await startScreencast(popupPage, clipName)
     await runClip(popupPage, startPoint, createdWindows)
@@ -818,17 +854,17 @@ async function recordFindTabFast() {
     windows,
     { useSystemTheme: false, darkTheme: false },
     async (page, startPoint) => {
-      await page.waitForTimeout(900)
+      await demoHold(page, 900)
       const searchInput = page.locator(
         'input[placeholder*="Search tabs or URLs"]',
       )
       const inputCenter = await getCenter(searchInput)
       await moveCursor(page, startPoint, inputCenter, 850)
-      await page.waitForTimeout(180)
+      await demoPause(page, 180)
       await clickCurrent(page)
-      await page.waitForTimeout(220)
-      await searchInput.type('jenny', { delay: 170 })
-      await page.waitForTimeout(2600)
+      await demoPause(page, 220)
+      await searchInput.type('jenny', { delay: paceType(170) })
+      await demoHold(page, 2600)
     },
   )
 }
@@ -865,34 +901,34 @@ async function recordOrganizeGroups() {
     { useSystemTheme: false, darkTheme: false },
     async (page, startPoint, createdWindows) => {
       const groupId = createdWindows[0].groups[0].groupId
-      await page.waitForTimeout(700)
+      await demoHold(page, 700)
 
       const header = page.getByTestId(`tab-group-header-${groupId}`)
       const headerCenter = await getCenter(header)
       await moveCursor(page, startPoint, headerCenter, 800)
-      await page.waitForTimeout(220)
+      await demoPause(page, 220)
 
       const menu = page.getByTestId(`tab-group-menu-${groupId}`)
       await menu.waitFor({ state: 'visible', timeout: 10000 })
       const menuCenter = await getCenter(menu)
       await moveCursor(page, headerCenter, menuCenter, 350)
-      await page.waitForTimeout(150)
+      await demoPause(page, 150)
       await clickCurrent(page)
-      await page.waitForTimeout(280)
+      await demoPause(page, 280)
 
       const renameOption = page.getByTestId(`tab-group-menu-rename-${groupId}`)
       const optionCenter = await getCenter(renameOption)
       await moveCursor(page, menuCenter, optionCenter, 420)
-      await page.waitForTimeout(120)
+      await demoPause(page, 120)
       await clickCurrent(page)
 
       const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
       await titleInput.waitFor({ state: 'visible', timeout: 10000 })
-      await page.waitForTimeout(260)
-      await titleInput.type('AI Workspace', { delay: 135 })
-      await page.waitForTimeout(150)
+      await demoPause(page, 260)
+      await titleInput.type('AI Workspace', { delay: paceType(135) })
+      await demoPause(page, 150)
       await page.keyboard.press('Enter')
-      await page.waitForTimeout(1800)
+      await demoHold(page, 1800)
     },
   )
 }
@@ -959,16 +995,16 @@ async function recordCleanUpDuplicates() {
       ignoreHash: false,
     },
     async (page, startPoint) => {
-      await page.waitForTimeout(1100)
+      await demoHold(page, 1100)
       const cleanButton = page
         .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
         .first()
       await cleanButton.waitFor({ state: 'visible', timeout: 15000 })
       const buttonCenter = await getCenter(cleanButton)
       await moveCursor(page, startPoint, buttonCenter, 950)
-      await page.waitForTimeout(220)
+      await demoPause(page, 220)
       await clickCurrent(page)
-      await page.waitForTimeout(2400)
+      await demoHold(page, 2400)
     },
   )
 }
@@ -1075,16 +1111,16 @@ async function recordLargeWorkspaces() {
     { useSystemTheme: false, darkTheme: false, tabWidth: 22 },
     async (page, startPoint, createdWindows) => {
       const planningGroupId = createdWindows[0].groups[1].groupId
-      await page.waitForTimeout(950)
+      await demoHold(page, 950)
 
       const planningToggle = page.getByTestId(
         `tab-group-toggle-${planningGroupId}`,
       )
       const toggleCenter = await getCenter(planningToggle)
       await moveCursor(page, startPoint, toggleCenter, 900)
-      await page.waitForTimeout(180)
+      await demoPause(page, 180)
       await clickCurrent(page)
-      await page.waitForTimeout(2200)
+      await demoHold(page, 2200)
     },
   )
 }
@@ -1117,26 +1153,26 @@ async function recordKeyboardWorkflow() {
     windows,
     { useSystemTheme: false, darkTheme: false },
     async (page, startPoint) => {
-      await page.waitForTimeout(850)
+      await demoHold(page, 850)
 
       const helpButton = page
         .locator('button[aria-label="Show shortcut hints"]')
         .first()
       const helpCenter = await getCenter(helpButton)
       await moveCursor(page, startPoint, helpCenter, 850)
-      await page.waitForTimeout(180)
+      await demoPause(page, 180)
       await clickCurrent(page)
 
       const searchBox = page.getByRole('searchbox', { name: 'Search' })
       await searchBox.waitFor({ state: 'visible', timeout: 15000 })
-      await page.waitForTimeout(350)
+      await demoPause(page, 350)
       const searchCenter = await getCenter(searchBox)
       await moveCursor(page, helpCenter, searchCenter, 700)
-      await page.waitForTimeout(120)
+      await demoPause(page, 120)
       await clickCurrent(page)
-      await page.waitForTimeout(180)
-      await searchBox.type('group', { delay: 150 })
-      await page.waitForTimeout(1900)
+      await demoPause(page, 180)
+      await searchBox.type('group', { delay: paceType(150) })
+      await demoHold(page, 1900)
     },
   )
 }
@@ -1171,35 +1207,35 @@ async function recordCustomizeView() {
     windows,
     { useSystemTheme: false, darkTheme: false },
     async (page, startPoint) => {
-      await page.waitForTimeout(850)
+      await demoHold(page, 850)
 
       const settingsButton = page
         .locator('button[aria-label="Settings"]')
         .first()
       const settingsCenter = await getCenter(settingsButton)
       await moveCursor(page, startPoint, settingsCenter, 850)
-      await page.waitForTimeout(180)
+      await demoPause(page, 180)
       await clickCurrent(page)
 
       const panel = page.getByTestId('settings-panel-theme-density')
       await panel.waitFor({ state: 'visible', timeout: 15000 })
-      await page.waitForTimeout(450)
+      await demoPause(page, 450)
 
       const darkThemeButton = panel.getByRole('button', {
         name: 'Use dark theme',
       })
       const darkCenter = await getCenter(darkThemeButton)
       await moveCursor(page, settingsCenter, darkCenter, 700)
-      await page.waitForTimeout(120)
+      await demoPause(page, 120)
       await clickCurrent(page)
-      await page.waitForTimeout(700)
+      await demoHold(page, 700)
 
       const fontIncrease = page.locator('[aria-label="Increase Font Size"]').first()
       const fontCenter = await getCenter(fontIncrease)
       await moveCursor(page, darkCenter, fontCenter, 700)
-      await page.waitForTimeout(120)
+      await demoPause(page, 120)
       await clickCurrent(page)
-      await page.waitForTimeout(1800)
+      await demoHold(page, 1800)
     },
   )
 }
