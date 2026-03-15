@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "packages/extension": {
+      "release-type": "node",
+      "package-name": "tab-manager-v2",
+      "changelog-path": "packages/extension/CHANGELOG.md",
+      "include-component-in-tag": false,
+      "include-v-in-tag": true
+    }
+  }
+}
