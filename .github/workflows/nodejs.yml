@@ -2,6 +2,10 @@ name: Build, Test, Integration Test
 
 on: [push]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-build-integration-test:
     runs-on: ubuntu-latest
