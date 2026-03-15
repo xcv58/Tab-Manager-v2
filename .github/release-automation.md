@@ -34,6 +34,20 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
 - `EDGE_CLIENT_ID`
 - `EDGE_API_KEY`
 
+## Local bootstrap flow
+
+1. Copy [.env.release.example](/Users/xcv58/.codex/worktrees/4ec7/Tab-Manager-v2/.env.release.example) to `.env.release.local`.
+2. Fill in the values in `.env.release.local`.
+3. Download the Chrome service account JSON key and set
+   `CHROME_SERVICE_ACCOUNT_JSON_FILE` to its local path.
+4. Run `pnpm sync:release-secrets` to upload the values into GitHub Actions
+   secrets for the current repository.
+5. Delete or rotate the local file if you do not want to keep the credentials
+   on disk after bootstrap.
+
+The local file is gitignored. Keep it uncommitted and do not paste it into PRs,
+issues, or workflow logs.
+
 ## How to obtain the credentials
 
 ### GitHub
@@ -60,7 +74,9 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
   5. In the Chrome Web Store Developer Dashboard, add the service account email
      so it can manage your items.
   6. Paste the full JSON key contents into the GitHub Actions secret named
-     `CHROME_SERVICE_ACCOUNT_JSON`.
+     `CHROME_SERVICE_ACCOUNT_JSON`, or set
+     `CHROME_SERVICE_ACCOUNT_JSON_FILE` in `.env.release.local` and let
+     `pnpm sync:release-secrets` upload it for you.
 
 ### Firefox AMO
 
@@ -101,3 +117,6 @@ instructions.
   completed.
 - Chrome publishing now uses the Chrome Web Store API v2 with a service
   account, rather than the older refresh-token flow.
+- The bootstrap helper script reads `.env.release.local` locally, then writes
+  values into GitHub Actions secrets. CI still reads secrets from GitHub rather
+  than from any checked-in env file.
