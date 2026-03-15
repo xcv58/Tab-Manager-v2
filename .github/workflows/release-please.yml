@@ -45,15 +45,13 @@ jobs:
       cancel-in-progress: false
     env:
       EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-      REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+      CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+      CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
       WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
       WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
       EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
       EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
-      EDGE_CLIENT_SECRET: ${{ secrets.EDGE_CLIENT_SECRET }}
-      EDGE_ACCESS_TOKEN_URL: ${{ secrets.EDGE_ACCESS_TOKEN_URL }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,15 +90,13 @@ jobs:
           missing=0
           for var in \
             EXTENSION_ID \
-            CLIENT_ID \
-            CLIENT_SECRET \
-            REFRESH_TOKEN \
+            CHROME_PUBLISHER_ID \
+            CHROME_SERVICE_ACCOUNT_JSON \
             WEB_EXT_API_KEY \
             WEB_EXT_API_SECRET \
             EDGE_PRODUCT_ID \
             EDGE_CLIENT_ID \
-            EDGE_CLIENT_SECRET \
-            EDGE_ACCESS_TOKEN_URL
+            EDGE_API_KEY
           do
             if [ -z "${!var}" ]; then
               echo "::error::Missing required secret for ${var}"
@@ -119,7 +115,9 @@ jobs:
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
 
       - name: Build release artifacts
-        run: pnpm run deploy
+        run: |
+          pnpm run deploy
+          pnpm run package:firefox-source
 
       - name: Upload packaged extension artifacts
         uses: actions/upload-artifact@v4
@@ -129,6 +127,7 @@ jobs:
           path: |
             packages/extension/build/build_chrome.zip
             packages/extension/build/build_firefox.zip
+            packages/extension/build/build_firefox_source.zip
             packages/extension/build/SHA256SUMS.txt
           retention-days: 30
 
@@ -139,6 +138,7 @@ jobs:
           gh release upload "${{ needs.release-please.outputs.extension_tag_name }}" \
             packages/extension/build/build_chrome.zip \
             packages/extension/build/build_firefox.zip \
+            packages/extension/build/build_firefox_source.zip \
             packages/extension/build/SHA256SUMS.txt \
             --clobber
 
