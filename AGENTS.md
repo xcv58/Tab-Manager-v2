@@ -67,3 +67,34 @@ Release screenshot rules:
 - The current Chrome Web Store shortlist is the light-theme set for
   `01-overview-groups`, `02-group-editing`, `03-search-groups`,
   `05-keyboard-shortcuts`, and `06-grouped-tabs-focus`.
+
+## Feature Videos
+
+To regenerate the reusable feature video clips and promo:
+
+1. Build the Chrome extension with `pnpm --filter tab-manager-v2 build:chrome`.
+2. Run `pnpm capture:feature-videos` to regenerate the standalone feature
+   clips.
+3. Run `pnpm build:feature-promo-video` to rebuild the combined promo from the
+   captured clips, or `pnpm build:feature-videos` to run the full pipeline.
+4. Collect local outputs from `.tmp/video-captures/mp4/` for standalone clips
+   and `.tmp/video-captures/promo/tab-manager-v2-feature-promo.mp4` for the
+   combined promo.
+
+The standalone capture script lives at
+`packages/integration_test/scripts/capture-feature-videos.mjs`.
+The promo assembly script lives at
+`packages/integration_test/scripts/build-feature-promo-video.mjs`.
+
+Feature video rules:
+
+- Treat `.tmp/video-captures/**` as generated local artifacts. Do not commit
+  raw captures, segment renders, overlay assets, or preview stills unless the
+  user explicitly asks for a checked-in deliverable.
+- Use real public URLs only for scripted tab setups.
+- Keep the promo visually aligned with the docs site: dark background,
+  cool neutral surfaces, indigo-led accents, and sans-serif typography.
+- Prefer the named clip library as the source material:
+  `01-find-tab-fast`, `02-organize-groups`, `03-clean-up-duplicates`,
+  `04-see-large-workspaces-clearly`, `05-keyboard-workflow`, and
+  `06-customize-the-view`.
