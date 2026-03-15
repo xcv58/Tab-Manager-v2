@@ -754,11 +754,13 @@ code {
   flex-direction: column;
   gap: 8px;
   height: var(--video-tour-frame-height, auto);
+  min-height: 0;
   padding: 16px;
   border-radius: 24px;
   border: 1px solid var(--border);
   background: var(--surface);
   box-shadow: 0 12px 28px -18px var(--shadow);
+  overflow: hidden;
 }
 
 .video-tour-label {
@@ -774,7 +776,12 @@ code {
   display: grid;
   flex: 1;
   gap: 6px;
-  align-content: space-between;
+  min-height: 0;
+  align-content: start;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
 }
 
 .video-tour-chapter {
