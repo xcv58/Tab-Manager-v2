@@ -1,0 +1,146 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      extension_release_created: ${{ steps.release.outputs['packages/extension--release_created'] }}
+      extension_tag_name: ${{ steps.release.outputs['packages/extension--tag_name'] }}
+      extension_release_url: ${{ steps.release.outputs['packages/extension--html_url'] }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          # Prefer a PAT or GitHub App token so the release PR and tags can trigger CI.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          target-branch: master
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-extension:
+    name: Publish Extension
+    needs: release-please
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-extension-${{ needs.release-please.outputs.extension_tag_name }}
+      cancel-in-progress: false
+    env:
+      EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
+      CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+      CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
+      WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+      WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+      EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify release credentials
+        shell: bash
+        run: |
+          missing=0
+          for var in \
+            EXTENSION_ID \
+            CHROME_PUBLISHER_ID \
+            CHROME_SERVICE_ACCOUNT_JSON \
+            WEB_EXT_API_KEY \
+            WEB_EXT_API_SECRET \
+            EDGE_PRODUCT_ID \
+            EDGE_CLIENT_ID \
+            EDGE_API_KEY
+          do
+            if [ -z "${!var}" ]; then
+              echo "::error::Missing required secret for ${var}"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Install Playwright
+        run: pnpm --filter integration-test exec playwright install --with-deps chromium webkit
+
+      - name: Run release gate on Ubuntu
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
+
+      - name: Build release artifacts
+        run: |
+          pnpm run deploy
+          pnpm run package:firefox-source
+
+      - name: Upload packaged extension artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
+          path: |
+            packages/extension/build/build_chrome.zip
+            packages/extension/build/build_firefox.zip
+            packages/extension/build/build_firefox_source.zip
+            packages/extension/build/SHA256SUMS.txt
+          retention-days: 30
+
+      - name: Attach build artifacts to the GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.release-please.outputs.extension_tag_name }}" \
+            packages/extension/build/build_chrome.zip \
+            packages/extension/build/build_firefox.zip \
+            packages/extension/build/build_firefox_source.zip \
+            packages/extension/build/SHA256SUMS.txt \
+            --clobber
+
+      - name: Publish to browser stores
+        run: pnpm run publish-extension

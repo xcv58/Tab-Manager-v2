@@ -11,6 +11,7 @@ secrets.*.js
 coverage
 yarn-error.log
 .env
+.env.release.local
 
 storybook-static
 .turbo
