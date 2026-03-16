@@ -49,30 +49,18 @@ export const initBrowserWithExtension = async () => {
     ],
   })) as ChromiumBrowserContext
 
-  let page = await browserContext.pages()[0]
-  await page.bringToFront()
-  await page.goto('chrome://inspect/#extensions')
-  await page.goto('chrome://inspect/#service-workers')
-  const serviceWorkerUrl = page
-    .locator('#service-workers-list div[class="url"]')
-    .first()
-  await expect(serviceWorkerUrl).toContainText('chrome-extension://', {
-    timeout: 45000,
-  })
-  const url = await serviceWorkerUrl.textContent()
-  if (!url) {
-    throw new Error('Failed to resolve extension service worker URL')
-  }
-  const [, , extensionId] = url.split('/')
-  if (!extensionId) {
-    throw new Error(`Invalid extension service worker URL: ${url}`)
-  }
+  const serviceWorker =
+    browserContext.serviceWorkers()[0] ||
+    (await browserContext.waitForEvent('serviceworker', { timeout: 60000 }))
+  const extensionId = new URL(serviceWorker.url()).host
   const extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
-  await page.waitForTimeout(500)
-  const pages = browserContext.pages()
-  page = pages.find((x) => x.url() === extensionURL)
-  if (!page) {
-    page = pages[0]
+  const page =
+    browserContext
+      .pages()
+      .find((candidate) => candidate.url() === extensionURL) ||
+    (await browserContext.newPage())
+  if (page.url() !== extensionURL) {
+    await page.goto(extensionURL)
   }
 
   return { browserContext, extensionURL, page }
@@ -82,13 +70,14 @@ export const openPages = async (
   browserContext: ChromiumBrowserContext,
   urls: string[],
 ) => {
-  return await Promise.all(
-    urls.map(async (url) => {
-      const newPage = await browserContext.newPage()
-      await newPage.goto(url)
-      await newPage.waitForLoadState('load')
-    }),
-  )
+  const pages: Page[] = []
+  for (const url of urls) {
+    const newPage = await browserContext.newPage()
+    await newPage.goto(url)
+    await newPage.waitForLoadState('load')
+    pages.push(newPage)
+  }
+  return pages
 }
 
 export const groupTabsByUrl = async (

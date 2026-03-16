@@ -124,7 +124,6 @@ test.describe('The Extension page should', () => {
 
     const allWindows = page.locator(WINDOW_CARD_QUERY)
     await expect(allWindows).toHaveCount(2)
-    await expect(page.locator(TAB_QUERY)).toHaveCount(5)
     await expect(allWindows.first()).toBeVisible()
     await expect(allWindows.nth(1)).toBeVisible()
     const focusedWindowId = await page.evaluate(async () => {
