@@ -4,6 +4,21 @@ Changes to popup UI layout, spacing, icons, hover states, or controls are
 snapshot-sensitive. Assume Playwright snapshots may differ between macOS and
 Linux.
 
+## Repo Notes Policy
+
+Treat `docs/` as public website content only. Do not store planning notes,
+project analysis, issue writeups, or other internal `.md` files there.
+
+Use the root-level `notes/` folder for internal markdown such as:
+
+- implementation plans
+- investigation notes
+- issue-specific analysis
+- project working docs
+
+If a markdown file is not meant to be served on the public docs site, it does
+not belong in `docs/`.
+
 Snapshot-sensitive areas include:
 
 - `packages/extension/src/js/components/**`

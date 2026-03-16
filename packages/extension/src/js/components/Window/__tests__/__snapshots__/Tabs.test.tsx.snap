@@ -10,7 +10,7 @@ exports[`Tabs render correct components 1`] = `
   >
     <div>
       <div
-        class="flex relative items-center opacity-25"
+        class="group/tab-row flex relative items-center transition-colors duration-150 opacity-25 hover:bg-[rgba(15,23,42,0.04)]"
         data-testid="tab-row-1"
         style="background-color: transparent; color: rgb(17, 24, 39);"
         tabindex="-1"
@@ -177,7 +177,7 @@ exports[`Tabs render correct components 1`] = `
   >
     <div>
       <div
-        class="flex relative items-center opacity-25"
+        class="group/tab-row flex relative items-center transition-colors duration-150 opacity-25 hover:bg-[rgba(15,23,42,0.04)]"
         data-testid="tab-row-2"
         style="background-color: transparent; color: rgb(17, 24, 39);"
         tabindex="-1"

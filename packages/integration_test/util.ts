@@ -334,6 +334,25 @@ export const closeCurrentWindowTabsExceptActive = async (
   }, extensionURL)
 }
 
+export const closeNonExtensionTabs = async (
+  page: Page,
+  extensionURL?: string,
+) => {
+  const extensionOrigin = extensionURL
+    ? new URL(extensionURL).origin
+    : 'chrome-extension://'
+  await page.evaluate(async (expectedOrigin) => {
+    const tabs = await chrome.tabs.query({})
+    const tabIdsToClose = tabs
+      .filter((tab) => !(tab.url || '').startsWith(expectedOrigin))
+      .map((tab) => tab.id)
+      .filter((tabId): tabId is number => typeof tabId === 'number')
+    if (tabIdsToClose.length > 0) {
+      await chrome.tabs.remove(tabIdsToClose)
+    }
+  }, extensionOrigin)
+}
+
 export const waitForDefaultExtensionView = async (page: Page) => {
   await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
   await expect(page.locator(TAB_QUERY)).toHaveCount(1)

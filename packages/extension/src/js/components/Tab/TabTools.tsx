@@ -11,22 +11,21 @@ export default observer((props: TabProps) => {
   const { dragStore } = useStore()
   const {
     faked,
-    tab: { isFocused, isHovered },
+    tab: { isFocused },
   } = props
   const { dragging } = dragStore
   if (faked || dragging) {
     return null
   }
-  const emphasizeTools = isHovered || isFocused
   return (
     <div
       className="flex h-10 shrink-0 items-center gap-0.5"
       style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
     >
-      <RowActionSlot visible={emphasizeTools}>
+      <RowActionSlot visible={isFocused} hoverVisible>
         <TabMenu {...props} />
       </RowActionSlot>
-      <RowActionSlot visible={emphasizeTools}>
+      <RowActionSlot visible={isFocused} hoverVisible>
         <DragHandle />
       </RowActionSlot>
     </div>

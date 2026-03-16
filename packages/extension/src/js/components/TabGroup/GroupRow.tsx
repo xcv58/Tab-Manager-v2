@@ -14,7 +14,6 @@ import { useStore } from 'components/hooks/useStore'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
 import RowActionRail from 'components/RowActionRail'
-import useReduceMotion from 'libs/useReduceMotion'
 import { WindowRow } from 'stores/TabGroupStore'
 import Window from 'stores/Window'
 import GroupEditorPopover from './GroupEditorPopover'
@@ -36,7 +35,8 @@ type Props = {
 
 export default observer((props: Props) => {
   const { row, win } = props
-  const { tabGroupStore, searchStore, windowStore, dragStore } = useStore()
+  const { tabGroupStore, searchStore, windowStore, dragStore, focusStore } =
+    useStore()
   const theme = useTheme()
   const isDarkMode = theme.palette.mode === 'dark'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
@@ -53,7 +53,6 @@ export default observer((props: Props) => {
   const [headerDropMode, setHeaderDropMode] = useState<
     'join-group' | 'before-group'
   >('join-group')
-  const reduceMotion = useReduceMotion()
 
   const groupColorId = (tabGroup?.color ||
     row.color ||
@@ -190,17 +189,28 @@ export default observer((props: Props) => {
 
   useEffect(() => {
     groupRow.setNodeRef(nodeRef)
-  })
+  }, [groupRow])
   useEffect(() => {
-    if (isFocused) {
+    if (isFocused && nodeRef.current) {
       nodeRef.current?.focus({ preventScroll: true })
-      nodeRef.current?.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
-      })
+      if (
+        groupRow.shouldRevealOnFocus &&
+        focusStore.shouldRevealNode(nodeRef.current)
+      ) {
+        nodeRef.current?.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'nearest',
+        })
+      }
     }
-  }, [groupRow, isFocused, reduceMotion])
+  }, [
+    focusStore,
+    groupRow,
+    groupRow.focusRequestId,
+    groupRow.shouldRevealOnFocus,
+    isFocused,
+  ])
 
   const setDropRef = useCallback(
     (node: HTMLDivElement | null) => {

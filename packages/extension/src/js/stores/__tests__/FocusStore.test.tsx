@@ -237,6 +237,53 @@ describe('FocusStore', () => {
     expect(store.focusStore.focusedGroupId).toBe(100)
   })
 
+  it('only keeps focus state on the current item and carries reveal requests', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: 100,
+            index: 0,
+            title: 'Grouped A',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+          {
+            id: 2,
+            active: false,
+            groupId: -1,
+            index: 1,
+            title: 'Ungrouped',
+            url: 'https://example.com/b',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+
+    const groupRow = win.getGroupRow(100)
+    store.focusStore.focus(groupRow)
+    expect(groupRow.isFocused).toBe(true)
+    expect(groupRow.shouldRevealOnFocus).toBe(false)
+
+    store.focusStore.focus(win.tabs[1], {
+      origin: 'keyboard',
+      reveal: true,
+    })
+    expect(groupRow.isFocused).toBe(false)
+    expect(win.tabs[1].isFocused).toBe(true)
+    expect(win.tabs[1].focusOrigin).toBe('keyboard')
+    expect(win.tabs[1].shouldRevealOnFocus).toBe(true)
+    expect(win.tabs[1].focusRequestId).toBe(1)
+  })
+
   it('selects the whole group for group-focused x and shift+x behavior', () => {
     const store = createStore(false)
     const win = new Window(

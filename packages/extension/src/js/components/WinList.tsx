@@ -65,6 +65,7 @@ export default observer(() => {
   return (
     <div
       ref={scrollbarRef}
+      data-testid="window-list-scroll-container"
       className="flex flex-row items-start flex-auto px-1 mb-0 mr-0 overflow-scroll"
     >
       {columns}

@@ -4,6 +4,7 @@ import log from 'libs/log'
 import Tab from './Tab'
 import Window from './Window'
 import Focusable from './Focusable'
+import type { FocusRequestOptions } from './Focusable'
 import { MutableRefObject } from 'react'
 import TabGroupRow from './TabGroupRow'
 
@@ -30,8 +31,12 @@ const getFocusableItems = (win: Window, focusedItem: Focusable) => {
 export default class FocusStore {
   store: Store
 
+  focusedItemRef: Focusable | null = null
+
   constructor(store: Store) {
-    makeAutoObservable(this)
+    makeAutoObservable(this, {
+      focusedItemRef: false,
+    })
 
     this.store = store
   }
@@ -72,6 +77,9 @@ export default class FocusStore {
 
   _setFocusedItem = (item: Focusable) => {
     log.debug('_setFocusedItem:', item)
+    if (this.focusedItemRef && this.focusedItemRef !== item) {
+      this.focusedItemRef.setFocusState({ focused: false })
+    }
     if (item instanceof Window) {
       this.focusedTabId = null
       this.focusedGroupId = null
@@ -89,10 +97,14 @@ export default class FocusStore {
         'invalid input item for _setFocusedItem, it is not Window, Tab, or TabGroupRow:',
         { item },
       )
+      return
     }
+    this.focusedItemRef = item
   }
 
   defocus = () => {
+    this.focusedItemRef?.setFocusState({ focused: false })
+    this.focusedItemRef = null
     this.focusedTabId = null
     this.focusedGroupId = null
     this.focusedWindowId = null
@@ -105,8 +117,13 @@ export default class FocusStore {
     }
   }
 
-  focus = (item: Focusable) => {
+  focus = (item: Focusable, options: FocusRequestOptions = {}) => {
     this._setFocusedItem(item)
+    item.setFocusState({
+      focused: true,
+      origin: options.origin,
+      reveal: options.reveal,
+    })
   }
 
   // Toggle select of focused tab, or the focused window.tabs
@@ -269,7 +286,10 @@ export default class FocusStore {
     }
     this._top = scrollTop + item.getBoundingClientRect().top
     log.debug('_moveVertically target item:', item)
-    this._setFocusedItem(item)
+    this.focus(item, {
+      origin: 'keyboard',
+      reveal: true,
+    })
   }
 
   _moveHorizontally = (direction: number) => {
@@ -305,7 +325,10 @@ export default class FocusStore {
       }
     }
     if (targetItem) {
-      this._setFocusedItem(targetItem)
+      this.focus(targetItem, {
+        origin: 'keyboard',
+        reveal: true,
+      })
     }
   }
 
@@ -343,16 +366,43 @@ export default class FocusStore {
     const { windows } = this.store.windowStore
     for (const win of windows) {
       if (win.hide) {
-        return this._setFocusedItem(win)
+        return this.focus(win, {
+          origin: 'keyboard',
+          reveal: true,
+        })
       }
       const [firstItem] = win.focusableRows
       if (firstItem) {
-        return this._setFocusedItem(firstItem)
+        return this.focus(firstItem, {
+          origin: 'keyboard',
+          reveal: true,
+        })
       }
     }
     if (windows.length) {
-      return this._setFocusedItem(windows[0])
+      return this.focus(windows[0], {
+        origin: 'keyboard',
+        reveal: true,
+      })
     }
+  }
+
+  shouldRevealNode = (node: HTMLElement | null) => {
+    if (!node) {
+      return false
+    }
+    const container = this.containerRef?.current
+    if (!container) {
+      return true
+    }
+    const nodeRect = node.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
+    return (
+      nodeRect.top < containerRect.top ||
+      nodeRect.bottom > containerRect.bottom ||
+      nodeRect.left < containerRect.left ||
+      nodeRect.right > containerRect.right
+    )
   }
 
   setDefaultFocusedTab = () => {

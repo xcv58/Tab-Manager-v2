@@ -1,6 +1,13 @@
 import { MutableRefObject } from 'react'
-import { action, computed, observable, makeObservable } from 'mobx'
+import { action, observable, makeObservable } from 'mobx'
 import Store from 'stores'
+
+export type FocusOrigin = 'keyboard' | 'mouse' | 'search' | 'programmatic'
+
+export type FocusRequestOptions = {
+  origin?: FocusOrigin
+  reveal?: boolean
+}
 
 export default class Focusable {
   store: Store
@@ -9,8 +16,12 @@ export default class Focusable {
     makeObservable(this, {
       id: observable,
       nodeRef: observable,
+      isFocused: observable,
+      focusOrigin: observable,
+      shouldRevealOnFocus: observable,
+      focusRequestId: observable,
       setNodeRef: action,
-      isFocused: computed,
+      setFocusState: action,
     })
 
     this.store = store
@@ -20,12 +31,32 @@ export default class Focusable {
 
   nodeRef: MutableRefObject<HTMLDivElement> = null
 
+  isFocused = false
+
+  focusOrigin: FocusOrigin = 'programmatic'
+
+  shouldRevealOnFocus = false
+
+  focusRequestId = 0
+
   setNodeRef = (nodeRef: MutableRefObject<HTMLDivElement>) => {
     this.nodeRef = nodeRef
   }
 
-  get isFocused() {
-    return this === this.store.focusStore.focusedItem
+  setFocusState = ({
+    focused,
+    origin = 'programmatic',
+    reveal = false,
+  }: FocusRequestOptions & { focused: boolean }) => {
+    this.isFocused = focused
+    if (!focused) {
+      this.focusOrigin = 'programmatic'
+      this.shouldRevealOnFocus = false
+      return
+    }
+    this.focusOrigin = origin
+    this.shouldRevealOnFocus = reveal
+    this.focusRequestId += 1
   }
 
   getBoundingClientRect = () => {
