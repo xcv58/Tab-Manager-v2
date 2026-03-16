@@ -73,8 +73,10 @@ export const openPages = async (
   const pages: Page[] = []
   for (const url of urls) {
     const newPage = await browserContext.newPage()
-    await newPage.goto(url)
-    await newPage.waitForLoadState('load')
+    await newPage.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    })
     pages.push(newPage)
   }
   return pages

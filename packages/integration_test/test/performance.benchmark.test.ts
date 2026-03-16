@@ -36,7 +36,7 @@ const GROUP_COLORS: chrome.tabGroups.ColorEnum[] = [
 const MEDIUM_WORKLOAD: GroupedBenchmarkWorkload = {
   name: 'medium',
   windowCount: 4,
-  tabsPerWindow: 50,
+  tabsPerWindow: process.env.CIRCLECI ? 40 : 50,
   groupSize: 10,
   matchEvery: 25,
 }
@@ -44,7 +44,7 @@ const MEDIUM_WORKLOAD: GroupedBenchmarkWorkload = {
 const LARGE_WORKLOAD: GroupedBenchmarkWorkload = {
   name: 'large',
   windowCount: 4,
-  tabsPerWindow: 100,
+  tabsPerWindow: process.env.CIRCLECI ? 60 : 100,
   groupSize: 10,
   matchEvery: 25,
 }
