@@ -17,6 +17,14 @@ describe('WinList', () => {
     const updateViewport = jest.fn()
     const updateScroll = jest.fn()
     const setContainerRef = jest.fn()
+    const computedStyleSpy = jest
+      .spyOn(window, 'getComputedStyle')
+      .mockReturnValue({
+        paddingLeft: '0',
+        paddingRight: '0',
+        paddingTop: '0',
+        paddingBottom: '0',
+      } as CSSStyleDeclaration)
     const makeStore = (initialLoading: boolean, toolbarAutoHide: boolean) =>
       ({
         windowStore: {
@@ -49,22 +57,12 @@ describe('WinList', () => {
           setContainerRef,
         },
       }) as any
-    jest
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(
-        () =>
-          ({
-            height: 420,
-            width: 0,
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            x: 0,
-            y: 0,
-            toJSON: () => ({}),
-          }) as DOMRect,
-      )
+    const clientHeightSpy = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(420)
+    const clientWidthSpy = jest
+      .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+      .mockReturnValue(0)
 
     const { rerender } = render(
       <StoreContext.Provider value={makeStore(true, false)}>
@@ -98,5 +96,9 @@ describe('WinList', () => {
     expect(updateViewport).toHaveBeenLastCalledWith(420, 0)
     expect(updateScroll).toHaveBeenCalledTimes(3)
     expect(updateScroll).toHaveBeenLastCalledWith(0, 0)
+
+    computedStyleSpy.mockRestore()
+    clientHeightSpy.mockRestore()
+    clientWidthSpy.mockRestore()
   })
 })
