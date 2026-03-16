@@ -53,6 +53,11 @@ const MIXED_GROUP_URLS = {
   free: ['about:blank#mixed-free-1', 'about:blank#mixed-free-2'],
 }
 
+const LIGHTWEIGHT_URLS = Array.from(
+  { length: 6 },
+  (_, index) => `about:blank#interaction-lightweight-${index}`,
+)
+
 const setupMultiWindowGroups = async (page: Page) => {
   const setup = await page.evaluate(
     async ({ win1Urls, win2Urls }) => {
@@ -642,7 +647,7 @@ test.describe('The Extension page should', () => {
 
   test('search input field should clear after selecting a command', async () => {
     // Set up initial page state
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.waitForTimeout(1000)
 
@@ -697,7 +702,7 @@ test.describe('The Extension page should', () => {
   })
 
   test('close tab when click close button', async () => {
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.reload()
     await page.waitForTimeout(500)

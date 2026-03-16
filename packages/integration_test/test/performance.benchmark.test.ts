@@ -384,26 +384,26 @@ test.describe('Performance benchmark scenarios', () => {
     expect(open.state.tabRows).toBeLessThan(setup.expectedTabRows)
   })
 
-  test('measures grouped popup open for the large workload with virtualized row assertions', async () => {
-    test.skip(
-      !!process.env.CIRCLECI,
-      'CircleCI medium containers are too constrained for the large grouped benchmark workload',
-    )
-    const setup = await setupGroupedWorkspace(LARGE_WORKLOAD)
-    const open = await waitForPopupState(
-      page,
-      `open:${LARGE_WORKLOAD.name}`,
-      (state) =>
-        !state.loadingVisible &&
-        state.windowCards > 0 &&
-        state.groupHeaders > 0 &&
-        state.tabRows > 0,
-    )
+  if (process.env.CIRCLECI) {
+    test.skip('measures grouped popup open for the large workload with virtualized row assertions', async () => {})
+  } else {
+    test('measures grouped popup open for the large workload with virtualized row assertions', async () => {
+      const setup = await setupGroupedWorkspace(LARGE_WORKLOAD)
+      const open = await waitForPopupState(
+        page,
+        `open:${LARGE_WORKLOAD.name}`,
+        (state) =>
+          !state.loadingVisible &&
+          state.windowCards > 0 &&
+          state.groupHeaders > 0 &&
+          state.tabRows > 0,
+      )
 
-    expect(open.state.windowCards).toBeLessThanOrEqual(setup.windowIds.length)
-    expect(open.state.groupHeaders).toBeLessThan(setup.expectedGroupHeaders)
-    expect(open.state.tabRows).toBeLessThan(setup.expectedTabRows)
-  })
+      expect(open.state.windowCards).toBeLessThanOrEqual(setup.windowIds.length)
+      expect(open.state.groupHeaders).toBeLessThan(setup.expectedGroupHeaders)
+      expect(open.state.tabRows).toBeLessThan(setup.expectedTabRows)
+    })
+  }
 
   test('narrows grouped search results to the exact matching tabs and group headers', async () => {
     const setup = await setupGroupedWorkspace(MEDIUM_WORKLOAD)
