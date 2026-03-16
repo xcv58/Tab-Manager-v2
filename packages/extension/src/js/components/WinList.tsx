@@ -16,7 +16,15 @@ export default observer(() => {
     if (!scrollbarRef.current) {
       return
     }
-    const { height, width } = scrollbarRef.current.getBoundingClientRect()
+    const styles = window.getComputedStyle(scrollbarRef.current)
+    const paddingX =
+      parseFloat(styles.paddingLeft || '0') +
+      parseFloat(styles.paddingRight || '0')
+    const paddingY =
+      parseFloat(styles.paddingTop || '0') +
+      parseFloat(styles.paddingBottom || '0')
+    const width = Math.max(scrollbarRef.current.clientWidth - paddingX, 0)
+    const height = Math.max(scrollbarRef.current.clientHeight - paddingY, 0)
     windowStore.updateViewport(height, width)
     windowStore.updateScroll(
       scrollbarRef.current.scrollTop,

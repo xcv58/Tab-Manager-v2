@@ -482,28 +482,40 @@ test.describe('Performance benchmark scenarios', () => {
         return null
       }
       const containerRect = container.getBoundingClientRect()
-      const focusableRows = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          '[data-testid^="tab-row-"],[data-testid^="tab-group-header-"],[data-testid^="window-title-"]',
+      const focusableRows = [
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null,
+        ...Array.from(
+          document.querySelectorAll<HTMLElement>(
+            '[data-testid^="tab-row-"],[data-testid^="tab-group-header-"],[data-testid^="window-title-"]',
+          ),
         ),
-      )
+      ].filter((node): node is HTMLElement => !!node)
       const target = focusableRows.find((node) => {
         const rect = node.getBoundingClientRect()
         return (
-          rect.top >= containerRect.top + 24 &&
-          rect.bottom <= containerRect.bottom - 24 &&
-          rect.left >= containerRect.left &&
-          rect.right <= containerRect.right
+          rect.bottom > containerRect.top + 8 &&
+          rect.top < containerRect.bottom - 8 &&
+          rect.right > containerRect.left + 8 &&
+          rect.left < containerRect.right - 8
         )
       })
       if (!target) {
         return null
       }
       const rect = target.getBoundingClientRect()
+      const left = Math.max(rect.left + 8, containerRect.left + 8)
+      const right = Math.min(rect.right - 8, containerRect.right - 8)
+      const top = Math.max(rect.top + 4, containerRect.top + 4)
+      const bottom = Math.min(rect.bottom - 4, containerRect.bottom - 4)
+      if (left >= right || top >= bottom) {
+        return null
+      }
       return {
         testId: target.getAttribute('data-testid') || '',
-        x: rect.left + Math.min(rect.width / 2, Math.max(rect.width - 12, 12)),
-        y: rect.top + rect.height / 2,
+        x: (left + right) / 2,
+        y: (top + bottom) / 2,
       }
     })
     expect(visibleMouseTarget).not.toBeNull()
