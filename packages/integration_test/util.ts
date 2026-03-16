@@ -53,10 +53,20 @@ export const initBrowserWithExtension = async () => {
   await page.bringToFront()
   await page.goto('chrome://inspect/#extensions')
   await page.goto('chrome://inspect/#service-workers')
-  const url = await page
+  const serviceWorkerUrl = page
     .locator('#service-workers-list div[class="url"]')
-    .textContent()
+    .first()
+  await expect(serviceWorkerUrl).toContainText('chrome-extension://', {
+    timeout: 45000,
+  })
+  const url = await serviceWorkerUrl.textContent()
+  if (!url) {
+    throw new Error('Failed to resolve extension service worker URL')
+  }
   const [, , extensionId] = url.split('/')
+  if (!extensionId) {
+    throw new Error(`Invalid extension service worker URL: ${url}`)
+  }
   const extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
   await page.waitForTimeout(500)
   const pages = browserContext.pages()
@@ -173,12 +183,22 @@ export const createWindowsWithTabs = async (
   return page.evaluate(async (allWindowsUrls) => {
     const createdWindowIds: number[] = []
     for (const urls of allWindowsUrls) {
+      const [firstUrl = 'about:blank', ...restUrls] = urls
       const win = await chrome.windows.create({
-        url: urls,
+        url: firstUrl,
         focused: false,
       })
       if (typeof win.id === 'number') {
         createdWindowIds.push(win.id)
+        await Promise.all(
+          restUrls.map((url) =>
+            chrome.tabs.create({
+              windowId: win.id,
+              url,
+              active: false,
+            }),
+          ),
+        )
       }
     }
     return createdWindowIds

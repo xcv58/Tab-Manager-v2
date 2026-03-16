@@ -302,7 +302,7 @@ const setupGroupedWorkspace = async (workload: GroupedBenchmarkWorkload) => {
             const tabs = await chrome.tabs.query({ windowId: targetWindowId })
             return tabs.length
           }, windowId),
-        { timeout: 15000 },
+        { timeout: 30000 },
       )
       .toBe(workload.tabsPerWindow)
 

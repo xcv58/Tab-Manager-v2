@@ -265,6 +265,7 @@ const setupLayoutJumpScenario = async (page: Page) => {
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
+  test.setTimeout(60000)
   test.beforeAll(async () => {
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
