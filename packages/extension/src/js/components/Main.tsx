@@ -51,9 +51,9 @@ export default observer(() => {
         <PopupView />
       ) : (
         <>
-          <DroppableTools />
+          <DroppableTools showUtilityActions={!isPopup} />
           <WinList />
-          <Toolbar />
+          <Toolbar isPopup={isPopup} />
           <DragLayer />
         </>
       )}

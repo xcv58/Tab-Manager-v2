@@ -8,7 +8,11 @@ import { ItemTypes } from 'libs/react-dnd'
 import { useStore } from './hooks/useStore'
 import Tools from './Tools'
 
-export default observer(() => {
+type Props = {
+  showUtilityActions?: boolean
+}
+
+export default observer(({ showUtilityActions = true }: Props) => {
   const { dragStore, tabStore, userStore } = useStore()
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
@@ -34,7 +38,7 @@ export default observer(() => {
         ref={drop}
         className={classNames(
           'flex items-center justify-center h-12 px-1 text-3xl shrink-0 z-10',
-          isOver ? 'bg-green-400' : 'bg-green-300'
+          isOver ? 'bg-green-400' : 'bg-green-300',
         )}
       >
         {text} in New Window
@@ -52,5 +56,5 @@ export default observer(() => {
       </div>
     )
   }
-  return <Tools />
+  return <Tools showUtilityActions={showUtilityActions} />
 })
