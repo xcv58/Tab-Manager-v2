@@ -385,6 +385,10 @@ test.describe('Performance benchmark scenarios', () => {
   })
 
   test('measures grouped popup open for the large workload with virtualized row assertions', async () => {
+    test.skip(
+      !!process.env.CIRCLECI,
+      'CircleCI medium containers are too constrained for the large grouped benchmark workload',
+    )
     const setup = await setupGroupedWorkspace(LARGE_WORKLOAD)
     const open = await waitForPopupState(
       page,

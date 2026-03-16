@@ -668,9 +668,9 @@ test.describe('The Extension page should', () => {
   })
 
   test('command search should match regardless of word order', async () => {
-    await openPages(browserContext, URLS)
     await page.bringToFront()
-    await page.waitForTimeout(1000)
+    await page.reload()
+    await waitForDefaultExtensionView(page)
 
     const searchInput = page.locator(
       'input[placeholder*="Search tabs or URLs"]',
