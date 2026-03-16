@@ -61,6 +61,22 @@ type PopupState = {
   searchValue: string
 }
 
+type KeyboardBenchmarkState = {
+  focusedTestId: string
+  scrollTop: number
+}
+
+type SelectedCountState = {
+  selectedCount: number
+  focusedTestId: string
+}
+
+type GroupMoveState = {
+  contiguous: boolean
+  groupStart: number
+  targetIndex: number
+}
+
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
@@ -93,6 +109,39 @@ const readPopupState = async (page: Page): Promise<PopupState> =>
     }
   }, SEARCH_SELECTOR)
 
+const readFocusedTestId = async (page: Page) =>
+  await page.evaluate(
+    () => document.activeElement?.getAttribute('data-testid') || '',
+  )
+
+const readSelectedCountState = async (
+  page: Page,
+): Promise<SelectedCountState> =>
+  await page.evaluate(() => {
+    const text =
+      Array.from(document.querySelectorAll('p')).find((node) =>
+        /selected/.test(node.textContent || ''),
+      )?.textContent || ''
+    const match = text.match(/,\s*(\d+)\s+tabs?\s+selected/i)
+    return {
+      selectedCount: match ? Number(match[1]) : -1,
+      focusedTestId: document.activeElement?.getAttribute('data-testid') || '',
+    }
+  })
+
+const readKeyboardBenchmarkState = async (
+  page: Page,
+): Promise<KeyboardBenchmarkState> =>
+  await page.evaluate(() => {
+    const container = document.querySelector(
+      '[data-testid="window-list-scroll-container"]',
+    )
+    return {
+      focusedTestId: document.activeElement?.getAttribute('data-testid') || '',
+      scrollTop: container instanceof HTMLDivElement ? container.scrollTop : -1,
+    }
+  })
+
 const waitForPopupState = async (
   page: Page,
   label: string,
@@ -116,6 +165,54 @@ const waitForPopupState = async (
     JSON.stringify({ elapsedMs, state: latestState }),
   )
   return { elapsedMs, state: latestState }
+}
+
+const measureStateTransition = async <T>({
+  label,
+  action,
+  readState,
+  predicate,
+  timeout = 15000,
+}: {
+  label: string
+  action: () => Promise<void>
+  readState: () => Promise<T>
+  predicate: (state: T) => boolean
+  timeout?: number
+}) => {
+  const startedAt = Date.now()
+  let latestState = await readState()
+  await action()
+  await expect
+    .poll(
+      async () => {
+        latestState = await readState()
+        return predicate(latestState)
+      },
+      { timeout },
+    )
+    .toBe(true)
+  const elapsedMs = Date.now() - startedAt
+  console.log(
+    `[performance-benchmark] ${label}`,
+    JSON.stringify({ elapsedMs, state: latestState }),
+  )
+  return { elapsedMs, state: latestState }
+}
+
+const focusByKeyboardUntil = async (
+  page: Page,
+  predicate: (testId: string) => boolean,
+  maxSteps = 40,
+) => {
+  for (let index = 0; index < maxSteps; index += 1) {
+    await page.keyboard.press('j')
+    const focusedTestId = await readFocusedTestId(page)
+    if (predicate(focusedTestId)) {
+      return focusedTestId
+    }
+  }
+  throw new Error('Unable to focus requested row by keyboard navigation')
 }
 
 const groupTabsInWindowWithRetry = async ({
@@ -195,6 +292,7 @@ const setupGroupedWorkspace = async (workload: GroupedBenchmarkWorkload) => {
   )
   const windowIds = await createWindowsWithTabs(page, windowsUrls)
   expect(windowIds).toHaveLength(workload.windowCount)
+  const groupIdsByWindow: number[][] = []
 
   for (const [windowIndex, windowId] of windowIds.entries()) {
     await expect
@@ -209,6 +307,7 @@ const setupGroupedWorkspace = async (workload: GroupedBenchmarkWorkload) => {
       .toBe(workload.tabsPerWindow)
 
     const urls = windowsUrls[windowIndex]
+    const windowGroupIds: number[] = []
     for (
       let startIndex = 0;
       startIndex < workload.tabsPerWindow;
@@ -223,7 +322,9 @@ const setupGroupedWorkspace = async (workload: GroupedBenchmarkWorkload) => {
           GROUP_COLORS[(startIndex / workload.groupSize) % GROUP_COLORS.length],
       })
       expect(groupId).toBeGreaterThan(-1)
+      windowGroupIds.push(groupId)
     }
+    groupIdsByWindow.push(windowGroupIds)
   }
 
   await page.goto(extensionURL)
@@ -232,6 +333,7 @@ const setupGroupedWorkspace = async (workload: GroupedBenchmarkWorkload) => {
     expectedTabRows: getExpectedGroupedRowCount(workload) + 1,
     expectedGroupHeaders: getExpectedGroupedHeaderCount(workload),
     expectedMatches: getExpectedGroupedMatchCount(workload),
+    groupIdsByWindow,
     windowIds,
   }
 }
@@ -265,34 +367,38 @@ test.describe('Performance benchmark scenarios', () => {
     await CLOSE_PAGES(browserContext)
   })
 
-  test('measures grouped popup open for the medium workload with exact row assertions', async () => {
+  test('measures grouped popup open for the medium workload with virtualized row assertions', async () => {
     const setup = await setupGroupedWorkspace(MEDIUM_WORKLOAD)
     const open = await waitForPopupState(
       page,
       `open:${MEDIUM_WORKLOAD.name}`,
       (state) =>
         !state.loadingVisible &&
-        state.groupHeaders === setup.expectedGroupHeaders &&
-        state.tabRows === setup.expectedTabRows,
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
     )
 
-    expect(open.state.groupHeaders).toBe(setup.expectedGroupHeaders)
-    expect(open.state.tabRows).toBe(setup.expectedTabRows)
+    expect(open.state.windowCards).toBeLessThanOrEqual(setup.windowIds.length)
+    expect(open.state.groupHeaders).toBeLessThan(setup.expectedGroupHeaders)
+    expect(open.state.tabRows).toBeLessThan(setup.expectedTabRows)
   })
 
-  test('measures grouped popup open for the large workload with exact row assertions', async () => {
+  test('measures grouped popup open for the large workload with virtualized row assertions', async () => {
     const setup = await setupGroupedWorkspace(LARGE_WORKLOAD)
     const open = await waitForPopupState(
       page,
       `open:${LARGE_WORKLOAD.name}`,
       (state) =>
         !state.loadingVisible &&
-        state.groupHeaders === setup.expectedGroupHeaders &&
-        state.tabRows === setup.expectedTabRows,
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
     )
 
-    expect(open.state.groupHeaders).toBe(setup.expectedGroupHeaders)
-    expect(open.state.tabRows).toBe(setup.expectedTabRows)
+    expect(open.state.windowCards).toBeLessThanOrEqual(setup.windowIds.length)
+    expect(open.state.groupHeaders).toBeLessThan(setup.expectedGroupHeaders)
+    expect(open.state.tabRows).toBeLessThan(setup.expectedTabRows)
   })
 
   test('narrows grouped search results to the exact matching tabs and group headers', async () => {
@@ -302,8 +408,9 @@ test.describe('Performance benchmark scenarios', () => {
       'open:search-benchmark',
       (state) =>
         !state.loadingVisible &&
-        state.groupHeaders === setup.expectedGroupHeaders &&
-        state.tabRows === setup.expectedTabRows,
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
     )
 
     const searchInput = page.locator(SEARCH_SELECTOR)
@@ -325,14 +432,15 @@ test.describe('Performance benchmark scenarios', () => {
   })
 
   test('reveals offscreen rows during keyboard navigation without extra mouse-triggered scrolling', async () => {
-    const setup = await setupGroupedWorkspace(LARGE_WORKLOAD)
+    await setupGroupedWorkspace(LARGE_WORKLOAD)
     await waitForPopupState(
       page,
       'open:keyboard',
       (state) =>
         !state.loadingVisible &&
-        state.groupHeaders === setup.expectedGroupHeaders &&
-        state.tabRows === setup.expectedTabRows,
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
     )
 
     const scrollContainer = page.getByTestId('window-list-scroll-container')
@@ -407,6 +515,195 @@ test.describe('Performance benchmark scenarios', () => {
       (node) => (node as HTMLDivElement).scrollTop,
     )
     expect(mouseScrollTop).toBe(keyboardScrollTop)
+  })
+
+  test('measures interaction costs for keyboard navigation and group selection on the large workload', async () => {
+    const setup = await setupGroupedWorkspace(LARGE_WORKLOAD)
+    await waitForPopupState(
+      page,
+      'open:interaction',
+      (state) =>
+        !state.loadingVisible &&
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
+    )
+
+    const scrollContainer = page.getByTestId('window-list-scroll-container')
+    await expect(scrollContainer).toBeVisible()
+    const initialKeyboardState = await readKeyboardBenchmarkState(page)
+
+    const keyboard = await measureStateTransition({
+      label: 'keyboard:50',
+      action: async () => {
+        for (let index = 0; index < 50; index += 1) {
+          await page.keyboard.press('j')
+        }
+      },
+      readState: async () => await readKeyboardBenchmarkState(page),
+      predicate: (state) =>
+        /^(tab-row|tab-group-header|window-title)-/.test(state.focusedTestId) &&
+        state.scrollTop > initialKeyboardState.scrollTop,
+    })
+
+    expect(keyboard.state.focusedTestId).toMatch(
+      /^(tab-row|tab-group-header|window-title)-/,
+    )
+    expect(keyboard.state.scrollTop).toBeGreaterThan(
+      initialKeyboardState.scrollTop,
+    )
+
+    await page.reload()
+    await page.locator(SEARCH_SELECTOR).waitFor({ timeout: 15000 })
+    await waitForPopupState(
+      page,
+      'open:select-group',
+      (state) =>
+        !state.loadingVisible &&
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
+    )
+
+    const focusedGroupHeader = await focusByKeyboardUntil(page, (testId) =>
+      testId.startsWith('tab-group-header-'),
+    )
+    expect(focusedGroupHeader).toBe(
+      `tab-group-header-${setup.groupIdsByWindow[0][0]}`,
+    )
+
+    const groupSelection = await measureStateTransition({
+      label: 'select:group',
+      action: async () => {
+        await page.keyboard.press('x')
+      },
+      readState: async () => await readSelectedCountState(page),
+      predicate: (state) =>
+        state.selectedCount === LARGE_WORKLOAD.groupSize &&
+        state.focusedTestId === focusedGroupHeader,
+    })
+
+    expect(groupSelection.state.selectedCount).toBe(LARGE_WORKLOAD.groupSize)
+  })
+
+  test('measures same-window group move cost on the large workload', async () => {
+    const dragWindowUrls = [
+      Array.from({ length: LARGE_WORKLOAD.tabsPerWindow }, (_, tabIndex) =>
+        buildDataUrl(`group-move-large-tab-${tabIndex}`),
+      ),
+    ]
+    const [windowId] = await createWindowsWithTabs(page, dragWindowUrls)
+    expect(windowId).toBeGreaterThan(-1)
+    const sourceGroupId = await groupTabsInWindowWithRetry({
+      page,
+      windowId,
+      urls: dragWindowUrls[0].slice(0, LARGE_WORKLOAD.groupSize),
+      title: 'Move benchmark group',
+      color: 'purple',
+    })
+    expect(sourceGroupId).toBeGreaterThan(-1)
+
+    const targetTabId = await page.evaluate(
+      async ({ windowId, targetUrl }) => {
+        const tabs = await chrome.tabs.query({ windowId })
+        return tabs.find((tab) => tab.url === targetUrl)?.id ?? -1
+      },
+      {
+        windowId,
+        targetUrl: dragWindowUrls[0][LARGE_WORKLOAD.groupSize + 4],
+      },
+    )
+    expect(targetTabId).toBeGreaterThan(-1)
+
+    await page.goto(extensionURL)
+    await waitForTestId(page, `tab-group-header-${sourceGroupId}`)
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await waitForPopupState(
+      page,
+      'open:group-move',
+      (state) =>
+        !state.loadingVisible &&
+        state.windowCards > 0 &&
+        state.groupHeaders > 0 &&
+        state.tabRows > 0,
+    )
+
+    await page.getByTestId(`tab-group-header-${sourceGroupId}`).hover()
+    await expect(
+      page.getByTestId(`tab-group-drag-handle-${sourceGroupId}`),
+    ).toBeVisible()
+
+    const initialMoveState = await page.evaluate(
+      async ({ windowId, sourceGroupId, targetTabId }) => {
+        const tabs = (await chrome.tabs.query({ windowId })).sort(
+          (a, b) => a.index - b.index,
+        )
+        const sourceTabs = tabs.filter((tab) => tab.groupId === sourceGroupId)
+        const targetTab = tabs.find((tab) => tab.id === targetTabId)
+        return {
+          sourceStart: sourceTabs[0]?.index ?? -1,
+          targetIndex: targetTab?.index ?? -1,
+        }
+      },
+      { windowId, sourceGroupId, targetTabId },
+    )
+    const sourceBox = await page
+      .getByTestId(`tab-group-drag-handle-${sourceGroupId}`)
+      .boundingBox()
+    const targetBox = await page
+      .getByTestId(`tab-row-${targetTabId}`)
+      .boundingBox()
+    expect(sourceBox).not.toBeNull()
+    expect(targetBox).not.toBeNull()
+    if (!sourceBox || !targetBox) {
+      throw new Error('Unable to resolve group move benchmark bounding boxes')
+    }
+
+    const groupMove = await measureStateTransition<GroupMoveState>({
+      label: 'move:group',
+      action: async () => {
+        const sourceX = sourceBox.x + sourceBox.width / 2
+        const sourceY = sourceBox.y + sourceBox.height / 2
+        const targetX = targetBox.x + Math.min(16, targetBox.width / 2)
+        const targetY = targetBox.y + targetBox.height * 0.75
+        await page.mouse.move(sourceX, sourceY)
+        await page.mouse.down()
+        await page.mouse.move(targetX, targetY, { steps: 16 })
+        await page.mouse.up()
+      },
+      readState: async () =>
+        await page.evaluate(
+          async ({ windowId, sourceGroupId, targetTabId }) => {
+            const tabs = (await chrome.tabs.query({ windowId })).sort(
+              (a, b) => a.index - b.index,
+            )
+            const groupTabs = tabs.filter(
+              (tab) => tab.groupId === sourceGroupId,
+            )
+            const targetTab = tabs.find((tab) => tab.id === targetTabId)
+            return {
+              contiguous: groupTabs.every((tab, idx) => {
+                if (idx === 0) {
+                  return true
+                }
+                return tab.index === groupTabs[idx - 1].index + 1
+              }),
+              groupStart: groupTabs[0]?.index ?? -1,
+              targetIndex: targetTab?.index ?? -1,
+            }
+          },
+          { windowId, sourceGroupId, targetTabId },
+        ),
+      predicate: (state) =>
+        state.contiguous &&
+        state.groupStart > -1 &&
+        state.targetIndex > -1 &&
+        state.groupStart > initialMoveState.sourceStart,
+    })
+
+    expect(groupMove.state.contiguous).toBe(true)
+    expect(groupMove.state.groupStart).not.toBe(initialMoveState.sourceStart)
+    expect(groupMove.state.groupStart).toBeGreaterThan(-1)
   })
 
   test.fixme('verifies grouped cross-window drag moves the whole group to the target window', async () => {

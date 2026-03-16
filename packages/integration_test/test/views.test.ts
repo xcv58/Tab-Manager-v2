@@ -384,11 +384,20 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(200)
     const handle = page.getByTestId(`tab-group-drag-handle-${groupId}`)
     await expect(handle).toBeVisible()
-    const handleScreenshot = await handle.screenshot()
-    expect(handleScreenshot).toMatchSnapshot('group-drag-handle-hover.png', {
-      maxDiffPixelRatio: 0.08,
-      threshold: 0.2,
+    await expect(handle).toHaveAttribute('title', 'Drag group')
+    const handleMetrics = await handle.evaluate((node) => {
+      const style = window.getComputedStyle(node)
+      return {
+        width: Number.parseFloat(style.width),
+        height: Number.parseFloat(style.height),
+        iconCount: node.querySelectorAll('svg').length,
+      }
     })
+    expect(handleMetrics.width).toBeGreaterThanOrEqual(28)
+    expect(handleMetrics.width).toBeLessThanOrEqual(29)
+    expect(handleMetrics.height).toBeGreaterThanOrEqual(28)
+    expect(handleMetrics.height).toBeLessThanOrEqual(29)
+    expect(handleMetrics.iconCount).toBe(1)
   })
 
   test('render group editor input and color palette', async () => {

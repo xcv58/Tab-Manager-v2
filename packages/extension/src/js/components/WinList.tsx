@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useCallback, useLayoutEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
@@ -12,22 +12,43 @@ export default observer(() => {
     focusStore: { setContainerRef },
   } = useStore()
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
-  const onResize = () => {
+  const onResize = useCallback(() => {
     if (!scrollbarRef.current) {
       return
     }
-    const { height } = scrollbarRef.current.getBoundingClientRect()
-    windowStore.updateHeight(height)
-  }
-  const { initialLoading, windowsByColumn, visibleColumn } = windowStore
+    const { height, width } = scrollbarRef.current.getBoundingClientRect()
+    windowStore.updateViewport(height, width)
+    windowStore.updateScroll(
+      scrollbarRef.current.scrollTop,
+      scrollbarRef.current.scrollLeft,
+    )
+  }, [windowStore])
+  const onScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      windowStore.updateScroll(
+        event.currentTarget.scrollTop,
+        event.currentTarget.scrollLeft,
+      )
+    },
+    [windowStore],
+  )
+  const {
+    initialLoading,
+    visibleWindows,
+    renderedColumnLayouts,
+    totalContentWidth,
+    totalContentHeight,
+  } = windowStore
+  const windowById = new Map(visibleWindows.map((win) => [win.id, win]))
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
     onResize()
-  }, [initialLoading, setContainerRef, userStore.toolbarAutoHide])
+  }, [initialLoading, onResize, setContainerRef, userStore.toolbarAutoHide])
 
   const resizeDetector = (
     <ReactResizeDetector
+      handleWidth
       handleHeight
       refreshMode="throttle"
       refreshOptions={{ leading: false, trailing: true }}
@@ -46,29 +67,51 @@ export default observer(() => {
       </div>
     )
   }
-  const columnWidth = `calc(max(${100 / visibleColumn}%, ${userStore.tabWidth}rem))`
-  const columns = windowsByColumn.map((column, columnIndex) => (
+  const columns = renderedColumnLayouts.map((column) => (
     <div
-      key={`window-column-${columnIndex}`}
-      data-testid={`window-column-${columnIndex}`}
-      className="flex flex-col"
+      key={`window-column-${column.columnIndex}`}
+      data-testid={`window-column-${column.columnIndex}`}
+      className="absolute top-0"
       style={{
-        width: columnWidth,
+        left: column.left,
+        width: column.width,
         minWidth: `${userStore.tabWidth}rem`,
+        height: column.height,
       }}
     >
-      {column.map((window) => (
-        <Window key={window.id} width="100%" win={window} />
-      ))}
+      {column.renderedWindows.map((layout) => {
+        const win = windowById.get(layout.windowId)
+        if (!win) {
+          return null
+        }
+        return (
+          <div
+            key={win.id}
+            className="absolute inset-x-0"
+            style={{ top: layout.top }}
+          >
+            <Window width="100%" win={win} />
+          </div>
+        )
+      })}
     </div>
   ))
   return (
     <div
       ref={scrollbarRef}
+      onScroll={onScroll}
       data-testid="window-list-scroll-container"
-      className="flex flex-row items-start flex-auto px-1 mb-0 mr-0 overflow-scroll"
+      className="relative flex-auto px-1 mb-0 mr-0 overflow-scroll"
     >
-      {columns}
+      <div
+        className="relative"
+        style={{
+          width: totalContentWidth,
+          minHeight: totalContentHeight,
+        }}
+      >
+        {columns}
+      </div>
       {resizeDetector}
     </div>
   )

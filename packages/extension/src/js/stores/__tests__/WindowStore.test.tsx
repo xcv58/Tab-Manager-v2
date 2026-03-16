@@ -170,6 +170,53 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnLayout).toEqual([[1], [2]])
   })
 
+  it('renders only nearby columns for the horizontal viewport', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 200
+    windowStore.width = 320
+    setVisibleLengths(windowStore, [4, 4, 4, 4])
+
+    windowStore.repackLayout('manual')
+    windowStore.updateScroll(0, 0)
+    expect(
+      windowStore.renderedColumnLayouts.map((column) => column.columnIndex),
+    ).toEqual([0, 1])
+
+    windowStore.updateScroll(0, 640)
+    expect(
+      windowStore.renderedColumnLayouts.map((column) => column.columnIndex),
+    ).toEqual([1, 2, 3])
+  })
+
+  it('calculates visible row ranges for oversized windows', () => {
+    const windowStore = createWindowStore()
+    const win = new Window(
+      {
+        id: 1,
+        tabs: Array.from({ length: 20 }, (_, index) => ({
+          id: index + 1,
+          index,
+          windowId: 1,
+          title: `Tab ${index + 1}`,
+          url: `https://example.com/${index + 1}`,
+          groupId: -1,
+        })),
+      },
+      windowStore.store as any,
+    )
+    windowStore.height = 200
+    windowStore.width = 320
+    windowStore.scrollTop = 400
+    windowStore.windows = [win]
+
+    windowStore.repackLayout('manual')
+
+    expect(windowStore.getVisibleRowRange(win)).toEqual({
+      start: 4,
+      end: 18,
+    })
+  })
+
   it('clearWindow repacks immediately when removed window is the only one in its column', () => {
     const windowStore = createWindowStore()
     windowStore.height = 350

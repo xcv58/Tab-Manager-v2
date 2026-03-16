@@ -1,4 +1,6 @@
 import FocusStore from 'stores/FocusStore'
+import Tab from 'stores/Tab'
+import TabGroupRow from 'stores/TabGroupRow'
 import Window from 'stores/Window'
 
 describe('FocusStore', () => {
@@ -120,25 +122,70 @@ describe('FocusStore', () => {
       windowStore: {
         initialLoading: false,
         lastFocusedWindowId: 1,
+        rowHeight: 40,
+        columnWidthPx: 320,
+        width: 320,
+        height: 160,
+        scrollTop: 0,
+        scrollLeft: 0,
         tabs: [],
         windows: [],
+        get visibleWindows() {
+          return this.windows.filter((win) => win.visibleLength > 0)
+        },
+        get windowsByColumn() {
+          return [this.visibleWindows]
+        },
+        updateScroll(scrollTop: number, scrollLeft: number) {
+          this.scrollTop = scrollTop
+          this.scrollLeft = scrollLeft
+        },
+        getItemLayout(item) {
+          let win = null
+          let rowIndex = -1
+          if (item instanceof Window) {
+            win = item
+          } else if (item instanceof Tab) {
+            win = item.win
+            rowIndex = win.rows.findIndex(
+              (row) => row.kind === 'tab' && row.tabId === item.id,
+            )
+          } else if (item instanceof TabGroupRow) {
+            win = this.windows.find(
+              (candidate) => candidate.id === item.windowId,
+            )
+            rowIndex =
+              win?.rows.findIndex(
+                (row) => row.kind === 'group' && row.groupId === item.groupId,
+              ) ?? -1
+          }
+          if (!win) {
+            return null
+          }
+          let windowTop = 0
+          for (const candidate of this.visibleWindows) {
+            if (candidate.id === win.id) {
+              break
+            }
+            windowTop += candidate.visibleLength * this.rowHeight
+          }
+          const top =
+            rowIndex === -1
+              ? windowTop
+              : windowTop + this.rowHeight * (rowIndex + 1)
+          return {
+            columnIndex: 0,
+            left: 0,
+            right: this.columnWidthPx,
+            top,
+            bottom: top + this.rowHeight,
+            windowId: win.id,
+          }
+        },
       },
     }
     store.focusStore = new FocusStore(store)
     return store
-  }
-
-  const setRect = (item, top: number) => {
-    item.setNodeRef({
-      current: {
-        getBoundingClientRect: () => ({
-          top,
-          bottom: top + 40,
-          left: 0,
-          right: 320,
-        }),
-      },
-    })
   }
 
   it('falls back to the visible group row when the active tab is hidden in a collapsed group', () => {
@@ -221,13 +268,12 @@ describe('FocusStore', () => {
     store.focusStore.setContainerRef({
       current: {
         scrollTop: 0,
+        scrollLeft: 0,
+        clientHeight: 160,
+        clientWidth: 320,
       },
     })
     const groupRow = win.getGroupRow(100)
-    setRect(groupRow, 0)
-    setRect(win.tabs[0], 40)
-    setRect(win.tabs[1], 80)
-    setRect(win.tabs[2], 120)
 
     store.focusStore.focus(groupRow)
     store.focusStore.down()

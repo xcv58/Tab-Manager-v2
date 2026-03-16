@@ -14,6 +14,40 @@ import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
+import Focusable from './Focusable'
+import TabGroupRow from './TabGroupRow'
+
+export type VirtualizedWindowLayout = {
+  windowId: number
+  columnIndex: number
+  top: number
+  bottom: number
+  height: number
+}
+
+export type VirtualizedColumnLayout = {
+  columnIndex: number
+  left: number
+  right: number
+  width: number
+  height: number
+  windows: VirtualizedWindowLayout[]
+  renderedWindows: VirtualizedWindowLayout[]
+}
+
+export type VisibleRowRange = {
+  start: number
+  end: number
+}
+
+export type VirtualizedItemLayout = {
+  columnIndex: number
+  left: number
+  right: number
+  top: number
+  bottom: number
+  windowId: number
+}
 
 type LayoutRepackReason =
   | 'manual'
@@ -99,6 +133,12 @@ export default class WindowsStore {
 
   height = 600
 
+  width = typeof window !== 'undefined' ? window.innerWidth || 0 : 0
+
+  scrollTop = 0
+
+  scrollLeft = 0
+
   batching = false
 
   suspendTabEvents = false
@@ -141,6 +181,38 @@ export default class WindowsStore {
     return this.windows.filter((win) => win.visibleLength > 0)
   }
 
+  get rowHeight() {
+    return getWindowRowHeight(this.store.userStore?.fontSize || 14)
+  }
+
+  get minColumnWidthPx() {
+    const fallbackRootFontSize = 16
+    if (
+      typeof document === 'undefined' ||
+      typeof window === 'undefined' ||
+      !window.getComputedStyle
+    ) {
+      return Math.round(
+        (this.store.userStore?.tabWidth || 20) * fallbackRootFontSize,
+      )
+    }
+    const rootFontSize =
+      parseFloat(
+        window.getComputedStyle(document.documentElement).fontSize || '16',
+      ) || fallbackRootFontSize
+    return Math.round((this.store.userStore?.tabWidth || 20) * rootFontSize)
+  }
+
+  get columnWidthPx() {
+    const visibleColumn = Math.max(this.visibleColumn, 1)
+    const fluidWidth = this.width > 0 ? this.width / visibleColumn : 0
+    return Math.max(1, Math.round(Math.max(fluidWidth, this.minColumnWidthPx)))
+  }
+
+  get virtualizationDisabled() {
+    return !!this.store.dragStore?.dragging
+  }
+
   get rawVisibleColumn() {
     return this.computeColumnLayout(this.visibleWindows).columnCount
   }
@@ -179,6 +251,78 @@ export default class WindowsStore {
     })
 
     return columns
+  }
+
+  get columnLayoutsWithPosition(): VirtualizedColumnLayout[] {
+    const columnWidth = this.columnWidthPx
+    const overscanPx = this.rowHeight * 4
+    const viewportTop = this.scrollTop
+    const viewportBottom = this.scrollTop + this.height
+
+    return this.windowsByColumn.map((column, columnIndex) => {
+      let top = 0
+      const windows = column.map((win) => {
+        const height = win.visibleLength * this.rowHeight
+        const layout = {
+          windowId: win.id,
+          columnIndex,
+          top,
+          bottom: top + height,
+          height,
+        }
+        top += height
+        return layout
+      })
+
+      return {
+        columnIndex,
+        left: columnIndex * columnWidth,
+        right: (columnIndex + 1) * columnWidth,
+        width: columnWidth,
+        height: top,
+        windows,
+        renderedWindows: this.virtualizationDisabled
+          ? windows
+          : windows.filter(
+              ({ top, bottom }) =>
+                bottom >= viewportTop - overscanPx &&
+                top <= viewportBottom + overscanPx,
+            ),
+      }
+    })
+  }
+
+  get renderedColumnLayouts() {
+    const layouts = this.columnLayoutsWithPosition
+    if (!layouts.length || this.virtualizationDisabled) {
+      return layouts
+    }
+
+    const columnWidth = Math.max(this.columnWidthPx, 1)
+    const viewportLeft = this.scrollLeft
+    const viewportRight = this.scrollLeft + this.width
+    const overscanColumns = 1
+    const start = Math.max(
+      Math.floor(viewportLeft / columnWidth) - overscanColumns,
+      0,
+    )
+    const end = Math.min(
+      Math.ceil(viewportRight / columnWidth) + overscanColumns,
+      layouts.length,
+    )
+    return layouts.slice(start, end)
+  }
+
+  get totalContentWidth() {
+    return Math.max(this.width, this.visibleColumn * this.columnWidthPx)
+  }
+
+  get totalContentHeight() {
+    return Math.max(
+      this.height,
+      ...this.columnLayoutsWithPosition.map((column) => column.height),
+      0,
+    )
   }
 
   getRenderedLayoutSnapshot = () => {
@@ -280,7 +424,7 @@ export default class WindowsStore {
       }
     }
 
-    const tabHeight = getWindowRowHeight(this.store.userStore?.fontSize || 14)
+    const tabHeight = this.rowHeight
     const layout: number[][] = [[]]
     let columnIndex = 0
     let currentHeight = 0
@@ -586,15 +730,112 @@ export default class WindowsStore {
   }
 
   windowMounted = () => {
-    // TODO: Remove this when we add concurrent mode
-    this.windows
-      .filter((win) => !win.showTabs && win.visibleLength === 0)
-      .forEach((win) => {
-        win.showTabs = true
-      })
-    const win = this.windows.find((x) => !x.showTabs)
-    if (win) {
+    this.windows.forEach((win) => {
       win.showTabs = true
+    })
+  }
+
+  getWindowLayout = (windowId: number) => {
+    for (const column of this.columnLayoutsWithPosition) {
+      const layout = column.windows.find((windowLayout) => {
+        return windowLayout.windowId === windowId
+      })
+      if (layout) {
+        return layout
+      }
+    }
+    return null
+  }
+
+  getVisibleRowRange = (win: Window): VisibleRowRange => {
+    const rows = win.rows
+    if (
+      this.virtualizationDisabled ||
+      win.hide ||
+      rows.length === 0 ||
+      this.height <= 0
+    ) {
+      return {
+        start: 0,
+        end: rows.length,
+      }
+    }
+
+    const layout = this.getWindowLayout(win.id)
+    if (!layout) {
+      return {
+        start: 0,
+        end: rows.length,
+      }
+    }
+
+    const rowsTop = layout.top + this.rowHeight
+    const overscanPx = this.rowHeight * 4
+    const viewportTop = this.scrollTop - overscanPx
+    const viewportBottom = this.scrollTop + this.height + overscanPx
+    const start = Math.max(
+      Math.floor((viewportTop - rowsTop) / this.rowHeight),
+      0,
+    )
+    const end = Math.min(
+      Math.ceil((viewportBottom - rowsTop) / this.rowHeight),
+      rows.length,
+    )
+
+    return {
+      start,
+      end: Math.max(start, end),
+    }
+  }
+
+  getItemLayout = (item: Focusable | null): VirtualizedItemLayout | null => {
+    if (!item) {
+      return null
+    }
+
+    let win: Window = null
+    let rowIndex = -1
+
+    if (item instanceof Window) {
+      win = item
+    } else if (item instanceof Tab) {
+      win = item.win
+      rowIndex = win.rows.findIndex(
+        (row) => row.kind === 'tab' && row.tabId === item.id,
+      )
+    } else if (item instanceof TabGroupRow) {
+      win = this.windows.find((candidate) => candidate.id === item.windowId)
+      rowIndex =
+        win?.rows.findIndex(
+          (row) => row.kind === 'group' && row.groupId === item.groupId,
+        ) ?? -1
+    }
+
+    if (!win) {
+      return null
+    }
+
+    const windowLayout = this.getWindowLayout(win.id)
+    const columnLayout = this.columnLayoutsWithPosition.find((column) => {
+      return column.columnIndex === windowLayout?.columnIndex
+    })
+
+    if (!windowLayout || !columnLayout) {
+      return null
+    }
+
+    const top =
+      rowIndex === -1
+        ? windowLayout.top
+        : windowLayout.top + this.rowHeight * (rowIndex + 1)
+
+    return {
+      columnIndex: windowLayout.columnIndex,
+      left: columnLayout.left,
+      right: columnLayout.right,
+      top,
+      bottom: top + this.rowHeight,
+      windowId: win.id,
     }
   }
 
@@ -666,10 +907,12 @@ export default class WindowsStore {
     await moveTabs(tabs, windowId, from)
   }
 
-  updateHeight(height: number) {
-    log.debug('WindowsStore.updateHeight:', {
+  updateViewport(height: number, width: number) {
+    log.debug('WindowsStore.updateViewport:', {
       height,
+      width,
       'this.height': this.height,
+      'this.width': this.width,
     })
     const viewportHeight =
       typeof window !== 'undefined' ? window.innerHeight || 0 : 0
@@ -678,15 +921,38 @@ export default class WindowsStore {
     this.lastViewportHeight = viewportHeight
     this.lastViewportWidth = viewportWidth
 
-    if (this.height !== height) {
+    const heightChanged = this.height !== height
+    const widthChanged = this.width !== width
+    if (!heightChanged && !widthChanged) {
+      return
+    }
+
+    if (widthChanged) {
+      this.width = width
+    }
+
+    if (heightChanged) {
       log.debug(
-        'WindowsStore.updateHeight set height from',
+        'WindowsStore.updateViewport set height from',
         this.height,
         'to',
         height,
       )
       this.height = height
       this.repackLayout('resize')
+    }
+  }
+
+  updateHeight(height: number) {
+    this.updateViewport(height, this.width)
+  }
+
+  updateScroll = (scrollTop: number, scrollLeft: number) => {
+    if (this.scrollTop !== scrollTop) {
+      this.scrollTop = scrollTop
+    }
+    if (this.scrollLeft !== scrollLeft) {
+      this.scrollLeft = scrollLeft
     }
   }
 
