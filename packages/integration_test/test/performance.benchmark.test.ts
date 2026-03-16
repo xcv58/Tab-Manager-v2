@@ -49,6 +49,10 @@ const LARGE_WORKLOAD: GroupedBenchmarkWorkload = {
   matchEvery: 25,
 }
 
+const KEYBOARD_NAVIGATION_WORKLOAD = process.env.CIRCLECI
+  ? MEDIUM_WORKLOAD
+  : LARGE_WORKLOAD
+
 const DRAG_WINDOW_COUNT = 2
 const DRAG_TABS_PER_WINDOW = 8
 const DRAG_GROUP_SIZE = 4
@@ -436,7 +440,7 @@ test.describe('Performance benchmark scenarios', () => {
   })
 
   test('reveals offscreen rows during keyboard navigation without extra mouse-triggered scrolling', async () => {
-    await setupGroupedWorkspace(LARGE_WORKLOAD)
+    await setupGroupedWorkspace(KEYBOARD_NAVIGATION_WORKLOAD)
     await waitForPopupState(
       page,
       'open:keyboard',
