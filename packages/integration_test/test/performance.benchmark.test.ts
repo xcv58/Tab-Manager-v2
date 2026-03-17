@@ -4,7 +4,7 @@ import {
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
   createWindowsWithTabs,
-  getGroupMembers,
+  dragByTestId,
   groupTabsByUrlInWindow,
   initBrowserWithExtension,
   waitForTestId,
@@ -56,6 +56,7 @@ const KEYBOARD_NAVIGATION_WORKLOAD = process.env.CIRCLECI
 const DRAG_WINDOW_COUNT = 2
 const DRAG_TABS_PER_WINDOW = 8
 const DRAG_GROUP_SIZE = 4
+const NO_GROUP_ID = -1
 
 type PopupState = {
   windowCards: number
@@ -79,6 +80,15 @@ type GroupMoveState = {
   contiguous: boolean
   groupStart: number
   targetIndex: number
+}
+
+type CrossWindowGroupMoveState = {
+  movedUrlsInTargetWindow: boolean
+  sourceWindowReleasedUrls: boolean
+  contiguous: boolean
+  targetGroupId: number
+  movedIndexes: number[]
+  targetTabIndex: number
 }
 
 let page: Page
@@ -726,7 +736,7 @@ test.describe('Performance benchmark scenarios', () => {
     expect(groupMove.state.groupStart).toBeGreaterThan(-1)
   })
 
-  test.fixme('verifies grouped cross-window drag moves the whole group to the target window', async () => {
+  test('verifies grouped cross-window drag moves the whole group to the target window', async () => {
     const dragWindowUrls = Array.from({ length: DRAG_WINDOW_COUNT }, (_, win) =>
       Array.from({ length: DRAG_TABS_PER_WINDOW }, (_, tab) =>
         buildDataUrl(`drag-window-${win}-tab-${tab}`),
@@ -738,17 +748,28 @@ test.describe('Performance benchmark scenarios', () => {
 
     const sourceWindowId = windowIds[0]
     const targetWindowId = windowIds[1]
+    const movedUrls = dragWindowUrls[0].slice(0, DRAG_GROUP_SIZE)
+    const targetUrl = dragWindowUrls[1][DRAG_GROUP_SIZE + 1]
     const sourceGroupId = await groupTabsInWindowWithRetry({
       page,
       windowId: sourceWindowId,
-      urls: dragWindowUrls[0].slice(0, DRAG_GROUP_SIZE),
+      urls: movedUrls,
       title: 'Drag benchmark group',
       color: 'blue',
     })
 
+    const targetTabId = await page.evaluate(
+      async ({ targetWindowId, targetUrl }) => {
+        const tabs = await chrome.tabs.query({ windowId: targetWindowId })
+        return tabs.find((tab) => tab.url === targetUrl)?.id ?? -1
+      },
+      { targetWindowId, targetUrl },
+    )
+    expect(targetTabId).toBeGreaterThan(-1)
+
     await page.goto(extensionURL)
     await waitForTestId(page, `tab-group-header-${sourceGroupId}`)
-    await waitForTestId(page, `window-drop-zone-top-${targetWindowId}`)
+    await waitForTestId(page, `tab-row-${targetTabId}`)
     await waitForPopupState(
       page,
       'open:drag',
@@ -758,48 +779,79 @@ test.describe('Performance benchmark scenarios', () => {
         state.tabRows >= DRAG_WINDOW_COUNT * DRAG_TABS_PER_WINDOW,
     )
 
-    const sourceMembers = await getGroupMembers(page, sourceGroupId)
-    expect(sourceMembers.tabIds.length).toBe(DRAG_GROUP_SIZE)
-    expect(sourceMembers.windowId).toBeGreaterThan(-1)
-    expect(sourceMembers.windowId).not.toBe(targetWindowId)
-    const actualSourceWindowId = sourceMembers.windowId
-
     await page.getByTestId(`tab-group-header-${sourceGroupId}`).hover()
     await expect(
       page.getByTestId(`tab-group-drag-handle-${sourceGroupId}`),
     ).toBeVisible()
 
-    const startedAt = Date.now()
-    await page
-      .getByTestId(`tab-group-drag-handle-${sourceGroupId}`)
-      .dragTo(page.getByTestId(`window-drop-zone-top-${targetWindowId}`))
-
-    let movedGroupMembers = await getGroupMembers(page, sourceGroupId)
-    await expect
-      .poll(
-        async () => {
-          movedGroupMembers = await getGroupMembers(page, sourceGroupId)
-          return (
-            movedGroupMembers.windowId === targetWindowId &&
-            movedGroupMembers.tabIds.length === DRAG_GROUP_SIZE
-          )
+    const crossWindowDrag =
+      await measureStateTransition<CrossWindowGroupMoveState>({
+        label: 'drag:medium',
+        action: async () => {
+          await dragByTestId(page, {
+            sourceTestId: `tab-group-drag-handle-${sourceGroupId}`,
+            targetTestId: `tab-row-${targetTabId}`,
+            targetUseParent: true,
+            dropPosition: 'bottom',
+          })
         },
-        { timeout: 10000 },
-      )
-      .toBe(true)
+        readState: async () =>
+          await page.evaluate(
+            async ({
+              movedUrls,
+              sourceWindowId,
+              targetWindowId,
+              targetTabId,
+            }) => {
+              const sourceTabs = (
+                await chrome.tabs.query({
+                  windowId: sourceWindowId,
+                })
+              ).sort((a, b) => a.index - b.index)
+              const targetTabs = (
+                await chrome.tabs.query({
+                  windowId: targetWindowId,
+                })
+              ).sort((a, b) => a.index - b.index)
+              const movedTabs = targetTabs.filter((tab) =>
+                movedUrls.includes(tab.url || ''),
+              )
+              const targetGroupId =
+                movedTabs[0]?.groupId ?? chrome.tabGroups.TAB_GROUP_ID_NONE
+              const targetTab = targetTabs.find((tab) => tab.id === targetTabId)
+              const contiguous = movedTabs.every((tab, index) => {
+                if (index === 0) {
+                  return true
+                }
+                return tab.index === movedTabs[index - 1].index + 1
+              })
+              return {
+                movedUrlsInTargetWindow: movedTabs.length === movedUrls.length,
+                sourceWindowReleasedUrls: movedUrls.every(
+                  (url) => !sourceTabs.some((tab) => tab.url === url),
+                ),
+                contiguous,
+                targetGroupId,
+                movedIndexes: movedTabs.map((tab) => tab.index ?? -1),
+                targetTabIndex: targetTab?.index ?? -1,
+              }
+            },
+            { movedUrls, sourceWindowId, targetWindowId, targetTabId },
+          ),
+        predicate: (state) =>
+          state.movedUrlsInTargetWindow &&
+          state.sourceWindowReleasedUrls &&
+          state.contiguous &&
+          state.targetGroupId > NO_GROUP_ID &&
+          state.movedIndexes.every((index) => index > -1) &&
+          state.targetTabIndex > -1,
+      })
 
-    console.log(
-      '[performance-benchmark] drag:medium',
-      JSON.stringify({
-        elapsedMs: Date.now() - startedAt,
-        groupId: sourceGroupId,
-        sourceWindowId: actualSourceWindowId,
-        targetWindowId,
-        movedGroupMembers,
-      }),
-    )
-
-    expect(movedGroupMembers.windowId).toBe(targetWindowId)
-    expect(movedGroupMembers.tabIds).toHaveLength(DRAG_GROUP_SIZE)
+    expect(crossWindowDrag.state.movedUrlsInTargetWindow).toBe(true)
+    expect(crossWindowDrag.state.sourceWindowReleasedUrls).toBe(true)
+    expect(crossWindowDrag.state.contiguous).toBe(true)
+    expect(crossWindowDrag.state.targetGroupId).toBeGreaterThan(NO_GROUP_ID)
+    expect(crossWindowDrag.state.movedIndexes).toHaveLength(DRAG_GROUP_SIZE)
+    expect(crossWindowDrag.state.targetTabIndex).toBeGreaterThan(-1)
   })
 })
