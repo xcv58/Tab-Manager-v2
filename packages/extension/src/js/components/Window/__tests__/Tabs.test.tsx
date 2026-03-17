@@ -45,6 +45,10 @@ const props = {
     drop: jest.fn(),
   },
   windowStore: {
+    getVisibleRowRange: (win) => ({
+      start: 0,
+      end: win.rows.length,
+    }),
     windowMounted,
   },
   win: {

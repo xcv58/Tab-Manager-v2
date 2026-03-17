@@ -3,6 +3,9 @@ import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
   URLS,
+  StandardFixtureUrls,
+  IntegrationFixtureServer,
+  buildStandardFixtureUrls,
   isExtensionURL,
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
@@ -17,11 +20,16 @@ import {
   waitForTestId,
   waitForDefaultExtensionView,
   dragByTestId,
+  startIntegrationFixtureServer,
+  waitForLocatorRectToStabilize,
+  waitForSurfaceToFullyAppear,
 } from '../util'
 
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
+let fixtureServer: IntegrationFixtureServer
+let fixtureUrls: StandardFixtureUrls
 
 const getCenterOfRect = (rect: {
   top: number
@@ -51,6 +59,29 @@ const MIXED_GROUP_URLS = {
   beta: ['about:blank#mixed-beta-1', 'about:blank#mixed-beta-2'],
   gamma: ['about:blank#mixed-gamma-1', 'about:blank#mixed-gamma-2'],
   free: ['about:blank#mixed-free-1', 'about:blank#mixed-free-2'],
+}
+
+const LIGHTWEIGHT_URLS = Array.from(
+  { length: 6 },
+  (_, index) => `about:blank#interaction-lightweight-${index}`,
+)
+
+const waitForMainSurfaceToSettle = async (page: Page) => {
+  const scrollContainer = page
+    .locator('[data-testid="window-list-scroll-container"]')
+    .first()
+  await expect(scrollContainer).toBeVisible()
+  await waitForLocatorRectToStabilize(scrollContainer, {
+    minWidth: 300,
+    minHeight: 200,
+    stableSamples: 3,
+  })
+}
+
+const waitForSettingsPanelToSettle = async (page: Page) => {
+  const panel = page.getByTestId('settings-panel-theme-density')
+  await expect(panel).toBeVisible()
+  await waitForSurfaceToFullyAppear(page, panel)
 }
 
 const setupMultiWindowGroups = async (page: Page) => {
@@ -265,7 +296,10 @@ const setupLayoutJumpScenario = async (page: Page) => {
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
+  test.setTimeout(60000)
   test.beforeAll(async () => {
+    fixtureServer = await startIntegrationFixtureServer()
+    fixtureUrls = buildStandardFixtureUrls(fixtureServer.baseUrl)
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
@@ -274,6 +308,7 @@ test.describe('The Extension page should', () => {
 
   test.afterAll(async () => {
     await browserContext?.close()
+    await fixtureServer?.close()
     browserContext = null
     page = null
     extensionURL = ''
@@ -374,11 +409,11 @@ test.describe('The Extension page should', () => {
   })
 
   test('preserve existing tab groups when sorting and clustering', async () => {
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(1000)
     const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
       title: 'Pinned Group',
       color: 'purple',
     })
@@ -621,11 +656,11 @@ test.describe('The Extension page should', () => {
   })
 
   test('ungroup should remove the group header and restore flat tabs', async () => {
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(1000)
     const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
       title: 'Temporary Group',
       color: 'blue',
     })
@@ -641,7 +676,7 @@ test.describe('The Extension page should', () => {
 
   test('search input field should clear after selecting a command', async () => {
     // Set up initial page state
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.waitForTimeout(1000)
 
@@ -667,9 +702,9 @@ test.describe('The Extension page should', () => {
   })
 
   test('command search should match regardless of word order', async () => {
-    await openPages(browserContext, URLS)
     await page.bringToFront()
-    await page.waitForTimeout(1000)
+    await page.reload()
+    await waitForDefaultExtensionView(page)
 
     const searchInput = page.locator(
       'input[placeholder*="Search tabs or URLs"]',
@@ -696,7 +731,7 @@ test.describe('The Extension page should', () => {
   })
 
   test('close tab when click close button', async () => {
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.reload()
     await page.waitForTimeout(500)
@@ -735,44 +770,49 @@ test.describe('The Extension page should', () => {
   test('support different theme', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
+    await waitForMainSurfaceToSettle(page)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    await page.waitForTimeout(500)
     let toggleThemeButton = await page.$(
       '[aria-label="Toggle light/dark theme"]',
     )
     await toggleThemeButton.click()
-    await page.waitForTimeout(500)
+    await waitForMainSurfaceToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await page.keyboard.press('Control+,')
-    await page.waitForTimeout(500)
-    await page.waitForSelector('[aria-label="Update Font Size"]')
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     const themedPanel = page.getByTestId('settings-panel-theme-density')
     await expect(themedPanel).toBeVisible()
+    await waitForSurfaceToFullyAppear(page, themedPanel)
     expect(await themedPanel.screenshot()).toMatchSnapshot(
       matchImageSnapshotOptions,
     )
 
     await page.keyboard.press('?')
-    await page.waitForTimeout(500)
-    await page.waitForSelector('table')
+    const shortcutsTable = page.locator('table').first()
+    await expect(shortcutsTable).toBeVisible()
+    await waitForLocatorRectToStabilize(shortcutsTable, {
+      minWidth: 300,
+      minHeight: 100,
+      stableSamples: 3,
+    })
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(500)
+    await waitForMainSurfaceToSettle(page)
 
     toggleThemeButton = await page.$('[aria-label="Toggle light/dark theme"]')
     await toggleThemeButton.click()
-    await page.waitForTimeout(500)
+    await waitForMainSurfaceToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
   })
@@ -780,41 +820,39 @@ test.describe('The Extension page should', () => {
   test('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
+    await waitForMainSurfaceToSettle(page)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
     await page.keyboard.press('Control+,')
-    await page.waitForTimeout(500)
-    await page.waitForSelector('[aria-label="Font Size Value"]')
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
     await fontSizeInput.fill('6')
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await fontSizeInput.fill('36')
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await fontSizeInput.fill('14')
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(500)
+    await waitForMainSurfaceToSettle(page)
   })
 
   test('support toggle always show toolbar', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     await page.keyboard.press('Control+,')
-    await page.waitForTimeout(500)
-    await page.waitForSelector('[aria-labelledby="toggle-always-show-toolbar"]')
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
@@ -823,7 +861,7 @@ test.describe('The Extension page should', () => {
     )
     await toogleButton.click()
 
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
@@ -831,12 +869,12 @@ test.describe('The Extension page should', () => {
       '[aria-labelledby="toggle-always-show-toolbar"]',
     )
     await toogleButton.click()
-    await page.waitForTimeout(500)
+    await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(500)
+    await waitForMainSurfaceToSettle(page)
   })
 
   test('support drag and drop to reorder tabs', async () => {

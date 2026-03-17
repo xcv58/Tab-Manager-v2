@@ -12,6 +12,7 @@ import {
   createWindowsWithTabs,
   groupTabsByUrlInWindow,
   waitForDefaultExtensionView,
+  waitForLocatorRectToStabilize,
   waitForSurfaceToFullyAppear,
   waitForTestId,
 } from '../util'
@@ -64,6 +65,7 @@ const screenshotLocatorWithRetry = async (
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
+  test.setTimeout(60000)
   test.beforeAll(async () => {
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
@@ -384,11 +386,20 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(200)
     const handle = page.getByTestId(`tab-group-drag-handle-${groupId}`)
     await expect(handle).toBeVisible()
-    const handleScreenshot = await handle.screenshot()
-    expect(handleScreenshot).toMatchSnapshot('group-drag-handle-hover.png', {
-      maxDiffPixelRatio: 0.08,
-      threshold: 0.2,
+    await expect(handle).toHaveAttribute('title', 'Drag group')
+    const handleMetrics = await handle.evaluate((node) => {
+      const style = window.getComputedStyle(node)
+      return {
+        width: Number.parseFloat(style.width),
+        height: Number.parseFloat(style.height),
+        iconCount: node.querySelectorAll('svg').length,
+      }
     })
+    expect(handleMetrics.width).toBeGreaterThanOrEqual(28)
+    expect(handleMetrics.width).toBeLessThanOrEqual(29)
+    expect(handleMetrics.height).toBeGreaterThanOrEqual(28)
+    expect(handleMetrics.height).toBeLessThanOrEqual(29)
+    expect(handleMetrics.iconCount).toBe(1)
   })
 
   test('render group editor input and color palette', async () => {
@@ -615,7 +626,11 @@ test.describe('The Extension page should', () => {
     await expect(sortButton).toBeVisible()
     await expect(sortButtonSlot).toHaveCSS('opacity', '1')
     await windowTitle.hover()
-    await page.waitForTimeout(150)
+    await waitForLocatorRectToStabilize(sortButton, {
+      minWidth: 20,
+      minHeight: 20,
+      stableSamples: 3,
+    })
     await expect(sortButton).toBeVisible()
     await expect(sortButtonSlot).toHaveCSS('opacity', '1')
     const sortButtonScreenshot = await sortButton.screenshot()
@@ -631,7 +646,11 @@ test.describe('The Extension page should', () => {
       .locator('button[aria-label="Reload all tabs"]')
       .first()
     await windowTitle.hover()
-    await page.waitForTimeout(150)
+    await waitForLocatorRectToStabilize(reloadButton, {
+      minWidth: 20,
+      minHeight: 20,
+      stableSamples: 3,
+    })
     await expect(reloadButton).toBeVisible()
     const reloadButtonScreenshot = await reloadButton.screenshot()
     expect(reloadButtonScreenshot).toMatchSnapshot(

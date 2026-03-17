@@ -12,6 +12,7 @@ import settings from 'img/chrome/settings.png'
 import Store from 'stores'
 import Window from './Window'
 import Focusable from './Focusable'
+import type { FocusRequestOptions } from './Focusable'
 
 const FAV_ICONS = {
   bookmarks,
@@ -67,7 +68,7 @@ export default class Tab extends Focusable {
       isDuplicated: computed,
       isSelected: computed,
       query: computed,
-      isHovered: computed,
+      isHovered: observable,
       isHiddenByCollapsedGroup: computed,
       shouldHighlight: computed,
       fingerPrint: computed,
@@ -75,6 +76,7 @@ export default class Tab extends Focusable {
       closeWindow: action,
       selectTabsInSameContainer: action,
       openSameContainerTabs: action,
+      setHovered: action,
     })
 
     this.store = store
@@ -105,19 +107,21 @@ export default class Tab extends Focusable {
 
   index = -1
 
-  activate = () => {
+  isHovered = false
+
+  activate = (options: FocusRequestOptions = {}) => {
     this.store.tabStore.activate(this)
-    this.focus()
+    this.focus(options)
   }
 
-  select = () => {
+  select = (options: FocusRequestOptions = {}) => {
     this.store.tabStore.select(this)
-    this.focus()
+    this.focus(options)
   }
 
-  bulkSelect = () => {
+  bulkSelect = (options: FocusRequestOptions = {}) => {
     this.store.tabStore.bulkSelct(this)
-    this.focus()
+    this.focus(options)
   }
 
   toggleHide = () => this.win.toggleHide()
@@ -135,8 +139,8 @@ export default class Tab extends Focusable {
 
   reload = () => browser.tabs.reload(this.id)
 
-  focus = () => {
-    this.store.focusStore.focus(this)
+  focus = (options: FocusRequestOptions = {}) => {
+    this.store.focusStore.focus(this, options)
   }
 
   hover = () => {
@@ -144,6 +148,10 @@ export default class Tab extends Focusable {
   }
 
   unhover = () => this.store.hoverStore.unhover()
+
+  setHovered = (hovered: boolean) => {
+    this.isHovered = hovered
+  }
 
   closeDuplicatedTab = () => this.store.windowStore.closeDuplicatedTab(this)
 
@@ -210,10 +218,6 @@ export default class Tab extends Focusable {
     return this.store.searchStore._tabQuery
   }
 
-  get isHovered() {
-    return this.id === this.store.hoverStore.hoveredTabId
-  }
-
   get isHiddenByCollapsedGroup() {
     if (
       !this.store.tabGroupStore ||
@@ -235,9 +239,7 @@ export default class Tab extends Focusable {
     if (this.isSelected || !this.isMatched) {
       return false
     }
-    return (
-      this.isFocused || this.isHovered || (this.active && this.win?.lastFocused)
-    )
+    return this.isFocused || (this.active && this.win?.lastFocused)
   }
 
   get fingerPrint() {

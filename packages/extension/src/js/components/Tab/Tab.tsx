@@ -13,11 +13,10 @@ import { TabProps } from 'components/types'
 import PIN from './Pin'
 import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
-import useReduceMotion from 'libs/useReduceMotion'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
-  const { dragStore, searchStore } = useStore()
+  const { dragStore, searchStore, focusStore } = useStore()
   const isDarkTheme = useTheme()
   const { tab, className } = props
   const {
@@ -25,7 +24,6 @@ export default observer((props: TabProps & { className?: string }) => {
     isFocused,
     isMatched,
     isSelected,
-    isHovered,
     pinned,
     shouldHighlight,
   } = tab
@@ -51,24 +49,36 @@ export default observer((props: TabProps & { className?: string }) => {
     }
   }, [tab])
 
-  const reduceMotion = useReduceMotion()
-
   useEffect(() => {
-    if (isFocused) {
-      if (!searchStore.typing) {
+    if (isFocused && !searchStore.typing && nodeRef.current) {
+      if (tab.shouldMoveDomFocus) {
         nodeRef.current.focus({ preventScroll: true })
+      }
+      if (
+        tab.shouldMoveDomFocus &&
+        tab.shouldRevealOnFocus &&
+        focusStore.shouldRevealNode(nodeRef.current)
+      ) {
         nodeRef.current.scrollIntoView({
-          behavior: reduceMotion ? 'auto' : 'smooth',
-          block: 'end',
+          behavior: 'auto',
+          block: 'nearest',
           inline: 'nearest',
         })
       }
     }
     return onMouseLeave
-  }, [isFocused])
+  }, [
+    focusStore,
+    isFocused,
+    onMouseLeave,
+    searchStore.typing,
+    tab.focusRequestId,
+    tab.shouldMoveDomFocus,
+    tab.shouldRevealOnFocus,
+  ])
   useEffect(() => {
     setNodeRef(nodeRef)
-  })
+  }, [setNodeRef])
 
   const pin = pinned && PIN
   const isPrimaryActive = tab.active && !!tab.win?.lastFocused
@@ -88,9 +98,7 @@ export default observer((props: TabProps & { className?: string }) => {
           ? 'rgba(181, 199, 230, 0.2)'
           : shouldHighlight
             ? 'rgba(181, 199, 230, 0.14)'
-            : isActionable && isHovered
-              ? 'rgba(238, 241, 245, 0.08)'
-              : 'transparent',
+            : 'transparent',
         color: '#eef1f5',
       }
     : {
@@ -98,9 +106,7 @@ export default observer((props: TabProps & { className?: string }) => {
           ? 'rgba(26, 115, 232, 0.14)'
           : shouldHighlight
             ? 'rgba(26, 115, 232, 0.08)'
-            : isActionable && isHovered
-              ? 'rgba(15, 23, 42, 0.04)'
-              : 'transparent',
+            : 'transparent',
         color: '#111827',
       }
   const rowStyle = isDarkTheme
@@ -123,13 +129,18 @@ export default observer((props: TabProps & { className?: string }) => {
       ref={nodeRef}
       tabIndex={-1}
       data-testid={`tab-row-${tab.id}`}
-      className={classNames(className, 'flex relative items-center', {
-        'opacity-25': !isMatched,
-        'z-10': isFocused,
-      })}
+      className={classNames(
+        className,
+        'group/tab-row flex relative items-center transition-colors duration-150',
+        {
+          'opacity-25': !isMatched,
+          'z-10': isFocused,
+          'hover:bg-[rgba(15,23,42,0.04)]': isActionable && !isDarkTheme,
+          'hover:bg-[rgba(238,241,245,0.08)]': isActionable && isDarkTheme,
+        },
+      )}
       style={rowStyle}
       onMouseEnter={onMouseEnter}
-      onMouseOver={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
       {showActiveIndicator && activeIndicatorColor && (

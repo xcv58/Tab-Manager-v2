@@ -2,6 +2,8 @@ import { expect } from '@playwright/test'
 import { chromium, ChromiumBrowserContext, Locator } from 'playwright'
 import { join } from 'path'
 import { Page } from 'playwright'
+import { createServer, Server } from 'http'
+import type { AddressInfo } from 'net'
 
 export const EXTENSION_PATH = join(
   __dirname,
@@ -20,6 +22,105 @@ export const URLS = [
   'http://duckduckgo.com/',
   'https://ops-class.org/',
 ]
+
+export type IntegrationFixtureServer = {
+  baseUrl: string
+  close: () => Promise<void>
+}
+
+export type StandardFixtureUrls = {
+  pinboard: string
+  xcv58: string
+  nextjs: string
+  duckduckgo: string
+  opsClass: string
+  all: string[]
+}
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
+const buildFixtureUrl = (
+  baseUrl: string,
+  slug: string,
+  title: string,
+  body = `${title} fixture`,
+) =>
+  `${baseUrl}/${slug}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(
+    body,
+  )}`
+
+export const buildStandardFixtureUrls = (
+  baseUrl: string,
+): StandardFixtureUrls => {
+  const pinboard = buildFixtureUrl(baseUrl, 'pinboard', 'Pinboard')
+  const xcv58 = buildFixtureUrl(baseUrl, 'xcv58', 'xcv58')
+  const nextjs = buildFixtureUrl(baseUrl, 'nextjs', 'Next.js')
+  const duckduckgo = buildFixtureUrl(baseUrl, 'duckduckgo', 'DuckDuckGo')
+  const opsClass = buildFixtureUrl(baseUrl, 'ops-class', 'OPS Class')
+
+  return {
+    pinboard,
+    xcv58,
+    nextjs,
+    duckduckgo,
+    opsClass,
+    all: [pinboard, xcv58, nextjs, pinboard, duckduckgo, opsClass],
+  }
+}
+
+export const startIntegrationFixtureServer =
+  async (): Promise<IntegrationFixtureServer> => {
+    const server = await new Promise<Server>((resolve) => {
+      const nextServer = createServer((req, res) => {
+        const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
+        const title =
+          requestUrl.searchParams.get('title') || requestUrl.pathname.slice(1)
+        const body =
+          requestUrl.searchParams.get('body') || `Fixture for ${title}`
+
+        res.writeHead(200, {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'no-store',
+        })
+        res.end(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+  </head>
+  <body>
+    <main>
+      <h1>${escapeHtml(title)}</h1>
+      <p>${escapeHtml(body)}</p>
+      <code>${escapeHtml(requestUrl.pathname)}</code>
+    </main>
+  </body>
+</html>`)
+      })
+      nextServer.listen(0, '127.0.0.1', () => resolve(nextServer))
+    })
+
+    const { port } = server.address() as AddressInfo
+    return {
+      baseUrl: `http://127.0.0.1:${port}`,
+      close: () =>
+        new Promise<void>((resolve, reject) => {
+          server.close((error) => {
+            if (error) {
+              reject(error)
+              return
+            }
+            resolve()
+          })
+        }),
+    }
+  }
 
 export const isExtensionURL = (url: string) =>
   url.startsWith('chrome-extension://')
@@ -49,20 +150,18 @@ export const initBrowserWithExtension = async () => {
     ],
   })) as ChromiumBrowserContext
 
-  let page = await browserContext.pages()[0]
-  await page.bringToFront()
-  await page.goto('chrome://inspect/#extensions')
-  await page.goto('chrome://inspect/#service-workers')
-  const url = await page
-    .locator('#service-workers-list div[class="url"]')
-    .textContent()
-  const [, , extensionId] = url.split('/')
+  const serviceWorker =
+    browserContext.serviceWorkers()[0] ||
+    (await browserContext.waitForEvent('serviceworker', { timeout: 60000 }))
+  const extensionId = new URL(serviceWorker.url()).host
   const extensionURL = `chrome-extension://${extensionId}/popup.html?not_popup=1`
-  await page.waitForTimeout(500)
-  const pages = browserContext.pages()
-  page = pages.find((x) => x.url() === extensionURL)
-  if (!page) {
-    page = pages[0]
+  const page =
+    browserContext
+      .pages()
+      .find((candidate) => candidate.url() === extensionURL) ||
+    (await browserContext.newPage())
+  if (page.url() !== extensionURL) {
+    await page.goto(extensionURL)
   }
 
   return { browserContext, extensionURL, page }
@@ -72,13 +171,16 @@ export const openPages = async (
   browserContext: ChromiumBrowserContext,
   urls: string[],
 ) => {
-  return await Promise.all(
-    urls.map(async (url) => {
-      const newPage = await browserContext.newPage()
-      await newPage.goto(url)
-      await newPage.waitForLoadState('load')
-    }),
-  )
+  const pages: Page[] = []
+  for (const url of urls) {
+    const newPage = await browserContext.newPage()
+    await newPage.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
+    })
+    pages.push(newPage)
+  }
+  return pages
 }
 
 export const groupTabsByUrl = async (
@@ -173,12 +275,22 @@ export const createWindowsWithTabs = async (
   return page.evaluate(async (allWindowsUrls) => {
     const createdWindowIds: number[] = []
     for (const urls of allWindowsUrls) {
+      const [firstUrl = 'about:blank', ...restUrls] = urls
       const win = await chrome.windows.create({
-        url: urls,
+        url: firstUrl,
         focused: false,
       })
       if (typeof win.id === 'number') {
         createdWindowIds.push(win.id)
+        await Promise.all(
+          restUrls.map((url) =>
+            chrome.tabs.create({
+              windowId: win.id,
+              url,
+              active: false,
+            }),
+          ),
+        )
       }
     }
     return createdWindowIds
@@ -332,6 +444,25 @@ export const closeCurrentWindowTabsExceptActive = async (
       await chrome.tabs.remove(tabIdsToClose)
     }
   }, extensionURL)
+}
+
+export const closeNonExtensionTabs = async (
+  page: Page,
+  extensionURL?: string,
+) => {
+  const extensionOrigin = extensionURL
+    ? new URL(extensionURL).origin
+    : 'chrome-extension://'
+  await page.evaluate(async (expectedOrigin) => {
+    const tabs = await chrome.tabs.query({})
+    const tabIdsToClose = tabs
+      .filter((tab) => !(tab.url || '').startsWith(expectedOrigin))
+      .map((tab) => tab.id)
+      .filter((tabId): tabId is number => typeof tabId === 'number')
+    if (tabIdsToClose.length > 0) {
+      await chrome.tabs.remove(tabIdsToClose)
+    }
+  }, extensionOrigin)
 }
 
 export const waitForDefaultExtensionView = async (page: Page) => {

@@ -6,6 +6,7 @@ import log from 'libs/log'
 import Focusable from './Focusable'
 import type { WindowRow } from './TabGroupStore'
 import TabGroupRow from './TabGroupRow'
+import type { FocusRequestOptions } from './Focusable'
 
 export default class Window extends Focusable {
   store: Store
@@ -21,6 +22,8 @@ export default class Window extends Focusable {
       type: observable,
       activate: action,
       hide: computed,
+      tabMap: computed,
+      tabsByGroupId: computed,
       visibleLength: computed,
       rows: computed,
       focusableRows: computed,
@@ -60,12 +63,29 @@ export default class Window extends Focusable {
 
   type = ''
 
-  activate = () => {
+  activate = (options: FocusRequestOptions = {}) => {
     browser.windows.update(this.id, { focused: true })
+    this.store.focusStore.focus(this, options)
   }
 
   get hide() {
     return this.store.hiddenWindowStore.hiddenWindows[this.id]
+  }
+
+  get tabMap() {
+    return new Map(this.tabs.map((tab) => [tab.id, tab]))
+  }
+
+  get tabsByGroupId() {
+    return this.tabs.reduce((groupedTabs, tab) => {
+      const groupTabs = groupedTabs.get(tab.groupId)
+      if (groupTabs) {
+        groupTabs.push(tab)
+      } else {
+        groupedTabs.set(tab.groupId, [tab])
+      }
+      return groupedTabs
+    }, new Map<number, Tab[]>())
   }
 
   get visibleLength() {
@@ -152,7 +172,11 @@ export default class Window extends Focusable {
   }
 
   getTabById = (tabId: number) => {
-    return this.tabs.find((x) => x.id === tabId)
+    return this.tabMap.get(tabId) || null
+  }
+
+  getTabsForGroup = (groupId: number) => {
+    return this.tabsByGroupId.get(groupId) || []
   }
 
   getGroupRow = (groupId: number) => {
@@ -291,12 +315,12 @@ export default class Window extends Focusable {
     this.tabs.splice(targetPosition, 0, tabToInsert)
   }
 
-  toggleHide = () => {
+  toggleHide = (options: FocusRequestOptions = {}) => {
     if (this.hide) {
       this.store.hiddenWindowStore.showWindow(this.id)
     } else {
       this.store.hiddenWindowStore.hideWindow(this.id)
-      this.store.focusStore.focus(this)
+      this.store.focusStore.focus(this, options)
     }
     this.store.windowStore.markLayoutDirtyIfNeeded('window-toggle', this.id)
   }

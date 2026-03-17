@@ -11,14 +11,15 @@ import classNames from 'classnames'
 import Reload from './Reload'
 import HideToggle from './HideToggle'
 import { WinProps } from 'components/types'
-import useReduceMotion from 'libs/useReduceMotion'
 import { useTheme } from 'components/hooks/useTheme'
+import { useStore } from 'components/hooks/useStore'
 import Tooltip from '@mui/material/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
+  const { focusStore } = useStore()
   const theme = useMuiTheme()
   const isDarkTheme = useTheme()
   const { className, win } = props
@@ -54,18 +55,33 @@ export default observer((props: WinProps & { className: string }) => {
     isHeaderHovered || isHeaderFocusWithin || isFocused
   const needsTooltip =
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
-  const reduceMotion = useReduceMotion()
   useEffect(() => {
-    if (isFocused) {
-      nodeRef.current.focus({ preventScroll: true })
-      nodeRef.current.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-      })
+    if (isFocused && nodeRef.current) {
+      if (win.shouldMoveDomFocus) {
+        nodeRef.current.focus({ preventScroll: true })
+      }
+      if (
+        win.shouldMoveDomFocus &&
+        win.shouldRevealOnFocus &&
+        focusStore.shouldRevealNode(nodeRef.current)
+      ) {
+        nodeRef.current.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'nearest',
+        })
+      }
     }
-  }, [isFocused, reduceMotion])
+  }, [
+    focusStore,
+    isFocused,
+    win.focusRequestId,
+    win.shouldMoveDomFocus,
+    win.shouldRevealOnFocus,
+  ])
   useEffect(() => {
     win.setNodeRef(nodeRef)
-  })
+  }, [win])
   useEffect(() => {
     const updateTitleMode = () => {
       const width = titleButtonRef.current?.clientWidth ?? 0
@@ -100,6 +116,16 @@ export default observer((props: WinProps & { className: string }) => {
       {hiddenText}
     </div>
   )
+  const onTitleFocus = React.useCallback(() => {
+    focusStore.focus(win, {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+  }, [focusStore, win])
+  const onTitleClick = React.useCallback(() => {
+    activate({ origin: 'mouse', reveal: false })
+  }, [activate])
   return (
     <div
       tabIndex={-1}
@@ -132,7 +158,8 @@ export default observer((props: WinProps & { className: string }) => {
         <SelectAll {...props} />
         <button
           ref={titleButtonRef}
-          onClick={activate}
+          onClick={onTitleClick}
+          onFocus={onTitleFocus}
           className={classNames(
             'flex h-10 flex-auto items-center overflow-hidden text-base text-left rounded-sm',
             {

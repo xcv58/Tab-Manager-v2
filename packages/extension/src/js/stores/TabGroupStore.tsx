@@ -146,6 +146,15 @@ export default class GroupStore {
     if (this.isNoGroupId(groupId)) {
       return []
     }
+    const tabGroup = this.getTabGroup(groupId)
+    if (tabGroup) {
+      const targetWindow = this.store.windowStore.windows?.find(
+        (win) => win.id === tabGroup.windowId,
+      )
+      if (targetWindow?.getTabsForGroup) {
+        return targetWindow.getTabsForGroup(groupId)
+      }
+    }
     return this.store.windowStore.tabs.filter((tab) => tab.groupId === groupId)
   }
 
@@ -211,16 +220,6 @@ export default class GroupStore {
     const { showUnmatchedTab } = this.store.userStore
     const queryActive = !!_query
     const processedGroupIds = new Set<number>()
-    const groupedTabsById = new Map<number, Tab[]>()
-
-    tabs.forEach((tab) => {
-      if (this.isNoGroupId(tab.groupId)) {
-        return
-      }
-      const existing = groupedTabsById.get(tab.groupId) || []
-      existing.push(tab)
-      groupedTabsById.set(tab.groupId, existing)
-    })
 
     for (let i = 0; i < tabs.length; i += 1) {
       const tab = tabs[i]
@@ -245,11 +244,16 @@ export default class GroupStore {
       }
       processedGroupIds.add(groupId)
 
-      const groupTabs = groupedTabsById.get(groupId) || [tab]
+      const groupTabs = win.getTabsForGroup
+        ? win.getTabsForGroup(groupId)
+        : tabs.filter((candidate) => candidate.groupId === groupId)
+      const resolvedGroupTabs = groupTabs.length ? groupTabs : [tab]
 
       const tabGroup = this.getTabGroup(groupId)
-      const matchedCount = groupTabs.filter((x) => matchedSet.has(x.id)).length
-      const baseVisibleTabs = groupTabs.filter(
+      const matchedCount = resolvedGroupTabs.filter((x) =>
+        matchedSet.has(x.id),
+      ).length
+      const baseVisibleTabs = resolvedGroupTabs.filter(
         (x) => !x.removing && (x.isMatched || showUnmatchedTab),
       )
       if (!tabGroup) {
@@ -285,7 +289,7 @@ export default class GroupStore {
         title: tabGroup.title || 'Unnamed group',
         color: tabGroup.color,
         collapsed: tabGroup.collapsed,
-        tabIds: groupTabs.map((x) => x.id),
+        tabIds: resolvedGroupTabs.map((x) => x.id),
         matchedCount,
       })
 

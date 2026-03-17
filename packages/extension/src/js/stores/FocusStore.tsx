@@ -4,6 +4,7 @@ import log from 'libs/log'
 import Tab from './Tab'
 import Window from './Window'
 import Focusable from './Focusable'
+import type { FocusRequestOptions } from './Focusable'
 import { MutableRefObject } from 'react'
 import TabGroupRow from './TabGroupRow'
 
@@ -21,7 +22,10 @@ const getNextItem = (
 }
 
 const getFocusableItems = (win: Window, focusedItem: Focusable) => {
-  if (win.hide || win === focusedItem) {
+  if (win.hide) {
+    return [win]
+  }
+  if (win === focusedItem) {
     return [win, ...win.focusableRows]
   }
   return win.focusableRows
@@ -30,8 +34,12 @@ const getFocusableItems = (win: Window, focusedItem: Focusable) => {
 export default class FocusStore {
   store: Store
 
+  focusedItemRef: Focusable | null = null
+
   constructor(store: Store) {
-    makeAutoObservable(this)
+    makeAutoObservable(this, {
+      focusedItemRef: false,
+    })
 
     this.store = store
   }
@@ -72,6 +80,9 @@ export default class FocusStore {
 
   _setFocusedItem = (item: Focusable) => {
     log.debug('_setFocusedItem:', item)
+    if (this.focusedItemRef && this.focusedItemRef !== item) {
+      this.focusedItemRef.setFocusState({ focused: false })
+    }
     if (item instanceof Window) {
       this.focusedTabId = null
       this.focusedGroupId = null
@@ -89,10 +100,14 @@ export default class FocusStore {
         'invalid input item for _setFocusedItem, it is not Window, Tab, or TabGroupRow:',
         { item },
       )
+      return
     }
+    this.focusedItemRef = item
   }
 
   defocus = () => {
+    this.focusedItemRef?.setFocusState({ focused: false })
+    this.focusedItemRef = null
     this.focusedTabId = null
     this.focusedGroupId = null
     this.focusedWindowId = null
@@ -105,8 +120,17 @@ export default class FocusStore {
     }
   }
 
-  focus = (item: Focusable) => {
+  focus = (item: Focusable, options: FocusRequestOptions = {}) => {
     this._setFocusedItem(item)
+    item.setFocusState({
+      focused: true,
+      origin: options.origin,
+      reveal: options.reveal,
+      moveDomFocus: options.moveDomFocus,
+    })
+    if (options.reveal) {
+      this.revealItem(item)
+    }
   }
 
   // Toggle select of focused tab, or the focused window.tabs
@@ -222,34 +246,12 @@ export default class FocusStore {
   }
 
   _getGrid = (focusedItem: Focusable) => {
-    const { scrollTop } = this.containerRef.current
-    const { windows } = this.store.windowStore
-    const grid: Focusable[][] = []
-    let columnIndex = -1
-    for (const win of windows) {
-      const items = getFocusableItems(win, focusedItem)
-      for (const item of items) {
-        const rect = item.getBoundingClientRect()
-        if (!rect) {
-          continue
-        }
-        if (!grid.length) {
-          grid.push([item])
-        } else {
-          const column = grid[grid.length - 1]
-          const previousItem = column[column.length - 1]
-          if (previousItem.getBoundingClientRect().left === rect.left) {
-            column.push(item)
-          } else {
-            grid.push([item])
-          }
-        }
-        if (item === focusedItem) {
-          columnIndex = grid.length - 1
-        }
-      }
-    }
-    return { grid, columnIndex, scrollTop, targetColumn: grid[columnIndex] }
+    const { windowsByColumn } = this.store.windowStore
+    const grid = windowsByColumn.map((column) =>
+      column.flatMap((win) => getFocusableItems(win, focusedItem)),
+    )
+    const columnIndex = grid.findIndex((column) => column.includes(focusedItem))
+    return { grid, columnIndex, targetColumn: grid[columnIndex] }
   }
 
   _moveVertically = (direction: number, side = false) => {
@@ -258,7 +260,7 @@ export default class FocusStore {
     if (!focusedItem) {
       return this._focusOnFirstItem()
     }
-    const { scrollTop, targetColumn } = this._getGrid(focusedItem)
+    const { targetColumn } = this._getGrid(focusedItem)
     if (!targetColumn) {
       return log.debug('_moveVertically: No targetColumn found')
     }
@@ -267,9 +269,12 @@ export default class FocusStore {
     if (!item) {
       return log.error('_moveHorizontally: no available item found')
     }
-    this._top = scrollTop + item.getBoundingClientRect().top
+    this._top = this.store.windowStore.getItemLayout(item)?.top ?? this._top
     log.debug('_moveVertically target item:', item)
-    this._setFocusedItem(item)
+    this.focus(item, {
+      origin: 'keyboard',
+      reveal: true,
+    })
   }
 
   _moveHorizontally = (direction: number) => {
@@ -278,17 +283,17 @@ export default class FocusStore {
     if (!focusedItem) {
       return this._focusOnFirstItem()
     }
-    const baseRect = focusedItem.getBoundingClientRect()
-    log.debug('_moveHorizontally baseRect:', baseRect)
-    if (!baseRect) {
+    const baseLayout = this.store.windowStore.getItemLayout(focusedItem)
+    log.debug('_moveHorizontally baseLayout:', baseLayout)
+    if (!baseLayout) {
       return
     }
-    const { grid, columnIndex, scrollTop } = this._getGrid(focusedItem)
-    log.debug('_moveHorizontally grid:', { grid, columnIndex, scrollTop })
+    const { grid, columnIndex } = this._getGrid(focusedItem)
+    log.debug('_moveHorizontally grid:', { grid, columnIndex })
     if (columnIndex === -1) {
       return log.error('_moveHorizontally: no available grid')
     }
-    this._updateTop(scrollTop + baseRect.top)
+    this._updateTop(baseLayout.top)
     const targetColumn = getNextItem(grid, columnIndex, direction)
     if (!targetColumn) {
       return log.error('_moveHorizontally: no target column')
@@ -296,16 +301,21 @@ export default class FocusStore {
     let min = Number.MAX_VALUE
     let targetItem = null
     for (const item of targetColumn) {
-      const delta = Math.abs(
-        scrollTop + item.getBoundingClientRect().top - this._top,
-      )
+      const itemLayout = this.store.windowStore.getItemLayout(item)
+      if (!itemLayout) {
+        continue
+      }
+      const delta = Math.abs(itemLayout.top - this._top)
       if (delta < min) {
         targetItem = item
         min = delta
       }
     }
     if (targetItem) {
-      this._setFocusedItem(targetItem)
+      this.focus(targetItem, {
+        origin: 'keyboard',
+        reveal: true,
+      })
     }
   }
 
@@ -339,20 +349,90 @@ export default class FocusStore {
     this._moveVertically(1, true)
   }
 
+  revealItem = (item: Focusable) => {
+    const container = this.containerRef?.current
+    const itemLayout = this.store.windowStore.getItemLayout(item)
+    if (!container || !itemLayout) {
+      return
+    }
+
+    const targetWindow = this.store.windowStore.windows.find(
+      (win) => win.id === itemLayout.windowId,
+    )
+    if (targetWindow && !targetWindow.showTabs) {
+      targetWindow.showTabs = true
+    }
+
+    let nextScrollTop = container.scrollTop
+    let nextScrollLeft = container.scrollLeft
+
+    if (itemLayout.top < container.scrollTop) {
+      nextScrollTop = itemLayout.top
+    } else if (
+      itemLayout.bottom >
+      container.scrollTop + container.clientHeight
+    ) {
+      nextScrollTop = itemLayout.bottom - container.clientHeight
+    }
+
+    if (itemLayout.left < container.scrollLeft) {
+      nextScrollLeft = itemLayout.left
+    } else if (
+      itemLayout.right >
+      container.scrollLeft + container.clientWidth
+    ) {
+      nextScrollLeft = itemLayout.right - container.clientWidth
+    }
+
+    container.scrollTop = Math.max(nextScrollTop, 0)
+    container.scrollLeft = Math.max(nextScrollLeft, 0)
+    this.store.windowStore.updateScroll(
+      container.scrollTop,
+      container.scrollLeft,
+    )
+  }
+
   _focusOnFirstItem = () => {
     const { windows } = this.store.windowStore
     for (const win of windows) {
       if (win.hide) {
-        return this._setFocusedItem(win)
+        return this.focus(win, {
+          origin: 'keyboard',
+          reveal: true,
+        })
       }
       const [firstItem] = win.focusableRows
       if (firstItem) {
-        return this._setFocusedItem(firstItem)
+        return this.focus(firstItem, {
+          origin: 'keyboard',
+          reveal: true,
+        })
       }
     }
     if (windows.length) {
-      return this._setFocusedItem(windows[0])
+      return this.focus(windows[0], {
+        origin: 'keyboard',
+        reveal: true,
+      })
     }
+  }
+
+  shouldRevealNode = (node: HTMLElement | null) => {
+    if (!node) {
+      return false
+    }
+    const container = this.containerRef?.current
+    if (!container) {
+      return true
+    }
+    const nodeRect = node.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
+    return (
+      nodeRect.top < containerRect.top ||
+      nodeRect.bottom > containerRect.bottom ||
+      nodeRect.left < containerRect.left ||
+      nodeRect.right > containerRect.right
+    )
   }
 
   setDefaultFocusedTab = () => {

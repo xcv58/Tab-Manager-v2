@@ -164,6 +164,64 @@ describe('TabGroupStore', () => {
     ])
   })
 
+  it('should resolve group tabs from the owning window index when available', () => {
+    const indexedTabs = [
+      { id: 1, windowId: 1, groupId: 100 },
+      { id: 2, windowId: 1, groupId: 100 },
+    ] as any
+    const getTabsForGroup = jest.fn(() => indexedTabs)
+    const store = groupStore({
+      windows: [
+        {
+          id: 1,
+          getTabsForGroup,
+        },
+      ],
+      tabs: [{ id: 9, windowId: 9, groupId: 100 }],
+    })
+    store.tabGroupMap = new Map([
+      [
+        100,
+        {
+          id: 100,
+          windowId: 1,
+          title: 'Docs',
+          color: 'green',
+          collapsed: false,
+        },
+      ],
+    ])
+
+    expect(store.getTabsForGroup(100)).toBe(indexedTabs)
+    expect(getTabsForGroup).toHaveBeenCalledWith(100)
+  })
+
+  it('should fall back to scanning all tabs when the owning window is unavailable', () => {
+    const tabs = [
+      { id: 1, windowId: 1, groupId: 100 },
+      { id: 2, windowId: 1, groupId: 100 },
+      { id: 3, windowId: 2, groupId: 200 },
+    ] as any
+    const store = groupStore({
+      windows: [],
+      tabs,
+    })
+    store.tabGroupMap = new Map([
+      [
+        100,
+        {
+          id: 100,
+          windowId: 99,
+          title: 'Docs',
+          color: 'green',
+          collapsed: false,
+        },
+      ],
+    ])
+
+    expect(store.getTabsForGroup(100)).toEqual(tabs.slice(0, 2))
+  })
+
   it('should update collapsed state via browser.tabGroups API', async () => {
     const store = groupStore()
     store.tabGroupMap = new Map([

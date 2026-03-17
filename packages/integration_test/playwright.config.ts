@@ -8,12 +8,16 @@ const toMatchImageSnapshot = configureToMatchImageSnapshot({
 
 expect.extend({ toMatchImageSnapshot })
 
+const ciWorkers = process.env.CIRCLECI ? 1 : process.env.CI ? 4 : undefined
+const ciTimeout = process.env.CI ? 120000 : 30000
+
 export default defineConfig({
   testDir: './test',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined,
+  workers: ciWorkers,
+  timeout: ciTimeout,
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',

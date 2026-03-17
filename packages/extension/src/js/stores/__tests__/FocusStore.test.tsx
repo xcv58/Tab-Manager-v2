@@ -1,4 +1,6 @@
 import FocusStore from 'stores/FocusStore'
+import Tab from 'stores/Tab'
+import TabGroupRow from 'stores/TabGroupRow'
 import Window from 'stores/Window'
 
 describe('FocusStore', () => {
@@ -120,25 +122,70 @@ describe('FocusStore', () => {
       windowStore: {
         initialLoading: false,
         lastFocusedWindowId: 1,
+        rowHeight: 40,
+        columnWidthPx: 320,
+        width: 320,
+        height: 160,
+        scrollTop: 0,
+        scrollLeft: 0,
         tabs: [],
         windows: [],
+        get visibleWindows() {
+          return this.windows.filter((win) => win.visibleLength > 0)
+        },
+        get windowsByColumn() {
+          return [this.visibleWindows]
+        },
+        updateScroll(scrollTop: number, scrollLeft: number) {
+          this.scrollTop = scrollTop
+          this.scrollLeft = scrollLeft
+        },
+        getItemLayout(item) {
+          let win = null
+          let rowIndex = -1
+          if (item instanceof Window) {
+            win = item
+          } else if (item instanceof Tab) {
+            win = item.win
+            rowIndex = win.rows.findIndex(
+              (row) => row.kind === 'tab' && row.tabId === item.id,
+            )
+          } else if (item instanceof TabGroupRow) {
+            win = this.windows.find(
+              (candidate) => candidate.id === item.windowId,
+            )
+            rowIndex =
+              win?.rows.findIndex(
+                (row) => row.kind === 'group' && row.groupId === item.groupId,
+              ) ?? -1
+          }
+          if (!win) {
+            return null
+          }
+          let windowTop = 0
+          for (const candidate of this.visibleWindows) {
+            if (candidate.id === win.id) {
+              break
+            }
+            windowTop += candidate.visibleLength * this.rowHeight
+          }
+          const top =
+            rowIndex === -1
+              ? windowTop
+              : windowTop + this.rowHeight * (rowIndex + 1)
+          return {
+            columnIndex: 0,
+            left: 0,
+            right: this.columnWidthPx,
+            top,
+            bottom: top + this.rowHeight,
+            windowId: win.id,
+          }
+        },
       },
     }
     store.focusStore = new FocusStore(store)
     return store
-  }
-
-  const setRect = (item, top: number) => {
-    item.setNodeRef({
-      current: {
-        getBoundingClientRect: () => ({
-          top,
-          bottom: top + 40,
-          left: 0,
-          right: 320,
-        }),
-      },
-    })
   }
 
   it('falls back to the visible group row when the active tab is hidden in a collapsed group', () => {
@@ -221,13 +268,12 @@ describe('FocusStore', () => {
     store.focusStore.setContainerRef({
       current: {
         scrollTop: 0,
+        scrollLeft: 0,
+        clientHeight: 160,
+        clientWidth: 320,
       },
     })
     const groupRow = win.getGroupRow(100)
-    setRect(groupRow, 0)
-    setRect(win.tabs[0], 40)
-    setRect(win.tabs[1], 80)
-    setRect(win.tabs[2], 120)
 
     store.focusStore.focus(groupRow)
     store.focusStore.down()
@@ -235,6 +281,205 @@ describe('FocusStore', () => {
 
     store.focusStore.up()
     expect(store.focusStore.focusedGroupId).toBe(100)
+  })
+
+  it('skips collapsed rows from hidden windows during keyboard navigation', () => {
+    const store = createStore(false)
+    store.hiddenWindowStore.hiddenWindows[1] = true
+
+    const hiddenWin = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Hidden tab',
+            url: 'https://example.com/hidden',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    const visibleWin = new Window(
+      {
+        id: 2,
+        tabs: [
+          {
+            id: 2,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Visible tab',
+            url: 'https://example.com/visible',
+            windowId: 2,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = [...hiddenWin.tabs, ...visibleWin.tabs]
+    store.windowStore.windows = [hiddenWin, visibleWin]
+    store.focusStore.setContainerRef({
+      current: {
+        scrollTop: 0,
+        scrollLeft: 0,
+        clientHeight: 160,
+        clientWidth: 320,
+      },
+    })
+
+    store.focusStore.focus(hiddenWin)
+    store.focusStore.down()
+
+    expect(store.focusStore.focusedWindowId).toBeNull()
+    expect(store.focusStore.focusedTabId).toBe(2)
+  })
+
+  it('only keeps focus state on the current item and carries reveal requests', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: 100,
+            index: 0,
+            title: 'Grouped A',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+          {
+            id: 2,
+            active: false,
+            groupId: -1,
+            index: 1,
+            title: 'Ungrouped',
+            url: 'https://example.com/b',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+
+    const groupRow = win.getGroupRow(100)
+    store.focusStore.focus(groupRow)
+    expect(groupRow.isFocused).toBe(true)
+    expect(groupRow.shouldRevealOnFocus).toBe(false)
+
+    store.focusStore.focus(win.tabs[1], {
+      origin: 'keyboard',
+      reveal: true,
+    })
+    expect(groupRow.isFocused).toBe(false)
+    expect(win.tabs[1].isFocused).toBe(true)
+    expect(win.tabs[1].focusOrigin).toBe('keyboard')
+    expect(win.tabs[1].shouldRevealOnFocus).toBe(true)
+    expect(win.tabs[1].focusRequestId).toBe(1)
+  })
+
+  it('lets tab activation carry search-origin reveal requests', () => {
+    const store = createStore(false)
+    store.tabStore.activate = jest.fn()
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+
+    win.tabs[0].activate({ origin: 'search', reveal: true })
+
+    expect(store.tabStore.activate).toHaveBeenCalledWith(win.tabs[0])
+    expect(store.focusStore.focusedTabId).toBe(1)
+    expect(win.tabs[0].focusOrigin).toBe('search')
+    expect(win.tabs[0].shouldRevealOnFocus).toBe(true)
+  })
+
+  it('allows callers to keep native DOM focus while updating logical focus', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+
+    store.focusStore.focus(win.tabs[0], {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+
+    expect(store.focusStore.focusedTabId).toBe(1)
+    expect(win.tabs[0].shouldMoveDomFocus).toBe(false)
+    expect(win.tabs[0].shouldRevealOnFocus).toBe(false)
+  })
+
+  it('lets group activation carry mouse-origin focus', () => {
+    const store = createStore(false)
+    store.tabGroupStore.toggleCollapsed = jest.fn()
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: 100,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+    const groupRow = win.getGroupRow(100)
+
+    groupRow.activate({ origin: 'mouse', reveal: false })
+
+    expect(store.tabGroupStore.toggleCollapsed).toHaveBeenCalledWith(100)
+    expect(store.focusStore.focusedGroupId).toBe(100)
+    expect(groupRow.focusOrigin).toBe('mouse')
+    expect(groupRow.shouldRevealOnFocus).toBe(false)
   })
 
   it('selects the whole group for group-focused x and shift+x behavior', () => {

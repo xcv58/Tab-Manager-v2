@@ -14,7 +14,6 @@ import { useStore } from 'components/hooks/useStore'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
 import RowActionRail from 'components/RowActionRail'
-import useReduceMotion from 'libs/useReduceMotion'
 import { WindowRow } from 'stores/TabGroupStore'
 import Window from 'stores/Window'
 import GroupEditorPopover from './GroupEditorPopover'
@@ -36,7 +35,8 @@ type Props = {
 
 export default observer((props: Props) => {
   const { row, win } = props
-  const { tabGroupStore, searchStore, windowStore, dragStore } = useStore()
+  const { tabGroupStore, searchStore, windowStore, dragStore, focusStore } =
+    useStore()
   const theme = useTheme()
   const isDarkMode = theme.palette.mode === 'dark'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
@@ -53,7 +53,6 @@ export default observer((props: Props) => {
   const [headerDropMode, setHeaderDropMode] = useState<
     'join-group' | 'before-group'
   >('join-group')
-  const reduceMotion = useReduceMotion()
 
   const groupColorId = (tabGroup?.color ||
     row.color ||
@@ -70,6 +69,20 @@ export default observer((props: Props) => {
     }
     tabGroupStore.toggleCollapsed(row.groupId)
   }
+
+  const onToggleFocus = useCallback(() => {
+    setIsToggleFocused(true)
+    focusStore.focus(groupRow, {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+  }, [focusStore, groupRow])
+
+  const onToggleClick = useCallback(() => {
+    focusStore.focus(groupRow, { origin: 'mouse', reveal: false })
+    onToggle()
+  }, [focusStore, groupRow, onToggle])
 
   const onUngroup = () => {
     if (!canMutateGroups) {
@@ -190,17 +203,32 @@ export default observer((props: Props) => {
 
   useEffect(() => {
     groupRow.setNodeRef(nodeRef)
-  })
+  }, [groupRow])
   useEffect(() => {
-    if (isFocused) {
-      nodeRef.current?.focus({ preventScroll: true })
-      nodeRef.current?.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
-      })
+    if (isFocused && nodeRef.current) {
+      if (groupRow.shouldMoveDomFocus) {
+        nodeRef.current?.focus({ preventScroll: true })
+      }
+      if (
+        groupRow.shouldMoveDomFocus &&
+        groupRow.shouldRevealOnFocus &&
+        focusStore.shouldRevealNode(nodeRef.current)
+      ) {
+        nodeRef.current?.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'nearest',
+        })
+      }
     }
-  }, [groupRow, isFocused, reduceMotion])
+  }, [
+    focusStore,
+    groupRow,
+    groupRow.focusRequestId,
+    groupRow.shouldMoveDomFocus,
+    groupRow.shouldRevealOnFocus,
+    isFocused,
+  ])
 
   const setDropRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -242,10 +270,10 @@ export default observer((props: Props) => {
         >
           <button
             className="flex h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
-            onClick={onToggle}
+            onClick={onToggleClick}
+            onFocus={onToggleFocus}
             onMouseEnter={() => setIsToggleHovered(true)}
             onMouseLeave={() => setIsToggleHovered(false)}
-            onFocus={() => setIsToggleFocused(true)}
             onBlur={() => setIsToggleFocused(false)}
             data-testid={`tab-group-toggle-${row.groupId}`}
             style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
