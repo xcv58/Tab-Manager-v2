@@ -133,7 +133,10 @@ export default class ShortcutStore {
     [
       ['s'],
       () => {
-        this.store.windowStore.syncAllWindows()
+        void this.store.windowStore.syncAllWindows({
+          revealActiveTab: true,
+          origin: 'keyboard',
+        })
       },
       'Sync all windows',
     ],

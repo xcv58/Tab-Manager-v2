@@ -15,6 +15,7 @@ import Tab from 'stores/Tab'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import Focusable from './Focusable'
+import type { FocusOrigin } from './Focusable'
 import TabGroupRow from './TabGroupRow'
 
 export type VirtualizedWindowLayout = {
@@ -171,6 +172,8 @@ export default class WindowsStore {
   }
 
   hasAppliedInitialDefaultFocus = false
+
+  pendingFocusedItemReveal = false
 
   get tabCount() {
     return this.windows
@@ -765,6 +768,52 @@ export default class WindowsStore {
     })
   }
 
+  flushPendingFocusedItemReveal = () => {
+    if (!this.pendingFocusedItemReveal) {
+      return false
+    }
+    const { focusStore } = this.store
+    const focusedItem = focusStore?.focusedItem
+    if (!focusedItem) {
+      this.pendingFocusedItemReveal = false
+      return false
+    }
+    if (
+      !focusStore?.containerRef?.current ||
+      !this.getItemLayout(focusedItem)
+    ) {
+      return false
+    }
+    this.pendingFocusedItemReveal = false
+    focusStore.revealItem(focusedItem)
+    return true
+  }
+
+  focusActiveTabInLastFocusedWindow = ({
+    origin = 'programmatic',
+    moveDomFocus = true,
+    reveal = false,
+  }: {
+    origin?: FocusOrigin
+    moveDomFocus?: boolean
+    reveal?: boolean
+  } = {}) => {
+    const { lastFocusedWindow } = this
+    if (!lastFocusedWindow || lastFocusedWindow.hide) {
+      return false
+    }
+    const activeTab = lastFocusedWindow.tabs.find((tab) => tab.active)
+    if (!activeTab?.isVisible) {
+      return false
+    }
+    this.store.focusStore?.focus(activeTab, {
+      origin,
+      moveDomFocus,
+      reveal,
+    })
+    return true
+  }
+
   getWindowLayout = (windowId: number) => {
     for (const column of this.columnLayoutsWithPosition) {
       const layout = column.windows.find((windowLayout) => {
@@ -1176,11 +1225,34 @@ export default class WindowsStore {
     this.lifecycleListenersBound = false
   }
 
-  syncAllWindows = () => {
+  syncAllWindows = async ({
+    revealActiveTab = false,
+    origin = 'programmatic',
+    moveDomFocus = true,
+  }: {
+    revealActiveTab?: boolean
+    origin?: FocusOrigin
+    moveDomFocus?: boolean
+  } = {}) => {
     this.initialLoading = true
-    this.loadAllWindows({
+    await this.loadAllWindows({
       repackPolicy: 'always',
       reason: 'sync',
+    })
+    if (revealActiveTab) {
+      this.pendingFocusedItemReveal = this.focusActiveTabInLastFocusedWindow({
+        origin,
+        moveDomFocus,
+        reveal: false,
+      })
+    }
+  }
+
+  repackLayoutAndRevealActiveTab = (origin: FocusOrigin = 'programmatic') => {
+    this.repackLayout('manual')
+    this.focusActiveTabInLastFocusedWindow({
+      origin,
+      reveal: true,
     })
   }
 
@@ -1258,10 +1330,11 @@ export default class WindowsStore {
       this.store.focusStore?.setDefaultFocusedTabWithOptions
     ) {
       this.hasAppliedInitialDefaultFocus = true
-      this.store.focusStore.setDefaultFocusedTabWithOptions({
-        reveal: true,
-        fallbackWhenActiveHidden: false,
-      })
+      this.pendingFocusedItemReveal =
+        this.store.focusStore.setDefaultFocusedTabWithOptions({
+          reveal: false,
+          fallbackWhenActiveHidden: false,
+        }) === true
     }
   }
 

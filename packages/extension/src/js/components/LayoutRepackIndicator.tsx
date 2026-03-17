@@ -20,7 +20,7 @@ export default observer(() => {
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <ButtonBase
-        onClick={() => windowStore.repackLayout('manual')}
+        onClick={() => windowStore.repackLayoutAndRevealActiveTab('mouse')}
         aria-label={TITLE}
         data-testid="layout-repack-button"
         sx={(theme) => ({

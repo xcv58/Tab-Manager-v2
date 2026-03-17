@@ -101,4 +101,90 @@ describe('WinList', () => {
     clientHeightSpy.mockRestore()
     clientWidthSpy.mockRestore()
   })
+
+  it('flushes the pending focused-item reveal only after loading completes', () => {
+    const updateViewport = jest.fn()
+    const updateScroll = jest.fn()
+    const setContainerRef = jest.fn()
+    const flushPendingFocusedItemReveal = jest.fn(() => true)
+    const computedStyleSpy = jest
+      .spyOn(window, 'getComputedStyle')
+      .mockReturnValue({
+        paddingLeft: '0',
+        paddingRight: '0',
+        paddingTop: '0',
+        paddingBottom: '0',
+      } as CSSStyleDeclaration)
+    const rafSpy = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback: FrameRequestCallback) => {
+        callback(0)
+        return 1
+      })
+    const cancelAnimationFrameSpy = jest
+      .spyOn(window, 'cancelAnimationFrame')
+      .mockImplementation(() => undefined)
+    const clientHeightSpy = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(420)
+    const clientWidthSpy = jest
+      .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+      .mockReturnValue(320)
+    const makeStore = (initialLoading: boolean) =>
+      ({
+        windowStore: {
+          initialLoading,
+          updateViewport,
+          updateScroll,
+          visibleWindows: [{ id: 1 }],
+          renderedColumnLayouts: [
+            {
+              columnIndex: 0,
+              left: 0,
+              width: 320,
+              height: 120,
+              renderedWindows: [
+                {
+                  windowId: 1,
+                  top: 0,
+                },
+              ],
+            },
+          ],
+          totalContentWidth: 320,
+          totalContentHeight: 120,
+          pendingFocusedItemReveal: true,
+          flushPendingFocusedItemReveal,
+        },
+        userStore: {
+          tabWidth: 20,
+          toolbarAutoHide: false,
+        },
+        focusStore: {
+          setContainerRef,
+        },
+      }) as any
+
+    const { rerender } = render(
+      <StoreContext.Provider value={makeStore(true)}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    expect(flushPendingFocusedItemReveal).not.toHaveBeenCalled()
+
+    rerender(
+      <StoreContext.Provider value={makeStore(false)}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    expect(flushPendingFocusedItemReveal).toHaveBeenCalledTimes(1)
+
+    computedStyleSpy.mockRestore()
+    rafSpy.mockRestore()
+    cancelAnimationFrameSpy.mockRestore()
+    clientHeightSpy.mockRestore()
+    clientWidthSpy.mockRestore()
+  })
 })
