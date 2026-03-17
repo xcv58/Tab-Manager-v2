@@ -192,8 +192,12 @@ export default observer((props: WinProps & { className: string }) => {
               }}
             />
           </RowActionSlot>
-          <RowActionSlot visible={emphasizeWindowControls}>
-            <CloseButton onClick={() => props.win.close()} size="compact" />
+          <RowActionSlot visible>
+            <CloseButton
+              onClick={() => props.win.close()}
+              size="compact"
+              tone="default"
+            />
           </RowActionSlot>
         </RowActionRail>
       </div>

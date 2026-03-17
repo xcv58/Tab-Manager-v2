@@ -170,6 +170,8 @@ export default class WindowsStore {
     foreground: 0,
   }
 
+  hasAppliedInitialDefaultFocus = false
+
   get tabCount() {
     return this.windows
       .map((x) => x.tabs.length)
@@ -1251,7 +1253,16 @@ export default class WindowsStore {
       this.windowMounted()
     }
     this.initialLoading = false
-    this.store.focusStore.setDefaultFocusedTab()
+    if (
+      !this.hasAppliedInitialDefaultFocus &&
+      this.store.focusStore?.setDefaultFocusedTabWithOptions
+    ) {
+      this.hasAppliedInitialDefaultFocus = true
+      this.store.focusStore.setDefaultFocusedTabWithOptions({
+        reveal: true,
+        fallbackWhenActiveHidden: false,
+      })
+    }
   }
 
   getAllWindows = (options?: LoadAllWindowsOptions) => {

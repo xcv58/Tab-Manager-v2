@@ -314,6 +314,47 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.windows.map((win) => win.id)).toEqual([3, 1, 2])
   })
 
+  it('restores default focus only on the initial load', async () => {
+    const windowStore = createWindowStore()
+    const setDefaultFocusedTabWithOptions = jest.fn()
+    ;(windowStore.store as any).focusStore = {
+      setDefaultFocusedTabWithOptions,
+    }
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'initial-load',
+    })
+
+    expect(setDefaultFocusedTabWithOptions).toHaveBeenCalledWith({
+      reveal: true,
+      fallbackWhenActiveHidden: false,
+    })
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'sync',
+    })
+
+    expect(setDefaultFocusedTabWithOptions).toHaveBeenCalledTimes(1)
+  })
+
   it('suppresses duplicate lifecycle triggers in the same family', () => {
     const windowStore = createWindowStore()
     expect(windowStore.shouldSuppressLifecycleTrigger('foreground')).toBe(false)
