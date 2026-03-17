@@ -72,7 +72,11 @@ export default observer((props: Props) => {
 
   const onToggleFocus = useCallback(() => {
     setIsToggleFocused(true)
-    focusStore.focus(groupRow)
+    focusStore.focus(groupRow, {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
   }, [focusStore, groupRow])
 
   const onToggleClick = useCallback(() => {
@@ -202,8 +206,11 @@ export default observer((props: Props) => {
   }, [groupRow])
   useEffect(() => {
     if (isFocused && nodeRef.current) {
-      nodeRef.current?.focus({ preventScroll: true })
+      if (groupRow.shouldMoveDomFocus) {
+        nodeRef.current?.focus({ preventScroll: true })
+      }
       if (
+        groupRow.shouldMoveDomFocus &&
         groupRow.shouldRevealOnFocus &&
         focusStore.shouldRevealNode(nodeRef.current)
       ) {
@@ -218,6 +225,7 @@ export default observer((props: Props) => {
     focusStore,
     groupRow,
     groupRow.focusRequestId,
+    groupRow.shouldMoveDomFocus,
     groupRow.shouldRevealOnFocus,
     isFocused,
   ])

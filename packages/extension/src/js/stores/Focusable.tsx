@@ -7,6 +7,7 @@ export type FocusOrigin = 'keyboard' | 'mouse' | 'search' | 'programmatic'
 export type FocusRequestOptions = {
   origin?: FocusOrigin
   reveal?: boolean
+  moveDomFocus?: boolean
 }
 
 export default class Focusable {
@@ -19,6 +20,7 @@ export default class Focusable {
       isFocused: observable,
       focusOrigin: observable,
       shouldRevealOnFocus: observable,
+      shouldMoveDomFocus: observable,
       focusRequestId: observable,
       setNodeRef: action,
       setFocusState: action,
@@ -37,6 +39,8 @@ export default class Focusable {
 
   shouldRevealOnFocus = false
 
+  shouldMoveDomFocus = true
+
   focusRequestId = 0
 
   setNodeRef = (nodeRef: MutableRefObject<HTMLDivElement>) => {
@@ -47,15 +51,18 @@ export default class Focusable {
     focused,
     origin = 'programmatic',
     reveal = false,
+    moveDomFocus = true,
   }: FocusRequestOptions & { focused: boolean }) => {
     this.isFocused = focused
     if (!focused) {
       this.focusOrigin = 'programmatic'
       this.shouldRevealOnFocus = false
+      this.shouldMoveDomFocus = true
       return
     }
     this.focusOrigin = origin
     this.shouldRevealOnFocus = reveal
+    this.shouldMoveDomFocus = moveDomFocus
     this.focusRequestId += 1
   }
 

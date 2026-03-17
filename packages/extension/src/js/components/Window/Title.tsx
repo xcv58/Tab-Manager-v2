@@ -57,8 +57,11 @@ export default observer((props: WinProps & { className: string }) => {
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
   useEffect(() => {
     if (isFocused && nodeRef.current) {
-      nodeRef.current.focus({ preventScroll: true })
+      if (win.shouldMoveDomFocus) {
+        nodeRef.current.focus({ preventScroll: true })
+      }
       if (
+        win.shouldMoveDomFocus &&
         win.shouldRevealOnFocus &&
         focusStore.shouldRevealNode(nodeRef.current)
       ) {
@@ -69,7 +72,13 @@ export default observer((props: WinProps & { className: string }) => {
         })
       }
     }
-  }, [focusStore, isFocused, win.focusRequestId, win.shouldRevealOnFocus])
+  }, [
+    focusStore,
+    isFocused,
+    win.focusRequestId,
+    win.shouldMoveDomFocus,
+    win.shouldRevealOnFocus,
+  ])
   useEffect(() => {
     win.setNodeRef(nodeRef)
   }, [win])
@@ -108,7 +117,11 @@ export default observer((props: WinProps & { className: string }) => {
     </div>
   )
   const onTitleFocus = React.useCallback(() => {
-    focusStore.focus(win)
+    focusStore.focus(win, {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
   }, [focusStore, win])
   const onTitleClick = React.useCallback(() => {
     activate({ origin: 'mouse', reveal: false })

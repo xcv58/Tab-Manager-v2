@@ -22,7 +22,10 @@ const getNextItem = (
 }
 
 const getFocusableItems = (win: Window, focusedItem: Focusable) => {
-  if (win.hide || win === focusedItem) {
+  if (win.hide) {
+    return [win]
+  }
+  if (win === focusedItem) {
     return [win, ...win.focusableRows]
   }
   return win.focusableRows
@@ -123,6 +126,7 @@ export default class FocusStore {
       focused: true,
       origin: options.origin,
       reveal: options.reveal,
+      moveDomFocus: options.moveDomFocus,
     })
     if (options.reveal) {
       this.revealItem(item)

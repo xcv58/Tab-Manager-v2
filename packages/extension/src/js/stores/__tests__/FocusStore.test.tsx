@@ -283,6 +283,62 @@ describe('FocusStore', () => {
     expect(store.focusStore.focusedGroupId).toBe(100)
   })
 
+  it('skips collapsed rows from hidden windows during keyboard navigation', () => {
+    const store = createStore(false)
+    store.hiddenWindowStore.hiddenWindows[1] = true
+
+    const hiddenWin = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Hidden tab',
+            url: 'https://example.com/hidden',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    const visibleWin = new Window(
+      {
+        id: 2,
+        tabs: [
+          {
+            id: 2,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Visible tab',
+            url: 'https://example.com/visible',
+            windowId: 2,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = [...hiddenWin.tabs, ...visibleWin.tabs]
+    store.windowStore.windows = [hiddenWin, visibleWin]
+    store.focusStore.setContainerRef({
+      current: {
+        scrollTop: 0,
+        scrollLeft: 0,
+        clientHeight: 160,
+        clientWidth: 320,
+      },
+    })
+
+    store.focusStore.focus(hiddenWin)
+    store.focusStore.down()
+
+    expect(store.focusStore.focusedWindowId).toBeNull()
+    expect(store.focusStore.focusedTabId).toBe(2)
+  })
+
   it('only keeps focus state on the current item and carries reveal requests', () => {
     const store = createStore(false)
     const win = new Window(
@@ -359,6 +415,39 @@ describe('FocusStore', () => {
     expect(store.focusStore.focusedTabId).toBe(1)
     expect(win.tabs[0].focusOrigin).toBe('search')
     expect(win.tabs[0].shouldRevealOnFocus).toBe(true)
+  })
+
+  it('allows callers to keep native DOM focus while updating logical focus', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+
+    store.focusStore.focus(win.tabs[0], {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+
+    expect(store.focusStore.focusedTabId).toBe(1)
+    expect(win.tabs[0].shouldMoveDomFocus).toBe(false)
+    expect(win.tabs[0].shouldRevealOnFocus).toBe(false)
   })
 
   it('lets group activation carry mouse-origin focus', () => {

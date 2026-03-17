@@ -51,8 +51,11 @@ export default observer((props: TabProps & { className?: string }) => {
 
   useEffect(() => {
     if (isFocused && !searchStore.typing && nodeRef.current) {
-      nodeRef.current.focus({ preventScroll: true })
+      if (tab.shouldMoveDomFocus) {
+        nodeRef.current.focus({ preventScroll: true })
+      }
       if (
+        tab.shouldMoveDomFocus &&
         tab.shouldRevealOnFocus &&
         focusStore.shouldRevealNode(nodeRef.current)
       ) {
@@ -70,6 +73,7 @@ export default observer((props: TabProps & { className?: string }) => {
     onMouseLeave,
     searchStore.typing,
     tab.focusRequestId,
+    tab.shouldMoveDomFocus,
     tab.shouldRevealOnFocus,
   ])
   useEffect(() => {
