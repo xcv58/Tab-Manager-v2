@@ -322,6 +322,42 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.shouldSuppressLifecycleTrigger('background')).toBe(true)
   })
 
+  it('derives duplicate helpers from cached duplicate families', () => {
+    const windowStore = createWindowStore()
+    const alphaA = { id: 11, fingerPrint: 'alpha' }
+    const alphaB = { id: 12, fingerPrint: 'alpha' }
+    const betaA = { id: 21, fingerPrint: 'beta' }
+    const betaB = { id: 22, fingerPrint: 'beta' }
+    const betaC = { id: 23, fingerPrint: 'beta' }
+    const gamma = { id: 31, fingerPrint: 'gamma' }
+
+    windowStore.windows = [
+      {
+        id: 1,
+        hide: false,
+        tabs: [alphaA, alphaB, betaA, betaB, betaC, gamma],
+        visibleLength: 8,
+      },
+    ] as any
+
+    expect(windowStore.tabFingerprintMap).toEqual({
+      alpha: 2,
+      beta: 3,
+      gamma: 1,
+    })
+    expect(windowStore.duplicatedTabs.map((tab) => tab.id)).toEqual([
+      11, 12, 21, 22, 23,
+    ])
+    expect(windowStore.getDuplicateTabsToRemove().map((tab) => tab.id)).toEqual(
+      [12, 22, 23],
+    )
+    expect(
+      windowStore
+        .getDuplicateTabsToRemove([betaB, betaC] as any)
+        .map((tab) => tab.id),
+    ).toEqual([23])
+  })
+
   it('repackages columns when a tab group assignment changes visible rows', () => {
     const windowStore = createWindowStore()
     ;(windowStore.store as any).tabGroupStore = {

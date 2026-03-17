@@ -46,6 +46,13 @@ export type HistoryItem = {
   visitCount?: number
 }
 
+type TabSearchDocument = {
+  tab: Tab
+  title: string
+  url: string
+  groupTitle: string
+}
+
 export default class SearchStore {
   store: Store
 
@@ -79,12 +86,40 @@ export default class SearchStore {
     return hasCommandPrefix(this.query)
   }
 
+  get tabSearchKeys() {
+    return getTabSearchKeys({
+      showUrl: this.store.userStore.showUrl,
+      hasTabGroupsApi: !!this.store.tabGroupStore?.hasTabGroupsApi?.(),
+    })
+  }
+
+  get tabSearchDocuments(): TabSearchDocument[] {
+    const includeUrl = this.store.userStore.showUrl
+    const includeGroupTitle = !!this.store.tabGroupStore?.hasTabGroupsApi?.()
+
+    return this.store.windowStore.tabs.map((tab) => ({
+      tab,
+      title: tab.title || '',
+      url: includeUrl ? tab.url || '' : '',
+      groupTitle: includeGroupTitle ? tab.groupTitle || '' : '',
+    }))
+  }
+
+  get rawMatchedTabDocuments(): TabSearchDocument[] {
+    if (!this._query) {
+      return this.tabSearchDocuments
+    }
+    return matchSorter(this.tabSearchDocuments, this._query, {
+      keys: this.tabSearchKeys,
+    })
+  }
+
   get matchedTabs(): Tab[] {
     return this.rawMatchedTabs.filter((tab) => tab.isVisible)
   }
 
   get rawMatchedTabs(): Tab[] {
-    return this.fuzzySearch()
+    return this.rawMatchedTabDocuments.map((document) => document.tab)
   }
 
   get matchedSet() {
@@ -160,8 +195,17 @@ export default class SearchStore {
 
   _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
+    const visibleRowCountsBefore =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
     this._query = this.query
-    this.store.windowStore?.repackLayout?.('search-change')
+    const shouldRepackLayout =
+      visibleRowCountsBefore == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBefore,
+      ) !== false
+    if (shouldRepackLayout) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
     if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
       this.store.focusStore.defocus()
     }
@@ -192,15 +236,10 @@ export default class SearchStore {
 
   fuzzySearch = () => {
     log.debug('SearchStore.fuzzySearch:', { _query: this._query })
-    const { tabs } = this.store.windowStore
     if (!this._query) {
-      return tabs
+      return this.rawMatchedTabs
     }
-    const keys = getTabSearchKeys({
-      showUrl: this.store.userStore.showUrl,
-      hasTabGroupsApi: !!this.store.tabGroupStore?.hasTabGroupsApi?.(),
-    })
-    return matchSorter(tabs, this._query, { keys })
+    return this.rawMatchedTabs
   }
 
   selectAll = () => {

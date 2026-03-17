@@ -340,6 +340,42 @@ export const openPages = async (driver: WebDriver, urls: string[]) => {
   )
 }
 
+export const createWindowsWithTabs = async (
+  driver: WebDriver,
+  windowUrls: string[][],
+): Promise<number[]> => {
+  return await executeInExtension(
+    driver,
+    async (windowsToCreate) => {
+      const windowIds: number[] = []
+      for (const urls of windowsToCreate) {
+        if (!urls.length) {
+          continue
+        }
+        const [firstUrl, ...remainingUrls] = urls
+        const createdWindow = await browser.windows.create({
+          url: firstUrl,
+          focused: false,
+        })
+        if (typeof createdWindow.id !== 'number') {
+          windowIds.push(-1)
+          continue
+        }
+        for (const url of remainingUrls) {
+          await browser.tabs.create({
+            windowId: createdWindow.id,
+            url,
+            active: false,
+          })
+        }
+        windowIds.push(createdWindow.id)
+      }
+      return windowIds
+    },
+    windowUrls,
+  )
+}
+
 export const groupTabsByUrl = async (
   driver: WebDriver,
   {

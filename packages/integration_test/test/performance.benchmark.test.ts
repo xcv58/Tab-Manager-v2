@@ -434,7 +434,7 @@ test.describe('Performance benchmark scenarios', () => {
     const searchInput = page.locator(SEARCH_SELECTOR)
     await expect(searchInput).toBeVisible()
     await searchInput.click()
-    await page.keyboard.type('needle-target', { delay: 10 })
+    await searchInput.type('needle-target', { delay: 10 })
 
     const search = await waitForPopupState(
       page,

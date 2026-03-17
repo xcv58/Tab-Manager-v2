@@ -44,7 +44,13 @@ export default observer((props: TabProps) => {
     },
   })
   const { isOver, canDrop } = dropProps
-  drop(dropRef)
+  const setDropRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      dropRef.current = node
+      drop(node)
+    },
+    [drop],
+  )
   const previewBefore =
     canDrop && isOver && dropPosition === 'before' ? (
       <DropIndicator position="before" />
@@ -54,7 +60,7 @@ export default observer((props: TabProps) => {
       <DropIndicator position="after" />
     ) : null
   return (
-    <div ref={dropRef}>
+    <div ref={setDropRef}>
       {previewBefore}
       <Tab
         {...props}
