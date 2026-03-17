@@ -65,7 +65,7 @@ describe('Window Title', () => {
     })
   })
 
-  it('keeps the window close control visible with a low-emphasis tone', () => {
+  it('keeps the window close control visible with the shared close tone', () => {
     const store = {
       focusStore: {
         focus: jest.fn(),
@@ -97,7 +97,7 @@ describe('Window Title', () => {
       </StoreContext.Provider>,
     )
 
-    expect(screen.getByTestId('close')).toHaveAttribute('data-tone', 'default')
+    expect(screen.getByTestId('close')).toHaveAttribute('data-tone', 'danger')
     expect(screen.queryByTestId('reload')).not.toBeInTheDocument()
   })
 })

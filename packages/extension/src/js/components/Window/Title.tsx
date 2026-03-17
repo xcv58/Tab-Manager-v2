@@ -196,7 +196,7 @@ export default observer((props: WinProps & { className: string }) => {
             <CloseButton
               onClick={() => props.win.close()}
               size="compact"
-              tone="default"
+              tone="danger"
             />
           </RowActionSlot>
         </RowActionRail>
