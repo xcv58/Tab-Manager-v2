@@ -12,6 +12,7 @@ import {
   createWindowsWithTabs,
   groupTabsByUrlInWindow,
   waitForDefaultExtensionView,
+  waitForLocatorRectToStabilize,
   waitForSurfaceToFullyAppear,
   waitForTestId,
 } from '../util'
@@ -625,7 +626,11 @@ test.describe('The Extension page should', () => {
     await expect(sortButton).toBeVisible()
     await expect(sortButtonSlot).toHaveCSS('opacity', '1')
     await windowTitle.hover()
-    await page.waitForTimeout(150)
+    await waitForLocatorRectToStabilize(sortButton, {
+      minWidth: 20,
+      minHeight: 20,
+      stableSamples: 3,
+    })
     await expect(sortButton).toBeVisible()
     await expect(sortButtonSlot).toHaveCSS('opacity', '1')
     const sortButtonScreenshot = await sortButton.screenshot()
@@ -641,7 +646,11 @@ test.describe('The Extension page should', () => {
       .locator('button[aria-label="Reload all tabs"]')
       .first()
     await windowTitle.hover()
-    await page.waitForTimeout(150)
+    await waitForLocatorRectToStabilize(reloadButton, {
+      minWidth: 20,
+      minHeight: 20,
+      stableSamples: 3,
+    })
     await expect(reloadButton).toBeVisible()
     const reloadButtonScreenshot = await reloadButton.screenshot()
     expect(reloadButtonScreenshot).toMatchSnapshot(

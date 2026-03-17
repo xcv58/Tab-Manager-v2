@@ -13,6 +13,7 @@ import {
   openPages,
   groupTabsByUrl,
   waitForDefaultExtensionView,
+  waitForLocatorRectToStabilize,
   waitForTestId,
   startIntegrationFixtureServer,
 } from '../util'
@@ -154,6 +155,16 @@ test.describe('The Extension page should', () => {
         : allWindows.nth(1)
     await expect(focusedWindow).toBeVisible()
     await expect(unfocusedWindow).toBeVisible()
+    await waitForLocatorRectToStabilize(focusedWindow, {
+      minWidth: 250,
+      minHeight: 120,
+      stableSamples: 3,
+    })
+    await waitForLocatorRectToStabilize(unfocusedWindow, {
+      minWidth: 250,
+      minHeight: 120,
+      stableSamples: 3,
+    })
     const focusedShot = await focusedWindow.screenshot()
     expect(focusedShot).toMatchSnapshot('window-card-focused-state.png', {
       maxDiffPixelRatio: 0.2,
