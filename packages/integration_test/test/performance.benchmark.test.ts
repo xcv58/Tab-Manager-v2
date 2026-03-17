@@ -33,10 +33,12 @@ const GROUP_COLORS: chrome.tabGroups.ColorEnum[] = [
   'grey',
 ]
 
+const IS_CI = Boolean(process.env.CI)
+
 const MEDIUM_WORKLOAD: GroupedBenchmarkWorkload = {
   name: 'medium',
   windowCount: 4,
-  tabsPerWindow: process.env.CIRCLECI ? 40 : 50,
+  tabsPerWindow: IS_CI ? 40 : 50,
   groupSize: 10,
   matchEvery: 25,
 }
@@ -44,14 +46,12 @@ const MEDIUM_WORKLOAD: GroupedBenchmarkWorkload = {
 const LARGE_WORKLOAD: GroupedBenchmarkWorkload = {
   name: 'large',
   windowCount: 4,
-  tabsPerWindow: process.env.CIRCLECI ? 60 : 100,
+  tabsPerWindow: IS_CI ? 60 : 100,
   groupSize: 10,
   matchEvery: 25,
 }
 
-const KEYBOARD_NAVIGATION_WORKLOAD = process.env.CIRCLECI
-  ? MEDIUM_WORKLOAD
-  : LARGE_WORKLOAD
+const KEYBOARD_NAVIGATION_WORKLOAD = IS_CI ? MEDIUM_WORKLOAD : LARGE_WORKLOAD
 
 const DRAG_WINDOW_COUNT = 2
 const DRAG_TABS_PER_WINDOW = 8
@@ -398,7 +398,7 @@ test.describe('Performance benchmark scenarios', () => {
     expect(open.state.tabRows).toBeLessThan(setup.expectedTabRows)
   })
 
-  if (process.env.CIRCLECI) {
+  if (IS_CI) {
     test.skip('measures grouped popup open for the large workload with virtualized row assertions', async () => {})
   } else {
     test('measures grouped popup open for the large workload with virtualized row assertions', async () => {
