@@ -8,7 +8,7 @@ const toMatchImageSnapshot = configureToMatchImageSnapshot({
 
 expect.extend({ toMatchImageSnapshot })
 
-const ciWorkers = process.env.CIRCLECI ? 1 : process.env.CI ? 4 : undefined
+const ciWorkers = process.env.CIRCLECI ? 2 : process.env.CI ? 4 : undefined
 const ciTimeout = process.env.CI ? 120000 : 30000
 
 export default defineConfig({
