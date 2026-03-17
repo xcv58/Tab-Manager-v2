@@ -2,6 +2,8 @@ import { expect } from '@playwright/test'
 import { chromium, ChromiumBrowserContext, Locator } from 'playwright'
 import { join } from 'path'
 import { Page } from 'playwright'
+import { createServer, Server } from 'http'
+import type { AddressInfo } from 'net'
 
 export const EXTENSION_PATH = join(
   __dirname,
@@ -20,6 +22,105 @@ export const URLS = [
   'http://duckduckgo.com/',
   'https://ops-class.org/',
 ]
+
+export type IntegrationFixtureServer = {
+  baseUrl: string
+  close: () => Promise<void>
+}
+
+export type StandardFixtureUrls = {
+  pinboard: string
+  xcv58: string
+  nextjs: string
+  duckduckgo: string
+  opsClass: string
+  all: string[]
+}
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+
+const buildFixtureUrl = (
+  baseUrl: string,
+  slug: string,
+  title: string,
+  body = `${title} fixture`,
+) =>
+  `${baseUrl}/${slug}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(
+    body,
+  )}`
+
+export const buildStandardFixtureUrls = (
+  baseUrl: string,
+): StandardFixtureUrls => {
+  const pinboard = buildFixtureUrl(baseUrl, 'pinboard', 'Pinboard')
+  const xcv58 = buildFixtureUrl(baseUrl, 'xcv58', 'xcv58')
+  const nextjs = buildFixtureUrl(baseUrl, 'nextjs', 'Next.js')
+  const duckduckgo = buildFixtureUrl(baseUrl, 'duckduckgo', 'DuckDuckGo')
+  const opsClass = buildFixtureUrl(baseUrl, 'ops-class', 'OPS Class')
+
+  return {
+    pinboard,
+    xcv58,
+    nextjs,
+    duckduckgo,
+    opsClass,
+    all: [pinboard, xcv58, nextjs, pinboard, duckduckgo, opsClass],
+  }
+}
+
+export const startIntegrationFixtureServer =
+  async (): Promise<IntegrationFixtureServer> => {
+    const server = await new Promise<Server>((resolve) => {
+      const nextServer = createServer((req, res) => {
+        const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
+        const title =
+          requestUrl.searchParams.get('title') || requestUrl.pathname.slice(1)
+        const body =
+          requestUrl.searchParams.get('body') || `Fixture for ${title}`
+
+        res.writeHead(200, {
+          'content-type': 'text/html; charset=utf-8',
+          'cache-control': 'no-store',
+        })
+        res.end(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+  </head>
+  <body>
+    <main>
+      <h1>${escapeHtml(title)}</h1>
+      <p>${escapeHtml(body)}</p>
+      <code>${escapeHtml(requestUrl.pathname)}</code>
+    </main>
+  </body>
+</html>`)
+      })
+      nextServer.listen(0, '127.0.0.1', () => resolve(nextServer))
+    })
+
+    const { port } = server.address() as AddressInfo
+    return {
+      baseUrl: `http://127.0.0.1:${port}`,
+      close: () =>
+        new Promise<void>((resolve, reject) => {
+          server.close((error) => {
+            if (error) {
+              reject(error)
+              return
+            }
+            resolve()
+          })
+        }),
+    }
+  }
 
 export const isExtensionURL = (url: string) =>
   url.startsWith('chrome-extension://')

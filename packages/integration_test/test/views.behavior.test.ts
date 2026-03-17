@@ -4,6 +4,9 @@ import {
   TAB_QUERY,
   WINDOW_CARD_QUERY,
   URLS,
+  StandardFixtureUrls,
+  IntegrationFixtureServer,
+  buildStandardFixtureUrls,
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
@@ -11,11 +14,14 @@ import {
   groupTabsByUrl,
   waitForDefaultExtensionView,
   waitForTestId,
+  startIntegrationFixtureServer,
 } from '../util'
 
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
+let fixtureServer: IntegrationFixtureServer
+let fixtureUrls: StandardFixtureUrls
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
 
@@ -23,6 +29,8 @@ test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
   test.beforeAll(async () => {
+    fixtureServer = await startIntegrationFixtureServer()
+    fixtureUrls = buildStandardFixtureUrls(fixtureServer.baseUrl)
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
@@ -31,6 +39,7 @@ test.describe('The Extension page should', () => {
 
   test.afterAll(async () => {
     await browserContext?.close()
+    await fixtureServer?.close()
     browserContext = null
     page = null
     extensionURL = ''
@@ -449,12 +458,12 @@ test.describe('The Extension page should', () => {
     })
     await page.reload()
     await page.waitForTimeout(700)
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(800)
 
     const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
       title: 'SearchDocs',
       color: 'blue',
     })
@@ -803,12 +812,12 @@ test.describe('The Extension page should', () => {
     })
     await page.reload()
     await page.waitForTimeout(700)
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(800)
 
     const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
       title: 'Detach One',
       color: 'cyan',
     })
@@ -874,7 +883,7 @@ test.describe('The Extension page should', () => {
     })
     await page.reload()
     await page.waitForTimeout(700)
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(800)
     await page.keyboard.press('j')

@@ -3,6 +3,9 @@ import { test, expect } from '@playwright/test'
 import {
   TAB_QUERY,
   URLS,
+  StandardFixtureUrls,
+  IntegrationFixtureServer,
+  buildStandardFixtureUrls,
   isExtensionURL,
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
@@ -17,11 +20,14 @@ import {
   waitForTestId,
   waitForDefaultExtensionView,
   dragByTestId,
+  startIntegrationFixtureServer,
 } from '../util'
 
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
+let fixtureServer: IntegrationFixtureServer
+let fixtureUrls: StandardFixtureUrls
 
 const getCenterOfRect = (rect: {
   top: number
@@ -272,6 +278,8 @@ test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
   test.beforeAll(async () => {
+    fixtureServer = await startIntegrationFixtureServer()
+    fixtureUrls = buildStandardFixtureUrls(fixtureServer.baseUrl)
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
@@ -280,6 +288,7 @@ test.describe('The Extension page should', () => {
 
   test.afterAll(async () => {
     await browserContext?.close()
+    await fixtureServer?.close()
     browserContext = null
     page = null
     extensionURL = ''
@@ -380,11 +389,11 @@ test.describe('The Extension page should', () => {
   })
 
   test('preserve existing tab groups when sorting and clustering', async () => {
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(1000)
     const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
       title: 'Pinned Group',
       color: 'purple',
     })
@@ -627,11 +636,11 @@ test.describe('The Extension page should', () => {
   })
 
   test('ungroup should remove the group header and restore flat tabs', async () => {
-    await openPages(browserContext, URLS)
+    await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
     await page.waitForTimeout(1000)
     const groupId = await groupTabsByUrl(page, {
-      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
       title: 'Temporary Group',
       color: 'blue',
     })
