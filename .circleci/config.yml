@@ -2,6 +2,7 @@ version: 2.1
 
 references:
   pnpm_key: &pnpm_key v1-pnpm-store-{{ checksum "pnpm-lock.yaml" }}
+  playwright_key: &playwright_key v1-playwright-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
 
   save_cache: &save_cache
     save_cache:
@@ -13,12 +14,24 @@ references:
     restore_cache:
       key: *pnpm_key
 
+  save_playwright_cache: &save_playwright_cache
+    save_cache:
+      key: *playwright_key
+      paths:
+        - /home/circleci/.cache/ms-playwright
+
+  restore_playwright_cache: &restore_playwright_cache
+    restore_cache:
+      key: *playwright_key
+
   pnpm_setup: &pnpm_setup
     run:
       name: Install pnpm and run `pnpm install`
       command: |
         export NPM_CONFIG_PREFIX="$HOME/.npm-global"
         export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
+        echo 'export NPM_CONFIG_PREFIX="$HOME/.npm-global"' >> "$BASH_ENV"
+        echo 'export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"' >> "$BASH_ENV"
         npm install --global pnpm@9.15.9
         pnpm config set store-dir /home/circleci/.pnpm-store
         pnpm install --frozen-lockfile
@@ -27,10 +40,6 @@ references:
     run:
       name: Install Playwright Chromium runtime
       command: |
-        export NPM_CONFIG_PREFIX="$HOME/.npm-global"
-        export PATH="$NPM_CONFIG_PREFIX/bin:$PATH"
-        npm install --global pnpm@9.15.9
-        pnpm config set store-dir /home/circleci/.pnpm-store
         pnpm --filter integration-test exec playwright install --with-deps chromium
 
 jobs:
@@ -42,7 +51,9 @@ jobs:
       - checkout
       - *restore_cache
       - *pnpm_setup
+      - *restore_playwright_cache
       - *playwright_setup
+      - *save_playwright_cache
       - run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" pnpm run test
       - run: pnpm --filter tab-manager-v2 zip:chrome
       - run: pnpm --filter tab-manager-v2 run ls:chrome
