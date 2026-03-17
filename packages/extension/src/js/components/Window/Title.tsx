@@ -107,6 +107,12 @@ export default observer((props: WinProps & { className: string }) => {
       {hiddenText}
     </div>
   )
+  const onTitleFocus = React.useCallback(() => {
+    focusStore.focus(win)
+  }, [focusStore, win])
+  const onTitleClick = React.useCallback(() => {
+    activate({ origin: 'mouse', reveal: false })
+  }, [activate])
   return (
     <div
       tabIndex={-1}
@@ -139,7 +145,8 @@ export default observer((props: WinProps & { className: string }) => {
         <SelectAll {...props} />
         <button
           ref={titleButtonRef}
-          onClick={activate}
+          onClick={onTitleClick}
+          onFocus={onTitleFocus}
           className={classNames(
             'flex h-10 flex-auto items-center overflow-hidden text-base text-left rounded-sm',
             {

@@ -337,7 +337,7 @@ const AutocompleteSearch = observer((props: Props) => {
           option.command()
         } else {
           if (option.activate) {
-            option.activate()
+            option.activate({ origin: 'search', reveal: true })
           } else {
             openURL(option.url)
           }

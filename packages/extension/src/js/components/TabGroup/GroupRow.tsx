@@ -70,6 +70,16 @@ export default observer((props: Props) => {
     tabGroupStore.toggleCollapsed(row.groupId)
   }
 
+  const onToggleFocus = useCallback(() => {
+    setIsToggleFocused(true)
+    focusStore.focus(groupRow)
+  }, [focusStore, groupRow])
+
+  const onToggleClick = useCallback(() => {
+    focusStore.focus(groupRow, { origin: 'mouse', reveal: false })
+    onToggle()
+  }, [focusStore, groupRow, onToggle])
+
   const onUngroup = () => {
     if (!canMutateGroups) {
       return
@@ -252,10 +262,10 @@ export default observer((props: Props) => {
         >
           <button
             className="flex h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
-            onClick={onToggle}
+            onClick={onToggleClick}
+            onFocus={onToggleFocus}
             onMouseEnter={() => setIsToggleHovered(true)}
             onMouseLeave={() => setIsToggleHovered(false)}
-            onFocus={() => setIsToggleFocused(true)}
             onBlur={() => setIsToggleFocused(false)}
             data-testid={`tab-group-toggle-${row.groupId}`}
             style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}

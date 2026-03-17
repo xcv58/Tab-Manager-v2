@@ -109,19 +109,19 @@ export default class Tab extends Focusable {
 
   isHovered = false
 
-  activate = () => {
+  activate = (options: FocusRequestOptions = {}) => {
     this.store.tabStore.activate(this)
-    this.focus()
+    this.focus(options)
   }
 
-  select = () => {
+  select = (options: FocusRequestOptions = {}) => {
     this.store.tabStore.select(this)
-    this.focus()
+    this.focus(options)
   }
 
-  bulkSelect = () => {
+  bulkSelect = (options: FocusRequestOptions = {}) => {
     this.store.tabStore.bulkSelct(this)
-    this.focus()
+    this.focus(options)
   }
 
   toggleHide = () => this.win.toggleHide()

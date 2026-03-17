@@ -6,6 +6,7 @@ import log from 'libs/log'
 import Focusable from './Focusable'
 import type { WindowRow } from './TabGroupStore'
 import TabGroupRow from './TabGroupRow'
+import type { FocusRequestOptions } from './Focusable'
 
 export default class Window extends Focusable {
   store: Store
@@ -62,8 +63,9 @@ export default class Window extends Focusable {
 
   type = ''
 
-  activate = () => {
+  activate = (options: FocusRequestOptions = {}) => {
     browser.windows.update(this.id, { focused: true })
+    this.store.focusStore.focus(this, options)
   }
 
   get hide() {
@@ -313,12 +315,12 @@ export default class Window extends Focusable {
     this.tabs.splice(targetPosition, 0, tabToInsert)
   }
 
-  toggleHide = () => {
+  toggleHide = (options: FocusRequestOptions = {}) => {
     if (this.hide) {
       this.store.hiddenWindowStore.showWindow(this.id)
     } else {
       this.store.hiddenWindowStore.hideWindow(this.id)
-      this.store.focusStore.focus(this)
+      this.store.focusStore.focus(this, options)
     }
     this.store.windowStore.markLayoutDirtyIfNeeded('window-toggle', this.id)
   }

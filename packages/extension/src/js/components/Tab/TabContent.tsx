@@ -51,6 +51,9 @@ const TabContent = observer(
       userStore.highlightDuplicatedTab && isDuplicated
         ? `${duplicatedTabCount} ${getNoun('tab', duplicatedTabCount)} share this page`
         : ''
+    const onClick = useCallback(() => {
+      activate({ origin: 'mouse', reveal: false })
+    }, [activate])
     const tooltip = open && (
       <div className="leading-tight break-all whitespace-normal">
         <p>{title}</p>
@@ -64,7 +67,7 @@ const TabContent = observer(
       <Tooltip {...{ open, title: tooltip }}>
         <button
           ref={buttonRef}
-          onClick={activate}
+          onClick={onClick}
           onAuxClick={onAuxClick}
           onFocus={focus}
           className={buttonClassName}

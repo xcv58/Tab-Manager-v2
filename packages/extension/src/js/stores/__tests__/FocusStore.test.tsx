@@ -330,6 +330,69 @@ describe('FocusStore', () => {
     expect(win.tabs[1].focusRequestId).toBe(1)
   })
 
+  it('lets tab activation carry search-origin reveal requests', () => {
+    const store = createStore(false)
+    store.tabStore.activate = jest.fn()
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+
+    win.tabs[0].activate({ origin: 'search', reveal: true })
+
+    expect(store.tabStore.activate).toHaveBeenCalledWith(win.tabs[0])
+    expect(store.focusStore.focusedTabId).toBe(1)
+    expect(win.tabs[0].focusOrigin).toBe('search')
+    expect(win.tabs[0].shouldRevealOnFocus).toBe(true)
+  })
+
+  it('lets group activation carry mouse-origin focus', () => {
+    const store = createStore(false)
+    store.tabGroupStore.toggleCollapsed = jest.fn()
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: 100,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+    const groupRow = win.getGroupRow(100)
+
+    groupRow.activate({ origin: 'mouse', reveal: false })
+
+    expect(store.tabGroupStore.toggleCollapsed).toHaveBeenCalledWith(100)
+    expect(store.focusStore.focusedGroupId).toBe(100)
+    expect(groupRow.focusOrigin).toBe('mouse')
+    expect(groupRow.shouldRevealOnFocus).toBe(false)
+  })
+
   it('selects the whole group for group-focused x and shift+x behavior', () => {
     const store = createStore(false)
     const win = new Window(

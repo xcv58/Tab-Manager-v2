@@ -1,5 +1,6 @@
 import Focusable from './Focusable'
 import Store from 'stores'
+import type { FocusRequestOptions } from './Focusable'
 
 export default class TabGroupRow extends Focusable {
   groupId: number
@@ -20,16 +21,19 @@ export default class TabGroupRow extends Focusable {
     this.windowId = windowId
   }
 
-  activate = () => {
+  activate = (options: FocusRequestOptions = {}) => {
     this.store.tabGroupStore?.toggleCollapsed?.(this.groupId)
+    this.store.focusStore.focus(this, options)
   }
 
-  select = () => {
+  select = (options: FocusRequestOptions = {}) => {
     this.store.tabGroupStore?.toggleSelectGroup?.(this.groupId)
+    this.store.focusStore.focus(this, options)
   }
 
-  toggleSelectAll = () => {
+  toggleSelectAll = (options: FocusRequestOptions = {}) => {
     this.store.tabGroupStore?.toggleSelectGroup?.(this.groupId)
+    this.store.focusStore.focus(this, options)
   }
 
   closeWindow = () => {
