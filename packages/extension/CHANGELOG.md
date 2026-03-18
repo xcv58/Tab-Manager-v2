@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.1...v2.0.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* **firefox:** align add-on id with AMO listing ([9d4fb4e](https://github.com/xcv58/Tab-Manager-v2/commit/9d4fb4e4aa48173e5e314b738f8217bf799bd3b9))
+* improve popup focus responsiveness in large workspaces ([3870e01](https://github.com/xcv58/Tab-Manager-v2/commit/3870e01d98686bf52cd12eab299754a043e3375e))
+* keep target groups intact when dropping ungrouped tabs ([0acf14a](https://github.com/xcv58/Tab-Manager-v2/commit/0acf14a2e13e9d9ba9f02260bc0e63f9b0bd55c9))
+* preserve drop order when moving ungrouped tabs into grouped tabs ([0acf14a](https://github.com/xcv58/Tab-Manager-v2/commit/0acf14a2e13e9d9ba9f02260bc0e63f9b0bd55c9))
+* prevent drag preview crashes during exact search ([1a20982](https://github.com/xcv58/Tab-Manager-v2/commit/1a209825007741cb69947e5a7357731f97a37d36))
+* speed up popup search and layout repacking in large workspaces ([1a20982](https://github.com/xcv58/Tab-Manager-v2/commit/1a209825007741cb69947e5a7357731f97a37d36))
+* virtualize window cards and rows to keep the popup fast at scale ([3870e01](https://github.com/xcv58/Tab-Manager-v2/commit/3870e01d98686bf52cd12eab299754a043e3375e))
+
 ### [2.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.0...v2.0.1) (2026-03-14)
 
 ### Bug Fixes
