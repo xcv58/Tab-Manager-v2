@@ -15,6 +15,7 @@
     "build:docs-posters": "pnpm --filter integration-test exec node scripts/render-docs-posters.mjs",
     "build:marketing-artwork": "run-s build:promotional-tiles build:docs-posters",
     "sync:release-secrets": "node ./scripts/sync-release-secrets-to-github.mjs",
+    "release:releasability": "node ./scripts/audit-release-please-releasability.mjs",
     "release": "pnpm --filter tab-manager-v2 exec standard-version",
     "release-it": "release-it --ci",
     "test": "run-s test:unit test:integration",
@@ -72,5 +73,5 @@
       "pnpm prettier"
     ]
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@10.32.1"
 }

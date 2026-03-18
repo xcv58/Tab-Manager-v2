@@ -13,11 +13,45 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
 4. The same workflow detects that a GitHub Release was created, rebuilds on
    Ubuntu, uploads release artifacts, and runs `pnpm run publish-extension`.
 
+## Keeping changes releasable
+
+- Use squash merge titles that already read like the release note you want on
+  `master`, for example `fix: ungrouped tab drops into groups` or
+  `feat: add interactive promo video tour`.
+- This repository's package release tracks `packages/extension`, so commits
+  that only touch root release tooling, docs, marketing assets, or CI helpers
+  do not make the extension package releasable on their own.
+- Run `pnpm release:releasability` locally to audit commits since the latest
+  tag and find merged PRs that still need manual cleanup before the next
+  release.
+- `.github/workflows/pr-title.yml` checks PR titles early so the default squash
+  commit title stays conventional before anything lands on `master`.
+
+## Fixing already-merged PRs
+
+If a squash-merged PR on `master` has a non-conventional title, edit the body
+of the merged PR and add a `BEGIN_COMMIT_OVERRIDE` block. The next
+`release-please` run will use that block instead of the squash title.
+
+```txt
+BEGIN_COMMIT_OVERRIDE
+fix: ungrouped tab drops into groups
+END_COMMIT_OVERRIDE
+```
+
+- `pnpm release:releasability` prints suggested override blocks for the current
+  release window.
+- If you want richer prose than the raw commit history provides, draft the
+  override lines or final release notes locally with an LLM, then review the
+  text before pasting it into the merged PR body or the release PR branch.
+- This recovery path depends on GitHub PR metadata. Prefer conventional PR
+  titles so the durable release signal lives in git history instead.
+
 ## Required repository settings
 
 - `Settings > Actions > General > Workflow permissions`: allow read and write.
 - `Settings > Actions > General > Allow GitHub Actions to create and approve
-  pull requests`: enabled.
+pull requests`: enabled.
 - `Settings > Secrets and variables > Actions`: add the secrets listed below.
 
 ## Required secrets
@@ -36,7 +70,7 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
 
 ## Local bootstrap flow
 
-1. Copy [.env.release.example](/Users/xcv58/.codex/worktrees/4ec7/Tab-Manager-v2/.env.release.example) to `.env.release.local`.
+1. Copy [`.env.release.example`](../.env.release.example) to `.env.release.local`.
 2. Fill in the values in `.env.release.local`.
 3. Download the Chrome service account JSON key and set
    `CHROME_SERVICE_ACCOUNT_JSON_FILE` to its local path.

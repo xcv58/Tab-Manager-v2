@@ -1,0 +1,32 @@
+name: PR Title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
+
+permissions:
+  contents: read
+
+jobs:
+  validate-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check conventional PR title
+        shell: bash
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|deps)(\([[:alnum:]_.\/-]+\))?(!)?: .+$'
+
+          if [[ "$PR_TITLE" =~ $pattern ]]; then
+            exit 0
+          fi
+
+          echo "::error title=Invalid PR title::Use a conventional PR title such as 'fix: ...', 'feat(scope): ...', or 'chore(ci): ...'. GitHub squash merge uses the PR title as the default commit title, and release-please reads that title from git history."
+          exit 1

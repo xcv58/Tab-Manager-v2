@@ -36,6 +36,8 @@ Required agent behavior:
   and refresh the affected `chromium-linux` baselines.
 - When touching snapshot-sensitive areas, call out Linux-only snapshot risk in
   the plan before implementation or before marking the task done.
+- When creating a PR with `gh`, use a conventional PR title and pass
+  `--template .github/PULL_REQUEST_TEMPLATE.md`.
 
 ## Release Screenshots
 

@@ -4,7 +4,7 @@
     "packages/extension": {
       "release-type": "node",
       "package-name": "tab-manager-v2",
-      "changelog-path": "packages/extension/CHANGELOG.md",
+      "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": false,
       "include-v-in-tag": true
     }
