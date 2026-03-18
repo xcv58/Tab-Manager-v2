@@ -15,18 +15,42 @@ const SCREENSHOT_DIR = join(
   'release-candidates',
   'png',
 )
+const POSTER_SOURCE_DIR = join(
+  __dirname,
+  '..',
+  'packages',
+  'integration_test',
+  'assets',
+  'posters',
+)
 
-const imageDataUri = (filename) =>
-  `data:image/png;base64,${readFileSync(join(SCREENSHOT_DIR, filename)).toString('base64')}`
+const pngDataUri = (path) =>
+  `data:image/png;base64,${readFileSync(path).toString('base64')}`
+
+const screenshotDataUri = (filename) =>
+  pngDataUri(join(SCREENSHOT_DIR, filename))
 
 const replacements = {
-  '{{OVERVIEW_IMAGE}}': imageDataUri('01-overview-groups-light.png'),
-  '{{GROUP_EDITING_IMAGE}}': imageDataUri('02-group-editing-light.png'),
-  '{{SEARCH_GROUPS_IMAGE}}': imageDataUri('03-search-groups-light.png'),
-  '{{KEYBOARD_SHORTCUTS_IMAGE}}': imageDataUri(
+  '{{OVERVIEW_IMAGE}}': screenshotDataUri('01-overview-groups-light.png'),
+  '{{GROUP_EDITING_IMAGE}}': screenshotDataUri('02-group-editing-light.png'),
+  '{{SEARCH_GROUPS_IMAGE}}': screenshotDataUri('03-search-groups-light.png'),
+  '{{KEYBOARD_SHORTCUTS_IMAGE}}': screenshotDataUri(
     '05-keyboard-shortcuts-light.png',
   ),
-  '{{ICON_IMAGE}}': `data:image/png;base64,${readFileSync(join(__dirname, '..', 'packages', 'extension', 'src', 'img', 'icon-128.png')).toString('base64')}`,
+  '{{SCALE_DEMO_IMAGE}}': pngDataUri(
+    join(POSTER_SOURCE_DIR, 'scale-demo-source.png'),
+  ),
+  '{{ICON_IMAGE}}': pngDataUri(
+    join(
+      __dirname,
+      '..',
+      'packages',
+      'extension',
+      'src',
+      'img',
+      'icon-128.png',
+    ),
+  ),
 }
 
 const outputs = [
@@ -34,6 +58,7 @@ const outputs = [
   ['large-tile.svg', 'Large tile.png'],
   ['marquee.svg', 'Marquee.png'],
   ['marquee-1280x640.svg', 'Marquee 1280x640.png'],
+  ['youtube-thumbnail-1280x720.svg', 'YouTube thumbnail 1280x720.png'],
 ]
 
 const tempDir = mkdtempSync(join(tmpdir(), 'tab-manager-promo-'))

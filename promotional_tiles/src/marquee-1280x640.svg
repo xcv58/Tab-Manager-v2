@@ -17,13 +17,13 @@
       <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
     </radialGradient>
     <clipPath id="overviewClip">
-      <rect x="616" y="138" width="580" height="352" rx="28"/>
+      <rect x="670" y="126" width="520" height="316" rx="28"/>
     </clipPath>
     <clipPath id="editClip">
-      <rect x="542" y="382" width="334" height="178" rx="24"/>
+      <rect x="644" y="396" width="288" height="154" rx="24"/>
     </clipPath>
     <clipPath id="searchClip">
-      <rect x="914" y="350" width="256" height="144" rx="22"/>
+      <rect x="958" y="384" width="210" height="118" rx="20"/>
     </clipPath>
   </defs>
 
@@ -42,68 +42,69 @@
     </text>
   </g>
 
-  <g transform="translate(86 224)">
-    <text fill="#182132" font-family="Helvetica, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-0.055em">
+  <g transform="translate(86 214)">
+    <text fill="#182132" font-family="Helvetica, Arial, sans-serif" font-size="64" font-weight="800" letter-spacing="-0.055em">
       <tspan x="0" y="0">Too many tabs,</tspan>
       <tspan x="0" y="72">handled.</tspan>
     </text>
-    <text x="0" y="176" fill="#54607c" font-family="Helvetica, Arial, sans-serif" font-size="27" font-weight="500">
-      Search, group, move, and clean up tabs across windows.
+    <text fill="#54607c" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="500">
+      <tspan x="0" y="170">Search, group, move, and clean up tabs</tspan>
+      <tspan x="0" y="204">across windows.</tspan>
     </text>
   </g>
 
-  <g transform="translate(86 446)">
+  <g transform="translate(86 502)">
     <rect width="122" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
-    <text x="22" y="22.5" fill="#3a66dd" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+    <text x="61" y="17.5" fill="#3a66dd" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700" text-anchor="middle" dominant-baseline="middle">
       Search
     </text>
     <rect x="136" width="144" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
-    <text x="160" y="22.5" fill="#1f8f53" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+    <text x="208" y="17.5" fill="#1f8f53" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700" text-anchor="middle" dominant-baseline="middle">
       Tab groups
     </text>
     <rect x="294" width="146" height="34" rx="17" fill="#ffffff" stroke="#d8deeb"/>
-    <text x="318" y="22.5" fill="#ed7b18" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700">
+    <text x="367" y="17.5" fill="#ed7b18" font-family="Helvetica, Arial, sans-serif" font-size="14.5" font-weight="700" text-anchor="middle" dominant-baseline="middle">
       Bulk actions
     </text>
   </g>
 
-  <g transform="rotate(-2 906 314)">
-    <rect x="628" y="150" width="580" height="352" rx="28" fill="#cfd7e7" opacity="0.76"/>
-    <rect x="616" y="138" width="580" height="352" rx="28" fill="#ffffff" stroke="#ced6e7"/>
+  <g transform="rotate(-2 930 284)">
+    <rect x="682" y="138" width="520" height="316" rx="28" fill="#cfd7e7" opacity="0.76"/>
+    <rect x="670" y="126" width="520" height="316" rx="28" fill="#ffffff" stroke="#ced6e7"/>
     <image
       href="{{OVERVIEW_IMAGE}}"
-      x="616"
-      y="138"
-      width="580"
-      height="352"
+      x="670"
+      y="126"
+      width="520"
+      height="316"
       preserveAspectRatio="xMidYMid slice"
       clip-path="url(#overviewClip)"
     />
   </g>
 
-  <g transform="rotate(4 709 471)">
-    <rect x="554" y="394" width="334" height="178" rx="24" fill="#c5cee0" opacity="0.78"/>
-    <rect x="542" y="382" width="334" height="178" rx="24" fill="#ffffff" stroke="#cfd7e7"/>
+  <g transform="rotate(4 788 473)">
+    <rect x="656" y="408" width="288" height="154" rx="24" fill="#c5cee0" opacity="0.78"/>
+    <rect x="644" y="396" width="288" height="154" rx="24" fill="#ffffff" stroke="#cfd7e7"/>
     <image
       href="{{GROUP_EDITING_IMAGE}}"
-      x="542"
-      y="382"
-      width="334"
-      height="178"
+      x="644"
+      y="396"
+      width="288"
+      height="154"
       preserveAspectRatio="xMidYMid slice"
       clip-path="url(#editClip)"
     />
   </g>
 
-  <g transform="rotate(-4 1042 422)">
-    <rect x="924" y="360" width="256" height="144" rx="22" fill="#c5cee0" opacity="0.76"/>
-    <rect x="914" y="350" width="256" height="144" rx="22" fill="#ffffff" stroke="#cfd7e7"/>
+  <g transform="rotate(-4 1063 443)">
+    <rect x="968" y="394" width="210" height="118" rx="20" fill="#c5cee0" opacity="0.76"/>
+    <rect x="958" y="384" width="210" height="118" rx="20" fill="#ffffff" stroke="#cfd7e7"/>
     <image
       href="{{SEARCH_GROUPS_IMAGE}}"
-      x="914"
-      y="350"
-      width="256"
-      height="144"
+      x="958"
+      y="384"
+      width="210"
+      height="118"
       preserveAspectRatio="xMidYMid slice"
       clip-path="url(#searchClip)"
     />

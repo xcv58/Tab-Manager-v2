@@ -20,7 +20,7 @@
       <rect x="432" y="240" width="420" height="256" rx="26"/>
     </clipPath>
     <clipPath id="searchClip">
-      <rect x="126" y="418" width="286" height="160" rx="22"/>
+      <rect x="176" y="472" width="262" height="146" rx="22"/>
     </clipPath>
     <clipPath id="editClip">
       <rect x="590" y="126" width="236" height="132" rx="20"/>
@@ -46,15 +46,15 @@
     />
   </g>
 
-  <g transform="rotate(-5 269 498)">
-    <rect x="136" y="428" width="286" height="160" rx="22" fill="#c5cee0" opacity="0.75"/>
-    <rect x="126" y="418" width="286" height="160" rx="22" fill="#ffffff" stroke="#cfd7e7"/>
+  <g transform="rotate(-4 307 545)">
+    <rect x="186" y="482" width="262" height="146" rx="22" fill="#c5cee0" opacity="0.75"/>
+    <rect x="176" y="472" width="262" height="146" rx="22" fill="#ffffff" stroke="#cfd7e7"/>
     <image
       href="{{SEARCH_GROUPS_IMAGE}}"
-      x="126"
-      y="418"
-      width="286"
-      height="160"
+      x="176"
+      y="472"
+      width="262"
+      height="146"
       preserveAspectRatio="xMidYMid slice"
       clip-path="url(#searchClip)"
     />
@@ -89,8 +89,9 @@
       <tspan x="0" y="0">Too many tabs,</tspan>
       <tspan x="0" y="76">handled.</tspan>
     </text>
-    <text x="0" y="190" fill="#54607c" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="500">
-      Search, group, and clean up tabs.
+    <text fill="#54607c" font-family="Helvetica, Arial, sans-serif" font-size="26" font-weight="500">
+      <tspan x="0" y="190">Search, group, and</tspan>
+      <tspan x="0" y="224">clean up tabs.</tspan>
     </text>
   </g>
 </svg>
