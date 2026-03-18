@@ -1622,6 +1622,8 @@ async function recordHundredPlusTabsScale() {
 
 async function recordThousandTwentyFourTabsScale() {
   const clipName = '08-thousand-twenty-four-tabs-scale'
+  // This scale clip intentionally swaps real sites for local synthetic fixtures
+  // so the 1,024-tab scenario stays deterministic, fast, and safe to capture.
   const fixtureServer = await startLocalFixtureServer()
 
   try {
