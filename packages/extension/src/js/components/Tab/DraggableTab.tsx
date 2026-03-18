@@ -28,7 +28,7 @@ export default observer((props: TabProps) => {
   const { isDragging } = dragProps
   useEffect(() => {
     connectDragPreview(getEmptyImage())
-  })
+  }, [connectDragPreview])
   return (
     <div ref={drag} className={classNames({ 'opacity-25': isDragging })}>
       <DroppableTab {...props} />

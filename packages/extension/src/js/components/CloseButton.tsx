@@ -19,6 +19,10 @@ export interface CloseButtonProps {
    * Size variant
    */
   size?: 'default' | 'compact'
+  /**
+   * Visual tone
+   */
+  tone?: 'default' | 'danger'
 }
 
 const CloseButton: React.FC<CloseButtonProps> = (props) => {
@@ -26,6 +30,7 @@ const CloseButton: React.FC<CloseButtonProps> = (props) => {
     onClick,
     disabled,
     size = 'default',
+    tone = 'danger',
     'aria-label': ariaLabel = 'Close',
   } = props
   return (
@@ -33,7 +38,7 @@ const CloseButton: React.FC<CloseButtonProps> = (props) => {
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      tone="danger"
+      tone={tone}
       controlSize={size === 'compact' ? 'compact' : 'medium'}
     >
       <CloseIcon sx={{ fontSize: size === 'compact' ? 13 : 16 }} />

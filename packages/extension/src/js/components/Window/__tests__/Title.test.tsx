@@ -9,13 +9,18 @@ jest.mock('../SelectAll', () => () => <div data-testid="select-all" />)
 jest.mock('../Sort', () => () => <div data-testid="sort" />)
 jest.mock('../Reload', () => () => <div data-testid="reload" />)
 jest.mock('../HideToggle', () => () => <div data-testid="hide-toggle" />)
-jest.mock('components/CloseButton', () => () => <div data-testid="close" />)
+jest.mock('components/CloseButton', () => ({ tone = 'danger' }) => (
+  <div data-testid="close" data-tone={tone} />
+))
 jest.mock('components/RowActionRail', () => ({ children }) => (
   <div>{children}</div>
 ))
-jest.mock('components/RowActionSlot', () => ({ children }) => (
-  <div>{children}</div>
-))
+jest.mock(
+  'components/RowActionSlot',
+  () =>
+    ({ children, visible = true }) =>
+      visible ? <div>{children}</div> : null,
+)
 
 describe('Window Title', () => {
   it('keeps native button focus when the title button receives keyboard focus', () => {
@@ -58,5 +63,41 @@ describe('Window Title', () => {
       reveal: false,
       moveDomFocus: false,
     })
+  })
+
+  it('keeps the window close control visible with the shared close tone', () => {
+    const store = {
+      focusStore: {
+        focus: jest.fn(),
+        shouldRevealNode: jest.fn(() => false),
+      },
+    } as any
+    const win = {
+      id: 8,
+      tabs: [{ id: 1 }],
+      activate: jest.fn(),
+      invisibleTabs: [],
+      reload: jest.fn(),
+      hide: false,
+      toggleHide: jest.fn(),
+      isFocused: false,
+      focusRequestId: 0,
+      shouldMoveDomFocus: true,
+      shouldRevealOnFocus: false,
+      setNodeRef: jest.fn(),
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <ThemeProvider theme={createTheme()}>
+          <ThemeContext.Provider value={false}>
+            <Title className="" win={win} />
+          </ThemeContext.Provider>
+        </ThemeProvider>
+      </StoreContext.Provider>,
+    )
+
+    expect(screen.getByTestId('close')).toHaveAttribute('data-tone', 'danger')
+    expect(screen.queryByTestId('reload')).not.toBeInTheDocument()
   })
 })

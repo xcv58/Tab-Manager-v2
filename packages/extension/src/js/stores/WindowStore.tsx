@@ -15,6 +15,7 @@ import Tab from 'stores/Tab'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import Focusable from './Focusable'
+import type { FocusOrigin } from './Focusable'
 import TabGroupRow from './TabGroupRow'
 
 export type VirtualizedWindowLayout = {
@@ -48,6 +49,11 @@ export type VirtualizedItemLayout = {
   bottom: number
   windowId: number
 }
+
+export type VisibleRowCountSnapshot = Array<{
+  windowId: number
+  visibleLength: number
+}>
 
 type LayoutRepackReason =
   | 'manual'
@@ -164,6 +170,10 @@ export default class WindowsStore {
     background: 0,
     foreground: 0,
   }
+
+  hasAppliedInitialDefaultFocus = false
+
+  pendingFocusedItemReveal = false
 
   get tabCount() {
     return this.windows
@@ -323,6 +333,29 @@ export default class WindowsStore {
       ...this.columnLayoutsWithPosition.map((column) => column.height),
       0,
     )
+  }
+
+  getVisibleRowCountSnapshot = (): VisibleRowCountSnapshot => {
+    return this.windows.map((win) => ({
+      windowId: win.id,
+      visibleLength: win.visibleLength,
+    }))
+  }
+
+  haveVisibleRowCountsChanged = (
+    previous: VisibleRowCountSnapshot = [],
+  ): boolean => {
+    const next = this.getVisibleRowCountSnapshot()
+    if (previous.length !== next.length) {
+      return true
+    }
+    return previous.some((item, index) => {
+      const nextItem = next[index]
+      return (
+        nextItem?.windowId !== item.windowId ||
+        nextItem?.visibleLength !== item.visibleLength
+      )
+    })
   }
 
   getRenderedLayoutSnapshot = () => {
@@ -735,6 +768,52 @@ export default class WindowsStore {
     })
   }
 
+  flushPendingFocusedItemReveal = () => {
+    if (!this.pendingFocusedItemReveal) {
+      return false
+    }
+    const { focusStore } = this.store
+    const focusedItem = focusStore?.focusedItem
+    if (!focusedItem) {
+      this.pendingFocusedItemReveal = false
+      return false
+    }
+    if (
+      !focusStore?.containerRef?.current ||
+      !this.getItemLayout(focusedItem)
+    ) {
+      return false
+    }
+    this.pendingFocusedItemReveal = false
+    focusStore.revealItem(focusedItem)
+    return true
+  }
+
+  focusActiveTabInLastFocusedWindow = ({
+    origin = 'programmatic',
+    moveDomFocus = true,
+    reveal = false,
+  }: {
+    origin?: FocusOrigin
+    moveDomFocus?: boolean
+    reveal?: boolean
+  } = {}) => {
+    const { lastFocusedWindow } = this
+    if (!lastFocusedWindow || lastFocusedWindow.hide) {
+      return false
+    }
+    const activeTab = lastFocusedWindow.tabs.find((tab) => tab.active)
+    if (!activeTab?.isVisible) {
+      return false
+    }
+    this.store.focusStore?.focus(activeTab, {
+      origin,
+      moveDomFocus,
+      reveal,
+    })
+    return true
+  }
+
   getWindowLayout = (windowId: number) => {
     for (const column of this.columnLayoutsWithPosition) {
       const layout = column.windows.find((windowLayout) => {
@@ -843,32 +922,81 @@ export default class WindowsStore {
     return this.windows.find((x) => x.lastFocused)
   }
 
-  get tabFingerprintMap() {
-    return this.tabs.reduce((acc: { [key: string]: number }, tab) => {
-      const { fingerPrint } = tab
-      acc[fingerPrint] = (acc[fingerPrint] || 0) + 1
+  get duplicateFamiliesByFingerprint() {
+    return this.tabs.reduce((acc, tab) => {
+      const family = acc.get(tab.fingerPrint)
+      if (family) {
+        family.push(tab)
+      } else {
+        acc.set(tab.fingerPrint, [tab])
+      }
       return acc
-    }, {})
+    }, new Map<string, Tab[]>())
+  }
+
+  get duplicateTabsToRemove() {
+    return Array.from(this.duplicateFamiliesByFingerprint.values())
+      .filter((family) => family.length > 1)
+      .flatMap((family) => family.slice(1))
+  }
+
+  get tabFingerprintMap() {
+    return Array.from(this.duplicateFamiliesByFingerprint.entries()).reduce(
+      (acc: { [key: string]: number }, [fingerPrint, family]) => {
+        acc[fingerPrint] = family.length
+        return acc
+      },
+      {},
+    )
   }
 
   get duplicatedTabs() {
-    return this.tabs.filter((tab) => tab.isDuplicated)
+    return Array.from(this.duplicateFamiliesByFingerprint.values()).flatMap(
+      (family) => (family.length > 1 ? family : []),
+    )
+  }
+
+  isAllVisibleTabScope = (tabs: Tab[]) => {
+    const currentTabIds = new Set(this.tabs.map((tab) => tab.id))
+    if (tabs.length !== currentTabIds.size) {
+      return false
+    }
+    return tabs.every((tab) => currentTabIds.has(tab.id))
+  }
+
+  getDuplicateFamilyMap = (tabs: Tab[] = this.tabs) => {
+    if (this.isAllVisibleTabScope(tabs)) {
+      return this.duplicateFamiliesByFingerprint
+    }
+
+    const scopedTabIds = new Set(tabs.map((tab) => tab.id))
+    return Array.from(this.duplicateFamiliesByFingerprint.entries()).reduce(
+      (acc, [fingerPrint, family]) => {
+        const scopedFamily = family.filter((tab) => scopedTabIds.has(tab.id))
+        if (scopedFamily.length > 0) {
+          acc.set(fingerPrint, scopedFamily)
+        }
+        return acc
+      },
+      new Map<string, Tab[]>(),
+    )
   }
 
   getDuplicateFamilies = (tabs: Tab[] = this.tabs) => {
-    return tabs.reduce((acc: { [key: string]: Tab[] }, tab) => {
-      const { fingerPrint } = tab
-      if (acc[fingerPrint]) {
-        acc[fingerPrint].push(tab)
-      } else {
-        acc[fingerPrint] = [tab]
-      }
-      return acc
-    }, {})
+    return Array.from(this.getDuplicateFamilyMap(tabs).entries()).reduce(
+      (acc: { [key: string]: Tab[] }, [fingerPrint, family]) => {
+        acc[fingerPrint] = family
+        return acc
+      },
+      {},
+    )
   }
 
   getDuplicateTabsToRemove = (tabs: Tab[] = this.tabs) => {
-    return Object.values(this.getDuplicateFamilies(tabs))
+    if (this.isAllVisibleTabScope(tabs)) {
+      return this.duplicateTabsToRemove
+    }
+    return Array.from(this.getDuplicateFamilyMap(tabs).values())
       .filter((family) => family.length > 1)
       .flatMap((family) => family.slice(1))
   }
@@ -1097,11 +1225,34 @@ export default class WindowsStore {
     this.lifecycleListenersBound = false
   }
 
-  syncAllWindows = () => {
+  syncAllWindows = async ({
+    revealActiveTab = false,
+    origin = 'programmatic',
+    moveDomFocus = true,
+  }: {
+    revealActiveTab?: boolean
+    origin?: FocusOrigin
+    moveDomFocus?: boolean
+  } = {}) => {
     this.initialLoading = true
-    this.loadAllWindows({
+    await this.loadAllWindows({
       repackPolicy: 'always',
       reason: 'sync',
+    })
+    if (revealActiveTab) {
+      this.pendingFocusedItemReveal = this.focusActiveTabInLastFocusedWindow({
+        origin,
+        moveDomFocus,
+        reveal: false,
+      })
+    }
+  }
+
+  repackLayoutAndRevealActiveTab = (origin: FocusOrigin = 'programmatic') => {
+    this.repackLayout('manual')
+    this.focusActiveTabInLastFocusedWindow({
+      origin,
+      reveal: true,
     })
   }
 
@@ -1174,7 +1325,17 @@ export default class WindowsStore {
       this.windowMounted()
     }
     this.initialLoading = false
-    this.store.focusStore.setDefaultFocusedTab()
+    if (
+      !this.hasAppliedInitialDefaultFocus &&
+      this.store.focusStore?.setDefaultFocusedTabWithOptions
+    ) {
+      this.hasAppliedInitialDefaultFocus = true
+      this.pendingFocusedItemReveal =
+        this.store.focusStore.setDefaultFocusedTabWithOptions({
+          reveal: false,
+          fallbackWhenActiveHidden: false,
+        }) === true
+    }
   }
 
   getAllWindows = (options?: LoadAllWindowsOptions) => {

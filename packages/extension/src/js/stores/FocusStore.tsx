@@ -436,28 +436,50 @@ export default class FocusStore {
   }
 
   setDefaultFocusedTab = () => {
-    log.debug('setDefaultFocusedTab:', { focusedItem: this.focusedItem })
+    this.setDefaultFocusedTabWithOptions()
+  }
+
+  setDefaultFocusedTabWithOptions = ({
+    reveal = false,
+    fallbackWhenActiveHidden = true,
+  }: {
+    reveal?: boolean
+    fallbackWhenActiveHidden?: boolean
+  } = {}) => {
+    log.debug('setDefaultFocusedTab:', {
+      focusedItem: this.focusedItem,
+      reveal,
+      fallbackWhenActiveHidden,
+    })
     if (this.focusedItem) {
-      return
+      return false
     }
     const { lastFocusedWindow } = this.store.windowStore
     if (!lastFocusedWindow) {
-      return log.debug('setDefaultFocusedTab no lastFocusedWindow:', {
+      log.debug('setDefaultFocusedTab no lastFocusedWindow:', {
         lastFocusedWindow,
       })
+      return false
     }
     if (lastFocusedWindow.hide) {
-      return this.focus(lastFocusedWindow)
+      this.focus(lastFocusedWindow, { reveal })
+      return true
     }
-    const tab = lastFocusedWindow.tabs.find((x) => x.active && x.isVisible)
-    log.debug('setDefaultFocusedTab active tab:', { tab })
-    if (tab) {
-      return this.focus(tab)
+    const activeTab = lastFocusedWindow.tabs.find((x) => x.active)
+    log.debug('setDefaultFocusedTab active tab:', { tab: activeTab })
+    if (activeTab?.isVisible) {
+      this.focus(activeTab, { reveal })
+      return true
+    }
+    if (activeTab && !fallbackWhenActiveHidden) {
+      return false
     }
     const [firstVisibleItem] = lastFocusedWindow.focusableRows
     if (firstVisibleItem) {
-      this.focus(firstVisibleItem)
+      this.focus(firstVisibleItem, { reveal })
+      return true
     }
+    return false
   }
 
   toggleHideForFocusedWindow = () => {

@@ -1,6 +1,6 @@
 import WindowStore from 'stores/WindowStore'
 import Window from 'stores/Window'
-import { browser } from 'libs'
+import { browser, getLastFocusedWindowId } from 'libs'
 
 jest.mock('libs', () => ({
   browser: {
@@ -92,6 +92,9 @@ const createWindowStore = () => {
     focusStore: {
       containerRef: { current: null },
       setDefaultFocusedTab: jest.fn(),
+      setDefaultFocusedTabWithOptions: jest.fn(() => false),
+      revealItem: jest.fn(),
+      focusedItem: null,
     },
     searchStore: {
       matchedSet: new Set(),
@@ -314,12 +317,209 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.windows.map((win) => win.id)).toEqual([3, 1, 2])
   })
 
+  it('queues focused-item reveal only on the initial load', async () => {
+    const windowStore = createWindowStore()
+    const setDefaultFocusedTabWithOptions = jest.fn(() => true)
+    ;(windowStore.store as any).focusStore = {
+      setDefaultFocusedTabWithOptions,
+      revealItem: jest.fn(),
+      focusedItem: { id: 11 },
+      containerRef: { current: null },
+    }
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'initial-load',
+    })
+
+    expect(setDefaultFocusedTabWithOptions).toHaveBeenCalledWith({
+      reveal: false,
+      fallbackWhenActiveHidden: false,
+    })
+    expect(windowStore.pendingFocusedItemReveal).toBe(true)
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'sync',
+    })
+
+    expect(setDefaultFocusedTabWithOptions).toHaveBeenCalledTimes(1)
+  })
+
+  it('flushes the pending focused-item reveal after the live container is ready', async () => {
+    const windowStore = createWindowStore()
+    const focusedItem = { id: 11 }
+    const revealItem = jest.fn()
+    ;(windowStore.store as any).focusStore = {
+      setDefaultFocusedTabWithOptions: jest.fn(() => true),
+      revealItem,
+      focusedItem,
+      containerRef: { current: null },
+    }
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'initial-load',
+    })
+
+    windowStore.getItemLayout = jest.fn(() => ({
+      columnIndex: 0,
+      left: 0,
+      right: 320,
+      top: 400,
+      bottom: 440,
+      windowId: 1,
+    })) as any
+
+    expect(windowStore.flushPendingFocusedItemReveal()).toBe(false)
+    ;(windowStore.store as any).focusStore.containerRef.current =
+      document.createElement('div')
+
+    expect(windowStore.flushPendingFocusedItemReveal()).toBe(true)
+    expect(revealItem).toHaveBeenCalledWith(focusedItem)
+    expect(windowStore.pendingFocusedItemReveal).toBe(false)
+  })
+
+  it('queues active-tab reveal after an explicit sync action', async () => {
+    const windowStore = createWindowStore()
+    windowStore.hasAppliedInitialDefaultFocus = true
+    windowStore.initialLoading = false
+    const focus = jest.fn()
+    ;(windowStore.store as any).focusStore.focus = focus
+    ;(getLastFocusedWindowId as jest.Mock).mockResolvedValueOnce(1)
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 11,
+            active: true,
+            index: 0,
+            windowId: 1,
+            title: '1',
+            url: 'about:blank',
+          },
+        ],
+      },
+    ])
+
+    await windowStore.syncAllWindows({
+      revealActiveTab: true,
+      origin: 'keyboard',
+    })
+
+    expect(focus).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 11 }),
+      expect.objectContaining({
+        origin: 'keyboard',
+        moveDomFocus: true,
+        reveal: false,
+      }),
+    )
+    expect(windowStore.pendingFocusedItemReveal).toBe(true)
+  })
+
+  it('repackLayoutAndRevealActiveTab immediately reveals the active tab for manual actions', () => {
+    const windowStore = createWindowStore()
+    const focus = jest.fn()
+    ;(windowStore.store as any).focusStore.focus = focus
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 11,
+            active: true,
+            index: 0,
+            windowId: 1,
+            title: 'Window 1',
+            url: 'https://example.com/1',
+            groupId: -1,
+          },
+        ],
+      },
+      windowStore.store as any,
+    )
+    windowStore.windows = [win]
+    windowStore.lastFocusedWindowId = 1
+
+    windowStore.repackLayoutAndRevealActiveTab('mouse')
+
+    expect(focus).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 11 }),
+      expect.objectContaining({
+        origin: 'mouse',
+        reveal: true,
+      }),
+    )
+  })
+
   it('suppresses duplicate lifecycle triggers in the same family', () => {
     const windowStore = createWindowStore()
     expect(windowStore.shouldSuppressLifecycleTrigger('foreground')).toBe(false)
     expect(windowStore.shouldSuppressLifecycleTrigger('foreground')).toBe(true)
     expect(windowStore.shouldSuppressLifecycleTrigger('background')).toBe(false)
     expect(windowStore.shouldSuppressLifecycleTrigger('background')).toBe(true)
+  })
+
+  it('derives duplicate helpers from cached duplicate families', () => {
+    const windowStore = createWindowStore()
+    const alphaA = { id: 11, fingerPrint: 'alpha' }
+    const alphaB = { id: 12, fingerPrint: 'alpha' }
+    const betaA = { id: 21, fingerPrint: 'beta' }
+    const betaB = { id: 22, fingerPrint: 'beta' }
+    const betaC = { id: 23, fingerPrint: 'beta' }
+    const gamma = { id: 31, fingerPrint: 'gamma' }
+
+    windowStore.windows = [
+      {
+        id: 1,
+        hide: false,
+        tabs: [alphaA, alphaB, betaA, betaB, betaC, gamma],
+        visibleLength: 8,
+      },
+    ] as any
+
+    expect(windowStore.tabFingerprintMap).toEqual({
+      alpha: 2,
+      beta: 3,
+      gamma: 1,
+    })
+    expect(windowStore.duplicatedTabs.map((tab) => tab.id)).toEqual([
+      11, 12, 21, 22, 23,
+    ])
+    expect(windowStore.getDuplicateTabsToRemove().map((tab) => tab.id)).toEqual(
+      [12, 22, 23],
+    )
+    expect(
+      windowStore
+        .getDuplicateTabsToRemove([betaB, betaC] as any)
+        .map((tab) => tab.id),
+    ).toEqual([23])
   })
 
   it('repackages columns when a tab group assignment changes visible rows', () => {

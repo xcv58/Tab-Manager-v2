@@ -10,7 +10,12 @@ export default observer(() => {
   return (
     <Tooltip title="Sync All Windows" placement="left">
       <IconButton
-        onClick={() => windowStore.syncAllWindows()}
+        onClick={() =>
+          void windowStore.syncAllWindows({
+            revealActiveTab: true,
+            origin: 'mouse',
+          })
+        }
         className="focus:outline-none"
       >
         <Sync />

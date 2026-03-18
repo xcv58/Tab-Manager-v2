@@ -46,13 +46,49 @@ export default observer(() => {
     renderedColumnLayouts,
     totalContentWidth,
     totalContentHeight,
+    pendingFocusedItemReveal,
+    flushPendingFocusedItemReveal,
   } = windowStore
   const windowById = new Map(visibleWindows.map((win) => [win.id, win]))
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
     onResize()
-  }, [initialLoading, onResize, setContainerRef, userStore.toolbarAutoHide])
+    if (initialLoading || !pendingFocusedItemReveal) {
+      return
+    }
+    let cancelled = false
+    let frameId = 0
+    let attempts = 0
+    const tryFlushInitialReveal = () => {
+      if (cancelled) {
+        return
+      }
+      if (flushPendingFocusedItemReveal()) {
+        return
+      }
+      if (!windowStore.pendingFocusedItemReveal || attempts >= 6) {
+        return
+      }
+      attempts += 1
+      frameId = window.requestAnimationFrame(tryFlushInitialReveal)
+    }
+    frameId = window.requestAnimationFrame(tryFlushInitialReveal)
+    return () => {
+      cancelled = true
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
+  }, [
+    flushPendingFocusedItemReveal,
+    initialLoading,
+    onResize,
+    pendingFocusedItemReveal,
+    setContainerRef,
+    userStore.toolbarAutoHide,
+    windowStore,
+  ])
 
   const resizeDetector = (
     <ReactResizeDetector

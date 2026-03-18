@@ -226,6 +226,48 @@ describe('FocusStore', () => {
     expect(store.focusStore.focusedTabId).toBeNull()
   })
 
+  it('does not auto-jump when the active tab is hidden and fallback is disabled', () => {
+    const store = createStore(true)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: true,
+            groupId: 100,
+            index: 0,
+            title: 'Hidden active tab',
+            url: 'https://example.com/hidden',
+            windowId: 1,
+          },
+          {
+            id: 2,
+            active: false,
+            groupId: -1,
+            index: 1,
+            title: 'Visible tab',
+            url: 'https://example.com/visible',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+    store.windowStore.lastFocusedWindow = win
+
+    store.focusStore.setDefaultFocusedTabWithOptions({
+      reveal: true,
+      fallbackWhenActiveHidden: false,
+    })
+
+    expect(store.focusStore.focusedGroupId).toBeNull()
+    expect(store.focusStore.focusedTabId).toBeNull()
+    expect(store.focusStore.focusedWindowId).toBeNull()
+  })
+
   it('moves focus through visible group rows with vertical navigation', () => {
     const store = createStore(false)
     const win = new Window(
