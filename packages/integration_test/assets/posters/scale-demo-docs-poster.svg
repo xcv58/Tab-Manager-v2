@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1256" viewBox="0 0 1920 1256">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8faff"/>
+      <stop offset="100%" stop-color="#e8edf7"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5b5cf0" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#5b5cf0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#25a55f" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#25a55f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="mainClip">
+      <rect x="924" y="144" width="872" height="572" rx="36"/>
+    </clipPath>
+    <clipPath id="detailClip">
+      <rect x="744" y="826" width="652" height="342" rx="30"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1920" height="1256" fill="url(#bg)"/>
+  <circle cx="152" cy="1088" r="320" fill="url(#glowB)"/>
+  <circle cx="1672" cy="156" r="286" fill="url(#glowA)"/>
+  <circle cx="1208" cy="1168" r="244" fill="url(#glowC)"/>
+
+  <g transform="translate(126 92)">
+    <image href="{{ICON_IMAGE}}" x="0" y="0" width="58" height="58" preserveAspectRatio="xMidYMid meet"/>
+    <text x="78" y="24" fill="#4a5571" font-family="Helvetica, Arial, sans-serif" font-size="23" font-weight="700" letter-spacing="0.1em">
+      TAB MANAGER V2
+    </text>
+    <text x="78" y="58" fill="#707c97" font-family="Helvetica, Arial, sans-serif" font-size="21" font-weight="600">
+      Browser tab control for crowded workspaces
+    </text>
+  </g>
+
+  <text x="126" y="286" fill="#5b5cf0" font-family="Helvetica, Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="0.14em">
+    PERFORMANCE
+  </text>
+
+  <text fill="#1a2438" font-family="Helvetica, Arial, sans-serif" font-size="118" font-weight="800" letter-spacing="-0.06em">
+    <tspan x="126" y="438">1,000+ tabs,</tspan>
+    <tspan x="126" y="564">still smooth.</tspan>
+  </text>
+
+  <text x="126" y="668" fill="#586582" font-family="Helvetica, Arial, sans-serif" font-size="34" font-weight="600">
+    Smooth scrolling and workspace actions at scale.
+  </text>
+
+  <g transform="rotate(-3 1360 430)">
+    <rect x="948" y="168" width="872" height="572" rx="36" fill="#c6cfe2" opacity="0.78"/>
+    <rect x="924" y="144" width="872" height="572" rx="36" fill="#ffffff" stroke="#ced7e9" stroke-width="2"/>
+    <image
+      href="{{SCALE_DEMO_IMAGE}}"
+      x="924"
+      y="144"
+      width="872"
+      height="572"
+      preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#mainClip)"
+    />
+  </g>
+
+  <g transform="rotate(5 1070 997)">
+    <rect x="760" y="842" width="652" height="342" rx="30" fill="#c6cfe2" opacity="0.82"/>
+    <rect x="744" y="826" width="652" height="342" rx="30" fill="#ffffff" stroke="#ced7e9" stroke-width="2"/>
+    <image
+      href="{{SCALE_DEMO_IMAGE}}"
+      x="744"
+      y="826"
+      width="652"
+      height="342"
+      preserveAspectRatio="xMinYMin slice"
+      clip-path="url(#detailClip)"
+    />
+  </g>
+</svg>

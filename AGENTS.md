@@ -113,3 +113,17 @@ Feature video rules:
   `01-find-tab-fast`, `02-organize-groups`, `03-clean-up-duplicates`,
   `04-see-large-workspaces-clearly`, `05-keyboard-workflow`, and
   `06-customize-the-view`.
+
+## Promo Artwork Sources
+
+Promotional and poster artwork should follow a source-first workflow.
+
+- `promotional_tiles/src/**` is the SVG source of truth for committed PNG
+  outputs in `promotional_tiles/`.
+- Docs poster source files must live outside `docs/`. Keep checked-in source
+  SVG and source raster inputs under `packages/integration_test/assets/posters/`
+  and generate public docs outputs into `docs/assets/images/`.
+- Do not hand-edit committed PNG or JPG outputs when a source SVG exists.
+  Update the SVG source, rerender, and then review the exported asset.
+- Treat `.tmp/video-captures/**` poster and thumbnail files as local generated
+  references, not committed source-of-truth files.

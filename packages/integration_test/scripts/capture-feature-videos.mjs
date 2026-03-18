@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process'
+import { createServer } from 'node:http'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -91,12 +92,234 @@ const REAL_URLS = {
     'https://developer.chrome.com/docs/extensions/get-started/',
 }
 
+const SCALE_DEMO_URL_KEYS = [
+  'brand/jenny-home',
+  'brand/jenny-short',
+  'brand/jenny-youtube',
+  'launch/final-checklist',
+  'launch/release-roadmap',
+  'launch/store-copy',
+  'launch/support-plan',
+  'launch/qa-signoff',
+  'launch/rollout-plan',
+  'research/tab-groups-api',
+  'research/firefox-parity',
+  'research/edge-review',
+  'research/keyboard-flows',
+  'research/ux-followups',
+  'reading/accessibility-audit',
+  'support/docs-ticket',
+]
+
+const REVERSED_SCALE_DEMO_URL_KEYS = [...SCALE_DEMO_URL_KEYS].reverse()
+
 function realUrl(key) {
   const url = REAL_URLS[key]
   if (!url) {
     throw new Error(`Missing real url mapping for ${key}`)
   }
   return url
+}
+
+function buildRepeatedRealUrls(keys, rounds) {
+  return Array.from({ length: rounds }, (_, round) => {
+    const orderedKeys = round % 2 === 0 ? keys : [...keys].reverse()
+    return orderedKeys.map((key) => realUrl(key))
+  }).flat()
+}
+
+function createSeededRandom(seed) {
+  let value = seed >>> 0
+  return () => {
+    value = (value * 1664525 + 1013904223) >>> 0
+    return value / 0x100000000
+  }
+}
+
+function buildWeightedTabCounts(totalTabs, windowCount, minimumTabsPerWindow, seed) {
+  if (windowCount <= 0) {
+    return []
+  }
+  if (minimumTabsPerWindow * windowCount > totalTabs) {
+    throw new Error('Minimum tabs per window exceeds the requested total')
+  }
+
+  const random = createSeededRandom(seed)
+  const weights = Array.from({ length: windowCount }, () => 0.35 + random())
+  const extraTabs = totalTabs - minimumTabsPerWindow * windowCount
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0)
+  const rawExtras = weights.map((weight) => (weight / totalWeight) * extraTabs)
+
+  const counts = rawExtras.map(
+    (rawExtra) => minimumTabsPerWindow + Math.floor(rawExtra),
+  )
+  let remainingTabs = totalTabs - counts.reduce((sum, count) => sum + count, 0)
+
+  const remainderOrder = rawExtras
+    .map((rawExtra, index) => ({
+      index,
+      fraction: rawExtra - Math.floor(rawExtra),
+      tieBreaker: random(),
+    }))
+    .sort(
+      (left, right) =>
+        right.fraction - left.fraction || right.tieBreaker - left.tieBreaker,
+    )
+
+  for (let index = 0; index < remainingTabs; index += 1) {
+    counts[remainderOrder[index % remainderOrder.length].index] += 1
+  }
+
+  return counts
+}
+
+function buildScaleDemoWindowTabs(tabCount, windowIndex = 0, resolveUrl = realUrl) {
+  const keyCount = SCALE_DEMO_URL_KEYS.length
+
+  return Array.from({ length: tabCount }, (_, tabIndex) => {
+    const cycle = Math.floor(tabIndex / keyCount)
+    const localIndex = tabIndex % keyCount
+    const orderedKeys =
+      (cycle + windowIndex) % 2 === 0
+        ? SCALE_DEMO_URL_KEYS
+        : REVERSED_SCALE_DEMO_URL_KEYS
+    const offset = (windowIndex * 5 + cycle * 3) % keyCount
+    return resolveUrl(orderedKeys[(offset + localIndex) % keyCount])
+  })
+}
+
+function buildScaleDemoWindowGroups(tabs, windowIndex) {
+  if (windowIndex === 0) {
+    return [
+      {
+        title: 'Inbox',
+        color: 'blue',
+        urls: tabs.slice(0, 6),
+      },
+      {
+        title: 'Launch Pad',
+        color: 'orange',
+        urls: tabs.slice(6, 12),
+      },
+    ]
+  }
+
+  if (windowIndex === 1) {
+    return [
+      {
+        title: 'Support',
+        color: 'red',
+        urls: tabs.slice(0, 10),
+      },
+    ]
+  }
+
+  if (windowIndex === 2) {
+    return [
+      {
+        title: 'Research',
+        color: 'green',
+        urls: tabs.slice(0, 8),
+      },
+    ]
+  }
+
+  if (windowIndex === 3) {
+    return [
+      {
+        title: 'Release',
+        color: 'purple',
+        urls: tabs.slice(0, 8),
+      },
+    ]
+  }
+
+  return []
+}
+
+function buildThousandTwentyFourScaleWindows(resolveUrl = realUrl) {
+  const featuredWindowTabs = 256
+  const distributedWindowCount = 10
+  const otherWindowCounts = buildWeightedTabCounts(
+    1024 - featuredWindowTabs,
+    distributedWindowCount,
+    40,
+    1024,
+  )
+
+  return [
+    ...[featuredWindowTabs, ...otherWindowCounts].map((tabCount, windowIndex) => {
+      const tabs = buildScaleDemoWindowTabs(tabCount, windowIndex, resolveUrl)
+      return {
+        tabs,
+        groups: buildScaleDemoWindowGroups(tabs, windowIndex),
+      }
+    }),
+  ]
+}
+
+async function startLocalFixtureServer() {
+  const server = await new Promise((resolve) => {
+    const nextServer = createServer((req, res) => {
+      const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
+      const title =
+        requestUrl.searchParams.get('title') || requestUrl.pathname.slice(1)
+      const body =
+        requestUrl.searchParams.get('body') ||
+        `Local scale fixture for ${title}`
+
+      res.writeHead(200, {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'no-store',
+      })
+      res.end(`<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title}</title>
+  </head>
+  <body>
+    <main>
+      <h1>${title}</h1>
+      <p>${body}</p>
+      <code>${requestUrl.pathname}</code>
+    </main>
+  </body>
+</html>`)
+    })
+    nextServer.listen(0, '127.0.0.1', () => resolve(nextServer))
+  })
+
+  const { port } = server.address()
+  return {
+    baseUrl: `http://127.0.0.1:${port}`,
+    close: () =>
+      new Promise((resolve, reject) => {
+        server.close((error) => {
+          if (error) {
+            reject(error)
+            return
+          }
+          resolve()
+        })
+      }),
+  }
+}
+
+function toFixtureTitle(key) {
+  return key
+    .split('/')
+    .flatMap((part) => part.split('-'))
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function buildLocalFixtureUrl(baseUrl, key) {
+  const title = toFixtureTitle(key)
+  const slug = key.replaceAll('/', '-')
+  const body = `Synthetic stress fixture for ${title}`
+  return `${baseUrl}/scale/${slug}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
 }
 
 function sleep(ms) {
@@ -237,7 +460,7 @@ async function waitForScenarioReady(page, counts) {
   await page.waitForTimeout(UI_SETTLE_DELAY_MS + 2000)
 }
 
-async function createDemoWindows(page, windows) {
+async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
   return page.evaluate(
     async ({ definitions, waitOptions }) => {
       const delay = (ms) =>
@@ -436,6 +659,7 @@ async function createDemoWindows(page, windows) {
         batchSize: TAB_CREATE_BATCH_SIZE,
         batchPauseMs: TAB_CREATE_BATCH_DELAY_MS,
         blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+        ...waitOptionOverrides,
       },
     },
   )
@@ -699,6 +923,72 @@ async function clickCurrent(page) {
   await page.mouse.up()
 }
 
+async function clickLocator(page, locator) {
+  await page.evaluate(() => {
+    window.__demoCursorApi.click()
+  })
+  await locator.click({ force: true })
+  await page.waitForTimeout(pacePause(70))
+}
+
+async function wheelCursor(page, totalDeltaY, steps = 12) {
+  await wheelCursorXY(page, 0, totalDeltaY, steps)
+}
+
+async function wheelCursorXY(page, totalDeltaX, totalDeltaY, steps = 12) {
+  const stepCount = Math.max(6, steps)
+  const stepDeltaX = totalDeltaX / stepCount
+  const stepDeltaY = totalDeltaY / stepCount
+  const stepDelayMs = Math.max(18, Math.round(pacePause(36) / 2))
+
+  for (let index = 0; index < stepCount; index += 1) {
+    await page.mouse.wheel(stepDeltaX, stepDeltaY)
+    await page.waitForTimeout(stepDelayMs)
+  }
+}
+
+async function waitForGroupTitle(page, groupId, expectedTitle) {
+  await page.waitForFunction(
+    ({ nextGroupId, nextTitle }) => {
+      const node = document.querySelector(
+        `[data-testid="tab-group-title-${nextGroupId}"]`,
+      )
+      return node?.textContent?.trim() === nextTitle
+    },
+    { timeout: UI_READY_TIMEOUT_MS },
+    { nextGroupId: groupId, nextTitle: expectedTitle },
+  )
+}
+
+async function waitForFloatingUiToClear(page) {
+  await page.waitForFunction(
+    () => {
+      const isVisible = (element) => {
+        if (!(element instanceof HTMLElement)) {
+          return false
+        }
+
+        const style = window.getComputedStyle(element)
+        if (
+          style.display === 'none' ||
+          style.visibility === 'hidden' ||
+          Number(style.opacity || '1') === 0
+        ) {
+          return false
+        }
+
+        const rect = element.getBoundingClientRect()
+        return rect.width > 1 && rect.height > 1
+      }
+
+      return [
+        ...document.querySelectorAll('.MuiPopover-root, .MuiAutocomplete-popper'),
+      ].every((element) => !isVisible(element))
+    },
+    { timeout: UI_READY_TIMEOUT_MS },
+  )
+}
+
 async function getCenter(locator) {
   const box = await locator.boundingBox()
   if (!box) {
@@ -782,13 +1072,23 @@ function encodeClip(clipName, clipWorkDir) {
   return outputPath
 }
 
-async function withScenario(clipName, windows, settings, runClip) {
+async function withScenario(
+  clipName,
+  windows,
+  settings,
+  runClip,
+  options = {},
+) {
   const { context, controlPage, fullPageUrl, userDataDir } =
     await initControlContext()
 
   try {
     await resetScenario(controlPage, fullPageUrl, settings)
-    const createdWindows = await createDemoWindows(controlPage, windows)
+    const createdWindows = await createDemoWindows(
+      controlPage,
+      windows,
+      options.waitOptions,
+    )
     await waitForScenarioReady(controlPage, scenarioCounts(windows))
 
     const popupPage = await openPopupPage(controlPage, fullPageUrl)
@@ -818,7 +1118,12 @@ async function withScenario(clipName, windows, settings, runClip) {
     console.log(`saved ${outputPath}`)
     return outputPath
   } finally {
-    rmSync(userDataDir, { recursive: true, force: true })
+    rmSync(userDataDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 250,
+    })
   }
 }
 
@@ -1240,6 +1545,268 @@ async function recordCustomizeView() {
   )
 }
 
+async function recordHundredPlusTabsScale() {
+  const clipName = '07-hundred-plus-tabs-scale'
+  const windows = [
+    {
+      tabs: buildRepeatedRealUrls(SCALE_DEMO_URL_KEYS, 8),
+      groups: [],
+    },
+  ]
+
+  return withScenario(
+    clipName,
+    windows,
+    {
+      useSystemTheme: false,
+      darkTheme: false,
+      tabWidth: 18,
+      fontSize: 13,
+    },
+    async (page, startPoint, createdWindows) => {
+      const windowId = createdWindows[0].windowId
+      const cleanedScenarioCounts = {
+        windowCount: createdWindows.length + 1,
+        tabCount: SCALE_DEMO_URL_KEYS.length + 1,
+      }
+      await demoHold(page, 900)
+
+      const windowTitle = page.getByTestId(`window-title-${windowId}`)
+      const titleCenter = await getCenter(windowTitle)
+      await moveCursor(page, startPoint, titleCenter, 820)
+      await demoPause(page, 180)
+
+      const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
+      await sortButton.waitFor({ state: 'visible', timeout: 15000 })
+      const sortCenter = await getCenter(sortButton)
+      await moveCursor(page, titleCenter, sortCenter, 430)
+      await demoPause(page, 120)
+      await clickLocator(page, sortButton)
+      await demoHold(page, 1050)
+
+      const scrollContainer = page.getByTestId('window-list-scroll-container')
+      const scrollBox = await scrollContainer.boundingBox()
+      if (!scrollBox) {
+        throw new Error('Failed to read scroll container bounds')
+      }
+      const scrollPoint = {
+        x: scrollBox.x + scrollBox.width * 0.6,
+        y: scrollBox.y + scrollBox.height * 0.6,
+      }
+      await moveCursor(page, sortCenter, scrollPoint, 760)
+      await demoPause(page, 120)
+      await wheelCursor(page, 2200, 18)
+      await demoPause(page, 140)
+      await wheelCursor(page, 1800, 16)
+      await demoHold(page, 900)
+
+      const cleanButton = page
+        .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
+        .first()
+      await cleanButton.waitFor({ state: 'visible', timeout: 15000 })
+      const cleanCenter = await getCenter(cleanButton)
+      await moveCursor(page, scrollPoint, cleanCenter, 860)
+      await demoPause(page, 140)
+      await clickLocator(page, cleanButton)
+      await waitForScenarioReady(page, cleanedScenarioCounts)
+
+      const finalPoint = {
+        x: scrollBox.x + scrollBox.width * 0.54,
+        y: scrollBox.y + scrollBox.height * 0.36,
+      }
+      await moveCursor(page, cleanCenter, finalPoint, 620)
+      await demoHold(page, 1300)
+    },
+  )
+}
+
+async function recordThousandTwentyFourTabsScale() {
+  const clipName = '08-thousand-twenty-four-tabs-scale'
+  // This scale clip intentionally swaps real sites for local synthetic fixtures
+  // so the 1,024-tab scenario stays deterministic, fast, and safe to capture.
+  const fixtureServer = await startLocalFixtureServer()
+
+  try {
+    const windows = buildThousandTwentyFourScaleWindows((key) =>
+      buildLocalFixtureUrl(fixtureServer.baseUrl, key),
+    )
+
+    return await withScenario(
+      clipName,
+      windows,
+      {
+        useSystemTheme: false,
+        darkTheme: false,
+        tabWidth: 16,
+        fontSize: 13,
+      },
+      async (page, startPoint, createdWindows) => {
+        const heroWindowId = createdWindows[0].windowId
+        const renamedHeroGroupId = createdWindows[0].groups[1].groupId
+        const sideGroupId = createdWindows[1].groups[0].groupId
+        const closedWindowId = createdWindows[2].windowId
+        const finalScenarioCounts = {
+          windowCount: createdWindows.length,
+          tabCount: 1024 - 10 - windows[2].tabs.length + 1,
+        }
+        await demoHold(page, 1000)
+
+        const heroWindowTitle = page.getByTestId(`window-title-${heroWindowId}`)
+        const titleCenter = await getCenter(heroWindowTitle)
+        await moveCursor(page, startPoint, titleCenter, 900)
+        await demoPause(page, 180)
+
+        const scrollContainer = page.getByTestId('window-list-scroll-container')
+        const scrollBox = await scrollContainer.boundingBox()
+        if (!scrollBox) {
+          throw new Error('Failed to read scroll container bounds')
+        }
+        const scrollPoint = {
+          x: scrollBox.x + scrollBox.width * 0.28,
+          y: scrollBox.y + scrollBox.height * 0.48,
+        }
+        await moveCursor(page, titleCenter, scrollPoint, 620)
+        await demoPause(page, 120)
+        await wheelCursor(page, 5600, 36)
+        await demoPause(page, 140)
+        await wheelCursor(page, -5600, 36)
+        await demoPause(page, 140)
+        await wheelCursorXY(page, 2600, 0, 24)
+        await demoPause(page, 140)
+        await wheelCursorXY(page, -2600, 0, 24)
+        await demoHold(page, 700)
+
+        const heroGroupHeader = page.getByTestId(
+          `tab-group-header-${renamedHeroGroupId}`,
+        )
+        const heroGroupHeaderCenter = await getCenter(heroGroupHeader)
+        await moveCursor(page, scrollPoint, heroGroupHeaderCenter, 540)
+        await demoPause(page, 100)
+        await heroGroupHeader.focus()
+        const heroGroupMenu = page.getByTestId(
+          `tab-group-menu-${renamedHeroGroupId}`,
+        )
+        await heroGroupMenu.waitFor({ state: 'visible', timeout: 15000 })
+        const heroGroupMenuCenter = await getCenter(heroGroupMenu)
+        await moveCursor(page, heroGroupHeaderCenter, heroGroupMenuCenter, 500)
+        await demoPause(page, 140)
+        await clickLocator(page, heroGroupMenu)
+
+        const renameItem = page.getByTestId(
+          `tab-group-menu-rename-${renamedHeroGroupId}`,
+        )
+        await renameItem.waitFor({ state: 'visible', timeout: 15000 })
+        const renameCenter = await getCenter(renameItem)
+        await moveCursor(page, heroGroupMenuCenter, renameCenter, 360)
+        await demoPause(page, 120)
+        await clickLocator(page, renameItem)
+
+        const editor = page.getByTestId(`tab-group-editor-${renamedHeroGroupId}`)
+        await editor.waitFor({ state: 'visible', timeout: 15000 })
+        const titleInput = page.getByTestId(
+          `tab-group-editor-title-${renamedHeroGroupId}`,
+        )
+        const titleInputCenter = await getCenter(titleInput)
+        await moveCursor(page, renameCenter, titleInputCenter, 460)
+        await demoPause(page, 120)
+        await clickLocator(page, titleInput)
+        await titleInput.fill('Launch Ops')
+        await demoPause(page, 120)
+
+        const redColor = page.getByTestId(
+          `tab-group-editor-color-${renamedHeroGroupId}-red`,
+        )
+        const redColorCenter = await getCenter(redColor)
+        await moveCursor(page, titleInputCenter, redColorCenter, 360)
+        await demoPause(page, 120)
+        await clickLocator(page, redColor)
+        await page.keyboard.press('Escape')
+        await editor.waitFor({ state: 'hidden', timeout: 15000 })
+        await waitForFloatingUiToClear(page)
+        await waitForGroupTitle(page, renamedHeroGroupId, 'Launch Ops')
+        await demoHold(page, 600)
+
+        const renamedHeroToggle = page.getByTestId(
+          `tab-group-toggle-${renamedHeroGroupId}`,
+        )
+        const renamedHeroToggleCenter = await getCenter(renamedHeroToggle)
+        await moveCursor(page, redColorCenter, renamedHeroToggleCenter, 520)
+        await demoPause(page, 120)
+        await clickLocator(page, renamedHeroToggle)
+        await demoHold(page, 700)
+
+        const syncPoint = {
+          x: scrollBox.x + scrollBox.width * 0.12,
+          y: scrollBox.y + 24,
+        }
+        await moveCursor(page, renamedHeroToggleCenter, syncPoint, 620)
+        await demoPause(page, 120)
+        await page.evaluate(() => {
+          const activeElement = document.activeElement
+          if (activeElement instanceof HTMLElement) {
+            activeElement.blur()
+          }
+        })
+        await page.keyboard.press('s')
+        await demoHold(page, 900)
+
+        const sideGroupHeader = page.getByTestId(`tab-group-header-${sideGroupId}`)
+        const sideGroupHeaderCenter = await getCenter(sideGroupHeader)
+        await moveCursor(page, syncPoint, sideGroupHeaderCenter, 760)
+        await demoPause(page, 100)
+        await sideGroupHeader.focus()
+        const sideGroupClose = sideGroupHeader.locator(
+          'button[aria-label="Close group"]',
+        )
+        await sideGroupClose.waitFor({ state: 'visible', timeout: 15000 })
+        const sideGroupCloseCenter = await getCenter(sideGroupClose)
+        await moveCursor(page, sideGroupHeaderCenter, sideGroupCloseCenter, 340)
+        await demoPause(page, 140)
+        await clickLocator(page, sideGroupClose)
+        await sideGroupHeader.waitFor({ state: 'hidden', timeout: 15000 })
+        await demoHold(page, 700)
+
+        const closingWindowTitle = page.getByTestId(`window-title-${closedWindowId}`)
+        const closingWindowTitleCenter = await getCenter(closingWindowTitle)
+        await moveCursor(page, sideGroupCloseCenter, closingWindowTitleCenter, 720)
+        await demoPause(page, 100)
+        await closingWindowTitle.focus()
+        const closingWindowButton = closingWindowTitle.locator(
+          'button[aria-label="Close"]',
+        )
+        await closingWindowButton.waitFor({ state: 'visible', timeout: 15000 })
+        const closingWindowCenter = await getCenter(closingWindowButton)
+        await moveCursor(
+          page,
+          closingWindowTitleCenter,
+          closingWindowCenter,
+          320,
+        )
+        await demoPause(page, 140)
+        await clickLocator(page, closingWindowButton)
+        await waitForScenarioReady(page, finalScenarioCounts)
+
+        const finalPoint = {
+          x: scrollBox.x + scrollBox.width * 0.33,
+          y: scrollBox.y + scrollBox.height * 0.32,
+        }
+        await moveCursor(page, closingWindowCenter, finalPoint, 660)
+        await demoHold(page, 1500)
+      },
+      {
+        waitOptions: {
+          batchSize: 24,
+          batchPauseMs: 250,
+          stablePolls: 3,
+          postLoadSettleMs: 900,
+        },
+      },
+    )
+  } finally {
+    await fixtureServer.close()
+  }
+}
+
 const CLIPS = [
   { id: '01-find-tab-fast', capture: recordFindTabFast },
   { id: '02-organize-groups', capture: recordOrganizeGroups },
@@ -1247,6 +1814,8 @@ const CLIPS = [
   { id: '04-see-large-workspaces-clearly', capture: recordLargeWorkspaces },
   { id: '05-keyboard-workflow', capture: recordKeyboardWorkflow },
   { id: '06-customize-the-view', capture: recordCustomizeView },
+  { id: '07-hundred-plus-tabs-scale', capture: recordHundredPlusTabsScale },
+  { id: '08-thousand-twenty-four-tabs-scale', capture: recordThousandTwentyFourTabsScale },
 ]
 
 async function main() {

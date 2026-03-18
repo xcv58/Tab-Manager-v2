@@ -53,6 +53,16 @@ Support and issues: https://github.com/xcv58/Tab-Manager-v2/issues
 - `Large tile.png`: 920x680, PNG24, no alpha
 - `Marquee.png`: 1400x560, PNG24, no alpha
 - `Marquee 1280x640.png`: 1280x640, PNG24, no alpha
+- `YouTube thumbnail 1280x720.png`: 1280x720, PNG24, no alpha
+
+## Source Artwork
+
+- `promotional_tiles/src/*.svg` is the source of truth for committed PNG promo
+  outputs in this folder.
+- Do not hand-edit the committed PNG files when a matching SVG source exists.
+  Update the SVG and rerender instead.
+- The YouTube thumbnail source lives at
+  `promotional_tiles/src/youtube-thumbnail-1280x720.svg`.
 
 ## Source Screenshots
 
@@ -62,6 +72,9 @@ The artwork pulls from the current light-theme release screenshots in `../docs/a
 - `02-group-editing-light.png`
 - `03-search-groups-light.png`
 - `05-keyboard-shortcuts-light.png`
+
+The scale-focused YouTube thumbnail also uses
+`../packages/integration_test/assets/posters/scale-demo-source.png`.
 
 ## Regenerating Assets
 

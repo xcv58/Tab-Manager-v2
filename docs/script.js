@@ -19,9 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.screenshot-variant'),
   )
   const promoVideo = document.querySelector('.promo-video')
-  const videoTourLayout = document.querySelector('.video-tour-layout')
-  const videoTourFrame = document.querySelector('.video-tour-frame')
-  const videoTourCopy = document.querySelector('.video-tour-copy')
+  const scaleDemoVideo = document.querySelector('.scale-demo-video')
+  const scaleDemoDisclosure = document.querySelector('.scale-demo-disclosure')
   const videoChapterButtons = Array.from(
     document.querySelectorAll('.video-tour-chapter'),
   )
@@ -29,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let lightbox = null
   let selectedScreenshotTheme = null
   let promoVideoPlayer = null
+  let scaleDemoVideoPlayer = null
   let promoVideoPrimed = false
 
   function normalizeTheme(theme) {
@@ -271,28 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  function syncVideoTourHeight() {
-    if (!videoTourLayout || !videoTourFrame || !videoTourCopy) {
-      return
-    }
-
-    const isStacked = videoTourCopy.offsetTop > videoTourFrame.offsetTop + 8
-    if (isStacked) {
-      videoTourLayout.style.removeProperty('--video-tour-frame-height')
-      return
-    }
-
-    const frameHeight = Math.round(
-      videoTourFrame.getBoundingClientRect().height,
-    )
-    if (frameHeight > 0) {
-      videoTourLayout.style.setProperty(
-        '--video-tour-frame-height',
-        `${frameHeight}px`,
-      )
-    }
-  }
-
   function getVideoRangeEnd(timeRanges) {
     if (!timeRanges || timeRanges.length === 0) {
       return 0
@@ -432,6 +410,24 @@ document.addEventListener('DOMContentLoaded', () => {
     primePromoVideo()
   }
 
+  function initializeScaleDemoVideoPlayer() {
+    if (scaleDemoVideoPlayer || !scaleDemoVideo) {
+      return scaleDemoVideoPlayer
+    }
+
+    if (typeof window.videojs !== 'function') {
+      return null
+    }
+
+    scaleDemoVideoPlayer = window.videojs(scaleDemoVideo, {
+      fluid: true,
+      preload: 'none',
+      aspectRatio: '1282:839',
+    })
+
+    return scaleDemoVideoPlayer
+  }
+
   if (promoVideo && videoChapterButtons.length) {
     if (typeof window.videojs === 'function') {
       promoVideoPlayer = window.videojs(promoVideo, {
@@ -441,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setActiveVideoChapter(0)
-    syncVideoTourHeight()
 
     const videoTourSection = promoVideo.closest('#video-tour')
     if (videoTourSection && 'IntersectionObserver' in window) {
@@ -474,11 +469,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (promoVideoPlayer) {
       promoVideoPlayer.ready(() => {
         setActiveVideoChapter(promoVideoPlayer.currentTime() || 0)
-        syncVideoTourHeight()
       })
       promoVideoPlayer.on('loadedmetadata', () => {
         setActiveVideoChapter(promoVideoPlayer.currentTime() || 0)
-        syncVideoTourHeight()
       })
       promoVideoPlayer.on('timeupdate', () => {
         setActiveVideoChapter(promoVideoPlayer.currentTime() || 0)
@@ -486,7 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       promoVideo.addEventListener('loadedmetadata', () => {
         setActiveVideoChapter(promoVideo.currentTime)
-        syncVideoTourHeight()
       })
 
       promoVideo.addEventListener('timeupdate', () => {
@@ -495,15 +487,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (typeof window.ResizeObserver === 'function' && videoTourFrame) {
-    const videoTourResizeObserver = new ResizeObserver(() => {
-      syncVideoTourHeight()
+  if (scaleDemoDisclosure && scaleDemoVideo) {
+    if (scaleDemoDisclosure.open) {
+      initializeScaleDemoVideoPlayer()
+    }
+
+    scaleDemoDisclosure.addEventListener('toggle', () => {
+      if (scaleDemoDisclosure.open) {
+        initializeScaleDemoVideoPlayer()
+      }
     })
-
-    videoTourResizeObserver.observe(videoTourFrame)
   }
-
-  window.addEventListener('resize', syncVideoTourHeight)
 
   // Enable :active states on iOS Safari
   document.addEventListener('touchstart', () => {}, { passive: true })
