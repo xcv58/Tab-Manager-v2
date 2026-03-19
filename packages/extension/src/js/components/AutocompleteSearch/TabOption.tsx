@@ -37,7 +37,7 @@ export default observer(function TabOption(props: Props) {
   const groupLabel = tabGroup ? tab.groupTitle || 'Unnamed group' : ''
   const showGroupContext = !!groupLabel
   const showInlineGroupContext = showGroupContext && showInlineGroupBadge
-  const groupColor = tabGroup ? getChromeTabGroupColor(tabGroup.color) : null
+  const groupColor = getChromeTabGroupColor(tabGroup?.color)
   const showGroupTitle = matchesSearchText(groupLabel, query)
   const pin = tab.pinned && PIN
 
