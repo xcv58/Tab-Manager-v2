@@ -273,9 +273,12 @@ export default class Window extends Focusable {
     }
     this.tabs.splice(fromIndex, 1)
     this.tabs.splice(toIndex, 0, fromTab)
-    this.tabs.forEach((tab, index) => {
+    const start = Math.min(fromIndex, toIndex)
+    const end = Math.max(fromIndex, toIndex)
+    for (let index = start; index <= end; index += 1) {
+      const tab = this.tabs[index]
       tab.index = index
-    })
+    }
     return true
   }
 
