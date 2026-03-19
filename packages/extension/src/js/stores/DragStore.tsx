@@ -202,6 +202,16 @@ export default class DragStore {
     })
   }
 
+  getGroupTabIdsFromBrowser = async (windowId: number, groupId: number) => {
+    const tabs = await this.getWindowTabsFromBrowser(windowId)
+    return tabs.flatMap((tab) => {
+      if (tab.groupId === groupId && typeof tab.id === 'number') {
+        return [tab.id]
+      }
+      return []
+    })
+  }
+
   joinUngroupedTabsToTargetGroup = async ({
     sources,
     sourceTabIds,
@@ -373,11 +383,10 @@ export default class DragStore {
             if (!inSameWindow) {
               await moveTabs(sources, windowId, index)
             }
-            const targetGroupTabIds = this.store.tabGroupStore
-              .getTabsForGroup(targetGroupId)
-              .slice()
-              .sort((a, b) => a.index - b.index)
-              .map((tab) => tab.id)
+            const targetGroupTabIds = await this.getGroupTabIdsFromBrowser(
+              windowId,
+              targetGroupId,
+            )
             const sourceTabIdSet = new Set(sourceTabIds)
             const preservedTargetTabIds = targetGroupTabIds.filter(
               (tabId) => !sourceTabIdSet.has(tabId),
