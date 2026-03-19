@@ -595,4 +595,35 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnCount).toBe(2)
     expect(windowStore.columnLayout).toEqual([[1], [2]])
   })
+
+  it('repackages layout when a tab title changes during active search', () => {
+    const windowStore = createWindowStore()
+    const repackLayout = jest.fn()
+    windowStore.repackLayout = repackLayout as any
+    const tab = {
+      id: 21,
+      index: 0,
+      windowId: 2,
+      title: 'Other tab',
+      url: 'https://example.com/2',
+      groupId: -1,
+      setUrlIcon: jest.fn(),
+    }
+    windowStore.windows = [
+      {
+        id: 2,
+        hide: false,
+        tabs: [tab],
+        visibleLength: 0,
+      },
+    ] as any
+    ;(windowStore.store as any).searchStore._query = 'match'
+
+    windowStore.onUpdated(21, {}, {
+      ...tab,
+      title: 'Match second tab',
+    } as any)
+
+    expect(repackLayout).toHaveBeenCalledWith('search-change')
+  })
 })

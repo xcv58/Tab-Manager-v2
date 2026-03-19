@@ -639,7 +639,10 @@ export default class WindowsStore {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
+      const queryActive = !!this.store.searchStore?._query
       const previousGroupId = tab.groupId
+      const previousTitle = tab.title
+      const previousUrl = tab.url
       const previousWindowId = tab.windowId
       Object.assign(tab, newTab)
       tab.setUrlIcon()
@@ -649,6 +652,12 @@ export default class WindowsStore {
           'tab-browser-event',
           tab.windowId || previousWindowId,
         )
+        return
+      }
+      const searchFieldsChanged =
+        queryActive && (previousTitle !== tab.title || previousUrl !== tab.url)
+      if (searchFieldsChanged) {
+        this.repackLayout('search-change')
       }
     }
   }
