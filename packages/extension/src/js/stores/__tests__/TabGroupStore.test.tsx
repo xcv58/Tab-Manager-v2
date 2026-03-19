@@ -24,10 +24,10 @@ describe('TabGroupStore', () => {
           collapsed: false,
         }),
       ),
-      onCreated: { addListener: jest.fn() },
-      onRemoved: { addListener: jest.fn() },
-      onMoved: { addListener: jest.fn() },
-      onUpdated: { addListener: jest.fn() },
+      onCreated: { addListener: jest.fn(), removeListener: jest.fn() },
+      onRemoved: { addListener: jest.fn(), removeListener: jest.fn() },
+      onMoved: { addListener: jest.fn(), removeListener: jest.fn() },
+      onUpdated: { addListener: jest.fn(), removeListener: jest.fn() },
     }
     ;(browser as any).tabs = {
       ungroup: jest.fn(),
@@ -68,6 +68,26 @@ describe('TabGroupStore', () => {
     expect(store.canMoveGroups()).toBe(false)
   })
 
+  it('should remove browser tab group listeners on unmount', async () => {
+    const store = groupStore()
+
+    await Promise.resolve()
+    store.willUnmount()
+
+    expect(
+      (browser as any).tabGroups.onCreated.removeListener,
+    ).toHaveBeenCalledWith(store.onTabGroup)
+    expect(
+      (browser as any).tabGroups.onRemoved.removeListener,
+    ).toHaveBeenCalledWith(store.onRemoved)
+    expect(
+      (browser as any).tabGroups.onMoved.removeListener,
+    ).toHaveBeenCalledWith(store.onTabGroup)
+    expect(
+      (browser as any).tabGroups.onUpdated.removeListener,
+    ).toHaveBeenCalledWith(store.onTabGroup)
+  })
+
   it('should no-op group creation when mutation capability is unavailable', async () => {
     ;(browser as any).tabGroups = undefined
     ;(browser as any).tabs = {}
@@ -77,6 +97,34 @@ describe('TabGroupStore', () => {
     const groupId = await store.createGroup([1, 2])
 
     expect(groupId).toBeNull()
+  })
+
+  it('should remove chrome tab group listeners on unmount', async () => {
+    ;(browser as any).tabGroups = undefined
+    ;(browser as any).tabs = {}
+    const removeCreated = jest.fn()
+    const removeRemoved = jest.fn()
+    const removeMoved = jest.fn()
+    const removeUpdated = jest.fn()
+    ;(global as any).chrome = {
+      runtime: {},
+      tabGroups: {
+        query: (_query, callback) => callback([]),
+        onCreated: { addListener: jest.fn(), removeListener: removeCreated },
+        onRemoved: { addListener: jest.fn(), removeListener: removeRemoved },
+        onMoved: { addListener: jest.fn(), removeListener: removeMoved },
+        onUpdated: { addListener: jest.fn(), removeListener: removeUpdated },
+      },
+    }
+    const store = groupStore()
+
+    await Promise.resolve()
+    store.willUnmount()
+
+    expect(removeCreated).toHaveBeenCalledWith(store.onTabGroup)
+    expect(removeRemoved).toHaveBeenCalledWith(store.onRemoved)
+    expect(removeMoved).toHaveBeenCalledWith(store.onTabGroup)
+    expect(removeUpdated).toHaveBeenCalledWith(store.onTabGroup)
   })
 
   it('should return grouped rows and visible tabs for collapsed groups with search', async () => {

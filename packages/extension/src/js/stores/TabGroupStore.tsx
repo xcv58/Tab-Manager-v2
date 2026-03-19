@@ -38,6 +38,8 @@ export default class GroupStore {
 
   tabGroupMap: Map<number, TabGroup> = new Map()
 
+  listenerBackend: 'browser' | 'chrome' | null = null
+
   constructor(store: Store) {
     makeAutoObservable(this)
 
@@ -54,10 +56,7 @@ export default class GroupStore {
             this.tabGroupMap.set(tabGroup.id, tabGroup)
           })
         }
-        browser.tabGroups.onCreated.addListener(this.onTabGroup)
-        browser.tabGroups.onRemoved.addListener(this.onRemoved)
-        browser.tabGroups.onMoved.addListener(this.onTabGroup)
-        browser.tabGroups.onUpdated.addListener(this.onTabGroup)
+        this.bindBrowserListeners()
         return
       }
       if (typeof chrome !== 'undefined' && chrome.tabGroups) {
@@ -74,16 +73,59 @@ export default class GroupStore {
         tabGroups.forEach((tabGroup) => {
           this.tabGroupMap.set(tabGroup.id, tabGroup)
         })
-        chrome.tabGroups.onCreated.addListener(this.onTabGroup)
-        chrome.tabGroups.onRemoved.addListener(this.onRemoved)
-        chrome.tabGroups.onMoved.addListener(this.onTabGroup)
-        chrome.tabGroups.onUpdated.addListener(this.onTabGroup)
+        this.bindChromeListeners()
       }
     } catch (error) {
       log.error('TabGroupStore.init failed', {
         error,
       })
     }
+  }
+
+  bindBrowserListeners = () => {
+    if (!browser.tabGroups || this.listenerBackend === 'browser') {
+      return
+    }
+    browser.tabGroups.onCreated.addListener(this.onTabGroup)
+    browser.tabGroups.onRemoved.addListener(this.onRemoved)
+    browser.tabGroups.onMoved.addListener(this.onTabGroup)
+    browser.tabGroups.onUpdated.addListener(this.onTabGroup)
+    this.listenerBackend = 'browser'
+  }
+
+  bindChromeListeners = () => {
+    if (
+      typeof chrome === 'undefined' ||
+      !chrome.tabGroups ||
+      this.listenerBackend === 'chrome'
+    ) {
+      return
+    }
+    chrome.tabGroups.onCreated.addListener(this.onTabGroup)
+    chrome.tabGroups.onRemoved.addListener(this.onRemoved)
+    chrome.tabGroups.onMoved.addListener(this.onTabGroup)
+    chrome.tabGroups.onUpdated.addListener(this.onTabGroup)
+    this.listenerBackend = 'chrome'
+  }
+
+  willUnmount = () => {
+    if (this.listenerBackend === 'browser' && browser.tabGroups) {
+      browser.tabGroups.onCreated.removeListener(this.onTabGroup)
+      browser.tabGroups.onRemoved.removeListener(this.onRemoved)
+      browser.tabGroups.onMoved.removeListener(this.onTabGroup)
+      browser.tabGroups.onUpdated.removeListener(this.onTabGroup)
+    }
+    if (
+      this.listenerBackend === 'chrome' &&
+      typeof chrome !== 'undefined' &&
+      chrome.tabGroups
+    ) {
+      chrome.tabGroups.onCreated.removeListener(this.onTabGroup)
+      chrome.tabGroups.onRemoved.removeListener(this.onRemoved)
+      chrome.tabGroups.onMoved.removeListener(this.onTabGroup)
+      chrome.tabGroups.onUpdated.removeListener(this.onTabGroup)
+    }
+    this.listenerBackend = null
   }
 
   onTabGroup = (tabGroup: TabGroup) => {
