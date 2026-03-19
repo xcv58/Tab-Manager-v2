@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import { reaction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import Icon from 'components/Tab/Icon'
 import TabTools from 'components/Tab/TabTools'
@@ -10,6 +11,7 @@ import classNames from 'classnames'
 import { useStore } from 'components/hooks/useStore'
 import { useTheme } from 'components/hooks/useTheme'
 import { TabProps } from 'components/types'
+import { getTabRowColorTokens } from 'libs/uiColorTokens'
 import PIN from './Pin'
 import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
@@ -18,6 +20,7 @@ export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
   const { dragStore, searchStore, focusStore } = useStore()
   const isDarkTheme = useTheme()
+  const colorTokens = getTabRowColorTokens(isDarkTheme)
   const { tab, className } = props
   const {
     setNodeRef,
@@ -50,32 +53,45 @@ export default observer((props: TabProps & { className?: string }) => {
   }, [tab])
 
   useEffect(() => {
-    if (isFocused && !searchStore.typing && nodeRef.current) {
-      if (tab.shouldMoveDomFocus) {
-        nodeRef.current.focus({ preventScroll: true })
-      }
-      if (
-        tab.shouldMoveDomFocus &&
-        tab.shouldRevealOnFocus &&
-        focusStore.shouldRevealNode(nodeRef.current)
-      ) {
-        nodeRef.current.scrollIntoView({
-          behavior: 'auto',
-          block: 'nearest',
-          inline: 'nearest',
-        })
-      }
-    }
-    return onMouseLeave
-  }, [
-    focusStore,
-    isFocused,
-    onMouseLeave,
-    searchStore.typing,
-    tab.focusRequestId,
-    tab.shouldMoveDomFocus,
-    tab.shouldRevealOnFocus,
-  ])
+    return reaction(
+      () => ({
+        isFocused: tab.isFocused,
+        focusRequestId: tab.focusRequestId,
+        shouldMoveDomFocus: tab.shouldMoveDomFocus,
+        shouldRevealOnFocus: tab.shouldRevealOnFocus,
+        typing: searchStore.typing,
+      }),
+      ({
+        isFocused: nextIsFocused,
+        shouldMoveDomFocus,
+        shouldRevealOnFocus,
+        typing,
+      }) => {
+        if (!nextIsFocused || typing || !nodeRef.current) {
+          return
+        }
+        if (shouldMoveDomFocus) {
+          nodeRef.current.focus({ preventScroll: true })
+        }
+        if (
+          shouldMoveDomFocus &&
+          shouldRevealOnFocus &&
+          focusStore.shouldRevealNode(nodeRef.current)
+        ) {
+          nodeRef.current.scrollIntoView({
+            behavior: 'auto',
+            block: 'nearest',
+            inline: 'nearest',
+          })
+        }
+      },
+      {
+        fireImmediately: true,
+      },
+    )
+  }, [focusStore, searchStore, tab])
+
+  useEffect(() => onMouseLeave, [onMouseLeave])
   useEffect(() => {
     setNodeRef(nodeRef)
   }, [setNodeRef])
@@ -85,42 +101,21 @@ export default observer((props: TabProps & { className?: string }) => {
   const showActiveIndicator = (tab.win?.tabs?.length || 0) > 1
   const activeIndicatorColor = tab.active
     ? isPrimaryActive
-      ? isDarkTheme
-        ? '#b5c7e6'
-        : '#1a73e8'
-      : isDarkTheme
-        ? 'rgba(167, 188, 217, 0.72)'
-        : 'rgba(91, 124, 173, 0.68)'
+      ? colorTokens.activeIndicatorPrimary
+      : colorTokens.activeIndicatorSecondary
     : undefined
-  const darkRowStyle = isDarkTheme
-    ? {
-        backgroundColor: isSelected
-          ? 'rgba(181, 199, 230, 0.2)'
-          : shouldHighlight
-            ? 'rgba(181, 199, 230, 0.14)'
-            : 'transparent',
-        color: '#eef1f5',
-      }
-    : {
-        backgroundColor: isSelected
-          ? 'rgba(26, 115, 232, 0.14)'
-          : shouldHighlight
-            ? 'rgba(26, 115, 232, 0.08)'
-            : 'transparent',
-        color: '#111827',
-      }
-  const rowStyle = isDarkTheme
-    ? {
-        ...darkRowStyle,
-        ...(isFocused ? { outline: 'none' } : undefined),
-      }
-    : {
-        ...darkRowStyle,
-        ...(isFocused ? { outline: 'none' } : undefined),
-      }
+  const rowStyle = {
+    backgroundColor: isSelected
+      ? colorTokens.selectedBackground
+      : shouldHighlight
+        ? colorTokens.highlightedBackground
+        : 'transparent',
+    color: colorTokens.primaryText,
+    ...(isFocused ? { outline: 'none' } : undefined),
+  }
   const focusOutlineStyle = isFocused
     ? {
-        boxShadow: `inset 0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
+        boxShadow: `inset 0 0 0 2px ${colorTokens.focusRing}`,
       }
     : undefined
 

@@ -31,10 +31,7 @@ export default class TabGroupRow extends Focusable {
     this.store.focusStore.focus(this, options)
   }
 
-  toggleSelectAll = (options: FocusRequestOptions = {}) => {
-    this.store.tabGroupStore?.toggleSelectGroup?.(this.groupId)
-    this.store.focusStore.focus(this, options)
-  }
+  toggleSelectAll = this.select
 
   closeWindow = () => {
     this.store.windowStore.windows

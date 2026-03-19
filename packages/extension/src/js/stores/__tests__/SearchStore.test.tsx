@@ -122,6 +122,39 @@ describe('SearchStore', () => {
     expect(Array.from(searchStore.matchedSet)).toEqual([1, 2])
   })
 
+  it('clears focused tab state when the focused tab falls out of the match set', () => {
+    const defocus = jest.fn()
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          {
+            id: 1,
+            title: 'Alpha tab',
+            url: 'https://example.com/alpha',
+            isVisible: true,
+          },
+        ],
+      },
+      focusStore: {
+        focusedTabId: 2,
+        defocus,
+      },
+      tabStore: {
+        isTabSelected: () => false,
+        selectAll: jest.fn(),
+        invertSelect: jest.fn(),
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+
+    searchStore.clearFilteredFocusedTab()
+
+    expect(defocus).toHaveBeenCalledTimes(1)
+  })
+
   it('builds cached search documents from the enabled search fields', () => {
     const searchStore = new SearchStore({
       windowStore: {

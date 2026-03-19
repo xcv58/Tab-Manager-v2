@@ -639,7 +639,10 @@ export default class WindowsStore {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
+      const queryActive = !!this.store.searchStore?._query
       const previousGroupId = tab.groupId
+      const previousTitle = tab.title
+      const previousUrl = tab.url
       const previousWindowId = tab.windowId
       Object.assign(tab, newTab)
       tab.setUrlIcon()
@@ -649,6 +652,13 @@ export default class WindowsStore {
           'tab-browser-event',
           tab.windowId || previousWindowId,
         )
+        return
+      }
+      const searchFieldsChanged =
+        queryActive && (previousTitle !== tab.title || previousUrl !== tab.url)
+      if (searchFieldsChanged) {
+        this.repackLayout('search-change')
+        this.store.searchStore?.clearFilteredFocusedTab?.()
       }
     }
   }
@@ -1273,10 +1283,8 @@ export default class WindowsStore {
 
     const nextWindows = windows
       .filter(notSelfPopup)
-      .filter(
-        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app',
-      )
-      .map((win: any) => new Window(win, this.store))
+      .filter((win) => this.store.userStore.showAppWindow || win.type !== 'app')
+      .map((win) => new Window(win, this.store))
 
     this.windows = nextWindows.sort((a, b) => {
       const previousOrderA = previousWindowOrder.get(a.id)

@@ -11,6 +11,12 @@ import { setBrowserIcon } from 'libs/verify'
 
 const STORAGE_KEY = 'tabHistory'
 
+type HistoryEntry = {
+  tabId: number
+  windowId: number
+  [key: string]: unknown
+}
+
 export default class TabHistory {
   actionMap: { [key: string]: () => void }
 
@@ -25,11 +31,11 @@ export default class TabHistory {
     this.init()
   }
 
-  tabHistory: any[] = []
+  tabHistory: HistoryEntry[] = []
 
   count = 0
 
-  resetCountHandler: any = null
+  resetCountHandler: ReturnType<typeof setTimeout> | null = null
 
   expectedTabId: number | null = null
 

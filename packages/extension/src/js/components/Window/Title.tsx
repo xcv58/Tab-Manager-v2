@@ -15,6 +15,7 @@ import { useTheme } from 'components/hooks/useTheme'
 import { useStore } from 'components/hooks/useStore'
 import Tooltip from '@mui/material/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
@@ -22,6 +23,7 @@ export default observer((props: WinProps & { className: string }) => {
   const { focusStore } = useStore()
   const theme = useMuiTheme()
   const isDarkTheme = useTheme()
+  const uiColors = getUiColorTokens(theme.palette.mode === 'dark')
   const { className, win } = props
   const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
     win
@@ -109,7 +111,7 @@ export default observer((props: WinProps & { className: string }) => {
     window.addEventListener('resize', updateTitleMode)
     return () => window.removeEventListener('resize', updateTitleMode)
   }, [])
-  const headerSurface = theme.palette.mode === 'dark' ? '#373d46' : '#f6f8fc'
+  const headerSurface = uiColors.headerSurface
   const titleTextNode = (
     <div className="flex-auto overflow-hidden text-2xl leading-none whitespace-nowrap">
       {text}

@@ -595,4 +595,86 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnCount).toBe(2)
     expect(windowStore.columnLayout).toEqual([[1], [2]])
   })
+
+  it('repackages layout when a tab title changes during active search', () => {
+    const windowStore = createWindowStore()
+    const repackLayout = jest.fn()
+    const clearFilteredFocusedTab = jest.fn()
+    windowStore.repackLayout = repackLayout as any
+    const tab = {
+      id: 21,
+      index: 0,
+      windowId: 2,
+      title: 'Other tab',
+      url: 'https://example.com/2',
+      groupId: -1,
+      setUrlIcon: jest.fn(),
+    }
+    windowStore.windows = [
+      {
+        id: 2,
+        hide: false,
+        tabs: [tab],
+        visibleLength: 0,
+      },
+    ] as any
+    ;(windowStore.store as any).searchStore._query = 'match'
+    ;(windowStore.store as any).searchStore.clearFilteredFocusedTab =
+      clearFilteredFocusedTab
+
+    windowStore.onUpdated(21, {}, {
+      ...tab,
+      title: 'Match second tab',
+    } as any)
+
+    expect(repackLayout).toHaveBeenCalledWith('search-change')
+    expect(clearFilteredFocusedTab).toHaveBeenCalledTimes(1)
+  })
+
+  it('clears focused tab state when a metadata update removes it from search results', () => {
+    const windowStore = createWindowStore()
+    const repackLayout = jest.fn()
+    const defocus = jest.fn()
+    windowStore.repackLayout = repackLayout as any
+    const tab = {
+      id: 21,
+      index: 0,
+      windowId: 2,
+      title: 'Match second tab',
+      url: 'https://example.com/2',
+      groupId: -1,
+      setUrlIcon: jest.fn(),
+    }
+    windowStore.windows = [
+      {
+        id: 2,
+        hide: false,
+        tabs: [tab],
+        visibleLength: 1,
+      },
+    ] as any
+    ;(windowStore.store as any).focusStore = {
+      ...windowStore.store.focusStore,
+      focusedTabId: 21,
+      defocus,
+    }
+    ;(windowStore.store as any).searchStore = {
+      _query: 'match',
+      matchedSet: new Set(),
+      clearFilteredFocusedTab() {
+        const focusedTabId = windowStore.store.focusStore.focusedTabId
+        if (focusedTabId != null && !this.matchedSet.has(focusedTabId)) {
+          windowStore.store.focusStore.defocus()
+        }
+      },
+    }
+
+    windowStore.onUpdated(21, {}, {
+      ...tab,
+      title: 'Other tab',
+    } as any)
+
+    expect(repackLayout).toHaveBeenCalledWith('search-change')
+    expect(defocus).toHaveBeenCalledTimes(1)
+  })
 })

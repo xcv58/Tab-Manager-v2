@@ -16,6 +16,7 @@ import { useStore } from 'components/hooks/useStore'
 import { TOOLTIP_DELAY } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 import { matchesSearchText } from 'stores/SearchStore'
 import Tab from 'stores/Tab'
 
@@ -29,6 +30,7 @@ export default observer(function TabOption(props: Props) {
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
   const theme = useTheme()
+  const uiColors = getUiColorTokens(theme.palette.mode === 'dark')
   const hasTabGroupsApi = !!tabGroupStore?.hasTabGroupsApi?.()
   const tabGroup =
     hasTabGroupsApi && !tabGroupStore.isNoGroupId(tab.groupId)
@@ -37,7 +39,7 @@ export default observer(function TabOption(props: Props) {
   const groupLabel = tabGroup ? tab.groupTitle || 'Unnamed group' : ''
   const showGroupContext = !!groupLabel
   const showInlineGroupContext = showGroupContext && showInlineGroupBadge
-  const groupColor = tabGroup ? getChromeTabGroupColor(tabGroup.color) : null
+  const groupColor = getChromeTabGroupColor(tabGroup?.color)
   const showGroupTitle = matchesSearchText(groupLabel, query)
   const pin = tab.pinned && PIN
 
@@ -92,7 +94,7 @@ export default observer(function TabOption(props: Props) {
             },
           )}
           style={{
-            color: theme.palette.mode === 'dark' ? '#aeb5c0' : '#64748b',
+            color: uiColors.mutedText,
           }}
         >
           {showInlineGroupContext && (

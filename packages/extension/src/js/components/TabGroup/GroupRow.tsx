@@ -27,6 +27,7 @@ import {
   DEFAULT_CONTROL_SIZE,
   MIN_INTERACTIVE_ROW_HEIGHT,
 } from 'libs/layoutMetrics'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 type Props = {
   row: Extract<WindowRow, { kind: 'group' }>
@@ -38,6 +39,7 @@ export default observer((props: Props) => {
   const { tabGroupStore, searchStore, windowStore, dragStore, focusStore } =
     useStore()
   const theme = useTheme()
+  const uiColors = getUiColorTokens(theme.palette.mode === 'dark')
   const isDarkMode = theme.palette.mode === 'dark'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
@@ -257,8 +259,7 @@ export default observer((props: Props) => {
           }
         }}
         style={{
-          backgroundColor:
-            theme.palette.mode === 'dark' ? '#373d46' : '#f6f8fc',
+          backgroundColor: uiColors.headerSurface,
           borderColor: theme.palette.divider,
         }}
         data-testid={`tab-group-header-${row.groupId}`}
@@ -366,9 +367,7 @@ export default observer((props: Props) => {
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-10 rounded-sm"
             style={{
-              boxShadow: `0 0 0 2px ${
-                theme.palette.mode === 'dark' ? '#b5c7e6' : '#1a73e8'
-              }`,
+              boxShadow: `0 0 0 2px ${uiColors.focusRing}`,
             }}
           />
         )}

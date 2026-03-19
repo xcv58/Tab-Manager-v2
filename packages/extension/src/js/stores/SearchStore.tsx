@@ -206,9 +206,7 @@ export default class SearchStore {
     if (shouldRepackLayout) {
       this.store.windowStore?.repackLayout?.('search-change')
     }
-    if (!this.matchedSet.has(this.store.focusStore.focusedTabId)) {
-      this.store.focusStore.defocus()
-    }
+    this.clearFilteredFocusedTab()
     if (this.store.userStore.searchHistory) {
       if (browser.history) {
         const historyTabs = await browser.history.search({
@@ -233,6 +231,13 @@ export default class SearchStore {
   updateTabQuery = debounce(this._updateTabQuery, 500)
 
   clear = () => this.search('')
+
+  clearFilteredFocusedTab = () => {
+    const focusedTabId = this.store.focusStore.focusedTabId
+    if (focusedTabId != null && !this.matchedSet.has(focusedTabId)) {
+      this.store.focusStore.defocus()
+    }
+  }
 
   fuzzySearch = () => {
     log.debug('SearchStore.fuzzySearch:', { _query: this._query })

@@ -51,6 +51,12 @@ export default [...compat.extends(
     },
 
     rules: {
+        "@typescript-eslint/ban-ts-comment": ["error", {
+            "ts-check": false,
+            "ts-expect-error": "allow-with-description",
+            "ts-ignore": "allow-with-description",
+            "ts-nocheck": true,
+        }],
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-empty-function": "off",

@@ -4,6 +4,14 @@ import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
 import { setBrowserIcon } from 'libs/verify'
 
+type StorageChangeMap = Record<
+  string,
+  {
+    oldValue?: unknown
+    newValue?: unknown
+  }
+>
+
 const init = async () => {
   // Edge browser has this issue: https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
   if (browser.omnibox) {
@@ -20,11 +28,13 @@ const init = async () => {
     })
   }
 
-  browser.storage.onChanged.addListener((changes: any, areaName: string) => {
-    if (areaName === 'local' && changes.systemTheme) {
-      setBrowserIcon()
-    }
-  })
+  browser.storage.onChanged.addListener(
+    (changes: StorageChangeMap, areaName: string) => {
+      if (areaName === 'local' && changes.systemTheme) {
+        setBrowserIcon()
+      }
+    },
+  )
 
   setBrowserIcon()
 }
@@ -65,7 +75,7 @@ const onCommand = (action: string) => {
 browser.runtime.onMessage.addListener(onMessage)
 browser.commands.onCommand.addListener(onCommand)
 
-const onInstalled = (details: any) => {
+const onInstalled = (details: chrome.runtime.InstalledDetails) => {
   if (details.reason === 'install') {
     openInNewTab()
   }

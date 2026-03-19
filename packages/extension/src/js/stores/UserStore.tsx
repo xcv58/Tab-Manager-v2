@@ -28,6 +28,29 @@ const DEFAULT_SETTINGS = {
   fontSize: 14,
 }
 
+const LEGACY_SETTINGS = ['groupByDomain'] as const
+const SETTINGS_KEYS = [...Object.keys(DEFAULT_SETTINGS), ...LEGACY_SETTINGS]
+
+export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
+  const nextSettings = {
+    ...DEFAULT_SETTINGS,
+    ...settings,
+  }
+  const legacyKeys: string[] = []
+
+  LEGACY_SETTINGS.forEach((key) => {
+    if (key in nextSettings) {
+      legacyKeys.push(key)
+      delete nextSettings[key]
+    }
+  })
+
+  return {
+    settings: nextSettings,
+    legacyKeys,
+  }
+}
+
 const SYSTEM = 'system'
 const DARK = 'dark'
 const LIGHT = 'light'
@@ -90,15 +113,45 @@ export default class UserStore {
 
   readSettings = async (): Promise<{ [key: string]: unknown }> => {
     try {
-      return await browser.storage.sync.get(DEFAULT_SETTINGS)
+      const storedSettings = await browser.storage.sync.get(SETTINGS_KEYS)
+      return this.normalizeStoredSettings(storedSettings, 'sync')
     } catch (error) {
       log.warn('UserStore.readSettings fallback to storage.local', { error })
       try {
-        return await browser.storage.local.get(DEFAULT_SETTINGS)
+        const storedSettings = await browser.storage.local.get(SETTINGS_KEYS)
+        return this.normalizeStoredSettings(storedSettings, 'local')
       } catch (localError) {
         log.error('UserStore.readSettings fallback failed', { localError })
         return DEFAULT_SETTINGS
       }
+    }
+  }
+
+  normalizeStoredSettings = (
+    settings: { [key: string]: unknown },
+    area: 'sync' | 'local',
+  ) => {
+    const { settings: normalizedSettings, legacyKeys } =
+      stripLegacySettings(settings)
+    if (legacyKeys.length > 0) {
+      void this.clearLegacySettings(legacyKeys, area)
+    }
+    return normalizedSettings
+  }
+
+  clearLegacySettings = async (
+    keys: string[],
+    area: 'sync' | 'local',
+  ): Promise<void> => {
+    try {
+      await browser.storage[area].remove?.(keys)
+      log.info('UserStore removed legacy settings', { area, keys })
+    } catch (error) {
+      log.warn('UserStore failed to remove legacy settings', {
+        area,
+        keys,
+        error,
+      })
     }
   }
 
