@@ -104,32 +104,15 @@ export default observer((props: TabProps & { className?: string }) => {
       ? colorTokens.activeIndicatorPrimary
       : colorTokens.activeIndicatorSecondary
     : undefined
-  const darkRowStyle = isDarkTheme
-    ? {
-        backgroundColor: isSelected
-          ? colorTokens.selectedBackground
-          : shouldHighlight
-            ? colorTokens.highlightedBackground
-            : 'transparent',
-        color: colorTokens.primaryText,
-      }
-    : {
-        backgroundColor: isSelected
-          ? colorTokens.selectedBackground
-          : shouldHighlight
-            ? colorTokens.highlightedBackground
-            : 'transparent',
-        color: colorTokens.primaryText,
-      }
-  const rowStyle = isDarkTheme
-    ? {
-        ...darkRowStyle,
-        ...(isFocused ? { outline: 'none' } : undefined),
-      }
-    : {
-        ...darkRowStyle,
-        ...(isFocused ? { outline: 'none' } : undefined),
-      }
+  const rowStyle = {
+    backgroundColor: isSelected
+      ? colorTokens.selectedBackground
+      : shouldHighlight
+        ? colorTokens.highlightedBackground
+        : 'transparent',
+    color: colorTokens.primaryText,
+    ...(isFocused ? { outline: 'none' } : undefined),
+  }
   const focusOutlineStyle = isFocused
     ? {
         boxShadow: `inset 0 0 0 2px ${colorTokens.focusRing}`,
