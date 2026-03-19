@@ -5,6 +5,16 @@ import log from 'libs/log'
 import type Tab from './Tab'
 import type Window from './Window'
 
+type TabGroupEventTarget = Pick<
+  NonNullable<typeof browser.tabGroups>,
+  'onCreated' | 'onRemoved' | 'onMoved' | 'onUpdated'
+>
+
+type TabGroupListeners = {
+  onRemoved: (tabGroup: TabGroup) => void
+  onTabGroup: (tabGroup: TabGroup) => void
+}
+
 export type TabGroup = {
   collapsed: boolean
   color: string
@@ -33,12 +43,188 @@ export type WindowRow =
       hiddenByCollapse: boolean
     }
 
+const getBrowserTabGroupsApi = () => browser.tabGroups
+
+const getChromeTabGroupsApi = () => {
+  if (typeof chrome === 'undefined') {
+    return undefined
+  }
+  return chrome.tabGroups
+}
+
+const bindTabGroupListeners = (
+  api: TabGroupEventTarget,
+  listeners: TabGroupListeners,
+) => {
+  api.onCreated.addListener(listeners.onTabGroup)
+  api.onRemoved.addListener(listeners.onRemoved)
+  api.onMoved.addListener(listeners.onTabGroup)
+  api.onUpdated.addListener(listeners.onTabGroup)
+  return () => {
+    api.onCreated.removeListener(listeners.onTabGroup)
+    api.onRemoved.removeListener(listeners.onRemoved)
+    api.onMoved.removeListener(listeners.onTabGroup)
+    api.onUpdated.removeListener(listeners.onTabGroup)
+  }
+}
+
+const withChromeCallback = <T,>(
+  runner: (callback: (result: T) => void) => void,
+) => {
+  return new Promise<T>((resolve, reject) => {
+    runner((result) => {
+      const lastError = chrome.runtime?.lastError
+      if (lastError) {
+        reject(new Error(lastError.message))
+        return
+      }
+      resolve(result)
+    })
+  })
+}
+
+const tabGroupsApi = {
+  query: async (): Promise<TabGroup[]> => {
+    const browserApi = getBrowserTabGroupsApi()
+    if (browserApi?.query) {
+      const tabGroups = await browserApi.query({})
+      return Array.isArray(tabGroups) ? (tabGroups as TabGroup[]) : []
+    }
+    const chromeApi = getChromeTabGroupsApi()
+    if (chromeApi?.query) {
+      return withChromeCallback<TabGroup[]>((callback) => {
+        chromeApi.query({}, (groups) => {
+          callback((groups || []) as TabGroup[])
+        })
+      })
+    }
+    return []
+  },
+
+  get: async (groupId: number): Promise<TabGroup | null> => {
+    const browserApi = getBrowserTabGroupsApi()
+    if (browserApi?.get) {
+      try {
+        const tabGroup = await browserApi.get(groupId)
+        return (tabGroup || null) as TabGroup | null
+      } catch (error) {
+        log.error('TabGroupStore.getGroup failed via browser API', {
+          groupId,
+          error,
+        })
+      }
+    }
+    const chromeApi = getChromeTabGroupsApi()
+    if (chromeApi?.get) {
+      try {
+        return await withChromeCallback<TabGroup | null>((callback) => {
+          chromeApi.get(groupId, (result) => {
+            callback((result || null) as TabGroup | null)
+          })
+        })
+      } catch (error) {
+        log.error('TabGroupStore.getGroup failed via chrome API', {
+          groupId,
+          error,
+        })
+      }
+    }
+    return null
+  },
+
+  update: async (
+    groupId: number,
+    updateProperties: chrome.tabGroups.UpdateProperties,
+  ): Promise<TabGroup | null> => {
+    let browserError = null
+    const browserApi = getBrowserTabGroupsApi()
+    if (browserApi?.update) {
+      try {
+        const updated = await browserApi.update(groupId, updateProperties)
+        return (updated || null) as TabGroup | null
+      } catch (error) {
+        browserError = error
+      }
+    }
+    const chromeApi = getChromeTabGroupsApi()
+    if (chromeApi?.update) {
+      return withChromeCallback<TabGroup | null>((callback) => {
+        chromeApi.update(groupId, updateProperties, (updated) => {
+          callback((updated || null) as TabGroup | null)
+        })
+      })
+    }
+    if (browserError) {
+      throw browserError
+    }
+    throw new Error('tabGroups.update API is unavailable')
+  },
+
+  move: async (
+    groupId: number,
+    moveProperties: chrome.tabGroups.MoveProperties,
+  ): Promise<TabGroup | null> => {
+    const browserApi = getBrowserTabGroupsApi()
+    if (browserApi?.move) {
+      const updated = await browserApi.move(groupId, moveProperties)
+      return (updated || null) as TabGroup | null
+    }
+    const chromeApi = getChromeTabGroupsApi()
+    if (chromeApi?.move) {
+      return withChromeCallback<TabGroup | null>((callback) => {
+        chromeApi.move(groupId, moveProperties, (tabGroup) => {
+          callback((tabGroup || null) as TabGroup | null)
+        })
+      })
+    }
+    return null
+  },
+
+  addListeners: (listeners: TabGroupListeners) => {
+    const browserApi = getBrowserTabGroupsApi()
+    if (browserApi) {
+      return bindTabGroupListeners(browserApi, listeners)
+    }
+    const chromeApi = getChromeTabGroupsApi()
+    if (chromeApi) {
+      return bindTabGroupListeners(chromeApi, listeners)
+    }
+    return null
+  },
+
+  getNoGroupId: () => {
+    const browserApi = getBrowserTabGroupsApi()
+    if (browserApi?.TAB_GROUP_ID_NONE != null) {
+      return browserApi.TAB_GROUP_ID_NONE
+    }
+    const chromeApi = getChromeTabGroupsApi()
+    if (chromeApi?.TAB_GROUP_ID_NONE != null) {
+      return chromeApi.TAB_GROUP_ID_NONE
+    }
+    return null
+  },
+
+  hasApi: () => {
+    return !!(getBrowserTabGroupsApi() || getChromeTabGroupsApi())
+  },
+
+  canMove: () => {
+    return !!(getBrowserTabGroupsApi()?.move || getChromeTabGroupsApi()?.move)
+  },
+
+  canUpdate: () => {
+    return !!(
+      getBrowserTabGroupsApi()?.update || getChromeTabGroupsApi()?.update
+    )
+  },
+}
+
 export default class GroupStore {
   store: Store
 
   tabGroupMap: Map<number, TabGroup> = new Map()
 
-  listenerBackend: 'browser' | 'chrome' | null = null
+  removeTabGroupListeners: (() => void) | null = null
 
   constructor(store: Store) {
     makeAutoObservable(this)
@@ -49,32 +235,16 @@ export default class GroupStore {
 
   init = async () => {
     try {
-      if (browser.tabGroups) {
-        const tabGroups = await browser.tabGroups.query({})
-        if (Array.isArray(tabGroups)) {
-          tabGroups.forEach((tabGroup) => {
-            this.tabGroupMap.set(tabGroup.id, tabGroup)
-          })
-        }
-        this.bindBrowserListeners()
-        return
-      }
-      if (typeof chrome !== 'undefined' && chrome.tabGroups) {
-        const tabGroups = await new Promise<TabGroup[]>((resolve, reject) => {
-          chrome.tabGroups.query({}, (groups) => {
-            const lastError = chrome.runtime?.lastError
-            if (lastError) {
-              reject(new Error(lastError.message))
-              return
-            }
-            resolve((groups || []) as TabGroup[])
-          })
+      if (!this.removeTabGroupListeners) {
+        this.removeTabGroupListeners = tabGroupsApi.addListeners({
+          onTabGroup: this.onTabGroup,
+          onRemoved: this.onRemoved,
         })
-        tabGroups.forEach((tabGroup) => {
-          this.tabGroupMap.set(tabGroup.id, tabGroup)
-        })
-        this.bindChromeListeners()
       }
+      const tabGroups = await tabGroupsApi.query()
+      tabGroups.forEach((tabGroup) => {
+        this.tabGroupMap.set(tabGroup.id, tabGroup)
+      })
     } catch (error) {
       log.error('TabGroupStore.init failed', {
         error,
@@ -82,50 +252,9 @@ export default class GroupStore {
     }
   }
 
-  bindBrowserListeners = () => {
-    if (!browser.tabGroups || this.listenerBackend === 'browser') {
-      return
-    }
-    browser.tabGroups.onCreated.addListener(this.onTabGroup)
-    browser.tabGroups.onRemoved.addListener(this.onRemoved)
-    browser.tabGroups.onMoved.addListener(this.onTabGroup)
-    browser.tabGroups.onUpdated.addListener(this.onTabGroup)
-    this.listenerBackend = 'browser'
-  }
-
-  bindChromeListeners = () => {
-    if (
-      typeof chrome === 'undefined' ||
-      !chrome.tabGroups ||
-      this.listenerBackend === 'chrome'
-    ) {
-      return
-    }
-    chrome.tabGroups.onCreated.addListener(this.onTabGroup)
-    chrome.tabGroups.onRemoved.addListener(this.onRemoved)
-    chrome.tabGroups.onMoved.addListener(this.onTabGroup)
-    chrome.tabGroups.onUpdated.addListener(this.onTabGroup)
-    this.listenerBackend = 'chrome'
-  }
-
   willUnmount = () => {
-    if (this.listenerBackend === 'browser' && browser.tabGroups) {
-      browser.tabGroups.onCreated.removeListener(this.onTabGroup)
-      browser.tabGroups.onRemoved.removeListener(this.onRemoved)
-      browser.tabGroups.onMoved.removeListener(this.onTabGroup)
-      browser.tabGroups.onUpdated.removeListener(this.onTabGroup)
-    }
-    if (
-      this.listenerBackend === 'chrome' &&
-      typeof chrome !== 'undefined' &&
-      chrome.tabGroups
-    ) {
-      chrome.tabGroups.onCreated.removeListener(this.onTabGroup)
-      chrome.tabGroups.onRemoved.removeListener(this.onRemoved)
-      chrome.tabGroups.onMoved.removeListener(this.onTabGroup)
-      chrome.tabGroups.onUpdated.removeListener(this.onTabGroup)
-    }
-    this.listenerBackend = null
+    this.removeTabGroupListeners?.()
+    this.removeTabGroupListeners = null
   }
 
   onTabGroup = (tabGroup: TabGroup) => {
@@ -155,23 +284,11 @@ export default class GroupStore {
   }
 
   hasTabGroupsApi = (): boolean => {
-    return !!(
-      browser.tabGroups ||
-      (typeof chrome !== 'undefined' && chrome.tabGroups)
-    )
+    return tabGroupsApi.hasApi()
   }
 
   getNoGroupId = () => {
-    if (browser.tabGroups?.TAB_GROUP_ID_NONE != null) {
-      return browser.tabGroups.TAB_GROUP_ID_NONE
-    }
-    if (
-      typeof chrome !== 'undefined' &&
-      chrome.tabGroups?.TAB_GROUP_ID_NONE != null
-    ) {
-      return chrome.tabGroups.TAB_GROUP_ID_NONE
-    }
-    return -1
+    return tabGroupsApi.getNoGroupId() ?? -1
   }
 
   isNoGroupId = (groupId: number | null | undefined) => {
@@ -352,81 +469,22 @@ export default class GroupStore {
     groupId: number,
     updateProperties: chrome.tabGroups.UpdateProperties,
   ): Promise<TabGroup | null> => {
-    let browserError = null
-    if (browser.tabGroups?.update) {
-      try {
-        const updated = await browser.tabGroups.update(
-          groupId,
-          updateProperties,
-        )
-        if (updated) {
-          return updated as TabGroup
-        }
-        const latest = await this.getGroup(groupId)
-        if (latest) {
-          return latest
-        }
-        browserError = new Error('browser.tabGroups.update returned no value')
-      } catch (error) {
-        browserError = error
-      }
+    const updated = await tabGroupsApi.update(groupId, updateProperties)
+    if (updated) {
+      return updated
     }
-    if (typeof chrome !== 'undefined' && chrome.tabGroups?.update) {
-      return await new Promise((resolve, reject) => {
-        chrome.tabGroups.update(groupId, updateProperties, (updated) => {
-          const lastError = chrome.runtime?.lastError
-          if (lastError) {
-            reject(new Error(lastError.message))
-            return
-          }
-          resolve((updated || null) as TabGroup | null)
-        })
-      })
+    const latest = await this.getGroup(groupId)
+    if (latest) {
+      return latest
     }
-    if (browserError) {
-      throw browserError
-    }
-    throw new Error('tabGroups.update API is unavailable')
+    throw new Error('tabGroups.update returned no value')
   }
 
   getGroup = async (groupId: number): Promise<TabGroup | null> => {
     if (this.isNoGroupId(groupId)) {
       return null
     }
-    if (browser.tabGroups?.get) {
-      try {
-        const tabGroup = await browser.tabGroups.get(groupId)
-        return (tabGroup || null) as TabGroup | null
-      } catch (error) {
-        log.error('TabGroupStore.getGroup failed via browser API', {
-          groupId,
-          error,
-        })
-      }
-    }
-    if (typeof chrome !== 'undefined' && chrome.tabGroups?.get) {
-      try {
-        const tabGroup = await new Promise<TabGroup | null>(
-          (resolve, reject) => {
-            chrome.tabGroups.get(groupId, (result) => {
-              const lastError = chrome.runtime?.lastError
-              if (lastError) {
-                reject(new Error(lastError.message))
-                return
-              }
-              resolve((result || null) as TabGroup | null)
-            })
-          },
-        )
-        return tabGroup
-      } catch (error) {
-        log.error('TabGroupStore.getGroup failed via chrome API', {
-          groupId,
-          error,
-        })
-      }
-    }
-    return null
+    return tabGroupsApi.get(groupId)
   }
 
   groupTabsInBrowser = async (
@@ -574,46 +632,19 @@ export default class GroupStore {
     if (this.isNoGroupId(groupId)) {
       return null
     }
-    if (browser.tabGroups?.move) {
-      const updated = await browser.tabGroups.move(groupId, moveProperties)
-      if (updated) {
-        this.tabGroupMap.set(updated.id, updated as TabGroup)
-        return updated as TabGroup
-      }
-      const latest = await this.getGroup(groupId)
-      if (latest) {
-        this.tabGroupMap.set(latest.id, latest)
-      }
-      return latest
+    const updated = await tabGroupsApi.move(groupId, moveProperties)
+    if (updated) {
+      this.tabGroupMap.set(updated.id, updated)
     }
-    if (typeof chrome !== 'undefined' && chrome.tabGroups?.move) {
-      const updated = await new Promise<TabGroup | null>((resolve, reject) => {
-        chrome.tabGroups.move(groupId, moveProperties, (tabGroup) => {
-          const lastError = chrome.runtime?.lastError
-          if (lastError) {
-            reject(new Error(lastError.message))
-            return
-          }
-          resolve((tabGroup || null) as TabGroup | null)
-        })
-      })
-      if (updated) {
-        this.tabGroupMap.set(updated.id, updated)
-      }
-      const latest = updated || (await this.getGroup(groupId))
-      if (latest) {
-        this.tabGroupMap.set(latest.id, latest)
-      }
-      return latest
+    const latest = updated || (await this.getGroup(groupId))
+    if (latest) {
+      this.tabGroupMap.set(latest.id, latest)
     }
-    return null
+    return latest
   }
 
   canUpdateTabGroup = (): boolean => {
-    return !!(
-      browser.tabGroups?.update ||
-      (typeof chrome !== 'undefined' && chrome.tabGroups?.update)
-    )
+    return tabGroupsApi.canUpdate()
   }
 
   canMutateGroups = (): boolean => {
@@ -627,10 +658,7 @@ export default class GroupStore {
   }
 
   canMoveGroups = (): boolean => {
-    return !!(
-      browser.tabGroups?.move ||
-      (typeof chrome !== 'undefined' && chrome.tabGroups?.move)
-    )
+    return tabGroupsApi.canMove()
   }
 
   toggleCollapsed = async (groupId: number): Promise<void> => {
