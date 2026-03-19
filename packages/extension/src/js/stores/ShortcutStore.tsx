@@ -29,6 +29,12 @@ const hasFocusedElement = () => {
   return activeElement instanceof HTMLElement && activeElement.tabIndex >= 0
 }
 
+type ShortcutDefinition = [
+  string | string[],
+  (event?: Event) => void,
+  string | (() => string),
+]
+
 export default class ShortcutStore {
   store: Store
 
@@ -72,7 +78,7 @@ export default class ShortcutStore {
     'alt+shift+u',
   ])
 
-  shortcuts: any[] = [
+  shortcuts: ShortcutDefinition[] = [
     [
       'ctrl+s',
       (event: Event) => {

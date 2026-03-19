@@ -1273,10 +1273,8 @@ export default class WindowsStore {
 
     const nextWindows = windows
       .filter(notSelfPopup)
-      .filter(
-        (win: any) => this.store.userStore.showAppWindow || win.type !== 'app',
-      )
-      .map((win: any) => new Window(win, this.store))
+      .filter((win) => this.store.userStore.showAppWindow || win.type !== 'app')
+      .map((win) => new Window(win, this.store))
 
     this.windows = nextWindows.sort((a, b) => {
       const previousOrderA = previousWindowOrder.get(a.id)

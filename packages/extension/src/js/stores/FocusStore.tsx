@@ -8,12 +8,12 @@ import type { FocusRequestOptions } from './Focusable'
 import { MutableRefObject } from 'react'
 import TabGroupRow from './TabGroupRow'
 
-const getNextItem = (
-  items: any[],
+function getNextItem<T>(
+  items: T[],
   index: number,
   direction: number,
   side = false,
-) => {
+) {
   let nextIndex = index + direction + items.length
   if (side) {
     nextIndex = direction * (items.length - 1)

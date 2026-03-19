@@ -16,6 +16,10 @@ export type DropAtOptions = {
   source?: DropSource
 }
 
+type GroupBoundTab = {
+  groupId: number | null | undefined
+}
+
 export default class DragStore {
   store: Store
 
@@ -92,7 +96,7 @@ export default class DragStore {
 
   isNoGroupId = (groupId: number) => groupId === this.getNoGroupId()
 
-  getGroupBounds = (tabs: Tab[], groupId: number) => {
+  getGroupBounds = (tabs: GroupBoundTab[], groupId: number) => {
     if (this.isNoGroupId(groupId)) {
       return null
     }
@@ -218,7 +222,7 @@ export default class DragStore {
     fallbackIndex: number
   }) => {
     const initialTabs = await this.getWindowTabsFromBrowser(windowId)
-    const initialBounds = this.getGroupBounds(initialTabs as any, targetGroupId)
+    const initialBounds = this.getGroupBounds(initialTabs, targetGroupId)
     const { moveTabs } = this.store.windowStore
     const inSameWindow = sources.every((tab) => tab.windowId === windowId)
 
@@ -251,7 +255,7 @@ export default class DragStore {
     await this.store.tabGroupStore.groupTabs(sourceTabIds, targetGroupId)
 
     const groupedTabs = await this.getWindowTabsFromBrowser(windowId)
-    const groupedBounds = this.getGroupBounds(groupedTabs as any, targetGroupId)
+    const groupedBounds = this.getGroupBounds(groupedTabs, targetGroupId)
     if (!groupedBounds) {
       return
     }
