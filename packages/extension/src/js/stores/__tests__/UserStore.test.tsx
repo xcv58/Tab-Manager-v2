@@ -1,4 +1,4 @@
-import UserStore from 'stores/UserStore'
+import UserStore, { stripLegacySettings } from 'stores/UserStore'
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -93,6 +93,40 @@ describe('UserStore', () => {
 
     expect(repackLayout).toHaveBeenCalledTimes(1)
     expect(repackLayout).toHaveBeenCalledWith('filter-change')
+  })
+
+  it('should strip the legacy groupByDomain setting', () => {
+    const { settings, legacyKeys } = stripLegacySettings({
+      groupByDomain: true,
+      showUrl: false,
+    })
+
+    expect(settings.showUrl).toBe(false)
+    expect(settings).not.toHaveProperty('groupByDomain')
+    expect(legacyKeys).toEqual(['groupByDomain'])
+  })
+
+  it('should remove legacy settings after normalization', async () => {
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+    } as any)
+    await flush()
+    const clearLegacySettings = jest
+      .spyOn(userStore, 'clearLegacySettings')
+      .mockResolvedValueOnce()
+
+    const settings = userStore.normalizeStoredSettings(
+      {
+        groupByDomain: true,
+        showUrl: false,
+      },
+      'sync',
+    )
+
+    expect(settings.showUrl).toBe(false)
+    expect(clearLegacySettings).toHaveBeenCalledWith(['groupByDomain'], 'sync')
   })
 
   it('should blur focused content when opening the dialog and restore it on close', async () => {
