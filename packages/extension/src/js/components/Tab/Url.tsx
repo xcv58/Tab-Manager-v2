@@ -1,6 +1,7 @@
 import React from 'react'
 import classNames from 'classnames'
 import { useTheme } from 'components/hooks/useTheme'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export interface UrlProps {
   tab: {
@@ -21,6 +22,7 @@ export default (props: UrlProps) => {
     getHighlightNode,
   } = props
   const isDarkTheme = useTheme()
+  const uiColors = getUiColorTokens(isDarkTheme)
   return (
     <div
       className={classNames(
@@ -31,7 +33,7 @@ export default (props: UrlProps) => {
         },
       )}
       style={{
-        color: isDarkTheme ? '#aeb5c0' : '#64748b',
+        color: uiColors.mutedText,
       }}
     >
       {getHighlightNode(url)}

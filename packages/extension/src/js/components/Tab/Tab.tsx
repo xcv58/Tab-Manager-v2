@@ -10,6 +10,7 @@ import classNames from 'classnames'
 import { useStore } from 'components/hooks/useStore'
 import { useTheme } from 'components/hooks/useTheme'
 import { TabProps } from 'components/types'
+import { getTabRowColorTokens } from 'libs/uiColorTokens'
 import PIN from './Pin'
 import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
@@ -18,6 +19,7 @@ export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
   const { dragStore, searchStore, focusStore } = useStore()
   const isDarkTheme = useTheme()
+  const colorTokens = getTabRowColorTokens(isDarkTheme)
   const { tab, className } = props
   const {
     setNodeRef,
@@ -85,29 +87,25 @@ export default observer((props: TabProps & { className?: string }) => {
   const showActiveIndicator = (tab.win?.tabs?.length || 0) > 1
   const activeIndicatorColor = tab.active
     ? isPrimaryActive
-      ? isDarkTheme
-        ? '#b5c7e6'
-        : '#1a73e8'
-      : isDarkTheme
-        ? 'rgba(167, 188, 217, 0.72)'
-        : 'rgba(91, 124, 173, 0.68)'
+      ? colorTokens.activeIndicatorPrimary
+      : colorTokens.activeIndicatorSecondary
     : undefined
   const darkRowStyle = isDarkTheme
     ? {
         backgroundColor: isSelected
-          ? 'rgba(181, 199, 230, 0.2)'
+          ? colorTokens.selectedBackground
           : shouldHighlight
-            ? 'rgba(181, 199, 230, 0.14)'
+            ? colorTokens.highlightedBackground
             : 'transparent',
-        color: '#eef1f5',
+        color: colorTokens.primaryText,
       }
     : {
         backgroundColor: isSelected
-          ? 'rgba(26, 115, 232, 0.14)'
+          ? colorTokens.selectedBackground
           : shouldHighlight
-            ? 'rgba(26, 115, 232, 0.08)'
+            ? colorTokens.highlightedBackground
             : 'transparent',
-        color: '#111827',
+        color: colorTokens.primaryText,
       }
   const rowStyle = isDarkTheme
     ? {
@@ -120,7 +118,7 @@ export default observer((props: TabProps & { className?: string }) => {
       }
   const focusOutlineStyle = isFocused
     ? {
-        boxShadow: `inset 0 0 0 2px ${isDarkTheme ? '#b5c7e6' : '#1a73e8'}`,
+        boxShadow: `inset 0 0 0 2px ${colorTokens.focusRing}`,
       }
     : undefined
 
