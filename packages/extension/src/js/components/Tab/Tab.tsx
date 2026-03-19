@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import { reaction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import Icon from 'components/Tab/Icon'
 import TabTools from 'components/Tab/TabTools'
@@ -52,32 +53,45 @@ export default observer((props: TabProps & { className?: string }) => {
   }, [tab])
 
   useEffect(() => {
-    if (isFocused && !searchStore.typing && nodeRef.current) {
-      if (tab.shouldMoveDomFocus) {
-        nodeRef.current.focus({ preventScroll: true })
-      }
-      if (
-        tab.shouldMoveDomFocus &&
-        tab.shouldRevealOnFocus &&
-        focusStore.shouldRevealNode(nodeRef.current)
-      ) {
-        nodeRef.current.scrollIntoView({
-          behavior: 'auto',
-          block: 'nearest',
-          inline: 'nearest',
-        })
-      }
-    }
-    return onMouseLeave
-  }, [
-    focusStore,
-    isFocused,
-    onMouseLeave,
-    searchStore.typing,
-    tab.focusRequestId,
-    tab.shouldMoveDomFocus,
-    tab.shouldRevealOnFocus,
-  ])
+    return reaction(
+      () => ({
+        isFocused: tab.isFocused,
+        focusRequestId: tab.focusRequestId,
+        shouldMoveDomFocus: tab.shouldMoveDomFocus,
+        shouldRevealOnFocus: tab.shouldRevealOnFocus,
+        typing: searchStore.typing,
+      }),
+      ({
+        isFocused: nextIsFocused,
+        shouldMoveDomFocus,
+        shouldRevealOnFocus,
+        typing,
+      }) => {
+        if (!nextIsFocused || typing || !nodeRef.current) {
+          return
+        }
+        if (shouldMoveDomFocus) {
+          nodeRef.current.focus({ preventScroll: true })
+        }
+        if (
+          shouldMoveDomFocus &&
+          shouldRevealOnFocus &&
+          focusStore.shouldRevealNode(nodeRef.current)
+        ) {
+          nodeRef.current.scrollIntoView({
+            behavior: 'auto',
+            block: 'nearest',
+            inline: 'nearest',
+          })
+        }
+      },
+      {
+        fireImmediately: true,
+      },
+    )
+  }, [focusStore, searchStore, tab])
+
+  useEffect(() => onMouseLeave, [onMouseLeave])
   useEffect(() => {
     setNodeRef(nodeRef)
   }, [setNodeRef])
