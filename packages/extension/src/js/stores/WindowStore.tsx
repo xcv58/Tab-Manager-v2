@@ -658,6 +658,7 @@ export default class WindowsStore {
         queryActive && (previousTitle !== tab.title || previousUrl !== tab.url)
       if (searchFieldsChanged) {
         this.repackLayout('search-change')
+        this.store.searchStore?.clearFilteredFocusedTab?.()
       }
     }
   }
