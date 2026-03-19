@@ -127,6 +127,28 @@ describe('TabGroupStore', () => {
     expect(removeUpdated).toHaveBeenCalledWith(store.onTabGroup)
   })
 
+  it('rebinds browser tab group listeners when remounted', async () => {
+    const store = groupStore()
+
+    await Promise.resolve()
+    store.willUnmount()
+    store.didMount()
+    await Promise.resolve()
+
+    expect(
+      (browser as any).tabGroups.onCreated.addListener,
+    ).toHaveBeenCalledTimes(2)
+    expect(
+      (browser as any).tabGroups.onRemoved.addListener,
+    ).toHaveBeenCalledTimes(2)
+    expect(
+      (browser as any).tabGroups.onMoved.addListener,
+    ).toHaveBeenCalledTimes(2)
+    expect(
+      (browser as any).tabGroups.onUpdated.addListener,
+    ).toHaveBeenCalledTimes(2)
+  })
+
   it('should return grouped rows and visible tabs for collapsed groups with search', async () => {
     const tabs = [
       {

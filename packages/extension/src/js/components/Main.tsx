@@ -25,6 +25,7 @@ export default observer(() => {
   const liteMode = isPopup && litePopupMode
   const fontSize = useFontSize()
   useEffect(() => {
+    tabGroupStore?.didMount?.()
     windowStore.didMount()
     shortcutStore.didMount()
     return () => {

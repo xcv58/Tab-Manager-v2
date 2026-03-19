@@ -252,6 +252,10 @@ export default class GroupStore {
     }
   }
 
+  didMount = () => {
+    void this.init()
+  }
+
   willUnmount = () => {
     this.removeTabGroupListeners?.()
     this.removeTabGroupListeners = null
