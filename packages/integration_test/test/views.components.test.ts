@@ -1017,6 +1017,32 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'classic',
+      })
+    })
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
+    await page.waitForTimeout(500)
+    await page
+      .locator('input[placeholder*="Search tabs or URLs"]')
+      .fill('gh-state-b')
+    await page.waitForTimeout(500)
+    const classicHeader = page.getByTestId(`tab-group-header-${groupId}`)
+    await expect(page.getByTestId(`tab-group-count-${groupId}`)).toHaveText(
+      '1/3',
+    )
+    const collapsedClassicHeader = await classicHeader.screenshot()
+    expect(collapsedClassicHeader).toMatchSnapshot(
+      'group-header-collapsed-matched-count-classic.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
   })
 
   test('render tab row state variants', async () => {
@@ -1098,6 +1124,18 @@ test.describe('The Extension page should', () => {
     const duplicatedClassicShot = await duplicatedClassicRow.screenshot()
     expect(duplicatedClassicShot).toMatchSnapshot(
       'tab-row-state-duplicated-classic.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+    const pinnedClassicRow = page.getByTestId(`tab-row-${ids.pinnedId}`)
+    await pinnedClassicRow.focus()
+    await expect(pinnedClassicRow).toBeFocused()
+    await page.waitForTimeout(100)
+    const focusedClassicRowShot = await pinnedClassicRow.screenshot()
+    expect(focusedClassicRowShot).toMatchSnapshot(
+      'tab-row-state-focused-row-classic.png',
       {
         maxDiffPixelRatio: 0.12,
         threshold: 0.2,

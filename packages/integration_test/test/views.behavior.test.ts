@@ -191,6 +191,67 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await page.evaluate(async () => {
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          uiPreset: 'classic',
+        })
+      }
+    })
+    await page.reload()
+    if (focusedWindowId > -1) {
+      await waitForTestId(page, `window-card-${focusedWindowId}`)
+    }
+    if (unfocusedWindowId > -1) {
+      await waitForTestId(page, `window-card-${unfocusedWindowId}`)
+    }
+    const classicWindows = page.locator(WINDOW_CARD_QUERY)
+    const focusedClassicWindow =
+      focusedWindowId > -1
+        ? page.getByTestId(`window-card-${focusedWindowId}`)
+        : classicWindows.first()
+    const unfocusedClassicWindow =
+      unfocusedWindowId > -1
+        ? page.getByTestId(`window-card-${unfocusedWindowId}`)
+        : classicWindows.nth(1)
+    await expect(focusedClassicWindow).toBeVisible()
+    await expect(unfocusedClassicWindow).toBeVisible()
+    await waitForLocatorRectToStabilize(focusedClassicWindow, {
+      minWidth: 250,
+      minHeight: 120,
+      stableSamples: 3,
+    })
+    await waitForLocatorRectToStabilize(unfocusedClassicWindow, {
+      minWidth: 250,
+      minHeight: 120,
+      stableSamples: 3,
+    })
+    const focusedClassicShot = await focusedClassicWindow.screenshot()
+    expect(focusedClassicShot).toMatchSnapshot(
+      'window-card-focused-state-classic.png',
+      {
+        maxDiffPixelRatio: 0.2,
+        threshold: 0.2,
+      },
+    )
+    const unfocusedClassicShot = await unfocusedClassicWindow.screenshot()
+    expect(unfocusedClassicShot).toMatchSnapshot(
+      'window-card-unfocused-state-classic.png',
+      {
+        maxDiffPixelRatio: 0.2,
+        threshold: 0.2,
+      },
+    )
+
+    await page.evaluate(async () => {
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          uiPreset: 'modern',
+        })
+      }
+    })
+    await page.reload()
+
     const hiddenGroupId = await groupTabsByUrl(page, {
       urls: [
         'data:text/html,window-state-hidden-a',
