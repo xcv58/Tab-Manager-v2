@@ -17,6 +17,7 @@ export default observer(() => {
     theme.palette.mode === 'dark',
     userStore.uiPreset,
   )
+  const isClassicUi = userStore.uiPreset === 'classic'
   if (!userStore.loaded) {
     return (
       <div className="shrink-0 h-12">
@@ -31,6 +32,7 @@ export default observer(() => {
         style={{
           backgroundColor: uiColors.popupHeaderSurface,
           borderBottomColor: uiColors.popupHeaderBorderColor,
+          borderBottom: isClassicUi ? 'none' : undefined,
         }}
       >
         <Summary />

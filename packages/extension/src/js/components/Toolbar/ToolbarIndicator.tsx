@@ -25,6 +25,7 @@ export default observer(() => {
     theme.palette.mode === 'dark',
     userStore.uiPreset,
   )
+  const isClassicUi = userStore.uiPreset === 'classic'
   const { showToolbar, toolbarAutoHide, toolbarVisible } = userStore
   const reduceMotion = useReduceMotion()
   return (
@@ -38,9 +39,10 @@ export default observer(() => {
           opacity: toolbarAutoHide ? (toolbarVisible ? 1 : 0.78) : 0.38,
           width: 44,
           height: 40,
-          borderLeft: toolbarVisible
-            ? `1px solid ${uiColors.toolbarShellBorderColor}`
-            : undefined,
+          borderLeft:
+            toolbarVisible && !isClassicUi
+              ? `1px solid ${uiColors.toolbarShellBorderColor}`
+              : undefined,
           borderRadius: 0,
         }}
         className="focus:outline-none"

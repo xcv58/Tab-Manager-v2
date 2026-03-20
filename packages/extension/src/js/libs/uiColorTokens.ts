@@ -26,7 +26,7 @@ export const getUiColorTokens = (
           toolbarShellBorderColor: 'rgba(238, 241, 245, 0.18)',
           toolbarShellBorderRadius: 0,
           popupHeaderSurface: classicSurface,
-          popupHeaderBorderColor: 'rgba(238, 241, 245, 0.18)',
+          popupHeaderBorderColor: 'transparent',
           popupControlsSurface: classicSurface,
           popupControlsBorderColor: 'rgba(238, 241, 245, 0.18)',
           popupControlsBorderRadius: 0,
@@ -52,7 +52,7 @@ export const getUiColorTokens = (
           toolbarShellBorderColor: 'rgba(15, 23, 42, 0.16)',
           toolbarShellBorderRadius: 0,
           popupHeaderSurface: classicSurface,
-          popupHeaderBorderColor: 'rgba(15, 23, 42, 0.16)',
+          popupHeaderBorderColor: 'transparent',
           popupControlsSurface: classicSurface,
           popupControlsBorderColor: 'rgba(15, 23, 42, 0.16)',
           popupControlsBorderRadius: 0,
@@ -121,11 +121,11 @@ export const getTabRowColorTokens = (
       ...uiColors,
       activeIndicatorPrimary: isDarkMode ? '#b5c7e6' : '#1a73e8',
       activeIndicatorSecondary: isDarkMode
-        ? 'rgba(174, 181, 192, 0.72)'
-        : 'rgba(100, 116, 139, 0.38)',
-      hoverBackground: isDarkMode ? '#39404a' : '#eef4fc',
-      highlightedBackground: isDarkMode ? '#414a55' : '#e5eefb',
-      selectedBackground: isDarkMode ? '#46515f' : '#d7e5fa',
+        ? 'rgba(181, 199, 230, 0.56)'
+        : 'rgba(26, 115, 232, 0.52)',
+      hoverBackground: isDarkMode ? '#394a60' : '#edf5ff',
+      highlightedBackground: isDarkMode ? '#425770' : '#e0eeff',
+      selectedBackground: isDarkMode ? '#4c6480' : '#d4e7ff',
       duplicateMarkerVisible: false,
     }
   }
@@ -134,8 +134,8 @@ export const getTabRowColorTokens = (
     ...uiColors,
     activeIndicatorPrimary: isDarkMode ? '#b5c7e6' : '#1a73e8',
     activeIndicatorSecondary: isDarkMode
-      ? 'rgba(167, 188, 217, 0.72)'
-      : 'rgba(91, 124, 173, 0.68)',
+      ? 'rgba(181, 199, 230, 0.56)'
+      : 'rgba(26, 115, 232, 0.52)',
     hoverBackground: isDarkMode
       ? 'rgba(238, 241, 245, 0.08)'
       : 'rgba(15, 23, 42, 0.04)',

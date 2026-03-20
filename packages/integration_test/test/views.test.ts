@@ -435,7 +435,36 @@ test.describe('The Extension page should', () => {
 
         return {
           main: readBackground('main'),
+          toolsBorderBottomWidth: (() => {
+            const main = document.querySelector('main')
+            const node = main?.firstElementChild as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderBottomWidth : null
+          })(),
           toolbar: readBackground('.toolbar'),
+          toolbarBorderTopWidth: (() => {
+            const node = document.querySelector(
+              '.toolbar',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderTopWidth : null
+          })(),
+          toolbarBorderRightWidth: (() => {
+            const node = document.querySelector(
+              '.toolbar',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderRightWidth : null
+          })(),
+          toolbarBorderLeftWidth: (() => {
+            const node = document.querySelector(
+              '.toolbar',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderLeftWidth : null
+          })(),
+          toolbarToggleBorderLeftWidth: (() => {
+            const node = document.querySelector(
+              '[aria-label="Toggle toolbar"]',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderLeftWidth : null
+          })(),
           windowTitle: readBackground(
             `[data-testid="window-title-${windowId}"]`,
           ),
@@ -454,10 +483,15 @@ test.describe('The Extension page should', () => {
       { groupId, tabId: groupedTab.id, windowId: groupedTab.windowId },
     )
 
+    expect(styles.toolsBorderBottomWidth).toBe('0px')
     expect(styles.windowTitle).toBe(styles.main)
     expect(styles.windowTitleBorderBottomWidth).toBe('0px')
     expect(styles.groupHeader).toBe(styles.main)
     expect(styles.toolbar).toBe(styles.main)
+    expect(styles.toolbarBorderTopWidth).toBe('0px')
+    expect(styles.toolbarBorderRightWidth).toBe('0px')
+    expect(styles.toolbarBorderLeftWidth).toBe('0px')
+    expect(styles.toolbarToggleBorderLeftWidth).toBe('0px')
     expect(styles.tabRow).toBe(styles.main)
   })
 

@@ -154,4 +154,63 @@ describe('Tab', () => {
 
     expect(unhover).toHaveBeenCalledTimes(1)
   })
+
+  it('renders the shared active indicator as a 4px by 20px pill', () => {
+    const store = {
+      dragStore: {
+        dragging: false,
+      },
+      userStore: {
+        uiPreset: 'modern',
+      },
+      searchStore: observable({
+        typing: false,
+      }),
+      focusStore: {
+        shouldRevealNode: jest.fn(() => false),
+      },
+      tabGroupStore: {
+        isNoGroupId: jest.fn(() => true),
+      },
+    } as any
+    const tab = observable({
+      id: 2,
+      groupId: -1,
+      cookieStoreId: '',
+      active: true,
+      isFocused: false,
+      focusRequestId: 0,
+      isMatched: true,
+      isSelected: false,
+      pinned: false,
+      shouldHighlight: false,
+      shouldMoveDomFocus: true,
+      shouldRevealOnFocus: false,
+      removing: false,
+      hover: jest.fn(),
+      unhover: jest.fn(),
+      remove: jest.fn(),
+      setNodeRef: jest.fn(),
+      win: {
+        lastFocused: true,
+        tabs: [{ id: 1 }, { id: 2 }],
+      },
+    }) as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <ThemeContext.Provider value={false}>
+          <TabRow tab={tab} />
+        </ThemeContext.Provider>
+      </StoreContext.Provider>,
+    )
+
+    const indicator = screen.getByTestId('tab-active-indicator-2')
+
+    expect(indicator).toHaveStyle({
+      width: '4px',
+      height: '20px',
+    })
+    expect(indicator).toHaveClass('rounded-full')
+  })
 })

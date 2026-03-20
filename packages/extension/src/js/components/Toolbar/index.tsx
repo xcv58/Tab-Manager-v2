@@ -13,6 +13,7 @@ export default observer(() => {
     theme.palette.mode === 'dark',
     userStore.uiPreset,
   )
+  const isClassicUi = userStore.uiPreset === 'classic'
 
   const { lazyHideToolbar, showToolbar, toolbarVisible } = userStore
   return (
@@ -29,8 +30,10 @@ export default observer(() => {
         alignItems: 'stretch',
         overflow: 'hidden',
         backgroundColor: uiColors.toolbarShellBackground,
-        border: `1px solid ${uiColors.toolbarShellBorderColor}`,
-        borderBottom: 'none',
+        border: isClassicUi
+          ? 'none'
+          : `1px solid ${uiColors.toolbarShellBorderColor}`,
+        borderBottom: isClassicUi ? undefined : 'none',
         borderTopLeftRadius: uiColors.toolbarShellBorderRadius,
       }}
     >
