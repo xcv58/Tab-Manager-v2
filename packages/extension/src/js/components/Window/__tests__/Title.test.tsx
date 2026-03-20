@@ -106,4 +106,44 @@ describe('Window Title', () => {
     expect(screen.getByTestId('close')).toHaveAttribute('data-tone', 'danger')
     expect(screen.queryByTestId('reload')).not.toBeInTheDocument()
   })
+
+  it('removes the divider below the window title in classic mode', () => {
+    const store = {
+      focusStore: {
+        focus: jest.fn(),
+        shouldRevealNode: jest.fn(() => false),
+      },
+      userStore: {
+        uiPreset: 'classic',
+      },
+    } as any
+    const win = {
+      id: 9,
+      tabs: [{ id: 1 }],
+      activate: jest.fn(),
+      invisibleTabs: [],
+      reload: jest.fn(),
+      hide: false,
+      toggleHide: jest.fn(),
+      isFocused: false,
+      focusRequestId: 0,
+      shouldMoveDomFocus: true,
+      shouldRevealOnFocus: false,
+      setNodeRef: jest.fn(),
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <ThemeProvider theme={createTheme()}>
+          <ThemeContext.Provider value={false}>
+            <Title className="" win={win} />
+          </ThemeContext.Provider>
+        </ThemeProvider>
+      </StoreContext.Provider>,
+    )
+
+    expect(screen.getByTestId('window-title-9')).toHaveStyle({
+      borderBottomStyle: 'none',
+    })
+  })
 })

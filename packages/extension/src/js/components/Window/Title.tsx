@@ -154,6 +154,7 @@ export default observer((props: WinProps & { className: string }) => {
       style={{
         backgroundColor: headerSurface,
         borderColor: theme.palette.divider,
+        borderBottom: isClassicUi ? 'none' : undefined,
         minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
       }}
     >

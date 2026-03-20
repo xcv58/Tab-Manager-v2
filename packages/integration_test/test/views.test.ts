@@ -439,6 +439,12 @@ test.describe('The Extension page should', () => {
           windowTitle: readBackground(
             `[data-testid="window-title-${windowId}"]`,
           ),
+          windowTitleBorderBottomWidth: (() => {
+            const node = document.querySelector(
+              `[data-testid="window-title-${windowId}"]`,
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderBottomWidth : null
+          })(),
           groupHeader: readBackground(
             `[data-testid="tab-group-header-${groupId}"]`,
           ),
@@ -449,6 +455,7 @@ test.describe('The Extension page should', () => {
     )
 
     expect(styles.windowTitle).toBe(styles.main)
+    expect(styles.windowTitleBorderBottomWidth).toBe('0px')
     expect(styles.groupHeader).toBe(styles.main)
     expect(styles.toolbar).toBe(styles.main)
     expect(styles.tabRow).toBe(styles.main)
