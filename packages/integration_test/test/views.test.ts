@@ -170,6 +170,21 @@ test.describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot('popup 2a.png', snapShotOptions)
 
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'classic',
+      })
+    })
+    await page.reload()
+    await page.waitForSelector(inputSelector)
+    await page.fill(inputSelector, '')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchSnapshot('popup-classic-1a.png', snapShotOptions)
+
+    await page.fill(inputSelector, 'xcv58')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchSnapshot('popup-classic-2a.png', snapShotOptions)
+
     await page.fill(inputSelector, '')
   })
 
@@ -745,6 +760,20 @@ test.describe('The Extension page should', () => {
     const themeToggleScreenshot = await themeToggleGroup.screenshot()
     expect(themeToggleScreenshot).toMatchSnapshot(
       'settings-theme-toggle-group-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
+    await expect(uiPresetGroup).toBeVisible()
+    await expect(
+      uiPresetGroup.getByRole('button', { name: 'Use modern interface style' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    const uiPresetScreenshot = await uiPresetGroup.screenshot()
+    expect(uiPresetScreenshot).toMatchSnapshot(
+      'settings-ui-preset-toggle-group-atom.png',
       {
         maxDiffPixelRatio: 0.08,
         threshold: 0.2,

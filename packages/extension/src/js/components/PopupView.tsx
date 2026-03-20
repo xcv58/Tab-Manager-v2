@@ -8,10 +8,15 @@ import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 import LayoutRepackIndicator from './LayoutRepackIndicator'
 import PopupActionsMenu from './PopupActionsMenu'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer(() => {
   const theme = useMuiTheme()
   const { userStore } = useStore()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   if (!userStore.loaded) {
     return (
       <div className="shrink-0 h-12">
@@ -24,8 +29,8 @@ export default observer(() => {
       <div
         className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl border-b"
         style={{
-          backgroundColor: theme.palette.background.paper,
-          borderBottomColor: theme.palette.divider,
+          backgroundColor: uiColors.popupHeaderSurface,
+          borderBottomColor: uiColors.popupHeaderBorderColor,
         }}
       >
         <Summary />
@@ -35,8 +40,9 @@ export default observer(() => {
       <div
         className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full border px-1 py-1"
         style={{
-          backgroundColor: theme.palette.background.paper,
-          borderColor: theme.palette.divider,
+          backgroundColor: uiColors.popupControlsSurface,
+          borderColor: uiColors.popupControlsBorderColor,
+          borderRadius: uiColors.popupControlsBorderRadius,
         }}
       >
         <ThemeToggle />

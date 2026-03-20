@@ -30,6 +30,9 @@ describe('Window Title', () => {
         focus,
         shouldRevealNode: jest.fn(() => false),
       },
+      userStore: {
+        uiPreset: 'modern',
+      },
     } as any
     const win = {
       id: 7,
@@ -70,6 +73,9 @@ describe('Window Title', () => {
       focusStore: {
         focus: jest.fn(),
         shouldRevealNode: jest.fn(() => false),
+      },
+      userStore: {
+        uiPreset: 'modern',
       },
     } as any
     const win = {

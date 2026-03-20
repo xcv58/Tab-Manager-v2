@@ -4,10 +4,15 @@ import { useTheme } from '@mui/material/styles'
 import Toolbar from './Toolbar'
 import ToolbarIndicator from './ToolbarIndicator'
 import { useStore } from 'components/hooks/useStore'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer(() => {
   const theme = useTheme()
   const { userStore } = useStore()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
 
   const { lazyHideToolbar, showToolbar, toolbarVisible } = userStore
   return (
@@ -23,10 +28,10 @@ export default observer(() => {
         right: 0,
         alignItems: 'stretch',
         overflow: 'hidden',
-        backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${theme.palette.divider}`,
+        backgroundColor: uiColors.toolbarShellBackground,
+        border: `1px solid ${uiColors.toolbarShellBorderColor}`,
         borderBottom: 'none',
-        borderTopLeftRadius: 16,
+        borderTopLeftRadius: uiColors.toolbarShellBorderRadius,
       }}
     >
       {toolbarVisible && <Toolbar />}

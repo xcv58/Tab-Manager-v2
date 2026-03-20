@@ -90,7 +90,7 @@ export default observer((props: TabProps) => {
       remove()
     }
   }
-  const { showUrl } = userStore
+  const { showUrl, highlightDuplicatedTab, uiPreset } = userStore
   const getHighlightNode = useCallback(
     (text) => {
       if (!isMatched || !query) {
@@ -100,8 +100,13 @@ export default observer((props: TabProps) => {
     },
     [isMatched, query],
   )
-  const buttonClassName =
-    'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base'
+  const duplicated =
+    uiPreset === 'classic' && highlightDuplicatedTab
+      ? props.tab.isDuplicated
+      : false
+  const buttonClassName = duplicated
+    ? 'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base text-red-400'
+    : 'group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base'
   const buttonStyle = {
     minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
   }
@@ -110,7 +115,7 @@ export default observer((props: TabProps) => {
       <div className="w-full min-w-0 overflow-hidden truncate">
         {getHighlightNode(title)}
       </div>
-      {showUrl && <Url {...props} {...{ getHighlightNode }} />}
+      {showUrl && <Url {...props} {...{ duplicated, getHighlightNode }} />}
     </>
   )
   if (faked) {

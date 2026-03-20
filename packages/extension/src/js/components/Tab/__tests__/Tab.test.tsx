@@ -34,6 +34,9 @@ describe('Tab', () => {
       dragStore: {
         dragging: false,
       },
+      userStore: {
+        uiPreset: 'modern',
+      },
       searchStore: observable({
         typing: false,
       }),
@@ -101,6 +104,9 @@ describe('Tab', () => {
     const store = {
       dragStore: {
         dragging: false,
+      },
+      userStore: {
+        uiPreset: 'modern',
       },
       searchStore: observable({
         typing: false,

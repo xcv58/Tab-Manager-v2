@@ -7,6 +7,7 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 import useReduceMotion from 'libs/useReduceMotion'
 import { duration } from '@mui/material'
 
@@ -20,6 +21,10 @@ const IndicatorIcon = ({ toolbarVisible }: { toolbarVisible: boolean }) => {
 export default observer(() => {
   const theme = useTheme()
   const { userStore } = useStore()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   const { showToolbar, toolbarAutoHide, toolbarVisible } = userStore
   const reduceMotion = useReduceMotion()
   return (
@@ -34,7 +39,7 @@ export default observer(() => {
           width: 44,
           height: 40,
           borderLeft: toolbarVisible
-            ? `1px solid ${theme.palette.divider}`
+            ? `1px solid ${uiColors.toolbarShellBorderColor}`
             : undefined,
           borderRadius: 0,
         }}

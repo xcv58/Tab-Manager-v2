@@ -45,7 +45,7 @@ describe('AutocompleteSearch TabOption', () => {
   it('renders ungrouped tabs without an inline group chip', () => {
     mockUseStore.mockReturnValue({
       searchStore: { query: '' },
-      userStore: { showUrl: false },
+      userStore: { showUrl: false, uiPreset: 'modern' },
       tabGroupStore: {
         hasTabGroupsApi: () => true,
         isNoGroupId: (groupId: number) => groupId === -1,
@@ -64,7 +64,7 @@ describe('AutocompleteSearch TabOption', () => {
   it('renders the inline group chip for grouped tabs', () => {
     mockUseStore.mockReturnValue({
       searchStore: { query: '' },
-      userStore: { showUrl: false },
+      userStore: { showUrl: false, uiPreset: 'modern' },
       tabGroupStore: {
         hasTabGroupsApi: () => true,
         isNoGroupId: (groupId: number) => groupId === -1,

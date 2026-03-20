@@ -10,7 +10,10 @@ export default observer((props: TabProps) => {
   const {
     tab: { isDuplicated, isFocused, isSelected },
   } = props
-  const visible = userStore.highlightDuplicatedTab && isDuplicated
+  const visible =
+    userStore.highlightDuplicatedTab &&
+    isDuplicated &&
+    userStore.uiPreset !== 'classic'
   const emphasizeMarker = isFocused || isSelected
   const lineColor = isDarkTheme
     ? emphasizeMarker

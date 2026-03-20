@@ -36,11 +36,21 @@ type Props = {
 
 export default observer((props: Props) => {
   const { row, win } = props
-  const { tabGroupStore, searchStore, windowStore, dragStore, focusStore } =
-    useStore()
+  const {
+    tabGroupStore,
+    searchStore,
+    windowStore,
+    dragStore,
+    focusStore,
+    userStore,
+  } = useStore()
   const theme = useTheme()
-  const uiColors = getUiColorTokens(theme.palette.mode === 'dark')
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   const isDarkMode = theme.palette.mode === 'dark'
+  const isClassicUi = userStore.uiPreset === 'classic'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
   const [isHeaderHovered, setIsHeaderHovered] = useState(false)
@@ -192,10 +202,12 @@ export default observer((props: Props) => {
       <DropIndicator position="before" />
     ) : null
   const showGroupDragHandle =
+    isClassicUi ||
     isHeaderHovered ||
     isHeaderFocusWithin ||
     (dragStore.dragging && dragStore.dragSource === 'group-header')
   const showGroupControls =
+    isClassicUi ||
     isHeaderHovered ||
     isHeaderFocusWithin ||
     Boolean(menuAnchorEl) ||

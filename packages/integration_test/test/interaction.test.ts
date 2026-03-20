@@ -817,6 +817,56 @@ test.describe('The Extension page should', () => {
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
   })
 
+  test('persist classic interface style across reload', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await waitForMainSurfaceToSettle(page)
+    await page.keyboard.press('Control+,')
+    await waitForSettingsPanelToSettle(page)
+
+    let uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
+    await expect(uiPresetGroup).toBeVisible()
+    let classicButton = uiPresetGroup.getByRole('button', {
+      name: 'Use classic interface style',
+    })
+    await classicButton.click()
+    await waitForSettingsPanelToSettle(page)
+    await expect(classicButton).toHaveAttribute('aria-pressed', 'true')
+
+    const duplicatePreview = page
+      .getByTestId('row-details-preview-duplicates')
+      .locator('[data-testid^="tab-duplicate-marker-"]')
+      .first()
+    await expect(duplicatePreview).toHaveCSS('opacity', '0')
+    await expect(
+      page.locator('button[aria-label="Settings"]').first(),
+    ).not.toHaveClass(/Mui-disabled/)
+
+    expect(
+      await page.evaluate(async () => {
+        const result = await chrome.storage.sync.get(['uiPreset'])
+        return result.uiPreset
+      }),
+    ).toBe('classic')
+
+    await page.reload()
+    await waitForMainSurfaceToSettle(page)
+    await page.keyboard.press('Control+,')
+    await waitForSettingsPanelToSettle(page)
+
+    uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
+    classicButton = uiPresetGroup.getByRole('button', {
+      name: 'Use classic interface style',
+    })
+    await expect(classicButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(
+      page
+        .getByTestId('row-details-preview-duplicates')
+        .locator('[data-testid^="tab-duplicate-marker-"]')
+        .first(),
+    ).toHaveCSS('opacity', '0')
+  })
+
   test('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()

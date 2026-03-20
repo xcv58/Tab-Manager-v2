@@ -233,6 +233,22 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'classic',
+      })
+    })
+    await page.reload()
+    await expect(toolbar).toBeVisible()
+    const classicToolbarScreenshot = await toolbar.screenshot()
+    expect(classicToolbarScreenshot).toMatchSnapshot(
+      'toolbar-strip-medium-classic.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
   })
 
   test('render medium settings dialog component', async () => {
@@ -262,6 +278,28 @@ test.describe('The Extension page should', () => {
     })
     expect(settingsDialogScreenshot).toMatchSnapshot(
       'settings-dialog-medium.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'classic',
+      })
+    })
+    await page.reload()
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
+    await waitForDialogToFullyAppear(page, settingsDialog)
+    const classicSettingsDialogScreenshot = await settingsDialog.screenshot({
+      animations: 'disabled',
+    })
+    expect(classicSettingsDialogScreenshot).toMatchSnapshot(
+      'settings-dialog-medium-classic.png',
       {
         maxDiffPixelRatio: 0.12,
         threshold: 0.2,
@@ -1044,6 +1082,40 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'classic',
+      })
+    })
+    await page.reload()
+    await waitForTestId(page, `tab-row-${ids.duplicatedId}`)
+    await page
+      .locator('input[placeholder*="Search tabs or URLs"]')
+      .fill('pinned-row-state')
+    await page.waitForTimeout(500)
+    const duplicatedClassicRow = page.getByTestId(`tab-row-${ids.duplicatedId}`)
+    const duplicatedClassicShot = await duplicatedClassicRow.screenshot()
+    expect(duplicatedClassicShot).toMatchSnapshot(
+      'tab-row-state-duplicated-classic.png',
+      {
+        maxDiffPixelRatio: 0.12,
+        threshold: 0.2,
+      },
+    )
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'modern',
+      })
+    })
+    await page.reload()
+    await waitForTestId(page, `tab-row-${ids.pinnedId}`)
+    await waitForTestId(page, `tab-row-${ids.unmatchedId}`)
+    await page
+      .locator('input[placeholder*="Search tabs or URLs"]')
+      .fill('pinned-row-state')
+    await page.waitForTimeout(500)
 
     const unmatchedRow = page.getByTestId(`tab-row-${ids.unmatchedId}`)
     await expect(unmatchedRow).toHaveClass(/opacity-25/)

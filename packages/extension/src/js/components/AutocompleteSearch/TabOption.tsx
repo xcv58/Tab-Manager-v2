@@ -30,7 +30,14 @@ export default observer(function TabOption(props: Props) {
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
   const theme = useTheme()
-  const uiColors = getUiColorTokens(theme.palette.mode === 'dark')
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
+  const classicDuplicate =
+    userStore.uiPreset === 'classic' &&
+    userStore.highlightDuplicatedTab &&
+    tab.isDuplicated
   const hasTabGroupsApi = !!tabGroupStore?.hasTabGroupsApi?.()
   const tabGroup =
     hasTabGroupsApi && !tabGroupStore.isNoGroupId(tab.groupId)
@@ -77,7 +84,12 @@ export default observer(function TabOption(props: Props) {
 
   const rowButton = (
     <button
-      className="group m-0 flex h-12 flex-1 flex-col justify-center overflow-hidden rounded-sm text-left text-base"
+      className={classNames(
+        'group m-0 flex h-12 flex-1 flex-col justify-center overflow-hidden rounded-sm text-left text-base',
+        {
+          'text-red-400': classicDuplicate,
+        },
+      )}
       style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
       onAuxClick={onAuxClick}
     >
@@ -89,12 +101,17 @@ export default observer(function TabOption(props: Props) {
           className={classNames(
             'flex w-full items-center gap-1 overflow-hidden text-xs opacity-75 transition-colors group-hover:opacity-100',
             {
-              'group-hover:text-gray-900': theme.palette.mode !== 'dark',
-              'group-hover:text-gray-100': theme.palette.mode === 'dark',
+              'group-hover:text-red-400': classicDuplicate,
+              'group-hover:text-gray-900':
+                theme.palette.mode !== 'dark' && !classicDuplicate,
+              'group-hover:text-gray-100':
+                theme.palette.mode === 'dark' && !classicDuplicate,
             },
           )}
           style={{
-            color: uiColors.mutedText,
+            color: classicDuplicate
+              ? uiColors.duplicateUrl
+              : uiColors.mutedText,
           }}
         >
           {showInlineGroupContext && (

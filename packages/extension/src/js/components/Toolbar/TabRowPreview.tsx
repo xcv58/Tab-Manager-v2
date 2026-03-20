@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite'
 import { StoreContext } from 'components/hooks/useStore'
 import TabRow from 'components/Tab/Tab'
 import settingsPreviewIcon from 'img/chrome/settings.png'
+import type { UiPreset } from 'stores/UserStore'
 
 type PreviewConfig = {
   id: number
@@ -12,6 +13,7 @@ type PreviewConfig = {
   duplicatedTabCount?: number
   pinned?: boolean
   active?: boolean
+  uiPreset?: UiPreset
   showDuplicateMarker?: boolean
   showTabIcon?: boolean
   showUrl?: boolean
@@ -21,6 +23,8 @@ type PreviewConfig = {
 class PreviewUserStore {
   highlightDuplicatedTab = false
 
+  uiPreset: UiPreset = 'modern'
+
   showTabTooltip = false
 
   showUrl = true
@@ -29,6 +33,7 @@ class PreviewUserStore {
 
   constructor(config: PreviewConfig) {
     this.highlightDuplicatedTab = !!config.showDuplicateMarker
+    this.uiPreset = config.uiPreset ?? 'modern'
     this.showTabTooltip = !!config.showTabTooltip
     this.showUrl = config.showUrl ?? true
     this.showTabIcon = config.showTabIcon ?? true
@@ -231,6 +236,7 @@ export default observer(
         config.duplicatedTabCount,
         config.id,
         config.pinned,
+        config.uiPreset,
         config.showDuplicateMarker,
         config.showTabIcon,
         config.showTabTooltip,
