@@ -102,8 +102,17 @@ describe('UserStore', () => {
     })
 
     expect(settings.showUrl).toBe(false)
+    expect(settings.uiPreset).toBe('modern')
     expect(settings).not.toHaveProperty('groupByDomain')
     expect(legacyKeys).toEqual(['groupByDomain'])
+  })
+
+  it('should normalize invalid uiPreset values back to modern', () => {
+    const { settings } = stripLegacySettings({
+      uiPreset: 'retro',
+    })
+
+    expect(settings.uiPreset).toBe('modern')
   })
 
   it('should remove legacy settings after normalization', async () => {
@@ -152,5 +161,20 @@ describe('UserStore', () => {
     userStore.closeDialog()
     expect(userStore.dialogOpen).toBe(false)
     expect(document.activeElement).toBe(trigger)
+  })
+
+  it('should persist interface style selection', async () => {
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+    } as any)
+    await flush()
+    const save = jest.spyOn(userStore, 'save').mockImplementation(() => {})
+
+    userStore.selectUiPreset('classic')
+
+    expect(userStore.uiPreset).toBe('classic')
+    expect(save).toHaveBeenCalledTimes(1)
   })
 })

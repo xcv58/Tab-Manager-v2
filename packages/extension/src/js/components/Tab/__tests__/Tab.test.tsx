@@ -34,6 +34,9 @@ describe('Tab', () => {
       dragStore: {
         dragging: false,
       },
+      userStore: {
+        uiPreset: 'modern',
+      },
       searchStore: observable({
         typing: false,
       }),
@@ -102,6 +105,9 @@ describe('Tab', () => {
       dragStore: {
         dragging: false,
       },
+      userStore: {
+        uiPreset: 'modern',
+      },
       searchStore: observable({
         typing: false,
       }),
@@ -147,5 +153,65 @@ describe('Tab', () => {
     unmount()
 
     expect(unhover).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders the shared active indicator as a 3px by 25px pill', () => {
+    const store = {
+      dragStore: {
+        dragging: false,
+      },
+      userStore: {
+        uiPreset: 'modern',
+      },
+      searchStore: observable({
+        typing: false,
+      }),
+      focusStore: {
+        shouldRevealNode: jest.fn(() => false),
+      },
+      tabGroupStore: {
+        isNoGroupId: jest.fn(() => true),
+      },
+    } as any
+    const tab = observable({
+      id: 2,
+      groupId: -1,
+      cookieStoreId: '',
+      active: true,
+      isFocused: false,
+      focusRequestId: 0,
+      isMatched: true,
+      isSelected: false,
+      pinned: false,
+      shouldHighlight: false,
+      shouldMoveDomFocus: true,
+      shouldRevealOnFocus: false,
+      removing: false,
+      hover: jest.fn(),
+      unhover: jest.fn(),
+      remove: jest.fn(),
+      setNodeRef: jest.fn(),
+      win: {
+        lastFocused: true,
+        tabs: [{ id: 1 }, { id: 2 }],
+      },
+    }) as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <ThemeContext.Provider value={false}>
+          <TabRow tab={tab} />
+        </ThemeContext.Provider>
+      </StoreContext.Provider>,
+    )
+
+    const indicator = screen.getByTestId('tab-active-indicator-2')
+
+    expect(indicator).toHaveStyle({
+      left: '1px',
+      width: '3px',
+      height: '25px',
+    })
+    expect(indicator).toHaveClass('rounded-full')
   })
 })

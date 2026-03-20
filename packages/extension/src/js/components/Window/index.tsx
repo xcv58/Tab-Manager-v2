@@ -1,6 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useTheme } from '@mui/material/styles'
+import classNames from 'classnames'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
@@ -8,13 +9,19 @@ import { CSSProperties } from '@mui/styles'
 import Loading from 'components/Loading'
 import { WinProps } from 'components/types'
 import WindowDropZone from './WindowDropZone'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer((props: WinProps & { width: string }) => {
   const theme = useTheme()
   const { userStore } = useStore()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   const tabHeight = useTabHeight()
   const { win, width } = props
-  const { showTabs, visibleLength } = win
+  const { showTabs, visibleLength, lastFocused } = win
+  const isClassicUi = userStore.uiPreset === 'classic'
   const style: CSSProperties = {
     minWidth: `${userStore.tabWidth}rem`,
     width,
@@ -28,13 +35,20 @@ export default observer((props: WinProps & { width: string }) => {
   return (
     <div style={style} data-testid={`window-card-${win.id}`}>
       <div
-        className="relative overflow-hidden border rounded-t-lg"
+        className={classNames('relative overflow-hidden border', {
+          'rounded-t-lg': !isClassicUi,
+        })}
         style={{
-          backgroundColor: theme.palette.background.paper,
-          borderColor:
-            theme.palette.mode === 'dark'
-              ? 'rgba(238, 241, 245, 0.26)'
-              : 'rgba(148, 163, 184, 0.58)',
+          backgroundColor: uiColors.windowCardSurface,
+          borderColor: isClassicUi
+            ? 'transparent'
+            : uiColors.windowCardBorderColor,
+          borderRadius: isClassicUi ? 0 : undefined,
+          boxShadow: isClassicUi
+            ? lastFocused
+              ? uiColors.windowCardShadowFocused
+              : uiColors.windowCardShadow
+            : undefined,
         }}
       >
         <DroppableTitle {...props} />

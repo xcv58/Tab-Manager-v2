@@ -18,9 +18,10 @@ import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
-  const { dragStore, searchStore, focusStore } = useStore()
+  const { dragStore, searchStore, focusStore, userStore } = useStore()
   const isDarkTheme = useTheme()
-  const colorTokens = getTabRowColorTokens(isDarkTheme)
+  const colorTokens = getTabRowColorTokens(isDarkTheme, userStore.uiPreset)
+  const isClassicUi = userStore.uiPreset === 'classic'
   const { tab, className } = props
   const {
     setNodeRef,
@@ -109,7 +110,7 @@ export default observer((props: TabProps & { className?: string }) => {
       ? colorTokens.selectedBackground
       : shouldHighlight
         ? colorTokens.highlightedBackground
-        : 'transparent',
+        : colorTokens.rowSurface,
     color: colorTokens.primaryText,
     ...(isFocused ? { outline: 'none' } : undefined),
   }
@@ -130,8 +131,12 @@ export default observer((props: TabProps & { className?: string }) => {
         {
           'opacity-25': !isMatched,
           'z-10': isFocused,
-          'hover:bg-[rgba(15,23,42,0.04)]': isActionable && !isDarkTheme,
-          'hover:bg-[rgba(238,241,245,0.08)]': isActionable && isDarkTheme,
+          'hover:bg-blue-300': isActionable && !isDarkTheme && isClassicUi,
+          'hover:bg-gray-800': isActionable && isDarkTheme && isClassicUi,
+          'hover:bg-[rgba(15,23,42,0.04)]':
+            isActionable && !isDarkTheme && !isClassicUi,
+          'hover:bg-[rgba(238,241,245,0.08)]':
+            isActionable && isDarkTheme && !isClassicUi,
         },
       )}
       style={rowStyle}
@@ -145,9 +150,9 @@ export default observer((props: TabProps & { className?: string }) => {
           className="absolute z-10 block -translate-y-1/2 rounded-full pointer-events-none top-1/2"
           style={{
             backgroundColor: activeIndicatorColor,
-            left: 2,
-            width: 2,
-            height: 16,
+            left: 1,
+            width: 3,
+            height: 25,
           }}
         />
       )}

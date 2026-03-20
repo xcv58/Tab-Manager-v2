@@ -20,10 +20,14 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
-  const { focusStore } = useStore()
+  const { focusStore, userStore } = useStore()
   const theme = useMuiTheme()
   const isDarkTheme = useTheme()
-  const uiColors = getUiColorTokens(theme.palette.mode === 'dark')
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
+  const isClassicUi = userStore.uiPreset === 'classic'
   const { className, win } = props
   const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
     win
@@ -54,7 +58,7 @@ export default observer((props: WinProps & { className: string }) => {
     return `${text} / ${invisibleLength} hidden`
   }, [hide, invisibleLength, text])
   const emphasizeWindowControls =
-    isHeaderHovered || isHeaderFocusWithin || isFocused
+    isClassicUi || isHeaderHovered || isHeaderFocusWithin || isFocused
   const needsTooltip =
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
   useEffect(() => {
@@ -150,6 +154,7 @@ export default observer((props: WinProps & { className: string }) => {
       style={{
         backgroundColor: headerSurface,
         borderColor: theme.palette.divider,
+        borderBottom: isClassicUi ? 'none' : undefined,
         minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
       }}
     >

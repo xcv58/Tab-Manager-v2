@@ -69,6 +69,9 @@ describe('GroupRow', () => {
         focus,
         shouldRevealNode: jest.fn(() => false),
       },
+      userStore: {
+        uiPreset: 'modern',
+      },
     } as any
     const row = {
       kind: 'group' as const,

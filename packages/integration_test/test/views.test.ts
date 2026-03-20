@@ -170,6 +170,21 @@ test.describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot('popup 2a.png', snapShotOptions)
 
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        uiPreset: 'classic',
+      })
+    })
+    await page.reload()
+    await page.waitForSelector(inputSelector)
+    await page.fill(inputSelector, '')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchSnapshot('popup-classic-1a.png', snapShotOptions)
+
+    await page.fill(inputSelector, 'xcv58')
+    screenshot = await page.screenshot()
+    expect(screenshot).toMatchSnapshot('popup-classic-2a.png', snapShotOptions)
+
     await page.fill(inputSelector, '')
   })
 
@@ -356,6 +371,128 @@ test.describe('The Extension page should', () => {
       expect(countBox.height).toBeGreaterThanOrEqual(14)
       expect(countBox.height).toBeLessThanOrEqual(17)
     }
+  })
+
+  test('use a shared neutral chrome surface in classic mode', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          toolbarAutoHide: false,
+          uiPreset: 'classic',
+        })
+      }
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Classic',
+      color: 'red',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+
+    const groupedTabHandle = await page.waitForFunction(
+      async (currentGroupId) => {
+        const tabs = await chrome.tabs.query({})
+        const target = tabs.find((tab) => tab.groupId === currentGroupId)
+        return target
+          ? {
+              id: target.id ?? -1,
+              windowId: target.windowId ?? -1,
+            }
+          : null
+      },
+      groupId,
+    )
+    const groupedTab = (await groupedTabHandle.jsonValue()) as {
+      id: number
+      windowId: number
+    }
+    expect(groupedTab.id).toBeGreaterThan(0)
+    expect(groupedTab.windowId).toBeGreaterThan(-1)
+
+    await page.reload()
+    await waitForTestId(page, `window-title-${groupedTab.windowId}`)
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `tab-row-${groupedTab.id}`)
+    await expect(page.locator('.toolbar').first()).toBeVisible()
+
+    const styles = await page.evaluate(
+      ({ groupId, tabId, windowId }) => {
+        const readBackground = (selector: string) => {
+          const node = document.querySelector(selector) as HTMLElement | null
+          return node ? window.getComputedStyle(node).backgroundColor : null
+        }
+
+        return {
+          main: readBackground('main'),
+          toolsBorderBottomWidth: (() => {
+            const main = document.querySelector('main')
+            const node = main?.firstElementChild as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderBottomWidth : null
+          })(),
+          toolbar: readBackground('.toolbar'),
+          toolbarBorderTopWidth: (() => {
+            const node = document.querySelector(
+              '.toolbar',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderTopWidth : null
+          })(),
+          toolbarBorderRightWidth: (() => {
+            const node = document.querySelector(
+              '.toolbar',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderRightWidth : null
+          })(),
+          toolbarBorderLeftWidth: (() => {
+            const node = document.querySelector(
+              '.toolbar',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderLeftWidth : null
+          })(),
+          toolbarToggleBorderLeftWidth: (() => {
+            const node = document.querySelector(
+              '[aria-label="Toggle toolbar"]',
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderLeftWidth : null
+          })(),
+          windowTitle: readBackground(
+            `[data-testid="window-title-${windowId}"]`,
+          ),
+          windowTitleBorderBottomWidth: (() => {
+            const node = document.querySelector(
+              `[data-testid="window-title-${windowId}"]`,
+            ) as HTMLElement | null
+            return node ? window.getComputedStyle(node).borderBottomWidth : null
+          })(),
+          groupHeader: readBackground(
+            `[data-testid="tab-group-header-${groupId}"]`,
+          ),
+          tabRow: readBackground(`[data-testid="tab-row-${tabId}"]`),
+        }
+      },
+      { groupId, tabId: groupedTab.id, windowId: groupedTab.windowId },
+    )
+
+    expect(styles.toolsBorderBottomWidth).toBe('0px')
+    expect(styles.windowTitle).toBe(styles.main)
+    expect(styles.windowTitleBorderBottomWidth).toBe('0px')
+    expect(styles.groupHeader).toBe(styles.main)
+    expect(styles.toolbar).toBe(styles.main)
+    expect(styles.toolbarBorderTopWidth).toBe('0px')
+    expect(styles.toolbarBorderRightWidth).toBe('0px')
+    expect(styles.toolbarBorderLeftWidth).toBe('0px')
+    expect(styles.toolbarToggleBorderLeftWidth).toBe('0px')
+    expect(styles.tabRow).toBe(styles.main)
   })
 
   test('render group drag handle icon on header emphasis', async () => {
@@ -745,6 +882,20 @@ test.describe('The Extension page should', () => {
     const themeToggleScreenshot = await themeToggleGroup.screenshot()
     expect(themeToggleScreenshot).toMatchSnapshot(
       'settings-theme-toggle-group-atom.png',
+      {
+        maxDiffPixelRatio: 0.08,
+        threshold: 0.2,
+      },
+    )
+
+    const uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
+    await expect(uiPresetGroup).toBeVisible()
+    await expect(
+      uiPresetGroup.getByRole('button', { name: 'Use modern interface style' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    const uiPresetScreenshot = await uiPresetGroup.screenshot()
+    expect(uiPresetScreenshot).toMatchSnapshot(
+      'settings-ui-preset-toggle-group-atom.png',
       {
         maxDiffPixelRatio: 0.08,
         threshold: 0.2,

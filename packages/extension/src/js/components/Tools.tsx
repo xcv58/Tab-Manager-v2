@@ -9,10 +9,16 @@ import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
 import LayoutRepackIndicator from './LayoutRepackIndicator'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer(() => {
   const { userStore } = useStore()
   const theme = useMuiTheme()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
+  const isClassicUi = userStore.uiPreset === 'classic'
   if (!userStore.loaded) {
     return (
       <div className="h-12 shrink-0">
@@ -24,8 +30,9 @@ export default observer(() => {
     <div
       className="flex items-center justify-center h-12 px-1 text-3xl shrink-0 border-b"
       style={{
-        backgroundColor: theme.palette.background.paper,
-        borderBottomColor: theme.palette.divider,
+        backgroundColor: uiColors.popupHeaderSurface,
+        borderBottomColor: uiColors.popupHeaderBorderColor,
+        borderBottom: isClassicUi ? 'none' : undefined,
       }}
     >
       <Summary />

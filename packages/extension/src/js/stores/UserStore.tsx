@@ -8,6 +8,9 @@ import {
   restoreDialogFocusTarget,
 } from 'libs/dialogFocus'
 
+export const UI_PRESETS = ['modern', 'classic'] as const
+export type UiPreset = (typeof UI_PRESETS)[number]
+
 const DEFAULT_SETTINGS = {
   showAppWindow: false,
   showShortcutHint: true,
@@ -23,6 +26,7 @@ const DEFAULT_SETTINGS = {
   ignoreHash: false,
   useSystemTheme: true,
   darkTheme: false,
+  uiPreset: 'modern' as UiPreset,
   tabWidth: 20,
   showTabIcon: true,
   fontSize: 14,
@@ -35,6 +39,12 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
   const nextSettings = {
     ...DEFAULT_SETTINGS,
     ...settings,
+  }
+  if (
+    typeof nextSettings.uiPreset !== 'string' ||
+    !UI_PRESETS.includes(nextSettings.uiPreset as UiPreset)
+  ) {
+    nextSettings.uiPreset = DEFAULT_SETTINGS.uiPreset
   }
   const legacyKeys: string[] = []
 
@@ -77,6 +87,7 @@ export default class UserStore {
       dialogOpen: observable,
       toolbarVisible: observable,
       darkTheme: observable,
+      uiPreset: observable,
       useSystemTheme: observable,
       tabWidth: observable,
       showTabIcon: observable,
@@ -84,6 +95,7 @@ export default class UserStore {
       fontSize: observable,
       theme: computed,
       selectTheme: action,
+      selectUiPreset: action,
       selectNextTheme: action,
       openDialog: action,
       closeDialog: action,
@@ -205,6 +217,7 @@ export default class UserStore {
   autoFocusSearch = false
   useSystemTheme = true
   darkTheme = false
+  uiPreset: UiPreset = 'modern'
   tabWidth = 20
   fontSize = 14
   showTabIcon = true
@@ -234,6 +247,11 @@ export default class UserStore {
       useSystemTheme: this.useSystemTheme,
       darkTheme: this.darkTheme,
     })
+  }
+
+  selectUiPreset = (uiPreset: UiPreset) => {
+    this.uiPreset = uiPreset
+    this.save()
   }
 
   selectNextTheme = () => {

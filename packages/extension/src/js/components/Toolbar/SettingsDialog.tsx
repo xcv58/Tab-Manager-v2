@@ -22,6 +22,7 @@ import DesktopWindowsRoundedIcon from '@mui/icons-material/DesktopWindowsRounded
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded'
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
 import useReduceMotion from 'libs/useReduceMotion'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
@@ -119,6 +120,17 @@ const themeOptions = [
     value: 'dark',
     label: 'Dark',
     icon: DarkModeRoundedIcon,
+  },
+] as const
+
+const uiPresetOptions = [
+  {
+    value: 'modern',
+    label: 'Modern',
+  },
+  {
+    value: 'classic',
+    label: 'Classic',
   },
 ] as const
 
@@ -455,31 +467,28 @@ export default observer(() => {
     updateFontSize,
     showTabIcon,
     toggleShowTabIcon,
+    uiPreset,
+    selectUiPreset,
     theme,
     selectTheme,
   } = userStore
   const reduceMotion = useReduceMotion()
   const isDarkMode = muiTheme.palette.mode === 'dark'
+  const uiColors = getUiColorTokens(isDarkMode, uiPreset)
   const panelStyle: React.CSSProperties = {
-    backgroundColor: isDarkMode
-      ? 'rgba(255, 255, 255, 0.03)'
-      : 'rgba(246, 248, 252, 0.94)',
+    backgroundColor: uiColors.settingsPanelSurface,
     borderColor: isDarkMode
       ? 'rgba(238, 241, 245, 0.14)'
       : 'rgba(148, 163, 184, 0.26)',
   }
   const rowDetailOptionStyle: React.CSSProperties = {
-    backgroundColor: isDarkMode
-      ? 'rgba(255, 255, 255, 0.02)'
-      : 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: uiColors.settingsRowSurface,
     borderColor: isDarkMode
       ? 'rgba(238, 241, 245, 0.1)'
       : 'rgba(148, 163, 184, 0.22)',
   }
   const previewSurfaceStyle: React.CSSProperties = {
-    backgroundColor: isDarkMode
-      ? 'rgba(15, 23, 42, 0.34)'
-      : 'rgba(255, 255, 255, 0.72)',
+    backgroundColor: uiColors.settingsPreviewSurface,
     borderColor: isDarkMode
       ? 'rgba(238, 241, 245, 0.12)'
       : 'rgba(148, 163, 184, 0.24)',
@@ -494,6 +503,12 @@ export default observer(() => {
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
       onBackdropClick={closeDialog}
+      PaperProps={{
+        sx: {
+          backgroundColor: uiColors.settingsDialogSurface,
+          backgroundImage: 'none',
+        },
+      }}
     >
       <DialogTitle>Settings</DialogTitle>
       <DialogContent>
@@ -542,6 +557,85 @@ export default observer(() => {
             style={panelStyle}
           >
             <div className="space-y-3">
+              <div
+                className="rounded-lg border px-3 py-3"
+                style={rowDetailOptionStyle}
+                data-testid="settings-ui-preset-toggle-group"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <Typography component="h5" sx={controlTitleSx}>
+                      Interface style
+                    </Typography>
+                    <FormHelperText sx={controlDescriptionSx}>
+                      Switch between the current UI and the pre-2.0-inspired
+                      Classic mode.
+                    </FormHelperText>
+                  </div>
+                  <ToggleButtonGroup
+                    exclusive
+                    value={uiPreset}
+                    aria-label="Choose interface style"
+                    onChange={(_, nextPreset) => {
+                      if (!nextPreset) {
+                        return
+                      }
+                      selectUiPreset(nextPreset)
+                    }}
+                    sx={{
+                      display: 'inline-flex',
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      p: 0.375,
+                      gap: 0.25,
+                      backgroundColor: isDarkMode
+                        ? 'rgba(15, 23, 42, 0.44)'
+                        : 'rgba(226, 232, 240, 0.7)',
+                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+                      '& .MuiToggleButtonGroup-grouped': {
+                        m: 0,
+                        border: 0,
+                        borderRadius: 999,
+                        minWidth: 72,
+                        height: 32,
+                        px: 1.125,
+                        fontSize: '0.8rem',
+                        textTransform: 'none',
+                        color: muiTheme.palette.text.secondary,
+                      },
+                      '& .Mui-selected': {
+                        color: muiTheme.palette.text.primary,
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(255, 255, 255, 0.96)',
+                        boxShadow: isDarkMode
+                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                      },
+                      '& .Mui-selected:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.16)'
+                          : 'rgba(255, 255, 255, 0.98)',
+                      },
+                      '& .MuiToggleButton-root:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.07)'
+                          : 'rgba(255, 255, 255, 0.58)',
+                      },
+                    }}
+                  >
+                    {uiPresetOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.value} interface style`}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                </div>
+              </div>
               <div
                 className="rounded-lg border px-3 py-3"
                 style={rowDetailOptionStyle}
@@ -715,6 +809,7 @@ export default observer(() => {
                         title: 'Tab Manager issue tracker',
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         duplicatedTabCount: 2,
+                        uiPreset,
                         showDuplicateMarker: highlightDuplicatedTab,
                         showTabIcon: true,
                         showUrl: true,
@@ -741,6 +836,7 @@ export default observer(() => {
                         id: 9102,
                         title: 'Tab Manager settings dialog',
                         url: 'https://github.com/xcv58/Tab-Manager-v2',
+                        uiPreset,
                         showDuplicateMarker: false,
                         showTabIcon,
                         showUrl: true,
@@ -766,6 +862,7 @@ export default observer(() => {
                         id: 9103,
                         title: 'Preview URLs inside settings',
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+                        uiPreset,
                         showDuplicateMarker: false,
                         showTabIcon: true,
                         showUrl,
@@ -793,6 +890,7 @@ export default observer(() => {
                         title: 'Hover this preview tab for tooltip details',
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         duplicatedTabCount: 2,
+                        uiPreset,
                         showDuplicateMarker: false,
                         showTabIcon: true,
                         showUrl: false,
