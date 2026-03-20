@@ -451,7 +451,7 @@ test.describe('The Extension page should', () => {
     expect(styles.windowTitle).toBe(styles.main)
     expect(styles.groupHeader).toBe(styles.main)
     expect(styles.toolbar).toBe(styles.main)
-    expect(styles.tabRow).toBe('rgb(255, 255, 255)')
+    expect(styles.tabRow).toBe(styles.main)
   })
 
   test('render group drag handle icon on header emphasis', async () => {

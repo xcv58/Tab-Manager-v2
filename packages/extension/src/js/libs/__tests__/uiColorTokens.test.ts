@@ -8,6 +8,6 @@ describe('uiColorTokens', () => {
     expect(tokens.appCanvasSurface).toBe(tokens.windowCardSurface)
     expect(tokens.appCanvasSurface).toBe(tokens.toolbarShellBackground)
     expect(tokens.appCanvasSurface).toBe(tokens.popupHeaderSurface)
-    expect(tokens.rowSurface).not.toBe(tokens.appCanvasSurface)
+    expect(tokens.rowSurface).toBe(tokens.appCanvasSurface)
   })
 })
