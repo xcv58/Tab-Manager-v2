@@ -2,7 +2,7 @@ import {
   activateTab,
   setLastFocusedWindowId,
   browser,
-  isSelfPopupTab,
+  isSelfPopup,
   setSelfPopupActive,
 } from 'libs'
 import actions from 'libs/actions'
@@ -157,12 +157,15 @@ export default class TabHistory {
       return setSelfPopupActive(false)
     }
     try {
-      const [tab] = await browser.tabs.query({ active: true, windowId })
+      const win = await browser.windows.get(windowId, {
+        populate: true,
+      })
+      const tab = (win?.tabs || []).find((candidate) => candidate.active)
       if (!tab) {
         log.debug('onFocusChanged does nothing since no tab')
         return setSelfPopupActive(false)
       }
-      const isPopupWindow = isSelfPopupTab(tab)
+      const isPopupWindow = !!win && isSelfPopup(win)
       if (isPopupWindow) {
         log.debug('onFocusChanged ignore self popup window', {
           tab,

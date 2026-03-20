@@ -1272,10 +1272,27 @@ export default class WindowsStore {
     const wasInitialLoading = this.initialLoading
     const policy: LoadRepackPolicy =
       repackPolicy || (wasInitialLoading ? 'always' : 'if-clean')
-    const windows = await browser.windows.getAll({
-      populate: true,
-    })
-    this.lastFocusedWindowId = await getLastFocusedWindowId()
+    const [windows, storedLastFocusedWindowId, currentWindow] =
+      await Promise.all([
+        browser.windows.getAll({
+          populate: true,
+        }),
+        getLastFocusedWindowId(),
+        browser.windows
+          .getCurrent({
+            populate: true,
+          })
+          .catch(() => null),
+      ])
+    const currentFocusedWindowId =
+      currentWindow &&
+      currentWindow.focused &&
+      !isSelfPopup(currentWindow) &&
+      typeof currentWindow.id === 'number'
+        ? currentWindow.id
+        : null
+    this.lastFocusedWindowId =
+      currentFocusedWindowId ?? storedLastFocusedWindowId
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
     const previousWindowOrder = new Map(
       this.windows.map((win, index) => [win.id, index]),
