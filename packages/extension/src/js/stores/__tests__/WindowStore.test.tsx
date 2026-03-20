@@ -15,6 +15,7 @@ jest.mock('libs', () => ({
       },
       getAll: jest.fn(() => Promise.resolve([])),
       get: jest.fn(() => Promise.resolve({ id: 1, tabs: [] })),
+      getCurrent: jest.fn(() => Promise.resolve(null)),
       update: jest.fn(),
     },
     tabs: {
@@ -278,6 +279,56 @@ describe('WindowStore layout policy', () => {
 
     expect(windowStore.columnLayout).toEqual(columnLayoutBefore)
     expect(windowStore.layoutDirty).toBe(true)
+  })
+
+  it('prefers the current normal window over stale persisted focus during foreground refresh', async () => {
+    const windowStore = createWindowStore()
+    ;(getLastFocusedWindowId as jest.Mock).mockResolvedValueOnce(1)
+    ;(browser.windows.getCurrent as jest.Mock).mockResolvedValueOnce({
+      id: 2,
+      focused: true,
+      type: 'normal',
+      tabs: [
+        {
+          id: 21,
+          active: true,
+          index: 0,
+          windowId: 2,
+          title: 'Extension',
+          url: 'chrome-extension://example/popup.html?not_popup=1',
+        },
+      ],
+    })
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      {
+        id: 1,
+        type: 'normal',
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+      {
+        id: 2,
+        type: 'normal',
+        tabs: [
+          {
+            id: 21,
+            active: true,
+            index: 0,
+            windowId: 2,
+            title: 'Extension',
+            url: 'chrome-extension://example/popup.html?not_popup=1',
+          },
+        ],
+      },
+    ])
+
+    await windowStore.loadAllWindows({
+      repackPolicy: 'never',
+      reason: 'window-focus',
+    })
+
+    expect(windowStore.lastFocusedWindowId).toBe(2)
   })
 
   it('sync keeps existing window order when browser data has same windows', async () => {
