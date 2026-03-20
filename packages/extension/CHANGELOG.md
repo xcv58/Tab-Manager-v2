@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.2...v2.1.0) (2026-03-20)
+
+
+### Features
+
+* **ui:** add classic mode preset ([#2612](https://github.com/xcv58/Tab-Manager-v2/issues/2612)) ([920d43e](https://github.com/xcv58/Tab-Manager-v2/commit/920d43ed64d893699bf00381f48e2671ff61af46))
+
+
+### Bug Fixes
+
+* harden tab-group lifecycle, search layout/focus, drag ordering, and settings cleanup ([#2609](https://github.com/xcv58/Tab-Manager-v2/issues/2609)) ([21cad76](https://github.com/xcv58/Tab-Manager-v2/commit/21cad760a9f7105ffa0bde7340f9fd3236345168))
+* track active window for full-page extension tab ([#2613](https://github.com/xcv58/Tab-Manager-v2/issues/2613)) ([acba5be](https://github.com/xcv58/Tab-Manager-v2/commit/acba5beabe980f722ef07e8429ed18c951e8f10f))
+
 ## [2.0.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.1...v2.0.2) (2026-03-18)
 
 
