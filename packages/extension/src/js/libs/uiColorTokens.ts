@@ -37,7 +37,7 @@ export const getUiColorTokens = (
           windowCardSurface: classicSurface,
           windowCardBorderColor: 'transparent',
           windowCardShadow: 'none',
-          windowCardShadowFocused: 'none',
+          windowCardShadowFocused: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
         }
       : {
           appCanvasSurface: classicSurface,
@@ -63,7 +63,7 @@ export const getUiColorTokens = (
           windowCardSurface: classicSurface,
           windowCardBorderColor: 'transparent',
           windowCardShadow: 'none',
-          windowCardShadowFocused: 'none',
+          windowCardShadowFocused: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
         }
   }
 

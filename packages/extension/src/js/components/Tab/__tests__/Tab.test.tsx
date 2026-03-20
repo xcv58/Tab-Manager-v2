@@ -208,7 +208,7 @@ describe('Tab', () => {
     const indicator = screen.getByTestId('tab-active-indicator-2')
 
     expect(indicator).toHaveStyle({
-      left: '3px',
+      left: '1px',
       width: '3px',
       height: '25px',
     })

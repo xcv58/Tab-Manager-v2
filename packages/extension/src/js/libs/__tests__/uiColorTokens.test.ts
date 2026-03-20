@@ -28,4 +28,13 @@ describe('uiColorTokens', () => {
     expect(tokens.highlightedBackground).toBe('#e0eeff')
     expect(tokens.selectedBackground).toBe('#d4e7ff')
   })
+
+  it('restores the exact classic focused-window shadow while keeping unfocused windows flat', () => {
+    const tokens = getUiColorTokens(false, 'classic') as any
+
+    expect(tokens.windowCardShadow).toBe('none')
+    expect(tokens.windowCardShadowFocused).toBe(
+      '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    )
+  })
 })

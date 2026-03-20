@@ -150,7 +150,7 @@ export default observer((props: TabProps & { className?: string }) => {
           className="absolute z-10 block -translate-y-1/2 rounded-full pointer-events-none top-1/2"
           style={{
             backgroundColor: activeIndicatorColor,
-            left: 3,
+            left: 1,
             width: 3,
             height: 25,
           }}
