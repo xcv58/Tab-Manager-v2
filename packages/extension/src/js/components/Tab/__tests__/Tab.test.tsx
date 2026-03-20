@@ -155,7 +155,7 @@ describe('Tab', () => {
     expect(unhover).toHaveBeenCalledTimes(1)
   })
 
-  it('renders the shared active indicator as a 4px by 20px pill', () => {
+  it('renders the shared active indicator as a 3px by 25px pill', () => {
     const store = {
       dragStore: {
         dragging: false,
@@ -208,8 +208,9 @@ describe('Tab', () => {
     const indicator = screen.getByTestId('tab-active-indicator-2')
 
     expect(indicator).toHaveStyle({
-      width: '4px',
-      height: '20px',
+      left: '3px',
+      width: '3px',
+      height: '25px',
     })
     expect(indicator).toHaveClass('rounded-full')
   })
