@@ -373,6 +373,87 @@ test.describe('The Extension page should', () => {
     }
   })
 
+  test('use a shared neutral chrome surface in classic mode', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          toolbarAutoHide: false,
+          uiPreset: 'classic',
+        })
+      }
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: ['https://pinboard.in/', 'https://nextjs.org/'],
+      title: 'Classic',
+      color: 'red',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+
+    const groupedTabHandle = await page.waitForFunction(
+      async (currentGroupId) => {
+        const tabs = await chrome.tabs.query({})
+        const target = tabs.find((tab) => tab.groupId === currentGroupId)
+        return target
+          ? {
+              id: target.id ?? -1,
+              windowId: target.windowId ?? -1,
+            }
+          : null
+      },
+      groupId,
+    )
+    const groupedTab = (await groupedTabHandle.jsonValue()) as {
+      id: number
+      windowId: number
+    }
+    expect(groupedTab.id).toBeGreaterThan(0)
+    expect(groupedTab.windowId).toBeGreaterThan(-1)
+
+    await page.reload()
+    await waitForTestId(page, `window-title-${groupedTab.windowId}`)
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+    await waitForTestId(page, `tab-row-${groupedTab.id}`)
+    await expect(page.locator('.toolbar').first()).toBeVisible()
+
+    const styles = await page.evaluate(
+      ({ groupId, tabId, windowId }) => {
+        const readBackground = (selector: string) => {
+          const node = document.querySelector(selector) as HTMLElement | null
+          return node ? window.getComputedStyle(node).backgroundColor : null
+        }
+
+        return {
+          main: readBackground('main'),
+          toolbar: readBackground('.toolbar'),
+          windowTitle: readBackground(
+            `[data-testid="window-title-${windowId}"]`,
+          ),
+          groupHeader: readBackground(
+            `[data-testid="tab-group-header-${groupId}"]`,
+          ),
+          tabRow: readBackground(`[data-testid="tab-row-${tabId}"]`),
+        }
+      },
+      { groupId, tabId: groupedTab.id, windowId: groupedTab.windowId },
+    )
+
+    expect(styles.windowTitle).toBe(styles.main)
+    expect(styles.groupHeader).toBe(styles.main)
+    expect(styles.toolbar).toBe(styles.main)
+    expect(styles.tabRow).toBe('rgb(255, 255, 255)')
+  })
+
   test('render group drag handle icon on header emphasis', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({

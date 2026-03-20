@@ -13,6 +13,7 @@ import DroppableTools from './DroppableTools'
 import { useLocation } from 'react-router-dom'
 import { NOT_POPUP } from 'libs'
 import PopupView from './PopupView'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 const useQuery = () => new URLSearchParams(useLocation().search)
 
@@ -24,6 +25,10 @@ export default observer(() => {
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   const fontSize = useFontSize()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   useEffect(() => {
     tabGroupStore?.didMount?.()
     windowStore.didMount()
@@ -45,7 +50,7 @@ export default observer(() => {
         useTextClasses(),
       )}
       style={{
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: uiColors.appCanvasSurface,
         color: theme.palette.text.primary,
       }}
     >

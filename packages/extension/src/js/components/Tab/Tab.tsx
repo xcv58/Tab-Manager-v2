@@ -110,7 +110,7 @@ export default observer((props: TabProps & { className?: string }) => {
       ? colorTokens.selectedBackground
       : shouldHighlight
         ? colorTokens.highlightedBackground
-        : 'transparent',
+        : colorTokens.rowSurface,
     color: colorTokens.primaryText,
     ...(isFocused ? { outline: 'none' } : undefined),
   }
