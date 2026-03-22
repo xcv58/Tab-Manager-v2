@@ -1,20 +1,12 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import FormHelperText from '@mui/material/FormHelperText'
-import Fade from '@mui/material/Fade'
-import Switch from '@mui/material/Switch'
+import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
+import Switch from 'components/ui/Switch'
 import { useStore } from 'components/hooks/useStore'
-import Slider from '@mui/material/Slider'
+import Slider from 'components/ui/Slider'
 import IconButton from 'components/ui/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import TextField from '@mui/material/TextField'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import Typography from '@mui/material/Typography'
+import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
 import { useAppTheme } from 'libs/appTheme'
 import {
   AddRoundedIcon,
@@ -30,29 +22,43 @@ import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
 import TabRowPreview from './TabRowPreview'
 
-const panelTitleSx = {
+/* -------------------------------------------------------------------------- */
+/*  Inline style helpers (replacing MUI sx / Typography / FormHelperText)       */
+/* -------------------------------------------------------------------------- */
+
+const panelTitleStyle: React.CSSProperties = {
   fontSize: '0.92rem',
   fontWeight: 700,
   lineHeight: 1.3,
-} as const
+  margin: 0,
+}
 
-const panelDescriptionSx = {
-  mt: 0.5,
+const panelDescriptionStyle: React.CSSProperties = {
+  marginTop: 4,
   fontSize: '0.8rem',
   lineHeight: 1.45,
-} as const
+  opacity: 0.7,
+  margin: 0,
+}
 
-const controlTitleSx = {
+const controlTitleStyle: React.CSSProperties = {
   fontSize: '0.88rem',
   fontWeight: 600,
   lineHeight: 1.35,
-} as const
+  margin: 0,
+}
 
-const controlDescriptionSx = {
-  mt: 0.5,
+const controlDescriptionStyle: React.CSSProperties = {
+  marginTop: 4,
   fontSize: '0.76rem',
   lineHeight: 1.45,
-} as const
+  opacity: 0.7,
+  margin: 0,
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Sub-components                                                             */
+/* -------------------------------------------------------------------------- */
 
 const SettingsPanel = ({
   title,
@@ -75,12 +81,8 @@ const SettingsPanel = ({
     data-testid={testId}
   >
     <div className="mb-3">
-      <Typography component="h4" sx={panelTitleSx}>
-        {title}
-      </Typography>
-      {description && (
-        <FormHelperText sx={panelDescriptionSx}>{description}</FormHelperText>
-      )}
+      <h4 style={panelTitleStyle}>{title}</h4>
+      {description && <p style={panelDescriptionStyle}>{description}</p>}
     </div>
     {children}
   </div>
@@ -208,14 +210,8 @@ const DensityControl = ({
         }`}
       >
         <div className="min-w-0">
-          <Typography component="h5" sx={controlTitleSx}>
-            {title}
-          </Typography>
-          {description && (
-            <FormHelperText sx={controlDescriptionSx}>
-              {description}
-            </FormHelperText>
-          )}
+          <h5 style={controlTitleStyle}>{title}</h5>
+          {description && <p style={controlDescriptionStyle}>{description}</p>}
         </div>
         <div className="flex items-center gap-0.5 self-start md:shrink-0">
           <IconButton
@@ -225,69 +221,81 @@ const DensityControl = ({
           >
             <RemoveRoundedIcon fontSize={18} />
           </IconButton>
-          <TextField
-            size="small"
-            value={draftValue}
-            onChange={(event) => {
-              const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
-              setDraftValue(sanitizedValue)
-              if (!sanitizedValue) {
-                return
-              }
-              const parsedValue = Number.parseInt(sanitizedValue, 10)
-              if (
-                Number.isNaN(parsedValue) ||
-                parsedValue < min ||
-                parsedValue > max
-              ) {
-                return
-              }
-              if (parsedValue !== value) {
-                onChange(parsedValue)
-              }
-            }}
-            onBlur={commitDraftValue}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                commitDraftValue()
-                ;(event.currentTarget as HTMLInputElement).blur()
-              }
-              if (event.key === 'Escape') {
-                event.preventDefault()
-                setDraftValue(String(value))
-                ;(event.currentTarget as HTMLInputElement).blur()
-              }
-            }}
-            inputProps={{
-              'aria-label': inputAriaLabel,
-              inputMode: 'numeric',
-              pattern: '[0-9]*',
-            }}
-            InputProps={{
-              ...(unit
-                ? {
-                    endAdornment: (
-                      <InputAdornment position="end">{unit}</InputAdornment>
-                    ),
-                  }
-                : {}),
-            }}
-            sx={{
+          <div
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
               width: 92,
-              '& .MuiInputBase-root': {
-                height: 36,
-                fontSize: '0.92rem',
-              },
-              '& .MuiInputAdornment-root': {
-                fontSize: '0.82rem',
-              },
-              '& input': {
+              height: 36,
+            }}
+          >
+            <input
+              type="text"
+              value={draftValue}
+              onChange={(event) => {
+                const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
+                setDraftValue(sanitizedValue)
+                if (!sanitizedValue) {
+                  return
+                }
+                const parsedValue = Number.parseInt(sanitizedValue, 10)
+                if (
+                  Number.isNaN(parsedValue) ||
+                  parsedValue < min ||
+                  parsedValue > max
+                ) {
+                  return
+                }
+                if (parsedValue !== value) {
+                  onChange(parsedValue)
+                }
+              }}
+              onBlur={commitDraftValue}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  commitDraftValue()
+                  ;(event.currentTarget as HTMLInputElement).blur()
+                }
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  setDraftValue(String(value))
+                  ;(event.currentTarget as HTMLInputElement).blur()
+                }
+              }}
+              aria-label={inputAriaLabel}
+              inputMode="numeric"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: '1px solid',
+                borderColor: 'var(--input-border, rgba(0,0,0,0.23))',
+                borderRadius: 4,
+                padding: '4px 8px',
+                paddingRight: unit ? 32 : 8,
                 textAlign: 'right',
                 fontVariantNumeric: 'tabular-nums',
-              },
-            }}
-          />
+                fontSize: '0.92rem',
+                background: 'transparent',
+                color: 'inherit',
+                outline: 'none',
+              }}
+            />
+            {unit && (
+              <span
+                style={{
+                  position: 'absolute',
+                  right: 8,
+                  fontSize: '0.82rem',
+                  opacity: 0.7,
+                  pointerEvents: 'none',
+                }}
+              >
+                {unit}
+              </span>
+            )}
+          </div>
           <IconButton
             aria-label={incrementAriaLabel}
             onClick={() => commitValue(value + step)}
@@ -315,9 +323,10 @@ const DensityControl = ({
           onChange(nextValue)
         }}
         aria-label={sliderAriaLabel}
-        sx={{
-          mt: 2.5,
-          mx: 2.5,
+        style={{
+          marginTop: 20,
+          marginLeft: 20,
+          marginRight: 20,
           width: 'calc(100% - 40px)',
         }}
       />
@@ -355,28 +364,27 @@ const RowDetailsOption = ({
           description ? 'items-start' : 'items-center'
         }`}
       >
-        <Typography component="h5" sx={controlTitleSx}>
-          {title}
-        </Typography>
+        <h5 style={controlTitleStyle}>{title}</h5>
         <Switch
-          color="primary"
           checked={checked}
           onChange={onChange}
           inputProps={{ 'aria-label': title }}
         />
       </div>
-      {description && (
-        <FormHelperText sx={controlDescriptionSx}>{description}</FormHelperText>
-      )}
+      {description && <p style={controlDescriptionStyle}>{description}</p>}
     </div>
     <div className="min-w-0 xl:flex-1">
       {preview}
       {previewHint && (
-        <FormHelperText
-          sx={{ ...controlDescriptionSx, mt: 0.75, fontSize: '0.74rem' }}
+        <p
+          style={{
+            ...controlDescriptionStyle,
+            marginTop: 6,
+            fontSize: '0.74rem',
+          }}
         >
           {previewHint}
-        </FormHelperText>
+        </p>
       )}
     </div>
   </div>
@@ -411,27 +419,26 @@ const SettingsSwitchOption = ({
     aria-label={containerAriaLabel}
   >
     <div className="min-w-0 pr-3">
-      <Typography component="h5" sx={controlTitleSx}>
-        {title}
-      </Typography>
-      {description && (
-        <FormHelperText sx={controlDescriptionSx}>{description}</FormHelperText>
-      )}
+      <h5 style={controlTitleStyle}>{title}</h5>
+      {description && <p style={controlDescriptionStyle}>{description}</p>}
     </div>
     <Switch
-      color="primary"
       size="small"
       checked={checked}
       onChange={onChange}
       inputProps={{ 'aria-label': title }}
-      sx={{
-        mt: description ? -0.25 : 0,
-        mr: -0.5,
+      style={{
+        marginTop: description ? -2 : 0,
+        marginRight: -4,
         flexShrink: 0,
       }}
     />
   </label>
 )
+
+/* -------------------------------------------------------------------------- */
+/*  Main SettingsDialog                                                        */
+/* -------------------------------------------------------------------------- */
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -493,21 +500,40 @@ export default observer(() => {
       ? 'rgba(238, 241, 245, 0.12)'
       : 'rgba(148, 163, 184, 0.24)',
   }
+
+  const toggleGroupPillStyle: React.CSSProperties = {
+    backgroundColor: isDarkMode
+      ? 'rgba(15, 23, 42, 0.44)'
+      : 'rgba(226, 232, 240, 0.7)',
+    border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+  }
+
+  const selectedPillStyle: React.CSSProperties = {
+    color: muiTheme.palette.text.primary,
+    backgroundColor: isDarkMode
+      ? 'rgba(255, 255, 255, 0.12)'
+      : 'rgba(255, 255, 255, 0.96)',
+    boxShadow: isDarkMode
+      ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+      : '0 1px 2px rgba(15, 23, 42, 0.14)',
+  }
+
+  const unselectedPillStyle: React.CSSProperties = {
+    color: muiTheme.palette.text.secondary,
+    backgroundColor: 'transparent',
+  }
+
   return (
     <Dialog
       open={dialogOpen}
       fullWidth
       maxWidth="lg"
-      TransitionComponent={Fade}
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
-      onBackdropClick={closeDialog}
-      PaperProps={{
-        sx: {
-          backgroundColor: uiColors.settingsDialogSurface,
-          backgroundImage: 'none',
-        },
+      style={{
+        backgroundColor: uiColors.settingsDialogSurface,
+        backgroundImage: 'none',
       }}
     >
       <DialogTitle>Settings</DialogTitle>
@@ -564,76 +590,39 @@ export default observer(() => {
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
-                    <Typography component="h5" sx={controlTitleSx}>
-                      Interface style
-                    </Typography>
-                    <FormHelperText sx={controlDescriptionSx}>
+                    <h5 style={controlTitleStyle}>Interface style</h5>
+                    <p style={controlDescriptionStyle}>
                       Switch between the current UI and the pre-2.0-inspired
                       Classic mode.
-                    </FormHelperText>
+                    </p>
                   </div>
-                  <ToggleButtonGroup
-                    exclusive
+                  <ToggleGroup
                     value={uiPreset}
                     aria-label="Choose interface style"
-                    onChange={(_, nextPreset) => {
+                    onChange={(nextPreset) => {
                       if (!nextPreset) {
                         return
                       }
                       selectUiPreset(nextPreset)
                     }}
-                    sx={{
-                      display: 'inline-flex',
-                      flexShrink: 0,
-                      borderRadius: 999,
-                      p: 0.375,
-                      gap: 0.25,
-                      backgroundColor: isDarkMode
-                        ? 'rgba(15, 23, 42, 0.44)'
-                        : 'rgba(226, 232, 240, 0.7)',
-                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
-                      '& .MuiToggleButtonGroup-grouped': {
-                        m: 0,
-                        border: 0,
-                        borderRadius: 999,
-                        minWidth: 72,
-                        height: 32,
-                        px: 1.125,
-                        fontSize: '0.8rem',
-                        textTransform: 'none',
-                        color: muiTheme.palette.text.secondary,
-                      },
-                      '& .Mui-selected': {
-                        color: muiTheme.palette.text.primary,
-                        backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.12)'
-                          : 'rgba(255, 255, 255, 0.96)',
-                        boxShadow: isDarkMode
-                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
-                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
-                      },
-                      '& .Mui-selected:hover': {
-                        backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.16)'
-                          : 'rgba(255, 255, 255, 0.98)',
-                      },
-                      '& .MuiToggleButton-root:hover': {
-                        backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.07)'
-                          : 'rgba(255, 255, 255, 0.58)',
-                      },
-                    }}
+                    style={toggleGroupPillStyle}
                   >
                     {uiPresetOptions.map((option) => (
                       <ToggleButton
                         key={option.value}
                         value={option.value}
                         aria-label={`Use ${option.value} interface style`}
+                        style={{
+                          minWidth: 72,
+                          ...(uiPreset === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
                       >
                         {option.label}
                       </ToggleButton>
                     ))}
-                  </ToggleButtonGroup>
+                  </ToggleGroup>
                 </div>
               </div>
               <div
@@ -642,72 +631,35 @@ export default observer(() => {
                 data-testid="settings-theme-toggle-group"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <Typography component="h5" sx={controlTitleSx}>
-                    Theme
-                  </Typography>
-                  <ToggleButtonGroup
-                    exclusive
+                  <h5 style={controlTitleStyle}>Theme</h5>
+                  <ToggleGroup
                     value={theme}
                     aria-label="Choose theme"
-                    onChange={(_, nextTheme) => {
+                    onChange={(nextTheme) => {
                       if (!nextTheme) {
                         return
                       }
                       selectTheme(nextTheme)
                     }}
-                    sx={{
-                      display: 'inline-flex',
-                      flexShrink: 0,
-                      borderRadius: 999,
-                      p: 0.375,
-                      gap: 0.25,
-                      backgroundColor: isDarkMode
-                        ? 'rgba(15, 23, 42, 0.44)'
-                        : 'rgba(226, 232, 240, 0.7)',
-                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
-                      '& .MuiToggleButtonGroup-grouped': {
-                        m: 0,
-                        border: 0,
-                        borderRadius: 999,
-                        minWidth: 36,
-                        height: 32,
-                        px: 0.625,
-                        color: muiTheme.palette.text.secondary,
-                      },
-                      '& .MuiSvgIcon-root': {
-                        fontSize: 16,
-                      },
-                      '& .Mui-selected': {
-                        color: muiTheme.palette.text.primary,
-                        backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.12)'
-                          : 'rgba(255, 255, 255, 0.96)',
-                        boxShadow: isDarkMode
-                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
-                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
-                      },
-                      '& .Mui-selected:hover': {
-                        backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.16)'
-                          : 'rgba(255, 255, 255, 0.98)',
-                      },
-                      '& .MuiToggleButton-root:hover': {
-                        backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.07)'
-                          : 'rgba(255, 255, 255, 0.58)',
-                      },
-                    }}
+                    style={toggleGroupPillStyle}
                   >
                     {themeOptions.map((option) => (
                       <ToggleButton
                         key={option.value}
                         value={option.value}
                         aria-label={`Use ${option.value} theme`}
+                        style={{
+                          paddingLeft: 5,
+                          paddingRight: 5,
+                          ...(theme === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
                       >
-                        <option.icon fontSize="small" />
+                        <option.icon fontSize={16} />
                       </ToggleButton>
                     ))}
-                  </ToggleButtonGroup>
+                  </ToggleGroup>
                 </div>
               </div>
               <DensityControl

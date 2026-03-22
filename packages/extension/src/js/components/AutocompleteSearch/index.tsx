@@ -1,12 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useMemo, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
-import { TextField, Paper } from '@mui/material'
-import Autocomplete from '@mui/material/Autocomplete'
-import { useTheme } from '@mui/material/styles'
-import { useStore } from 'components/hooks/useStore'
+import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
-import ListboxComponent from './ListboxComponent'
 import TabOption from './TabOption'
 import { matchSorter, defaultBaseSortFn } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
@@ -18,6 +14,9 @@ import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
 import { getNoun, openURL } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { filterCommandOptions } from './filterOptions'
+import { useCombobox } from 'components/ui/Combobox'
+import { VariableSizeList } from 'react-window'
+import { useAppTheme } from 'libs/appTheme'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
@@ -26,15 +25,6 @@ const commandFilter = (options, { inputValue }) => {
   return filterCommandOptions(options, inputValue.slice(1).trim())
 }
 
-/**
- * Copy from https://github.com/kentcdodds/match-sorter/blob/fba154b12ff594e688d0c3f6abc64d22622b6919/src/index.ts#L312
- * Since it's not exposed via the package.
- *
- * Sorts items that have a rank, index, and keyIndex
- * @param {Object} a - the first item to sort
- * @param {Object} b - the second item to sort
- * @return {Number} -1 if a should come first, 1 if b should come first, 0 if equal
- */
 function sortRankedValues(a, b, baseSort): number {
   const aFirst = -1
   const bFirst = 1
@@ -43,7 +33,6 @@ function sortRankedValues(a, b, baseSort): number {
   const same = aRank === bRank
   if (same) {
     if (aKeyIndex === bKeyIndex) {
-      // use the base sort function as a tie-breaker
       return baseSort(a, b)
     } else {
       return aKeyIndex < bKeyIndex ? aFirst : bFirst
@@ -195,6 +184,7 @@ type SearchOption =
       color?: chrome.tabGroups.ColorEnum
       matchCount?: number
     }
+  | any // for commands
 
 const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
   if (tab.isDivider) {
@@ -253,13 +243,10 @@ const renderCommand = (command, state) => {
   const matches = match(command.name, state.inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
-    <div className="flex justify-between w-full px-4">
+    <div className="flex justify-between w-full px-4 h-full items-center">
       <span>
         {parts.map((part, index) => (
-          <span
-            key={index}
-            className={part.highlight ? 'font-bold' : 'font-normal'}
-          >
+          <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
             {part.text}
           </span>
         ))}
@@ -273,137 +260,203 @@ const renderCommand = (command, state) => {
 
 type Props = { autoFocus?: boolean; open?: boolean }
 
+const LISTBOX_PADDING = 8
+
 const AutocompleteSearch = observer((props: Props) => {
-  const { autoFocus, open } = props
-  const theme = useTheme()
+  const { autoFocus, open: propOpen } = props
+  const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
   const options = useOptions()
   const { userStore, searchStore, tabGroupStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
+  const tabHeight = useTabHeight()
+
+  const [isOpen, setIsOpen] = useState(propOpen || false)
+
+  useEffect(() => {
+    if (propOpen !== undefined) setIsOpen(propOpen)
+  }, [propOpen])
+
   const groupedSectionTabIdsRef = useRef(new Set())
-  const filterOptions = getFilterOptions(
-    userStore.showUrl,
-    isCommand,
-    tabGroupStore,
-    groupedSectionTabIdsRef,
+  const filterOptions = useMemo(
+    () =>
+      getFilterOptions(
+        userStore.showUrl,
+        isCommand,
+        tabGroupStore,
+        groupedSectionTabIdsRef,
+      ),
+    [userStore.showUrl, isCommand, tabGroupStore],
   )
 
+  const filteredOptions = useMemo(() => {
+    return filterOptions(options, { inputValue: query })
+  }, [options, query, filterOptions])
+
+  const handleSelect = (option: any) => {
+    if (!option || typeof option === 'string') return
+    if (option.isDivider) return
+
+    if (isCommand) {
+      option.command()
+    } else {
+      if (option.activate) {
+        option.activate({ origin: 'search', reveal: true })
+      } else {
+        openURL(option.url)
+      }
+    }
+    search('')
+    setIsOpen(false)
+  }
+
+  const {
+    highlightedIndex,
+    listRef,
+    getInputProps,
+    getListboxProps,
+    getItemProps,
+  } = useCombobox({
+    items: filteredOptions,
+    inputValue: query,
+    onInputValueChange: search,
+    onSelect: handleSelect,
+    isItemDisabled: (item) => Boolean(item.isDivider),
+    isOpen,
+    onOpenChange: setIsOpen,
+  })
+
+  const inputProps = getInputProps()
+  const listboxProps = getListboxProps()
+
+  // Inner row renderer for the virtualized list
+  const Row = ({ index, style }: any) => {
+    const option = filteredOptions[index]
+    const itemProps = getItemProps({ index, item: option })
+    const isHighlighted = highlightedIndex === index
+
+    return (
+      <li
+        {...itemProps}
+        style={{
+          ...style,
+          top: Number(style.top) + LISTBOX_PADDING,
+          margin: 0,
+          padding: 0,
+          listStyle: 'none',
+          cursor: option.isDivider ? 'default' : 'pointer',
+          backgroundColor: isHighlighted
+            ? 'var(--dropdown-hover-bg, rgba(0,0,0,0.08))'
+            : 'transparent',
+          opacity: option.isDivider ? 1 : undefined,
+        }}
+      >
+        {isCommand
+          ? renderCommand(option, { inputValue: query })
+          : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
+      </li>
+    )
+  }
+
+  const itemCount = filteredOptions.length
+  const listHeight = Math.min(20, itemCount) * tabHeight + 2 * LISTBOX_PADDING
+
   return (
-    <Autocomplete
-      fullWidth
-      blurOnSelect
-      freeSolo
-      selectOnFocus
-      openOnFocus
-      autoHighlight
-      includeInputInList
-      ref={searchInputRef}
-      inputValue={query}
-      value={query}
-      disableListWrap
-      PaperComponent={(props) => (
-        <Paper
-          elevation={24}
-          sx={{
+    <div style={{ position: 'relative', width: '100%' }}>
+      {/* Input Field */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          borderBottom: '1px solid',
+          borderColor: 'var(--input-border, rgba(0,0,0,0.42))',
+          position: 'relative',
+        }}
+        onClick={() => {
+          inputProps.onFocus()
+          searchInputRef.current?.focus()
+        }}
+      >
+        <input
+          ref={searchInputRef}
+          value={inputProps.value}
+          onChange={inputProps.onChange}
+          onKeyDown={inputProps.onKeyDown}
+          onFocus={() => {
+            startType()
+            inputProps.onFocus()
+          }}
+          onBlur={(e) => {
+            stopType()
+            inputProps.onBlur(e as any)
+          }}
+          autoFocus={autoFocus || userStore.autoFocusSearch}
+          placeholder={SEARCH_PLACEHOLDER}
+          aria-activedescendant={inputProps['aria-activedescendant']}
+          aria-autocomplete={inputProps['aria-autocomplete']}
+          aria-expanded={inputProps['aria-expanded']}
+          role={inputProps.role}
+          style={{
+            flex: 1,
+            border: 'none',
+            background: 'transparent',
+            color: theme.palette.text.primary,
+            fontSize: '1rem',
+            padding: '4px 0 5px',
+            outline: 'none',
+          }}
+        />
+        {!query && (
+          <span
+            className="pr-2 text-[0.72rem] whitespace-nowrap select-none"
+            style={{
+              color: theme.palette.text.secondary,
+              opacity: 0.8,
+            }}
+          >
+            {SEARCH_HINT}
+          </span>
+        )}
+      </div>
+
+      {/* Dropdown Paper */}
+      {isOpen && itemCount > 0 && (
+        <div
+          {...listboxProps}
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 1300,
+            marginTop: 4,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
             border:
-              theme.palette.mode === 'dark'
+              theme.mode === 'dark'
                 ? `1px solid ${theme.palette.divider}`
                 : undefined,
+            borderRadius: 4,
+            boxShadow:
+              '0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12)',
           }}
         >
-          <div>{props.children}</div>
-        </Paper>
+          <VariableSizeList
+            ref={listRef}
+            itemData={filteredOptions}
+            height={listHeight}
+            width="100%"
+            innerElementType="ul"
+            itemSize={() => tabHeight}
+            overscanCount={5}
+            itemCount={itemCount}
+          >
+            {Row}
+          </VariableSizeList>
+        </div>
       )}
-      open={open}
-      onFocus={() => {
-        startType()
-      }}
-      onBlur={() => stopType()}
-      onInputChange={(_, value, reason) => {
-        if (reason !== 'reset') {
-          search(value)
-        }
-      }}
-      onChange={(_, option) => {
-        if (!option || typeof option === 'string') {
-          return
-        }
-        if (option.isDivider) {
-          return
-        }
-        if (isCommand) {
-          option.command()
-        } else {
-          if (option.activate) {
-            option.activate({ origin: 'search', reveal: true })
-          } else {
-            openURL(option.url)
-          }
-        }
-        search('')
-      }}
-      renderInput={(props) => (
-        <TextField
-          {...props}
-          fullWidth
-          autoFocus={autoFocus || userStore.autoFocusSearch}
-          placeholder={SEARCH_PLACEHOLDER}
-          variant="standard"
-          InputProps={{
-            ...props.InputProps,
-            endAdornment: (
-              <>
-                {!query && (
-                  <span
-                    className="pr-2 text-[0.72rem] whitespace-nowrap select-none"
-                    style={{
-                      color: theme.palette.text.secondary,
-                      opacity: 0.8,
-                    }}
-                  >
-                    {SEARCH_HINT}
-                  </span>
-                )}
-                {props.InputProps?.endAdornment}
-              </>
-            ),
-          }}
-        />
-      )}
-      options={options}
-      getOptionLabel={(option) =>
-        [
-          option.name,
-          option.title,
-          option.url,
-          option.visitCount ? '' : option.groupTitle,
-        ]
-          .filter(Boolean)
-          .join(' ')
-      }
-      getOptionDisabled={(option) => option.isDivider}
-      renderOption={(props, option, state) => (
-        <li
-          {...props}
-          style={
-            option.isDivider
-              ? {
-                  ...props.style,
-                  opacity: 1,
-                }
-              : props.style
-          }
-        >
-          {isCommand
-            ? renderCommand(option, state)
-            : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
-        </li>
-      )}
-      filterOptions={filterOptions}
-      ListboxComponent={ListboxComponent}
-    />
+    </div>
   )
 })
 

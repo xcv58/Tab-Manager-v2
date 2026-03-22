@@ -41,12 +41,6 @@
     ]
   },
   "dependencies": {
-    "@emotion/react": "11.14.0",
-    "@emotion/styled": "11.14.1",
-    "@mui/icons-material": "7.3.8",
-    "@mui/material": "7.3.8",
-    "@mui/material-pigment-css": "7.3.8",
-    "@mui/styles": "6.4.8",
     "@pigment-css/react": "0.0.30",
     "@types/testing-library__jest-dom": "6.0.0",
     "autoprefixer": "10.4.27",
