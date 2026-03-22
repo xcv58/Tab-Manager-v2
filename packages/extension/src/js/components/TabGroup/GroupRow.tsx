@@ -3,9 +3,7 @@ import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
-import Popover from '@mui/material/Popover'
-import MenuItem from '@mui/material/MenuItem'
-import Divider from '@mui/material/Divider'
+import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
 import {
   MoreVertIcon,
   ChevronRightIcon,
@@ -383,14 +381,10 @@ export default observer((props: Props) => {
           />
         )}
       </div>
-      <Popover
+      <Menu
         anchorEl={menuAnchorEl}
         open={Boolean(menuAnchorEl)}
         onClose={() => setMenuAnchorEl(null)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
         style={{ zIndex: theme.zIndex.tooltip + 1 }}
       >
         {canMutateGroups && (
@@ -428,7 +422,7 @@ export default observer((props: Props) => {
           <>
             {duplicatedTabsToRemoveInGroup > 0 && (
               <>
-                <Divider />
+                <MenuDivider />
                 <MenuItem
                   data-testid={`tab-group-menu-clean-duplicates-${row.groupId}`}
                   onClick={() => {
@@ -441,7 +435,7 @@ export default observer((props: Props) => {
                 </MenuItem>
               </>
             )}
-            <Divider />
+            <MenuDivider />
             <MenuItem
               data-testid={`tab-group-menu-ungroup-${row.groupId}`}
               onClick={() => {
@@ -453,7 +447,7 @@ export default observer((props: Props) => {
             </MenuItem>
           </>
         )}
-      </Popover>
+      </Menu>
       {canMutateGroups && (
         <GroupEditorPopover
           anchorEl={editorAnchorEl}

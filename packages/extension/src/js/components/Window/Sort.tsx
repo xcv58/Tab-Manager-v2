@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { SortIcon } from 'icons/materialIcons'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'

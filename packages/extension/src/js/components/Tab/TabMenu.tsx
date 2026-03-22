@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import MenuItem from '@mui/material/MenuItem'
-import Divider from '@mui/material/Divider'
-import Popover from '@mui/material/Popover'
+import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
 import { MoreVertIcon } from 'icons/materialIcons'
 import { getNoun } from 'libs'
 import { useAppTheme } from 'libs/appTheme'
@@ -126,7 +124,7 @@ export default observer((props: { tab: Tab }) => {
     .filter((option): option is OptionOrDivider => !!option)
     .map((option, i) => {
       if (option.__typename === 'DIVIDER') {
-        return <Divider key={i} />
+        return <MenuDivider key={i} />
       }
       const { label, onClick, disabled } = option
       return (
@@ -150,23 +148,14 @@ export default observer((props: { tab: Tab }) => {
       >
         <MoreVertIcon fontSize={16} />
       </ControlIconButton>
-      <Popover
+      <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
         onClose={handleClose}
-        style={{ zIndex: theme.zIndex.tooltip + 1 }}
-        PaperProps={{
-          style: {
-            minWidth: 200,
-          },
-        }}
+        style={{ zIndex: theme.zIndex.tooltip + 1, minWidth: 200 }}
       >
         {content}
-      </Popover>
+      </Menu>
     </>
   )
 })

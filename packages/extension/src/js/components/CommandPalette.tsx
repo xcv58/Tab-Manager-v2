@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactCommandPalette from 'react-command-palette'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { LiveHelpOutlinedIcon } from 'icons/materialIcons'
 import IconButton from 'components/ui/IconButton'
 import { useStore } from './hooks/useStore'
