@@ -8,7 +8,7 @@ import React, {
 import { observer } from 'mobx-react-lite'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 import { getNoun } from 'libs'

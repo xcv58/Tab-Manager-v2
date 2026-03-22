@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { FlipIcon } from 'icons/materialIcons'
 import IconButton from 'components/ui/IconButton'
 import { TOOLTIP_DELAY } from 'libs'

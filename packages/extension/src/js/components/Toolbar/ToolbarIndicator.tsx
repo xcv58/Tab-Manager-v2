@@ -1,8 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
-import Fade from '@mui/material/Fade'
-import Slide from '@mui/material/Slide'
+import { Fade, Slide } from 'components/ui/Transition'
 import {
   KeyboardArrowLeftIcon,
   KeyboardArrowRightIcon,

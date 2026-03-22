@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import Popover from '@mui/material/Popover'
-import { useTheme } from '@mui/material/styles'
+import Popover from 'components/ui/Popover'
+import { useAppTheme } from 'libs/appTheme'
 import {
   CHROME_TAB_GROUP_COLOR_ORDER,
   getChromeTabGroupColor,
@@ -32,7 +32,7 @@ export default (props: Props) => {
   const titleInputRef = useRef<HTMLInputElement>(null)
   const committedTitleRef = useRef(initialTitle)
   const skipBlurCommitRef = useRef(false)
-  const theme = useTheme()
+  const theme = useAppTheme()
 
   useEffect(() => {
     if (!open) {
@@ -67,17 +67,11 @@ export default (props: Props) => {
         commitTitle()
         onClose()
       }}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
-      PaperProps={{
-        style: {
-          width: 320,
-          borderRadius: 12,
-          padding: 12,
-          overflow: 'visible',
-        },
+      style={{
+        width: 320,
+        borderRadius: 12,
+        padding: 12,
+        overflow: 'visible',
       }}
     >
       <div data-testid={`tab-group-editor-${groupId}`}>
@@ -89,7 +83,7 @@ export default (props: Props) => {
             borderColor: theme.palette.primary.main,
             caretColor: theme.palette.text.primary,
             color: theme.palette.text.primary,
-            colorScheme: theme.palette.mode,
+            colorScheme: theme.mode,
           }}
           value={title}
           onChange={(event) => setTitle(event.target.value)}

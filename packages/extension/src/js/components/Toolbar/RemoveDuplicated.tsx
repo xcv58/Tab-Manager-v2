@@ -2,7 +2,7 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { DeleteSweepIcon } from 'icons/materialIcons'
 import IconButton from 'components/ui/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { TOOLTIP_DELAY, getNoun } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
