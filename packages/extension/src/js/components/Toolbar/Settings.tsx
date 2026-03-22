@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Settings from '@mui/icons-material/SettingsSharp'
-import IconButton from '@mui/material/IconButton'
+import { SettingsSharpIcon } from 'icons/materialIcons'
+import IconButton from 'components/ui/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
@@ -18,7 +18,7 @@ export default observer(() => {
           className="focus:outline-none"
           aria-label={TITLE}
         >
-          <Settings />
+          <SettingsSharpIcon />
         </IconButton>
       </div>
     </Tooltip>

@@ -1,7 +1,7 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import { useTheme } from '@mui/material/styles'
+import { useAppTheme } from 'libs/appTheme'
 import { useDrop } from 'react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import { ItemTypes } from 'libs/react-dnd'
@@ -13,7 +13,7 @@ type Props = WinProps & {
 }
 
 export default observer((props: Props) => {
-  const theme = useTheme()
+  const theme = useAppTheme()
   const { position, win } = props
   const { dragStore } = useStore()
   const [dropProps, drop] = useDrop({

@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import { StoreContext } from 'components/hooks/useStore'
 import { ThemeContext } from 'components/hooks/useTheme'
 import Title from '../Title'
@@ -51,11 +51,11 @@ describe('Window Title', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <ThemeContext.Provider value={false}>
             <Title className="" win={win} />
           </ThemeContext.Provider>
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 
@@ -95,11 +95,11 @@ describe('Window Title', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <ThemeContext.Provider value={false}>
             <Title className="" win={win} />
           </ThemeContext.Provider>
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 
@@ -134,11 +134,11 @@ describe('Window Title', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <ThemeContext.Provider value={false}>
             <Title className="" win={win} />
           </ThemeContext.Provider>
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 

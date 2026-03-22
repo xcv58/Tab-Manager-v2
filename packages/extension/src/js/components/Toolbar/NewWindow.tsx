@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from '@mui/material/Tooltip'
-import OpenInNew from '@mui/icons-material/OpenInNew'
-import IconButton from '@mui/material/IconButton'
+import { OpenInNewIcon } from 'icons/materialIcons'
+import IconButton from 'components/ui/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
@@ -20,7 +20,7 @@ export default observer(() => {
           className="focus:outline-none"
           aria-label={title}
         >
-          <OpenInNew />
+          <OpenInNewIcon />
         </IconButton>
       </div>
     </Tooltip>

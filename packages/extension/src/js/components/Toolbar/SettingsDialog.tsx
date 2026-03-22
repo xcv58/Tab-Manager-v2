@@ -9,18 +9,20 @@ import Fade from '@mui/material/Fade'
 import Switch from '@mui/material/Switch'
 import { useStore } from 'components/hooks/useStore'
 import Slider from '@mui/material/Slider'
-import IconButton from '@mui/material/IconButton'
+import IconButton from 'components/ui/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
-import { useTheme } from '@mui/material/styles'
-import AddRoundedIcon from '@mui/icons-material/AddRounded'
-import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded'
-import DesktopWindowsRoundedIcon from '@mui/icons-material/DesktopWindowsRounded'
-import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded'
-import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
+import { useAppTheme } from 'libs/appTheme'
+import {
+  AddRoundedIcon,
+  DarkModeRoundedIcon,
+  DesktopWindowsRoundedIcon,
+  LightModeRoundedIcon,
+  RemoveRoundedIcon,
+} from 'icons/materialIcons'
 import useReduceMotion from 'libs/useReduceMotion'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import { defaultTransitionDuration } from 'libs/transition'
@@ -217,12 +219,11 @@ const DensityControl = ({
         </div>
         <div className="flex items-center gap-0.5 self-start md:shrink-0">
           <IconButton
-            size="small"
             aria-label={decrementAriaLabel}
             onClick={() => commitValue(value - step)}
-            sx={{ width: 30, height: 30, p: 0 }}
+            style={{ width: 30, height: 30, padding: 0 }}
           >
-            <RemoveRoundedIcon fontSize="small" />
+            <RemoveRoundedIcon fontSize={18} />
           </IconButton>
           <TextField
             size="small"
@@ -288,12 +289,11 @@ const DensityControl = ({
             }}
           />
           <IconButton
-            size="small"
             aria-label={incrementAriaLabel}
             onClick={() => commitValue(value + step)}
-            sx={{ width: 30, height: 30, p: 0 }}
+            style={{ width: 30, height: 30, padding: 0 }}
           >
-            <AddRoundedIcon fontSize="small" />
+            <AddRoundedIcon fontSize={18} />
           </IconButton>
         </div>
       </div>
@@ -435,7 +435,7 @@ const SettingsSwitchOption = ({
 
 export default observer(() => {
   const { userStore } = useStore()
-  const muiTheme = useTheme()
+  const muiTheme = useAppTheme()
   const {
     dialogOpen,
     closeDialog,
@@ -475,7 +475,7 @@ export default observer(() => {
     selectTheme,
   } = userStore
   const reduceMotion = useReduceMotion()
-  const isDarkMode = muiTheme.palette.mode === 'dark'
+  const isDarkMode = muiTheme.mode === 'dark'
   const uiColors = getUiColorTokens(isDarkMode, uiPreset)
   const panelStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsPanelSurface,

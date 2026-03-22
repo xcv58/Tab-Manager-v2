@@ -1,5 +1,5 @@
 import React from 'react'
-import CloseIcon from '@mui/icons-material/Close'
+import { CloseIcon } from 'icons/materialIcons'
 import ControlIconButton from 'components/ControlIconButton'
 
 export interface CloseButtonProps {
@@ -41,7 +41,7 @@ const CloseButton: React.FC<CloseButtonProps> = (props) => {
       tone={tone}
       controlSize={size === 'compact' ? 'compact' : 'medium'}
     >
-      <CloseIcon sx={{ fontSize: size === 'compact' ? 13 : 16 }} />
+      <CloseIcon fontSize={size === 'compact' ? 13 : 16} />
     </ControlIconButton>
   )
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import DragHandleIcon from '@mui/icons-material/DragHandle'
+import { DragHandleIcon } from 'icons/materialIcons'
 import ControlIconButton from 'components/ControlIconButton'
 
 type Props = {
@@ -13,16 +13,11 @@ export default ({ className }: Props) => {
       tabIndex={-1}
       className={classNames(className)}
       controlSize="compact"
-      sx={{
-        cursor: 'move',
-        '&:hover': {
-          cursor: 'move',
-        },
-      }}
+      style={{ cursor: 'move' }}
       aria-label="Drag tab"
       title="Drag tab"
     >
-      <DragHandleIcon sx={{ fontSize: 15 }} />
+      <DragHandleIcon fontSize={15} />
     </ControlIconButton>
   )
 }
