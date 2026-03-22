@@ -3,12 +3,10 @@ import { connectDropTarget } from 'test'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import Window from 'components/Window'
-import { createTheme } from '@mui/material/styles'
 import { render } from '@testing-library/react'
 
 jest.mock('../Tabs', () => 'tabs')
 
-const theme = createTheme()
 const tabs = [{ id: 1 }, { id: 2 }]
 const props = {
   connectDropTarget,
@@ -20,7 +18,6 @@ const props = {
     showTabs: true,
   },
   width: '100%',
-  theme,
 }
 
 describe('Window', () => {
@@ -28,7 +25,7 @@ describe('Window', () => {
     const { container } = render(
       <DndProvider backend={HTML5Backend}>
         <Window {...props} />
-      </DndProvider>
+      </DndProvider>,
     )
     expect(container).toMatchSnapshot()
   })
@@ -37,7 +34,7 @@ describe('Window', () => {
     const { container } = render(
       <DndProvider backend={HTML5Backend}>
         <Window {...props} isDragging isOver canDrop={false} />
-      </DndProvider>
+      </DndProvider>,
     )
     expect(container).toMatchSnapshot()
     // expect(el.find(Title).length).toBe(1)
