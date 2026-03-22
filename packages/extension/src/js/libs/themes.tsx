@@ -1,11 +1,11 @@
-import { blue, green } from '@mui/material/colors'
-import merge from 'lodash.merge'
 import { grey700 } from 'libs/colors'
+import { blue50, blue200, blue500, green100, green300 } from 'libs/appTheme'
+import merge from 'lodash.merge'
 
-export const dropTargetColor = green[100]
-export const droppedColor = green[300]
-export const highlightBorderColor = blue[500]
-export const focusedColor = blue[200]
+export const dropTargetColor = green100
+export const droppedColor = green300
+export const highlightBorderColor = blue500
+export const focusedColor = blue200
 export const backgroundColor = 'rgba(255, 255, 255, 0.64)'
 
 const MuiSnackbarContent = {
@@ -76,9 +76,9 @@ const components = {
 }
 
 const app = {
-  focusedColor: blue[200],
-  highlightBorderColor: blue[500],
-  highlightColor: blue[50],
+  focusedColor: blue200,
+  highlightBorderColor: blue500,
+  highlightColor: blue50,
 }
 
 export const lightTheme = {

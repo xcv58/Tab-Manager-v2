@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import Divider from '@mui/material/Divider'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import { MoreHorizIcon } from 'icons/materialIcons'
 import ControlIconButton from 'components/ControlIconButton'
 import { getNoun, openInNewTab, openOrTogglePopup } from 'libs'
 import { useStore } from './hooks/useStore'
@@ -30,7 +30,7 @@ export default observer(() => {
         onClick={(event) => setAnchorEl(event.currentTarget)}
         aria-label="More actions"
       >
-        <MoreHorizIcon sx={{ fontSize: 20 }} />
+        <MoreHorizIcon fontSize={20} />
       </ControlIconButton>
       <Menu
         anchorEl={anchorEl}
