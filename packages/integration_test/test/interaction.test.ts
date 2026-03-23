@@ -834,7 +834,7 @@ test.describe('The Extension page should', () => {
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    await page.keyboard.press('Control+,')
+    await page.locator('button[aria-label="Settings"]').first().click()
     await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)

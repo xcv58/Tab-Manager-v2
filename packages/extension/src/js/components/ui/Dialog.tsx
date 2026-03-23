@@ -2,6 +2,19 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Fade } from 'components/ui/Transition'
 
+const openDialogStack: HTMLDivElement[] = []
+
+const removeDialogFromStack = (dialogNode: HTMLDivElement | null) => {
+  if (!dialogNode) {
+    return
+  }
+
+  const index = openDialogStack.lastIndexOf(dialogNode)
+  if (index >= 0) {
+    openDialogStack.splice(index, 1)
+  }
+}
+
 export interface DialogProps {
   open: boolean
   onClose: () => void
@@ -41,6 +54,12 @@ export default function Dialog({
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const wasOpenRef = useRef(false)
+  const isTopmostDialog = useCallback(() => {
+    const dialogNode = dialogRef.current
+    return (
+      !!dialogNode && openDialogStack[openDialogStack.length - 1] === dialogNode
+    )
+  }, [])
 
   const getFocusableElements = useCallback(() => {
     const dialogNode = dialogRef.current
@@ -88,6 +107,10 @@ export default function Dialog({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (!isTopmostDialog()) {
+        return
+      }
+
       if (e.key === 'Escape') {
         e.preventDefault()
         onClose()
@@ -132,12 +155,17 @@ export default function Dialog({
     if (open) {
       if (!wasOpenRef.current) {
         previousFocusRef.current = document.activeElement as HTMLElement
+        removeDialogFromStack(dialogRef.current)
+        if (dialogRef.current) {
+          openDialogStack.push(dialogRef.current)
+        }
         requestAnimationFrame(() => {
           focusInitialElement()
         })
       }
       document.addEventListener('keydown', handleKeyDown)
     } else if (wasOpenRef.current) {
+      removeDialogFromStack(dialogRef.current)
       restoreFocus()
     }
 
@@ -150,6 +178,7 @@ export default function Dialog({
 
   useEffect(() => {
     return () => {
+      removeDialogFromStack(dialogRef.current)
       if (wasOpenRef.current) {
         restoreFocus()
       }

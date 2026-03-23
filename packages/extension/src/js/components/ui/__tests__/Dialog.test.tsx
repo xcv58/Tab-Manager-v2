@@ -88,4 +88,53 @@ describe('Dialog', () => {
 
     anchorEl.remove()
   })
+
+  it('only closes the topmost dialog on Escape when dialogs are stacked', async () => {
+    const outerOnClose = jest.fn()
+
+    const Example = () => {
+      const [outerOpen, setOuterOpen] = React.useState(true)
+      const [innerOpen, setInnerOpen] = React.useState(true)
+
+      return (
+        <>
+          <Dialog
+            open={outerOpen}
+            onClose={() => {
+              outerOnClose()
+              setOuterOpen(false)
+            }}
+          >
+            <div>
+              <button type="button">Outer action</button>
+            </div>
+          </Dialog>
+          <Dialog open={innerOpen} onClose={() => setInnerOpen(false)}>
+            <div>
+              <button type="button">Inner action</button>
+            </div>
+          </Dialog>
+        </>
+      )
+    }
+
+    render(<Example />)
+
+    const innerButton = await screen.findByRole('button', {
+      name: 'Inner action',
+    })
+
+    fireEvent.keyDown(innerButton, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: 'Inner action' }),
+      ).not.toBeInTheDocument()
+    })
+
+    expect(
+      screen.getByRole('button', { name: 'Outer action' }),
+    ).toBeInTheDocument()
+    expect(outerOnClose).not.toHaveBeenCalled()
+  })
 })

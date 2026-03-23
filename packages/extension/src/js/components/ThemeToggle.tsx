@@ -16,6 +16,7 @@ export default observer(() => {
     <Tooltip title="Toggle light/dark theme" placement="left">
       <IconButton
         onClick={() => toggleDarkTheme(isDarkTheme)}
+        aria-label="Toggle light/dark theme"
         className="focus:outline-none"
       >
         {isDarkTheme ? <LightbulbFull /> : <LightbulbOutline />}
