@@ -69,7 +69,7 @@ export default class SearchStore {
     }
   }
 
-  searchEl: MutableRefObject<HTMLInputElement> = null
+  searchEl: MutableRefObject<HTMLElement | null> | null = null
 
   query = ''
 
@@ -140,26 +140,39 @@ export default class SearchStore {
     )
   }
 
-  setSearchEl = (searchEl: MutableRefObject<HTMLInputElement>) => {
+  getSearchInputEl = () => {
+    const current = this.searchEl?.current
+    if (!current) {
+      return null
+    }
+
+    if (current instanceof HTMLInputElement) {
+      return current
+    }
+
+    return current.querySelector('input')
+  }
+
+  setSearchEl = (searchEl: MutableRefObject<HTMLElement | null>) => {
     this.searchEl = searchEl
   }
 
   focus = () => {
-    this.searchEl.current.click()
+    this.getSearchInputEl()?.focus()
   }
 
   startCommandSearch = async () => {
     const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
     this.search(`>${lastCommand}`)
     this.focus()
-    const inputEl = this.searchEl.current.querySelector('input')
+    const inputEl = this.getSearchInputEl()
     if (inputEl) {
       inputEl.setSelectionRange(1, 1 + lastCommand.length)
     }
   }
 
   blur = () => {
-    const inputEl = this.searchEl.current.querySelector('input')
+    const inputEl = this.getSearchInputEl()
     if (inputEl) {
       inputEl.blur()
     }

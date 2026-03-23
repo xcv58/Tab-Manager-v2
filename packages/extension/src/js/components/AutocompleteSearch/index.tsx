@@ -20,7 +20,7 @@ import { useAppTheme } from 'libs/appTheme'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
-const SEARCH_FONT_SIZE = '0.875rem'
+const SEARCH_FONT_SIZE = '0.8125rem'
 const LISTBOX_MARGIN_TOP = 4
 
 const commandFilter = (options, { inputValue }) => {
@@ -282,6 +282,10 @@ export const getAutocompleteListHeight = ({
   const minimumHeight = tabHeight + 2 * LISTBOX_PADDING
   const cappedHeight = Math.min(naturalHeight, maxHeight)
 
+  if (Number.isFinite(maxHeight)) {
+    return Math.max(0, cappedHeight)
+  }
+
   return Math.max(minimumHeight, cappedHeight)
 }
 
@@ -482,7 +486,7 @@ const AutocompleteSearch = observer((props: Props) => {
         />
         {!query && (
           <span
-            className="pr-2 text-[0.72rem] whitespace-nowrap select-none"
+            className="pr-2 whitespace-nowrap select-none"
             style={{
               color: theme.palette.text.secondary,
               opacity: 0.8,

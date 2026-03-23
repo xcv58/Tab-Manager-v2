@@ -408,33 +408,50 @@ const SettingsSwitchOption = ({
   testId?: string
   containerAriaLabelledBy?: string
   containerAriaLabel?: string
-}) => (
-  <label
-    data-testid={testId}
-    className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 ${
-      description ? 'items-start py-3.5' : 'items-center py-3'
-    }`}
-    style={style}
-    aria-labelledby={containerAriaLabelledBy}
-    aria-label={containerAriaLabel}
-  >
-    <div className="min-w-0 pr-3">
-      <h5 style={controlTitleStyle}>{title}</h5>
-      {description && <p style={controlDescriptionStyle}>{description}</p>}
+}) => {
+  const switchId = React.useId()
+  const titleId = React.useId()
+  const descriptionId = description ? React.useId() : undefined
+
+  return (
+    <div
+      data-testid={testId}
+      className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
+        description ? 'items-start py-3.5' : 'items-center py-3'
+      }`}
+      style={style}
+      aria-labelledby={containerAriaLabelledBy}
+      aria-label={containerAriaLabel}
+    >
+      <label htmlFor={switchId} className="min-w-0 pr-3 cursor-pointer">
+        <h5 id={titleId} style={controlTitleStyle}>
+          {title}
+        </h5>
+        {description && (
+          <p id={descriptionId} style={controlDescriptionStyle}>
+            {description}
+          </p>
+        )}
+      </label>
+      <Switch
+        size="small"
+        checked={checked}
+        onChange={onChange}
+        inputProps={{
+          id: switchId,
+          'aria-label': title,
+          'aria-labelledby': titleId,
+          'aria-describedby': descriptionId,
+        }}
+        style={{
+          marginTop: description ? -2 : 0,
+          marginRight: -4,
+          flexShrink: 0,
+        }}
+      />
     </div>
-    <Switch
-      size="small"
-      checked={checked}
-      onChange={onChange}
-      inputProps={{ 'aria-label': title }}
-      style={{
-        marginTop: description ? -2 : 0,
-        marginRight: -4,
-        flexShrink: 0,
-      }}
-    />
-  </label>
-)
+  )
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Main SettingsDialog                                                        */
@@ -719,6 +736,7 @@ export default observer(() => {
                 checked={litePopupMode}
                 onChange={toggleLitePopupMode}
                 style={rowDetailOptionStyle}
+                testId="settings-lite-popup-mode"
               />
               <SettingsSwitchOption
                 title="Auto-fit columns"

@@ -206,11 +206,11 @@ describe('AutocompleteSearch', () => {
     const input = screen.getByRole('combobox')
     const hint = screen.getByText('/ focus · > commands')
 
-    expect(input).toHaveStyle('font-size: 0.875rem')
-    expect(hint).toHaveStyle('font-size: 0.875rem')
+    expect(input).toHaveStyle('font-size: 0.8125rem')
+    expect(hint).toHaveStyle('font-size: 0.8125rem')
   })
 
-  it('caps the lite popup result list height so it can scroll above the bottom controls', async () => {
+  it('caps the lite popup result list height to the exact available space above the bottom controls', async () => {
     const originalInnerHeight = window.innerHeight
     Object.defineProperty(window, 'innerHeight', {
       configurable: true,
@@ -246,7 +246,7 @@ describe('AutocompleteSearch', () => {
     })
 
     const virtualList = await screen.findByTestId('virtual-list')
-    expect(virtualList).toHaveStyle('height: 56px')
+    expect(virtualList).toHaveStyle('height: 52px')
 
     HTMLDivElement.prototype.getBoundingClientRect =
       originalGetBoundingClientRect

@@ -1,6 +1,75 @@
 import SearchStore, { matchesSearchText } from 'stores/SearchStore'
+import { browser } from 'libs'
 
 describe('SearchStore', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+    document.body.innerHTML = ''
+  })
+
+  it('focuses and blurs a direct input ref used by the local search field', () => {
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [],
+      },
+      focusStore: {
+        focusedTabId: null,
+        defocus: jest.fn(),
+      },
+      tabStore: {
+        isTabSelected: () => false,
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+
+    const input = document.createElement('input')
+    document.body.appendChild(input)
+    searchStore.searchEl = { current: input } as any
+
+    searchStore.focus()
+    expect(document.activeElement).toBe(input)
+
+    searchStore.blur()
+    expect(document.activeElement).not.toBe(input)
+  })
+
+  it('restores command search text selection when the search ref points directly at the input', async () => {
+    jest
+      .spyOn(browser.storage.local, 'get')
+      .mockResolvedValue({ lastCommand: 'group' } as any)
+
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [],
+      },
+      focusStore: {
+        focusedTabId: null,
+        defocus: jest.fn(),
+      },
+      tabStore: {
+        isTabSelected: () => false,
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+
+    const input = document.createElement('input')
+    document.body.appendChild(input)
+    searchStore.searchEl = { current: input } as any
+    const setSelectionRangeSpy = jest.spyOn(input, 'setSelectionRange')
+
+    await searchStore.startCommandSearch()
+
+    expect(searchStore.query).toBe('>group')
+    expect(document.activeElement).toBe(input)
+    expect(setSelectionRangeSpy).toHaveBeenCalledWith(1, 6)
+  })
+
   it('should repack layout after updating the active search query', async () => {
     const repackLayout = jest.fn()
     const getVisibleRowCountSnapshot = jest.fn(() => [
