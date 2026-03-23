@@ -430,13 +430,17 @@ const AutocompleteSearch = observer((props: Props) => {
   }
 
   return (
-    <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
+    <div
+      ref={rootRef}
+      style={{ position: 'relative', flex: '1 1 0%', minWidth: 0 }}
+    >
       {/* Input Field */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           width: '100%',
+          minWidth: 0,
           borderBottom: '1px solid',
           borderColor: 'var(--input-border, rgba(0,0,0,0.42))',
           position: 'relative',
@@ -476,6 +480,7 @@ const AutocompleteSearch = observer((props: Props) => {
           role={inputProps.role}
           style={{
             flex: 1,
+            minWidth: 0,
             border: 'none',
             background: 'transparent',
             color: theme.palette.text.primary,

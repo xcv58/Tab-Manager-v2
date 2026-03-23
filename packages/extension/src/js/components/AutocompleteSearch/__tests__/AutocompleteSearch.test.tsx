@@ -210,6 +210,16 @@ describe('AutocompleteSearch', () => {
     expect(hint).toHaveStyle('font-size: 0.8125rem')
   })
 
+  it('uses a flexing root so the search field does not overlap the toolbar summary', () => {
+    renderAutocompleteSearch()
+
+    const input = screen.getByRole('combobox')
+    const root = input.parentElement?.parentElement
+
+    expect(root).toHaveStyle('flex: 1 1 0%')
+    expect(root).toHaveStyle('min-width: 0')
+  })
+
   it('caps the lite popup result list height to the exact available space above the bottom controls', async () => {
     const originalInnerHeight = window.innerHeight
     Object.defineProperty(window, 'innerHeight', {
