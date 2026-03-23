@@ -32,4 +32,24 @@ describe('Slider', () => {
       `background-color: ${darkAppTheme.palette.primary.main}`,
     )
   })
+
+  it('exposes slider value bounds for accessibility and settings tests', () => {
+    render(
+      <AppThemeContext.Provider value={darkAppTheme}>
+        <Slider
+          value={20}
+          min={15}
+          max={50}
+          onChange={() => {}}
+          aria-label="Update Tab Width"
+        />
+      </AppThemeContext.Provider>,
+    )
+
+    const slider = screen.getByLabelText('Update Tab Width')
+
+    expect(slider).toHaveAttribute('aria-valuemin', '15')
+    expect(slider).toHaveAttribute('aria-valuemax', '50')
+    expect(slider).toHaveAttribute('aria-valuenow', '20')
+  })
 })

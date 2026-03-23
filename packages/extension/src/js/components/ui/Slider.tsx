@@ -97,6 +97,9 @@ export default function Slider({
         onMouseDown={() => setIsDragging(true)}
         onMouseUp={() => setIsDragging(false)}
         aria-label={ariaLabel}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
         style={{
           position: 'absolute',
           top: 0,
