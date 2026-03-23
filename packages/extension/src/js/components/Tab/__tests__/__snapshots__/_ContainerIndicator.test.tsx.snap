@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ContainerIndicator render null for invalid cookieStoreId 1`] = `<div />`;
+
+exports[`ContainerIndicator render valid content if cookieStoreId is valid 1`] = `
+<div>
+  <hr
+    class="absolute border"
+    style="width: calc(100% - 24px); left: 12px; bottom: 2px; border-color: #ff0000;"
+  />
+</div>
+`;

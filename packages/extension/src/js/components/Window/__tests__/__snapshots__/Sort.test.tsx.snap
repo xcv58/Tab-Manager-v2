@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Sort should call arrangeStore.sortTabs 1`] = `
+<button
+  aria-label="Sort tabs"
+  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring shrink-0 focus:outline-none focus:ring"
+  style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
+  type="button"
+>
+  <svg
+    aria-hidden="true"
+    fill="currentColor"
+    focusable="false"
+    style="width: 16px; height: 16px;"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"
+    />
+  </svg>
+</button>
+`;
+
+exports[`Sort should have correct tooltip 1`] = `
+<div
+  role="tooltip"
+  style="position: fixed; top: 8px; left: 0px; transform: translateX(-50%); z-index: 1500; pointer-events: auto; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
+>
+  Sort tabs
+</div>
+`;
+
+exports[`Sort should have correct tooltip 2`] = `
+<div>
+  <button
+    aria-label="Sort tabs"
+    class="inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring shrink-0 focus:outline-none focus:ring"
+    style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
+    type="button"
+  >
+    <svg
+      aria-hidden="true"
+      fill="currentColor"
+      focusable="false"
+      style="width: 16px; height: 16px;"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"
+      />
+    </svg>
+  </button>
+</div>
+`;
