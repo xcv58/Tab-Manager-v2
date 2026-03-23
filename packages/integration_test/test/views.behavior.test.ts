@@ -507,7 +507,7 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
-    const syncButton = page.locator('[aria-label="Sync All Windows"]').first()
+    const syncButton = page.getByTestId('sync-all-windows').first()
     await expect(syncButton).toBeVisible()
     await syncButton.click()
     await page.waitForTimeout(250)

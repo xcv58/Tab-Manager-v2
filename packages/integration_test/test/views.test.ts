@@ -649,9 +649,7 @@ test.describe('The Extension page should', () => {
   })
 
   test('render search input atom', async () => {
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
+    const searchInput = page.getByTestId('toolbar-search-input')
     await expect(searchInput).toBeVisible()
     await page.mouse.click(12, 120)
     const searchInputScreenshot = await searchInput.screenshot()

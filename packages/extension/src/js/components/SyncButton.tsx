@@ -10,6 +10,8 @@ export default observer(() => {
   return (
     <Tooltip title="Sync All Windows" placement="left">
       <IconButton
+        aria-label="Sync All Windows"
+        data-testid="sync-all-windows"
         onClick={() =>
           void windowStore.syncAllWindows({
             revealActiveTab: true,

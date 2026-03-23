@@ -452,6 +452,7 @@ const AutocompleteSearch = observer((props: Props) => {
       >
         <input
           ref={searchInputRef}
+          data-testid="toolbar-search-input"
           type="text"
           value={inputProps.value}
           onChange={inputProps.onChange}
