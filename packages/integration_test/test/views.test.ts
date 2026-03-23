@@ -666,7 +666,7 @@ test.describe('The Extension page should', () => {
     await expect(searchInput).toBeVisible()
     await searchInput.click()
     await searchInput.fill('>sort')
-    const firstOption = page.locator('.MuiAutocomplete-option').first()
+    const firstOption = page.locator('[role="option"]').first()
     await waitForSurfaceToFullyAppear(page, firstOption)
     const commandOptionScreenshot = await firstOption.screenshot({
       animations: 'disabled',
@@ -995,7 +995,7 @@ test.describe('The Extension page should', () => {
     await expect(tabMenuButton).toBeVisible()
     await tabMenuButton.click({ force: true })
     await waitForTestId(page, `tab-menu-option-${atomTabId}-close`)
-    const tabMenuPanel = page.locator('.MuiPopover-root .MuiPaper-root').last()
+    const tabMenuPanel = page.getByRole('menu').last()
     await waitForSurfaceToFullyAppear(page, tabMenuPanel)
     const tabMenuPanelScreenshot = await tabMenuPanel.screenshot({
       animations: 'disabled',
@@ -1172,9 +1172,10 @@ test.describe('The Extension page should', () => {
     }, atomTab!.id)
 
     const windowMetrics = await windowTitle.evaluate((titleNode) => {
-      const checkbox = titleNode.querySelector(
-        '.MuiCheckbox-root',
-      ) as HTMLElement | null
+      const checkboxInput = titleNode.querySelector(
+        'input[type="checkbox"][aria-label*="all tabs"]',
+      ) as HTMLInputElement | null
+      const checkbox = checkboxInput?.parentElement as HTMLElement | null
       const icon = checkbox?.querySelector('svg') as SVGElement | null
       if (!checkbox || !icon) {
         return null

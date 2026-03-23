@@ -20,6 +20,8 @@ import { useAppTheme } from 'libs/appTheme'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
+const SEARCH_FONT_SIZE = '0.875rem'
+const LISTBOX_MARGIN_TOP = 4
 
 const commandFilter = (options, { inputValue }) => {
   return filterCommandOptions(options, inputValue.slice(1).trim())
@@ -258,20 +260,45 @@ const renderCommand = (command, state) => {
   )
 }
 
-type Props = { autoFocus?: boolean; open?: boolean }
+type Props = { autoFocus?: boolean; open?: boolean; bottomInset?: number }
 
 const LISTBOX_PADDING = 8
 
+export const getAutocompleteListHeight = ({
+  itemCount,
+  tabHeight,
+  maxHeight = Number.POSITIVE_INFINITY,
+}: {
+  itemCount: number
+  tabHeight: number
+  maxHeight?: number
+}) => {
+  if (!itemCount) {
+    return 0
+  }
+
+  const naturalHeight =
+    Math.min(20, itemCount) * tabHeight + 2 * LISTBOX_PADDING
+  const minimumHeight = tabHeight + 2 * LISTBOX_PADDING
+  const cappedHeight = Math.min(naturalHeight, maxHeight)
+
+  return Math.max(minimumHeight, cappedHeight)
+}
+
 const AutocompleteSearch = observer((props: Props) => {
-  const { autoFocus, open: propOpen } = props
+  const { autoFocus, open: propOpen, bottomInset = 0 } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
   const options = useOptions()
   const { userStore, searchStore, tabGroupStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
   const tabHeight = useTabHeight()
+  const rootRef = useRef<HTMLDivElement>(null)
 
   const [isOpen, setIsOpen] = useState(propOpen || false)
+  const [availableListHeight, setAvailableListHeight] = useState<number>(
+    Number.POSITIVE_INFINITY,
+  )
 
   useEffect(() => {
     if (propOpen !== undefined) setIsOpen(propOpen)
@@ -292,6 +319,8 @@ const AutocompleteSearch = observer((props: Props) => {
   const filteredOptions = useMemo(() => {
     return filterOptions(options, { inputValue: query })
   }, [options, query, filterOptions])
+
+  const itemCount = filteredOptions.length
 
   const handleSelect = (option: any) => {
     if (!option || typeof option === 'string') return
@@ -321,13 +350,39 @@ const AutocompleteSearch = observer((props: Props) => {
     inputValue: query,
     onInputValueChange: search,
     onSelect: handleSelect,
-    isItemDisabled: (item) => Boolean(item.isDivider),
+    isItemDisabled: useMemo(() => (item) => Boolean(item.isDivider), []),
     isOpen,
     onOpenChange: setIsOpen,
   })
 
   const inputProps = getInputProps()
   const listboxProps = getListboxProps()
+
+  useEffect(() => {
+    if (!bottomInset) {
+      setAvailableListHeight(Number.POSITIVE_INFINITY)
+      return
+    }
+
+    const updateAvailableHeight = () => {
+      if (!rootRef.current) {
+        return
+      }
+
+      const rect = rootRef.current.getBoundingClientRect()
+      const nextHeight =
+        window.innerHeight - rect.bottom - bottomInset - LISTBOX_MARGIN_TOP
+
+      setAvailableListHeight(Math.max(0, nextHeight))
+    }
+
+    updateAvailableHeight()
+    window.addEventListener('resize', updateAvailableHeight)
+
+    return () => {
+      window.removeEventListener('resize', updateAvailableHeight)
+    }
+  }, [bottomInset, isOpen, itemCount, query])
 
   // Inner row renderer for the virtualized list
   const Row = ({ index, style }: any) => {
@@ -358,11 +413,20 @@ const AutocompleteSearch = observer((props: Props) => {
     )
   }
 
-  const itemCount = filteredOptions.length
-  const listHeight = Math.min(20, itemCount) * tabHeight + 2 * LISTBOX_PADDING
+  const listHeight = getAutocompleteListHeight({
+    itemCount,
+    tabHeight,
+    maxHeight: availableListHeight,
+  })
+
+  const handleEscape = () => {
+    search('')
+    setIsOpen(false)
+    searchInputRef.current?.blur()
+  }
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
       {/* Input Field */}
       <div
         style={{
@@ -380,9 +444,18 @@ const AutocompleteSearch = observer((props: Props) => {
       >
         <input
           ref={searchInputRef}
+          type="text"
           value={inputProps.value}
           onChange={inputProps.onChange}
-          onKeyDown={inputProps.onKeyDown}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.preventDefault()
+              handleEscape()
+              return
+            }
+
+            inputProps.onKeyDown(event)
+          }}
           onFocus={() => {
             startType()
             inputProps.onFocus()
@@ -402,7 +475,7 @@ const AutocompleteSearch = observer((props: Props) => {
             border: 'none',
             background: 'transparent',
             color: theme.palette.text.primary,
-            fontSize: '1rem',
+            fontSize: SEARCH_FONT_SIZE,
             padding: '4px 0 5px',
             outline: 'none',
           }}
@@ -413,6 +486,7 @@ const AutocompleteSearch = observer((props: Props) => {
             style={{
               color: theme.palette.text.secondary,
               opacity: 0.8,
+              fontSize: SEARCH_FONT_SIZE,
             }}
           >
             {SEARCH_HINT}
@@ -430,7 +504,7 @@ const AutocompleteSearch = observer((props: Props) => {
             left: 0,
             right: 0,
             zIndex: 1300,
-            marginTop: 4,
+            marginTop: LISTBOX_MARGIN_TOP,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
             border:

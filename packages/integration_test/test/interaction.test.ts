@@ -744,7 +744,7 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
 
     // Wait for and select the first command option that appears
-    const commandOption = await page.waitForSelector('.MuiAutocomplete-option')
+    const commandOption = await page.waitForSelector('[role="option"]')
     await commandOption.click()
     await page.waitForTimeout(1000)
 
@@ -766,7 +766,7 @@ test.describe('The Extension page should', () => {
     const getCommandOptions = async (query: string) => {
       await searchInput.click()
       await searchInput.fill(query)
-      const options = page.locator('.MuiAutocomplete-option')
+      const options = page.locator('[role="option"]')
       await expect(options.first()).toBeVisible()
       return (await options.allTextContents()).map((text) =>
         text.replace(/\s+/g, ' ').trim(),

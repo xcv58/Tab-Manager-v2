@@ -34,7 +34,7 @@ export default observer(() => {
       >
         <Summary />
         <LayoutRepackIndicator />
-        <AutocompleteSearch autoFocus open />
+        <AutocompleteSearch autoFocus open bottomInset={64} />
       </div>
       <div
         className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full border px-1 py-1"

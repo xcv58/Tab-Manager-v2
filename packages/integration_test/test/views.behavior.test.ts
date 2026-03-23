@@ -87,11 +87,11 @@ test.describe('The Extension page should', () => {
     await searchInput.fill('pinboard')
     await page.waitForTimeout(700)
     const historyDivider = page
-      .locator('.MuiAutocomplete-option')
+      .locator('[role="option"]')
       .filter({ hasText: 'History' })
       .first()
     await expect(historyDivider).toBeVisible()
-    const historyList = page.locator('.MuiAutocomplete-listbox').first()
+    const historyList = page.locator('[role="listbox"] ul').first()
     const historyListShot = await historyList.screenshot()
     expect(historyListShot).toMatchSnapshot('search-history-list-medium.png', {
       maxDiffPixelRatio: 0.12,
@@ -100,7 +100,7 @@ test.describe('The Extension page should', () => {
 
     await searchInput.fill('zzzz-no-results-state')
     await page.waitForTimeout(500)
-    await expect(page.locator('.MuiAutocomplete-option')).toHaveCount(0)
+    await expect(page.locator('[role="option"]')).toHaveCount(0)
     const noResultsInputShot = await searchInput.screenshot()
     expect(noResultsInputShot).toMatchSnapshot(
       'search-no-results-input-state.png',
@@ -604,7 +604,7 @@ test.describe('The Extension page should', () => {
     await expect(groupedHeader).toBeVisible()
     await expect(groupedHeader).toContainText('SearchDocs')
     const groupMatchedOption = page
-      .locator('.MuiAutocomplete-option')
+      .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(groupMatchedOption).not.toContainText('SearchDocs')
@@ -613,7 +613,7 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(700)
     await expect(groupedHeader).toBeVisible()
     const titleMatchedOption = page
-      .locator('.MuiAutocomplete-option')
+      .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(titleMatchedOption).not.toContainText('SearchDocs')
@@ -638,7 +638,7 @@ test.describe('The Extension page should', () => {
       page.getByTestId(`search-group-header-${groupId}`),
     ).toBeVisible()
     const titleMatchedWithoutUrl = page
-      .locator('.MuiAutocomplete-option')
+      .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(titleMatchedWithoutUrl).not.toContainText('SearchDocs')
@@ -837,9 +837,7 @@ test.describe('The Extension page should', () => {
     await expect(singleHitHeader).toContainText('SoloDocs')
     await expect(singleHitHeader).toContainText('1 tab')
 
-    const optionTexts = await page
-      .locator('.MuiAutocomplete-option')
-      .allTextContents()
+    const optionTexts = await page.locator('[role="option"]').allTextContents()
     expect(optionTexts[0]).toContain('SearchDocs')
     expect(optionTexts[1]).toContain('Alpha Guide')
     expect(optionTexts[2]).toContain('Beta Guide')
@@ -855,7 +853,7 @@ test.describe('The Extension page should', () => {
     ).toHaveCount(0)
 
     const groupedRow = page
-      .locator('.MuiAutocomplete-option')
+      .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await groupedRow.hover()

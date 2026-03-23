@@ -22,6 +22,7 @@ export default function Switch({
   style,
   'data-testid': testId,
 }: SwitchProps) {
+  const [focused, setFocused] = React.useState(false)
   const isSmall = size === 'small'
   const trackW = isSmall ? 34 : 42
   const trackH = isSmall ? 18 : 22
@@ -44,6 +45,8 @@ export default function Switch({
         type="checkbox"
         checked={checked}
         onChange={onChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         {...inputProps}
         style={{
           position: 'absolute',
@@ -58,6 +61,7 @@ export default function Switch({
       />
       {/* Track */}
       <span
+        data-testid="switch-track"
         style={{
           width: trackW,
           height: trackH,
@@ -67,6 +71,7 @@ export default function Switch({
             : 'var(--switch-unchecked-bg, rgba(0,0,0,0.25))',
           transition: 'background-color 150ms ease',
           position: 'relative',
+          boxShadow: focused ? '0 0 0 3px rgba(26, 115, 232, 0.24)' : 'none',
         }}
       >
         {/* Thumb */}
