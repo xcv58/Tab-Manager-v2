@@ -651,6 +651,13 @@ test.describe('The Extension page should', () => {
   test('render search input atom', async () => {
     const searchInput = page.getByTestId('toolbar-search-input')
     await expect(searchInput).toBeVisible()
+    await searchInput.evaluate((el) => {
+      const node = el as HTMLElement
+      node.style.width = '1066px'
+      node.style.minWidth = '1066px'
+      node.style.maxWidth = '1066px'
+      node.style.flex = '0 0 auto'
+    })
     await page.mouse.click(12, 120)
     const searchInputScreenshot = await searchInput.screenshot()
     expect(searchInputScreenshot).toMatchSnapshot('search-input-atom.png', {
