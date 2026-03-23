@@ -652,11 +652,19 @@ test.describe('The Extension page should', () => {
     const searchInput = page.getByTestId('toolbar-search-input')
     await expect(searchInput).toBeVisible()
     await searchInput.evaluate((el) => {
-      const node = el as HTMLElement
-      node.style.width = '1066px'
-      node.style.minWidth = '1066px'
-      node.style.maxWidth = '1066px'
-      node.style.flex = '0 0 auto'
+      const setWidth = (node: HTMLElement | null) => {
+        if (!node) {
+          return
+        }
+        node.style.boxSizing = 'border-box'
+        node.style.width = '1066px'
+        node.style.minWidth = '1066px'
+        node.style.maxWidth = '1066px'
+        node.style.flex = '0 0 auto'
+      }
+
+      setWidth(el as HTMLElement)
+      setWidth((el as HTMLElement).parentElement)
     })
     await page.mouse.click(12, 120)
     const searchInputScreenshot = await searchInput.screenshot()
@@ -667,10 +675,24 @@ test.describe('The Extension page should', () => {
   })
 
   test('render command suggestion atom', async () => {
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
+    const searchBar = page.getByTestId('toolbar-search-input')
+    const searchInput = searchBar.locator('input')
     await expect(searchInput).toBeVisible()
+    await searchBar.evaluate((el) => {
+      const setWidth = (node: HTMLElement | null) => {
+        if (!node) {
+          return
+        }
+        node.style.boxSizing = 'border-box'
+        node.style.width = '1066px'
+        node.style.minWidth = '1066px'
+        node.style.maxWidth = '1066px'
+        node.style.flex = '0 0 auto'
+      }
+
+      setWidth(el as HTMLElement)
+      setWidth((el as HTMLElement).parentElement)
+    })
     await searchInput.click()
     await searchInput.fill('>sort')
     const firstOption = page.locator('[role="option"]').first()
