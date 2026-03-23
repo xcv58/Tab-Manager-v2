@@ -33,34 +33,129 @@ export default function Dialog({
   fullWidth,
   maxWidth = 'sm',
   fullScreen,
+  disableRestoreFocus,
   transitionDuration = 225,
   style,
   'data-testid': testId,
 }: DialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
+  const wasOpenRef = useRef(false)
+
+  const getFocusableElements = useCallback(() => {
+    const dialogNode = dialogRef.current
+    if (!dialogNode) {
+      return []
+    }
+
+    const selector = [
+      'button',
+      '[href]',
+      'input',
+      'select',
+      'textarea',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ')
+
+    return Array.from(
+      dialogNode.querySelectorAll<HTMLElement>(selector),
+    ).filter((element) => {
+      if (element.getAttribute('aria-hidden') === 'true') {
+        return false
+      }
+      if ('disabled' in element && element.disabled) {
+        return false
+      }
+      return true
+    })
+  }, [])
+
+  const focusInitialElement = useCallback(() => {
+    const focusableElements = getFocusableElements()
+    if (focusableElements.length) {
+      focusableElements[0].focus()
+      return
+    }
+    dialogRef.current?.focus()
+  }, [getFocusableElements])
+
+  const restoreFocus = useCallback(() => {
+    if (disableRestoreFocus) {
+      return
+    }
+    previousFocusRef.current?.focus()
+  }, [disableRestoreFocus])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault()
         onClose()
+        return
+      }
+
+      if (e.key !== 'Tab') {
+        return
+      }
+
+      const focusableElements = getFocusableElements()
+      if (!focusableElements.length) {
+        e.preventDefault()
+        dialogRef.current?.focus()
+        return
+      }
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+      const activeElement = document.activeElement as HTMLElement | null
+      const isFocusInsideDialog = !!(
+        activeElement && dialogRef.current?.contains(activeElement)
+      )
+
+      if (e.shiftKey) {
+        if (!isFocusInsideDialog || activeElement === firstElement) {
+          e.preventDefault()
+          lastElement.focus()
+        }
+        return
+      }
+
+      if (!isFocusInsideDialog || activeElement === lastElement) {
+        e.preventDefault()
+        firstElement.focus()
       }
     },
-    [onClose],
+    [getFocusableElements, onClose],
   )
 
   useEffect(() => {
     if (open) {
-      previousFocusRef.current = document.activeElement as HTMLElement
+      if (!wasOpenRef.current) {
+        previousFocusRef.current = document.activeElement as HTMLElement
+        requestAnimationFrame(() => {
+          focusInitialElement()
+        })
+      }
       document.addEventListener('keydown', handleKeyDown)
-      requestAnimationFrame(() => {
-        dialogRef.current?.focus()
-      })
+    } else if (wasOpenRef.current) {
+      restoreFocus()
     }
+
+    wasOpenRef.current = open
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [open, handleKeyDown])
+  }, [focusInitialElement, handleKeyDown, open, restoreFocus])
+
+  useEffect(() => {
+    return () => {
+      if (wasOpenRef.current) {
+        restoreFocus()
+      }
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleKeyDown, restoreFocus])
 
   const enterMs =
     typeof transitionDuration === 'number'

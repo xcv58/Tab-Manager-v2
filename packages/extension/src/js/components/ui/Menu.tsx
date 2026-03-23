@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useAppTheme } from 'libs/appTheme'
 
 /* -------------------------------------------------------------------------- */
 /*  Menu (replaces MUI Menu)                                                   */
@@ -22,14 +23,31 @@ export default function Menu({
   style,
   'data-testid': testId,
 }: MenuProps) {
+  const theme = useAppTheme()
   const menuRef = useRef<HTMLDivElement>(null)
+  const lastAnchorRef = useRef<HTMLElement | null>(null)
   const [position, setPosition] = useState({ top: 0, left: 0 })
 
   useEffect(() => {
     if (!open || !anchorEl) return
+    lastAnchorRef.current = anchorEl
     const rect = anchorEl.getBoundingClientRect()
     setPosition({ top: rect.bottom, left: rect.left })
   }, [open, anchorEl])
+
+  useEffect(() => {
+    if (!open) {
+      lastAnchorRef.current?.focus()
+      return
+    }
+
+    const enabledItems = Array.from(
+      menuRef.current?.querySelectorAll<HTMLButtonElement>(
+        '[role="menuitem"]:not(:disabled)',
+      ) || [],
+    )
+    enabledItems[0]?.focus()
+  }, [open])
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
@@ -40,24 +58,76 @@ export default function Menu({
     [onClose],
   )
 
+  const focusMenuItem = useCallback((index: number) => {
+    const enabledItems = Array.from(
+      menuRef.current?.querySelectorAll<HTMLButtonElement>(
+        '[role="menuitem"]:not(:disabled)',
+      ) || [],
+    )
+    if (!enabledItems.length) {
+      return
+    }
+    const boundedIndex = Math.max(0, Math.min(index, enabledItems.length - 1))
+    enabledItems[boundedIndex]?.focus()
+  }, [])
+
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const enabledItems = Array.from(
+        menuRef.current?.querySelectorAll<HTMLButtonElement>(
+          '[role="menuitem"]:not(:disabled)',
+        ) || [],
+      )
+
       if (e.key === 'Escape') {
+        e.preventDefault()
         onClose()
+        return
+      }
+
+      if (!enabledItems.length) {
+        return
+      }
+
+      const currentIndex = enabledItems.findIndex(
+        (item) => item === document.activeElement,
+      )
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        focusMenuItem(currentIndex >= 0 ? currentIndex + 1 : 0)
+        return
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        focusMenuItem(
+          currentIndex >= 0 ? currentIndex - 1 : enabledItems.length - 1,
+        )
+        return
+      }
+
+      if (e.key === 'Home') {
+        e.preventDefault()
+        focusMenuItem(0)
+        return
+      }
+
+      if (e.key === 'End') {
+        e.preventDefault()
+        focusMenuItem(enabledItems.length - 1)
       }
     },
-    [onClose],
+    [focusMenuItem, onClose],
   )
 
   useEffect(() => {
     if (!open) return
     document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [open, handleClickOutside, handleKeyDown])
+  }, [open, handleClickOutside])
 
   if (!open) return null
 
@@ -66,12 +136,14 @@ export default function Menu({
       ref={menuRef}
       role="menu"
       data-testid={testId}
+      onKeyDown={handleKeyDown}
       style={{
         position: 'fixed',
         top: position.top,
         left: position.left,
-        zIndex: 1300,
-        backgroundColor: 'var(--popover-bg, #fff)',
+        zIndex: theme.zIndex.popover,
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
         borderRadius: 8,
         boxShadow: '0 8px 24px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)',
         minWidth: 160,
@@ -110,10 +182,12 @@ export function MenuItem({
   className,
   style,
 }: MenuItemProps) {
+  const theme = useAppTheme()
   return (
     <button
       role="menuitem"
       type="button"
+      tabIndex={-1}
       data-testid={testId}
       disabled={disabled}
       onClick={onClick}
@@ -136,7 +210,7 @@ export function MenuItem({
       }}
       onMouseEnter={(e) => {
         if (!disabled) {
-          e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)'
+          e.currentTarget.style.backgroundColor = theme.palette.action.hover
         }
       }}
       onMouseLeave={(e) => {
@@ -153,12 +227,13 @@ export function MenuItem({
 /* -------------------------------------------------------------------------- */
 
 export function MenuDivider() {
+  const theme = useAppTheme()
   return (
     <hr
       style={{
         margin: '4px 0',
         border: 'none',
-        borderTop: '1px solid rgba(0,0,0,0.12)',
+        borderTop: `1px solid ${theme.palette.divider}`,
       }}
     />
   )

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useAppTheme } from 'libs/appTheme'
 
 export interface PopoverProps {
   open: boolean
@@ -29,6 +30,7 @@ export default function Popover({
   className,
   'data-testid': testId,
 }: PopoverProps) {
+  const theme = useAppTheme()
   const popoverRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ top: 0, left: 0 })
 
@@ -89,8 +91,9 @@ export default function Popover({
         position: 'fixed',
         top: position.top,
         left: position.left,
-        zIndex: 1300,
-        backgroundColor: 'var(--popover-bg, #fff)',
+        zIndex: theme.zIndex.popover,
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
         borderRadius: 8,
         boxShadow: '0 8px 24px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)',
         minWidth: 160,

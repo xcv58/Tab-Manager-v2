@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react'
+import { useAppTheme } from 'libs/appTheme'
 
 export interface SliderMark {
   value: number
@@ -32,9 +33,16 @@ export default function Slider({
   style,
   className,
 }: SliderProps) {
+  const theme = useAppTheme()
   const trackRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const pct = ((value - min) / (max - min)) * 100
+  const primaryColor = theme.palette.primary.main
+  const railColor = withAlpha(primaryColor, theme.mode === 'dark' ? 0.32 : 0.28)
+  const dragRingColor = withAlpha(
+    primaryColor,
+    theme.mode === 'dark' ? 0.22 : 0.16,
+  )
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +70,7 @@ export default function Slider({
             position: 'absolute',
             inset: 0,
             borderRadius: 2,
-            backgroundColor: 'var(--slider-rail, rgba(0,0,0,0.2))',
+            backgroundColor: railColor,
           }}
         />
         {/* Active track */}
@@ -74,7 +82,7 @@ export default function Slider({
             bottom: 0,
             width: `${pct}%`,
             borderRadius: 2,
-            backgroundColor: 'var(--slider-track, #1976d2)',
+            backgroundColor: primaryColor,
           }}
         />
       </div>
@@ -111,9 +119,9 @@ export default function Slider({
           width: isDragging ? 18 : 14,
           height: isDragging ? 18 : 14,
           borderRadius: '50%',
-          backgroundColor: 'var(--slider-thumb, #1976d2)',
+          backgroundColor: primaryColor,
           boxShadow: isDragging
-            ? '0 0 0 6px rgba(25, 118, 210, 0.16)'
+            ? `0 0 0 6px ${dragRingColor}`
             : '0 1px 2px rgba(0,0,0,0.2)',
           transition: 'width 100ms, height 100ms, box-shadow 100ms',
           pointerEvents: 'none',
@@ -144,4 +152,17 @@ export default function Slider({
       )}
     </div>
   )
+}
+
+function withAlpha(hexColor: string, alpha: number) {
+  const normalized = hexColor.replace('#', '')
+  const chunkSize = normalized.length === 3 ? 1 : 2
+  const values = normalized.match(new RegExp(`.{1,${chunkSize}}`, 'g')) || []
+
+  const [r, g, b] = values.map((value) => {
+    const expanded = chunkSize === 1 ? value.repeat(2) : value
+    return parseInt(expanded, 16)
+  })
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
