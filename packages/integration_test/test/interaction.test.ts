@@ -873,17 +873,17 @@ test.describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     await waitForMainSurfaceToSettle(page)
-    await page.keyboard.press('Control+,')
+    await page.locator('button[aria-label="Settings"]').first().click()
     await waitForSettingsPanelToSettle(page)
 
     let uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
     await expect(uiPresetGroup).toBeVisible()
-    let classicButton = uiPresetGroup.getByRole('button', {
+    let classicButton = uiPresetGroup.getByRole('radio', {
       name: 'Use classic interface style',
     })
     await classicButton.click()
     await waitForSettingsPanelToSettle(page)
-    await expect(classicButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(classicButton).toHaveAttribute('aria-checked', 'true')
 
     const duplicatePreview = page
       .getByTestId('row-details-preview-duplicates')
@@ -903,14 +903,14 @@ test.describe('The Extension page should', () => {
 
     await page.reload()
     await waitForMainSurfaceToSettle(page)
-    await page.keyboard.press('Control+,')
+    await page.locator('button[aria-label="Settings"]').first().click()
     await waitForSettingsPanelToSettle(page)
 
     uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
-    classicButton = uiPresetGroup.getByRole('button', {
+    classicButton = uiPresetGroup.getByRole('radio', {
       name: 'Use classic interface style',
     })
-    await expect(classicButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(classicButton).toHaveAttribute('aria-checked', 'true')
     await expect(
       page
         .getByTestId('row-details-preview-duplicates')
@@ -925,7 +925,7 @@ test.describe('The Extension page should', () => {
     await waitForMainSurfaceToSettle(page)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
-    await page.keyboard.press('Control+,')
+    await page.locator('button[aria-label="Settings"]').first().click()
     await waitForSettingsPanelToSettle(page)
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
@@ -953,7 +953,7 @@ test.describe('The Extension page should', () => {
   test('support toggle always show toolbar', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
-    await page.keyboard.press('Control+,')
+    await page.locator('button[aria-label="Settings"]').first().click()
     await waitForSettingsPanelToSettle(page)
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)

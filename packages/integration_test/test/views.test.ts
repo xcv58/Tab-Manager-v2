@@ -563,6 +563,7 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await page.waitForTimeout(200)
     await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
@@ -622,6 +623,7 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await page.waitForTimeout(200)
     await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
@@ -877,8 +879,8 @@ test.describe('The Extension page should', () => {
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
     await expect(
-      themeToggleGroup.getByRole('button', { name: 'Use system theme' }),
-    ).toHaveAttribute('aria-pressed', 'true')
+      themeToggleGroup.getByRole('radio', { name: 'Use system theme' }),
+    ).toHaveAttribute('aria-checked', 'true')
     const themeToggleScreenshot = await themeToggleGroup.screenshot()
     expect(themeToggleScreenshot).toMatchSnapshot(
       'settings-theme-toggle-group-atom.png',
@@ -891,8 +893,8 @@ test.describe('The Extension page should', () => {
     const uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
     await expect(uiPresetGroup).toBeVisible()
     await expect(
-      uiPresetGroup.getByRole('button', { name: 'Use modern interface style' }),
-    ).toHaveAttribute('aria-pressed', 'true')
+      uiPresetGroup.getByRole('radio', { name: 'Use modern interface style' }),
+    ).toHaveAttribute('aria-checked', 'true')
     const uiPresetScreenshot = await uiPresetGroup.screenshot()
     expect(uiPresetScreenshot).toMatchSnapshot(
       'settings-ui-preset-toggle-group-atom.png',

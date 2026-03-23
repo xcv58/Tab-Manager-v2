@@ -384,18 +384,18 @@ test.describe('The Extension page should', () => {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
-    const lightThemeButton = themeToggleGroup.getByRole('button', {
+    const lightThemeButton = themeToggleGroup.getByRole('radio', {
       name: 'Use light theme',
     })
     await lightThemeButton.click()
     await page.waitForTimeout(300)
-    await expect(lightThemeButton).toHaveAttribute('aria-pressed', 'true')
-    const systemThemeButton = themeToggleGroup.getByRole('button', {
+    await expect(lightThemeButton).toHaveAttribute('aria-checked', 'true')
+    const systemThemeButton = themeToggleGroup.getByRole('radio', {
       name: 'Use system theme',
     })
     await systemThemeButton.click()
     await page.waitForTimeout(300)
-    await expect(systemThemeButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(systemThemeButton).toHaveAttribute('aria-checked', 'true')
 
     const fontSizeControl = page.getByTestId('settings-font-size-control')
     const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
