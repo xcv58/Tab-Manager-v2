@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 export interface TooltipProps {
   title: React.ReactNode
   children: React.ReactElement
+  open?: boolean
   placement?: 'top' | 'bottom' | 'left' | 'right'
   enterDelay?: number
   /** If true, wrap children in a span (for disabled elements) */
@@ -17,6 +18,7 @@ export interface TooltipProps {
 export default function Tooltip({
   title,
   children,
+  open,
   placement = 'bottom',
   enterDelay = 0,
   disableInteractive,
@@ -26,19 +28,23 @@ export default function Tooltip({
   const anchorRef = useRef<HTMLElement | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
+  const isControlled = open !== undefined
+  const isVisible = isControlled ? open : visible
 
   const show = useCallback(() => {
+    if (isControlled) return
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       setVisible(true)
     }, enterDelay)
-  }, [enterDelay])
+  }, [enterDelay, isControlled])
 
   const hide = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = null
+    if (isControlled) return
     setVisible(false)
-  }, [])
+  }, [isControlled])
 
   useEffect(
     () => () => {
@@ -48,7 +54,7 @@ export default function Tooltip({
   )
 
   useEffect(() => {
-    if (!visible || !anchorRef.current) return
+    if (!isVisible || !anchorRef.current) return
     const el = anchorRef.current
     const rect = el.getBoundingClientRect()
     const gap = 8
@@ -73,7 +79,7 @@ export default function Tooltip({
         break
     }
     setCoords({ top, left })
-  }, [visible, placement])
+  }, [isVisible, placement])
 
   if (!title) {
     return children
@@ -116,7 +122,7 @@ export default function Tooltip({
   return (
     <>
       {cloned}
-      {visible &&
+      {isVisible &&
         createPortal(
           <div
             ref={tooltipRef}
