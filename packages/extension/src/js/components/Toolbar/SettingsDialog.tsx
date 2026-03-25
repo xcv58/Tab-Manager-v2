@@ -327,7 +327,7 @@ const DensityControl = ({
           marginTop: 20,
           marginLeft: 20,
           marginRight: 20,
-          width: 'calc(100% - 40px)',
+          marginBottom: 8,
         }}
       />
     </div>
@@ -622,7 +622,7 @@ export default observer(() => {
                       if (!nextPreset) {
                         return
                       }
-                      selectUiPreset(nextPreset)
+                      selectUiPreset(nextPreset as 'modern' | 'classic')
                     }}
                     style={toggleGroupPillStyle}
                   >
@@ -688,7 +688,6 @@ export default observer(() => {
                 min={6}
                 max={36}
                 step={1}
-                unit="px"
                 defaultValue={14}
                 sliderAriaLabel="Update Font Size"
                 inputAriaLabel="Font Size Value"

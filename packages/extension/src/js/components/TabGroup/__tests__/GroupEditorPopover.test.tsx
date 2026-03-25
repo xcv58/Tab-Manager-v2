@@ -1,7 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { AppThemeContext, darkAppTheme } from 'libs/appTheme'
-import { darkTheme } from 'libs/themes'
 import GroupEditorPopover from '../GroupEditorPopover'
 
 describe('GroupEditorPopover', () => {
@@ -39,9 +38,9 @@ describe('GroupEditorPopover', () => {
     const input = await screen.findByTestId('tab-group-editor-title-7')
     expect(input).toHaveStyle(`
       background-color: transparent;
-      border-color: ${darkTheme.palette.primary.main};
-      caret-color: ${darkTheme.palette.text.primary};
-      color: ${darkTheme.palette.text.primary};
+      border-color: ${darkAppTheme.palette.primary.main};
+      caret-color: ${darkAppTheme.palette.text.primary};
+      color: ${darkAppTheme.palette.text.primary};
       color-scheme: dark;
     `)
 

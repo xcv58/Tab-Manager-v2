@@ -132,7 +132,7 @@ export function ToggleGroup({
               handleKeyboardSelection(index, childElements.length - 1)
             }
           },
-        })
+        } as any)
       })}
     </div>
   )
@@ -167,6 +167,9 @@ export const ToggleButton = React.forwardRef<
       onClick={onClick}
       onKeyDown={onKeyDown}
       style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         margin: 0,
         border: 0,
         borderRadius: 999,

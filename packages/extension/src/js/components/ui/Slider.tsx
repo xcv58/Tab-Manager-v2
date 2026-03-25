@@ -85,6 +85,45 @@ export default function Slider({
             backgroundColor: primaryColor,
           }}
         />
+        {/* Mark indicators on the track */}
+        {marks?.map((mark) => {
+          const markPct = ((mark.value - min) / (max - min)) * 100
+          const isActive = value >= mark.value
+          return (
+            <div
+              key={mark.value}
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: `${markPct}%`,
+                transform: 'translate(-50%, -50%)',
+                width: 4,
+                height: 4,
+                borderRadius: '50%',
+                backgroundColor: isActive ? theme.palette.background.paper : primaryColor,
+                opacity: isActive ? 0.8 : 0.5,
+              }}
+            />
+          )
+        })}
+        {/* Thumb indicator */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: `${pct}%`,
+            transform: 'translate(-50%, -50%)',
+            width: isDragging ? 18 : 14,
+            height: isDragging ? 18 : 14,
+            borderRadius: '50%',
+            backgroundColor: primaryColor,
+            boxShadow: isDragging
+              ? `0 0 0 6px ${dragRingColor}`
+              : '0 1px 2px rgba(0,0,0,0.2)',
+            transition: 'width 100ms, height 100ms, box-shadow 100ms',
+            pointerEvents: 'none',
+          }}
+        />
       </div>
       {/* Native range input (invisible, on top) */}
       <input
@@ -112,27 +151,9 @@ export default function Slider({
           zIndex: 1,
         }}
       />
-      {/* Thumb indicator */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: `${pct}%`,
-          transform: 'translate(-50%, -50%)',
-          width: isDragging ? 18 : 14,
-          height: isDragging ? 18 : 14,
-          borderRadius: '50%',
-          backgroundColor: primaryColor,
-          boxShadow: isDragging
-            ? `0 0 0 6px ${dragRingColor}`
-            : '0 1px 2px rgba(0,0,0,0.2)',
-          transition: 'width 100ms, height 100ms, box-shadow 100ms',
-          pointerEvents: 'none',
-        }}
-      />
       {/* Marks */}
       {marks && (
-        <div style={{ position: 'relative', marginTop: 4 }}>
+        <div style={{ position: 'relative', marginTop: 4, height: 16 }}>
           {marks.map((mark) => {
             const markPct = ((mark.value - min) / (max - min)) * 100
             return (
