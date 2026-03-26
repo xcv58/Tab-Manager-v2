@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TabTools should render correct components 1`] = `
+<div>
+  <div
+    class="flex h-10 shrink-0 items-center gap-0.5"
+    style="min-height: 30px;"
+  >
+    <div
+      aria-hidden="false"
+      class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+      style="width: 28px; height: 30px;"
+    >
+      <tabmenu
+        classes="[object Object]"
+        tab="[object Object]"
+      />
+    </div>
+    <div
+      aria-hidden="false"
+      class="flex h-10 w-7 shrink-0 items-center justify-center transition-opacity duration-150 visible pointer-events-auto opacity-100"
+      style="width: 28px; height: 30px;"
+    >
+      <button
+        aria-label="Drag tab"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium shrink-0 focus:outline-none focus:ring css-1xsbpuz-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="-1"
+        title="Drag tab"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-5x0j4u-MuiSvgIcon-root"
+          data-testid="DragHandleIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M20 9H4v2h16zM4 15h16v-2H4z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+`;

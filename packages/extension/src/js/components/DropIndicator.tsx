@@ -1,5 +1,5 @@
 import React from 'react'
-import { useAppTheme } from 'libs/appTheme'
+import { useTheme } from '@mui/material/styles'
 import classNames from 'classnames'
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
 }
 
 export default ({ position = 'before' }: Props) => {
-  const theme = useAppTheme()
+  const theme = useTheme()
   return (
     <hr
       className={classNames('relative z-10', {

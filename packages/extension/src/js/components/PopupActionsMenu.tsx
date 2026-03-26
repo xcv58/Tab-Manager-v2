@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
-import { MoreHorizIcon } from 'icons/materialIcons'
+import Divider from '@mui/material/Divider'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import ControlIconButton from 'components/ControlIconButton'
 import { getNoun, openInNewTab, openOrTogglePopup } from 'libs'
 import { useStore } from './hooks/useStore'
@@ -28,14 +30,26 @@ export default observer(() => {
         onClick={(event) => setAnchorEl(event.currentTarget)}
         aria-label="More actions"
       >
-        <MoreHorizIcon fontSize={20} />
+        <MoreHorizIcon sx={{ fontSize: 20 }} />
       </ControlIconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={closeMenu}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+      >
         <MenuItem onClick={runAction(openOrTogglePopup)}>
           Open full feature mode
         </MenuItem>
         <MenuItem onClick={runAction(openInNewTab)}>Open in new tab</MenuItem>
-        <MenuDivider />
+        <Divider />
         <MenuItem onClick={runAction(() => arrangeStore.groupTabs())}>
           Cluster ungrouped & sort tabs
         </MenuItem>
@@ -50,7 +64,7 @@ export default observer(() => {
               )}`
             : 'Clean duplicated tabs'}
         </MenuItem>
-        <MenuDivider />
+        <Divider />
         <MenuItem onClick={runAction(() => shortcutStore.openDialog())}>
           Keyboard shortcuts
         </MenuItem>

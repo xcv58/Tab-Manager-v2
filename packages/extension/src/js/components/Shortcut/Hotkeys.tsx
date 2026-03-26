@@ -1,12 +1,12 @@
 import React from 'react'
+import TableCell from '@mui/material/TableCell'
 import Shortcuts from './Shortcuts'
 
 const Hotkeys = ({ keys }: { keys: string | string[] }) => {
   return (
-    <td
+    <TableCell
       style={{
         padding: 0,
-        borderBottom: '1px solid var(--table-border, rgba(0,0,0,0.12))',
       }}
     >
       <div
@@ -19,7 +19,7 @@ const Hotkeys = ({ keys }: { keys: string | string[] }) => {
       >
         <Shortcuts shortcut={keys} />
       </div>
-    </td>
+    </TableCell>
   )
 }
 

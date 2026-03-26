@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useAppTheme } from 'libs/appTheme'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
@@ -13,7 +13,7 @@ import HideToggle from './HideToggle'
 import { WinProps } from 'components/types'
 import { useTheme } from 'components/hooks/useTheme'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from 'components/ui/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
@@ -21,9 +21,12 @@ export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
   const { focusStore, userStore } = useStore()
-  const theme = useAppTheme()
+  const theme = useMuiTheme()
   const isDarkTheme = useTheme()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
   const { className, win } = props
   const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =

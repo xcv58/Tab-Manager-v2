@@ -1,6 +1,6 @@
 import React from 'react'
-import Tooltip from 'components/ui/Tooltip'
-import { RefreshIcon } from 'icons/materialIcons'
+import Tooltip from '@mui/material/Tooltip'
+import Refresh from '@mui/icons-material/Refresh'
 import ControlIconButton from 'components/ControlIconButton'
 
 export default ({ reload }) => (
@@ -10,7 +10,7 @@ export default ({ reload }) => (
       controlSize="compact"
       aria-label="Reload all tabs"
     >
-      <RefreshIcon fontSize={16} />
+      <Refresh sx={{ fontSize: 16 }} />
     </ControlIconButton>
   </Tooltip>
 )

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { useStore } from 'components/hooks/useStore'
 import TabOption from '../TabOption'
 
-jest.mock('components/ui/Tooltip', () => ({ children }) => <>{children}</>)
+jest.mock('@mui/material/Tooltip', () => ({ children }) => <>{children}</>)
 jest.mock('components/CloseButton', () => ({ onClick }) => (
   <button onClick={onClick}>close</button>
 ))

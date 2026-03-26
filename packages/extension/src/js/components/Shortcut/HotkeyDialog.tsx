@@ -1,54 +1,47 @@
 import React, { useState } from 'react'
+import TextField from '@mui/material/TextField'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { observer } from 'mobx-react-lite'
-import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import Help from './Help'
+import Fade from '@mui/material/Fade'
 import { useStore } from 'components/hooks/useStore'
-import { useAppTheme } from 'libs/appTheme'
+import { useTheme } from '@mui/material'
 import CloseButton from 'components/CloseButton'
 import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
-import Help from './Help'
 
 export default observer(() => {
-  const theme = useAppTheme()
+  const theme = useTheme()
   const [search, setSearch] = useState('')
-  const fullScreen = typeof window !== 'undefined' && window.innerWidth < 600
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const { shortcutStore } = useStore()
   const { dialogOpen, closeDialog } = shortcutStore
   const reduceMotion = useReduceMotion()
   return (
     <Dialog
       open={dialogOpen}
+      TransitionComponent={Fade}
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
+      onBackdropClick={closeDialog}
       fullWidth
-      maxWidth="lg"
-      fullScreen={fullScreen}
-      style={{
-        backgroundColor: theme.palette.background.paper,
-        color: theme.palette.text.primary,
-      }}
+      {...{ maxWidth: 'lg', fullScreen }}
     >
       <DialogTitle>
         <div className="flex items-end">
           <h2>Keyboard Shortcuts</h2>
           <div className="flex-1 mx-6">
-            <input
+            <TextField
+              fullWidth
+              label="Search"
               type="search"
-              placeholder="Search"
+              variant="standard"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{
-                width: '100%',
-                border: 'none',
-                borderBottom: '1px solid',
-                borderColor: theme.palette.divider,
-                background: 'transparent',
-                color: 'inherit',
-                fontSize: '1rem',
-                padding: '4px 0',
-                outline: 'none',
-              }}
             />
           </div>
           <div className="absolute top-0 right-0 p-2">

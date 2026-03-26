@@ -1,9 +1,6 @@
-/**
- * Transition duration constants – previously sourced from @mui/material duration.
- * Values are exact copies of the MUI defaults.
- */
+import { duration } from '@mui/material'
 
 export const defaultTransitionDuration = {
-  enter: 225, // MUI duration.enteringScreen
-  exit: 195, // MUI duration.leavingScreen
+  enter: duration.enteringScreen,
+  exit: duration.leavingScreen,
 }

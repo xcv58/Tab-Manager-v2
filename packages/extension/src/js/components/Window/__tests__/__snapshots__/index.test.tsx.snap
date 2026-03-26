@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Window render correct components 1`] = `<div />`;
+
+exports[`Window render error.light backgroundColor if canDrop is false 1`] = `<div />`;

@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from 'components/ui/Tooltip'
-import IconButton from 'components/ui/IconButton'
-import { SyncIcon } from 'icons/materialIcons'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import Sync from '@mui/icons-material/Sync'
 import { useStore } from './hooks/useStore'
 
 export default observer(() => {
@@ -18,7 +18,7 @@ export default observer(() => {
         }
         className="focus:outline-none"
       >
-        <SyncIcon />
+        <Sync />
       </IconButton>
     </Tooltip>
   )
