@@ -1,5 +1,6 @@
 import React, { useCallback, useLayoutEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
+import classNames from 'classnames'
 import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
 import { useStore } from './hooks/useStore'
@@ -145,7 +146,10 @@ export default observer(() => {
       ref={scrollbarRef}
       onScroll={onScroll}
       data-testid="window-list-scroll-container"
-      className="relative flex-auto px-1 mb-0 mr-0 overflow-scroll"
+      className={classNames('relative flex-auto px-1 mb-0 mr-0', {
+        'overflow-scroll': !userStore.autoFitColumns,
+        'overflow-y-scroll overflow-x-hidden': userStore.autoFitColumns,
+      })}
     >
       <div
         className="relative"

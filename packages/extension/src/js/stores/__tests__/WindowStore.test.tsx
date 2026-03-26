@@ -174,6 +174,64 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnLayout).toEqual([[1], [2]])
   })
 
+  it('auto-fit mode chooses columns from width and minimum tab width', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    windowStore.width = 960
+    windowStore.store.userStore.autoFitColumns = true
+    setVisibleLengths(windowStore, [4, 4, 4, 4])
+
+    windowStore.repackLayout('manual')
+
+    expect(windowStore.columnCount).toBe(3)
+    expect(windowStore.totalContentWidth).toBeLessThanOrEqual(windowStore.width)
+  })
+
+  it('auto-fit mode reduces columns when minimum tab width increases', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    windowStore.width = 960
+    windowStore.store.userStore.autoFitColumns = true
+    setVisibleLengths(windowStore, [4, 4, 4, 4])
+
+    windowStore.repackLayout('manual')
+    expect(windowStore.columnCount).toBe(3)
+
+    windowStore.store.userStore.tabWidth = 24
+    windowStore.repackLayout('manual')
+
+    expect(windowStore.columnCount).toBe(2)
+    expect(windowStore.totalContentWidth).toBeLessThanOrEqual(windowStore.width)
+  })
+
+  it('auto-fit mode repacks on width-only resize', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    windowStore.width = 960
+    windowStore.store.userStore.autoFitColumns = true
+    setVisibleLengths(windowStore, [4, 4, 4, 4])
+
+    windowStore.repackLayout('manual')
+    expect(windowStore.columnCount).toBe(3)
+
+    windowStore.updateViewport(1000, 640)
+
+    expect(windowStore.columnCount).toBe(2)
+  })
+
+  it('auto-fit mode keeps total content width within the viewport when widths round unevenly', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    windowStore.width = 1001
+    windowStore.store.userStore.autoFitColumns = true
+    setVisibleLengths(windowStore, [4, 4, 4, 4])
+
+    windowStore.repackLayout('manual')
+
+    expect(windowStore.columnCount).toBe(3)
+    expect(windowStore.totalContentWidth).toBeLessThanOrEqual(1001)
+  })
+
   it('renders only nearby columns for the horizontal viewport', () => {
     const windowStore = createWindowStore()
     windowStore.height = 200

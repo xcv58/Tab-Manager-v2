@@ -75,6 +75,30 @@ describe('UserStore', () => {
     expect(repackLayout).toHaveBeenCalledWith('settings-change')
   })
 
+  it('should repack layout after loading stored auto-fit columns setting', async () => {
+    const repackLayout = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+      windowStore: {
+        repackLayout,
+      },
+    } as any)
+    await flush()
+
+    repackLayout.mockClear()
+    jest.spyOn(userStore, 'readSettings').mockResolvedValueOnce({
+      autoFitColumns: true,
+    })
+
+    await userStore.init()
+
+    expect(userStore.autoFitColumns).toBe(true)
+    expect(repackLayout).toHaveBeenCalledTimes(1)
+    expect(repackLayout).toHaveBeenCalledWith('settings-change')
+  })
+
   it('should repack layout when toggling unmatched tabs visibility', async () => {
     const repackLayout = jest.fn()
     const userStore = new UserStore({
@@ -95,12 +119,36 @@ describe('UserStore', () => {
     expect(repackLayout).toHaveBeenCalledWith('filter-change')
   })
 
+  it('should repack layout and persist when toggling auto-fit columns', async () => {
+    const repackLayout = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+      windowStore: {
+        repackLayout,
+      },
+    } as any)
+    await flush()
+    const save = jest.spyOn(userStore, 'save').mockImplementation(() => {})
+
+    repackLayout.mockClear()
+
+    userStore.toggleAutoFitColumns()
+
+    expect(userStore.autoFitColumns).toBe(true)
+    expect(repackLayout).toHaveBeenCalledTimes(1)
+    expect(repackLayout).toHaveBeenCalledWith('settings-change')
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
   it('should strip the legacy groupByDomain setting', () => {
     const { settings, legacyKeys } = stripLegacySettings({
       groupByDomain: true,
       showUrl: false,
     })
 
+    expect(settings.autoFitColumns).toBe(false)
     expect(settings.showUrl).toBe(false)
     expect(settings.uiPreset).toBe('modern')
     expect(settings).not.toHaveProperty('groupByDomain')

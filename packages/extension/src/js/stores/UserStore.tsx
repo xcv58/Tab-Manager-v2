@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
   showAppWindow: false,
   showShortcutHint: true,
   showUnmatchedTab: true,
+  autoFitColumns: false,
   litePopupMode: false,
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
@@ -76,6 +77,7 @@ export default class UserStore {
       showAppWindow: observable,
       showShortcutHint: observable,
       showUnmatchedTab: observable,
+      autoFitColumns: observable,
       litePopupMode: observable,
       toolbarAutoHide: observable,
       highlightDuplicatedTab: observable,
@@ -106,6 +108,7 @@ export default class UserStore {
       togglePreserveSearch: action,
       toggleSearchHistory: action,
       toggleShowUnmatchedTab: action,
+      toggleAutoFitColumns: action,
       toggleAutoFocusSearch: action,
       toggleShowUrl: action,
       updateTabWidth: action,
@@ -183,13 +186,15 @@ export default class UserStore {
   init = async () => {
     const previousFontSize = this.fontSize
     const previousTabWidth = this.tabWidth
+    const previousAutoFitColumns = this.autoFitColumns
     try {
       const result = await this.readSettings()
       Object.assign(this, result)
       if (
         this.store.windowStore &&
         (this.fontSize !== previousFontSize ||
-          this.tabWidth !== previousTabWidth)
+          this.tabWidth !== previousTabWidth ||
+          this.autoFitColumns !== previousAutoFitColumns)
       ) {
         this.store.windowStore.repackLayout('settings-change')
       }
@@ -207,6 +212,7 @@ export default class UserStore {
   showAppWindow = false
   showShortcutHint = true
   showUnmatchedTab = true
+  autoFitColumns = false
   litePopupMode = false
   toolbarAutoHide = false
   highlightDuplicatedTab = true
@@ -330,6 +336,12 @@ export default class UserStore {
   toggleShowUnmatchedTab = () => {
     this.showUnmatchedTab = !this.showUnmatchedTab
     this.store.windowStore?.repackLayout?.('filter-change')
+    this.save()
+  }
+
+  toggleAutoFitColumns = () => {
+    this.autoFitColumns = !this.autoFitColumns
+    this.store.windowStore?.repackLayout?.('settings-change')
     this.save()
   }
 

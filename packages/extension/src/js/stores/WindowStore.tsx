@@ -213,7 +213,28 @@ export default class WindowsStore {
     return Math.round((this.store.userStore?.tabWidth || 20) * rootFontSize)
   }
 
+  get autoFitColumnsEnabled() {
+    return !!this.store.userStore?.autoFitColumns
+  }
+
+  getAutoFitColumnCount = (windowCount: number) => {
+    if (windowCount <= 0) {
+      return 1
+    }
+    const width = Math.max(this.width, 0)
+    const minColumnWidth = Math.max(this.minColumnWidthPx, 1)
+    const fittingColumnCount =
+      width > 0 ? Math.floor(width / minColumnWidth) : 0
+    return Math.max(1, Math.min(windowCount, fittingColumnCount || 1))
+  }
+
   get columnWidthPx() {
+    if (this.autoFitColumnsEnabled) {
+      const visibleColumn = Math.max(this.visibleColumn, 1)
+      const fluidWidth =
+        this.width > 0 ? Math.floor(this.width / visibleColumn) : 0
+      return Math.max(1, Math.max(fluidWidth, this.minColumnWidthPx))
+    }
     const visibleColumn = Math.max(this.visibleColumn, 1)
     const fluidWidth = this.width > 0 ? this.width / visibleColumn : 0
     return Math.max(1, Math.round(Math.max(fluidWidth, this.minColumnWidthPx)))
@@ -324,6 +345,9 @@ export default class WindowsStore {
   }
 
   get totalContentWidth() {
+    if (this.autoFitColumnsEnabled) {
+      return Math.max(this.width, 0)
+    }
     return Math.max(this.width, this.visibleColumn * this.columnWidthPx)
   }
 
@@ -449,7 +473,7 @@ export default class WindowsStore {
     return this.dirtyWindowIds.has(windowId)
   }
 
-  computeColumnLayout = (windows: Window[]) => {
+  computePackedColumnLayout = (windows: Window[]) => {
     if (!windows.length) {
       return {
         layout: [[]],
@@ -478,6 +502,48 @@ export default class WindowsStore {
       layout,
       columnCount: Math.max(layout.length, 1),
     }
+  }
+
+  computeAutoFitColumnLayout = (windows: Window[]) => {
+    if (!windows.length) {
+      return {
+        layout: [[]],
+        columnCount: 1,
+      }
+    }
+
+    const tabHeight = this.rowHeight
+    const columnCount = this.getAutoFitColumnCount(windows.length)
+    const layout = Array.from({ length: columnCount }, () => [] as number[])
+    const columnHeights = Array.from({ length: columnCount }, () => 0)
+
+    windows.forEach((win) => {
+      const winHeight = win.visibleLength * tabHeight
+      let columnIndex = 0
+      for (
+        let candidateColumnIndex = 1;
+        candidateColumnIndex < columnCount;
+        candidateColumnIndex += 1
+      ) {
+        if (columnHeights[candidateColumnIndex] < columnHeights[columnIndex]) {
+          columnIndex = candidateColumnIndex
+        }
+      }
+      layout[columnIndex].push(win.id)
+      columnHeights[columnIndex] += winHeight
+    })
+
+    return {
+      layout,
+      columnCount,
+    }
+  }
+
+  computeColumnLayout = (windows: Window[]) => {
+    if (this.autoFitColumnsEnabled) {
+      return this.computeAutoFitColumnLayout(windows)
+    }
+    return this.computePackedColumnLayout(windows)
   }
 
   flushLayoutIfDirty = (reason: LayoutRepackReason) => {
@@ -1077,6 +1143,11 @@ export default class WindowsStore {
         height,
       )
       this.height = height
+      this.repackLayout('resize')
+      return
+    }
+
+    if (widthChanged && this.autoFitColumnsEnabled) {
       this.repackLayout('resize')
     }
   }
