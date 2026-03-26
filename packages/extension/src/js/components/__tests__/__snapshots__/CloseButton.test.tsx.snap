@@ -3,7 +3,7 @@
 exports[`CloseButton should honor disabled 1`] = `
 <button
   aria-label="Close"
-  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring cursor-not-allowed shrink-0 focus:outline-none focus:ring cursor-not-allowed"
+  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 cursor-not-allowed shrink-0 focus:outline-none focus:ring cursor-not-allowed"
   disabled=""
   style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; padding: 6px; color: rgba(239, 68, 68, 0.28); opacity: 0.75;"
   type="button"
@@ -26,7 +26,7 @@ exports[`CloseButton should honor disabled 1`] = `
 exports[`CloseButton should render correct components 1`] = `
 <button
   aria-label="Close"
-  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring shrink-0 focus:outline-none focus:ring"
+  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
   style="width: 34px; height: 34px; min-width: 34px; min-height: 34px; padding: 6px; color: rgba(239, 68, 68, 0.36); opacity: 1;"
   type="button"
 >
