@@ -3,7 +3,7 @@
 exports[`Sort should call arrangeStore.sortTabs 1`] = `
 <button
   aria-label="Sort tabs"
-  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring shrink-0 focus:outline-none focus:ring"
+  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
   style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
   type="button"
 >
@@ -25,7 +25,7 @@ exports[`Sort should call arrangeStore.sortTabs 1`] = `
 exports[`Sort should have correct tooltip 1`] = `
 <div
   role="tooltip"
-  style="position: fixed; top: 8px; left: 0px; transform: translateX(-50%); z-index: 1500; pointer-events: auto; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
+  style="position: fixed; top: 8px; left: 8px; transform: none; z-index: 1500; pointer-events: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
 >
   Sort tabs
 </div>
@@ -35,7 +35,7 @@ exports[`Sort should have correct tooltip 2`] = `
 <div>
   <button
     aria-label="Sort tabs"
-    class="inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring shrink-0 focus:outline-none focus:ring"
+    class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
     style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
     type="button"
   >

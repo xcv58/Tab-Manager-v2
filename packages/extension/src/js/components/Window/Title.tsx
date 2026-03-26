@@ -156,7 +156,7 @@ export default observer((props: WinProps & { className: string }) => {
       }}
     >
       <div
-        className="flex min-h-10 w-full items-center justify-between pl-1"
+        className="flex min-h-10 w-full items-center justify-between"
         style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
       >
         <SelectAll {...props} />
@@ -165,7 +165,7 @@ export default observer((props: WinProps & { className: string }) => {
           onClick={onTitleClick}
           onFocus={onTitleFocus}
           className={classNames(
-            'flex h-10 flex-auto items-center overflow-hidden text-base text-left rounded-sm',
+            'flex h-10 flex-auto items-center overflow-hidden pl-1 text-base text-left rounded-sm',
             {
               'text-gray-900': !isDarkTheme,
               'text-gray-100': isDarkTheme,

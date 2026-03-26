@@ -950,7 +950,7 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
-    const autoFitColumnsToggle = page.getByRole('switch', {
+    const autoFitColumnsToggle = page.getByRole('checkbox', {
       name: /Auto-fit columns/i,
     })
     await expect(autoFitColumnsToggle).toBeVisible()

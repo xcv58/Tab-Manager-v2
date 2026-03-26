@@ -618,7 +618,9 @@ test.describe('The Extension page should', () => {
       .first()
     await expect(titleMatchedOption).not.toContainText('SearchDocs')
     await titleMatchedOption.hover()
-    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
+    await expect(
+      page.getByRole('tooltip').filter({ hasText: 'Alpha Guide' }),
+    ).toContainText('Group: SearchDocs')
 
     await page.evaluate(async () => {
       await chrome.storage.sync.set({

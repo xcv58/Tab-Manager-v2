@@ -8,13 +8,15 @@ import React, {
 import { createPortal } from 'react-dom'
 import { clampOverlayPosition } from './overlayPosition'
 
+let activeUncontrolledTooltipHide: null | (() => void) = null
+
 export interface TooltipProps {
   title: React.ReactNode
   children: React.ReactElement
   open?: boolean
   placement?: 'top' | 'bottom' | 'left' | 'right'
   enterDelay?: number
-  /** If true, wrap children in a span (for disabled elements) */
+  /** If true, the tooltip ignores pointer events. */
   disableInteractive?: boolean
 }
 
@@ -28,7 +30,7 @@ export default function Tooltip({
   open,
   placement = 'bottom',
   enterDelay = 0,
-  disableInteractive,
+  disableInteractive = true,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
@@ -38,26 +40,39 @@ export default function Tooltip({
   const isControlled = open !== undefined
   const isVisible = isControlled ? open : visible
 
-  const show = useCallback(() => {
-    if (isControlled) return
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      setVisible(true)
-    }, enterDelay)
-  }, [enterDelay, isControlled])
-
   const hide = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = null
     if (isControlled) return
     setVisible(false)
+    if (activeUncontrolledTooltipHide === hide) {
+      activeUncontrolledTooltipHide = null
+    }
   }, [isControlled])
+
+  const show = useCallback(() => {
+    if (isControlled) return
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      if (
+        activeUncontrolledTooltipHide &&
+        activeUncontrolledTooltipHide !== hide
+      ) {
+        activeUncontrolledTooltipHide()
+      }
+      setVisible(true)
+      activeUncontrolledTooltipHide = hide
+    }, enterDelay)
+  }, [enterDelay, hide, isControlled])
 
   useEffect(
     () => () => {
       if (timerRef.current) clearTimeout(timerRef.current)
+      if (activeUncontrolledTooltipHide === hide) {
+        activeUncontrolledTooltipHide = null
+      }
     },
-    [],
+    [hide],
   )
 
   const updatePosition = useCallback(() => {

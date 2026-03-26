@@ -48,6 +48,46 @@ describe('Tooltip', () => {
     )
   })
 
+  it('renders non-interactive tooltips by default', async () => {
+    render(
+      <Tooltip title="Hover tooltip">
+        <button type="button">Hover target</button>
+      </Tooltip>,
+    )
+
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Hover target' }))
+
+    await expect(screen.findByRole('tooltip')).resolves.toHaveStyle(
+      'pointer-events: none',
+    )
+  })
+
+  it('keeps only the latest uncontrolled tooltip visible', async () => {
+    render(
+      <>
+        <Tooltip title="First tooltip">
+          <button type="button">First target</button>
+        </Tooltip>
+        <Tooltip title="Second tooltip">
+          <button type="button">Second target</button>
+        </Tooltip>
+      </>,
+    )
+
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'First target' }))
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'First tooltip',
+    )
+
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Second target' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Second tooltip')).toBeInTheDocument()
+    })
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1)
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Second tooltip')
+  })
+
   it('clamps a bottom tooltip away from the left viewport edge', async () => {
     setViewportSize(160, 120)
 

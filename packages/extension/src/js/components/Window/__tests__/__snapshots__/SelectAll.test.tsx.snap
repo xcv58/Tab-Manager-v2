@@ -3,7 +3,7 @@
 exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 <div
   role="tooltip"
-  style="position: fixed; top: 8px; left: 0px; transform: translateX(-50%); z-index: 1500; pointer-events: auto; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
+  style="position: fixed; top: 8px; left: 8px; transform: none; z-index: 1500; pointer-events: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
 >
   Unselect all tabs
 </div>
@@ -12,7 +12,7 @@ exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
 <div
   role="tooltip"
-  style="position: fixed; top: 8px; left: 0px; transform: translateX(-50%); z-index: 1500; pointer-events: auto; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
+  style="position: fixed; top: 8px; left: 8px; transform: none; z-index: 1500; pointer-events: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
 >
   Select all tabs
 </div>
