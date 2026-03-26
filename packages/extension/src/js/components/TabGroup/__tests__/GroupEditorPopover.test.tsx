@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
-import { AppThemeContext, darkAppTheme } from 'libs/appTheme'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { darkTheme } from 'libs/themes'
 import GroupEditorPopover from '../GroupEditorPopover'
 
@@ -22,7 +22,7 @@ describe('GroupEditorPopover', () => {
     document.body.appendChild(anchorEl)
 
     const { unmount } = render(
-      <AppThemeContext.Provider value={darkAppTheme}>
+      <ThemeProvider theme={createTheme(darkTheme)}>
         <GroupEditorPopover
           anchorEl={anchorEl}
           groupId={7}
@@ -33,7 +33,7 @@ describe('GroupEditorPopover', () => {
           onRecolor={() => {}}
           onRename={() => {}}
         />
-      </AppThemeContext.Provider>,
+      </ThemeProvider>,
     )
 
     const input = await screen.findByTestId('tab-group-editor-title-7')

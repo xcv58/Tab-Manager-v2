@@ -1,8 +1,8 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import Checkbox from 'components/ui/Checkbox'
-import IconButton from 'components/ui/IconButton'
+import Checkbox from '@mui/material/Checkbox'
+import IconButton from '@mui/material/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
@@ -12,14 +12,27 @@ const CONTROL_SLOT_CLASS =
   'group relative flex h-10 w-10 shrink-0 items-center justify-center'
 const CONTROL_LAYER_CLASS =
   'absolute inset-0 flex items-center justify-center transition-opacity duration-150'
+const CONTROL_SX = {
+  width: DEFAULT_CONTROL_SIZE,
+  height: DEFAULT_CONTROL_SIZE,
+  p: 0.625,
+  m: 0,
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
+}
 
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const checkbox = (
     <Checkbox
+      color="primary"
       checked={isSelected}
-      aria-label={ARIA_LABEL}
+      sx={CONTROL_SX}
+      inputProps={{
+        'aria-label': ARIA_LABEL,
+      }}
       onClick={(e) => {
         if (process.env.TARGET_BROWSER === 'firefox') {
           if (e.altKey) {
@@ -59,8 +72,9 @@ export const Icon = observer((props: TabProps) => {
         <IconButton
           aria-label={ARIA_LABEL}
           className="focus:outline-none focus:ring"
-          onClick={() => select()}
-          onFocus={() => focus()}
+          onClick={select}
+          onFocus={focus}
+          sx={CONTROL_SX}
         >
           <img
             className="w-6 h-6"
@@ -97,6 +111,7 @@ export default observer((props: TabProps) => {
         disabled
         aria-label={ARIA_LABEL}
         className="focus:outline-none focus:ring"
+        sx={CONTROL_SX}
       >
         <img
           className="w-6 h-6"

@@ -1,16 +1,18 @@
 import React from 'react'
-import { FeedbackIcon } from 'icons/materialIcons'
+import Button from '@mui/material/Button'
+import Feedback from '@mui/icons-material/Feedback'
 
 export default function FeedbackButton() {
   return (
-    <a
-      className="inline-flex items-center gap-1.5 px-2 py-1 text-sm hover:underline"
-      href="https://github.com/xcv58/Tab-Manager-v2/issues/new/choose"
+    <Button
+      sx={{ textTransform: 'none' }}
+      startIcon={<Feedback />}
+      variant="text"
       target="_blank"
       rel="noopener noreferrer"
+      href="https://github.com/xcv58/Tab-Manager-v2/issues/new/choose"
     >
-      <FeedbackIcon fontSize={18} />
       Feedback
-    </a>
+    </Button>
   )
 }

@@ -1,12 +1,13 @@
 import React from 'react'
-import { ExpandMoreIcon, ChevronRightIcon } from 'icons/materialIcons'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ControlIconButton from 'components/ControlIconButton'
 
 export default ({ hide, toggleHide }) => {
   const icon = hide ? (
-    <ChevronRightIcon fontSize={16} />
+    <ChevronRightIcon sx={{ fontSize: 16 }} />
   ) : (
-    <ExpandMoreIcon fontSize={16} />
+    <ExpandMoreIcon sx={{ fontSize: 16 }} />
   )
   return (
     <ControlIconButton

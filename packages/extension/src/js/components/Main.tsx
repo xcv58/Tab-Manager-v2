@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import { useAppTheme } from 'libs/appTheme'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
@@ -20,12 +20,15 @@ const useQuery = () => new URLSearchParams(useLocation().search)
 export default observer(() => {
   const query = useQuery()
   const isPopup = !query.has(NOT_POPUP)
-  const theme = useAppTheme()
+  const theme = useMuiTheme()
   const { windowStore, shortcutStore, tabGroupStore, userStore } = useStore()
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   const fontSize = useFontSize()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   useEffect(() => {
     tabGroupStore?.didMount?.()
     windowStore.didMount()

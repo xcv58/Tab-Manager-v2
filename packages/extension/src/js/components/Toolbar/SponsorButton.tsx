@@ -1,16 +1,18 @@
 import React from 'react'
-import { FavoriteBorderIcon } from 'icons/materialIcons'
+import Button from '@mui/material/Button'
+import FavoriteBorder from '@mui/icons-material/FavoriteBorder'
 
 export default function SponsorButton() {
   return (
-    <a
-      className="inline-flex items-center gap-1.5 px-2 py-1 text-sm hover:underline"
-      href="https://github.com/sponsors/xcv58"
+    <Button
+      sx={{ textTransform: 'none' }}
+      startIcon={<FavoriteBorder className="text-red-500" />}
+      variant="text"
       target="_blank"
       rel="noopener noreferrer"
+      href="https://github.com/sponsors/xcv58"
     >
-      <FavoriteBorderIcon className="text-red-500" fontSize={18} />
       Sponsor
-    </a>
+    </Button>
   )
 }

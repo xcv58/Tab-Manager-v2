@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { useAppTheme } from 'libs/appTheme'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import Summary from 'components/Summary'
 import OpenInTab from 'components/OpenInTab'
 import ThemeToggle from 'components/ThemeToggle'
@@ -13,8 +13,11 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer(() => {
   const { userStore } = useStore()
-  const theme = useAppTheme()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const theme = useMuiTheme()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
   if (!userStore.loaded) {
     return (

@@ -4,7 +4,7 @@ import Tooltip from '@mui/material/Tooltip'
 import ButtonBase from '@mui/material/ButtonBase'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
-import { ViewColumnIcon } from 'icons/materialIcons'
+import ViewColumn from '@mui/icons-material/ViewColumn'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
@@ -79,7 +79,7 @@ export default observer(() => {
           })}
           aria-hidden="true"
         />
-        <ViewColumnIcon fontSize={16} />
+        <ViewColumn sx={{ fontSize: 16 }} aria-hidden="true" />
         <Typography
           component="span"
           sx={{

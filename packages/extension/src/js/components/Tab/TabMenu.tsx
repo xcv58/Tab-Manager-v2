@@ -3,9 +3,9 @@ import { observer } from 'mobx-react-lite'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import Popover from '@mui/material/Popover'
-import { MoreVertIcon } from 'icons/materialIcons'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { getNoun } from 'libs'
-import { useAppTheme } from 'libs/appTheme'
+import { useTheme } from '@mui/material'
 import Tab from 'stores/Tab'
 import { useStore } from 'components/hooks/useStore'
 import ControlIconButton from 'components/ControlIconButton'
@@ -29,7 +29,7 @@ const OPTION: Option = { __typename: 'OPTION', label: '' }
 
 export default observer((props: { tab: Tab }) => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const theme = useAppTheme()
+  const theme = useTheme()
   const { tabGroupStore } = useStore()
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -148,7 +148,7 @@ export default observer((props: { tab: Tab }) => {
         aria-label="Tab actions"
         data-testid={`tab-menu-${props.tab.id}`}
       >
-        <MoreVertIcon fontSize={16} />
+        <MoreVertIcon sx={{ fontSize: 16 }} />
       </ControlIconButton>
       <Popover
         anchorEl={anchorEl}

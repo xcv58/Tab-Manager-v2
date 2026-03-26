@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import classNames from 'classnames'
-import { DragHandleIcon } from 'icons/materialIcons'
+import DragHandleIcon from '@mui/icons-material/DragHandle'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { ItemTypes } from 'libs/react-dnd'
@@ -41,13 +41,18 @@ export default ({ groupId, className }: Props) => {
         'opacity-50': isDragging,
       })}
       controlSize="compact"
-      style={{ cursor: 'move' }}
+      sx={{
+        cursor: 'move',
+        '&:hover': {
+          cursor: 'move',
+        },
+      }}
       data-testid={`tab-group-drag-handle-${groupId}`}
       title="Drag group"
       aria-label="Drag group"
       onPointerDown={onPointerDown}
     >
-      <DragHandleIcon fontSize={15} />
+      <DragHandleIcon sx={{ fontSize: 15 }} />
     </ControlIconButton>
   )
 }
