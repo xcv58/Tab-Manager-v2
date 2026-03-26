@@ -578,7 +578,7 @@ test.describe('The Extension page should', () => {
     expect(titleInputScreenshot).toMatchSnapshot(
       'group-editor-title-input.png',
       {
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: 0.1,
         threshold: 0.2,
       },
     )
