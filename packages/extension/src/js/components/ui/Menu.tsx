@@ -1,6 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { useAppTheme } from 'libs/appTheme'
+import { clampOverlayPosition } from './overlayPosition'
 
 /* -------------------------------------------------------------------------- */
 /*  Menu (replaces MUI Menu)                                                   */
@@ -27,13 +34,29 @@ export default function Menu({
   const menuRef = useRef<HTMLDivElement>(null)
   const lastAnchorRef = useRef<HTMLElement | null>(null)
   const [position, setPosition] = useState({ top: 0, left: 0 })
+  const updatePosition = useCallback(() => {
+    if (!open || !anchorEl || !menuRef.current) {
+      return
+    }
 
-  useEffect(() => {
-    if (!open || !anchorEl) return
     lastAnchorRef.current = anchorEl
-    const rect = anchorEl.getBoundingClientRect()
-    setPosition({ top: rect.bottom, left: rect.left })
-  }, [open, anchorEl])
+    const anchorRect = anchorEl.getBoundingClientRect()
+    const menuRect = menuRef.current.getBoundingClientRect()
+
+    setPosition(
+      clampOverlayPosition({
+        top: anchorRect.bottom,
+        left: anchorRect.left,
+        width: menuRect.width,
+        height: menuRect.height,
+        margin: 16,
+      }),
+    )
+  }, [anchorEl, open])
+
+  useLayoutEffect(() => {
+    updatePosition()
+  }, [children, style, updatePosition])
 
   useEffect(() => {
     if (!open) {
@@ -124,10 +147,14 @@ export default function Menu({
   useEffect(() => {
     if (!open) return
     document.addEventListener('mousedown', handleClickOutside)
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
     }
-  }, [open, handleClickOutside])
+  }, [open, handleClickOutside, updatePosition])
 
   if (!open) return null
 

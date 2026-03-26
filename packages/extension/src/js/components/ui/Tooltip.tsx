@@ -1,5 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
+import { clampOverlayPosition } from './overlayPosition'
 
 export interface TooltipProps {
   title: React.ReactNode
@@ -53,33 +60,64 @@ export default function Tooltip({
     [],
   )
 
-  useEffect(() => {
-    if (!isVisible || !anchorRef.current) return
-    const el = anchorRef.current
-    const rect = el.getBoundingClientRect()
+  const updatePosition = useCallback(() => {
+    if (!isVisible || !anchorRef.current || !tooltipRef.current) {
+      return
+    }
+
+    const rect = anchorRef.current.getBoundingClientRect()
+    const tooltipRect = tooltipRef.current.getBoundingClientRect()
     const gap = 8
     let top = 0
     let left = 0
+
     switch (placement) {
       case 'top':
-        top = rect.top - gap
-        left = rect.left + rect.width / 2
+        top = rect.top - tooltipRect.height - gap
+        left = rect.left + rect.width / 2 - tooltipRect.width / 2
         break
       case 'bottom':
         top = rect.bottom + gap
-        left = rect.left + rect.width / 2
+        left = rect.left + rect.width / 2 - tooltipRect.width / 2
         break
       case 'left':
-        top = rect.top + rect.height / 2
-        left = rect.left - gap
+        top = rect.top + rect.height / 2 - tooltipRect.height / 2
+        left = rect.left - tooltipRect.width - gap
         break
       case 'right':
-        top = rect.top + rect.height / 2
+        top = rect.top + rect.height / 2 - tooltipRect.height / 2
         left = rect.right + gap
         break
     }
-    setCoords({ top, left })
+
+    setCoords(
+      clampOverlayPosition({
+        top,
+        left,
+        width: tooltipRect.width,
+        height: tooltipRect.height,
+        margin: 8,
+      }),
+    )
   }, [isVisible, placement])
+
+  useLayoutEffect(() => {
+    updatePosition()
+  }, [title, updatePosition])
+
+  useEffect(() => {
+    if (!isVisible) {
+      return
+    }
+
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [isVisible, updatePosition])
 
   if (!title) {
     return children
@@ -111,14 +149,6 @@ export default function Tooltip({
       child.props.onBlur?.(e)
     },
   } as any)
-
-  const transformOrigin: Record<string, string> = {
-    top: 'translateX(-50%) translateY(-100%)',
-    bottom: 'translateX(-50%)',
-    left: 'translateX(-100%) translateY(-50%)',
-    right: 'translateY(-50%)',
-  }
-
   return (
     <>
       {cloned}
@@ -131,7 +161,7 @@ export default function Tooltip({
               position: 'fixed',
               top: coords.top,
               left: coords.left,
-              transform: transformOrigin[placement],
+              transform: 'none',
               zIndex: 1500,
               pointerEvents: disableInteractive ? 'none' : 'auto',
               padding: '4px 8px',

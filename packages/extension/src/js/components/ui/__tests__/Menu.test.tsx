@@ -22,6 +22,17 @@ const createAnchorEl = () => {
   return anchorEl
 }
 
+const setViewportSize = (width: number, height: number) => {
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: width,
+  })
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    value: height,
+  })
+}
+
 describe('Menu', () => {
   it('focuses the first enabled item, supports arrow navigation, and restores focus on close', async () => {
     const anchorEl = createAnchorEl()
@@ -110,6 +121,60 @@ describe('Menu', () => {
     expect(divider).toHaveStyle(
       `border-top: 1px solid ${darkAppTheme.palette.divider}`,
     )
+
+    anchorEl.remove()
+  })
+
+  it('keeps the menu within the viewport when the anchor is near the bottom-right corner', async () => {
+    setViewportSize(320, 240)
+    const anchorEl = createAnchorEl()
+    anchorEl.getBoundingClientRect = () =>
+      ({
+        x: 280,
+        y: 170,
+        top: 170,
+        left: 280,
+        bottom: 198,
+        right: 308,
+        width: 28,
+        height: 28,
+        toJSON: () => ({}),
+      }) as DOMRect
+
+    render(
+      <AppThemeContext.Provider value={lightAppTheme}>
+        <Menu
+          open
+          anchorEl={anchorEl}
+          onClose={() => {}}
+          data-testid="test-menu"
+        >
+          <MenuItem>First action</MenuItem>
+          <MenuItem>Second action</MenuItem>
+          <MenuItem>Third action</MenuItem>
+        </Menu>
+      </AppThemeContext.Provider>,
+    )
+
+    const menu = await screen.findByTestId('test-menu')
+    jest.spyOn(menu, 'getBoundingClientRect').mockReturnValue({
+      x: 104,
+      y: 104,
+      top: 104,
+      left: 104,
+      bottom: 224,
+      right: 304,
+      width: 200,
+      height: 120,
+      toJSON: () => ({}),
+    } as DOMRect)
+
+    fireEvent(window, new Event('resize'))
+
+    await waitFor(() => {
+      expect(menu).toHaveStyle('left: 104px')
+      expect(menu).toHaveStyle('top: 104px')
+    })
 
     anchorEl.remove()
   })

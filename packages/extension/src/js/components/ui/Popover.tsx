@@ -1,6 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { useAppTheme } from 'libs/appTheme'
+import { clampOverlayPosition } from './overlayPosition'
 
 export interface PopoverProps {
   open: boolean
@@ -33,12 +40,16 @@ export default function Popover({
   const theme = useAppTheme()
   const popoverRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState({ top: 0, left: 0 })
+  const updatePosition = useCallback(() => {
+    if (!open || !anchorEl || !popoverRef.current) {
+      return
+    }
 
-  useEffect(() => {
-    if (!open || !anchorEl) return
     const rect = anchorEl.getBoundingClientRect()
+    const popoverRect = popoverRef.current.getBoundingClientRect()
     const top = anchorOrigin.vertical === 'bottom' ? rect.bottom : rect.top
     let left: number
+
     if (anchorOrigin.horizontal === 'right') {
       left = rect.right
     } else if (anchorOrigin.horizontal === 'center') {
@@ -46,8 +57,21 @@ export default function Popover({
     } else {
       left = rect.left
     }
-    setPosition({ top, left })
-  }, [open, anchorEl, anchorOrigin.vertical, anchorOrigin.horizontal])
+
+    setPosition(
+      clampOverlayPosition({
+        top,
+        left,
+        width: popoverRect.width,
+        height: popoverRect.height,
+        margin: 16,
+      }),
+    )
+  }, [anchorEl, anchorOrigin.horizontal, anchorOrigin.vertical, open])
+
+  useLayoutEffect(() => {
+    updatePosition()
+  }, [children, style, updatePosition])
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
@@ -74,11 +98,15 @@ export default function Popover({
     if (!open) return
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
     }
-  }, [open, handleClickOutside, handleKeyDown])
+  }, [open, handleClickOutside, handleKeyDown, updatePosition])
 
   if (!open) return null
 
