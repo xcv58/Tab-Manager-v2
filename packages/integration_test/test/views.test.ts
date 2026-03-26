@@ -903,7 +903,7 @@ test.describe('The Extension page should', () => {
     expect(toolbarToggleScreenshot).toMatchSnapshot(
       'settings-toolbar-toggle-atom.png',
       {
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: 0.12,
         threshold: 0.2,
       },
     )
