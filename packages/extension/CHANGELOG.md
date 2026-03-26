@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.1.0...v2.2.0) (2026-03-26)
+
+
+### Features
+
+* add auto-fit columns layout mode ([#2617](https://github.com/xcv58/Tab-Manager-v2/issues/2617)) ([e6d95ad](https://github.com/xcv58/Tab-Manager-v2/commit/e6d95ad62095cc8748ee36a65224115a6b2b5243))
+
 ## [2.1.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.2...v2.1.0) (2026-03-20)
 
 
