@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import classNames from 'classnames'
 import { useAppTheme } from 'libs/appTheme'
 
@@ -44,6 +44,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const innerRef = useRef<HTMLInputElement>(null)
     const ref = (forwardedRef as React.RefObject<HTMLInputElement>) ?? innerRef
     const theme = useAppTheme()
+    const [focused, setFocused] = useState(false)
 
     React.useEffect(() => {
       if (ref && 'current' in ref && ref.current) {
@@ -59,6 +60,11 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           : theme.mode === 'dark'
             ? 'rgba(203, 213, 225, 0.74)'
             : 'rgba(71, 85, 105, 0.76)'
+
+    const focusRingColor =
+      theme.mode === 'dark'
+        ? 'rgba(181, 199, 230, 0.28)'
+        : 'rgba(26, 115, 232, 0.24)'
 
     const renderIcon = () => {
       if (indeterminate) {
@@ -103,7 +109,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     return (
       <span
         className={classNames(
-          'relative inline-flex items-center justify-center shrink-0',
+          'relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow] duration-150',
           { 'cursor-not-allowed opacity-60': disabled },
           className,
         )}
@@ -111,6 +117,9 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           width: controlSize,
           height: controlSize,
           padding,
+          ...(focused && !disabled
+            ? { boxShadow: `0 0 0 3px ${focusRingColor}` }
+            : {}),
           ...style,
         }}
       >
@@ -121,6 +130,9 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           disabled={disabled}
           onChange={onChange}
           onClick={onClick}
+          readOnly={onChange == null}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           aria-label={ariaLabel}
           className="absolute inset-0 m-0 cursor-pointer opacity-0"
           style={{ width: '100%', height: '100%' }}

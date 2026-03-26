@@ -36,12 +36,13 @@ export default function Slider({
   const theme = useAppTheme()
   const trackRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
   const pct = ((value - min) / (max - min)) * 100
   const primaryColor = theme.palette.primary.main
   const railColor = withAlpha(primaryColor, theme.mode === 'dark' ? 0.32 : 0.28)
-  const dragRingColor = withAlpha(
+  const focusRingColor = withAlpha(
     primaryColor,
-    theme.mode === 'dark' ? 0.22 : 0.16,
+    theme.mode === 'dark' ? 0.22 : 0.24,
   )
 
   const handleChange = useCallback(
@@ -100,7 +101,9 @@ export default function Slider({
                 width: 4,
                 height: 4,
                 borderRadius: '50%',
-                backgroundColor: isActive ? theme.palette.background.paper : primaryColor,
+                backgroundColor: isActive
+                  ? theme.palette.background.paper
+                  : primaryColor,
                 opacity: isActive ? 0.8 : 0.5,
               }}
             />
@@ -117,9 +120,10 @@ export default function Slider({
             height: isDragging ? 18 : 14,
             borderRadius: '50%',
             backgroundColor: primaryColor,
-            boxShadow: isDragging
-              ? `0 0 0 6px ${dragRingColor}`
-              : '0 1px 2px rgba(0,0,0,0.2)',
+            boxShadow:
+              isDragging || isFocused
+                ? `0 0 0 6px ${focusRingColor}`
+                : '0 1px 2px rgba(0,0,0,0.2)',
             transition: 'width 100ms, height 100ms, box-shadow 100ms',
             pointerEvents: 'none',
           }}
@@ -135,6 +139,11 @@ export default function Slider({
         onChange={handleChange}
         onMouseDown={() => setIsDragging(true)}
         onMouseUp={() => setIsDragging(false)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => {
+          setIsFocused(false)
+          setIsDragging(false)
+        }}
         aria-label={ariaLabel}
         aria-valuemin={min}
         aria-valuemax={max}
