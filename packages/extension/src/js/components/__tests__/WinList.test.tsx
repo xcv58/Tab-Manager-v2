@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { StoreContext } from 'components/hooks/useStore'
 import WinList from '../WinList'
 
@@ -184,6 +184,73 @@ describe('WinList', () => {
     computedStyleSpy.mockRestore()
     rafSpy.mockRestore()
     cancelAnimationFrameSpy.mockRestore()
+    clientHeightSpy.mockRestore()
+    clientWidthSpy.mockRestore()
+  })
+
+  it('uses vertical-only scrolling when auto-fit columns is enabled', () => {
+    const computedStyleSpy = jest
+      .spyOn(window, 'getComputedStyle')
+      .mockReturnValue({
+        paddingLeft: '0',
+        paddingRight: '0',
+        paddingTop: '0',
+        paddingBottom: '0',
+      } as CSSStyleDeclaration)
+    const clientHeightSpy = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(420)
+    const clientWidthSpy = jest
+      .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+      .mockReturnValue(320)
+
+    render(
+      <StoreContext.Provider
+        value={
+          {
+            windowStore: {
+              initialLoading: false,
+              updateViewport: jest.fn(),
+              updateScroll: jest.fn(),
+              visibleWindows: [{ id: 1 }],
+              renderedColumnLayouts: [
+                {
+                  columnIndex: 0,
+                  left: 0,
+                  width: 320,
+                  height: 120,
+                  renderedWindows: [
+                    {
+                      windowId: 1,
+                      top: 0,
+                    },
+                  ],
+                },
+              ],
+              totalContentWidth: 320,
+              totalContentHeight: 120,
+            },
+            userStore: {
+              tabWidth: 20,
+              toolbarAutoHide: false,
+              autoFitColumns: true,
+            },
+            focusStore: {
+              setContainerRef: jest.fn(),
+            },
+          } as any
+        }
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const scrollContainer = screen.getByTestId('window-list-scroll-container')
+    expect(scrollContainer).toHaveClass('overflow-y-scroll')
+    expect(scrollContainer).toHaveClass('overflow-x-hidden')
+    expect(scrollContainer).not.toHaveClass('overflow-scroll')
+
+    computedStyleSpy.mockRestore()
     clientHeightSpy.mockRestore()
     clientWidthSpy.mockRestore()
   })

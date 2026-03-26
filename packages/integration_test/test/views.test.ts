@@ -916,6 +916,22 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(200)
   })
 
+  test('render auto-fit columns setting in the view panel', async () => {
+    const settingsButton = page.locator('button[aria-label="Settings"]').first()
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
+
+    const autoFitColumnsToggle = page.getByRole('switch', {
+      name: /Auto-fit columns/i,
+    })
+    await expect(autoFitColumnsToggle).toBeVisible()
+    await expect(
+      page.getByText(
+        'Avoid horizontal scrolling by fitting columns to the window.',
+      ),
+    ).toBeVisible()
+  })
+
   test('render tab row action atoms', async () => {
     const atomTabUrl = 'data:text/html,<title>Atom%20Row</title>atom-row'
     await openPages(browserContext, [atomTabUrl])

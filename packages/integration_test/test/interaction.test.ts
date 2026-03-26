@@ -14,6 +14,7 @@ import {
   matchImageSnapshotOptions,
   groupTabsByUrl,
   getGroupMembers,
+  createWindowsWithTabs,
   updateTabGroup,
   ungroupTabGroup,
   ungroupTabGroupById,
@@ -76,6 +77,57 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
     minHeight: 200,
     stableSamples: 3,
   })
+}
+
+const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
+  Array.from(
+    { length: 6 },
+    (_, tabIndex) =>
+      `about:blank#auto-fit-window-${windowIndex}-tab-${tabIndex}`,
+  ),
+)
+
+const writeExtensionSettings = async (
+  page: Page,
+  settings: Record<string, unknown>,
+) => {
+  await page.evaluate(async (nextSettings) => {
+    await chrome.storage.local.set(nextSettings)
+    if (chrome.storage.sync?.set) {
+      await chrome.storage.sync.set(nextSettings)
+    }
+  }, settings)
+}
+
+const getScrollContainerMetrics = async (page: Page) => {
+  return page.getByTestId('window-list-scroll-container').evaluate((node) => ({
+    clientWidth: node.clientWidth,
+    scrollWidth: node.scrollWidth,
+  }))
+}
+
+const getRenderedWindowColumnCount = async (page: Page) => {
+  return await page.locator('[data-testid^="window-column-"]').count()
+}
+
+const setupAutoFitColumnsScenario = async (
+  page: Page,
+  settings: Record<string, unknown> = {},
+) => {
+  await writeExtensionSettings(page, {
+    autoFitColumns: true,
+    tabWidth: 20,
+    ...settings,
+  })
+  const createdWindowIds = await createWindowsWithTabs(
+    page,
+    AUTO_FIT_WINDOW_URLS,
+  )
+  await page.reload()
+  await page.waitForLoadState('domcontentloaded')
+  await waitForTestId(page, `window-card-${createdWindowIds[0]}`)
+  await waitForMainSurfaceToSettle(page)
+  return createdWindowIds
 }
 
 const waitForSettingsPanelToSettle = async (page: Page) => {
@@ -1902,5 +1954,75 @@ test.describe('The Extension page should', () => {
         { timeout: 2200 },
       )
       .toBeGreaterThan(4)
+  })
+
+  test('auto-fit columns avoids horizontal scrolling in wide windows', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+
+    await setupAutoFitColumnsScenario(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(4)
+
+    const metrics = await getScrollContainerMetrics(page)
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+  })
+
+  test('auto-fit columns reduces the rendered column count after narrowing the window', async () => {
+    await page.setViewportSize({
+      width: 960,
+      height: 720,
+    })
+
+    await setupAutoFitColumnsScenario(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(3)
+
+    await page.setViewportSize({
+      width: 640,
+      height: 720,
+    })
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(2)
+
+    const metrics = await getScrollContainerMetrics(page)
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+  })
+
+  test('auto-fit columns honors minimum tab width when computing columns', async () => {
+    await page.setViewportSize({
+      width: 960,
+      height: 720,
+    })
+
+    await setupAutoFitColumnsScenario(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(3)
+
+    await writeExtensionSettings(page, {
+      autoFitColumns: true,
+      tabWidth: 24,
+    })
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(2)
+
+    const metrics = await getScrollContainerMetrics(page)
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
   })
 })

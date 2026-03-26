@@ -451,6 +451,8 @@ export default observer(() => {
     toggleShowAppWindow,
     showUnmatchedTab,
     toggleShowUnmatchedTab,
+    autoFitColumns,
+    toggleAutoFitColumns,
     litePopupMode,
     toggleLitePopupMode,
     showShortcutHint,
@@ -764,6 +766,13 @@ export default observer(() => {
                 description="Use the lite layout for the browser action popup window only."
                 checked={litePopupMode}
                 onChange={toggleLitePopupMode}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
+                title="Auto-fit columns"
+                description="Avoid horizontal scrolling by fitting columns to the window."
+                checked={autoFitColumns}
+                onChange={toggleAutoFitColumns}
                 style={rowDetailOptionStyle}
               />
               <SettingsSwitchOption
