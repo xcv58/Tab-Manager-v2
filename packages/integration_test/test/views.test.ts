@@ -921,9 +921,9 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
-    const autoFitColumnsToggle = page
-      .locator('[aria-label="Auto-fit columns"]')
-      .first()
+    const autoFitColumnsToggle = page.getByRole('switch', {
+      name: /Auto-fit columns/i,
+    })
     await expect(autoFitColumnsToggle).toBeVisible()
     await expect(
       page.getByText(
