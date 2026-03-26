@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Checkbox from 'components/ui/Checkbox'
-import Tooltip from 'components/ui/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
 
 export default observer(({ win }: { win: any }) => {

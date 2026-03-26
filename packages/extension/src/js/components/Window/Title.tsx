@@ -13,7 +13,7 @@ import HideToggle from './HideToggle'
 import { WinProps } from 'components/types'
 import { useTheme } from 'components/hooks/useTheme'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from 'components/ui/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 

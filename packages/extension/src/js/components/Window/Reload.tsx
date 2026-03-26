@@ -1,5 +1,5 @@
 import React from 'react'
-import Tooltip from 'components/ui/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { RefreshIcon } from 'icons/materialIcons'
 import ControlIconButton from 'components/ControlIconButton'
 

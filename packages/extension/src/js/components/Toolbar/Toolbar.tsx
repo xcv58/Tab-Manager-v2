@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { Slide } from 'components/ui/Transition'
+import Slide from '@mui/material/Slide'
 import SelectAll from 'components/Toolbar/SelectAll'
 import Reload from 'components/Toolbar/Reload'
 import Close from 'components/Toolbar/Close'
@@ -13,7 +13,7 @@ import RemoveDuplicated from 'components/Toolbar/RemoveDuplicated'
 import VerticalDivider from 'components/Toolbar/VerticalDivider'
 import { useStore } from 'components/hooks/useStore'
 import useReduceMotion from 'libs/useReduceMotion'
-import { defaultTransitionDuration } from 'libs/transition'
+import { duration } from '@mui/material'
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -24,7 +24,7 @@ export default observer(() => {
       in={toolbarVisible}
       direction="up"
       style={{ display: 'flex' }}
-      timeout={reduceMotion ? 1 : defaultTransitionDuration.enter}
+      timeout={reduceMotion ? 1 : duration.enteringScreen}
     >
       <div
         className="flex items-center px-1"

@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from 'components/ui/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import IconButton from 'components/ui/IconButton'
 import LightbulbOutline from 'svgIcons/LightbulbOutline'
 import LightbulbFull from 'svgIcons/LightbulbFull'

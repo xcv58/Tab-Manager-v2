@@ -1,5 +1,5 @@
 import React from 'react'
-import Tooltip from 'components/ui/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { OpenInBrowserIcon } from 'icons/materialIcons'
 import IconButton from 'components/ui/IconButton'
 import { openInNewTab } from 'libs'

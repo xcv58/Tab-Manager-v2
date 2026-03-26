@@ -1,8 +1,8 @@
 import React, { SyntheticEvent, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import Tooltip from 'components/ui/Tooltip'
-import { useAppTheme } from 'libs/appTheme'
+import Tooltip from '@mui/material/Tooltip'
+import { useTheme } from '@mui/material/styles'
 import CloseButton from 'components/CloseButton'
 import HighlightNode from 'components/HighlightNode'
 import RowActionSlot from 'components/RowActionSlot'
@@ -29,8 +29,11 @@ export default observer(function TabOption(props: Props) {
   const { tab, showInlineGroupBadge = true } = props
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
-  const theme = useAppTheme()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const theme = useTheme()
+  const uiColors = getUiColorTokens(
+    theme.palette.mode === 'dark',
+    userStore.uiPreset,
+  )
   const classicDuplicate =
     userStore.uiPreset === 'classic' &&
     userStore.highlightDuplicatedTab &&
@@ -100,9 +103,9 @@ export default observer(function TabOption(props: Props) {
             {
               'group-hover:text-red-400': classicDuplicate,
               'group-hover:text-gray-900':
-                theme.mode !== 'dark' && !classicDuplicate,
+                theme.palette.mode !== 'dark' && !classicDuplicate,
               'group-hover:text-gray-100':
-                theme.mode === 'dark' && !classicDuplicate,
+                theme.palette.mode === 'dark' && !classicDuplicate,
             },
           )}
           style={{
