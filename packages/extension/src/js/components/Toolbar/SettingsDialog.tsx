@@ -1,12 +1,20 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
-import Switch from 'components/ui/Switch'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import FormHelperText from '@mui/material/FormHelperText'
+import Fade from '@mui/material/Fade'
+import Switch from '@mui/material/Switch'
 import { useStore } from 'components/hooks/useStore'
-import Slider from 'components/ui/Slider'
+import Slider from '@mui/material/Slider'
 import IconButton from 'components/ui/IconButton'
-import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import Typography from '@mui/material/Typography'
 import { useAppTheme } from 'libs/appTheme'
 import {
   AddRoundedIcon,
@@ -22,43 +30,29 @@ import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
 import TabRowPreview from './TabRowPreview'
 
-/* -------------------------------------------------------------------------- */
-/*  Inline style helpers (replacing MUI sx / Typography / FormHelperText)       */
-/* -------------------------------------------------------------------------- */
-
-const panelTitleStyle: React.CSSProperties = {
+const panelTitleSx = {
   fontSize: '0.92rem',
   fontWeight: 700,
   lineHeight: 1.3,
-  margin: 0,
-}
+} as const
 
-const panelDescriptionStyle: React.CSSProperties = {
-  marginTop: 4,
+const panelDescriptionSx = {
+  mt: 0.5,
   fontSize: '0.8rem',
   lineHeight: 1.45,
-  opacity: 0.7,
-  margin: 0,
-}
+} as const
 
-const controlTitleStyle: React.CSSProperties = {
+const controlTitleSx = {
   fontSize: '0.88rem',
   fontWeight: 600,
   lineHeight: 1.35,
-  margin: 0,
-}
+} as const
 
-const controlDescriptionStyle: React.CSSProperties = {
-  marginTop: 4,
+const controlDescriptionSx = {
+  mt: 0.5,
   fontSize: '0.76rem',
   lineHeight: 1.45,
-  opacity: 0.7,
-  margin: 0,
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Sub-components                                                             */
-/* -------------------------------------------------------------------------- */
+} as const
 
 const SettingsPanel = ({
   title,
@@ -81,8 +75,12 @@ const SettingsPanel = ({
     data-testid={testId}
   >
     <div className="mb-3">
-      <h4 style={panelTitleStyle}>{title}</h4>
-      {description && <p style={panelDescriptionStyle}>{description}</p>}
+      <Typography component="h4" sx={panelTitleSx}>
+        {title}
+      </Typography>
+      {description && (
+        <FormHelperText sx={panelDescriptionSx}>{description}</FormHelperText>
+      )}
     </div>
     {children}
   </div>
@@ -210,8 +208,14 @@ const DensityControl = ({
         }`}
       >
         <div className="min-w-0">
-          <h5 style={controlTitleStyle}>{title}</h5>
-          {description && <p style={controlDescriptionStyle}>{description}</p>}
+          <Typography component="h5" sx={controlTitleSx}>
+            {title}
+          </Typography>
+          {description && (
+            <FormHelperText sx={controlDescriptionSx}>
+              {description}
+            </FormHelperText>
+          )}
         </div>
         <div className="flex items-center gap-0.5 self-start md:shrink-0">
           <IconButton
@@ -221,81 +225,69 @@ const DensityControl = ({
           >
             <RemoveRoundedIcon fontSize={18} />
           </IconButton>
-          <div
-            style={{
-              position: 'relative',
-              display: 'inline-flex',
-              alignItems: 'center',
-              width: 92,
-              height: 36,
+          <TextField
+            size="small"
+            value={draftValue}
+            onChange={(event) => {
+              const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
+              setDraftValue(sanitizedValue)
+              if (!sanitizedValue) {
+                return
+              }
+              const parsedValue = Number.parseInt(sanitizedValue, 10)
+              if (
+                Number.isNaN(parsedValue) ||
+                parsedValue < min ||
+                parsedValue > max
+              ) {
+                return
+              }
+              if (parsedValue !== value) {
+                onChange(parsedValue)
+              }
             }}
-          >
-            <input
-              type="text"
-              value={draftValue}
-              onChange={(event) => {
-                const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
-                setDraftValue(sanitizedValue)
-                if (!sanitizedValue) {
-                  return
-                }
-                const parsedValue = Number.parseInt(sanitizedValue, 10)
-                if (
-                  Number.isNaN(parsedValue) ||
-                  parsedValue < min ||
-                  parsedValue > max
-                ) {
-                  return
-                }
-                if (parsedValue !== value) {
-                  onChange(parsedValue)
-                }
-              }}
-              onBlur={commitDraftValue}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault()
-                  commitDraftValue()
-                  ;(event.currentTarget as HTMLInputElement).blur()
-                }
-                if (event.key === 'Escape') {
-                  event.preventDefault()
-                  setDraftValue(String(value))
-                  ;(event.currentTarget as HTMLInputElement).blur()
-                }
-              }}
-              aria-label={inputAriaLabel}
-              inputMode="numeric"
-              style={{
-                width: '100%',
-                height: '100%',
-                border: '1px solid',
-                borderColor: 'var(--input-border, rgba(0,0,0,0.23))',
-                borderRadius: 4,
-                padding: '4px 8px',
-                paddingRight: unit ? 32 : 8,
+            onBlur={commitDraftValue}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                commitDraftValue()
+                ;(event.currentTarget as HTMLInputElement).blur()
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                setDraftValue(String(value))
+                ;(event.currentTarget as HTMLInputElement).blur()
+              }
+            }}
+            inputProps={{
+              'aria-label': inputAriaLabel,
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            }}
+            InputProps={{
+              ...(unit
+                ? {
+                    endAdornment: (
+                      <InputAdornment position="end">{unit}</InputAdornment>
+                    ),
+                  }
+                : {}),
+            }}
+            sx={{
+              width: 92,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: '0.92rem',
+              },
+              '& .MuiInputAdornment-root': {
+                fontSize: '0.82rem',
+              },
+              '& input': {
                 textAlign: 'right',
                 fontVariantNumeric: 'tabular-nums',
-                fontSize: '0.92rem',
-                background: 'transparent',
-                color: 'inherit',
-                outline: 'none',
-              }}
-            />
-            {unit && (
-              <span
-                style={{
-                  position: 'absolute',
-                  right: 8,
-                  fontSize: '0.82rem',
-                  opacity: 0.7,
-                  pointerEvents: 'none',
-                }}
-              >
-                {unit}
-              </span>
-            )}
-          </div>
+              },
+            }}
+          />
           <IconButton
             aria-label={incrementAriaLabel}
             onClick={() => commitValue(value + step)}
@@ -323,10 +315,9 @@ const DensityControl = ({
           onChange(nextValue)
         }}
         aria-label={sliderAriaLabel}
-        style={{
-          marginTop: 20,
-          marginLeft: 20,
-          marginRight: 20,
+        sx={{
+          mt: 2.5,
+          mx: 2.5,
           width: 'calc(100% - 40px)',
         }}
       />
@@ -364,27 +355,28 @@ const RowDetailsOption = ({
           description ? 'items-start' : 'items-center'
         }`}
       >
-        <h5 style={controlTitleStyle}>{title}</h5>
+        <Typography component="h5" sx={controlTitleSx}>
+          {title}
+        </Typography>
         <Switch
+          color="primary"
           checked={checked}
           onChange={onChange}
           inputProps={{ 'aria-label': title }}
         />
       </div>
-      {description && <p style={controlDescriptionStyle}>{description}</p>}
+      {description && (
+        <FormHelperText sx={controlDescriptionSx}>{description}</FormHelperText>
+      )}
     </div>
     <div className="min-w-0 xl:flex-1">
       {preview}
       {previewHint && (
-        <p
-          style={{
-            ...controlDescriptionStyle,
-            marginTop: 6,
-            fontSize: '0.74rem',
-          }}
+        <FormHelperText
+          sx={{ ...controlDescriptionSx, mt: 0.75, fontSize: '0.74rem' }}
         >
           {previewHint}
-        </p>
+        </FormHelperText>
       )}
     </div>
   </div>
@@ -419,26 +411,27 @@ const SettingsSwitchOption = ({
     aria-label={containerAriaLabel}
   >
     <div className="min-w-0 pr-3">
-      <h5 style={controlTitleStyle}>{title}</h5>
-      {description && <p style={controlDescriptionStyle}>{description}</p>}
+      <Typography component="h5" sx={controlTitleSx}>
+        {title}
+      </Typography>
+      {description && (
+        <FormHelperText sx={controlDescriptionSx}>{description}</FormHelperText>
+      )}
     </div>
     <Switch
+      color="primary"
       size="small"
       checked={checked}
       onChange={onChange}
       inputProps={{ 'aria-label': title }}
-      style={{
-        marginTop: description ? -2 : 0,
-        marginRight: -4,
+      sx={{
+        mt: description ? -0.25 : 0,
+        mr: -0.5,
         flexShrink: 0,
       }}
     />
   </label>
 )
-
-/* -------------------------------------------------------------------------- */
-/*  Main SettingsDialog                                                        */
-/* -------------------------------------------------------------------------- */
 
 export default observer(() => {
   const { userStore } = useStore()
@@ -500,40 +493,21 @@ export default observer(() => {
       ? 'rgba(238, 241, 245, 0.12)'
       : 'rgba(148, 163, 184, 0.24)',
   }
-
-  const toggleGroupPillStyle: React.CSSProperties = {
-    backgroundColor: isDarkMode
-      ? 'rgba(15, 23, 42, 0.44)'
-      : 'rgba(226, 232, 240, 0.7)',
-    border: `1px solid ${rowDetailOptionStyle.borderColor}`,
-  }
-
-  const selectedPillStyle: React.CSSProperties = {
-    color: muiTheme.palette.text.primary,
-    backgroundColor: isDarkMode
-      ? 'rgba(255, 255, 255, 0.12)'
-      : 'rgba(255, 255, 255, 0.96)',
-    boxShadow: isDarkMode
-      ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
-      : '0 1px 2px rgba(15, 23, 42, 0.14)',
-  }
-
-  const unselectedPillStyle: React.CSSProperties = {
-    color: muiTheme.palette.text.secondary,
-    backgroundColor: 'transparent',
-  }
-
   return (
     <Dialog
       open={dialogOpen}
       fullWidth
       maxWidth="lg"
+      TransitionComponent={Fade}
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
-      style={{
-        backgroundColor: uiColors.settingsDialogSurface,
-        backgroundImage: 'none',
+      onBackdropClick={closeDialog}
+      PaperProps={{
+        sx: {
+          backgroundColor: uiColors.settingsDialogSurface,
+          backgroundImage: 'none',
+        },
       }}
     >
       <DialogTitle>Settings</DialogTitle>
@@ -590,39 +564,76 @@ export default observer(() => {
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
-                    <h5 style={controlTitleStyle}>Interface style</h5>
-                    <p style={controlDescriptionStyle}>
+                    <Typography component="h5" sx={controlTitleSx}>
+                      Interface style
+                    </Typography>
+                    <FormHelperText sx={controlDescriptionSx}>
                       Switch between the current UI and the pre-2.0-inspired
                       Classic mode.
-                    </p>
+                    </FormHelperText>
                   </div>
-                  <ToggleGroup
+                  <ToggleButtonGroup
+                    exclusive
                     value={uiPreset}
                     aria-label="Choose interface style"
-                    onChange={(nextPreset) => {
+                    onChange={(_, nextPreset) => {
                       if (!nextPreset) {
                         return
                       }
                       selectUiPreset(nextPreset)
                     }}
-                    style={toggleGroupPillStyle}
+                    sx={{
+                      display: 'inline-flex',
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      p: 0.375,
+                      gap: 0.25,
+                      backgroundColor: isDarkMode
+                        ? 'rgba(15, 23, 42, 0.44)'
+                        : 'rgba(226, 232, 240, 0.7)',
+                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+                      '& .MuiToggleButtonGroup-grouped': {
+                        m: 0,
+                        border: 0,
+                        borderRadius: 999,
+                        minWidth: 72,
+                        height: 32,
+                        px: 1.125,
+                        fontSize: '0.8rem',
+                        textTransform: 'none',
+                        color: muiTheme.palette.text.secondary,
+                      },
+                      '& .Mui-selected': {
+                        color: muiTheme.palette.text.primary,
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(255, 255, 255, 0.96)',
+                        boxShadow: isDarkMode
+                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                      },
+                      '& .Mui-selected:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.16)'
+                          : 'rgba(255, 255, 255, 0.98)',
+                      },
+                      '& .MuiToggleButton-root:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.07)'
+                          : 'rgba(255, 255, 255, 0.58)',
+                      },
+                    }}
                   >
                     {uiPresetOptions.map((option) => (
                       <ToggleButton
                         key={option.value}
                         value={option.value}
                         aria-label={`Use ${option.value} interface style`}
-                        style={{
-                          minWidth: 72,
-                          ...(uiPreset === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
                       >
                         {option.label}
                       </ToggleButton>
                     ))}
-                  </ToggleGroup>
+                  </ToggleButtonGroup>
                 </div>
               </div>
               <div
@@ -631,35 +642,72 @@ export default observer(() => {
                 data-testid="settings-theme-toggle-group"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <h5 style={controlTitleStyle}>Theme</h5>
-                  <ToggleGroup
+                  <Typography component="h5" sx={controlTitleSx}>
+                    Theme
+                  </Typography>
+                  <ToggleButtonGroup
+                    exclusive
                     value={theme}
                     aria-label="Choose theme"
-                    onChange={(nextTheme) => {
+                    onChange={(_, nextTheme) => {
                       if (!nextTheme) {
                         return
                       }
                       selectTheme(nextTheme)
                     }}
-                    style={toggleGroupPillStyle}
+                    sx={{
+                      display: 'inline-flex',
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      p: 0.375,
+                      gap: 0.25,
+                      backgroundColor: isDarkMode
+                        ? 'rgba(15, 23, 42, 0.44)'
+                        : 'rgba(226, 232, 240, 0.7)',
+                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+                      '& .MuiToggleButtonGroup-grouped': {
+                        m: 0,
+                        border: 0,
+                        borderRadius: 999,
+                        minWidth: 36,
+                        height: 32,
+                        px: 0.625,
+                        color: muiTheme.palette.text.secondary,
+                      },
+                      '& .MuiSvgIcon-root': {
+                        fontSize: 16,
+                      },
+                      '& .Mui-selected': {
+                        color: muiTheme.palette.text.primary,
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(255, 255, 255, 0.96)',
+                        boxShadow: isDarkMode
+                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                      },
+                      '& .Mui-selected:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.16)'
+                          : 'rgba(255, 255, 255, 0.98)',
+                      },
+                      '& .MuiToggleButton-root:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.07)'
+                          : 'rgba(255, 255, 255, 0.58)',
+                      },
+                    }}
                   >
                     {themeOptions.map((option) => (
                       <ToggleButton
                         key={option.value}
                         value={option.value}
                         aria-label={`Use ${option.value} theme`}
-                        style={{
-                          paddingLeft: 5,
-                          paddingRight: 5,
-                          ...(theme === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
                       >
-                        <option.icon fontSize={16} />
+                        <option.icon fontSize="small" />
                       </ToggleButton>
                     ))}
-                  </ToggleGroup>
+                  </ToggleButtonGroup>
                 </div>
               </div>
               <DensityControl
