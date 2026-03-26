@@ -45,7 +45,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         type="button"
         disabled={disabled}
         className={classNames(
-          'inline-flex items-center justify-center rounded-full border-0 bg-transparent transition-colors duration-150 shrink-0 focus:outline-none focus:ring',
+          'inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100',
           { 'cursor-not-allowed': disabled },
           className,
         )}

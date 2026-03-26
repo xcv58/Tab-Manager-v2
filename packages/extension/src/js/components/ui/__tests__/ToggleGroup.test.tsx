@@ -3,6 +3,27 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { ToggleButton, ToggleGroup } from '../ToggleGroup'
 
 describe('ToggleGroup', () => {
+  it('adds subtle CSS-only press feedback to toggle buttons', () => {
+    render(
+      <ToggleGroup
+        value="modern"
+        aria-label="Choose interface style"
+        onChange={() => {}}
+      >
+        <ToggleButton value="modern">Modern</ToggleButton>
+        <ToggleButton value="classic">Classic</ToggleButton>
+      </ToggleGroup>,
+    )
+
+    const selectedButton = screen.getByRole('radio', { name: 'Modern' })
+
+    expect(selectedButton.className).toContain(
+      'transition-[background-color,box-shadow,transform]',
+    )
+    expect(selectedButton.className).toContain('active:scale-[0.98]')
+    expect(selectedButton.className).toContain('motion-reduce:transition-none')
+  })
+
   it('renders a keyboard-navigable radio group with roving tab focus', () => {
     const Example = () => {
       const [value, setValue] = React.useState('modern')

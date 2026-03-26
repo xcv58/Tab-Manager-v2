@@ -18,6 +18,7 @@ export interface ToggleButtonProps {
   onClick?: () => void
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
   style?: React.CSSProperties
+  className?: string
   tabIndex?: number
 }
 
@@ -152,6 +153,7 @@ export const ToggleButton = React.forwardRef<
     onClick,
     onKeyDown,
     style,
+    className,
     tabIndex,
   },
   ref,
@@ -166,6 +168,9 @@ export const ToggleButton = React.forwardRef<
       tabIndex={tabIndex}
       onClick={onClick}
       onKeyDown={onKeyDown}
+      className={`transition-[background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 ${
+        className || ''
+      }`}
       style={{
         display: 'flex',
         alignItems: 'center',

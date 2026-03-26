@@ -412,16 +412,26 @@ const SettingsSwitchOption = ({
   const switchId = React.useId()
   const titleId = React.useId()
   const descriptionId = description ? React.useId() : undefined
+  const handleContainerClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement | null
+
+    if (target?.closest('label')) {
+      return
+    }
+
+    onChange()
+  }
 
   return (
     <div
       data-testid={testId}
       className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
-        description ? 'items-start py-3.5' : 'items-center py-3'
+        description ? 'items-center py-3.5' : 'items-center py-3'
       }`}
       style={style}
       aria-labelledby={containerAriaLabelledBy}
       aria-label={containerAriaLabel}
+      onClick={handleContainerClick}
     >
       <label htmlFor={switchId} className="min-w-0 pr-3 cursor-pointer">
         <h5 id={titleId} style={controlTitleStyle}>
@@ -444,7 +454,7 @@ const SettingsSwitchOption = ({
           'aria-describedby': descriptionId,
         }}
         style={{
-          marginTop: description ? -2 : 0,
+          marginTop: 0,
           marginRight: -4,
           flexShrink: 0,
         }}
@@ -553,6 +563,7 @@ export default observer(() => {
       style={{
         backgroundColor: uiColors.settingsDialogSurface,
         backgroundImage: 'none',
+        color: muiTheme.palette.text.primary,
       }}
     >
       <DialogTitle>Settings</DialogTitle>

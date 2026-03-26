@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
+import { AppThemeContext, darkAppTheme, lightAppTheme } from 'libs/appTheme'
 import { browser } from 'libs'
 import SettingsDialog from '../SettingsDialog'
 import { useStore } from 'components/hooks/useStore'
@@ -31,7 +31,7 @@ jest.mock('../TabRowPreview', () => ({
 
 const mockUseStore = useStore as jest.Mock
 
-const renderSettingsDialog = () => {
+const renderSettingsDialog = (theme = lightAppTheme) => {
   const userStore = {
     dialogOpen: true,
     closeDialog: jest.fn(),
@@ -74,7 +74,7 @@ const renderSettingsDialog = () => {
   return {
     userStore,
     ...render(
-      <AppThemeContext.Provider value={lightAppTheme}>
+      <AppThemeContext.Provider value={theme}>
         <SettingsDialog />
       </AppThemeContext.Provider>,
     ),
@@ -109,11 +109,31 @@ describe('SettingsDialog', () => {
     )
   })
 
-  it('toggles the search and lite popup settings from their visible labels', () => {
+  it('uses themed foreground colors when the dark settings dialog is open', () => {
+    renderSettingsDialog(darkAppTheme)
+
+    expect(screen.getByRole('dialog')).toHaveStyle(
+      `color: ${darkAppTheme.palette.text.primary}`,
+    )
+  })
+
+  it('keeps described search rows vertically centered with their switches', () => {
+    renderSettingsDialog()
+
+    const describedSwitch = screen.getByRole('checkbox', {
+      name: 'Keep non-matching tabs visible',
+    })
+    const switchLabel = describedSwitch.closest('label')
+
+    expect(switchLabel?.parentElement).toHaveClass('items-center')
+    expect(switchLabel).toHaveStyle('margin-top: 0px')
+  })
+
+  it('toggles the search and lite popup settings from their visible rows', () => {
     const { userStore } = renderSettingsDialog()
 
-    fireEvent.click(screen.getByText('Focus search on open'))
-    fireEvent.click(screen.getByText('Use lite popup mode'))
+    fireEvent.click(screen.getByTestId('settings-search-focus'))
+    fireEvent.click(screen.getByTestId('settings-lite-popup-mode'))
 
     expect(userStore.toggleAutoFocusSearch).toHaveBeenCalledTimes(1)
     expect(userStore.toggleLitePopupMode).toHaveBeenCalledTimes(1)
