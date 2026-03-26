@@ -278,7 +278,7 @@ test.describe('The Extension page should', () => {
       'rgb(217, 48, 37)',
     )
     await expect(
-      page.getByTestId(`tab-row-${groupedTabIds[0]}`).locator('hr'),
+      page.getByTestId(`tab-group-indicator-${groupedTabIds[0]}`),
     ).toHaveCSS('border-top-color', 'rgb(217, 48, 37)')
   })
 
@@ -564,8 +564,9 @@ test.describe('The Extension page should', () => {
 
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
     await page.waitForTimeout(200)
-    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
-    await page.getByTestId(`tab-group-menu-${groupId}`).click()
+    const groupMenuButton = page.getByTestId(`tab-group-menu-${groupId}`)
+    await expect(groupMenuButton).toBeVisible()
+    await groupMenuButton.click({ force: true })
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)
     const groupEditor = page.getByTestId(`tab-group-editor-${groupId}`)
@@ -811,7 +812,9 @@ test.describe('The Extension page should', () => {
     const reloadButton = page
       .locator('button[aria-label="Reload all tabs"]')
       .first()
-    await windowTitle.hover()
+    const reloadButtonSlot = reloadButton.locator('xpath=ancestor::div[1]')
+    await windowTitle.focus()
+    await expect(reloadButtonSlot).toHaveCSS('opacity', '1')
     await waitForLocatorRectToStabilize(reloadButton, {
       minWidth: 20,
       minHeight: 20,
@@ -894,6 +897,8 @@ test.describe('The Extension page should', () => {
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
       .first()
     await expect(toolbarToggle).toBeVisible()
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(100)
     const toolbarToggleScreenshot = await toolbarToggle.screenshot()
     expect(toolbarToggleScreenshot).toMatchSnapshot(
       'settings-toolbar-toggle-atom.png',

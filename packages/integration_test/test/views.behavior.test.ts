@@ -336,6 +336,7 @@ test.describe('The Extension page should', () => {
       .first()
     await expect(toggleToolbarButton).toBeVisible()
     await toggleToolbarButton.click()
+    await toolbar.hover()
     await page.waitForTimeout(400)
     const cleanDuplicatedButton = page
       .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
@@ -511,6 +512,8 @@ test.describe('The Extension page should', () => {
     await expect(syncButton).toBeVisible()
     await syncButton.click()
     await page.waitForTimeout(250)
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(100)
     const loadingTriggerShot = await syncButton.screenshot()
     expect(loadingTriggerShot).toMatchSnapshot(
       'loading-sync-trigger-state.png',
