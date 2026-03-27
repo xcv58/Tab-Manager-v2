@@ -115,18 +115,32 @@ export default function Menu({
       const currentIndex = enabledItems.findIndex(
         (item) => item === document.activeElement,
       )
+      const moveFocus = (direction: number) => {
+        const nextIndex =
+          currentIndex >= 0
+            ? (currentIndex + direction + enabledItems.length) %
+              enabledItems.length
+            : direction > 0
+              ? 0
+              : enabledItems.length - 1
+        focusMenuItem(nextIndex)
+      }
 
       if (e.key === 'ArrowDown') {
         e.preventDefault()
-        focusMenuItem(currentIndex >= 0 ? currentIndex + 1 : 0)
+        moveFocus(1)
         return
       }
 
       if (e.key === 'ArrowUp') {
         e.preventDefault()
-        focusMenuItem(
-          currentIndex >= 0 ? currentIndex - 1 : enabledItems.length - 1,
-        )
+        moveFocus(-1)
+        return
+      }
+
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        moveFocus(e.shiftKey ? -1 : 1)
         return
       }
 

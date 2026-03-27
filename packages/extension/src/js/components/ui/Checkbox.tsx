@@ -8,6 +8,8 @@ export interface CheckboxProps {
   disabled?: boolean
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   onClick?: (e: React.MouseEvent<HTMLInputElement>) => void
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
   'aria-label'?: string
   className?: string
   style?: React.CSSProperties
@@ -32,6 +34,8 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       disabled = false,
       onChange,
       onClick,
+      onFocus,
+      onBlur,
       'aria-label': ariaLabel,
       className,
       style,
@@ -131,8 +135,14 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           onChange={onChange}
           onClick={onClick}
           readOnly={onChange == null}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onFocus={(event) => {
+            setFocused(true)
+            onFocus?.(event)
+          }}
+          onBlur={(event) => {
+            setFocused(false)
+            onBlur?.(event)
+          }}
           aria-label={ariaLabel}
           className="absolute inset-0 m-0 cursor-pointer opacity-0"
           style={{ width: '100%', height: '100%' }}

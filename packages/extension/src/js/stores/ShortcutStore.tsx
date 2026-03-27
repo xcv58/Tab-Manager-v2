@@ -507,6 +507,9 @@ export default class ShortcutStore {
     if (this.inputShortcutSet.has(combo)) {
       return false
     }
+    if (element.closest?.('[role="menu"]')) {
+      return true
+    }
     const { contentEditable, tagName, type } = element
     if (contentEditable === 'true') {
       return true

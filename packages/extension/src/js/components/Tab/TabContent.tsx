@@ -54,6 +54,13 @@ const TabContent = observer(
     const onClick = useCallback(() => {
       activate({ origin: 'mouse', reveal: false })
     }, [activate])
+    const onFocus = useCallback(() => {
+      focus({
+        origin: 'keyboard',
+        reveal: false,
+        moveDomFocus: false,
+      })
+    }, [focus])
     const tooltip = open && (
       <div className="leading-tight break-all whitespace-normal">
         <p>{title}</p>
@@ -69,7 +76,7 @@ const TabContent = observer(
           ref={buttonRef}
           onClick={onClick}
           onAuxClick={onAuxClick}
-          onFocus={focus}
+          onFocus={onFocus}
           className={buttonClassName}
           style={buttonStyle}
         >

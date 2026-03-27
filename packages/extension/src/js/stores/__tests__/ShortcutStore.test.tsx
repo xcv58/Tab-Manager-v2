@@ -1,0 +1,36 @@
+import ShortcutStore from 'stores/ShortcutStore'
+
+describe('ShortcutStore.stopCallback', () => {
+  it('suppresses global shortcuts while focus is inside a menu', () => {
+    const shortcutStore = new ShortcutStore({} as any)
+    const menu = document.createElement('div')
+    menu.setAttribute('role', 'menu')
+    const menuItem = document.createElement('button')
+    menuItem.setAttribute('role', 'menuitem')
+    menu.appendChild(menuItem)
+    document.body.appendChild(menu)
+
+    expect(
+      shortcutStore.stopCallback(
+        new KeyboardEvent('keydown', { key: ' ' }),
+        menuItem as any,
+        'space',
+      ),
+    ).toBe(true)
+
+    menu.remove()
+  })
+
+  it('still allows shortcuts from the focused tab content button', () => {
+    const shortcutStore = new ShortcutStore({} as any)
+    const tabButton = document.createElement('button')
+
+    expect(
+      shortcutStore.stopCallback(
+        new KeyboardEvent('keydown', { key: ' ' }),
+        tabButton as any,
+        'space',
+      ),
+    ).toBe(false)
+  })
+})

@@ -85,6 +85,40 @@ describe('Menu', () => {
     anchorEl.remove()
   })
 
+  it('supports tab and shift+tab navigation between enabled menu items', async () => {
+    const anchorEl = createAnchorEl()
+
+    render(
+      <AppThemeContext.Provider value={lightAppTheme}>
+        <Menu
+          open
+          anchorEl={anchorEl}
+          onClose={() => {}}
+          data-testid="test-menu"
+        >
+          <MenuItem>First action</MenuItem>
+          <MenuItem disabled>Disabled action</MenuItem>
+          <MenuItem>Second action</MenuItem>
+          <MenuItem>Third action</MenuItem>
+        </Menu>
+      </AppThemeContext.Provider>,
+    )
+
+    const items = await screen.findAllByRole('menuitem')
+
+    await waitFor(() => {
+      expect(items[0]).toHaveFocus()
+    })
+
+    fireEvent.keyDown(items[0], { key: 'Tab' })
+    expect(items[2]).toHaveFocus()
+
+    fireEvent.keyDown(items[2], { key: 'Tab', shiftKey: true })
+    expect(items[0]).toHaveFocus()
+
+    anchorEl.remove()
+  })
+
   it('uses theme surface, text, hover, and divider colors in dark mode', async () => {
     const anchorEl = createAnchorEl()
 

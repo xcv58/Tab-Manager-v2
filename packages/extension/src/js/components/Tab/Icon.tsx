@@ -16,10 +16,24 @@ const CONTROL_LAYER_CLASS =
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
+  const [selectionControlFocused, setSelectionControlFocused] =
+    React.useState(false)
+  const focusInnerControl = () => {
+    focus({
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+  }
   const checkbox = (
     <Checkbox
       checked={isSelected}
       aria-label={ARIA_LABEL}
+      onFocus={() => {
+        setSelectionControlFocused(true)
+        focusInnerControl()
+      }}
+      onBlur={() => setSelectionControlFocused(false)}
       onClick={(e) => {
         if (process.env.TARGET_BROWSER === 'firefox') {
           if (e.altKey) {
@@ -51,16 +65,17 @@ export const Icon = observer((props: TabProps) => {
     >
       <div
         className={classNames(CONTROL_LAYER_CLASS, {
-          'pointer-events-none opacity-0': isSelected,
+          'pointer-events-none opacity-0':
+            isSelected || selectionControlFocused,
           'opacity-100 group-hover:pointer-events-none group-hover:opacity-0':
-            !isSelected,
+            !isSelected && !selectionControlFocused,
         })}
       >
         <IconButton
           aria-label={ARIA_LABEL}
           className="focus:outline-none focus:ring"
           onClick={() => select()}
-          onFocus={() => focus()}
+          onFocus={focusInnerControl}
         >
           <img
             className="w-6 h-6"
@@ -71,9 +86,10 @@ export const Icon = observer((props: TabProps) => {
       </div>
       <div
         className={classNames(CONTROL_LAYER_CLASS, {
-          'opacity-100': isSelected,
+          'opacity-100 pointer-events-auto':
+            isSelected || selectionControlFocused,
           'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100':
-            !isSelected,
+            !isSelected && !selectionControlFocused,
         })}
       >
         {checkbox}

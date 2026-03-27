@@ -26,7 +26,7 @@ describe('Icon', () => {
         bubbles: true,
         cancelable: true,
         shiftKey: false,
-      })
+      }),
     )
     expect(tab.select.mock.calls.length).toBe(1)
     expect(tab.bulkSelect.mock.calls.length).toBe(0)
@@ -37,7 +37,7 @@ describe('Icon', () => {
         bubbles: true,
         cancelable: true,
         shiftKey: true,
-      })
+      }),
     )
     expect(tab.select.mock.calls.length).toBe(1)
     expect(tab.bulkSelect.mock.calls.length).toBe(1)
@@ -48,7 +48,7 @@ describe('Icon', () => {
         bubbles: true,
         cancelable: true,
         shiftKey: true,
-      })
+      }),
     )
     expect(tab.select.mock.calls.length).toBe(1)
     expect(tab.bulkSelect.mock.calls.length).toBe(2)
@@ -64,7 +64,7 @@ describe('Icon', () => {
         bubbles: true,
         cancelable: true,
         shiftKey: false,
-      })
+      }),
     )
     expect(select.mock.calls.length).toBe(1)
     expect(bulkSelect.mock.calls.length).toBe(0)
@@ -75,7 +75,7 @@ describe('Icon', () => {
         bubbles: true,
         cancelable: true,
         shiftKey: true,
-      })
+      }),
     )
     expect(select.mock.calls.length).toBe(2)
     expect(bulkSelect.mock.calls.length).toBe(0)
@@ -86,9 +86,27 @@ describe('Icon', () => {
         bubbles: true,
         cancelable: true,
         shiftKey: true,
-      })
+      }),
     )
     expect(select.mock.calls.length).toBe(3)
     expect(bulkSelect.mock.calls.length).toBe(0)
+  })
+
+  it('reveals the selection control when keyboard focus lands on the checkbox', () => {
+    render(<Icon {...props} />)
+
+    const checkbox = screen.getByRole('checkbox')
+    const checkboxLayer = checkbox.parentElement?.parentElement as HTMLElement
+    const iconLayer = checkboxLayer.previousElementSibling as HTMLElement
+
+    fireEvent.focus(checkbox)
+
+    expect(tab.focus).toHaveBeenCalledWith({
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+    expect(checkboxLayer).toHaveClass('opacity-100')
+    expect(iconLayer).toHaveClass('opacity-0')
   })
 })
