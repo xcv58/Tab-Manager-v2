@@ -38,12 +38,13 @@ exports[`Tabs render correct components 1`] = `
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           >
             <span
-              class="relative inline-flex items-center justify-center shrink-0"
+              class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow] duration-150"
               style="width: 30px; height: 30px; padding: 5px;"
             >
               <input
                 aria-label="Toggle select"
                 class="absolute inset-0 m-0 cursor-pointer opacity-0"
+                readonly=""
                 style="width: 100%; height: 100%;"
                 type="checkbox"
               />
@@ -209,12 +210,13 @@ exports[`Tabs render correct components 1`] = `
             class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
           >
             <span
-              class="relative inline-flex items-center justify-center shrink-0"
+              class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow] duration-150"
               style="width: 30px; height: 30px; padding: 5px;"
             >
               <input
                 aria-label="Toggle select"
                 class="absolute inset-0 m-0 cursor-pointer opacity-0"
+                readonly=""
                 style="width: 100%; height: 100%;"
                 type="checkbox"
               />
