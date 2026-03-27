@@ -4,9 +4,6 @@ import {
   TAB_QUERY,
   WINDOW_CARD_QUERY,
   URLS,
-  StandardFixtureUrls,
-  IntegrationFixtureServer,
-  buildStandardFixtureUrls,
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
@@ -14,14 +11,11 @@ import {
   groupTabsByUrl,
   waitForDefaultExtensionView,
   waitForTestId,
-  startIntegrationFixtureServer,
 } from '../util'
 
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
-let fixtureServer: IntegrationFixtureServer
-let fixtureUrls: StandardFixtureUrls
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
 
@@ -29,8 +23,6 @@ test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
   test.beforeAll(async () => {
-    fixtureServer = await startIntegrationFixtureServer()
-    fixtureUrls = buildStandardFixtureUrls(fixtureServer.baseUrl)
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
@@ -39,7 +31,6 @@ test.describe('The Extension page should', () => {
 
   test.afterAll(async () => {
     await browserContext?.close()
-    await fixtureServer?.close()
     browserContext = null
     page = null
     extensionURL = ''
@@ -108,50 +99,6 @@ test.describe('The Extension page should', () => {
         threshold: 0.2,
       },
     )
-  })
-
-  test('search by group title should reveal tabs from a collapsed group', async () => {
-    await page.evaluate(async () => {
-      await chrome.storage.local.set({
-        query: '',
-        showUnmatchedTab: true,
-      })
-    })
-    await page.reload()
-    await page.waitForTimeout(700)
-    await openPages(browserContext, fixtureUrls.all)
-    await page.bringToFront()
-    await page.waitForTimeout(800)
-
-    const groupId = await groupTabsByUrl(page, {
-      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
-      title: 'SearchDocs',
-      color: 'blue',
-    })
-    expect(groupId).toBeGreaterThan(-1)
-    await page.waitForTimeout(800)
-    await page.reload()
-    await waitForTestId(page, `tab-group-header-${groupId}`)
-
-    const groupedTabIds = await page.evaluate(async (id) => {
-      const tabs = await chrome.tabs.query({ currentWindow: true, groupId: id })
-      return tabs.map((tab) => tab.id)
-    }, groupId)
-    expect(groupedTabIds).toHaveLength(2)
-
-    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
-    await page.waitForTimeout(500)
-    for (const tabId of groupedTabIds) {
-      await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(0)
-    }
-
-    const inputSelector = 'input[placeholder*="Search tabs or URLs"]'
-    await page.fill(inputSelector, 'SearchDocs')
-    await page.waitForTimeout(600)
-    await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)
-    for (const tabId of groupedTabIds) {
-      await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
-    }
   })
 
   test('show grouped search context even when the query matches only the tab title', async () => {

@@ -1,0 +1,458 @@
+import { Page, ChromiumBrowserContext } from 'playwright'
+import { test, expect } from '@playwright/test'
+import {
+  StandardFixtureUrls,
+  IntegrationFixtureServer,
+  buildStandardFixtureUrls,
+  CLOSE_PAGES,
+  closeCurrentWindowTabsExceptActive,
+  initBrowserWithExtension,
+  openPages,
+  groupTabsByUrl,
+  waitForDefaultExtensionView,
+  waitForTestId,
+  startIntegrationFixtureServer,
+} from '../util'
+
+let page: Page
+let browserContext: ChromiumBrowserContext
+let extensionURL: string
+let fixtureServer: IntegrationFixtureServer
+let fixtureUrls: StandardFixtureUrls
+
+type ActiveElementState = {
+  testId: string
+  ariaLabel: string
+  role: string
+  text: string
+  tagName: string
+  type: string
+  checked: boolean | null
+}
+
+const readFocusedTestId = async (page: Page) =>
+  await page.evaluate(
+    () => document.activeElement?.getAttribute('data-testid') || '',
+  )
+
+const readActiveElementState = async (
+  page: Page,
+): Promise<ActiveElementState> =>
+  await page.evaluate(() => {
+    const node = document.activeElement as
+      | (HTMLElement & { checked?: boolean; type?: string })
+      | null
+    return {
+      testId: node?.getAttribute('data-testid') || '',
+      ariaLabel: node?.getAttribute('aria-label') || '',
+      role: node?.getAttribute('role') || '',
+      text: node?.textContent?.replace(/\s+/g, ' ').trim() || '',
+      tagName: node?.tagName || '',
+      type: node?.getAttribute('type') || '',
+      checked:
+        typeof node?.checked === 'boolean'
+          ? Boolean(node.checked)
+          : node?.getAttribute('aria-checked') === 'true'
+            ? true
+            : node?.getAttribute('aria-checked') === 'false'
+              ? false
+              : null,
+    }
+  })
+
+const readSelectedCountState = async (page: Page) =>
+  await page.evaluate(() => {
+    const text =
+      Array.from(document.querySelectorAll('p')).find((node) =>
+        /selected/.test(node.textContent || ''),
+      )?.textContent || ''
+    const match = text.match(/,\s*(\d+)\s+tabs?\s+selected/i)
+    return match ? Number(match[1]) : -1
+  })
+
+const focusByKeyboardUntil = async (
+  page: Page,
+  predicate: (testId: string) => boolean,
+  maxSteps = 40,
+) => {
+  let focusedTestId = await readFocusedTestId(page)
+  if (predicate(focusedTestId)) {
+    return focusedTestId
+  }
+
+  for (let index = 0; index < maxSteps; index += 1) {
+    await page.keyboard.press('j')
+    focusedTestId = await readFocusedTestId(page)
+    if (predicate(focusedTestId)) {
+      return focusedTestId
+    }
+  }
+
+  throw new Error('Unable to focus requested row by keyboard navigation')
+}
+
+const pressTabUntil = async (
+  page: Page,
+  predicate: (state: ActiveElementState) => boolean,
+  {
+    maxSteps = 40,
+    reverse = false,
+  }: { maxSteps?: number; reverse?: boolean } = {},
+) => {
+  let state = await readActiveElementState(page)
+  if (predicate(state)) {
+    return state
+  }
+
+  for (let index = 0; index < maxSteps; index += 1) {
+    await page.keyboard.press(reverse ? 'Shift+Tab' : 'Tab')
+    await page.waitForTimeout(50)
+    state = await readActiveElementState(page)
+    if (predicate(state)) {
+      return state
+    }
+  }
+
+  throw new Error(
+    `Unable to focus requested control by ${reverse ? 'Shift+Tab' : 'Tab'} navigation`,
+  )
+}
+
+test.describe('The Extension page should', () => {
+  test.describe.configure({ mode: 'serial' })
+  test.setTimeout(60000)
+  test.beforeAll(async () => {
+    fixtureServer = await startIntegrationFixtureServer()
+    fixtureUrls = buildStandardFixtureUrls(fixtureServer.baseUrl)
+    const init = await initBrowserWithExtension()
+    browserContext = init.browserContext
+    extensionURL = init.extensionURL
+    page = init.page
+  })
+
+  test.afterAll(async () => {
+    await browserContext?.close()
+    await fixtureServer?.close()
+    browserContext = null
+    page = null
+    extensionURL = ''
+  })
+
+  test.beforeEach(async () => {
+    if (!extensionURL) {
+      console.error('Invalid extensionURL', { extensionURL })
+    }
+    await page.bringToFront()
+    await page.goto(extensionURL)
+    await page.evaluate(async () => {
+      await chrome.storage.local.clear()
+      if (chrome.storage.sync?.clear) {
+        await chrome.storage.sync.clear()
+      }
+    })
+    await page.goto(extensionURL)
+    await CLOSE_PAGES(browserContext)
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    await page.goto(extensionURL)
+    await waitForDefaultExtensionView(page)
+  })
+
+  test.afterEach(async () => {
+    await CLOSE_PAGES(browserContext)
+  })
+
+  test('search by group title should reveal tabs from a collapsed group', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
+      title: 'SearchDocs',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(800)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const groupedTabIds = await page.evaluate(async (id) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true, groupId: id })
+      return tabs.map((tab) => tab.id)
+    }, groupId)
+    expect(groupedTabIds).toHaveLength(2)
+
+    await page.getByTestId(`tab-group-toggle-${groupId}`).click()
+    await page.waitForTimeout(500)
+    for (const tabId of groupedTabIds) {
+      await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(0)
+    }
+
+    const inputSelector = 'input[placeholder*="Search tabs or URLs"]'
+    await page.fill(inputSelector, 'SearchDocs')
+    await page.waitForTimeout(600)
+    await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)
+    for (const tabId of groupedTabIds) {
+      await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
+    }
+  })
+
+  test('remove one tab from a group without breaking remaining grouped tabs', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: [fixtureUrls.pinboard, fixtureUrls.nextjs],
+      title: 'Detach One',
+      color: 'cyan',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.waitForTimeout(700)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const groupedTabIds = await page.evaluate(async (id) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true, groupId: id })
+      return tabs.map((tab) => tab.id)
+    }, groupId)
+    expect(groupedTabIds).toHaveLength(2)
+    const [tabToDetachId, remainingTabId] = groupedTabIds
+
+    await page.getByTestId(`tab-row-${tabToDetachId}`).hover()
+    await page.getByTestId(`tab-menu-${tabToDetachId}`).click()
+    await page
+      .getByTestId(
+        `tab-menu-option-${tabToDetachId}-remove-this-tab-from-group`,
+      )
+      .click()
+    await page.waitForTimeout(600)
+
+    const state = await page.evaluate(
+      async ({ tabToDetachId, remainingTabId, groupId }) => {
+        const [detachedTab, remainingTab] = await Promise.all([
+          chrome.tabs.get(tabToDetachId),
+          chrome.tabs.get(remainingTabId),
+        ])
+        const noGroupId = chrome.tabGroups.TAB_GROUP_ID_NONE
+        const groupedTabs = await chrome.tabs.query({
+          currentWindow: true,
+          groupId,
+        })
+        return {
+          detachedGroupId: detachedTab.groupId,
+          remainingGroupId: remainingTab.groupId,
+          noGroupId,
+          groupedCount: groupedTabs.length,
+        }
+      },
+      {
+        tabToDetachId,
+        remainingTabId,
+        groupId,
+      },
+    )
+
+    expect(state.detachedGroupId).toBe(state.noGroupId)
+    expect(state.remainingGroupId).toBe(groupId)
+    expect(state.groupedCount).toBe(1)
+    await expect(page.getByTestId(`tab-group-header-${groupId}`)).toHaveCount(1)
+    await expect(page.getByTestId(`tab-group-count-${groupId}`)).toHaveText('1')
+  })
+
+  test('create a new group from selected tabs via keyboard shortcut', async () => {
+    await page.evaluate(async () => {
+      await chrome.storage.local.set({
+        query: '',
+        showUnmatchedTab: true,
+      })
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+    await page.keyboard.press('j')
+    await page.keyboard.press('x')
+    await page.keyboard.press('j')
+    await page.keyboard.press('x')
+    await page.keyboard.press('Alt+Shift+G')
+    await page.waitForTimeout(700)
+
+    const groupedState = await page.evaluate(async () => {
+      const noGroupId = chrome.tabGroups.TAB_GROUP_ID_NONE
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const groupCounts = tabs.reduce(
+        (acc, tab) => {
+          if (tab.groupId === noGroupId) {
+            return acc
+          }
+          acc[tab.groupId] = (acc[tab.groupId] || 0) + 1
+          return acc
+        },
+        {} as { [key: number]: number },
+      )
+      const groupedEntry = Object.entries(groupCounts).find(
+        ([_, count]) => count >= 2,
+      )
+      return {
+        groupedEntry,
+      }
+    })
+
+    expect(groupedState.groupedEntry).toBeTruthy()
+    const [groupId] = groupedState.groupedEntry
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+  })
+
+  test('support keyboard-only focus and selection for inner tab controls', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const targetTabId = await page.evaluate(async (url) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      return tabs.find((tab) => tab.url === url)?.id ?? -1
+    }, fixtureUrls.nextjs)
+
+    expect(targetTabId).toBeGreaterThan(-1)
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await expect.poll(() => readSelectedCountState(page)).toBe(0)
+
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+
+    const selectionToggle = await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Toggle select' &&
+        state.tagName === 'INPUT' &&
+        state.type === 'checkbox',
+      { maxSteps: 8 },
+    )
+    expect(selectionToggle.checked).toBe(false)
+
+    await page.keyboard.press('Space')
+
+    await expect.poll(() => readSelectedCountState(page)).toBe(1)
+    await expect
+      .poll(() => readFocusedTestId(page))
+      .toBe(`tab-row-${targetTabId}`)
+  })
+
+  test('support keyboard-only tab menu navigation, activation, and focus restore', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const targetTabId = await page.evaluate(async (url) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      return tabs.find((tab) => tab.url === url)?.id ?? -1
+    }, fixtureUrls.pinboard)
+
+    expect(targetTabId).toBeGreaterThan(-1)
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await expect.poll(() => readSelectedCountState(page)).toBe(0)
+
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+    await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Tab actions' && state.tagName === 'BUTTON',
+      { maxSteps: 20 },
+    )
+
+    await page.keyboard.press('Space')
+    await expect(page.getByRole('menu')).toHaveCount(1)
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        role: 'menuitem',
+        text: 'Pin tab',
+      })
+
+    await page.keyboard.press('ArrowDown')
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        role: 'menuitem',
+        text: 'Close',
+      })
+
+    await page.keyboard.press('Tab')
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        role: 'menuitem',
+        text: 'Close other tabs',
+      })
+
+    await page.keyboard.press('Shift+Tab')
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        role: 'menuitem',
+        text: 'Close',
+      })
+
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('menu')).toHaveCount(0)
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        ariaLabel: 'Tab actions',
+        tagName: 'BUTTON',
+      })
+
+    await page.keyboard.press('Space')
+    await expect(page.getByRole('menu')).toHaveCount(1)
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        role: 'menuitem',
+        text: 'Pin tab',
+      })
+
+    await page.keyboard.press('Space')
+
+    await expect(page.getByRole('menu')).toHaveCount(0)
+    await expect
+      .poll(async () => {
+        return await page.evaluate(async (tabId) => {
+          const tab = await chrome.tabs.get(tabId)
+          return Boolean(tab.pinned)
+        }, targetTabId)
+      })
+      .toBe(true)
+    await expect.poll(() => readSelectedCountState(page)).toBe(0)
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        ariaLabel: 'Tab actions',
+        tagName: 'BUTTON',
+      })
+  })
+})
