@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react'
+import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
@@ -299,15 +299,23 @@ const AutocompleteSearch = observer((props: Props) => {
   const { search, query, startType, stopType, isCommand } = searchStore
   const tabHeight = useTabHeight()
   const rootRef = useRef<HTMLDivElement>(null)
+  const isOpenControlled = propOpen !== undefined
 
-  const [isOpen, setIsOpen] = useState(propOpen || false)
+  const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(
+    propOpen || false,
+  )
   const [availableListHeight, setAvailableListHeight] = useState<number>(
     Number.POSITIVE_INFINITY,
   )
-
-  useEffect(() => {
-    if (propOpen !== undefined) setIsOpen(propOpen)
-  }, [propOpen])
+  const isOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!isOpenControlled) {
+        setUncontrolledIsOpen(nextOpen)
+      }
+    },
+    [isOpenControlled],
+  )
 
   const groupedSectionTabIdsRef = useRef(new Set())
   const filterOptions = useMemo(
@@ -341,7 +349,7 @@ const AutocompleteSearch = observer((props: Props) => {
       }
     }
     search('')
-    setIsOpen(false)
+    handleOpenChange(false)
   }
 
   const {
@@ -357,7 +365,7 @@ const AutocompleteSearch = observer((props: Props) => {
     onSelect: handleSelect,
     isItemDisabled: useMemo(() => (item) => Boolean(item.isDivider), []),
     isOpen,
-    onOpenChange: setIsOpen,
+    onOpenChange: handleOpenChange,
   })
 
   const inputProps = getInputProps()
@@ -426,7 +434,7 @@ const AutocompleteSearch = observer((props: Props) => {
 
   const handleEscape = () => {
     search('')
-    setIsOpen(false)
+    handleOpenChange(false)
     searchInputRef.current?.blur()
   }
 

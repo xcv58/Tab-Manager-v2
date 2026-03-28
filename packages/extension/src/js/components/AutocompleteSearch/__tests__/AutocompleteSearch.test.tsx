@@ -97,7 +97,7 @@ const defaultOptions = [
 const renderAutocompleteSearch = ({
   initialQuery = '',
   options = defaultOptions,
-  open = true,
+  open,
   bottomInset,
 }: {
   initialQuery?: string
@@ -148,7 +148,10 @@ const renderAutocompleteSearch = ({
 
     return (
       <AppThemeContext.Provider value={lightAppTheme}>
-        <AutocompleteSearch open={open} bottomInset={bottomInset} />
+        <AutocompleteSearch
+          {...(open !== undefined ? { open } : {})}
+          bottomInset={bottomInset}
+        />
       </AppThemeContext.Provider>
     )
   }
@@ -162,7 +165,7 @@ describe('AutocompleteSearch', () => {
   })
 
   it('moves the highlighted result with arrow keys', async () => {
-    renderAutocompleteSearch({ initialQuery: 'tab' })
+    renderAutocompleteSearch({ initialQuery: 'tab', open: true })
 
     const input = screen.getByRole('combobox')
 
@@ -183,11 +186,15 @@ describe('AutocompleteSearch', () => {
     })
   })
 
-  it('clears and dismisses the search field when Escape is pressed', async () => {
-    renderAutocompleteSearch({ initialQuery: 'alpha' })
+  it('clears and dismisses the uncontrolled search field when Escape is pressed', async () => {
+    renderAutocompleteSearch({ initialQuery: 'alpha', open: undefined })
 
     const input = screen.getByRole('combobox')
-    input.focus()
+    fireEvent.focus(input)
+
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-expanded', 'true')
+    })
 
     fireEvent.keyDown(input, { key: 'Escape' })
 
@@ -197,6 +204,23 @@ describe('AutocompleteSearch', () => {
 
     await waitFor(() => {
       expect(input).not.toHaveFocus()
+    })
+  })
+
+  it('keeps the result list open when open is controlled by the parent', async () => {
+    renderAutocompleteSearch({ initialQuery: 'tab', open: true })
+
+    const options = await screen.findAllByRole('option')
+
+    fireEvent.click(options[0])
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('option')).toHaveLength(defaultOptions.length)
+    })
+
+    expect(defaultOptions[0].activate).toHaveBeenCalledWith({
+      origin: 'search',
+      reveal: true,
     })
   })
 
@@ -245,6 +269,7 @@ describe('AutocompleteSearch', () => {
 
     renderAutocompleteSearch({
       initialQuery: 'tab',
+      open: true,
       bottomInset: 64,
       options: new Array(12).fill(null).map((_, index) => ({
         id: index + 1,
