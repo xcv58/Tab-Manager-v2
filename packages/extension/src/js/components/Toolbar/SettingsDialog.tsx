@@ -8,6 +8,10 @@ import FormHelperText from '@mui/material/FormHelperText'
 import Fade from '@mui/material/Fade'
 import Switch from '@mui/material/Switch'
 import { useStore } from 'components/hooks/useStore'
+import {
+  type ActionTabCountMode,
+  ACTION_TAB_COUNT_MODES,
+} from 'libs/actionTabCount'
 import Slider from '@mui/material/Slider'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -133,6 +137,19 @@ const uiPresetOptions = [
     label: 'Classic',
   },
 ] as const
+
+const actionTabCountOptions: {
+  value: ActionTabCountMode
+  label: string
+}[] = ACTION_TAB_COUNT_MODES.map((value) => ({
+  value,
+  label:
+    value === 'currentWindow'
+      ? 'Window'
+      : value === 'allWindows'
+        ? 'All'
+        : 'Off',
+}))
 
 const DensityControl = ({
   title,
@@ -469,6 +486,8 @@ export default observer(() => {
     updateFontSize,
     showTabIcon,
     toggleShowTabIcon,
+    actionTabCountMode,
+    selectActionTabCountMode,
     uiPreset,
     selectUiPreset,
     theme,
@@ -768,6 +787,85 @@ export default observer(() => {
                 onChange={toggleLitePopupMode}
                 style={rowDetailOptionStyle}
               />
+              <div
+                className="rounded-lg border px-3 py-3"
+                style={rowDetailOptionStyle}
+                data-testid="settings-action-tab-count-toggle-group"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <Typography component="h5" sx={controlTitleSx}>
+                      Extension icon count
+                    </Typography>
+                    <FormHelperText sx={controlDescriptionSx}>
+                      Overlay the toolbar icon with a larger tab count for the
+                      current window or across all windows.
+                    </FormHelperText>
+                  </div>
+                  <ToggleButtonGroup
+                    exclusive
+                    value={actionTabCountMode}
+                    aria-label="Choose extension icon tab count mode"
+                    onChange={(_, nextMode) => {
+                      if (!nextMode) {
+                        return
+                      }
+                      selectActionTabCountMode(nextMode)
+                    }}
+                    sx={{
+                      display: 'inline-flex',
+                      flexShrink: 0,
+                      borderRadius: 999,
+                      p: 0.375,
+                      gap: 0.25,
+                      backgroundColor: isDarkMode
+                        ? 'rgba(15, 23, 42, 0.44)'
+                        : 'rgba(226, 232, 240, 0.7)',
+                      border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+                      '& .MuiToggleButtonGroup-grouped': {
+                        m: 0,
+                        border: 0,
+                        borderRadius: 999,
+                        minWidth: 54,
+                        height: 32,
+                        px: 1,
+                        fontSize: '0.8rem',
+                        textTransform: 'none',
+                        color: muiTheme.palette.text.secondary,
+                      },
+                      '& .Mui-selected': {
+                        color: muiTheme.palette.text.primary,
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.12)'
+                          : 'rgba(255, 255, 255, 0.96)',
+                        boxShadow: isDarkMode
+                          ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+                          : '0 1px 2px rgba(15, 23, 42, 0.14)',
+                      },
+                      '& .Mui-selected:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.16)'
+                          : 'rgba(255, 255, 255, 0.98)',
+                      },
+                      '& .MuiToggleButton-root:hover': {
+                        backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.07)'
+                          : 'rgba(255, 255, 255, 0.58)',
+                      },
+                    }}
+                  >
+                    {actionTabCountOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                </div>
+              </div>
               <SettingsSwitchOption
                 title="Auto-fit columns"
                 description="Avoid horizontal scrolling by fitting columns to the window."
