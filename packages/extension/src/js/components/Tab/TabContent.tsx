@@ -74,6 +74,7 @@ const TabContent = observer(
       <Tooltip {...{ open, title: tooltip }}>
         <button
           ref={buttonRef}
+          tabIndex={-1}
           onClick={onClick}
           onAuxClick={onAuxClick}
           onFocus={onFocus}

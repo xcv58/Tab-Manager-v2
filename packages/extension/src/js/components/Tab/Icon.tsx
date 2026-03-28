@@ -73,6 +73,7 @@ export const Icon = observer((props: TabProps) => {
       >
         <IconButton
           aria-label={ARIA_LABEL}
+          tabIndex={-1}
           className="focus:outline-none focus:ring"
           onClick={() => select()}
           onFocus={focusInnerControl}

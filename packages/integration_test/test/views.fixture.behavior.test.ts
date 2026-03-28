@@ -118,6 +118,15 @@ const pressTabUntil = async (
   )
 }
 
+const pressTabAndReadState = async (
+  page: Page,
+  reverse = false,
+): Promise<ActiveElementState> => {
+  await page.keyboard.press(reverse ? 'Shift+Tab' : 'Tab')
+  await page.waitForTimeout(50)
+  return readActiveElementState(page)
+}
+
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
@@ -357,6 +366,114 @@ test.describe('The Extension page should', () => {
     await expect
       .poll(() => readFocusedTestId(page))
       .toBe(`tab-row-${targetTabId}`)
+  })
+
+  test('tab through a focused row in checkbox-menu-close order', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const { targetTabId } = await page.evaluate(async (url) => {
+      const tabs = (await chrome.tabs.query({ currentWindow: true })).sort(
+        (a, b) => (a.index ?? 0) - (b.index ?? 0),
+      )
+      const targetIndex = tabs.findIndex((tab) => tab.url === url)
+      return {
+        targetTabId: tabs[targetIndex]?.id ?? -1,
+      }
+    }, fixtureUrls.nextjs)
+
+    expect(targetTabId).toBeGreaterThan(-1)
+
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+
+    await expect
+      .poll(() => readFocusedTestId(page))
+      .toBe(`tab-row-${targetTabId}`)
+
+    const checkboxState = await pressTabAndReadState(page)
+    expect(checkboxState).toMatchObject({
+      ariaLabel: 'Toggle select',
+      tagName: 'INPUT',
+      type: 'checkbox',
+    })
+
+    const menuState = await pressTabAndReadState(page)
+    expect(menuState).toMatchObject({
+      ariaLabel: 'Tab actions',
+      tagName: 'BUTTON',
+      testId: `tab-menu-${targetTabId}`,
+    })
+
+    const closeState = await pressTabAndReadState(page)
+    expect(closeState).toMatchObject({
+      ariaLabel: 'Close',
+      tagName: 'BUTTON',
+    })
+
+    const nextCheckboxState = await pressTabAndReadState(page)
+    expect(nextCheckboxState).toMatchObject({
+      ariaLabel: 'Toggle select',
+      tagName: 'INPUT',
+      type: 'checkbox',
+    })
+  })
+
+  test('support keyboard-only tab closing from the row close button', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const targetTabId = await page.evaluate(async (url) => {
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      return tabs.find((tab) => tab.url === url)?.id ?? -1
+    }, fixtureUrls.nextjs)
+
+    expect(targetTabId).toBeGreaterThan(-1)
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+
+    const checkboxState = await pressTabAndReadState(page)
+    expect(checkboxState).toMatchObject({
+      ariaLabel: 'Toggle select',
+      tagName: 'INPUT',
+      type: 'checkbox',
+    })
+
+    const menuState = await pressTabAndReadState(page)
+    expect(menuState).toMatchObject({
+      ariaLabel: 'Tab actions',
+      tagName: 'BUTTON',
+      testId: `tab-menu-${targetTabId}`,
+    })
+
+    const closeState = await pressTabAndReadState(page)
+    expect(closeState).toMatchObject({
+      ariaLabel: 'Close',
+      tagName: 'BUTTON',
+    })
+
+    await page.keyboard.press('Space')
+
+    await expect(page.getByTestId(`tab-row-${targetTabId}`)).toHaveCount(0)
+    await expect
+      .poll(async () => {
+        return await page.evaluate(async (tabId) => {
+          const tabs = await chrome.tabs.query({ currentWindow: true })
+          return tabs.some((tab) => tab.id === tabId)
+        }, targetTabId)
+      })
+      .toBe(false)
   })
 
   test('support keyboard-only tab menu navigation, activation, and focus restore', async () => {
