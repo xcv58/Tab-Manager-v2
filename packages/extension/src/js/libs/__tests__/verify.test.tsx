@@ -83,17 +83,20 @@ describe('verify tab count helpers', () => {
     expect(formatActionTabCountLabel(18)).toBe('18')
     expect(formatActionTabCountLabel(104)).toBe('104')
     expect(formatActionTabCountLabel(999)).toBe('999')
-    expect(formatActionTabCountLabel(1000)).toBe('1k+')
-    expect(formatActionTabCountLabel(2500)).toBe('2k+')
-    expect(formatActionTabCountLabel(12_500)).toBe('12k+')
+    expect(formatActionTabCountLabel(1000)).toBe('1k')
+    expect(formatActionTabCountLabel(1001)).toBe('1k')
+    expect(formatActionTabCountLabel(1999)).toBe('1k')
+    expect(formatActionTabCountLabel(2500)).toBe('2k')
+    expect(formatActionTabCountLabel(12_500)).toBe('12k')
+    expect(formatActionTabCountLabel(1_250_000)).toBe('1m')
   })
 
   it('uses a bottom-right overlay layout that preserves the base T icon', () => {
     expect(getActionCountLayout(16, '8')).toEqual(
       expect.objectContaining({
-        overlayInsetLeft: 6,
+        overlayInsetLeft: 7,
         overlayInsetRight: 0,
-        overlayBottomInset: 0,
+        overlayBottomInset: 1,
         overlayHeight: 10,
         fontSize: 11,
         textScaleX: 1,
@@ -101,32 +104,42 @@ describe('verify tab count helpers', () => {
     )
     expect(getActionCountLayout(16, '42')).toEqual(
       expect.objectContaining({
-        overlayInsetLeft: 4,
+        overlayInsetLeft: 5,
         overlayInsetRight: 0,
-        overlayBottomInset: 0,
+        overlayBottomInset: 1,
         overlayHeight: 10,
         fontSize: 10,
         textScaleX: 1,
       }),
     )
-    expect(getActionCountLayout(16, '1k+')).toEqual(
+    expect(getActionCountLayout(16, '142')).toEqual(
+      expect.objectContaining({
+        overlayInsetLeft: 2,
+        overlayInsetRight: 0,
+        overlayBottomInset: 1,
+        overlayHeight: 9,
+        fontSize: 8,
+        textScaleX: 1,
+      }),
+    )
+    expect(getActionCountLayout(16, '1k')).toEqual(
+      expect.objectContaining({
+        overlayInsetLeft: 4,
+        overlayInsetRight: 0,
+        overlayBottomInset: 1,
+        overlayHeight: 9,
+        fontSize: 9,
+        textScaleX: 1,
+      }),
+    )
+    expect(getActionCountLayout(16, '12k')).toEqual(
       expect.objectContaining({
         overlayInsetLeft: 1,
         overlayInsetRight: 0,
-        overlayBottomInset: 0,
+        overlayBottomInset: 1,
         overlayHeight: 9,
         fontSize: 8,
         textScaleX: 0.94,
-      }),
-    )
-    expect(getActionCountLayout(16, '12k+')).toEqual(
-      expect.objectContaining({
-        overlayInsetLeft: 0,
-        overlayInsetRight: 0,
-        overlayBottomInset: 0,
-        overlayHeight: 9,
-        fontSize: 7,
-        textScaleX: 0.86,
       }),
     )
   })

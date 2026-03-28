@@ -149,4 +149,19 @@ describe('setBrowserIcon', () => {
 
     expect(mockCanvasGetImageData).toHaveBeenCalledTimes(136)
   })
+
+  it('keeps the exact tab count in a shorter action title while compacting the badge label', async () => {
+    mockFetch.mockResolvedValue({
+      blob: jest.fn().mockResolvedValue(new Blob(['icon'])),
+    })
+    setAllWindowTabCount(2500)
+
+    const { setBrowserIcon } = await import('libs/verify')
+
+    await setBrowserIcon()
+
+    expect(mockActionSetTitle).toHaveBeenCalledWith({
+      title: 'Tab Manager v2: 2500 tabs across windows',
+    })
+  })
 })

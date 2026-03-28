@@ -12,6 +12,7 @@ type CanvasContext =
 
 const ICON_SIZES = [16, 19, 32, 38]
 const MAX_ICON_IMAGE_DATA_CACHE_ENTRIES = 128
+const COMPACT_COUNT_SUFFIX_PATTERN = /[km]$/i
 const iconImageDataCache = new Map<string, ImageData>()
 const iconBitmapCache = new Map<string, Promise<CanvasImageSource>>()
 
@@ -21,10 +22,10 @@ const getBaseIconPath = (darkTheme: boolean) =>
 export const formatActionTabCountLabel = (count: number) => {
   const safeCount = Math.max(0, count)
   if (safeCount >= 1_000_000) {
-    return `${Math.floor(safeCount / 1_000_000)}m+`
+    return `${Math.floor(safeCount / 1_000_000)}m`
   }
   if (safeCount >= 1_000) {
-    return `${Math.floor(safeCount / 1_000)}k+`
+    return `${Math.floor(safeCount / 1_000)}k`
   }
   return String(safeCount)
 }
@@ -35,29 +36,33 @@ const getActionTabCountTitle = (
 ) => {
   const tabLabel = count === 1 ? 'tab' : 'tabs'
   const modeLabel =
-    mode === 'currentWindow' ? 'in the current window' : 'across all windows'
-  return `Tab Manager v2 (${count} ${tabLabel} ${modeLabel})`
+    mode === 'currentWindow' ? 'in this window' : 'across windows'
+  return `Tab Manager v2: ${count} ${tabLabel} ${modeLabel}`
 }
 
 export const getActionCountLayout = (size: number, label: string) => {
-  if (label.length <= 1) {
+  const overlayInsetRight = size >= 32 ? 1 : 0
+  const overlayBottomInset = size <= 19 ? 1 : 0
+  const isCompactLabel = COMPACT_COUNT_SUFFIX_PATTERN.test(label)
+
+  if (/^\d$/.test(label)) {
     return {
-      overlayInsetLeft: Math.max(5, Math.round(size * 0.38)),
-      overlayInsetRight: 0,
-      overlayBottomInset: 0,
+      overlayInsetLeft: Math.max(7, Math.round(size * 0.42)),
+      overlayInsetRight,
+      overlayBottomInset,
       overlayHeight: Math.max(10, Math.round(size * 0.62)),
       borderRadius: Math.max(3, Math.round(size * 0.22)),
-      fontSize: Math.round(size * 0.69),
+      fontSize: Math.round(size * 0.68),
       fontWeight: 900,
       textScaleX: 1,
     }
   }
 
-  if (label.length === 2) {
+  if (/^\d{2}$/.test(label)) {
     return {
-      overlayInsetLeft: Math.max(4, Math.round(size * 0.25)),
-      overlayInsetRight: 0,
-      overlayBottomInset: 0,
+      overlayInsetLeft: Math.max(5, Math.round(size * 0.29)),
+      overlayInsetRight,
+      overlayBottomInset,
       overlayHeight: Math.max(10, Math.round(size * 0.62)),
       borderRadius: Math.max(3, Math.round(size * 0.22)),
       fontSize: Math.round(size * 0.62),
@@ -66,28 +71,36 @@ export const getActionCountLayout = (size: number, label: string) => {
     }
   }
 
-  if (label.length === 3) {
+  if (isCompactLabel) {
     return {
-      overlayInsetLeft: Math.max(1, Math.round(size * 0.06)),
-      overlayInsetRight: 0,
-      overlayBottomInset: 0,
+      overlayInsetLeft:
+        label.length <= 2
+          ? Math.max(4, Math.round(size * 0.24))
+          : Math.max(1, Math.round(size * 0.08)),
+      overlayInsetRight,
+      overlayBottomInset,
       overlayHeight: Math.max(9, Math.round(size * 0.56)),
       borderRadius: Math.max(3, Math.round(size * 0.2)),
-      fontSize: Math.round(size * 0.5),
-      fontWeight: 850,
-      textScaleX: 0.94,
+      fontSize:
+        label.length <= 2
+          ? Math.round(size * 0.56)
+          : label.length === 3
+            ? Math.round(size * 0.5)
+            : Math.round(size * 0.44),
+      fontWeight: label.length <= 2 ? 900 : 850,
+      textScaleX: label.length <= 2 ? 1 : label.length === 3 ? 0.94 : 0.88,
     }
   }
 
   return {
-    overlayInsetLeft: Math.max(0, Math.round(size * 0.02)),
-    overlayInsetRight: 0,
-    overlayBottomInset: 0,
+    overlayInsetLeft: Math.max(2, Math.round(size * 0.12)),
+    overlayInsetRight,
+    overlayBottomInset,
     overlayHeight: Math.max(9, Math.round(size * 0.56)),
     borderRadius: Math.max(3, Math.round(size * 0.18)),
-    fontSize: Math.round(size * 0.44),
-    fontWeight: 800,
-    textScaleX: 0.86,
+    fontSize: Math.round(size * 0.48),
+    fontWeight: 850,
+    textScaleX: 1,
   }
 }
 
@@ -190,10 +203,10 @@ const renderCountOverlay = (
   const overlayY = size - overlayBottomInset - overlayHeight
   const overlayX = overlayInsetLeft
   const overlayWidth = size - overlayInsetLeft - overlayInsetRight
-  const foregroundColor = darkTheme ? '#312e81' : '#ffffff'
+  const foregroundColor = darkTheme ? '#1f2350' : '#ffffff'
   context.fillStyle = darkTheme
-    ? 'rgba(238, 242, 255, 0.94)'
-    : 'rgba(29, 78, 216, 0.94)'
+    ? 'rgba(224, 231, 255, 0.98)'
+    : 'rgba(29, 78, 216, 0.98)'
   drawRoundedRect(
     context,
     overlayX,
@@ -204,8 +217,8 @@ const renderCountOverlay = (
   )
   context.fill()
   context.strokeStyle = darkTheme
-    ? 'rgba(49, 46, 129, 0.22)'
-    : 'rgba(255, 255, 255, 0.2)'
+    ? 'rgba(49, 46, 129, 0.34)'
+    : 'rgba(255, 255, 255, 0.32)'
   context.lineWidth = 1
   context.stroke()
 
