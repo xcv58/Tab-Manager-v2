@@ -1,5 +1,6 @@
 import React from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { AppThemeContext, darkAppTheme } from 'libs/appTheme'
 import Dialog from '../Dialog'
 
 const createAnchorEl = () => {
@@ -136,5 +137,22 @@ describe('Dialog', () => {
       screen.getByRole('button', { name: 'Outer action' }),
     ).toBeInTheDocument()
     expect(outerOnClose).not.toHaveBeenCalled()
+  })
+
+  it('uses the theme paper color by default when no inline background is provided', () => {
+    render(
+      <AppThemeContext.Provider value={darkAppTheme}>
+        <Dialog open onClose={() => {}}>
+          <div>Dialog body</div>
+        </Dialog>
+      </AppThemeContext.Provider>,
+    )
+
+    expect(screen.getByRole('dialog')).toHaveStyle(
+      `background-color: ${darkAppTheme.palette.background.paper}`,
+    )
+    expect(screen.getByRole('dialog')).toHaveStyle(
+      `color: ${darkAppTheme.palette.text.primary}`,
+    )
   })
 })

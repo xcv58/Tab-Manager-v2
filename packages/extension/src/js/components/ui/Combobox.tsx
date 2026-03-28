@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useId } from 'react'
 
 export interface UseComboboxProps<T> {
   items: T[]
@@ -21,11 +21,17 @@ export function useCombobox<T>({
   onOpenChange,
   autoHighlight = true,
 }: UseComboboxProps<T>) {
+  const comboboxId = useId()
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1)
   const listRef = useRef<any>(null) // To be attached to virtualization list if needed
   const previousInputValueRef = useRef(inputValue)
   const previousIsOpenRef = useRef(isOpen)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const getItemId = useCallback(
+    (index: number) => `${comboboxId}-item-${index}`,
+    [comboboxId],
+  )
+  const listboxId = `${comboboxId}-listbox`
   const firstEnabledIndex = useCallback(() => {
     return items.findIndex((item) => !isItemDisabled(item))
   }, [items, isItemDisabled])
@@ -119,12 +125,12 @@ export function useCombobox<T>({
           listRef.current.scrollToItem(nextIndex)
         } else if (listRef.current?.scrollIntoView) {
           // Fallback if it's a DOM node (though usually we use virtualized)
-          const el = document.getElementById(`combobox-item-${nextIndex}`)
+          const el = document.getElementById(getItemId(nextIndex))
           if (el) el.scrollIntoView({ block: 'nearest' })
         }
       }
     },
-    [items, isItemDisabled, highlightedIndex],
+    [getItemId, items, isItemDisabled, highlightedIndex],
   )
 
   const getRootProps = () => ({
@@ -193,7 +199,7 @@ export function useCombobox<T>({
       }, 150)
     },
     'aria-activedescendant':
-      highlightedIndex >= 0 ? `combobox-item-${highlightedIndex}` : undefined,
+      highlightedIndex >= 0 ? getItemId(highlightedIndex) : undefined,
     'aria-autocomplete': 'list' as const,
     'aria-expanded': isOpen,
     role: 'combobox',
@@ -201,13 +207,13 @@ export function useCombobox<T>({
 
   const getListboxProps = () => ({
     role: 'listbox',
-    id: 'combobox-listbox',
+    id: listboxId,
   })
 
   const getItemProps = ({ index, item }: { index: number; item: T }) => {
     const disabled = isItemDisabled(item)
     return {
-      id: `combobox-item-${index}`,
+      id: getItemId(index),
       role: 'option',
       'aria-selected': highlightedIndex === index,
       'aria-disabled': disabled,

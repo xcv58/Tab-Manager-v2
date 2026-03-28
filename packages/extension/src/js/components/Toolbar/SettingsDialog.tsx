@@ -411,7 +411,7 @@ const SettingsSwitchOption = ({
 }) => {
   const switchId = React.useId()
   const titleId = React.useId()
-  const descriptionId = description ? React.useId() : undefined
+  const descriptionId = React.useId()
   const handleContainerClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement | null
 
@@ -451,7 +451,7 @@ const SettingsSwitchOption = ({
           id: switchId,
           'aria-label': title,
           'aria-labelledby': titleId,
-          'aria-describedby': descriptionId,
+          'aria-describedby': description ? descriptionId : undefined,
         }}
         style={{
           marginTop: 0,

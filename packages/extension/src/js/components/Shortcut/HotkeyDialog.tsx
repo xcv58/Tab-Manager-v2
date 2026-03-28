@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
 import { useStore } from 'components/hooks/useStore'
@@ -11,10 +11,30 @@ import Help from './Help'
 export default observer(() => {
   const theme = useAppTheme()
   const [search, setSearch] = useState('')
-  const fullScreen = typeof window !== 'undefined' && window.innerWidth < 600
+  const [fullScreen, setFullScreen] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 600,
+  )
   const { shortcutStore } = useStore()
   const { dialogOpen, closeDialog } = shortcutStore
   const reduceMotion = useReduceMotion()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const updateFullScreen = () => {
+      setFullScreen(window.innerWidth < 600)
+    }
+
+    updateFullScreen()
+    window.addEventListener('resize', updateFullScreen)
+
+    return () => {
+      window.removeEventListener('resize', updateFullScreen)
+    }
+  }, [])
+
   return (
     <Dialog
       open={dialogOpen}

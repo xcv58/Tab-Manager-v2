@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Fade } from 'components/ui/Transition'
+import { useAppTheme } from 'libs/appTheme'
 
 const openDialogStack: HTMLDivElement[] = []
 
@@ -51,6 +52,7 @@ export default function Dialog({
   style,
   'data-testid': testId,
 }: DialogProps) {
+  const theme = useAppTheme()
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const wasOpenRef = useRef(false)
@@ -230,8 +232,8 @@ export default function Dialog({
             borderRadius: fullScreen ? 0 : 8,
             boxShadow:
               '0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14)',
-            backgroundColor: 'inherit',
-            color: 'inherit',
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
             margin: fullScreen ? 0 : 32,
             width: fullScreen ? '100vw' : fullWidth ? '100%' : undefined,
             maxWidth: fullScreen
