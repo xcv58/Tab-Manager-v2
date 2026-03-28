@@ -12,8 +12,9 @@ const clampAxis = (
   viewportSize: number,
   margin: number,
 ) => {
-  const max = Math.max(margin, viewportSize - size - margin)
-  return Math.min(Math.max(value, margin), max)
+  const min = margin
+  const max = Math.max(min, viewportSize - size - margin)
+  return Math.min(Math.max(value, min), max)
 }
 
 export const clampOverlayPosition = ({

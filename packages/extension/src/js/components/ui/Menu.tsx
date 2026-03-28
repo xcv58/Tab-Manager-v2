@@ -162,11 +162,16 @@ export default function Menu({
     if (!open) return
     document.addEventListener('mousedown', handleClickOutside)
     window.addEventListener('resize', updatePosition)
-    window.addEventListener('scroll', updatePosition, true)
+    window.addEventListener('scroll', updatePosition, {
+      capture: true,
+      passive: true,
+    })
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       window.removeEventListener('resize', updatePosition)
-      window.removeEventListener('scroll', updatePosition, true)
+      window.removeEventListener('scroll', updatePosition, {
+        capture: true,
+      })
     }
   }, [open, handleClickOutside, updatePosition])
 
@@ -245,6 +250,7 @@ export function MenuItem({
         lineHeight: 1.5,
         cursor: disabled ? 'default' : 'pointer',
         opacity: disabled ? 0.5 : 1,
+        pointerEvents: disabled ? 'none' : undefined,
         textAlign: 'left',
         color: 'inherit',
         ...style,

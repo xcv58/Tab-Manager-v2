@@ -54,6 +54,8 @@ export default function Dialog({
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const wasOpenRef = useRef(false)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
   const isTopmostDialog = useCallback(() => {
     const dialogNode = dialogRef.current
     return (
@@ -113,7 +115,7 @@ export default function Dialog({
 
       if (e.key === 'Escape') {
         e.preventDefault()
-        onClose()
+        onCloseRef.current()
         return
       }
 
@@ -148,7 +150,7 @@ export default function Dialog({
         firstElement.focus()
       }
     },
-    [getFocusableElements, onClose],
+    [getFocusableElements],
   )
 
   useEffect(() => {

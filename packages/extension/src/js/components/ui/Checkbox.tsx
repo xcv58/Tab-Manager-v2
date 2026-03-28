@@ -134,6 +134,8 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           disabled={disabled}
           onChange={onChange}
           onClick={onClick}
+          // Suppress React controlled-without-onChange warning; clicks
+          // still work via the onClick prop when onChange is absent.
           readOnly={onChange == null}
           onFocus={(event) => {
             setFocused(true)

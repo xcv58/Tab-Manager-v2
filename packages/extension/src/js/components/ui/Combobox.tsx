@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 export interface UseComboboxProps<T> {
   items: T[]
@@ -25,6 +25,7 @@ export function useCombobox<T>({
   const listRef = useRef<any>(null) // To be attached to virtualization list if needed
   const previousInputValueRef = useRef(inputValue)
   const previousIsOpenRef = useRef(isOpen)
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const firstEnabledIndex = useCallback(() => {
     return items.findIndex((item) => !isItemDisabled(item))
   }, [items, isItemDisabled])
@@ -83,6 +84,14 @@ export function useCombobox<T>({
     firstEnabledIndex,
     isItemDisabled,
   ])
+
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current != null) {
+        clearTimeout(blurTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const highlightItem = useCallback(
     (index: number) => {
@@ -175,7 +184,11 @@ export function useCombobox<T>({
     },
     onBlur: () => {
       // Need a slight delay to allow click events on items to fire
-      setTimeout(() => {
+      if (blurTimeoutRef.current != null) {
+        clearTimeout(blurTimeoutRef.current)
+      }
+      blurTimeoutRef.current = setTimeout(() => {
+        blurTimeoutRef.current = null
         if (onOpenChange) onOpenChange(false)
       }, 150)
     },

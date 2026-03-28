@@ -8,7 +8,7 @@ import React, {
 import { createPortal } from 'react-dom'
 import { clampOverlayPosition } from './overlayPosition'
 
-let activeUncontrolledTooltipHide: null | (() => void) = null
+let activeUncontrolledTooltipHide: null | { current: () => void } = null
 
 export interface TooltipProps {
   title: React.ReactNode
@@ -39,16 +39,18 @@ export default function Tooltip({
   const tooltipRef = useRef<HTMLDivElement | null>(null)
   const isControlled = open !== undefined
   const isVisible = isControlled ? open : visible
+  const hideRef = useRef<() => void>(() => {})
 
   const hide = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = null
     if (isControlled) return
     setVisible(false)
-    if (activeUncontrolledTooltipHide === hide) {
+    if (activeUncontrolledTooltipHide === hideRef) {
       activeUncontrolledTooltipHide = null
     }
   }, [isControlled])
+  hideRef.current = hide
 
   const show = useCallback(() => {
     if (isControlled) return
@@ -56,23 +58,23 @@ export default function Tooltip({
     timerRef.current = setTimeout(() => {
       if (
         activeUncontrolledTooltipHide &&
-        activeUncontrolledTooltipHide !== hide
+        activeUncontrolledTooltipHide !== hideRef
       ) {
-        activeUncontrolledTooltipHide()
+        activeUncontrolledTooltipHide.current()
       }
       setVisible(true)
-      activeUncontrolledTooltipHide = hide
+      activeUncontrolledTooltipHide = hideRef
     }, enterDelay)
-  }, [enterDelay, hide, isControlled])
+  }, [enterDelay, isControlled])
 
   useEffect(
     () => () => {
       if (timerRef.current) clearTimeout(timerRef.current)
-      if (activeUncontrolledTooltipHide === hide) {
+      if (activeUncontrolledTooltipHide === hideRef) {
         activeUncontrolledTooltipHide = null
       }
     },
-    [hide],
+    [],
   )
 
   const updatePosition = useCallback(() => {

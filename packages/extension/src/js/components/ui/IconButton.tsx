@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import classNames from 'classnames'
 import { useAppTheme } from 'libs/appTheme'
 
@@ -15,6 +15,8 @@ const SIZE_MAP: Record<ControlSize, { wh: number; pad: number }> = {
   medium: { wh: 34, pad: 6 }, // p: 0.75 * 8 = 6
   compact: { wh: 28, pad: 3 }, // p: 0.375 * 8 = 3
 }
+
+type InteractionState = 'idle' | 'hover' | 'active'
 
 /**
  * Local icon button replacing MUI `IconButton`.
@@ -36,8 +38,24 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     const theme = useAppTheme()
     const isDark = theme.mode === 'dark'
     const { wh, pad } = SIZE_MAP[controlSize]
+    const [interaction, setInteraction] = useState<InteractionState>('idle')
 
     const colorStyles = getColorStyles(tone, isDark, theme)
+
+    const resolvedColor = disabled
+      ? colorStyles.disabledColor
+      : interaction === 'active'
+        ? colorStyles.activeColor
+        : interaction === 'hover'
+          ? colorStyles.hoverColor
+          : colorStyles.color
+
+    const resolvedBg =
+      !disabled && interaction === 'active'
+        ? colorStyles.activeBg
+        : !disabled && interaction === 'hover'
+          ? colorStyles.hoverBg
+          : 'transparent'
 
     return (
       <button
@@ -55,39 +73,30 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           minWidth: wh,
           minHeight: wh,
           padding: pad,
-          color: disabled ? colorStyles.disabledColor : colorStyles.color,
+          color: resolvedColor,
+          backgroundColor: resolvedBg,
           opacity: disabled ? colorStyles.disabledOpacity : 1,
           ...style,
         }}
         onMouseEnter={(e) => {
           if (!disabled) {
-            const t = e.currentTarget
-            t.style.color = colorStyles.hoverColor
-            t.style.backgroundColor = colorStyles.hoverBg
+            setInteraction('hover')
           }
           rest.onMouseEnter?.(e)
         }}
         onMouseLeave={(e) => {
-          const t = e.currentTarget
-          t.style.color = disabled
-            ? colorStyles.disabledColor
-            : colorStyles.color
-          t.style.backgroundColor = 'transparent'
+          setInteraction('idle')
           rest.onMouseLeave?.(e)
         }}
         onMouseDown={(e) => {
           if (!disabled) {
-            const t = e.currentTarget
-            t.style.color = colorStyles.activeColor
-            t.style.backgroundColor = colorStyles.activeBg
+            setInteraction('active')
           }
           rest.onMouseDown?.(e)
         }}
         onMouseUp={(e) => {
           if (!disabled) {
-            const t = e.currentTarget
-            t.style.color = colorStyles.hoverColor
-            t.style.backgroundColor = colorStyles.hoverBg
+            setInteraction('hover')
           }
           rest.onMouseUp?.(e)
         }}
