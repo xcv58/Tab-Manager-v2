@@ -24,7 +24,7 @@ export const formatActionTabCountLabel = (count: number) => {
   if (safeCount >= 1_000_000) {
     return `${Math.floor(safeCount / 1_000_000)}m`
   }
-  if (safeCount >= 1_000) {
+  if (safeCount >= 10_000) {
     return `${Math.floor(safeCount / 1_000)}k`
   }
   return String(safeCount)
@@ -68,6 +68,19 @@ export const getActionCountLayout = (size: number, label: string) => {
       fontSize: Math.round(size * 0.62),
       fontWeight: 900,
       textScaleX: 1,
+    }
+  }
+
+  if (/^\d{4}$/.test(label)) {
+    return {
+      overlayInsetLeft: 0,
+      overlayInsetRight,
+      overlayBottomInset,
+      overlayHeight: Math.max(9, Math.round(size * 0.56)),
+      borderRadius: Math.max(3, Math.round(size * 0.18)),
+      fontSize: Math.round(size * 0.44),
+      fontWeight: 850,
+      textScaleX: 0.88,
     }
   }
 

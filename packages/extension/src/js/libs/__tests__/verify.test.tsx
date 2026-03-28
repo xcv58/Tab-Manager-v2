@@ -83,10 +83,10 @@ describe('verify tab count helpers', () => {
     expect(formatActionTabCountLabel(18)).toBe('18')
     expect(formatActionTabCountLabel(104)).toBe('104')
     expect(formatActionTabCountLabel(999)).toBe('999')
-    expect(formatActionTabCountLabel(1000)).toBe('1k')
-    expect(formatActionTabCountLabel(1001)).toBe('1k')
-    expect(formatActionTabCountLabel(1999)).toBe('1k')
-    expect(formatActionTabCountLabel(2500)).toBe('2k')
+    expect(formatActionTabCountLabel(1000)).toBe('1000')
+    expect(formatActionTabCountLabel(1023)).toBe('1023')
+    expect(formatActionTabCountLabel(9999)).toBe('9999')
+    expect(formatActionTabCountLabel(10_000)).toBe('10k')
     expect(formatActionTabCountLabel(12_500)).toBe('12k')
     expect(formatActionTabCountLabel(1_250_000)).toBe('1m')
   })
@@ -130,6 +130,16 @@ describe('verify tab count helpers', () => {
         overlayHeight: 9,
         fontSize: 9,
         textScaleX: 1,
+      }),
+    )
+    expect(getActionCountLayout(16, '1023')).toEqual(
+      expect.objectContaining({
+        overlayInsetLeft: 0,
+        overlayInsetRight: 0,
+        overlayBottomInset: 1,
+        overlayHeight: 9,
+        fontSize: 7,
+        textScaleX: 0.88,
       }),
     )
     expect(getActionCountLayout(16, '12k')).toEqual(
