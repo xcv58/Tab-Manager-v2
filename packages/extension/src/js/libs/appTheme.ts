@@ -22,6 +22,15 @@ export type AppTheme = {
     warning: { main: string }
     action: { hover: string; selected: string; disabled: string }
     grey: Record<number, string>
+    danger: {
+      color: string
+      hoverColor: string
+      hoverBg: string
+      activeColor: string
+      activeBg: string
+      disabledColor: string
+      disabledOpacity: number
+    }
   }
   transitions: {
     enteringScreen: number
@@ -33,6 +42,10 @@ export type AppTheme = {
     focusedColor: string
     highlightBorderColor: string
     highlightColor: string
+    /** Default color for icon buttons and checkbox icons in idle state */
+    icon: { default: string }
+    /** Focus ring color for the checkbox control */
+    checkbox: { focusRing: string }
   }
 }
 
@@ -96,6 +109,15 @@ export const lightAppTheme: AppTheme = {
       disabled: 'rgba(100, 116, 139, 0.42)',
     },
     grey: { 700: grey700 },
+    danger: {
+      color: 'rgba(239, 68, 68, 0.36)',
+      hoverColor: '#ef4444',
+      hoverBg: 'rgba(239, 68, 68, 0.12)',
+      activeColor: '#b91c1c',
+      activeBg: 'rgba(239, 68, 68, 0.2)',
+      disabledColor: 'rgba(239, 68, 68, 0.28)',
+      disabledOpacity: 0.75,
+    },
   },
   transitions: sharedTransitions,
   zIndex: sharedZIndex,
@@ -103,6 +125,8 @@ export const lightAppTheme: AppTheme = {
     focusedColor: blue200, // #90caf9
     highlightBorderColor: blue500, // #2196f3
     highlightColor: blue50, // #e3f2fd
+    icon: { default: 'rgba(71, 85, 105, 0.76)' },
+    checkbox: { focusRing: 'rgba(26, 115, 232, 0.24)' },
   },
 }
 
@@ -131,6 +155,15 @@ export const darkAppTheme: AppTheme = {
       disabled: 'rgba(174, 181, 192, 0.42)',
     },
     grey: { 700: grey700 },
+    danger: {
+      color: 'rgba(252, 202, 202, 0.7)',
+      hoverColor: '#fecaca',
+      hoverBg: 'rgba(239, 68, 68, 0.14)',
+      activeColor: '#fee2e2',
+      activeBg: 'rgba(239, 68, 68, 0.2)',
+      disabledColor: 'rgba(252, 202, 202, 0.54)',
+      disabledOpacity: 0.75,
+    },
   },
   transitions: sharedTransitions,
   zIndex: sharedZIndex,
@@ -138,6 +171,8 @@ export const darkAppTheme: AppTheme = {
     focusedColor: '#b5c7e6',
     highlightBorderColor: '#b5c7e6',
     highlightColor: '#39404a',
+    icon: { default: 'rgba(203, 213, 225, 0.74)' },
+    checkbox: { focusRing: 'rgba(181, 199, 230, 0.28)' },
   },
 }
 

@@ -56,7 +56,7 @@ export default function Menu({
 
   useLayoutEffect(() => {
     updatePosition()
-  }, [children, style, updatePosition])
+  }, [updatePosition])
 
   useEffect(() => {
     if (!open) {

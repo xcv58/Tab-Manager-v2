@@ -140,32 +140,44 @@ export default function Tooltip({
     return children
   }
 
-  const child = React.Children.only(children)
+  // React 18 exposes .ref as a non-public runtime field not in TS types.
+  type ReactElementWithRef = React.ReactElement & {
+    ref?: React.Ref<HTMLElement>
+  }
+  const child = React.Children.only(children) as ReactElementWithRef
+  const childRef = child.ref
 
-  const cloned = React.cloneElement(child, {
-    ref: (node: HTMLElement | null) => {
-      anchorRef.current = node
-      const childRef = (child as any).ref
-      if (typeof childRef === 'function') childRef(node)
-      else if (childRef && typeof childRef === 'object') childRef.current = node
-    },
-    onMouseEnter: (e: React.MouseEvent) => {
-      show()
-      child.props.onMouseEnter?.(e)
-    },
-    onMouseLeave: (e: React.MouseEvent) => {
-      hide()
-      child.props.onMouseLeave?.(e)
-    },
-    onFocus: (e: React.FocusEvent) => {
-      show()
-      child.props.onFocus?.(e)
-    },
-    onBlur: (e: React.FocusEvent) => {
-      hide()
-      child.props.onBlur?.(e)
-    },
-  } as any)
+  const mergedRef = (node: HTMLElement | null) => {
+    anchorRef.current = node
+    if (typeof childRef === 'function') {
+      childRef(node)
+    } else if (childRef && typeof childRef === 'object') {
+      ;(childRef as React.MutableRefObject<HTMLElement | null>).current = node
+    }
+  }
+
+  const cloned = React.cloneElement(
+    child as React.ReactElement<React.HTMLAttributes<HTMLElement>>,
+    {
+      ref: mergedRef,
+      onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+        show()
+        child.props.onMouseEnter?.(e)
+      },
+      onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
+        hide()
+        child.props.onMouseLeave?.(e)
+      },
+      onFocus: (e: React.FocusEvent<HTMLElement>) => {
+        show()
+        child.props.onFocus?.(e)
+      },
+      onBlur: (e: React.FocusEvent<HTMLElement>) => {
+        hide()
+        child.props.onBlur?.(e)
+      },
+    } as React.RefAttributes<HTMLElement> & React.HTMLAttributes<HTMLElement>,
+  )
   return (
     <>
       {cloned}

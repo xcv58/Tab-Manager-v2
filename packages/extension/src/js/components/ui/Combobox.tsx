@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useId } from 'react'
 
+/** Minimal interface for a virtualized list ref (e.g. react-window FixedSizeList). */
+export interface VirtualListRef {
+  scrollToItem: (index: number) => void
+}
+
 export interface UseComboboxProps<T> {
   items: T[]
   inputValue: string
@@ -23,7 +28,7 @@ export function useCombobox<T>({
 }: UseComboboxProps<T>) {
   const comboboxId = useId()
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1)
-  const listRef = useRef<any>(null) // To be attached to virtualization list if needed
+  const listRef = useRef<VirtualListRef | null>(null)
   const previousInputValueRef = useRef(inputValue)
   const previousIsOpenRef = useRef(isOpen)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -121,10 +126,9 @@ export function useCombobox<T>({
         !isItemDisabled(items[nextIndex])
       ) {
         setHighlightedIndex(nextIndex)
-        if (listRef.current?.scrollToItem) {
+        if (listRef.current) {
           listRef.current.scrollToItem(nextIndex)
-        } else if (listRef.current?.scrollIntoView) {
-          // Fallback if it's a DOM node (though usually we use virtualized)
+        } else {
           const el = document.getElementById(getItemId(nextIndex))
           if (el) el.scrollIntoView({ block: 'nearest' })
         }

@@ -61,14 +61,9 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         ? theme.palette.primary.main
         : disabled
           ? theme.palette.action.disabled
-          : theme.mode === 'dark'
-            ? 'rgba(203, 213, 225, 0.74)'
-            : 'rgba(71, 85, 105, 0.76)'
+          : theme.app.icon.default
 
-    const focusRingColor =
-      theme.mode === 'dark'
-        ? 'rgba(181, 199, 230, 0.28)'
-        : 'rgba(26, 115, 232, 0.24)'
+    const focusRingColor = theme.app.checkbox.focusRing
 
     const renderIcon = () => {
       if (indeterminate) {
@@ -113,7 +108,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     return (
       <span
         className={classNames(
-          'relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow] duration-150',
+          'relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow]',
           { 'cursor-not-allowed opacity-60': disabled },
           className,
         )}
@@ -121,6 +116,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           width: controlSize,
           height: controlSize,
           padding,
+          transitionDuration: `${theme.transitions.shorter}ms`,
           ...(focused && !disabled
             ? { boxShadow: `0 0 0 3px ${focusRingColor}` }
             : {}),

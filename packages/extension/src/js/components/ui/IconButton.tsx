@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import classNames from 'classnames'
-import { useAppTheme } from 'libs/appTheme'
+import { type AppTheme, useAppTheme } from 'libs/appTheme'
 
 type Tone = 'default' | 'danger'
 type ControlSize = 'default' | 'medium' | 'compact'
@@ -36,11 +36,10 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     ref,
   ) => {
     const theme = useAppTheme()
-    const isDark = theme.mode === 'dark'
     const { wh, pad } = SIZE_MAP[controlSize]
     const [interaction, setInteraction] = useState<InteractionState>('idle')
 
-    const colorStyles = getColorStyles(tone, isDark, theme)
+    const colorStyles = getColorStyles(tone, theme)
 
     const resolvedColor = disabled
       ? colorStyles.disabledColor
@@ -63,7 +62,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         type="button"
         disabled={disabled}
         className={classNames(
-          'inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100',
+          'inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100',
           { 'cursor-not-allowed': disabled },
           className,
         )}
@@ -76,6 +75,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
           color: resolvedColor,
           backgroundColor: resolvedBg,
           opacity: disabled ? colorStyles.disabledOpacity : 1,
+          transitionDuration: `${theme.transitions.shorter}ms`,
           ...style,
         }}
         onMouseEnter={(e) => {
@@ -112,22 +112,12 @@ IconButton.displayName = 'IconButton'
 
 export default IconButton
 
-function getColorStyles(tone: Tone, isDark: boolean, theme: any) {
+function getColorStyles(tone: Tone, theme: AppTheme) {
   if (tone === 'danger') {
-    return {
-      color: isDark ? 'rgba(252, 202, 202, 0.7)' : 'rgba(239, 68, 68, 0.36)',
-      hoverColor: isDark ? '#fecaca' : '#ef4444',
-      hoverBg: isDark ? 'rgba(239, 68, 68, 0.14)' : 'rgba(239, 68, 68, 0.12)',
-      activeColor: isDark ? '#fee2e2' : '#b91c1c',
-      activeBg: 'rgba(239, 68, 68, 0.2)',
-      disabledColor: isDark
-        ? 'rgba(252, 202, 202, 0.54)'
-        : 'rgba(239, 68, 68, 0.28)',
-      disabledOpacity: 0.75,
-    }
+    return theme.palette.danger
   }
   return {
-    color: isDark ? 'rgba(203, 213, 225, 0.74)' : 'rgba(71, 85, 105, 0.76)',
+    color: theme.app.icon.default,
     hoverColor: theme.palette.text.primary,
     hoverBg: theme.palette.action.hover,
     activeColor: theme.palette.text.primary,

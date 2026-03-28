@@ -77,6 +77,7 @@ export default function Dialog({
       'input',
       'select',
       'textarea',
+      '[contenteditable]:not([contenteditable="false"])',
       '[tabindex]:not([tabindex="-1"])',
     ].join(', ')
 
