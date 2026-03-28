@@ -11,6 +11,7 @@ type CanvasContext =
   | OffscreenCanvasRenderingContext2D
 
 const ICON_SIZES = [16, 19, 32, 38]
+const MAX_ICON_IMAGE_DATA_CACHE_ENTRIES = 128
 const iconImageDataCache = new Map<string, ImageData>()
 const iconBitmapCache = new Map<string, Promise<CanvasImageSource>>()
 
@@ -162,6 +163,11 @@ const loadIconBitmap = async (iconPath: string) => {
   })()
 
   iconBitmapCache.set(iconPath, bitmapPromise)
+  void bitmapPromise.catch(() => {
+    if (iconBitmapCache.get(iconPath) === bitmapPromise) {
+      iconBitmapCache.delete(iconPath)
+    }
+  })
   return bitmapPromise
 }
 
@@ -217,6 +223,31 @@ const renderCountOverlay = (
   context.restore()
 }
 
+const getCachedIconImageData = (cacheKey: string) => {
+  const cachedImageData = iconImageDataCache.get(cacheKey)
+  if (!cachedImageData) {
+    return null
+  }
+
+  iconImageDataCache.delete(cacheKey)
+  iconImageDataCache.set(cacheKey, cachedImageData)
+  return cachedImageData
+}
+
+const cacheIconImageData = (cacheKey: string, imageData: ImageData) => {
+  iconImageDataCache.set(cacheKey, imageData)
+
+  while (iconImageDataCache.size > MAX_ICON_IMAGE_DATA_CACHE_ENTRIES) {
+    const oldestCacheKey = iconImageDataCache.keys().next().value
+    if (!oldestCacheKey) {
+      break
+    }
+    iconImageDataCache.delete(oldestCacheKey)
+  }
+
+  return imageData
+}
+
 const getIconImageData = async (
   iconPath: string,
   label: string,
@@ -224,7 +255,7 @@ const getIconImageData = async (
   darkTheme: boolean,
 ) => {
   const cacheKey = `${iconPath}:${darkTheme ? 'dark' : 'light'}:${label}:${size}`
-  const cachedImageData = iconImageDataCache.get(cacheKey)
+  const cachedImageData = getCachedIconImageData(cacheKey)
   if (cachedImageData) {
     return cachedImageData
   }
@@ -236,8 +267,7 @@ const getIconImageData = async (
   context.drawImage(bitmap, 0, 0, size, size)
   renderCountOverlay(context, size, label, darkTheme)
   const imageData = context.getImageData(0, 0, size, size)
-  iconImageDataCache.set(cacheKey, imageData)
-  return imageData
+  return cacheIconImageData(cacheKey, imageData)
 }
 
 const getIconImageDataSet = async (
@@ -284,7 +314,11 @@ const getCurrentWindowTabCount = async () => {
   }
 }
 
-export const getActionTabCount = async (mode: ActionTabCountMode) => {
+export function getActionTabCount(mode: 'off'): Promise<null>
+export function getActionTabCount(
+  mode: Exclude<ActionTabCountMode, 'off'>,
+): Promise<number>
+export async function getActionTabCount(mode: ActionTabCountMode) {
   if (mode === 'off') {
     return null
   }
@@ -303,6 +337,8 @@ export const getActionTabCount = async (mode: ActionTabCountMode) => {
 }
 
 export const readActionIconSettings = async () => {
+  // `systemTheme` is runtime state written by App into local storage, while the
+  // persisted user setting prefers sync storage with a local fallback.
   const { systemTheme } = await browser.storage.local.get('systemTheme')
 
   try {
@@ -330,23 +366,25 @@ export const setBrowserIcon = async () => {
   const { actionTabCountMode, systemTheme } = await readActionIconSettings()
   const darkTheme = systemTheme === 'dark'
   const iconPath = getBaseIconPath(darkTheme)
-  const tabCount = await getActionTabCount(actionTabCountMode)
-  const imageData =
-    tabCount == null
-      ? null
-      : await getIconImageDataSet(
-          iconPath,
-          formatActionTabCountLabel(tabCount),
-          darkTheme,
-        )
-  ;[browser.browserAction, browser.action].forEach((action) => {
-    if (action && action.setIcon) {
-      if (tabCount == null) {
+
+  if (actionTabCountMode === 'off') {
+    ;[browser.browserAction, browser.action].forEach((action) => {
+      if (action && action.setIcon) {
         action.setIcon({ path: iconPath })
         action.setTitle?.({ title: 'Tab Manager v2' })
-        return
       }
+    })
+    return
+  }
 
+  const tabCount = await getActionTabCount(actionTabCountMode)
+  const imageData = await getIconImageDataSet(
+    iconPath,
+    formatActionTabCountLabel(tabCount),
+    darkTheme,
+  )
+  ;[browser.browserAction, browser.action].forEach((action) => {
+    if (action && action.setIcon) {
       action.setIcon({ imageData })
       action.setTitle?.({
         title: getActionTabCountTitle(tabCount, actionTabCountMode),

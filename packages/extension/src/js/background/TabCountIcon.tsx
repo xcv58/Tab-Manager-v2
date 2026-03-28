@@ -21,6 +21,7 @@ export default class TabCountIcon {
     browser.tabs.onAttached.addListener(this.refreshIcon)
     browser.tabs.onDetached.addListener(this.refreshIcon)
     browser.windows.onFocusChanged.addListener(this.refreshIcon)
+    browser.windows.onRemoved?.addListener?.(this.refreshIcon)
     browser.storage.onChanged.addListener(this.onStorageChanged)
   }
 

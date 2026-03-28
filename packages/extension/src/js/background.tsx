@@ -27,6 +27,7 @@ const init = async () => {
 init()
 
 const tabHistory = new TabHistory()
+// Instantiation is enough here because the constructor registers listeners.
 new TabCountIcon()
 const _createWindow = (request, sender, sendResponse) => {
   createWindow(request.tabs)

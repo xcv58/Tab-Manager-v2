@@ -3,6 +3,7 @@ const addRemovedListener = jest.fn()
 const addAttachedListener = jest.fn()
 const addDetachedListener = jest.fn()
 const addFocusChangedListener = jest.fn()
+const addWindowRemovedListener = jest.fn()
 const addStorageChangedListener = jest.fn()
 
 jest.mock('libs', () => ({
@@ -15,6 +16,7 @@ jest.mock('libs', () => ({
     },
     windows: {
       onFocusChanged: { addListener: addFocusChangedListener },
+      onRemoved: { addListener: addWindowRemovedListener },
     },
     storage: {
       onChanged: { addListener: addStorageChangedListener },
@@ -34,7 +36,7 @@ describe('TabCountIcon', () => {
     jest.clearAllMocks()
   })
 
-  it('refreshes the browser icon when tab or focus events fire', async () => {
+  it('refreshes the browser icon when tab or window events fire', async () => {
     new TabCountIcon()
 
     const createdListener = addCreatedListener.mock.calls[0][0]
@@ -42,14 +44,16 @@ describe('TabCountIcon', () => {
     const attachedListener = addAttachedListener.mock.calls[0][0]
     const detachedListener = addDetachedListener.mock.calls[0][0]
     const focusListener = addFocusChangedListener.mock.calls[0][0]
+    const windowRemovedListener = addWindowRemovedListener.mock.calls[0][0]
 
     await createdListener({ id: 1 })
     await removedListener(1)
     await attachedListener(1, { newWindowId: 2 })
     await detachedListener(1, { oldWindowId: 2 })
     await focusListener(2)
+    await windowRemovedListener(2)
 
-    expect(setBrowserIcon).toHaveBeenCalledTimes(5)
+    expect(setBrowserIcon).toHaveBeenCalledTimes(6)
   })
 
   it('refreshes the browser icon only for relevant local storage changes', async () => {
