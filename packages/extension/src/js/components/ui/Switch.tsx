@@ -1,4 +1,5 @@
 import React from 'react'
+import { useAppTheme } from 'libs/appTheme'
 
 export interface SwitchProps {
   checked: boolean
@@ -22,6 +23,7 @@ export default function Switch({
   style,
   'data-testid': testId,
 }: SwitchProps) {
+  const theme = useAppTheme()
   const [focused, setFocused] = React.useState(false)
   const isSmall = size === 'small'
   const trackW = isSmall ? 34 : 42
@@ -67,11 +69,13 @@ export default function Switch({
           height: trackH,
           borderRadius: trackH,
           backgroundColor: checked
-            ? 'var(--switch-checked-bg, #1976d2)'
-            : 'var(--switch-unchecked-bg, rgba(0,0,0,0.25))',
+            ? theme.palette.primary.main
+            : theme.palette.action.disabled,
           transition: 'background-color 150ms ease',
           position: 'relative',
-          boxShadow: focused ? '0 0 0 3px rgba(26, 115, 232, 0.24)' : 'none',
+          boxShadow: focused
+            ? `0 0 0 3px ${theme.palette.primary.main}3d`
+            : 'none',
         }}
       >
         {/* Thumb */}

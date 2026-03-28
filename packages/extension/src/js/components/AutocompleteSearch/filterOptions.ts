@@ -3,6 +3,7 @@ import { matchSorter } from 'match-sorter'
 export type CommandOption = {
   name: string
   shortcut?: string | string[]
+  command: () => void
 }
 
 const COMMAND_KEYS = ['name', 'shortcut']

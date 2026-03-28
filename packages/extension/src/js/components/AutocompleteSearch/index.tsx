@@ -13,7 +13,7 @@ import Tab from 'stores/Tab'
 import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
 import { getNoun, openURL } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
-import { filterCommandOptions } from './filterOptions'
+import { filterCommandOptions, type CommandOption } from './filterOptions'
 import { useCombobox } from 'components/ui/Combobox'
 import { VariableSizeList } from 'react-window'
 import { useAppTheme } from 'libs/appTheme'
@@ -175,18 +175,16 @@ const getFilterOptions = (
   }
 }
 
-type SearchOption =
-  | HistoryItem
-  | Tab
-  | {
-      isDivider: boolean
-      dividerType: 'history' | 'group'
-      title: string
-      groupId?: number
-      color?: chrome.tabGroups.ColorEnum
-      matchCount?: number
-    }
-  | any // for commands
+type DividerOption = {
+  isDivider: boolean
+  dividerType: 'history' | 'group'
+  title: string
+  groupId?: number
+  color?: chrome.tabGroups.ColorEnum
+  matchCount?: number
+}
+
+type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
 
 const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
   if (tab.isDivider) {
@@ -240,7 +238,10 @@ const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
   )
 }
 
-const renderCommand = (command, state) => {
+const renderCommand = (
+  command: CommandOption,
+  state: { inputValue: string },
+) => {
   const { shortcut } = command
   const matches = match(command.name, state.inputValue.slice(1))
   const parts = parse(command.name, matches)
@@ -326,16 +327,16 @@ const AutocompleteSearch = observer((props: Props) => {
 
   const itemCount = filteredOptions.length
 
-  const handleSelect = (option: any) => {
+  const handleSelect = (option: SearchOption) => {
     if (!option || typeof option === 'string') return
-    if (option.isDivider) return
+    if ('isDivider' in option && option.isDivider) return
 
-    if (isCommand) {
+    if (isCommand && 'command' in option) {
       option.command()
     } else {
-      if (option.activate) {
+      if ('activate' in option && option.activate) {
         option.activate({ origin: 'search', reveal: true })
-      } else {
+      } else if ('url' in option) {
         openURL(option.url)
       }
     }
