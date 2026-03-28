@@ -163,6 +163,14 @@ describe('UserStore', () => {
     expect(settings.uiPreset).toBe('modern')
   })
 
+  it('should normalize invalid actionTabCountMode values back to off', () => {
+    const { settings } = stripLegacySettings({
+      actionTabCountMode: 'current-workspace',
+    })
+
+    expect(settings.actionTabCountMode).toBe('off')
+  })
+
   it('should remove legacy settings after normalization', async () => {
     const userStore = new UserStore({
       searchStore: {
@@ -223,6 +231,21 @@ describe('UserStore', () => {
     userStore.selectUiPreset('classic')
 
     expect(userStore.uiPreset).toBe('classic')
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
+  it('should persist action tab count mode selection', async () => {
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+    } as any)
+    await flush()
+    const save = jest.spyOn(userStore, 'save').mockImplementation(() => {})
+
+    userStore.selectActionTabCountMode('allWindows')
+
+    expect(userStore.actionTabCountMode).toBe('allWindows')
     expect(save).toHaveBeenCalledTimes(1)
   })
 })

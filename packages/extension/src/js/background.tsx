@@ -1,16 +1,9 @@
 import TabHistory from 'background/TabHistory'
+import TabCountIcon from 'background/TabCountIcon'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
 import { setBrowserIcon } from 'libs/verify'
-
-type StorageChangeMap = Record<
-  string,
-  {
-    oldValue?: unknown
-    newValue?: unknown
-  }
->
 
 const init = async () => {
   // Edge browser has this issue: https://github.com/GoogleChrome/chrome-extensions-samples/issues/541
@@ -28,20 +21,13 @@ const init = async () => {
     })
   }
 
-  browser.storage.onChanged.addListener(
-    (changes: StorageChangeMap, areaName: string) => {
-      if (areaName === 'local' && changes.systemTheme) {
-        setBrowserIcon()
-      }
-    },
-  )
-
   setBrowserIcon()
 }
 
 init()
 
 const tabHistory = new TabHistory()
+new TabCountIcon()
 const _createWindow = (request, sender, sendResponse) => {
   createWindow(request.tabs)
   sendResponse()

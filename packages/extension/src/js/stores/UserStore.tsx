@@ -1,5 +1,10 @@
 import { action, observable, computed, makeObservable } from 'mobx'
 import { browser } from 'libs'
+import {
+  DEFAULT_ACTION_TAB_COUNT_MODE,
+  normalizeActionTabCountMode,
+  type ActionTabCountMode,
+} from 'libs/actionTabCount'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import log from 'libs/log'
@@ -31,6 +36,7 @@ const DEFAULT_SETTINGS = {
   tabWidth: 20,
   showTabIcon: true,
   fontSize: 14,
+  actionTabCountMode: DEFAULT_ACTION_TAB_COUNT_MODE as ActionTabCountMode,
 }
 
 const LEGACY_SETTINGS = ['groupByDomain'] as const
@@ -47,6 +53,9 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
   ) {
     nextSettings.uiPreset = DEFAULT_SETTINGS.uiPreset
   }
+  nextSettings.actionTabCountMode = normalizeActionTabCountMode(
+    nextSettings.actionTabCountMode,
+  )
   const legacyKeys: string[] = []
 
   LEGACY_SETTINGS.forEach((key) => {
@@ -95,9 +104,11 @@ export default class UserStore {
       showTabIcon: observable,
       ignoreHash: observable,
       fontSize: observable,
+      actionTabCountMode: observable,
       theme: computed,
       selectTheme: action,
       selectUiPreset: action,
+      selectActionTabCountMode: action,
       selectNextTheme: action,
       openDialog: action,
       closeDialog: action,
@@ -227,6 +238,7 @@ export default class UserStore {
   tabWidth = 20
   fontSize = 14
   showTabIcon = true
+  actionTabCountMode: ActionTabCountMode = DEFAULT_ACTION_TAB_COUNT_MODE
   dialogOpen = false
   dialogFocusTarget: HTMLElement | null = null
   toolbarVisible = true
@@ -257,6 +269,11 @@ export default class UserStore {
 
   selectUiPreset = (uiPreset: UiPreset) => {
     this.uiPreset = uiPreset
+    this.save()
+  }
+
+  selectActionTabCountMode = (actionTabCountMode: ActionTabCountMode) => {
+    this.actionTabCountMode = actionTabCountMode
     this.save()
   }
 
