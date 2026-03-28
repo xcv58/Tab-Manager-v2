@@ -26,6 +26,7 @@ exports[`Tabs render correct components 1`] = `
               aria-label="Toggle select"
               class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 focus:outline-none focus:ring"
               style="width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 5px; color: rgba(71, 85, 105, 0.76); opacity: 1; transition-duration: 200ms;"
+              tabindex="-1"
               type="button"
             >
               <img
@@ -65,6 +66,7 @@ exports[`Tabs render correct components 1`] = `
         <button
           class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
           style="min-height: 30px;"
+          tabindex="-1"
         >
           <div
             class="w-full min-w-0 overflow-hidden truncate"
@@ -198,6 +200,7 @@ exports[`Tabs render correct components 1`] = `
               aria-label="Toggle select"
               class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 focus:outline-none focus:ring"
               style="width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 5px; color: rgba(71, 85, 105, 0.76); opacity: 1; transition-duration: 200ms;"
+              tabindex="-1"
               type="button"
             >
               <img
@@ -237,6 +240,7 @@ exports[`Tabs render correct components 1`] = `
         <button
           class="group flex flex-col justify-center flex-1 h-12 overflow-hidden text-left m-0 rounded-sm text-base"
           style="min-height: 30px;"
+          tabindex="-1"
         >
           <div
             class="w-full min-w-0 overflow-hidden truncate"
