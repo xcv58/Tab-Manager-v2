@@ -47,8 +47,12 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     toggleShowAppWindow: jest.fn(),
     showUnmatchedTab: false,
     toggleShowUnmatchedTab: jest.fn(),
+    autoFitColumns: false,
+    toggleAutoFitColumns: jest.fn(),
     litePopupMode: false,
     toggleLitePopupMode: jest.fn(),
+    actionTabCountMode: 'off',
+    selectActionTabCountMode: jest.fn(),
     showShortcutHint: false,
     toggleShowShortcutHint: jest.fn(),
     toolbarAutoHide: false,
@@ -137,5 +141,19 @@ describe('SettingsDialog', () => {
 
     expect(userStore.toggleAutoFocusSearch).toHaveBeenCalledTimes(1)
     expect(userStore.toggleLitePopupMode).toHaveBeenCalledTimes(1)
+  })
+
+  it('updates the extension icon count mode from the segmented control', () => {
+    const { userStore } = renderSettingsDialog()
+
+    fireEvent.click(
+      screen.getByRole('radio', {
+        name: 'Show extension icon count for window tabs',
+      }),
+    )
+
+    expect(userStore.selectActionTabCountMode).toHaveBeenCalledWith(
+      'currentWindow',
+    )
   })
 })

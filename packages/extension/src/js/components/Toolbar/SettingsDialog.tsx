@@ -4,6 +4,10 @@ import { browser } from 'libs'
 import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
 import Switch from 'components/ui/Switch'
 import { useStore } from 'components/hooks/useStore'
+import {
+  type ActionTabCountMode,
+  ACTION_TAB_COUNT_MODES,
+} from 'libs/actionTabCount'
 import Slider from 'components/ui/Slider'
 import IconButton from 'components/ui/IconButton'
 import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
@@ -137,6 +141,19 @@ const uiPresetOptions = [
     label: 'Classic',
   },
 ] as const
+
+const actionTabCountOptions: {
+  value: ActionTabCountMode
+  label: string
+}[] = ACTION_TAB_COUNT_MODES.map((value) => ({
+  value,
+  label:
+    value === 'currentWindow'
+      ? 'Window'
+      : value === 'allWindows'
+        ? 'All'
+        : 'Off',
+}))
 
 const DensityControl = ({
   title,
@@ -503,6 +520,8 @@ export default observer(() => {
     updateFontSize,
     showTabIcon,
     toggleShowTabIcon,
+    actionTabCountMode,
+    selectActionTabCountMode,
     uiPreset,
     selectUiPreset,
     theme,
@@ -748,6 +767,48 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 testId="settings-lite-popup-mode"
               />
+              <div
+                className="rounded-lg border px-3 py-3"
+                style={rowDetailOptionStyle}
+                data-testid="settings-action-tab-count-toggle-group"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <h5 style={controlTitleStyle}>Extension icon count</h5>
+                    <p style={controlDescriptionStyle}>
+                      Overlay the toolbar icon with a larger tab count for the
+                      current window or across all windows.
+                    </p>
+                  </div>
+                  <ToggleGroup
+                    value={actionTabCountMode}
+                    aria-label="Choose extension icon tab count mode"
+                    onChange={(nextMode) => {
+                      if (!nextMode) {
+                        return
+                      }
+                      selectActionTabCountMode(nextMode as ActionTabCountMode)
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {actionTabCountOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
+                        style={{
+                          minWidth: 54,
+                          ...(actionTabCountMode === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
               <SettingsSwitchOption
                 title="Auto-fit columns"
                 description="Avoid horizontal scrolling by fitting columns to the window."
