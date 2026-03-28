@@ -23,8 +23,8 @@ exports[`TabTools should render correct components 1`] = `
     >
       <button
         aria-label="Drag tab"
-        class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
-        style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1; cursor: move;"
+        class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
+        style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1; transition-duration: 200ms; cursor: move;"
         tabindex="-1"
         title="Drag tab"
         type="button"

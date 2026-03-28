@@ -25,8 +25,8 @@ exports[`SelectAll should render correct components 1`] = `
     style="width: 30px; height: 30px;"
   >
     <span
-      class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow] duration-150"
-      style="width: 30px; height: 30px; padding: 5px;"
+      class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow]"
+      style="width: 30px; height: 30px; padding: 5px; transition-duration: 200ms;"
     >
       <input
         aria-label="Unselect all tabs"

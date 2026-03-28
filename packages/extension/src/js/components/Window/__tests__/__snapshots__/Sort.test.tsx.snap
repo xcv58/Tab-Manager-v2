@@ -3,8 +3,8 @@
 exports[`Sort should call arrangeStore.sortTabs 1`] = `
 <button
   aria-label="Sort tabs"
-  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
-  style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
+  class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
+  style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1; transition-duration: 200ms;"
   type="button"
 >
   <svg
@@ -35,8 +35,8 @@ exports[`Sort should have correct tooltip 2`] = `
 <div>
   <button
     aria-label="Sort tabs"
-    class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
-    style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
+    class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 shrink-0 focus:outline-none focus:ring"
+    style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 3px; color: rgba(71, 85, 105, 0.76); opacity: 1; transition-duration: 200ms;"
     type="button"
   >
     <svg

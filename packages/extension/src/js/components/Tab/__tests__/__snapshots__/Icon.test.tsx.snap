@@ -11,8 +11,8 @@ exports[`Icon should render correct component 1`] = `
     >
       <button
         aria-label="Toggle select"
-        class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] duration-150 ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 focus:outline-none focus:ring"
-        style="width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 5px; color: rgba(71, 85, 105, 0.76); opacity: 1;"
+        class="inline-flex items-center justify-center rounded-full border-0 bg-transparent shrink-0 focus:outline-none focus:ring transition-[color,background-color,transform] ease-out active:scale-[0.97] disabled:active:scale-100 motion-reduce:transform-none motion-reduce:transition-none motion-reduce:active:scale-100 focus:outline-none focus:ring"
+        style="width: 30px; height: 30px; min-width: 30px; min-height: 30px; padding: 5px; color: rgba(71, 85, 105, 0.76); opacity: 1; transition-duration: 200ms;"
         type="button"
       >
         <img
@@ -26,8 +26,8 @@ exports[`Icon should render correct component 1`] = `
       class="absolute inset-0 flex items-center justify-center transition-opacity duration-150 pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100"
     >
       <span
-        class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow] duration-150"
-        style="width: 30px; height: 30px; padding: 5px;"
+        class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow]"
+        style="width: 30px; height: 30px; padding: 5px; transition-duration: 200ms;"
       >
         <input
           aria-label="Toggle select"
