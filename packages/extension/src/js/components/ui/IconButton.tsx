@@ -55,7 +55,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         ? colorStyles.activeBg
         : !disabled && interaction === 'hover'
           ? colorStyles.hoverBg
-          : 'transparent'
+          : undefined
 
     return (
       <button
