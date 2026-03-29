@@ -54,5 +54,12 @@ describe('ShortcutStore.stopCallback', () => {
         'escape',
       ),
     ).toBe(false)
+    expect(
+      shortcutStore.stopCallback(
+        new KeyboardEvent('keydown', { key: '?' }),
+        settingsButton as any,
+        '?',
+      ),
+    ).toBe(false)
   })
 })
