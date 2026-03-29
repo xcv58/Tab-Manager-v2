@@ -219,6 +219,9 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL)
     await page.evaluate(async () => {
       await chrome.storage.local.clear()
+      if (chrome.storage.sync?.clear) {
+        await chrome.storage.sync.clear()
+      }
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
@@ -536,6 +539,41 @@ test.describe('The Extension page should', () => {
     // Verify that the input field is cleared after command selection
     const inputValue = await searchInput.inputValue()
     expect(inputValue).toBe('')
+  })
+
+  test('keep command search interactive after selecting a non-navigating command', async () => {
+    await page.evaluate(async () => {
+      if (chrome.storage.sync?.set) {
+        await chrome.storage.sync.set({
+          litePopupMode: true,
+        })
+      }
+    })
+    await page.goto(extensionURL.replace('not_popup=1', ''))
+    await openPages(browserContext, LIGHTWEIGHT_URLS)
+    await page.bringToFront()
+    await page.reload()
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await searchInput.fill('>toggle settings')
+
+    const commandOption = page
+      .getByRole('option')
+      .filter({ hasText: 'Toggle Settings' })
+      .first()
+    await expect(commandOption).toBeVisible()
+
+    await searchInput.press('Enter')
+
+    await expect(page.getByRole('dialog')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(searchInput).toHaveValue('')
+    await expect(page.getByRole('option').first()).toBeVisible()
   })
 
   test('command search should match regardless of word order', async () => {

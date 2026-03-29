@@ -19,6 +19,51 @@ let extensionURL: string
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
 
+type ActiveElementState = {
+  testId: string
+  ariaLabel: string
+  tagName: string
+  type: string
+  rowTestId: string
+}
+
+const readActiveElementState = async (
+  page: Page,
+): Promise<ActiveElementState> =>
+  await page.evaluate(() => {
+    const node = document.activeElement as HTMLElement | null
+    const row = node?.closest('[data-testid^="tab-row-"]')
+    return {
+      testId: node?.getAttribute('data-testid') || '',
+      ariaLabel: node?.getAttribute('aria-label') || '',
+      tagName: node?.tagName || '',
+      type: node?.getAttribute('type') || '',
+      rowTestId: row?.getAttribute('data-testid') || '',
+    }
+  })
+
+const pressTabUntil = async (
+  page: Page,
+  predicate: (state: ActiveElementState) => boolean,
+  { maxSteps = 40 }: { maxSteps?: number } = {},
+) => {
+  let state = await readActiveElementState(page)
+  if (predicate(state)) {
+    return state
+  }
+
+  for (let index = 0; index < maxSteps; index += 1) {
+    await page.keyboard.press('Tab')
+    await page.waitForTimeout(50)
+    state = await readActiveElementState(page)
+    if (predicate(state)) {
+      return state
+    }
+  }
+
+  throw new Error('Unable to focus requested control by Tab navigation')
+}
+
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
@@ -409,6 +454,113 @@ test.describe('The Extension page should', () => {
           : null
       })
       .toContain('Alpha Guide')
+  })
+
+  test('handoff focus from search to the tab workflow on Tab', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await searchInput.fill('next')
+    await page.waitForTimeout(700)
+    await expect(page.getByRole('option').first()).toBeVisible()
+
+    const firstVisibleRowTestId = await page.evaluate(() => {
+      return (
+        document
+          .querySelector<HTMLElement>('[data-testid^="tab-row-"]')
+          ?.getAttribute('data-testid') || ''
+      )
+    })
+    expect(firstVisibleRowTestId).not.toBe('')
+
+    await page.keyboard.press('Tab')
+    await page.waitForTimeout(50)
+
+    const firstTabState = await readActiveElementState(page)
+    expect(firstTabState.tagName).not.toBe('BODY')
+
+    const rowWorkflowState = await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Toggle select' &&
+        state.tagName === 'INPUT' &&
+        state.type === 'checkbox',
+      { maxSteps: 20 },
+    )
+    expect(rowWorkflowState).toMatchObject({
+      ariaLabel: 'Toggle select',
+      tagName: 'INPUT',
+      type: 'checkbox',
+      rowTestId: firstVisibleRowTestId,
+    })
+  })
+
+  test('clear search and preserve subsequent keyboard navigation on Escape', async () => {
+    await openPages(browserContext, URLS)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await searchInput.fill('pin')
+    await page.waitForTimeout(700)
+    await expect(page.getByRole('option').first()).toBeVisible()
+
+    const firstVisibleRowTestId = await page.evaluate(() => {
+      return (
+        document
+          .querySelector<HTMLElement>('[data-testid^="tab-row-"]')
+          ?.getAttribute('data-testid') || ''
+      )
+    })
+    expect(firstVisibleRowTestId).not.toBe('')
+
+    await searchInput.press('Escape')
+
+    await expect(searchInput).toHaveValue('')
+    await expect
+      .poll(
+        async () =>
+          (await searchInput.getAttribute('aria-activedescendant')) || '',
+      )
+      .toBe('')
+
+    const firstVisibleRowTestIdAfterEscape = await page.evaluate(() => {
+      return (
+        document
+          .querySelector<HTMLElement>('[data-testid^="tab-row-"]')
+          ?.getAttribute('data-testid') || ''
+      )
+    })
+    expect(firstVisibleRowTestIdAfterEscape).not.toBe('')
+
+    await page.keyboard.press('Tab')
+    await page.waitForTimeout(50)
+    expect((await readActiveElementState(page)).tagName).not.toBe('BODY')
+
+    const rowWorkflowState = await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Toggle select' &&
+        state.tagName === 'INPUT' &&
+        state.type === 'checkbox',
+      { maxSteps: 20 },
+    )
+    expect(rowWorkflowState).toMatchObject({
+      ariaLabel: 'Toggle select',
+      tagName: 'INPUT',
+      type: 'checkbox',
+      rowTestId: firstVisibleRowTestIdAfterEscape,
+    })
   })
 
   test('support search browser history', async () => {

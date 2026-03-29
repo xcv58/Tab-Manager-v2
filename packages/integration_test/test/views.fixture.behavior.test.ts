@@ -30,10 +30,21 @@ type ActiveElementState = {
   checked: boolean | null
 }
 
+type CurrentWindowTabState = {
+  id: number
+  url: string
+}
+
 const readFocusedTestId = async (page: Page) =>
   await page.evaluate(
     () => document.activeElement?.getAttribute('data-testid') || '',
   )
+
+const readFocusedRowTestId = async (page: Page) =>
+  await page.evaluate(() => {
+    const row = document.activeElement?.closest('[data-testid^="tab-row-"]')
+    return row?.getAttribute('data-testid') || ''
+  })
 
 const readActiveElementState = async (
   page: Page,
@@ -68,6 +79,23 @@ const readSelectedCountState = async (page: Page) =>
       )?.textContent || ''
     const match = text.match(/,\s*(\d+)\s+tabs?\s+selected/i)
     return match ? Number(match[1]) : -1
+  })
+
+const getVisibleRowTabs = async (
+  page: Page,
+): Promise<CurrentWindowTabState[]> =>
+  await page.evaluate(async () => {
+    const rowIds = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid^="tab-row-"]'),
+    )
+      .map((node) => Number(node.dataset.testid?.replace('tab-row-', '')))
+      .filter((id) => Number.isFinite(id) && id > -1)
+
+    const tabs = await Promise.all(rowIds.map((id) => chrome.tabs.get(id)))
+    return tabs.map((tab) => ({
+      id: tab.id ?? -1,
+      url: tab.url || '',
+    }))
   })
 
 const focusByKeyboardUntil = async (
@@ -462,6 +490,95 @@ test.describe('The Extension page should', () => {
       ariaLabel: 'Close',
       tagName: 'BUTTON',
     })
+    await page.keyboard.press('Space')
+
+    await expect(page.getByTestId(`tab-row-${targetTabId}`)).toHaveCount(0)
+    await expect
+      .poll(async () => {
+        return await page.evaluate(async (tabId) => {
+          const tabs = await chrome.tabs.query({ currentWindow: true })
+          return tabs.some((tab) => tab.id === tabId)
+        }, targetTabId)
+      })
+      .toBe(false)
+  })
+
+  test('restore focus to the next row after keyboard-only close', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const orderedTabs = await getVisibleRowTabs(page)
+    const targetIndex = orderedTabs.findIndex(
+      (tab) => tab.url === fixtureUrls.nextjs,
+    )
+    const targetTabId = orderedTabs[targetIndex]?.id ?? -1
+    const nextTabId = orderedTabs[targetIndex + 1]?.id ?? -1
+
+    expect(targetIndex).toBeGreaterThan(-1)
+    expect(targetTabId).toBeGreaterThan(-1)
+    expect(nextTabId).toBeGreaterThan(-1)
+
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+
+    await pressTabAndReadState(page)
+    await pressTabAndReadState(page)
+    const closeState = await pressTabAndReadState(page)
+    expect(closeState).toMatchObject({
+      ariaLabel: 'Close',
+      tagName: 'BUTTON',
+    })
+    await page.keyboard.press('Space')
+
+    await expect(page.getByTestId(`tab-row-${targetTabId}`)).toHaveCount(0)
+    await expect
+      .poll(async () => {
+        return await page.evaluate(async (tabId) => {
+          const tabs = await chrome.tabs.query({ currentWindow: true })
+          return tabs.some((tab) => tab.id === tabId)
+        }, targetTabId)
+      })
+      .toBe(false)
+    await expect
+      .poll(() => readFocusedRowTestId(page))
+      .toBe(`tab-row-${nextTabId}`)
+  })
+
+  test('restore focus to the previous row when closing the last row by keyboard', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const orderedTabs = await getVisibleRowTabs(page)
+    const targetIndex = orderedTabs.findIndex(
+      (tab) => tab.url === fixtureUrls.opsClass,
+    )
+    const targetTabId = orderedTabs[targetIndex]?.id ?? -1
+    const previousTabId = orderedTabs[targetIndex - 1]?.id ?? -1
+
+    expect(targetIndex).toBeGreaterThan(0)
+    expect(targetTabId).toBeGreaterThan(-1)
+    expect(previousTabId).toBeGreaterThan(-1)
+
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+
+    await pressTabAndReadState(page)
+    await pressTabAndReadState(page)
+    const closeState = await pressTabAndReadState(page)
+    expect(closeState).toMatchObject({
+      ariaLabel: 'Close',
+      tagName: 'BUTTON',
+    })
 
     await page.keyboard.press('Space')
 
@@ -474,6 +591,9 @@ test.describe('The Extension page should', () => {
         }, targetTabId)
       })
       .toBe(false)
+    await expect
+      .poll(() => readFocusedRowTestId(page))
+      .toBe(`tab-row-${previousTabId}`)
   })
 
   test('support keyboard-only tab menu navigation, activation, and focus restore', async () => {
@@ -571,5 +691,64 @@ test.describe('The Extension page should', () => {
         ariaLabel: 'Tab actions',
         tagName: 'BUTTON',
       })
+  })
+
+  test('support keyboard-only closing from the tab menu close action', async () => {
+    await openPages(browserContext, fixtureUrls.all)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const orderedTabs = await getVisibleRowTabs(page)
+    const targetIndex = orderedTabs.findIndex(
+      (tab) => tab.url === fixtureUrls.pinboard,
+    )
+    const targetTabId = orderedTabs[targetIndex]?.id ?? -1
+    const fallbackFocusTabId =
+      orderedTabs[targetIndex + 1]?.id ?? orderedTabs[targetIndex - 1]?.id ?? -1
+
+    expect(targetIndex).toBeGreaterThan(-1)
+    expect(targetTabId).toBeGreaterThan(-1)
+    expect(fallbackFocusTabId).toBeGreaterThan(-1)
+
+    await waitForTestId(page, `tab-row-${targetTabId}`)
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId === `tab-row-${targetTabId}`,
+      60,
+    )
+    await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Tab actions' &&
+        state.tagName === 'BUTTON' &&
+        state.testId === `tab-menu-${targetTabId}`,
+      { maxSteps: 20 },
+    )
+
+    await page.keyboard.press('Space')
+    await expect(page.getByRole('menu')).toHaveCount(1)
+    await page.keyboard.press('ArrowDown')
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        role: 'menuitem',
+        text: 'Close',
+      })
+
+    await page.keyboard.press('Space')
+
+    await expect(page.getByRole('menu')).toHaveCount(0)
+    await expect(page.getByTestId(`tab-row-${targetTabId}`)).toHaveCount(0)
+    await expect
+      .poll(async () => {
+        return await page.evaluate(async (tabId) => {
+          const tabs = await chrome.tabs.query({ currentWindow: true })
+          return tabs.some((tab) => tab.id === tabId)
+        }, targetTabId)
+      })
+      .toBe(false)
+    await expect
+      .poll(() => readFocusedRowTestId(page))
+      .toBe(`tab-row-${fallbackFocusTabId}`)
   })
 })

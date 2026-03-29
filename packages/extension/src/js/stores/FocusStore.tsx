@@ -254,6 +254,10 @@ export default class FocusStore {
     return { grid, columnIndex, targetColumn: grid[columnIndex] }
   }
 
+  getColumnItems = (focusedItem: Focusable) => {
+    return this._getGrid(focusedItem).targetColumn || []
+  }
+
   _moveVertically = (direction: number, side = false) => {
     const { focusedItem } = this
     log.debug('_moveVertically:', { direction, side, focusedItem })

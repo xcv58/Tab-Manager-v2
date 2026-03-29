@@ -17,6 +17,7 @@ import ContainerStore from './ContainerStore'
 import Tab from './Tab'
 import TabGroupRow from './TabGroupRow'
 import Window from './Window'
+import Focusable from './Focusable'
 
 export default class Store {
   windowStore: WindowStore
@@ -68,22 +69,76 @@ export default class Store {
   }
 
   remove = () => {
-    const { down, focusedItem } = this.focusStore
     let tabsToRemove: Tab[] = []
     if (this.tabStore.selection.size > 0) {
       tabsToRemove = this.tabStore.sources
     } else {
       tabsToRemove = this._getFocusedOrSelectedTab()
     }
-    while (this._isFocusedItemAffectedByTabs(tabsToRemove)) {
-      down()
-      if (focusedItem === this.focusStore.focusedItem) {
-        this.focusStore.defocus()
-        break
+    const nextFocusedItem = this.prepareFocusForRemovedTabs(tabsToRemove)
+    this.tabStore.unselectAll()
+    tabsToRemove.forEach((x) => x.remove({ preserveFocus: false }))
+    this.restoreDomFocusAfterRemoval(nextFocusedItem)
+  }
+
+  prepareFocusForRemovedTabs = (tabsToRemove: Tab[]) => {
+    const initialFocusedItem = this.focusStore.focusedItem
+    if (!this._isItemAffectedByTabs(initialFocusedItem, tabsToRemove)) {
+      return null
+    }
+
+    const columnItems = this.focusStore.getColumnItems(initialFocusedItem)
+    const focusedIndex = columnItems.findIndex(
+      (item) => item === initialFocusedItem,
+    )
+    if (focusedIndex === -1) {
+      this.focusStore.defocus()
+      return null
+    }
+
+    const nextFocusedItem =
+      columnItems
+        .slice(focusedIndex + 1)
+        .find((item) => !this._isItemAffectedByTabs(item, tabsToRemove)) ||
+      columnItems
+        .slice(0, focusedIndex)
+        .reverse()
+        .find((item) => !this._isItemAffectedByTabs(item, tabsToRemove)) ||
+      null
+
+    if (!nextFocusedItem) {
+      this.focusStore.defocus()
+      return null
+    }
+
+    this.focusStore.focus(nextFocusedItem, {
+      origin: 'keyboard',
+      reveal: true,
+      moveDomFocus: false,
+    })
+    return nextFocusedItem
+  }
+
+  restoreDomFocusAfterRemoval = (item: Focusable | null) => {
+    if (!item || typeof window === 'undefined') {
+      return
+    }
+    const restoreWhenReady = (attempt = 0) => {
+      if (this.focusStore.focusedItem === item) {
+        if (!item.nodeRef?.current) {
+          if (attempt < 10) {
+            window.requestAnimationFrame(() => restoreWhenReady(attempt + 1))
+          }
+          return
+        }
+        this.focusStore.focus(item, {
+          origin: 'keyboard',
+          moveDomFocus: true,
+          reveal: true,
+        })
       }
     }
-    this.tabStore.unselectAll()
-    tabsToRemove.forEach((x) => x.remove())
+    window.requestAnimationFrame(() => restoreWhenReady())
   }
 
   reload = () => {
@@ -141,19 +196,18 @@ export default class Store {
     return []
   }
 
-  _isFocusedItemAffectedByTabs = (tabs: Tab[]) => {
-    const { focusedItem } = this.focusStore
-    if (!focusedItem || !tabs.length) {
+  _isItemAffectedByTabs = (item: Focusable | null, tabs: Tab[]) => {
+    if (!item || !tabs.length) {
       return false
     }
     const tabIds = new Set(tabs.map((tab) => tab.id))
-    if (focusedItem instanceof Tab) {
-      return tabIds.has(focusedItem.id)
+    if (item instanceof Tab) {
+      return tabIds.has(item.id)
     }
-    if (focusedItem instanceof TabGroupRow) {
+    if (item instanceof TabGroupRow) {
       const groupTabIds = new Set(
         this.tabGroupStore
-          ?.getTabsForGroup?.(focusedItem.groupId)
+          ?.getTabsForGroup?.(item.groupId)
           ?.map((tab) => tab.id) || [],
       )
       return (
@@ -162,6 +216,10 @@ export default class Store {
       )
     }
     return false
+  }
+
+  _isFocusedItemAffectedByTabs = (tabs: Tab[]) => {
+    return this._isItemAffectedByTabs(this.focusStore.focusedItem, tabs)
   }
 
   copyTabsInfo = async ({ includeTitle = false, delimiter = '\n' } = {}) => {

@@ -46,6 +46,11 @@ const readActiveElementState = async (
     }
   })
 
+const isActiveElementInsideDialog = async (page: Page) =>
+  await page.evaluate(() => {
+    return Boolean(document.activeElement?.closest('[role="dialog"]'))
+  })
+
 const pressTabUntil = async (
   page: Page,
   predicate: (state: ActiveElementState) => boolean,
@@ -187,6 +192,70 @@ test.describe('The Extension page should', () => {
         return settings.fontSize
       })
       .toBe(15)
+
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        ariaLabel: 'Settings',
+        tagName: 'BUTTON',
+      })
+  })
+
+  test('trap focus inside the settings dialog and restore the opener', async () => {
+    await page.bringToFront()
+
+    await pressTabUntil(
+      page,
+      (state) => state.ariaLabel === 'Settings' && state.tagName === 'BUTTON',
+      { maxSteps: 20 },
+    )
+    await page.keyboard.press('Space')
+
+    const settingsDialog = page.getByRole('dialog').first()
+    await expect(settingsDialog).toBeVisible()
+
+    const firstControl = await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Preserve search' &&
+        state.tagName === 'INPUT' &&
+        state.type === 'checkbox',
+      { maxSteps: 20 },
+    )
+    expect(firstControl).toMatchObject({
+      ariaLabel: 'Preserve search',
+      tagName: 'INPUT',
+      type: 'checkbox',
+    })
+
+    await page.keyboard.press('Shift+Tab')
+    await page.waitForTimeout(50)
+    await expect.poll(() => isActiveElementInsideDialog(page)).toBe(true)
+    expect(await readActiveElementState(page)).not.toMatchObject({
+      ariaLabel: 'Settings',
+      tagName: 'BUTTON',
+    })
+
+    let wrappedToFirstControl = false
+    for (let index = 0; index < 40; index += 1) {
+      await page.keyboard.press('Tab')
+      await page.waitForTimeout(50)
+      await expect.poll(() => isActiveElementInsideDialog(page)).toBe(true)
+
+      const state = await readActiveElementState(page)
+      if (
+        state.ariaLabel === 'Preserve search' &&
+        state.tagName === 'INPUT' &&
+        state.type === 'checkbox'
+      ) {
+        wrappedToFirstControl = true
+        break
+      }
+    }
+
+    expect(wrappedToFirstControl).toBe(true)
 
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog')).toHaveCount(0)
