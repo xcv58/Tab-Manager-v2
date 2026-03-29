@@ -504,6 +504,9 @@ export default class ShortcutStore {
     if (this.dialogOpen) {
       return combo !== 'escape'
     }
+    if (this.store.userStore?.dialogOpen) {
+      return combo !== 'escape'
+    }
     if (this.inputShortcutSet.has(combo)) {
       return false
     }

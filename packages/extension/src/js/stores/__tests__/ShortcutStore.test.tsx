@@ -33,4 +33,26 @@ describe('ShortcutStore.stopCallback', () => {
       ),
     ).toBe(false)
   })
+
+  it('suppresses global shortcuts while the settings dialog is open', () => {
+    const shortcutStore = new ShortcutStore({
+      userStore: { dialogOpen: true },
+    } as any)
+    const settingsButton = document.createElement('button')
+
+    expect(
+      shortcutStore.stopCallback(
+        new KeyboardEvent('keydown', { key: 'ArrowDown' }),
+        settingsButton as any,
+        'down',
+      ),
+    ).toBe(true)
+    expect(
+      shortcutStore.stopCallback(
+        new KeyboardEvent('keydown', { key: 'Escape' }),
+        settingsButton as any,
+        'escape',
+      ),
+    ).toBe(false)
+  })
 })

@@ -4,6 +4,7 @@ import {
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
+  openPages,
   waitForDefaultExtensionView,
 } from '../util'
 
@@ -50,6 +51,31 @@ const isActiveElementInsideDialog = async (page: Page) =>
   await page.evaluate(() => {
     return Boolean(document.activeElement?.closest('[role="dialog"]'))
   })
+
+const readVisuallyFocusedRowTestId = async (page: Page) =>
+  await page.evaluate(() => {
+    return (
+      document
+        .querySelector<HTMLElement>('[data-testid^="tab-row-"].z-10')
+        ?.getAttribute('data-testid') || ''
+    )
+  })
+
+const focusRowByKeyboardUntil = async (
+  page: Page,
+  expectedRowTestId: string,
+  maxSteps = 40,
+) => {
+  for (let index = 0; index < maxSteps; index += 1) {
+    if ((await readVisuallyFocusedRowTestId(page)) === expectedRowTestId) {
+      return
+    }
+    await page.keyboard.press('j')
+    await page.waitForTimeout(50)
+  }
+
+  throw new Error(`Unable to focus requested row: ${expectedRowTestId}`)
+}
 
 const pressTabUntil = async (
   page: Page,
@@ -298,5 +324,51 @@ test.describe('The Extension page should', () => {
         tagName: 'INPUT',
         type: 'checkbox',
       })
+  })
+
+  test('keep background row focus unchanged while arrowing inside settings controls', async () => {
+    await openPages(browserContext, [
+      'data:text/html,<title>Settings Focus A</title><h1>Settings Focus A</h1>',
+      'data:text/html,<title>Settings Focus B</title><h1>Settings Focus B</h1>',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const rowTestIds = await page.evaluate(() => {
+      return Array.from(
+        document.querySelectorAll<HTMLElement>('[data-testid^="tab-row-"]'),
+      ).map((node) => node.dataset.testid || '')
+    })
+
+    expect(rowTestIds.length).toBeGreaterThan(1)
+
+    const targetRowTestId = rowTestIds[0]
+    await focusRowByKeyboardUntil(page, targetRowTestId, rowTestIds.length + 4)
+    await expect
+      .poll(() => readVisuallyFocusedRowTestId(page))
+      .toBe(targetRowTestId)
+
+    await page.keyboard.press('Control+,')
+    await expect(page.getByRole('dialog')).toHaveCount(1)
+
+    await pressTabUntil(
+      page,
+      (state) =>
+        /^Show extension icon count for .* tabs$/.test(state.ariaLabel) &&
+        state.role === 'radio' &&
+        state.tagName === 'BUTTON',
+      { maxSteps: 80 },
+    )
+
+    await page.keyboard.press('ArrowRight')
+
+    await expect(
+      page.getByRole('radio', {
+        name: 'Show extension icon count for window tabs',
+      }),
+    ).toHaveAttribute('aria-checked', 'true')
+    await expect
+      .poll(() => readVisuallyFocusedRowTestId(page))
+      .toBe(targetRowTestId)
   })
 })
