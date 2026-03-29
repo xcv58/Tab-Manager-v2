@@ -596,6 +596,111 @@ test.describe('The Extension page should', () => {
       .toBe(`tab-row-${previousTabId}`)
   })
 
+  test('restore focus to another column when keyboard-closing the final row in a column', async () => {
+    const targetUrl = `${fixtureServer.baseUrl}/cross-column-target?title=${encodeURIComponent(
+      'Cross Column Target',
+    )}`
+    const fallbackUrl = `${fixtureServer.baseUrl}/cross-column-fallback?title=${encodeURIComponent(
+      'Cross Column Fallback',
+    )}`
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        autoFitColumns: true,
+      })
+    })
+    await page.reload()
+    await waitForDefaultExtensionView(page)
+
+    const setup = await page.evaluate(
+      async ({ targetUrl, fallbackUrl }) => {
+        const createWindowWithUrl = async (url: string) => {
+          const win = await chrome.windows.create({
+            url,
+            focused: false,
+          })
+          const windowId = win.id ?? -1
+          if (windowId === -1) {
+            return { windowId, tabId: -1 }
+          }
+          const tabs = await chrome.tabs.query({ windowId })
+          const tabId = tabs[0]?.id ?? -1
+          return { windowId, tabId }
+        }
+
+        return {
+          target: await createWindowWithUrl(targetUrl),
+          fallback: await createWindowWithUrl(fallbackUrl),
+        }
+      },
+      { targetUrl, fallbackUrl },
+    )
+
+    expect(setup.target.tabId).toBeGreaterThan(-1)
+    expect(setup.fallback.tabId).toBeGreaterThan(-1)
+
+    await page.reload()
+    await waitForTestId(page, `tab-row-${setup.target.tabId}`)
+    await waitForTestId(page, `tab-row-${setup.fallback.tabId}`)
+
+    const rowPositions = await page.evaluate(
+      ({ targetTabId, fallbackTabId }) => {
+        const getLeft = (tabId: number) =>
+          document
+            .querySelector<HTMLElement>(`[data-testid="tab-row-${tabId}"]`)
+            ?.getBoundingClientRect().left ?? -1
+
+        return {
+          targetLeft: getLeft(targetTabId),
+          fallbackLeft: getLeft(fallbackTabId),
+        }
+      },
+      {
+        targetTabId: setup.target.tabId,
+        fallbackTabId: setup.fallback.tabId,
+      },
+    )
+
+    expect(rowPositions.targetLeft).toBeGreaterThan(-1)
+    expect(rowPositions.fallbackLeft).toBeGreaterThan(-1)
+    expect(rowPositions.targetLeft).not.toBe(rowPositions.fallbackLeft)
+
+    await page.keyboard.press('j')
+    await expect.poll(() => readFocusedRowTestId(page)).not.toBe('')
+
+    const initiallyFocusedRow = await readFocusedRowTestId(page)
+    if (initiallyFocusedRow !== `tab-row-${setup.target.tabId}`) {
+      const currentLeft = await page.evaluate(() => {
+        const row = document.activeElement?.closest('[data-testid^="tab-row-"]')
+        return row?.getBoundingClientRect().left ?? -1
+      })
+
+      await page.keyboard.press(
+        currentLeft < rowPositions.targetLeft ? 'l' : 'h',
+      )
+      await expect
+        .poll(() => readFocusedRowTestId(page))
+        .toBe(`tab-row-${setup.target.tabId}`)
+    }
+
+    await pressTabAndReadState(page)
+    await pressTabAndReadState(page)
+    const closeState = await pressTabAndReadState(page)
+    expect(closeState).toMatchObject({
+      ariaLabel: 'Close',
+      tagName: 'BUTTON',
+    })
+
+    await page.keyboard.press('Space')
+
+    await expect(page.getByTestId(`tab-row-${setup.target.tabId}`)).toHaveCount(
+      0,
+    )
+    await expect
+      .poll(() => readFocusedRowTestId(page))
+      .toBe(`tab-row-${setup.fallback.tabId}`)
+  })
+
   test('support keyboard-only tab menu navigation, activation, and focus restore', async () => {
     await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()

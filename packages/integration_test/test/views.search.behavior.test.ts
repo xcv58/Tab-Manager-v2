@@ -563,6 +563,41 @@ test.describe('The Extension page should', () => {
     })
   })
 
+  test('keep search open during non-option popup interaction', async () => {
+    const urls = Array.from(
+      { length: 22 },
+      (_, index) =>
+        `data:text/html,<title>Doc%20${index}</title><h1>Doc%20${index}</h1>`,
+    )
+
+    await openPages(browserContext, urls)
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await expect(searchInput).toBeVisible()
+    await searchInput.click()
+    await searchInput.fill('Doc')
+    await page.waitForTimeout(700)
+
+    const listbox = page.locator('[role="listbox"]')
+    await expect(listbox).toBeVisible()
+
+    const box = await listbox.boundingBox()
+    if (!box) {
+      throw new Error('Missing listbox bounds for popup interaction test')
+    }
+
+    await page.mouse.click(box.x + box.width / 2, box.y + 2)
+    await page.waitForTimeout(300)
+
+    await expect(searchInput).toBeFocused()
+    await expect(searchInput).toHaveAttribute('aria-expanded', 'true')
+    await expect(listbox).toBeVisible()
+  })
+
   test('support search browser history', async () => {
     await expect(page.locator(WINDOW_CARD_QUERY)).toHaveCount(1)
     await expect(page.locator(TAB_QUERY)).toHaveCount(1)

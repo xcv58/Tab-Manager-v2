@@ -29,9 +29,13 @@ export function useCombobox<T>({
   const comboboxId = useId()
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1)
   const listRef = useRef<VirtualListRef | null>(null)
+  const rootRef = useRef<HTMLElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const isOpenRef = useRef(isOpen)
   const previousInputValueRef = useRef(inputValue)
   const previousIsOpenRef = useRef(isOpen)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const preserveBlurFocusRef = useRef(false)
   const getItemId = useCallback(
     (index: number) => `${comboboxId}-item-${index}`,
     [comboboxId],
@@ -97,6 +101,10 @@ export function useCombobox<T>({
   ])
 
   useEffect(() => {
+    isOpenRef.current = isOpen
+  }, [isOpen])
+
+  useEffect(() => {
     return () => {
       if (blurTimeoutRef.current != null) {
         clearTimeout(blurTimeoutRef.current)
@@ -137,11 +145,24 @@ export function useCombobox<T>({
     [getItemId, items, isItemDisabled, highlightedIndex],
   )
 
+  const preservePopupInteraction = useCallback((target: EventTarget | null) => {
+    const element = target as HTMLElement | null
+    if (!element) {
+      return false
+    }
+
+    preserveBlurFocusRef.current =
+      isOpenRef.current && element.closest('[role="option"]') == null
+
+    return preserveBlurFocusRef.current
+  }, [])
+
   const getRootProps = () => ({
-    // Container props if needed
+    ref: rootRef,
   })
 
   const getInputProps = () => ({
+    ref: inputRef,
     value: inputValue,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
       onInputValueChange(e.target.value)
@@ -199,6 +220,17 @@ export function useCombobox<T>({
       }
       blurTimeoutRef.current = setTimeout(() => {
         blurTimeoutRef.current = null
+        if (preserveBlurFocusRef.current) {
+          preserveBlurFocusRef.current = false
+          if (isOpenRef.current) {
+            inputRef.current?.focus({ preventScroll: true })
+            return
+          }
+        }
+        const activeElement = document.activeElement as HTMLElement | null
+        if (activeElement && rootRef.current?.contains(activeElement)) {
+          return
+        }
         if (onOpenChange) onOpenChange(false)
       }, 150)
     },
@@ -212,6 +244,16 @@ export function useCombobox<T>({
   const getListboxProps = () => ({
     role: 'listbox',
     id: listboxId,
+    onPointerDownCapture: (event: React.PointerEvent<HTMLElement>) => {
+      if (preservePopupInteraction(event.target)) {
+        event.preventDefault()
+      }
+    },
+    onMouseDownCapture: (event: React.MouseEvent<HTMLElement>) => {
+      if (preservePopupInteraction(event.target)) {
+        event.preventDefault()
+      }
+    },
   })
 
   const getItemProps = ({ index, item }: { index: number; item: T }) => {

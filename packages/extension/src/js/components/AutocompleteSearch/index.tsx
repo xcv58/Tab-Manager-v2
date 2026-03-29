@@ -355,6 +355,7 @@ const AutocompleteSearch = observer((props: Props) => {
   const {
     highlightedIndex,
     listRef,
+    getRootProps,
     getInputProps,
     getListboxProps,
     getItemProps,
@@ -369,6 +370,7 @@ const AutocompleteSearch = observer((props: Props) => {
   })
 
   const inputProps = getInputProps()
+  const rootProps = getRootProps()
   const listboxProps = getListboxProps()
 
   useEffect(() => {
@@ -440,7 +442,15 @@ const AutocompleteSearch = observer((props: Props) => {
 
   return (
     <div
-      ref={rootRef}
+      {...rootProps}
+      ref={(node) => {
+        rootRef.current = node
+        if (typeof rootProps.ref === 'function') {
+          rootProps.ref(node)
+        } else if (rootProps.ref) {
+          rootProps.ref.current = node
+        }
+      }}
       style={{ position: 'relative', flex: '1 1 0%', minWidth: 0 }}
     >
       {/* Input Field */}
@@ -461,7 +471,14 @@ const AutocompleteSearch = observer((props: Props) => {
         }}
       >
         <input
-          ref={searchInputRef}
+          ref={(node) => {
+            searchInputRef.current = node
+            if (typeof inputProps.ref === 'function') {
+              inputProps.ref(node)
+            } else if (inputProps.ref) {
+              inputProps.ref.current = node
+            }
+          }}
           type="text"
           value={inputProps.value}
           onChange={inputProps.onChange}

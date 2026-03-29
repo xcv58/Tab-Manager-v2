@@ -87,7 +87,11 @@ export default class Store {
       return null
     }
 
-    const columnItems = this.focusStore.getColumnItems(initialFocusedItem)
+    const {
+      grid,
+      columnIndex,
+      targetColumn: columnItems,
+    } = this.focusStore.getGridState(initialFocusedItem)
     const focusedIndex = columnItems.findIndex(
       (item) => item === initialFocusedItem,
     )
@@ -104,6 +108,12 @@ export default class Store {
         .slice(0, focusedIndex)
         .reverse()
         .find((item) => !this._isItemAffectedByTabs(item, tabsToRemove)) ||
+      this._findNextFocusableItemInOtherColumns(
+        grid,
+        columnIndex,
+        initialFocusedItem,
+        tabsToRemove,
+      ) ||
       null
 
     if (!nextFocusedItem) {
@@ -117,6 +127,55 @@ export default class Store {
       moveDomFocus: false,
     })
     return nextFocusedItem
+  }
+
+  _findNextFocusableItemInOtherColumns = (
+    grid: Focusable[][],
+    currentColumnIndex: number,
+    focusedItem: Focusable,
+    tabsToRemove: Tab[],
+  ) => {
+    const baseTop = this.windowStore.getItemLayout(focusedItem)?.top ?? 0
+    const getBestItemForColumn = (column: Focusable[]) => {
+      let bestItem: Focusable | null = null
+      let bestDistance = Number.POSITIVE_INFINITY
+
+      for (const item of column) {
+        if (this._isItemAffectedByTabs(item, tabsToRemove)) {
+          continue
+        }
+        const top = this.windowStore.getItemLayout(item)?.top ?? baseTop
+        const distance = Math.abs(top - baseTop)
+        if (distance < bestDistance) {
+          bestItem = item
+          bestDistance = distance
+        }
+      }
+
+      return bestItem
+    }
+
+    for (let offset = 1; offset < grid.length; offset += 1) {
+      const rightColumn = grid[currentColumnIndex + offset]
+      const rightItem =
+        rightColumn && rightColumn.length
+          ? getBestItemForColumn(rightColumn)
+          : null
+      if (rightItem) {
+        return rightItem
+      }
+
+      const leftColumn = grid[currentColumnIndex - offset]
+      const leftItem =
+        leftColumn && leftColumn.length
+          ? getBestItemForColumn(leftColumn)
+          : null
+      if (leftItem) {
+        return leftItem
+      }
+    }
+
+    return null
   }
 
   restoreDomFocusAfterRemoval = (item: Focusable | null) => {
