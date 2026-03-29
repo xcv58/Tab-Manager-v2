@@ -6,6 +6,7 @@ export interface CheckboxProps {
   checked?: boolean
   indeterminate?: boolean
   disabled?: boolean
+  tabIndex?: number
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   onClick?: (e: React.MouseEvent<HTMLInputElement>) => void
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void
@@ -32,6 +33,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       checked = false,
       indeterminate = false,
       disabled = false,
+      tabIndex,
       onChange,
       onClick,
       onFocus,
@@ -128,6 +130,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           type="checkbox"
           checked={checked}
           disabled={disabled}
+          tabIndex={tabIndex}
           onChange={onChange}
           onClick={onClick}
           // Suppress React controlled-without-onChange warning; clicks

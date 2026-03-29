@@ -15,6 +15,7 @@ const CONTROL_LAYER_CLASS =
 
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
+  const { disableSequentialFocus } = props
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
   const [selectionControlFocused, setSelectionControlFocused] =
     React.useState(false)
@@ -29,6 +30,7 @@ export const Icon = observer((props: TabProps) => {
     <Checkbox
       checked={isSelected}
       aria-label={ARIA_LABEL}
+      tabIndex={disableSequentialFocus ? -1 : undefined}
       onFocus={() => {
         setSelectionControlFocused(true)
         focusInnerControl()
@@ -100,9 +102,9 @@ export const Icon = observer((props: TabProps) => {
 })
 
 export default observer((props: TabProps) => {
-  const { faked, tab } = props
+  const { faked, tab, disableSequentialFocus } = props
   if (!faked) {
-    return <Icon tab={tab} />
+    return <Icon tab={tab} disableSequentialFocus={disableSequentialFocus} />
   }
   const { iconUrl } = tab
   return (

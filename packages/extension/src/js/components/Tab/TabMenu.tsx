@@ -4,9 +4,9 @@ import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
 import { MoreVertIcon } from 'icons/materialIcons'
 import { getNoun } from 'libs'
 import { useAppTheme } from 'libs/appTheme'
-import Tab from 'stores/Tab'
 import { useStore } from 'components/hooks/useStore'
 import ControlIconButton from 'components/ControlIconButton'
+import { TabProps } from 'components/types'
 
 interface IDivider {
   __typename: 'DIVIDER'
@@ -25,7 +25,7 @@ type OptionOrDivider = IDivider | Option
 const DIVIDER: IDivider = { __typename: 'DIVIDER' }
 const OPTION: Option = { __typename: 'OPTION', label: '' }
 
-export default observer((props: { tab: Tab }) => {
+export default observer((props: TabProps) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const theme = useAppTheme()
   const { tabGroupStore } = useStore()
@@ -142,6 +142,7 @@ export default observer((props: { tab: Tab }) => {
     <>
       <ControlIconButton
         onClick={handleClick}
+        tabIndex={props.disableSequentialFocus ? -1 : undefined}
         controlSize="compact"
         aria-label="Tab actions"
         data-testid={`tab-menu-${props.tab.id}`}

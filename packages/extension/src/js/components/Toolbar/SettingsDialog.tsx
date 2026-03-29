@@ -103,6 +103,7 @@ const PreviewSurface = ({
 }) => (
   <div
     data-testid={testId}
+    aria-hidden="true"
     className="w-full min-w-0 overflow-hidden rounded-lg border xl:min-w-72"
     style={style}
   >

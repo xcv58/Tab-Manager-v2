@@ -266,4 +266,37 @@ test.describe('The Extension page should', () => {
         tagName: 'BUTTON',
       })
   })
+
+  test('skip tab-row preview controls when tabbing through tab display settings', async () => {
+    await page.bringToFront()
+
+    await pressTabUntil(
+      page,
+      (state) => state.ariaLabel === 'Settings' && state.tagName === 'BUTTON',
+      { maxSteps: 20 },
+    )
+    await page.keyboard.press('Space')
+
+    await expect(page.getByRole('dialog')).toHaveCount(1)
+
+    await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Mark duplicate tabs' &&
+        state.tagName === 'INPUT' &&
+        state.type === 'checkbox',
+      { maxSteps: 80 },
+    )
+
+    await page.keyboard.press('Tab')
+    await page.waitForTimeout(50)
+
+    await expect
+      .poll(() => readActiveElementState(page))
+      .toMatchObject({
+        ariaLabel: 'Show tab icons',
+        tagName: 'INPUT',
+        type: 'checkbox',
+      })
+  })
 })

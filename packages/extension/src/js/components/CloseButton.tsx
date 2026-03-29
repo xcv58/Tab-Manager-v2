@@ -15,6 +15,7 @@ export interface CloseButtonProps {
    * Accessible label for the button
    */
   'aria-label'?: string
+  tabIndex?: number
   /**
    * Size variant
    */
@@ -32,12 +33,14 @@ const CloseButton: React.FC<CloseButtonProps> = (props) => {
     size = 'default',
     tone = 'danger',
     'aria-label': ariaLabel = 'Close',
+    tabIndex,
   } = props
   return (
     <ControlIconButton
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
+      tabIndex={tabIndex}
       tone={tone}
       controlSize={size === 'compact' ? 'compact' : 'medium'}
     >

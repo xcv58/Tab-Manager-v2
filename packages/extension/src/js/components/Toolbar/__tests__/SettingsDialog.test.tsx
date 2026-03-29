@@ -156,4 +156,24 @@ describe('SettingsDialog', () => {
       'currentWindow',
     )
   })
+
+  it('marks tab display previews as decorative surfaces', () => {
+    renderSettingsDialog()
+
+    expect(
+      screen.getByTestId('row-details-preview-duplicates'),
+    ).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByTestId('row-details-preview-icons')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+    expect(screen.getByTestId('row-details-preview-urls')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+    expect(screen.getByTestId('row-details-preview-tooltips')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+  })
 })
