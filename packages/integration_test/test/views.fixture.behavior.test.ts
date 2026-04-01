@@ -798,6 +798,92 @@ test.describe('The Extension page should', () => {
       })
   })
 
+  test('move same-domain ungrouped tabs to this window from the tab menu', async () => {
+    const targetUrl = `${fixtureServer.baseUrl}/same-domain-target?title=${encodeURIComponent(
+      'Same Domain Target',
+    )}`
+    const sourceUrl = `${fixtureServer.baseUrl}/same-domain-source?title=${encodeURIComponent(
+      'Same Domain Source',
+    )}`
+
+    const setup = await page.evaluate(
+      async ({ targetUrl, sourceUrl }) => {
+        const createWindowWithUrl = async (url: string) => {
+          const win = await chrome.windows.create({
+            url,
+            focused: false,
+          })
+          const windowId = win.id ?? -1
+          const tabs =
+            windowId === -1 ? [] : await chrome.tabs.query({ windowId })
+          return {
+            windowId,
+            tabId: tabs[0]?.id ?? -1,
+          }
+        }
+
+        return {
+          target: await createWindowWithUrl(targetUrl),
+          source: await createWindowWithUrl(sourceUrl),
+        }
+      },
+      { targetUrl, sourceUrl },
+    )
+
+    expect(setup.target.windowId).toBeGreaterThan(-1)
+    expect(setup.source.windowId).toBeGreaterThan(-1)
+    expect(setup.target.tabId).toBeGreaterThan(-1)
+    expect(setup.source.tabId).toBeGreaterThan(-1)
+
+    await page.reload()
+    await waitForTestId(page, `tab-row-${setup.target.tabId}`)
+    await waitForTestId(page, `tab-row-${setup.source.tabId}`)
+
+    const targetRow = page.getByTestId(`tab-row-${setup.target.tabId}`)
+    await targetRow.hover()
+
+    const targetMenuButton = page.getByTestId(`tab-menu-${setup.target.tabId}`)
+    await expect(targetMenuButton).toBeVisible()
+    await targetMenuButton.click({ force: true })
+
+    const sameDomainAction = page.getByRole('menuitem', {
+      name: 'Cluster 2 same domain ungrouped tabs to this window',
+    })
+    await expect(sameDomainAction).toBeVisible()
+    await sameDomainAction.click()
+
+    await expect(page.getByRole('menu')).toHaveCount(0)
+    await expect
+      .poll(async () => {
+        return await page.evaluate(
+          async ({ targetWindowId, sourceTabId, targetUrl, sourceUrl }) => {
+            const sourceTab = await chrome.tabs.get(sourceTabId)
+            const movedToTargetWindow = sourceTab.windowId === targetWindowId
+            const targetWindowDomainTabs = await chrome.tabs.query({
+              windowId: targetWindowId,
+            })
+
+            return {
+              movedToTargetWindow,
+              targetWindowDomainTabCount: targetWindowDomainTabs.filter((tab) =>
+                [targetUrl, sourceUrl].includes(tab.url || ''),
+              ).length,
+            }
+          },
+          {
+            targetWindowId: setup.target.windowId,
+            sourceTabId: setup.source.tabId,
+            targetUrl,
+            sourceUrl,
+          },
+        )
+      })
+      .toMatchObject({
+        movedToTargetWindow: true,
+        targetWindowDomainTabCount: 2,
+      })
+  })
+
   test('support keyboard-only closing from the tab menu close action', async () => {
     await openPages(browserContext, fixtureUrls.all)
     await page.bringToFront()
