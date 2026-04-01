@@ -15,7 +15,7 @@
   },
   "private": true,
   "dependencies": {
-    "selenium-webdriver": "4.38.0",
+    "selenium-webdriver": "4.41.0",
     "tab-manager-v2": "workspace:*"
   }
 }

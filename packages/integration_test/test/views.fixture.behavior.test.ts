@@ -640,6 +640,7 @@ test.describe('The Extension page should', () => {
     expect(setup.fallback.tabId).toBeGreaterThan(-1)
 
     await page.reload()
+    await page.bringToFront()
     await waitForTestId(page, `tab-row-${setup.target.tabId}`)
     await waitForTestId(page, `tab-row-${setup.fallback.tabId}`)
 
@@ -665,9 +666,11 @@ test.describe('The Extension page should', () => {
     expect(rowPositions.fallbackLeft).toBeGreaterThan(-1)
     expect(rowPositions.targetLeft).not.toBe(rowPositions.fallbackLeft)
 
-    await page.keyboard.press('j')
-    await expect.poll(() => readFocusedRowTestId(page)).not.toBe('')
-
+    await focusByKeyboardUntil(
+      page,
+      (testId) => testId.startsWith('tab-row-'),
+      60,
+    )
     const initiallyFocusedRow = await readFocusedRowTestId(page)
     if (initiallyFocusedRow !== `tab-row-${setup.target.tabId}`) {
       const currentLeft = await page.evaluate(() => {

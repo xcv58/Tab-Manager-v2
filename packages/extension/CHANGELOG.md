@@ -1,39 +1,35 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file.
 
 ## [2.2.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.1.0...v2.2.0) (2026-03-26)
 
-
 ### Features
 
-* add auto-fit columns layout mode ([#2617](https://github.com/xcv58/Tab-Manager-v2/issues/2617)) ([e6d95ad](https://github.com/xcv58/Tab-Manager-v2/commit/e6d95ad62095cc8748ee36a65224115a6b2b5243))
+- add auto-fit columns layout mode ([#2617](https://github.com/xcv58/Tab-Manager-v2/issues/2617)) ([e6d95ad](https://github.com/xcv58/Tab-Manager-v2/commit/e6d95ad62095cc8748ee36a65224115a6b2b5243))
 
 ## [2.1.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.2...v2.1.0) (2026-03-20)
 
-
 ### Features
 
-* **ui:** add classic mode preset ([#2612](https://github.com/xcv58/Tab-Manager-v2/issues/2612)) ([920d43e](https://github.com/xcv58/Tab-Manager-v2/commit/920d43ed64d893699bf00381f48e2671ff61af46))
-
+- **ui:** add classic mode preset ([#2612](https://github.com/xcv58/Tab-Manager-v2/issues/2612)) ([920d43e](https://github.com/xcv58/Tab-Manager-v2/commit/920d43ed64d893699bf00381f48e2671ff61af46))
 
 ### Bug Fixes
 
-* harden tab-group lifecycle, search layout/focus, drag ordering, and settings cleanup ([#2609](https://github.com/xcv58/Tab-Manager-v2/issues/2609)) ([21cad76](https://github.com/xcv58/Tab-Manager-v2/commit/21cad760a9f7105ffa0bde7340f9fd3236345168))
-* track active window for full-page extension tab ([#2613](https://github.com/xcv58/Tab-Manager-v2/issues/2613)) ([acba5be](https://github.com/xcv58/Tab-Manager-v2/commit/acba5beabe980f722ef07e8429ed18c951e8f10f))
+- harden tab-group lifecycle, search layout/focus, drag ordering, and settings cleanup ([#2609](https://github.com/xcv58/Tab-Manager-v2/issues/2609)) ([21cad76](https://github.com/xcv58/Tab-Manager-v2/commit/21cad760a9f7105ffa0bde7340f9fd3236345168))
+- track active window for full-page extension tab ([#2613](https://github.com/xcv58/Tab-Manager-v2/issues/2613)) ([acba5be](https://github.com/xcv58/Tab-Manager-v2/commit/acba5beabe980f722ef07e8429ed18c951e8f10f))
 
 ## [2.0.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.1...v2.0.2) (2026-03-18)
 
-
 ### Bug Fixes
 
-* **firefox:** align add-on id with AMO listing ([9d4fb4e](https://github.com/xcv58/Tab-Manager-v2/commit/9d4fb4e4aa48173e5e314b738f8217bf799bd3b9))
-* improve popup focus responsiveness in large workspaces ([3870e01](https://github.com/xcv58/Tab-Manager-v2/commit/3870e01d98686bf52cd12eab299754a043e3375e))
-* keep target groups intact when dropping ungrouped tabs ([0acf14a](https://github.com/xcv58/Tab-Manager-v2/commit/0acf14a2e13e9d9ba9f02260bc0e63f9b0bd55c9))
-* preserve drop order when moving ungrouped tabs into grouped tabs ([0acf14a](https://github.com/xcv58/Tab-Manager-v2/commit/0acf14a2e13e9d9ba9f02260bc0e63f9b0bd55c9))
-* prevent drag preview crashes during exact search ([1a20982](https://github.com/xcv58/Tab-Manager-v2/commit/1a209825007741cb69947e5a7357731f97a37d36))
-* speed up popup search and layout repacking in large workspaces ([1a20982](https://github.com/xcv58/Tab-Manager-v2/commit/1a209825007741cb69947e5a7357731f97a37d36))
-* virtualize window cards and rows to keep the popup fast at scale ([3870e01](https://github.com/xcv58/Tab-Manager-v2/commit/3870e01d98686bf52cd12eab299754a043e3375e))
+- **firefox:** align add-on id with AMO listing ([9d4fb4e](https://github.com/xcv58/Tab-Manager-v2/commit/9d4fb4e4aa48173e5e314b738f8217bf799bd3b9))
+- improve popup focus responsiveness in large workspaces ([3870e01](https://github.com/xcv58/Tab-Manager-v2/commit/3870e01d98686bf52cd12eab299754a043e3375e))
+- keep target groups intact when dropping ungrouped tabs ([0acf14a](https://github.com/xcv58/Tab-Manager-v2/commit/0acf14a2e13e9d9ba9f02260bc0e63f9b0bd55c9))
+- preserve drop order when moving ungrouped tabs into grouped tabs ([0acf14a](https://github.com/xcv58/Tab-Manager-v2/commit/0acf14a2e13e9d9ba9f02260bc0e63f9b0bd55c9))
+- prevent drag preview crashes during exact search ([1a20982](https://github.com/xcv58/Tab-Manager-v2/commit/1a209825007741cb69947e5a7357731f97a37d36))
+- speed up popup search and layout repacking in large workspaces ([1a20982](https://github.com/xcv58/Tab-Manager-v2/commit/1a209825007741cb69947e5a7357731f97a37d36))
+- virtualize window cards and rows to keep the popup fast at scale ([3870e01](https://github.com/xcv58/Tab-Manager-v2/commit/3870e01d98686bf52cd12eab299754a043e3375e))
 
 ### [2.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.0.0...v2.0.1) (2026-03-14)
 
