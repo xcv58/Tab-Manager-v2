@@ -249,7 +249,11 @@ export default observer(
     return (
       <div data-testid={testId} className={className}>
         <StoreContext.Provider value={previewStore as never}>
-          <TabRow tab={previewStore.tab as never} className="w-full min-w-0" />
+          <TabRow
+            tab={previewStore.tab as never}
+            disableSequentialFocus
+            className="w-full min-w-0"
+          />
         </StoreContext.Provider>
       </div>
     )

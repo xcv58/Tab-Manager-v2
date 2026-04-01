@@ -1,12 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
-import { TextField, Paper } from '@mui/material'
-import Autocomplete from '@mui/material/Autocomplete'
-import { useTheme } from '@mui/material/styles'
-import { useStore } from 'components/hooks/useStore'
+import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
-import ListboxComponent from './ListboxComponent'
 import TabOption from './TabOption'
 import { matchSorter, defaultBaseSortFn } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
@@ -17,24 +13,20 @@ import Tab from 'stores/Tab'
 import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
 import { getNoun, openURL } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
-import { filterCommandOptions } from './filterOptions'
+import { filterCommandOptions, type CommandOption } from './filterOptions'
+import { useCombobox } from 'components/ui/Combobox'
+import { VariableSizeList } from 'react-window'
+import { useAppTheme } from 'libs/appTheme'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
+const SEARCH_FONT_SIZE = '0.8125rem'
+const LISTBOX_MARGIN_TOP = 4
 
 const commandFilter = (options, { inputValue }) => {
   return filterCommandOptions(options, inputValue.slice(1).trim())
 }
 
-/**
- * Copy from https://github.com/kentcdodds/match-sorter/blob/fba154b12ff594e688d0c3f6abc64d22622b6919/src/index.ts#L312
- * Since it's not exposed via the package.
- *
- * Sorts items that have a rank, index, and keyIndex
- * @param {Object} a - the first item to sort
- * @param {Object} b - the second item to sort
- * @return {Number} -1 if a should come first, 1 if b should come first, 0 if equal
- */
 function sortRankedValues(a, b, baseSort): number {
   const aFirst = -1
   const bFirst = 1
@@ -43,7 +35,6 @@ function sortRankedValues(a, b, baseSort): number {
   const same = aRank === bRank
   if (same) {
     if (aKeyIndex === bKeyIndex) {
-      // use the base sort function as a tie-breaker
       return baseSort(a, b)
     } else {
       return aKeyIndex < bKeyIndex ? aFirst : bFirst
@@ -184,17 +175,16 @@ const getFilterOptions = (
   }
 }
 
-type SearchOption =
-  | HistoryItem
-  | Tab
-  | {
-      isDivider: boolean
-      dividerType: 'history' | 'group'
-      title: string
-      groupId?: number
-      color?: chrome.tabGroups.ColorEnum
-      matchCount?: number
-    }
+type DividerOption = {
+  isDivider: boolean
+  dividerType: 'history' | 'group'
+  title: string
+  groupId?: number
+  color?: chrome.tabGroups.ColorEnum
+  matchCount?: number
+}
+
+type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
 
 const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
   if (tab.isDivider) {
@@ -248,18 +238,18 @@ const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
   )
 }
 
-const renderCommand = (command, state) => {
+const renderCommand = (
+  command: CommandOption,
+  state: { inputValue: string },
+) => {
   const { shortcut } = command
   const matches = match(command.name, state.inputValue.slice(1))
   const parts = parse(command.name, matches)
   return (
-    <div className="flex justify-between w-full px-4">
+    <div className="flex justify-between w-full px-4 h-full items-center">
       <span>
         {parts.map((part, index) => (
-          <span
-            key={index}
-            className={part.highlight ? 'font-bold' : 'font-normal'}
-          >
+          <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
             {part.text}
           </span>
         ))}
@@ -271,139 +261,312 @@ const renderCommand = (command, state) => {
   )
 }
 
-type Props = { autoFocus?: boolean; open?: boolean }
+type Props = { autoFocus?: boolean; open?: boolean; bottomInset?: number }
+
+const LISTBOX_PADDING = 8
+
+export const getAutocompleteListHeight = ({
+  itemCount,
+  tabHeight,
+  maxHeight = Number.POSITIVE_INFINITY,
+}: {
+  itemCount: number
+  tabHeight: number
+  maxHeight?: number
+}) => {
+  if (!itemCount) {
+    return 0
+  }
+
+  const naturalHeight =
+    Math.min(20, itemCount) * tabHeight + 2 * LISTBOX_PADDING
+  const minimumHeight = tabHeight + 2 * LISTBOX_PADDING
+  const cappedHeight = Math.min(naturalHeight, maxHeight)
+
+  if (Number.isFinite(maxHeight)) {
+    return Math.max(0, cappedHeight)
+  }
+
+  return Math.max(minimumHeight, cappedHeight)
+}
 
 const AutocompleteSearch = observer((props: Props) => {
-  const { autoFocus, open } = props
-  const theme = useTheme()
+  const { autoFocus, open: propOpen, bottomInset = 0 } = props
+  const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
   const options = useOptions()
   const { userStore, searchStore, tabGroupStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
-  const groupedSectionTabIdsRef = useRef(new Set())
-  const filterOptions = getFilterOptions(
-    userStore.showUrl,
-    isCommand,
-    tabGroupStore,
-    groupedSectionTabIdsRef,
+  const tabHeight = useTabHeight()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const isOpenControlled = propOpen !== undefined
+
+  const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(
+    propOpen || false,
+  )
+  const [availableListHeight, setAvailableListHeight] = useState<number>(
+    Number.POSITIVE_INFINITY,
+  )
+  const isOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (!isOpenControlled) {
+        setUncontrolledIsOpen(nextOpen)
+      }
+    },
+    [isOpenControlled],
   )
 
+  const groupedSectionTabIdsRef = useRef(new Set())
+  const filterOptions = useMemo(
+    () =>
+      getFilterOptions(
+        userStore.showUrl,
+        isCommand,
+        tabGroupStore,
+        groupedSectionTabIdsRef,
+      ),
+    [userStore.showUrl, isCommand, tabGroupStore],
+  )
+
+  const filteredOptions = useMemo(() => {
+    return filterOptions(options, { inputValue: query })
+  }, [options, query, filterOptions])
+
+  const itemCount = filteredOptions.length
+
+  const handleSelect = (option: SearchOption) => {
+    if (!option || typeof option === 'string') return
+    if ('isDivider' in option && option.isDivider) return
+
+    if (isCommand && 'command' in option) {
+      option.command()
+    } else {
+      if ('activate' in option && option.activate) {
+        option.activate({ origin: 'search', reveal: true })
+      } else if ('url' in option) {
+        openURL(option.url)
+      }
+    }
+    search('')
+    handleOpenChange(false)
+  }
+
+  const {
+    highlightedIndex,
+    listRef,
+    getRootProps,
+    getInputProps,
+    getListboxProps,
+    getItemProps,
+  } = useCombobox({
+    items: filteredOptions,
+    inputValue: query,
+    onInputValueChange: search,
+    onSelect: handleSelect,
+    isItemDisabled: useMemo(() => (item) => Boolean(item.isDivider), []),
+    isOpen,
+    onOpenChange: handleOpenChange,
+  })
+
+  const inputProps = getInputProps()
+  const rootProps = getRootProps()
+  const listboxProps = getListboxProps()
+
+  useEffect(() => {
+    if (!bottomInset) {
+      setAvailableListHeight(Number.POSITIVE_INFINITY)
+      return
+    }
+
+    const updateAvailableHeight = () => {
+      if (!rootRef.current) {
+        return
+      }
+
+      const rect = rootRef.current.getBoundingClientRect()
+      const nextHeight =
+        window.innerHeight - rect.bottom - bottomInset - LISTBOX_MARGIN_TOP
+
+      setAvailableListHeight(Math.max(0, nextHeight))
+    }
+
+    updateAvailableHeight()
+    window.addEventListener('resize', updateAvailableHeight)
+
+    return () => {
+      window.removeEventListener('resize', updateAvailableHeight)
+    }
+  }, [bottomInset, isOpen, itemCount, query])
+
+  // Inner row renderer for the virtualized list
+  const Row = ({ index, style }: any) => {
+    const option = filteredOptions[index]
+    const itemProps = getItemProps({ index, item: option })
+    const isHighlighted = highlightedIndex === index
+
+    return (
+      <li
+        {...itemProps}
+        style={{
+          ...style,
+          top: Number(style.top) + LISTBOX_PADDING,
+          margin: 0,
+          padding: 0,
+          listStyle: 'none',
+          cursor: option.isDivider ? 'default' : 'pointer',
+          backgroundColor: isHighlighted
+            ? 'var(--dropdown-hover-bg, rgba(0,0,0,0.08))'
+            : 'transparent',
+          opacity: option.isDivider ? 1 : undefined,
+        }}
+      >
+        {isCommand
+          ? renderCommand(option, { inputValue: query })
+          : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
+      </li>
+    )
+  }
+
+  const listHeight = getAutocompleteListHeight({
+    itemCount,
+    tabHeight,
+    maxHeight: availableListHeight,
+  })
+
+  const handleEscape = () => {
+    search('')
+    handleOpenChange(false)
+    searchInputRef.current?.blur()
+  }
+
   return (
-    <Autocomplete
-      fullWidth
-      blurOnSelect
-      freeSolo
-      selectOnFocus
-      openOnFocus
-      autoHighlight
-      includeInputInList
-      ref={searchInputRef}
-      inputValue={query}
-      value={query}
-      disableListWrap
-      PaperComponent={(props) => (
-        <Paper
-          elevation={24}
-          sx={{
+    <div
+      {...rootProps}
+      ref={(node) => {
+        rootRef.current = node
+        if (typeof rootProps.ref === 'function') {
+          rootProps.ref(node)
+        } else if (rootProps.ref) {
+          rootProps.ref.current = node
+        }
+      }}
+      style={{ position: 'relative', flex: '1 1 0%', minWidth: 0 }}
+    >
+      {/* Input Field */}
+      <div
+        data-testid="toolbar-search-input"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          minWidth: 0,
+          borderBottom: '1px solid',
+          borderColor: 'var(--input-border, rgba(0,0,0,0.42))',
+          position: 'relative',
+        }}
+        onClick={() => {
+          inputProps.onFocus()
+          searchInputRef.current?.focus()
+        }}
+      >
+        <input
+          ref={(node) => {
+            searchInputRef.current = node
+            if (typeof inputProps.ref === 'function') {
+              inputProps.ref(node)
+            } else if (inputProps.ref) {
+              inputProps.ref.current = node
+            }
+          }}
+          type="text"
+          value={inputProps.value}
+          onChange={inputProps.onChange}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.preventDefault()
+              handleEscape()
+              return
+            }
+
+            inputProps.onKeyDown(event)
+          }}
+          onFocus={() => {
+            startType()
+            inputProps.onFocus()
+          }}
+          onBlur={(e) => {
+            stopType()
+            inputProps.onBlur(e as any)
+          }}
+          autoFocus={autoFocus || userStore.autoFocusSearch}
+          placeholder={SEARCH_PLACEHOLDER}
+          aria-activedescendant={inputProps['aria-activedescendant']}
+          aria-autocomplete={inputProps['aria-autocomplete']}
+          aria-expanded={inputProps['aria-expanded']}
+          role={inputProps.role}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            border: 'none',
+            background: 'transparent',
+            color: theme.palette.text.primary,
+            fontSize: SEARCH_FONT_SIZE,
+            padding: '4px 0 5px',
+            outline: 'none',
+          }}
+        />
+        {!query && (
+          <span
+            className="pr-2 whitespace-nowrap select-none"
+            style={{
+              color: theme.palette.text.secondary,
+              opacity: 0.8,
+              fontSize: SEARCH_FONT_SIZE,
+            }}
+          >
+            {SEARCH_HINT}
+          </span>
+        )}
+      </div>
+
+      {/* Dropdown Paper */}
+      {isOpen && itemCount > 0 && (
+        <div
+          {...listboxProps}
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 1300,
+            marginTop: LISTBOX_MARGIN_TOP,
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.text.primary,
             border:
-              theme.palette.mode === 'dark'
+              theme.mode === 'dark'
                 ? `1px solid ${theme.palette.divider}`
                 : undefined,
+            borderRadius: 4,
+            boxShadow:
+              '0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12)',
           }}
         >
-          <div>{props.children}</div>
-        </Paper>
+          <VariableSizeList
+            ref={listRef}
+            itemData={filteredOptions}
+            height={listHeight}
+            width="100%"
+            innerElementType="ul"
+            itemSize={() => tabHeight}
+            overscanCount={5}
+            itemCount={itemCount}
+          >
+            {Row}
+          </VariableSizeList>
+        </div>
       )}
-      open={open}
-      onFocus={() => {
-        startType()
-      }}
-      onBlur={() => stopType()}
-      onInputChange={(_, value, reason) => {
-        if (reason !== 'reset') {
-          search(value)
-        }
-      }}
-      onChange={(_, option) => {
-        if (!option || typeof option === 'string') {
-          return
-        }
-        if (option.isDivider) {
-          return
-        }
-        if (isCommand) {
-          option.command()
-        } else {
-          if (option.activate) {
-            option.activate({ origin: 'search', reveal: true })
-          } else {
-            openURL(option.url)
-          }
-        }
-        search('')
-      }}
-      renderInput={(props) => (
-        <TextField
-          {...props}
-          fullWidth
-          autoFocus={autoFocus || userStore.autoFocusSearch}
-          placeholder={SEARCH_PLACEHOLDER}
-          variant="standard"
-          InputProps={{
-            ...props.InputProps,
-            endAdornment: (
-              <>
-                {!query && (
-                  <span
-                    className="pr-2 text-[0.72rem] whitespace-nowrap select-none"
-                    style={{
-                      color: theme.palette.text.secondary,
-                      opacity: 0.8,
-                    }}
-                  >
-                    {SEARCH_HINT}
-                  </span>
-                )}
-                {props.InputProps?.endAdornment}
-              </>
-            ),
-          }}
-        />
-      )}
-      options={options}
-      getOptionLabel={(option) =>
-        [
-          option.name,
-          option.title,
-          option.url,
-          option.visitCount ? '' : option.groupTitle,
-        ]
-          .filter(Boolean)
-          .join(' ')
-      }
-      getOptionDisabled={(option) => option.isDivider}
-      renderOption={(props, option, state) => (
-        <li
-          {...props}
-          style={
-            option.isDivider
-              ? {
-                  ...props.style,
-                  opacity: 1,
-                }
-              : props.style
-          }
-        >
-          {isCommand
-            ? renderCommand(option, state)
-            : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
-        </li>
-      )}
-      filterOptions={filterOptions}
-      ListboxComponent={ListboxComponent}
-    />
+    </div>
   )
 })
 

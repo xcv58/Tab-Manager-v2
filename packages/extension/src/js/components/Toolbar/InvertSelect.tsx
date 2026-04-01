@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
-import Flip from '@mui/icons-material/Flip'
-import IconButton from '@mui/material/IconButton'
+import Tooltip from 'components/ui/Tooltip'
+import { FlipIcon } from 'icons/materialIcons'
+import IconButton from 'components/ui/IconButton'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
@@ -20,7 +20,7 @@ export default observer(() => {
           className="focus:outline-none"
           aria-label={TITLE}
         >
-          <Flip />
+          <FlipIcon />
         </IconButton>
       </div>
     </Tooltip>

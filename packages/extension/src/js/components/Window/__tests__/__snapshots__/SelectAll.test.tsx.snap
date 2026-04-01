@@ -2,69 +2,48 @@
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 1`] = `
 <div
-  class="MuiPopper-root MuiTooltip-popper MuiTooltip-popperInteractive css-o4ds0q-MuiPopper-root-MuiTooltip-popper"
-  data-popper-escaped=""
-  data-popper-placement="bottom"
-  data-popper-reference-hidden=""
-  id=":r1:"
   role="tooltip"
-  style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
+  style="position: fixed; top: 8px; left: 8px; transform: none; z-index: 1500; pointer-events: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
 >
-  <div
-    class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-3v9qdb-MuiTooltip-tooltip"
-    style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
-  >
-    Unselect all tabs
-  </div>
+  Unselect all tabs
 </div>
 `;
 
 exports[`SelectAll should render Tooltip title based on allTabSelected 2`] = `
 <div
-  class="MuiPopper-root MuiTooltip-popper MuiTooltip-popperInteractive css-o4ds0q-MuiPopper-root-MuiTooltip-popper"
-  data-popper-escaped=""
-  data-popper-placement="bottom"
-  data-popper-reference-hidden=""
-  id=":r2:"
   role="tooltip"
-  style="position: absolute; top: 0px; left: 0px; margin: 0px; transform: translate(0px, 0px);"
+  style="position: fixed; top: 8px; left: 8px; transform: none; z-index: 1500; pointer-events: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; line-height: 1.4; max-width: 300px; background-color: rgba(33, 33, 33, 0.92); color: rgb(255, 255, 255); white-space: pre-wrap; word-wrap: break-word;"
 >
-  <div
-    class="MuiTooltip-tooltip MuiTooltip-tooltipPlacementBottom css-3v9qdb-MuiTooltip-tooltip"
-    style="opacity: 1; transform: scale(1, 1); transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 133ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
-  >
-    Select all tabs
-  </div>
+  Select all tabs
 </div>
 `;
 
 exports[`SelectAll should render correct components 1`] = `
 <div>
   <span
-    aria-label="Unselect all tabs"
     class="flex h-10 w-10 shrink-0 items-center justify-center"
-    data-mui-internal-clone-element="true"
     style="width: 30px; height: 30px;"
   >
     <span
-      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1331ojr-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+      class="relative inline-flex items-center justify-center shrink-0 rounded-full transition-[box-shadow]"
+      style="width: 30px; height: 30px; padding: 5px; transition-duration: 200ms;"
     >
       <input
         aria-label="Unselect all tabs"
         checked=""
-        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-        data-indeterminate="false"
+        class="absolute inset-0 m-0 cursor-pointer opacity-0"
+        style="width: 100%; height: 100%;"
         type="checkbox"
       />
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-        data-testid="CheckBoxIcon"
-        focusable="false"
+        fill="#1a73e8"
+        height="20"
         viewBox="0 0 24 24"
+        width="20"
       >
         <path
-          d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+          d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
         />
       </svg>
     </span>

@@ -1,23 +1,19 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useTheme } from '@mui/material/styles'
+import { useAppTheme } from 'libs/appTheme'
 import classNames from 'classnames'
 import DroppableTitle from './DroppableTitle'
 import Tabs from './Tabs'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
-import { CSSProperties } from '@mui/styles'
 import Loading from 'components/Loading'
 import { WinProps } from 'components/types'
 import WindowDropZone from './WindowDropZone'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer((props: WinProps & { width: string }) => {
-  const theme = useTheme()
+  const theme = useAppTheme()
   const { userStore } = useStore()
-  const uiColors = getUiColorTokens(
-    theme.palette.mode === 'dark',
-    userStore.uiPreset,
-  )
+  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
   const tabHeight = useTabHeight()
   const { win, width } = props
   const { showTabs, visibleLength, lastFocused } = win

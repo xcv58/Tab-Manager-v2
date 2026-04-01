@@ -29,6 +29,8 @@ const hasFocusedElement = () => {
   return activeElement instanceof HTMLElement && activeElement.tabIndex >= 0
 }
 
+const settingsDialogAllowedCombos = new Set(['escape', '?', 'ctrl+/', 'ctrl+,'])
+
 type ShortcutDefinition = [
   string | string[],
   (event?: Event) => void,
@@ -504,8 +506,14 @@ export default class ShortcutStore {
     if (this.dialogOpen) {
       return combo !== 'escape'
     }
+    if (this.store.userStore?.dialogOpen) {
+      return !settingsDialogAllowedCombos.has(combo)
+    }
     if (this.inputShortcutSet.has(combo)) {
       return false
+    }
+    if (element.closest?.('[role="menu"]')) {
+      return true
     }
     const { contentEditable, tagName, type } = element
     if (contentEditable === 'true') {

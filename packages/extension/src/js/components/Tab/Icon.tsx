@@ -1,8 +1,8 @@
 import React from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
-import Checkbox from '@mui/material/Checkbox'
-import IconButton from '@mui/material/IconButton'
+import Checkbox from 'components/ui/Checkbox'
+import IconButton from 'components/ui/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
@@ -12,27 +12,30 @@ const CONTROL_SLOT_CLASS =
   'group relative flex h-10 w-10 shrink-0 items-center justify-center'
 const CONTROL_LAYER_CLASS =
   'absolute inset-0 flex items-center justify-center transition-opacity duration-150'
-const CONTROL_SX = {
-  width: DEFAULT_CONTROL_SIZE,
-  height: DEFAULT_CONTROL_SIZE,
-  p: 0.625,
-  m: 0,
-  '& .MuiSvgIcon-root': {
-    fontSize: 20,
-  },
-}
 
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
+  const { disableSequentialFocus } = props
   const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
+  const [selectionControlFocused, setSelectionControlFocused] =
+    React.useState(false)
+  const focusInnerControl = () => {
+    focus({
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+  }
   const checkbox = (
     <Checkbox
-      color="primary"
       checked={isSelected}
-      sx={CONTROL_SX}
-      inputProps={{
-        'aria-label': ARIA_LABEL,
+      aria-label={ARIA_LABEL}
+      tabIndex={disableSequentialFocus ? -1 : undefined}
+      onFocus={() => {
+        setSelectionControlFocused(true)
+        focusInnerControl()
       }}
+      onBlur={() => setSelectionControlFocused(false)}
       onClick={(e) => {
         if (process.env.TARGET_BROWSER === 'firefox') {
           if (e.altKey) {
@@ -64,17 +67,18 @@ export const Icon = observer((props: TabProps) => {
     >
       <div
         className={classNames(CONTROL_LAYER_CLASS, {
-          'pointer-events-none opacity-0': isSelected,
+          'pointer-events-none opacity-0':
+            isSelected || selectionControlFocused,
           'opacity-100 group-hover:pointer-events-none group-hover:opacity-0':
-            !isSelected,
+            !isSelected && !selectionControlFocused,
         })}
       >
         <IconButton
           aria-label={ARIA_LABEL}
+          tabIndex={-1}
           className="focus:outline-none focus:ring"
-          onClick={select}
-          onFocus={focus}
-          sx={CONTROL_SX}
+          onClick={() => select()}
+          onFocus={focusInnerControl}
         >
           <img
             className="w-6 h-6"
@@ -85,9 +89,10 @@ export const Icon = observer((props: TabProps) => {
       </div>
       <div
         className={classNames(CONTROL_LAYER_CLASS, {
-          'opacity-100': isSelected,
+          'opacity-100 pointer-events-auto':
+            isSelected || selectionControlFocused,
           'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100':
-            !isSelected,
+            !isSelected && !selectionControlFocused,
         })}
       >
         {checkbox}
@@ -97,9 +102,9 @@ export const Icon = observer((props: TabProps) => {
 })
 
 export default observer((props: TabProps) => {
-  const { faked, tab } = props
+  const { faked, tab, disableSequentialFocus } = props
   if (!faked) {
-    return <Icon tab={tab} />
+    return <Icon tab={tab} disableSequentialFocus={disableSequentialFocus} />
   }
   const { iconUrl } = tab
   return (
@@ -111,7 +116,6 @@ export default observer((props: TabProps) => {
         disabled
         aria-label={ARIA_LABEL}
         className="focus:outline-none focus:ring"
-        sx={CONTROL_SX}
       >
         <img
           className="w-6 h-6"

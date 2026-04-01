@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Tooltip from '@mui/material/Tooltip'
-import IconButton from '@mui/material/IconButton'
-import Sync from '@mui/icons-material/Sync'
+import Tooltip from 'components/ui/Tooltip'
+import IconButton from 'components/ui/IconButton'
+import { SyncIcon } from 'icons/materialIcons'
 import { useStore } from './hooks/useStore'
 
 export default observer(() => {
@@ -10,6 +10,8 @@ export default observer(() => {
   return (
     <Tooltip title="Sync All Windows" placement="left">
       <IconButton
+        aria-label="Sync All Windows"
+        data-testid="sync-all-windows"
         onClick={() =>
           void windowStore.syncAllWindows({
             revealActiveTab: true,
@@ -18,7 +20,7 @@ export default observer(() => {
         }
         className="focus:outline-none"
       >
-        <Sync />
+        <SyncIcon />
       </IconButton>
     </Tooltip>
   )

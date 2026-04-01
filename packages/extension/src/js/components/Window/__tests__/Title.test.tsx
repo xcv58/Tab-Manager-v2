@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import { StoreContext } from 'components/hooks/useStore'
 import { ThemeContext } from 'components/hooks/useTheme'
 import Title from '../Title'
@@ -51,11 +51,11 @@ describe('Window Title', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <ThemeContext.Provider value={false}>
             <Title className="" win={win} />
           </ThemeContext.Provider>
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 
@@ -95,11 +95,11 @@ describe('Window Title', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <ThemeContext.Provider value={false}>
             <Title className="" win={win} />
           </ThemeContext.Provider>
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 
@@ -134,16 +134,59 @@ describe('Window Title', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <ThemeContext.Provider value={false}>
             <Title className="" win={win} />
           </ThemeContext.Provider>
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 
     expect(screen.getByTestId('window-title-9')).toHaveStyle({
       borderBottomStyle: 'none',
     })
+  })
+
+  it('keeps the select-all checkbox column flush with tab rows', () => {
+    const store = {
+      focusStore: {
+        focus: jest.fn(),
+        shouldRevealNode: jest.fn(() => false),
+      },
+      userStore: {
+        uiPreset: 'modern',
+      },
+    } as any
+    const win = {
+      id: 10,
+      tabs: [{ id: 1 }, { id: 2 }],
+      activate: jest.fn(),
+      invisibleTabs: [],
+      reload: jest.fn(),
+      hide: false,
+      toggleHide: jest.fn(),
+      isFocused: false,
+      focusRequestId: 0,
+      shouldMoveDomFocus: true,
+      shouldRevealOnFocus: false,
+      setNodeRef: jest.fn(),
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <AppThemeContext.Provider value={lightAppTheme}>
+          <ThemeContext.Provider value={false}>
+            <Title className="" win={win} />
+          </ThemeContext.Provider>
+        </AppThemeContext.Provider>
+      </StoreContext.Provider>,
+    )
+
+    const selectAll = screen.getByTestId('select-all')
+    const titleButton = screen.getByRole('button', { name: '2 tabs' })
+    const headerRow = selectAll.parentElement
+
+    expect(headerRow).not.toHaveClass('pl-1')
+    expect(titleButton).toHaveClass('pl-1')
   })
 })

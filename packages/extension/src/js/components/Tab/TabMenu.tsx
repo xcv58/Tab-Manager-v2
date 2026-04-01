@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import MenuItem from '@mui/material/MenuItem'
-import Divider from '@mui/material/Divider'
-import Popover from '@mui/material/Popover'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
+import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
+import { MoreVertIcon } from 'icons/materialIcons'
 import { getNoun } from 'libs'
-import { useTheme } from '@mui/material'
-import Tab from 'stores/Tab'
+import { useAppTheme } from 'libs/appTheme'
 import { useStore } from 'components/hooks/useStore'
 import ControlIconButton from 'components/ControlIconButton'
+import { TabProps } from 'components/types'
 
 interface IDivider {
   __typename: 'DIVIDER'
@@ -27,9 +25,9 @@ type OptionOrDivider = IDivider | Option
 const DIVIDER: IDivider = { __typename: 'DIVIDER' }
 const OPTION: Option = { __typename: 'OPTION', label: '' }
 
-export default observer((props: { tab: Tab }) => {
+export default observer((props: TabProps) => {
   const [anchorEl, setAnchorEl] = useState(null)
-  const theme = useTheme()
+  const theme = useAppTheme()
   const { tabGroupStore } = useStore()
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -126,7 +124,7 @@ export default observer((props: { tab: Tab }) => {
     .filter((option): option is OptionOrDivider => !!option)
     .map((option, i) => {
       if (option.__typename === 'DIVIDER') {
-        return <Divider key={i} />
+        return <MenuDivider key={i} />
       }
       const { label, onClick, disabled } = option
       return (
@@ -144,29 +142,21 @@ export default observer((props: { tab: Tab }) => {
     <>
       <ControlIconButton
         onClick={handleClick}
+        tabIndex={props.disableSequentialFocus ? -1 : undefined}
         controlSize="compact"
         aria-label="Tab actions"
         data-testid={`tab-menu-${props.tab.id}`}
       >
-        <MoreVertIcon sx={{ fontSize: 16 }} />
+        <MoreVertIcon fontSize={16} />
       </ControlIconButton>
-      <Popover
+      <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
         onClose={handleClose}
-        style={{ zIndex: theme.zIndex.tooltip + 1 }}
-        PaperProps={{
-          style: {
-            minWidth: 200,
-          },
-        }}
+        style={{ zIndex: theme.zIndex.tooltip + 1, minWidth: 200 }}
       >
         {content}
-      </Popover>
+      </Menu>
     </>
   )
 })

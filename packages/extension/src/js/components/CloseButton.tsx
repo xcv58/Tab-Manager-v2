@@ -1,5 +1,5 @@
 import React from 'react'
-import CloseIcon from '@mui/icons-material/Close'
+import { CloseIcon } from 'icons/materialIcons'
 import ControlIconButton from 'components/ControlIconButton'
 
 export interface CloseButtonProps {
@@ -15,6 +15,7 @@ export interface CloseButtonProps {
    * Accessible label for the button
    */
   'aria-label'?: string
+  tabIndex?: number
   /**
    * Size variant
    */
@@ -32,16 +33,18 @@ const CloseButton: React.FC<CloseButtonProps> = (props) => {
     size = 'default',
     tone = 'danger',
     'aria-label': ariaLabel = 'Close',
+    tabIndex,
   } = props
   return (
     <ControlIconButton
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
+      tabIndex={tabIndex}
       tone={tone}
       controlSize={size === 'compact' ? 'compact' : 'medium'}
     >
-      <CloseIcon sx={{ fontSize: size === 'compact' ? 13 : 16 }} />
+      <CloseIcon fontSize={size === 'compact' ? 13 : 16} />
     </ControlIconButton>
   )
 }

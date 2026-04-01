@@ -3,13 +3,13 @@ import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
-import Popover from '@mui/material/Popover'
-import MenuItem from '@mui/material/MenuItem'
-import Divider from '@mui/material/Divider'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useTheme } from '@mui/material'
+import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
+import {
+  MoreVertIcon,
+  ChevronRightIcon,
+  ExpandMoreIcon,
+} from 'icons/materialIcons'
+import { useAppTheme } from 'libs/appTheme'
 import { useStore } from 'components/hooks/useStore'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
@@ -44,12 +44,9 @@ export default observer((props: Props) => {
     focusStore,
     userStore,
   } = useStore()
-  const theme = useTheme()
-  const uiColors = getUiColorTokens(
-    theme.palette.mode === 'dark',
-    userStore.uiPreset,
-  )
-  const isDarkMode = theme.palette.mode === 'dark'
+  const theme = useAppTheme()
+  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const isDarkMode = theme.mode === 'dark'
   const isClassicUi = userStore.uiPreset === 'classic'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
@@ -305,9 +302,9 @@ export default observer((props: Props) => {
               }}
             >
               {collapsed ? (
-                <ChevronRightIcon sx={{ fontSize: 18 }} />
+                <ChevronRightIcon fontSize={18} />
               ) : (
-                <ExpandMoreIcon sx={{ fontSize: 18 }} />
+                <ExpandMoreIcon fontSize={18} />
               )}
             </span>
             <span
@@ -349,7 +346,7 @@ export default observer((props: Props) => {
                 aria-label="Group actions"
                 data-testid={`tab-group-menu-${row.groupId}`}
               >
-                <MoreVertIcon sx={{ fontSize: 16 }} />
+                <MoreVertIcon fontSize={16} />
               </ControlIconButton>
             </RowActionSlot>
             <RowActionSlot visible={canMutateGroups && showGroupDragHandle}>
@@ -384,14 +381,10 @@ export default observer((props: Props) => {
           />
         )}
       </div>
-      <Popover
+      <Menu
         anchorEl={menuAnchorEl}
         open={Boolean(menuAnchorEl)}
         onClose={() => setMenuAnchorEl(null)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
         style={{ zIndex: theme.zIndex.tooltip + 1 }}
       >
         {canMutateGroups && (
@@ -429,7 +422,7 @@ export default observer((props: Props) => {
           <>
             {duplicatedTabsToRemoveInGroup > 0 && (
               <>
-                <Divider />
+                <MenuDivider />
                 <MenuItem
                   data-testid={`tab-group-menu-clean-duplicates-${row.groupId}`}
                   onClick={() => {
@@ -442,7 +435,7 @@ export default observer((props: Props) => {
                 </MenuItem>
               </>
             )}
-            <Divider />
+            <MenuDivider />
             <MenuItem
               data-testid={`tab-group-menu-ungroup-${row.groupId}`}
               onClick={() => {
@@ -454,7 +447,7 @@ export default observer((props: Props) => {
             </MenuItem>
           </>
         )}
-      </Popover>
+      </Menu>
       {canMutateGroups && (
         <GroupEditorPopover
           anchorEl={editorAnchorEl}

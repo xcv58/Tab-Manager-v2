@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import DeleteSweep from '@mui/icons-material/DeleteSweep'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import { DeleteSweepIcon } from 'icons/materialIcons'
+import IconButton from 'components/ui/IconButton'
+import Tooltip from 'components/ui/Tooltip'
 import { TOOLTIP_DELAY, getNoun } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
@@ -25,7 +25,7 @@ export default observer(() => {
           className="focus:outline-none"
           aria-label={title}
         >
-          <DeleteSweep />
+          <DeleteSweepIcon />
         </IconButton>
       </div>
     </Tooltip>

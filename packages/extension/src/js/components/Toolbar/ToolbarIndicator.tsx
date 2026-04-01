@@ -1,30 +1,28 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { useTheme } from '@mui/material/styles'
-import Fade from '@mui/material/Fade'
-import Slide from '@mui/material/Slide'
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
-import IconButton from '@mui/material/IconButton'
+import { useAppTheme } from 'libs/appTheme'
+import { Fade, Slide } from 'components/ui/Transition'
+import {
+  KeyboardArrowLeftIcon,
+  KeyboardArrowRightIcon,
+} from 'icons/materialIcons'
+import IconButton from 'components/ui/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import useReduceMotion from 'libs/useReduceMotion'
-import { duration } from '@mui/material'
+import { defaultTransitionDuration } from 'libs/transition'
 
 const IndicatorIcon = ({ toolbarVisible }: { toolbarVisible: boolean }) => {
   if (toolbarVisible) {
-    return <KeyboardArrowRight />
+    return <KeyboardArrowRightIcon />
   }
-  return <KeyboardArrowLeft />
+  return <KeyboardArrowLeftIcon />
 }
 
 export default observer(() => {
-  const theme = useTheme()
+  const theme = useAppTheme()
   const { userStore } = useStore()
-  const uiColors = getUiColorTokens(
-    theme.palette.mode === 'dark',
-    userStore.uiPreset,
-  )
+  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
   const isClassicUi = userStore.uiPreset === 'classic'
   const { showToolbar, toolbarAutoHide, toolbarVisible } = userStore
   const reduceMotion = useReduceMotion()
@@ -32,7 +30,7 @@ export default observer(() => {
     <Slide
       direction="up"
       in
-      timeout={reduceMotion ? 1 : duration.enteringScreen}
+      timeout={reduceMotion ? 1 : defaultTransitionDuration.enter}
     >
       <IconButton
         style={{

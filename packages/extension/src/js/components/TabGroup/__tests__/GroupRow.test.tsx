@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import { StoreContext } from 'components/hooks/useStore'
 import GroupRow from '../GroupRow'
 
@@ -89,9 +89,9 @@ describe('GroupRow', () => {
 
     render(
       <StoreContext.Provider value={store}>
-        <ThemeProvider theme={createTheme()}>
+        <AppThemeContext.Provider value={lightAppTheme}>
           <GroupRow row={row} win={win} />
-        </ThemeProvider>
+        </AppThemeContext.Provider>
       </StoreContext.Provider>,
     )
 

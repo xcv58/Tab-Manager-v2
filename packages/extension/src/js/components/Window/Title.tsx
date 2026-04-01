@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useTheme as useMuiTheme } from '@mui/material/styles'
+import { useAppTheme } from 'libs/appTheme'
 import SelectAll from 'components/Window/SelectAll'
 import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
@@ -13,7 +13,7 @@ import HideToggle from './HideToggle'
 import { WinProps } from 'components/types'
 import { useTheme } from 'components/hooks/useTheme'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
@@ -21,12 +21,9 @@ export default observer((props: WinProps & { className: string }) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
   const { focusStore, userStore } = useStore()
-  const theme = useMuiTheme()
+  const theme = useAppTheme()
   const isDarkTheme = useTheme()
-  const uiColors = getUiColorTokens(
-    theme.palette.mode === 'dark',
-    userStore.uiPreset,
-  )
+  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
   const isClassicUi = userStore.uiPreset === 'classic'
   const { className, win } = props
   const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
@@ -159,7 +156,7 @@ export default observer((props: WinProps & { className: string }) => {
       }}
     >
       <div
-        className="flex min-h-10 w-full items-center justify-between pl-1"
+        className="flex min-h-10 w-full items-center justify-between"
         style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
       >
         <SelectAll {...props} />
@@ -168,7 +165,7 @@ export default observer((props: WinProps & { className: string }) => {
           onClick={onTitleClick}
           onFocus={onTitleFocus}
           className={classNames(
-            'flex h-10 flex-auto items-center overflow-hidden text-base text-left rounded-sm',
+            'flex h-10 flex-auto items-center overflow-hidden pl-1 text-base text-left rounded-sm',
             {
               'text-gray-900': !isDarkTheme,
               'text-gray-100': isDarkTheme,

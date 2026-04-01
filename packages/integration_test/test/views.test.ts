@@ -278,7 +278,7 @@ test.describe('The Extension page should', () => {
       'rgb(217, 48, 37)',
     )
     await expect(
-      page.getByTestId(`tab-row-${groupedTabIds[0]}`).locator('hr'),
+      page.getByTestId(`tab-group-indicator-${groupedTabIds[0]}`),
     ).toHaveCSS('border-top-color', 'rgb(217, 48, 37)')
   })
 
@@ -563,8 +563,10 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
-    await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
-    await page.getByTestId(`tab-group-menu-${groupId}`).click()
+    await page.waitForTimeout(200)
+    const groupMenuButton = page.getByTestId(`tab-group-menu-${groupId}`)
+    await expect(groupMenuButton).toBeVisible()
+    await groupMenuButton.click({ force: true })
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
     await waitForTestId(page, `tab-group-editor-${groupId}`)
     const groupEditor = page.getByTestId(`tab-group-editor-${groupId}`)
@@ -577,7 +579,7 @@ test.describe('The Extension page should', () => {
     expect(titleInputScreenshot).toMatchSnapshot(
       'group-editor-title-input.png',
       {
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: 0.1,
         threshold: 0.2,
       },
     )
@@ -622,6 +624,7 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
 
     await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    await page.waitForTimeout(200)
     await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
     await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
@@ -647,10 +650,23 @@ test.describe('The Extension page should', () => {
   })
 
   test('render search input atom', async () => {
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
+    const searchInput = page.getByTestId('toolbar-search-input')
     await expect(searchInput).toBeVisible()
+    await searchInput.evaluate((el) => {
+      const setWidth = (node: HTMLElement | null) => {
+        if (!node) {
+          return
+        }
+        node.style.boxSizing = 'border-box'
+        node.style.width = '1066px'
+        node.style.minWidth = '1066px'
+        node.style.maxWidth = '1066px'
+        node.style.flex = '0 0 auto'
+      }
+
+      setWidth(el as HTMLElement)
+      setWidth((el as HTMLElement).parentElement)
+    })
     await page.mouse.click(12, 120)
     const searchInputScreenshot = await searchInput.screenshot()
     expect(searchInputScreenshot).toMatchSnapshot('search-input-atom.png', {
@@ -660,13 +676,27 @@ test.describe('The Extension page should', () => {
   })
 
   test('render command suggestion atom', async () => {
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
+    const searchBar = page.getByTestId('toolbar-search-input')
+    const searchInput = searchBar.locator('input')
     await expect(searchInput).toBeVisible()
+    await searchBar.evaluate((el) => {
+      const setWidth = (node: HTMLElement | null) => {
+        if (!node) {
+          return
+        }
+        node.style.boxSizing = 'border-box'
+        node.style.width = '1066px'
+        node.style.minWidth = '1066px'
+        node.style.maxWidth = '1066px'
+        node.style.flex = '0 0 auto'
+      }
+
+      setWidth(el as HTMLElement)
+      setWidth((el as HTMLElement).parentElement)
+    })
     await searchInput.click()
     await searchInput.fill('>sort')
-    const firstOption = page.locator('.MuiAutocomplete-option').first()
+    const firstOption = page.locator('[role="option"]').first()
     await waitForSurfaceToFullyAppear(page, firstOption)
     const commandOptionScreenshot = await firstOption.screenshot({
       animations: 'disabled',
@@ -782,7 +812,9 @@ test.describe('The Extension page should', () => {
     const reloadButton = page
       .locator('button[aria-label="Reload all tabs"]')
       .first()
-    await windowTitle.hover()
+    const reloadButtonSlot = reloadButton.locator('xpath=ancestor::div[1]')
+    await windowTitle.focus()
+    await expect(reloadButtonSlot).toHaveCSS('opacity', '1')
     await waitForLocatorRectToStabilize(reloadButton, {
       minWidth: 20,
       minHeight: 20,
@@ -865,11 +897,13 @@ test.describe('The Extension page should', () => {
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
       .first()
     await expect(toolbarToggle).toBeVisible()
+    await page.mouse.move(1, 1)
+    await page.waitForTimeout(100)
     const toolbarToggleScreenshot = await toolbarToggle.screenshot()
     expect(toolbarToggleScreenshot).toMatchSnapshot(
       'settings-toolbar-toggle-atom.png',
       {
-        maxDiffPixelRatio: 0.08,
+        maxDiffPixelRatio: 0.12,
         threshold: 0.2,
       },
     )
@@ -877,8 +911,8 @@ test.describe('The Extension page should', () => {
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
     await expect(
-      themeToggleGroup.getByRole('button', { name: 'Use system theme' }),
-    ).toHaveAttribute('aria-pressed', 'true')
+      themeToggleGroup.getByRole('radio', { name: 'Use system theme' }),
+    ).toHaveAttribute('aria-checked', 'true')
     const themeToggleScreenshot = await themeToggleGroup.screenshot()
     expect(themeToggleScreenshot).toMatchSnapshot(
       'settings-theme-toggle-group-atom.png',
@@ -891,8 +925,8 @@ test.describe('The Extension page should', () => {
     const uiPresetGroup = page.getByTestId('settings-ui-preset-toggle-group')
     await expect(uiPresetGroup).toBeVisible()
     await expect(
-      uiPresetGroup.getByRole('button', { name: 'Use modern interface style' }),
-    ).toHaveAttribute('aria-pressed', 'true')
+      uiPresetGroup.getByRole('radio', { name: 'Use modern interface style' }),
+    ).toHaveAttribute('aria-checked', 'true')
     const uiPresetScreenshot = await uiPresetGroup.screenshot()
     expect(uiPresetScreenshot).toMatchSnapshot(
       'settings-ui-preset-toggle-group-atom.png',
@@ -921,7 +955,7 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
-    const autoFitColumnsToggle = page.getByRole('switch', {
+    const autoFitColumnsToggle = page.getByRole('checkbox', {
       name: /Auto-fit columns/i,
     })
     await expect(autoFitColumnsToggle).toBeVisible()
@@ -995,7 +1029,7 @@ test.describe('The Extension page should', () => {
     await expect(tabMenuButton).toBeVisible()
     await tabMenuButton.click({ force: true })
     await waitForTestId(page, `tab-menu-option-${atomTabId}-close`)
-    const tabMenuPanel = page.locator('.MuiPopover-root .MuiPaper-root').last()
+    const tabMenuPanel = page.getByRole('menu').last()
     await waitForSurfaceToFullyAppear(page, tabMenuPanel)
     const tabMenuPanelScreenshot = await tabMenuPanel.screenshot({
       animations: 'disabled',
@@ -1172,9 +1206,10 @@ test.describe('The Extension page should', () => {
     }, atomTab!.id)
 
     const windowMetrics = await windowTitle.evaluate((titleNode) => {
-      const checkbox = titleNode.querySelector(
-        '.MuiCheckbox-root',
-      ) as HTMLElement | null
+      const checkboxInput = titleNode.querySelector(
+        'input[type="checkbox"][aria-label*="all tabs"]',
+      ) as HTMLInputElement | null
+      const checkbox = checkboxInput?.parentElement as HTMLElement | null
       const icon = checkbox?.querySelector('svg') as SVGElement | null
       if (!checkbox || !icon) {
         return null

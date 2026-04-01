@@ -8,7 +8,7 @@ import React, {
 import { observer } from 'mobx-react-lite'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from '@mui/material/Tooltip'
+import Tooltip from 'components/ui/Tooltip'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 import { getNoun } from 'libs'
@@ -54,6 +54,13 @@ const TabContent = observer(
     const onClick = useCallback(() => {
       activate({ origin: 'mouse', reveal: false })
     }, [activate])
+    const onFocus = useCallback(() => {
+      focus({
+        origin: 'keyboard',
+        reveal: false,
+        moveDomFocus: false,
+      })
+    }, [focus])
     const tooltip = open && (
       <div className="leading-tight break-all whitespace-normal">
         <p>{title}</p>
@@ -67,9 +74,10 @@ const TabContent = observer(
       <Tooltip {...{ open, title: tooltip }}>
         <button
           ref={buttonRef}
+          tabIndex={-1}
           onClick={onClick}
           onAuxClick={onAuxClick}
-          onFocus={focus}
+          onFocus={onFocus}
           className={buttonClassName}
           style={buttonStyle}
         >

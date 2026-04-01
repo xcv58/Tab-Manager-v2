@@ -1,8 +1,8 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Help from '@mui/icons-material/Help'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import { HelpIcon } from 'icons/materialIcons'
+import IconButton from 'components/ui/IconButton'
+import Tooltip from 'components/ui/Tooltip'
 import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 
@@ -18,7 +18,7 @@ export default observer(() => {
           className="focus:outline-none"
           aria-label={TITLE}
         >
-          <Help />
+          <HelpIcon />
         </IconButton>
       </div>
     </Tooltip>

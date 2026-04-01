@@ -155,8 +155,14 @@ export default class Tab extends Focusable {
 
   closeDuplicatedTab = () => this.store.windowStore.closeDuplicatedTab(this)
 
-  remove = () => {
+  remove = ({ preserveFocus = true }: { preserveFocus?: boolean } = {}) => {
+    const nextFocusedItem = preserveFocus
+      ? this.store.prepareFocusForRemovedTabs([this])
+      : null
     this.removing = true
+    if (preserveFocus) {
+      this.store.restoreDomFocusAfterRemoval(nextFocusedItem)
+    }
     this.store.windowStore.removeTabs([this.id])
     browser.tabs.remove(this.id)
   }

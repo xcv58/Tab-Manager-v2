@@ -24,9 +24,8 @@ const waitForDialogToFullyAppear = async (
   page: Page,
   dialog: Locator,
 ): Promise<void> => {
-  const dialogRoot = page.locator('.MuiDialog-root').first()
-  await expect(dialogRoot).toBeVisible()
-  await waitForAnimationsToFinish(dialogRoot)
+  await expect(dialog).toBeVisible()
+  await waitForAnimationsToFinish(dialog)
   await waitForSurfaceToFullyAppear(page, dialog)
 }
 
@@ -271,7 +270,7 @@ test.describe('The Extension page should', () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
-    const settingsDialog = page.locator('.MuiDialog-paper').first()
+    const settingsDialog = page.getByRole('dialog').first()
     await waitForDialogToFullyAppear(page, settingsDialog)
     const settingsDialogScreenshot = await settingsDialog.screenshot({
       animations: 'disabled',
@@ -329,7 +328,7 @@ test.describe('The Extension page should', () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
-    const settingsDialog = page.locator('.MuiDialog-paper').first()
+    const settingsDialog = page.getByRole('dialog').first()
     await waitForDialogToFullyAppear(page, settingsDialog)
     await page.mouse.move(1, 1)
     await page.waitForTimeout(150)
@@ -1008,7 +1007,7 @@ test.describe('The Extension page should', () => {
     await header.hover()
     await expect(page.getByTestId(`tab-group-menu-${groupId}`)).toBeVisible()
     await page.getByTestId(`tab-group-menu-${groupId}`).click()
-    const groupMenu = page.locator('.MuiPopover-root .MuiPaper-root').last()
+    const groupMenu = page.getByRole('menu').last()
     await waitForSurfaceToFullyAppear(page, groupMenu)
     const groupMenuScreenshot = await groupMenu.screenshot({
       animations: 'disabled',

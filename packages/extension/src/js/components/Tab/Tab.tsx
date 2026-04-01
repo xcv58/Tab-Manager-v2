@@ -157,14 +157,21 @@ export default observer((props: TabProps & { className?: string }) => {
         />
       )}
       {pin}
-      <Icon tab={tab} />
-      <TabContent tab={tab} />
+      <Icon tab={tab} disableSequentialFocus={props.disableSequentialFocus} />
+      <TabContent
+        tab={tab}
+        disableSequentialFocus={props.disableSequentialFocus}
+      />
       <RowActionRail tail={<DuplicateMarker tab={tab} />}>
-        <TabTools tab={tab} />
+        <TabTools
+          tab={tab}
+          disableSequentialFocus={props.disableSequentialFocus}
+        />
         <RowActionSlot>
           <CloseButton
             onClick={onRemove}
             disabled={tab.removing}
+            tabIndex={props.disableSequentialFocus ? -1 : undefined}
             size="compact"
           />
         </RowActionSlot>
