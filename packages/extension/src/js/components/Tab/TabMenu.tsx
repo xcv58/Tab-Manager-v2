@@ -52,6 +52,8 @@ export default observer((props: TabProps) => {
     closeOtherTabs,
     win,
     remove,
+    groupTab,
+    sameDomainTabs,
     pinned,
     togglePin,
     duplicatedTabCount,
@@ -107,6 +109,13 @@ export default observer((props: TabProps) => {
       ...OPTION,
       label: 'Remove this tab from group',
       onClick: () => tabGroupStore.ungroupTab(props.tab.id),
+    })
+  }
+  if (sameDomainTabs && sameDomainTabs.length > 1) {
+    options.push(DIVIDER, {
+      ...OPTION,
+      label: `Cluster ${sameDomainTabs.length} same domain ungrouped tabs to this window`,
+      onClick: groupTab,
     })
   }
   if (duplicatedTabCount > 1) {
