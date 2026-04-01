@@ -71,6 +71,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.29.0",
+    "@babel/eslint-parser": "7.28.6",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@types/chrome": "0.1.37",
@@ -85,7 +86,6 @@
     "@types/react-router-dom": "5.3.3",
     "@types/react-window": "1.8.8",
     "@types/webpack-env": "1.18.8",
-    "@babel/eslint-parser": "7.28.6",
     "chrome-webstore-upload-cli": "3.5.0",
     "clean-webpack-plugin": "4.0.0",
     "codecov": "3.8.3",
@@ -122,7 +122,7 @@
     "ts-loader": "9.5.4",
     "typescript": "5.9.3",
     "webpack": "5.105.3",
-    "webpack-bundle-analyzer": "4.10.2",
+    "webpack-bundle-analyzer": "5.3.0",
     "webpack-dev-server": "5.2.3"
   }
 }
