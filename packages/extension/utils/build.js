@@ -1,7 +1,7 @@
 const webpack = require('webpack')
 const config = require('../webpack.config')()
 const TerserJSPlugin = require('terser-webpack-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 delete config.chromeExtensionBoilerplate
 
@@ -15,7 +15,7 @@ webpack(
           test: /\.js(\?.*)?$/i,
           parallel: true,
         }),
-        new OptimizeCSSAssetsPlugin({}),
+        new CssMinimizerPlugin(),
       ],
     },
   },

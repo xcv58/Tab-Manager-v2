@@ -16,8 +16,6 @@
     "build:marketing-artwork": "run-s build:promotional-tiles build:docs-posters",
     "sync:release-secrets": "node ./scripts/sync-release-secrets-to-github.mjs",
     "release:releasability": "node ./scripts/audit-release-please-releasability.mjs",
-    "release": "pnpm --filter tab-manager-v2 exec standard-version",
-    "release-it": "release-it --ci",
     "test": "run-s test:unit test:integration",
     "test:lint": "pnpm lint",
     "test:unit": "pnpm --filter tab-manager-v2 test",
@@ -47,22 +45,20 @@
     "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.3",
     "@plasmohq/edge-addons-api": "^2.0.0",
-    "@typescript-eslint/eslint-plugin": "8.56.1",
-    "@typescript-eslint/parser": "8.56.1",
+    "@typescript-eslint/eslint-plugin": "8.58.0",
+    "@typescript-eslint/parser": "8.58.0",
     "chrome-webstore-upload-cli": "3.5.0",
-    "coveralls": "3.1.1",
     "dotenv": "16.6.1",
-    "eslint": "9.39.3",
+    "eslint": "9.39.4",
     "eslint-config-prettier": "9.1.2",
     "eslint-plugin-jest": "28.14.0",
     "husky": "9.1.7",
     "lint-staged": "15.5.2",
     "npm-run-all2": "7.0.2",
     "prettier": "3.8.1",
-    "release-it": "19.2.4",
     "typescript": "5.9.3",
     "web-ext": "10.1.0"
   },
@@ -74,6 +70,39 @@
     "*.{json,css,md,md,mdx,html}": [
       "pnpm prettier"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "@babel/runtime@7.26.0": "7.29.2",
+      "@tootallnate/once@2.0.0": "3.0.1",
+      "ajv@6.12.6": "6.14.0",
+      "ajv@8.17.1": "8.18.0",
+      "brace-expansion@1.1.11": "1.1.13",
+      "brace-expansion@2.0.1": "2.0.3",
+      "brace-expansion@5.0.4": "5.0.5",
+      "diff@3.5.0": "3.5.1",
+      "flatted@3.3.2": "3.4.2",
+      "form-data@4.0.0": "4.0.4",
+      "glob@10.4.5": "10.5.0",
+      "glob@11.0.0": "11.1.0",
+      "handlebars@4.7.8": "4.7.9",
+      "happy-dom@15.11.7": "20.8.9",
+      "js-yaml@3.14.1": "3.14.2",
+      "js-yaml@4.1.0": "4.1.1",
+      "lodash@4.17.21": "4.17.23",
+      "minimatch@3.1.2": "3.1.5",
+      "minimatch@9.0.5": "9.0.7",
+      "minimatch@10.0.1": "10.2.4",
+      "path-to-regexp@0.1.12": "0.1.13",
+      "path-to-regexp@8.2.0": "8.4.1",
+      "picomatch@2.3.1": "2.3.2",
+      "qs@6.13.0": "6.14.2",
+      "qs@6.14.1": "6.14.2",
+      "ws@8.14.2": "8.20.0",
+      "ws@8.18.0": "8.20.0",
+      "yaml@1.10.2": "1.10.3",
+      "yaml@2.8.2": "2.8.3"
+    }
   },
   "packageManager": "pnpm@10.32.1"
 }
