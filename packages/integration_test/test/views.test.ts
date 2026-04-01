@@ -227,6 +227,16 @@ test.describe('The Extension page should', () => {
       return tabs.map((tab) => tab.id)
     }, groupId)
     expect(groupedTabIds).toHaveLength(2)
+    await expect
+      .poll(async () => {
+        const counts = await Promise.all(
+          groupedTabIds.map((tabId) =>
+            page.getByTestId(`tab-group-indicator-${tabId}`).count(),
+          ),
+        )
+        return counts.every((count) => count === 1)
+      })
+      .toBe(true)
     for (const tabId of groupedTabIds) {
       await expect(page.getByTestId(`tab-row-${tabId}`)).toHaveCount(1)
       await expect(page.getByTestId(`tab-group-indicator-${tabId}`)).toHaveCSS(
