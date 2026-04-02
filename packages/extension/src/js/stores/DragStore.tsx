@@ -330,6 +330,8 @@ export default class DragStore {
         options.source === 'window-zone'
           ? this.getWholeSelectedGroupIds(sources)
           : new Set<number>()
+      const shouldPreserveWholeGroupsOnBlankSpace =
+        options.source === 'window-zone' && wholeSelectedGroupIds.size > 0
       const sourceTabIds = sources.map((x) => x.id)
       // Blank-space drops detach only the selected tabs that are still partial
       // group fragments; fully selected groups stay intact.
@@ -439,18 +441,30 @@ export default class DragStore {
           }
         } else {
           await moveTabs(sources, windowId, index)
-          if (
-            hasTabGroupFlow &&
-            this.canMutateGroups() &&
-            !this.isNoGroupId(sourceGroupId) &&
-            wholeGroupSelection &&
-            sourceGroupId !== targetGroupId &&
-            !options.forceUngroup
-          ) {
-            await this.store.tabGroupStore.groupTabs(
-              sourceTabIds,
-              sourceGroupId,
-            )
+          if (hasTabGroupFlow && this.canMutateGroups()) {
+            if (shouldPreserveWholeGroupsOnBlankSpace) {
+              for (const groupId of wholeSelectedGroupIds) {
+                const preservedTabIds = sources
+                  .filter((tab) => tab.groupId === groupId)
+                  .map((tab) => tab.id)
+                if (preservedTabIds.length) {
+                  await this.store.tabGroupStore.groupTabs(
+                    preservedTabIds,
+                    groupId,
+                  )
+                }
+              }
+            } else if (
+              !this.isNoGroupId(sourceGroupId) &&
+              wholeGroupSelection &&
+              sourceGroupId !== targetGroupId &&
+              !options.forceUngroup
+            ) {
+              await this.store.tabGroupStore.groupTabs(
+                sourceTabIds,
+                sourceGroupId,
+              )
+            }
           }
         }
       }

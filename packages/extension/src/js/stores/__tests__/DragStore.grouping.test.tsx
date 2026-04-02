@@ -416,13 +416,13 @@ describe('DragStore with tab groups', () => {
     expect(moveGroup).not.toHaveBeenCalled()
   })
 
-  it('window-zone drop detaches only partial-group fragments in a mixed selection', async () => {
+  it('window-zone drop preserves each whole group in a mixed cross-window selection', async () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()
-    const wholeGroupTab1 = { id: 1, groupId: 10, windowId: 1, index: 0 }
-    const wholeGroupTab2 = { id: 2, groupId: 10, windowId: 1, index: 1 }
-    const partialGroupTab = { id: 3, groupId: 20, windowId: 1, index: 2 }
-    const partialGroupSibling = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const wholeGroupTab1 = { id: 1, groupId: 10, windowId: 2, index: 0 }
+    const wholeGroupTab2 = { id: 2, groupId: 10, windowId: 2, index: 1 }
+    const partialGroupTab = { id: 3, groupId: 20, windowId: 2, index: 2 }
+    const partialGroupSibling = { id: 4, groupId: 20, windowId: 2, index: 3 }
     const moveTabs = jest.fn(() => Promise.resolve())
     const moveGroup = jest.fn(() => Promise.resolve())
     const groupTabs = jest.fn(() => Promise.resolve())
@@ -461,7 +461,7 @@ describe('DragStore with tab groups', () => {
 
     await dragStore.dropAt({
       windowId: 1,
-      index: 4,
+      index: 0,
       forceUngroup: true,
       source: 'window-zone',
     })
@@ -474,10 +474,51 @@ describe('DragStore with tab groups', () => {
         expect.objectContaining({ id: 3 }),
       ],
       1,
-      1,
+      0,
     )
-    expect(groupTabs).not.toHaveBeenCalled()
+    expect(groupTabs).toHaveBeenCalledWith([1, 2], 10)
     expect(moveGroup).not.toHaveBeenCalled()
+  })
+
+  it('window-zone drop preserves a whole group without moveGroup support', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const tab1 = { id: 1, groupId: 10, windowId: 2, index: 0 }
+    const tab2 = { id: 2, groupId: 10, windowId: 2, index: 1 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const ungroupTabs = jest.fn(() => Promise.resolve())
+    const dragStore = setupDragStore({
+      selection,
+      targetTabs: [{ id: 3, groupId: -1, windowId: 1, index: 0 }],
+      moveTabs,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn(() => [tab1, tab2]),
+        groupTabs,
+        ungroupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => false,
+      },
+    })
+    dragStore.dragStartTab({ ...tab1, unhover: jest.fn() } as any)
+    selection.set(tab2.id, tab2 as any)
+
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 0,
+      forceUngroup: true,
+      source: 'window-zone',
+    })
+
+    expect(moveTabs).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: 1 }), expect.objectContaining({ id: 2 })],
+      1,
+      0,
+    )
+    expect(groupTabs).toHaveBeenCalledWith([1, 2], 10)
+    expect(ungroupTabs).not.toHaveBeenCalled()
   })
 
   it('dropAt from group header should insert at start of target group', async () => {
