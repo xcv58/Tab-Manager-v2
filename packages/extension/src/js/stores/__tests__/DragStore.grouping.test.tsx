@@ -171,6 +171,276 @@ describe('DragStore with tab groups', () => {
     expect(moveGroup).not.toHaveBeenCalled()
   })
 
+  it('group header before-zone keeps a whole selected group separate', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const sourceTab1 = { id: 1, groupId: 10, windowId: 1, index: 0 }
+    const sourceTab2 = { id: 2, groupId: 10, windowId: 1, index: 1 }
+    const targetTab1 = { id: 3, groupId: 20, windowId: 1, index: 2 }
+    const targetTab2 = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [sourceTab1, sourceTab2]
+          }
+          return [targetTab1, targetTab2]
+        }),
+        moveGroup,
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [sourceTab1, sourceTab2, targetTab1, targetTab2],
+        })),
+      },
+    } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValue([sourceTab1, sourceTab2, targetTab1, targetTab2])
+
+    dragStore.dragStartGroup(10)
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 2,
+      source: 'group-header',
+    })
+
+    expect(moveGroup).toHaveBeenCalledWith(10, {
+      windowId: 1,
+      index: 0,
+    })
+    expect(groupTabs).not.toHaveBeenCalled()
+    expect(moveTabs).not.toHaveBeenCalled()
+  })
+
+  it('group header center merges the entire selected group into the target group', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const sourceTab1 = { id: 1, groupId: 10, windowId: 1, index: 0 }
+    const sourceTab2 = { id: 2, groupId: 10, windowId: 1, index: 1 }
+    const targetTab1 = { id: 3, groupId: 20, windowId: 1, index: 2 }
+    const targetTab2 = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [sourceTab1, sourceTab2]
+          }
+          return [targetTab1, targetTab2]
+        }),
+        moveGroup,
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [sourceTab1, sourceTab2, targetTab1, targetTab2],
+        })),
+      },
+    } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValue([sourceTab1, sourceTab2, targetTab1, targetTab2])
+
+    dragStore.dragStartGroup(10)
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 2,
+      targetGroupId: 20,
+      before: true,
+      source: 'group-header',
+    })
+
+    expect(moveGroup).not.toHaveBeenCalled()
+    expect(groupTabs).toHaveBeenCalledWith([1, 2, 3, 4], 20)
+    expect(moveTabs).not.toHaveBeenCalled()
+  })
+
+  it('grouped tab-row drop keeps whole-group-only selections separate', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const wholeGroupTab1 = { id: 1, groupId: 10, windowId: 1, index: 0 }
+    const wholeGroupTab2 = { id: 2, groupId: 10, windowId: 1, index: 1 }
+    const otherGroupTab1 = { id: 3, groupId: 30, windowId: 1, index: 2 }
+    const otherGroupTab2 = { id: 4, groupId: 30, windowId: 1, index: 3 }
+    const targetTab1 = { id: 5, groupId: 20, windowId: 1, index: 4 }
+    const targetTab2 = { id: 6, groupId: 20, windowId: 1, index: 5 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [wholeGroupTab1, wholeGroupTab2]
+          }
+          if (groupId === 30) {
+            return [otherGroupTab1, otherGroupTab2]
+          }
+          return [targetTab1, targetTab2]
+        }),
+        moveGroup,
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [
+            wholeGroupTab1,
+            wholeGroupTab2,
+            otherGroupTab1,
+            otherGroupTab2,
+            targetTab1,
+            targetTab2,
+          ],
+        })),
+      },
+    } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValue([
+        wholeGroupTab1,
+        wholeGroupTab2,
+        otherGroupTab1,
+        otherGroupTab2,
+        targetTab1,
+        targetTab2,
+      ])
+    dragStore.dragStartTab({ ...wholeGroupTab1, unhover: jest.fn() } as any)
+    selection.set(wholeGroupTab2.id, wholeGroupTab2 as any)
+    selection.set(otherGroupTab1.id, otherGroupTab1 as any)
+    selection.set(otherGroupTab2.id, otherGroupTab2 as any)
+
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 4,
+      targetGroupId: 20,
+      before: true,
+      source: 'tab-row',
+    })
+
+    expect(moveGroup).not.toHaveBeenCalled()
+    expect(groupTabs).toHaveBeenCalledWith([1, 2], 10)
+    expect(groupTabs).toHaveBeenCalledWith([3, 4], 30)
+    expect(groupTabs).not.toHaveBeenCalledWith(expect.any(Array), 20)
+  })
+
+  it('grouped tab-row drop merges loose or partial-group selections into the target group', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const looseTab = { id: 1, groupId: -1, windowId: 1, index: 0 }
+    const partialGroupTab1 = { id: 2, groupId: 10, windowId: 1, index: 1 }
+    const partialGroupTab2 = { id: 3, groupId: 10, windowId: 1, index: 2 }
+    const targetTab1 = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const targetTab2 = { id: 5, groupId: 20, windowId: 1, index: 4 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [
+              partialGroupTab1,
+              partialGroupTab2,
+              {
+                id: 6,
+                groupId: 10,
+                windowId: 1,
+                index: 5,
+              },
+            ]
+          }
+          return [targetTab1, targetTab2]
+        }),
+        moveGroup,
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [
+            looseTab,
+            partialGroupTab1,
+            partialGroupTab2,
+            targetTab1,
+            targetTab2,
+          ],
+        })),
+      },
+    } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValue([
+        looseTab,
+        partialGroupTab1,
+        partialGroupTab2,
+        targetTab1,
+        targetTab2,
+      ])
+    dragStore.dragStartTab({ ...looseTab, unhover: jest.fn() } as any)
+    selection.set(partialGroupTab1.id, partialGroupTab1 as any)
+    selection.set(partialGroupTab2.id, partialGroupTab2 as any)
+
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 3,
+      targetGroupId: 20,
+      before: true,
+      source: 'tab-row',
+    })
+
+    expect(moveGroup).not.toHaveBeenCalled()
+    expect(groupTabs).toHaveBeenCalledWith(
+      expect.arrayContaining([1, 2, 3]),
+      20,
+    )
+  })
+
   it('should apply grouped drop behavior in firefox when tab group capabilities exist', async () => {
     process.env.TARGET_BROWSER = 'firefox'
     const selection = new Map()
@@ -697,7 +967,7 @@ describe('DragStore with tab groups', () => {
     expect(moveTabs).not.toHaveBeenCalled()
   })
 
-  it('full-group selection should use moveGroup fast path', async () => {
+  it('full-group tab-row selection should preserve the selected group block', async () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()
     const tab1 = { id: 1, groupId: -1, windowId: 1, index: 0 }
@@ -742,15 +1012,12 @@ describe('DragStore with tab groups', () => {
     dragStore.dragStartGroup(10)
     await dragStore.drop(tab4 as any, true)
 
-    expect(moveGroup).toHaveBeenCalledWith(10, {
-      windowId: 1,
-      index: 1,
-    })
-    expect(moveTabs).not.toHaveBeenCalled()
-    expect(groupTabs).not.toHaveBeenCalled()
+    expect(moveGroup).not.toHaveBeenCalled()
+    expect(moveTabs).toHaveBeenCalledWith([tab2, tab3], 1, 1)
+    expect(groupTabs).toHaveBeenCalledWith([2, 3], 10)
   })
 
-  it('full-group selection should not fallback when moveGroup resolves null', async () => {
+  it('full-group tab-row selection preserves the block even without moveGroup support', async () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()
     const tab1 = { id: 1, groupId: -1, windowId: 1, index: 0 }
@@ -791,11 +1058,8 @@ describe('DragStore with tab groups', () => {
     dragStore.dragStartGroup(10)
     await dragStore.drop(tab4 as any, true)
 
-    expect(moveGroup).toHaveBeenCalledWith(10, {
-      windowId: 1,
-      index: 1,
-    })
-    expect(moveTabs).not.toHaveBeenCalled()
-    expect(groupTabs).not.toHaveBeenCalled()
+    expect(moveGroup).not.toHaveBeenCalled()
+    expect(moveTabs).toHaveBeenCalledWith([tab2, tab3], 1, 1)
+    expect(groupTabs).toHaveBeenCalledWith([2, 3], 10)
   })
 })

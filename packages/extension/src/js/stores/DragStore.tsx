@@ -326,10 +326,12 @@ export default class DragStore {
       )
       const preserveWholeGroupOnBlankSpace =
         options.source === 'window-zone' && wholeGroupSelection
-      const wholeSelectedGroupIds =
-        options.source === 'window-zone'
-          ? this.getWholeSelectedGroupIds(sources)
-          : new Set<number>()
+      const wholeSelectedGroupIds = this.getWholeSelectedGroupIds(sources)
+      const wholeGroupOnlySelection =
+        sources.some((tab) => !this.isNoGroupId(tab.groupId)) &&
+        sources
+          .filter((tab) => !this.isNoGroupId(tab.groupId))
+          .every((tab) => wholeSelectedGroupIds.has(tab.groupId))
       const shouldPreserveWholeGroupsOnBlankSpace =
         options.source === 'window-zone' && wholeSelectedGroupIds.size > 0
       const sourceTabIds = sources.map((x) => x.id)
@@ -366,6 +368,7 @@ export default class DragStore {
       const canMoveGroup =
         hasTabGroupFlow &&
         this.canMoveGroups() &&
+        !hasTargetGroup &&
         !this.isNoGroupId(sourceGroupId) &&
         sourceGroupId !== targetGroupId &&
         wholeGroupSelection &&
@@ -375,8 +378,14 @@ export default class DragStore {
         this.canMutateGroups() &&
         hasTargetGroup &&
         sourceGroupId !== targetGroupId &&
-        !wholeGroupSelection &&
+        (options.source === 'group-header' || !wholeGroupOnlySelection) &&
         !options.forceUngroup
+      const shouldPreserveWholeGroupsOnTargetGroup =
+        hasTabGroupFlow &&
+        this.canMutateGroups() &&
+        hasTargetGroup &&
+        options.source === 'tab-row' &&
+        wholeGroupOnlySelection
       const shouldDetachFromSourceGroup =
         hasTabGroupFlow &&
         this.canMutateGroups() &&
@@ -396,7 +405,17 @@ export default class DragStore {
             detachableGroupedSourceTabIds,
           )
         }
-        if (shouldJoinTargetGroup) {
+        if (shouldPreserveWholeGroupsOnTargetGroup) {
+          await moveTabs(sources, windowId, index)
+          for (const groupId of wholeSelectedGroupIds) {
+            const preservedTabIds = sources
+              .filter((tab) => tab.groupId === groupId)
+              .map((tab) => tab.id)
+            if (preservedTabIds.length) {
+              await this.store.tabGroupStore.groupTabs(preservedTabIds, groupId)
+            }
+          }
+        } else if (shouldJoinTargetGroup) {
           const isUngroupedJoin =
             this.isNoGroupId(sourceGroupId) && groupedSourceTabIds.length === 0
           if (isUngroupedJoin) {
