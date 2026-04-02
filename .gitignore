@@ -19,6 +19,7 @@ playwright-report
 test-results
 .playwright-mcp/
 .tmp/
+.worktrees/
 
 # macOS
 .DS_Store
