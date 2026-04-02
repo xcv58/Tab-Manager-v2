@@ -934,11 +934,11 @@ describe('DragStore with tab groups', () => {
       source: 'window-zone',
     })
 
+    expect(moveTabs).toHaveBeenNthCalledWith(1, [looseTab], 1, 0)
     expect(moveGroup).toHaveBeenCalledWith(10, {
       windowId: 1,
       index: 0,
     })
-    expect(moveTabs).toHaveBeenCalledWith([looseTab], 1, 2)
     expect(groupTabs).not.toHaveBeenCalled()
     expect(ungroupTabs).not.toHaveBeenCalled()
   })

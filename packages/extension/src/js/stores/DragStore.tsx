@@ -514,17 +514,17 @@ export default class DragStore {
               sources,
               wholeSelectedGroupIds,
             )
-            let currentIndex = index
-            for (const block of blocks) {
+            // Insert later blocks first so the final visible order matches the
+            // source window order when the browser applies the moves one by one.
+            for (const block of blocks.slice().reverse()) {
               if (block.kind === 'group') {
                 await this.store.tabGroupStore.moveGroup(block.groupId, {
                   windowId,
-                  index: currentIndex,
+                  index,
                 })
               } else {
-                await moveTabs(block.tabs, windowId, currentIndex)
+                await moveTabs(block.tabs, windowId, index)
               }
-              currentIndex += block.tabs.length
             }
           } else {
             await moveTabs(sources, windowId, index)
