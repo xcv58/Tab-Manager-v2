@@ -144,6 +144,25 @@ export default class DragStore {
     return groupTabs.every((x) => selectedIds.has(x.id))
   }
 
+  getWholeSelectedGroupIds = (tabs: Tab[]) => {
+    const groupedTabsByGroupId = new Map<number, Tab[]>()
+    tabs.forEach((tab) => {
+      if (this.isNoGroupId(tab.groupId)) {
+        return
+      }
+      const groupTabs = groupedTabsByGroupId.get(tab.groupId) ?? []
+      groupTabs.push(tab)
+      groupedTabsByGroupId.set(tab.groupId, groupTabs)
+    })
+    return new Set(
+      Array.from(groupedTabsByGroupId.entries())
+        .filter(([groupId, groupTabs]) =>
+          this.isWholeGroupSelection(groupId, groupTabs),
+        )
+        .map(([groupId]) => groupId),
+    )
+  }
+
   getTargetIndex = (winTabs: Tab[], targetTab: Tab, before: boolean) => {
     const targetGroupId = targetTab.groupId
     if (
@@ -305,10 +324,22 @@ export default class DragStore {
         sourceGroupId,
         sources,
       )
+      const preserveWholeGroupOnBlankSpace =
+        options.source === 'window-zone' && wholeGroupSelection
+      const wholeSelectedGroupIds =
+        options.source === 'window-zone'
+          ? this.getWholeSelectedGroupIds(sources)
+          : new Set<number>()
       const sourceTabIds = sources.map((x) => x.id)
-      const groupedSourceTabIds = sources
-        .filter((x) => !this.isNoGroupId(x.groupId))
-        .map((x) => x.id)
+      // Blank-space drops detach only the selected tabs that are still partial
+      // group fragments; fully selected groups stay intact.
+      const groupedSourceTabs = sources.filter(
+        (x) => !this.isNoGroupId(x.groupId),
+      )
+      const groupedSourceTabIds = groupedSourceTabs.map((x) => x.id)
+      const detachableGroupedSourceTabIds = groupedSourceTabs
+        .filter((tab) => !wholeSelectedGroupIds.has(tab.groupId))
+        .map((tab) => tab.id)
       const { windowId } = options
       const win = getTargetWindow(windowId)
       const targetGroupId = options.targetGroupId ?? this.getNoGroupId()
@@ -336,7 +367,7 @@ export default class DragStore {
         !this.isNoGroupId(sourceGroupId) &&
         sourceGroupId !== targetGroupId &&
         wholeGroupSelection &&
-        !options.forceUngroup
+        (!options.forceUngroup || preserveWholeGroupOnBlankSpace)
       const shouldJoinTargetGroup =
         hasTabGroupFlow &&
         this.canMutateGroups() &&
@@ -347,8 +378,7 @@ export default class DragStore {
       const shouldDetachFromSourceGroup =
         hasTabGroupFlow &&
         this.canMutateGroups() &&
-        !wholeGroupSelection &&
-        groupedSourceTabIds.length > 0 &&
+        detachableGroupedSourceTabIds.length > 0 &&
         (!!options.forceUngroup || !hasTargetGroup)
       let movedByGroupApi = false
       if (canMoveGroup) {
@@ -360,7 +390,9 @@ export default class DragStore {
       }
       if (!movedByGroupApi) {
         if (shouldDetachFromSourceGroup) {
-          await this.store.tabGroupStore.ungroupTabs(groupedSourceTabIds)
+          await this.store.tabGroupStore.ungroupTabs(
+            detachableGroupedSourceTabIds,
+          )
         }
         if (shouldJoinTargetGroup) {
           const isUngroupedJoin =
