@@ -123,6 +123,26 @@ const ungroupTabsInBrowser = async (tabIds) => {
   }
 }
 
+const hydrateTabsForGrouping = async (tabs) => {
+  return Promise.all(
+    tabs.map(async (tab) => {
+      const needsHydration =
+        typeof tab.windowId !== 'number' ||
+        typeof tab.index !== 'number' ||
+        typeof tab.groupId !== 'number'
+      if (!needsHydration) {
+        return tab
+      }
+      try {
+        const hydrated = await browser.tabs.get(tab.id)
+        return hydrated ? { ...tab, ...hydrated } : tab
+      } catch {
+        return tab
+      }
+    }),
+  )
+}
+
 const getSelectedGroupPlans = async (tabs) => {
   const tabsByWindowId = new Map()
   const windowIdsInOrder = []
@@ -181,8 +201,9 @@ export const createWindow = async (tabs) => {
   if (!tabs || tabs.length === 0) {
     return
   }
+  const hydratedTabs = await hydrateTabsForGrouping(tabs)
   const { wholeGroupPlans, partialGroupTabIds } =
-    await getSelectedGroupPlans(tabs)
+    await getSelectedGroupPlans(hydratedTabs)
   const [firstTab, ...restTabs] = tabs
   const tabId = firstTab.id
   const win = await browser.windows.create({ tabId })

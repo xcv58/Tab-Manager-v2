@@ -1,5 +1,6 @@
 const mockTabsUpdate = jest.fn(() => Promise.resolve())
 const mockTabsMove = jest.fn(() => Promise.resolve())
+const mockTabsGet = jest.fn()
 const mockTabsQuery = jest.fn()
 const mockTabsGroup = jest.fn()
 const mockTabsUngroup = jest.fn()
@@ -25,6 +26,7 @@ jest.mock('webextension-polyfill', () => ({
       },
     },
     tabs: {
+      get: mockTabsGet,
       update: mockTabsUpdate,
       move: mockTabsMove,
       query: mockTabsQuery,
@@ -60,6 +62,7 @@ const makeTab = (
 
 describe('ItemTypes', () => {
   beforeEach(() => {
+    mockTabsGet.mockReset()
     mockTabsUpdate.mockClear()
     mockTabsMove.mockClear()
     mockTabsQuery.mockReset()
@@ -72,6 +75,7 @@ describe('ItemTypes', () => {
 
     mockWindowsCreate.mockResolvedValue({ id: 99 })
     mockWindowsUpdate.mockResolvedValue(undefined)
+    mockTabsGet.mockResolvedValue(null)
     mockTabsQuery.mockResolvedValue([])
     mockTabsGroup.mockResolvedValue(70)
     mockTabsUngroup.mockResolvedValue(undefined)
@@ -97,8 +101,23 @@ describe('ItemTypes', () => {
   })
 
   it('moves a fully-selected tab group into a fresh window without ungrouping it', async () => {
-    const tabs = [makeTab(1, 1, 0, 10), makeTab(2, 1, 1, 10)]
-    mockTabsQuery.mockResolvedValue(tabs)
+    const tabs = [
+      { id: 1, pinned: false },
+      { id: 2, pinned: false },
+    ]
+    mockTabsGet.mockImplementation(async (id: number) => {
+      if (id === 1) {
+        return makeTab(1, 1, 0, 10)
+      }
+      if (id === 2) {
+        return makeTab(2, 1, 1, 10)
+      }
+      return null
+    })
+    mockTabsQuery.mockResolvedValue([
+      makeTab(1, 1, 0, 10),
+      makeTab(2, 1, 1, 10),
+    ])
     mockTabGroupsGet.mockResolvedValue({
       id: 10,
       title: 'Team',
@@ -128,12 +147,30 @@ describe('ItemTypes', () => {
 
   it('recreates grouped selections when mixed with ungrouped tabs in a new window', async () => {
     const tabs = [
-      makeTab(1, 1, 0, -1),
-      makeTab(2, 1, 1, 10),
-      makeTab(3, 1, 2, 10),
-      makeTab(4, 1, 3, 20),
-      makeTab(5, 1, 4, -1),
+      { id: 1, pinned: false },
+      { id: 2, pinned: false },
+      { id: 3, pinned: false },
+      { id: 4, pinned: false },
+      { id: 5, pinned: false },
     ]
+    mockTabsGet.mockImplementation(async (id: number) => {
+      if (id === 1) {
+        return makeTab(1, 1, 0, -1)
+      }
+      if (id === 2) {
+        return makeTab(2, 1, 1, 10)
+      }
+      if (id === 3) {
+        return makeTab(3, 1, 2, 10)
+      }
+      if (id === 4) {
+        return makeTab(4, 1, 3, 20)
+      }
+      if (id === 5) {
+        return makeTab(5, 1, 4, -1)
+      }
+      return null
+    })
     mockTabsQuery.mockResolvedValue([
       makeTab(1, 1, 0, -1),
       makeTab(2, 1, 1, 10),
@@ -181,6 +218,84 @@ describe('ItemTypes', () => {
       expect.any(Number),
       expect.objectContaining({ title: 'Partial' }),
     )
+  })
+
+  it('hydrates runtime-shaped tabs before preserving whole groups and detaching partial fragments in a new window', async () => {
+    const tabs = [
+      { id: 1, pinned: false },
+      { id: 2, pinned: false },
+      { id: 3, pinned: false },
+      { id: 4, pinned: false },
+    ]
+    mockTabsGet.mockImplementation(async (id: number) => {
+      if (id === 1) {
+        return makeTab(1, 1, 0, -1)
+      }
+      if (id === 2) {
+        return makeTab(2, 1, 1, 10)
+      }
+      if (id === 3) {
+        return makeTab(3, 1, 2, 10)
+      }
+      if (id === 4) {
+        return makeTab(4, 1, 3, 20)
+      }
+      return null
+    })
+    mockTabsQuery.mockResolvedValue([
+      makeTab(1, 1, 0, -1),
+      makeTab(2, 1, 1, 10),
+      makeTab(3, 1, 2, 10),
+      makeTab(4, 1, 3, 20),
+      makeTab(5, 1, 4, 20),
+    ])
+    mockTabGroupsGet.mockImplementation(async (groupId: number) => {
+      if (groupId === 10) {
+        return {
+          id: 10,
+          title: 'Team',
+          color: 'green',
+          collapsed: false,
+          windowId: 1,
+        }
+      }
+      if (groupId === 20) {
+        return {
+          id: 20,
+          title: 'Partial',
+          color: 'red',
+          collapsed: true,
+          windowId: 1,
+        }
+      }
+      return null
+    })
+    mockTabsGroup.mockResolvedValueOnce(71)
+
+    await createWindow(tabs as any)
+
+    expect(mockWindowsCreate).toHaveBeenCalledWith({ tabId: 1 })
+    expect(mockTabsMove).toHaveBeenNthCalledWith(1, 2, {
+      windowId: 99,
+      index: -1,
+    })
+    expect(mockTabsMove).toHaveBeenNthCalledWith(2, 3, {
+      windowId: 99,
+      index: -1,
+    })
+    expect(mockTabsMove).toHaveBeenNthCalledWith(3, 4, {
+      windowId: 99,
+      index: -1,
+    })
+    expect(mockTabsUngroup).toHaveBeenCalledWith([4])
+    expect(mockTabsGroup).toHaveBeenCalledWith({
+      tabIds: [2, 3],
+    })
+    expect(mockTabGroupsUpdate).toHaveBeenCalledWith(71, {
+      title: 'Team',
+      color: 'green',
+      collapsed: false,
+    })
   })
 
   it('preserves multiple whole groups in visible order when opening a new window', async () => {
