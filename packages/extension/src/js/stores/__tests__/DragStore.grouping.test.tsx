@@ -282,6 +282,63 @@ describe('DragStore with tab groups', () => {
     expect(moveTabs).not.toHaveBeenCalled()
   })
 
+  it('manually selected whole group merges into the target group from a tab-row drag', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const sourceTab1 = { id: 1, groupId: 10, windowId: 1, index: 0 }
+    const sourceTab2 = { id: 2, groupId: 10, windowId: 1, index: 1 }
+    const targetTab1 = { id: 3, groupId: 20, windowId: 1, index: 2 }
+    const targetTab2 = { id: 4, groupId: 20, windowId: 1, index: 3 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve())
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [sourceTab1, sourceTab2]
+          }
+          return [targetTab1, targetTab2]
+        }),
+        moveGroup,
+        groupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+      windowStore: {
+        suspend: jest.fn(),
+        resume: jest.fn(),
+        markLayoutDirtyIfNeeded: jest.fn(),
+        moveTabs,
+        getTargetWindow: jest.fn(() => ({
+          tabs: [sourceTab1, sourceTab2, targetTab1, targetTab2],
+        })),
+      },
+    } as any)
+    dragStore.getWindowTabsFromBrowser = jest
+      .fn()
+      .mockResolvedValue([sourceTab1, sourceTab2, targetTab1, targetTab2])
+
+    dragStore.dragStartTab({ ...sourceTab1, unhover: jest.fn() } as any)
+    selection.set(sourceTab2.id, sourceTab2 as any)
+
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 2,
+      targetGroupId: 20,
+      before: true,
+      source: 'group-header',
+    })
+
+    expect(moveGroup).not.toHaveBeenCalled()
+    expect(groupTabs).toHaveBeenCalledWith([1, 2, 3, 4], 20)
+    expect(moveTabs).not.toHaveBeenCalled()
+  })
+
   it('group header center merges the entire mixed selection into the target group', async () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()

@@ -210,7 +210,7 @@ describe('GroupRow', () => {
     })
   })
 
-  it('uses the active drag source for centered group-header drops', () => {
+  it('treats centered group-header drops as explicit merge intent', () => {
     const dropAt = jest.fn()
     renderGroupRow('tab-row', dropAt)
 
@@ -228,7 +228,7 @@ describe('GroupRow', () => {
       index: 0,
       targetGroupId: 100,
       before: true,
-      source: 'tab-row',
+      source: 'group-header',
     })
   })
 

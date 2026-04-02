@@ -175,13 +175,12 @@ export default observer((props: Props) => {
         })
         return
       }
-      const fromGroupHeaderDrag = dragStore.dragSource === 'group-header'
       dragStore.dropAt({
         windowId: row.windowId,
         index: groupStartIndex,
         targetGroupId: row.groupId,
         before: true,
-        source: fromGroupHeaderDrag ? 'group-header' : 'tab-row',
+        source: 'group-header',
       })
     },
     collect: (monitor) => ({
