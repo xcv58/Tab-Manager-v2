@@ -328,10 +328,9 @@ export default class DragStore {
         options.source === 'window-zone' && wholeGroupSelection
       const wholeSelectedGroupIds = this.getWholeSelectedGroupIds(sources)
       const wholeGroupOnlySelection =
-        sources.some((tab) => !this.isNoGroupId(tab.groupId)) &&
-        sources
-          .filter((tab) => !this.isNoGroupId(tab.groupId))
-          .every((tab) => wholeSelectedGroupIds.has(tab.groupId))
+        sources.length > 0 &&
+        sources.every((tab) => !this.isNoGroupId(tab.groupId)) &&
+        sources.every((tab) => wholeSelectedGroupIds.has(tab.groupId))
       const shouldPreserveWholeGroupsOnBlankSpace =
         options.source === 'window-zone' && wholeSelectedGroupIds.size > 0
       const sourceTabIds = sources.map((x) => x.id)
