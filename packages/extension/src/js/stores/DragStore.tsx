@@ -20,6 +20,17 @@ type GroupBoundTab = {
   groupId: number | null | undefined
 }
 
+type BlankSpaceMoveBlock =
+  | {
+      kind: 'group'
+      groupId: number
+      tabs: Tab[]
+    }
+  | {
+      kind: 'tabs'
+      tabs: Tab[]
+    }
+
 export default class DragStore {
   store: Store
 
@@ -161,6 +172,41 @@ export default class DragStore {
         )
         .map(([groupId]) => groupId),
     )
+  }
+
+  getBlankSpaceMoveBlocks = (
+    tabs: Tab[],
+    wholeSelectedGroupIds: Set<number>,
+  ): BlankSpaceMoveBlock[] => {
+    const orderedTabs = tabs.slice().sort((a, b) => a.index - b.index)
+    const seenGroupIds = new Set<number>()
+    const blocks: BlankSpaceMoveBlock[] = []
+
+    for (const tab of orderedTabs) {
+      if (
+        !this.isNoGroupId(tab.groupId) &&
+        wholeSelectedGroupIds.has(tab.groupId)
+      ) {
+        if (seenGroupIds.has(tab.groupId)) {
+          continue
+        }
+        seenGroupIds.add(tab.groupId)
+        blocks.push({
+          kind: 'group',
+          groupId: tab.groupId,
+          tabs: orderedTabs.filter(
+            (candidate) => candidate.groupId === tab.groupId,
+          ),
+        })
+        continue
+      }
+      blocks.push({
+        kind: 'tabs',
+        tabs: [tab],
+      })
+    }
+
+    return blocks
   }
 
   getTargetIndex = (winTabs: Tab[], targetTab: Tab, before: boolean) => {
@@ -333,6 +379,11 @@ export default class DragStore {
         sources.every((tab) => wholeSelectedGroupIds.has(tab.groupId))
       const shouldPreserveWholeGroupsOnBlankSpace =
         options.source === 'window-zone' && wholeSelectedGroupIds.size > 0
+      const shouldMovePreservedWholeGroupsWithGroupApi =
+        shouldPreserveWholeGroupsOnBlankSpace &&
+        this.canMoveGroups() &&
+        sources.some((tab) => tab.windowId !== options.windowId) &&
+        sources.some((tab) => this.isNoGroupId(tab.groupId))
       const sourceTabIds = sources.map((x) => x.id)
       // Blank-space drops detach only the selected tabs that are still partial
       // group fragments; fully selected groups stay intact.
@@ -458,30 +509,49 @@ export default class DragStore {
             )
           }
         } else {
-          await moveTabs(sources, windowId, index)
-          if (hasTabGroupFlow && this.canMutateGroups()) {
-            if (shouldPreserveWholeGroupsOnBlankSpace) {
-              for (const groupId of wholeSelectedGroupIds) {
-                const preservedTabIds = sources
-                  .filter((tab) => tab.groupId === groupId)
-                  .map((tab) => tab.id)
-                if (preservedTabIds.length) {
-                  await this.store.tabGroupStore.groupTabs(
-                    preservedTabIds,
-                    groupId,
-                  )
-                }
+          if (shouldMovePreservedWholeGroupsWithGroupApi) {
+            const blocks = this.getBlankSpaceMoveBlocks(
+              sources,
+              wholeSelectedGroupIds,
+            )
+            let currentIndex = index
+            for (const block of blocks) {
+              if (block.kind === 'group') {
+                await this.store.tabGroupStore.moveGroup(block.groupId, {
+                  windowId,
+                  index: currentIndex,
+                })
+              } else {
+                await moveTabs(block.tabs, windowId, currentIndex)
               }
-            } else if (
-              !this.isNoGroupId(sourceGroupId) &&
-              wholeGroupSelection &&
-              sourceGroupId !== targetGroupId &&
-              !options.forceUngroup
-            ) {
-              await this.store.tabGroupStore.groupTabs(
-                sourceTabIds,
-                sourceGroupId,
-              )
+              currentIndex += block.tabs.length
+            }
+          } else {
+            await moveTabs(sources, windowId, index)
+            if (hasTabGroupFlow && this.canMutateGroups()) {
+              if (shouldPreserveWholeGroupsOnBlankSpace) {
+                for (const groupId of wholeSelectedGroupIds) {
+                  const preservedTabIds = sources
+                    .filter((tab) => tab.groupId === groupId)
+                    .map((tab) => tab.id)
+                  if (preservedTabIds.length) {
+                    await this.store.tabGroupStore.groupTabs(
+                      preservedTabIds,
+                      groupId,
+                    )
+                  }
+                }
+              } else if (
+                !this.isNoGroupId(sourceGroupId) &&
+                wholeGroupSelection &&
+                sourceGroupId !== targetGroupId &&
+                !options.forceUngroup
+              ) {
+                await this.store.tabGroupStore.groupTabs(
+                  sourceTabIds,
+                  sourceGroupId,
+                )
+              }
             }
           }
         }

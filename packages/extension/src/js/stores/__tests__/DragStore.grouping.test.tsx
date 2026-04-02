@@ -892,6 +892,57 @@ describe('DragStore with tab groups', () => {
     expect(moveGroup).not.toHaveBeenCalled()
   })
 
+  it('window-zone drop preserves a whole group block and keeps loose tabs loose in a mixed cross-window selection', async () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map()
+    const wholeGroupTab1 = { id: 1, groupId: 10, windowId: 2, index: 0 }
+    const wholeGroupTab2 = { id: 2, groupId: 10, windowId: 2, index: 1 }
+    const looseTab = { id: 3, groupId: -1, windowId: 2, index: 2 }
+    const targetTab = { id: 4, groupId: -1, windowId: 1, index: 0 }
+    const moveTabs = jest.fn(() => Promise.resolve())
+    const moveGroup = jest.fn(() => Promise.resolve({ id: 10 }))
+    const groupTabs = jest.fn(() => Promise.resolve())
+    const ungroupTabs = jest.fn(() => Promise.resolve())
+    const dragStore = setupDragStore({
+      selection,
+      targetTabs: [targetTab],
+      moveTabs,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn((groupId: number) => {
+          if (groupId === 10) {
+            return [wholeGroupTab1, wholeGroupTab2]
+          }
+          return []
+        }),
+        moveGroup,
+        groupTabs,
+        ungroupTabs,
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+    })
+    dragStore.dragStartTab({ ...wholeGroupTab1, unhover: jest.fn() } as any)
+    selection.set(wholeGroupTab2.id, wholeGroupTab2 as any)
+    selection.set(looseTab.id, looseTab as any)
+
+    await dragStore.dropAt({
+      windowId: 1,
+      index: 0,
+      forceUngroup: true,
+      source: 'window-zone',
+    })
+
+    expect(moveGroup).toHaveBeenCalledWith(10, {
+      windowId: 1,
+      index: 0,
+    })
+    expect(moveTabs).toHaveBeenCalledWith([looseTab], 1, 2)
+    expect(groupTabs).not.toHaveBeenCalled()
+    expect(ungroupTabs).not.toHaveBeenCalled()
+  })
+
   it('window-zone drop preserves a whole group without moveGroup support', async () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()
