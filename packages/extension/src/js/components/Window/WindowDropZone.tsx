@@ -23,10 +23,11 @@ export default observer((props: Props) => {
       if (monitor.didDrop()) {
         return
       }
+      const forceUngroup = dragStore.dragSource !== 'group-header'
       dragStore.dropAt({
         windowId: win.id,
         index: position === 'top' ? 0 : win.tabs.length,
-        forceUngroup: true,
+        forceUngroup,
         source: 'window-zone',
       })
     },

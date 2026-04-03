@@ -34,11 +34,192 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   }
 }
 
+const getNoGroupId = () => browser.tabGroups?.TAB_GROUP_ID_NONE ?? -1
+
+const isNoGroupId = (groupId) => {
+  return groupId == null || groupId === getNoGroupId()
+}
+
+const getTabsInVisibleOrder = (tabs) => {
+  return tabs.slice().sort((a, b) => {
+    return (a.index ?? 0) - (b.index ?? 0)
+  })
+}
+
+const getBrowserTabGroup = async (groupId) => {
+  if (browser.tabGroups?.get) {
+    return browser.tabGroups.get(groupId)
+  }
+  if (typeof chrome !== 'undefined' && chrome.tabGroups?.get) {
+    return await new Promise((resolve) => {
+      chrome.tabGroups.get(groupId, (group) => {
+        resolve(group || null)
+      })
+    })
+  }
+  return null
+}
+
+const updateBrowserTabGroup = async (groupId, updateProperties) => {
+  if (browser.tabGroups?.update) {
+    return browser.tabGroups.update(groupId, updateProperties)
+  }
+  if (typeof chrome !== 'undefined' && chrome.tabGroups?.update) {
+    return await new Promise((resolve, reject) => {
+      chrome.tabGroups.update(groupId, updateProperties, (group) => {
+        const lastError = chrome.runtime?.lastError
+        if (lastError) {
+          reject(new Error(lastError.message))
+          return
+        }
+        resolve(group || null)
+      })
+    })
+  }
+  return null
+}
+
+const groupTabsInBrowser = async (tabIds) => {
+  if (!tabIds.length) {
+    return null
+  }
+  if (browser.tabs?.group) {
+    return browser.tabs.group({ tabIds })
+  }
+  if (typeof chrome !== 'undefined' && chrome.tabs?.group) {
+    return await new Promise((resolve, reject) => {
+      chrome.tabs.group({ tabIds }, (groupId) => {
+        const lastError = chrome.runtime?.lastError
+        if (lastError) {
+          reject(new Error(lastError.message))
+          return
+        }
+        resolve(groupId ?? null)
+      })
+    })
+  }
+  return null
+}
+
+const ungroupTabsInBrowser = async (tabIds) => {
+  if (!tabIds.length) {
+    return
+  }
+  if (browser.tabs?.ungroup) {
+    await browser.tabs.ungroup(tabIds)
+    return
+  }
+  if (typeof chrome !== 'undefined' && chrome.tabs?.ungroup) {
+    await new Promise((resolve, reject) => {
+      chrome.tabs.ungroup(tabIds, () => {
+        const lastError = chrome.runtime?.lastError
+        if (lastError) {
+          reject(new Error(lastError.message))
+          return
+        }
+        resolve(undefined)
+      })
+    })
+  }
+}
+
+const hydrateTabsForGrouping = async (tabs) => {
+  return Promise.all(
+    tabs.map(async (tab) => {
+      const needsHydration =
+        typeof tab.windowId !== 'number' ||
+        typeof tab.index !== 'number' ||
+        typeof tab.groupId !== 'number'
+      if (!needsHydration) {
+        return tab
+      }
+      try {
+        const hydrated = await browser.tabs.get(tab.id)
+        return hydrated ? { ...tab, ...hydrated } : tab
+      } catch {
+        return tab
+      }
+    }),
+  )
+}
+
+const getSelectedGroupPlans = async (tabs) => {
+  const tabsByWindowId = new Map()
+  const windowIdsInOrder = []
+  tabs.forEach((tab) => {
+    if (!tabsByWindowId.has(tab.windowId)) {
+      tabsByWindowId.set(tab.windowId, [])
+      windowIdsInOrder.push(tab.windowId)
+    }
+    tabsByWindowId.get(tab.windowId).push(tab)
+  })
+
+  const wholeGroupPlans = []
+  const partialGroupTabIds = []
+
+  for (const windowId of windowIdsInOrder) {
+    const selectedTabs = tabsByWindowId.get(windowId) || []
+    const sourceTabs = getTabsInVisibleOrder(
+      await browser.tabs.query({ windowId }),
+    )
+    const selectedIds = new Set(selectedTabs.map((tab) => tab.id))
+    const seenGroupIds = new Set()
+
+    for (const tab of selectedTabs) {
+      if (isNoGroupId(tab.groupId) || seenGroupIds.has(tab.groupId)) {
+        continue
+      }
+      seenGroupIds.add(tab.groupId)
+      const selectedGroupTabs = selectedTabs.filter(
+        (candidate) => candidate.groupId === tab.groupId,
+      )
+      const sourceGroupTabs = sourceTabs.filter(
+        (candidate) => candidate.groupId === tab.groupId,
+      )
+      const isWholeGroup =
+        sourceGroupTabs.length > 0 &&
+        sourceGroupTabs.length === selectedGroupTabs.length &&
+        sourceGroupTabs.every((candidate) => selectedIds.has(candidate.id))
+      if (isWholeGroup) {
+        wholeGroupPlans.push({
+          groupId: tab.groupId,
+          tabIds: selectedGroupTabs.map((candidate) => candidate.id),
+          tabGroup: await getBrowserTabGroup(tab.groupId),
+        })
+      } else {
+        partialGroupTabIds.push(
+          ...selectedGroupTabs.map((candidate) => candidate.id),
+        )
+      }
+    }
+  }
+
+  return { wholeGroupPlans, partialGroupTabIds }
+}
+
 export const createWindow = async (tabs) => {
+  if (!tabs || tabs.length === 0) {
+    return
+  }
+  const hydratedTabs = await hydrateTabsForGrouping(tabs)
+  const { wholeGroupPlans, partialGroupTabIds } =
+    await getSelectedGroupPlans(hydratedTabs)
   const [firstTab, ...restTabs] = tabs
   const tabId = firstTab.id
   const win = await browser.windows.create({ tabId })
   await moveTabs(restTabs, win.id, -1)
+  await ungroupTabsInBrowser(partialGroupTabIds)
+  for (const plan of wholeGroupPlans) {
+    const newGroupId = await groupTabsInBrowser(plan.tabIds)
+    if (newGroupId == null || !plan.tabGroup) {
+      continue
+    }
+    await updateBrowserTabGroup(newGroupId, {
+      title: plan.tabGroup.title,
+      color: plan.tabGroup.color,
+      collapsed: plan.tabGroup.collapsed,
+    })
+  }
   await browser.windows.update(win.id, { focused: true })
 }
 
