@@ -178,7 +178,7 @@ export default class DragStore {
     tabs: Tab[],
     wholeSelectedGroupIds: Set<number>,
   ): BlankSpaceMoveBlock[] => {
-    const orderedTabs = tabs.slice().sort((a, b) => a.index - b.index)
+    const orderedTabs = tabs.slice()
     const seenGroupIds = new Set<number>()
     const blocks: BlankSpaceMoveBlock[] = []
 
@@ -397,10 +397,19 @@ export default class DragStore {
       const { windowId } = options
       const win = getTargetWindow(windowId)
       const targetGroupId = options.targetGroupId ?? this.getNoGroupId()
+      const targetTab =
+        typeof options.targetTabId === 'number'
+          ? win.tabs.find((tab) => tab.id === options.targetTabId)
+          : null
       const targetIndex = Math.max(
         0,
         Math.min(
-          this.getResolvedTargetIndex(win.tabs, options),
+          options.source === 'tab-row' &&
+            wholeGroupOnlySelection &&
+            targetTab &&
+            !this.isNoGroupId(targetGroupId)
+            ? this.getTargetIndex(win.tabs, targetTab, !!options.before)
+            : this.getResolvedTargetIndex(win.tabs, options),
           win.tabs.length,
         ),
       )
