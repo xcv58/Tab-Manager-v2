@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.2.0...v2.3.0) (2026-04-03)
+
+
+### Features
+
+* add extension icon tab count overlay ([#2623](https://github.com/xcv58/Tab-Manager-v2/issues/2623)) ([c1d41b4](https://github.com/xcv58/Tab-Manager-v2/commit/c1d41b42e4a04957efeae902f63cc4e5a98061bc))
+* replace MUI with local UI primitives ([#2614](https://github.com/xcv58/Tab-Manager-v2/issues/2614)) ([181f1b3](https://github.com/xcv58/Tab-Manager-v2/commit/181f1b3473a829ff33dc4450534eaa5014a96487))
+
+
+### Bug Fixes
+
+* preserve grouped drag-and-drop semantics ([#2628](https://github.com/xcv58/Tab-Manager-v2/issues/2628)) ([09f3329](https://github.com/xcv58/Tab-Manager-v2/commit/09f3329d59865cc5a13c4c99896a973e6a77c2d1))
+* restore same-domain tab menu action ([#2626](https://github.com/xcv58/Tab-Manager-v2/issues/2626)) ([e59449b](https://github.com/xcv58/Tab-Manager-v2/commit/e59449b30456e5172d452820bf7a7dcd1ede728c))
+
 ## [2.2.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.1.0...v2.2.0) (2026-03-26)
 
 ### Features
