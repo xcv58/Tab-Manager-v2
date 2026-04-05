@@ -523,13 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     disclosure.addEventListener('toggle', () => {
       if (disclosure.open) {
-        disclosureVideos.forEach((otherDisclosure) => {
-          if (otherDisclosure === disclosure || !otherDisclosure.open) {
-            return
-          }
-          pauseDisclosureVideo(otherDisclosure)
-          otherDisclosure.open = false
-        })
         initializeDisclosureVideoPlayer(video)
         return
       }
