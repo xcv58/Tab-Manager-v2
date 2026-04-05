@@ -838,11 +838,7 @@ code {
 
 .scale-demo-layout {
   min-width: 0;
-}
-
-.scale-demo-layout,
-.scale-demo-disclosure {
-  height: 100%;
+  align-self: start;
 }
 
 .scale-demo-disclosure {
