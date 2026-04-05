@@ -32,6 +32,23 @@ document.addEventListener('DOMContentLoaded', () => {
   let promoVideoPrimed = false
   const disclosureVideoPlayers = new WeakMap()
 
+  function pauseDisclosureVideo(disclosure) {
+    const video = disclosure.querySelector('.scale-demo-video')
+    if (!video) {
+      return
+    }
+
+    const existingPlayer = disclosureVideoPlayers.get(video)
+    if (existingPlayer && typeof existingPlayer.pause === 'function') {
+      existingPlayer.pause()
+      return
+    }
+
+    if (typeof video.pause === 'function') {
+      video.pause()
+    }
+  }
+
   function normalizeTheme(theme) {
     return supportedThemes.has(theme) ? theme : 'system'
   }
@@ -506,8 +523,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     disclosure.addEventListener('toggle', () => {
       if (disclosure.open) {
+        disclosureVideos.forEach((otherDisclosure) => {
+          if (otherDisclosure === disclosure || !otherDisclosure.open) {
+            return
+          }
+          pauseDisclosureVideo(otherDisclosure)
+          otherDisclosure.open = false
+        })
         initializeDisclosureVideoPlayer(video)
+        return
       }
+
+      pauseDisclosureVideo(disclosure)
     })
   })
 
