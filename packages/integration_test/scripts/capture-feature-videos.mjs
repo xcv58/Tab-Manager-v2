@@ -960,6 +960,87 @@ async function waitForGroupTitle(page, groupId, expectedTitle) {
   )
 }
 
+function getDemoTabTitle(url) {
+  try {
+    const parsedUrl = new URL(url)
+    return parsedUrl.searchParams.get('title') || parsedUrl.pathname || url
+  } catch {
+    return url
+  }
+}
+
+function normalizeVisibleTabTitle(text = '') {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
+async function getVisibleWindowTabTitles(page, windowId, limit = 12) {
+  return page.evaluate(
+    ({ nextWindowId, nextLimit }) => {
+      const card = document.querySelector(
+        `[data-testid="window-card-${nextWindowId}"]`,
+      )
+      if (!(card instanceof HTMLElement)) {
+        return []
+      }
+
+      return Array.from(card.querySelectorAll('[data-testid^="tab-row-"]'))
+        .slice(0, nextLimit)
+        .map((row) => {
+          const titleNode = row.querySelector('button > div:first-child')
+          const text = titleNode?.textContent || row.textContent || ''
+          return text.replace(/\s+/g, ' ').trim()
+        })
+    },
+    { nextWindowId: windowId, nextLimit: limit },
+  )
+}
+
+function hasOrderedTitlePairs(titles, orderedTitlePairs = []) {
+  return orderedTitlePairs.every(([beforeTitle, afterTitle]) => {
+    const beforeIndex = titles.indexOf(beforeTitle)
+    const afterIndex = titles.indexOf(afterTitle)
+    return beforeIndex !== -1 && afterIndex !== -1 && beforeIndex < afterIndex
+  })
+}
+
+async function waitForVisibleWindowTabOrderChange(
+  page,
+  windowId,
+  previousTitles,
+  orderedTitlePairs = [],
+) {
+  const startedAt = Date.now()
+  let currentTitles = []
+
+  while (Date.now() - startedAt < UI_READY_TIMEOUT_MS) {
+    currentTitles = await getVisibleWindowTabTitles(
+      page,
+      windowId,
+      previousTitles.length,
+    )
+
+    const changedOrder =
+      currentTitles.length === previousTitles.length &&
+      currentTitles.some((title, index) => title !== previousTitles[index])
+    if (changedOrder && hasOrderedTitlePairs(currentTitles, orderedTitlePairs)) {
+      return currentTitles
+    }
+
+    await page.waitForTimeout(250)
+  }
+
+  throw new Error(
+    [
+      `Timed out waiting for visible tab order to change in window ${windowId}.`,
+      `Previous: ${previousTitles.join(' | ')}`,
+      `Current: ${currentTitles.join(' | ')}`,
+      `Expected ordered pairs: ${orderedTitlePairs
+        .map(([beforeTitle, afterTitle]) => `${beforeTitle} < ${afterTitle}`)
+        .join(' ; ')}`,
+    ].join(' '),
+  )
+}
+
 async function waitForFloatingUiToClear(page) {
   await page.waitForFunction(
     () => {
@@ -1576,7 +1657,8 @@ async function recordHundredPlusTabsScale() {
       await moveCursor(page, startPoint, titleCenter, 820)
       await demoPause(page, 180)
 
-      const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
+      const windowCard = page.getByTestId(`window-card-${windowId}`)
+      const sortButton = windowCard.locator('button[aria-label="Sort tabs"]')
       await sortButton.waitFor({ state: 'visible', timeout: 15000 })
       const sortCenter = await getCenter(sortButton)
       await moveCursor(page, titleCenter, sortCenter, 430)
@@ -1656,6 +1738,44 @@ async function recordThousandTwentyFourTabsScale() {
         await moveCursor(page, startPoint, titleCenter, 900)
         await demoPause(page, 180)
 
+        const heroWindowCard = page.getByTestId(`window-card-${heroWindowId}`)
+        const expectedSortedPairs = [
+          [
+            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[7])),
+            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[6])),
+          ],
+          [
+            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[11])),
+            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[10])),
+          ],
+        ]
+        const initialVisibleTitles = await getVisibleWindowTabTitles(
+          page,
+          heroWindowId,
+          12,
+        )
+        if (hasOrderedTitlePairs(initialVisibleTitles, expectedSortedPairs)) {
+          throw new Error(
+            'Expected the featured 1,024-tab window to start unsorted before the demo click',
+          )
+        }
+
+        const sortButton = heroWindowCard.locator(
+          'button[aria-label="Sort tabs"]',
+        )
+        await sortButton.waitFor({ state: 'visible', timeout: 15000 })
+        const sortCenter = await getCenter(sortButton)
+        await moveCursor(page, titleCenter, sortCenter, 430)
+        await demoPause(page, 120)
+        await clickLocator(page, sortButton)
+        await waitForVisibleWindowTabOrderChange(
+          page,
+          heroWindowId,
+          initialVisibleTitles,
+          expectedSortedPairs,
+        )
+        await demoHold(page, 1050)
+
         const scrollContainer = page.getByTestId('window-list-scroll-container')
         const scrollBox = await scrollContainer.boundingBox()
         if (!scrollBox) {
@@ -1665,7 +1785,7 @@ async function recordThousandTwentyFourTabsScale() {
           x: scrollBox.x + scrollBox.width * 0.28,
           y: scrollBox.y + scrollBox.height * 0.48,
         }
-        await moveCursor(page, titleCenter, scrollPoint, 620)
+        await moveCursor(page, sortCenter, scrollPoint, 620)
         await demoPause(page, 120)
         await wheelCursor(page, 5600, 36)
         await demoPause(page, 140)
