@@ -19,6 +19,19 @@ Use the root-level `notes/` folder for internal markdown such as:
 If a markdown file is not meant to be served on the public docs site, it does
 not belong in `docs/`.
 
+## Verification Approval Policy
+
+Default verification should stay lightweight until a human asks for more.
+
+- Do not run tests automatically for coding tasks.
+- After implementing a change, run `pnpm build` by default and stop there.
+- Let a human verify the change first before running tests.
+- Only run `pnpm test`, unit tests, integration tests, Linux screenshot /
+  snapshot refreshes, or integration-test video capture flows when a human
+  explicitly asks for them or approves them.
+- For snapshot-sensitive UI work, treat Linux screenshot refreshes as
+  follow-up work that happens only after human approval.
+
 Snapshot-sensitive areas include:
 
 - `packages/extension/src/js/components/**`
@@ -115,6 +128,36 @@ Feature video rules:
   `01-find-tab-fast`, `02-organize-groups`, `03-clean-up-duplicates`,
   `04-see-large-workspaces-clearly`, `05-keyboard-workflow`, and
   `06-customize-the-view`.
+
+## Integration Test Video
+
+To regenerate the integration test suite video:
+
+1. If the Chrome extension build is already current, run
+   `pnpm capture:integration-test-video`.
+2. If the build needs to be refreshed first, run
+   `pnpm build:integration-test-video`.
+3. Collect the local output from
+   `.tmp/video-captures/mp4/tab-manager-v2-integration-test-suite.mp4`.
+4. If the public docs copy should be refreshed, copy that output to
+   `docs/assets/videos/tab-manager-v2-integration-test-suite.mp4`.
+
+The capture script lives at
+`packages/integration_test/scripts/capture-integration-test-suite-video.mjs`.
+
+Integration test video rules:
+
+- Treat `.tmp/video-captures/**` as generated local artifacts. Do not commit
+  intermediate captures or work directories unless the user explicitly asks
+  for them.
+- The committed public site asset is
+  `docs/assets/videos/tab-manager-v2-integration-test-suite.mp4`.
+- The capture script records the integration test files sequentially and
+  concatenates them into a sped-up MP4, with 10x speed as the default output.
+- Because the video is built from integration-test coverage, do not regenerate
+  it unless a human explicitly asks for it or approves running that flow.
+- If the script finishes with failing test files but still produces a usable
+  video, call out the failing files when sharing the result.
 
 ## Promo Artwork Sources
 
