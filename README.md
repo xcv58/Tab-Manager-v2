@@ -137,6 +137,8 @@ Run the Chromium Playwright integration suite, including the required Chrome ext
 pnpm run test:integration
 ```
 
+Watch a sped-up end-to-end suite run: [Integration test video](docs/assets/videos/tab-manager-v2-integration-test-suite.mp4).
+
 Run the Playwright suite directly against an existing Chrome build:
 
 ```shell

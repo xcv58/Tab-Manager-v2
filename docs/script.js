@@ -19,8 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.screenshot-variant'),
   )
   const promoVideo = document.querySelector('.promo-video')
-  const scaleDemoVideo = document.querySelector('.scale-demo-video')
-  const scaleDemoDisclosure = document.querySelector('.scale-demo-disclosure')
+  const disclosureVideos = Array.from(
+    document.querySelectorAll('.scale-demo-disclosure'),
+  )
   const videoChapterButtons = Array.from(
     document.querySelectorAll('.video-tour-chapter'),
   )
@@ -28,8 +29,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let lightbox = null
   let selectedScreenshotTheme = null
   let promoVideoPlayer = null
-  let scaleDemoVideoPlayer = null
   let promoVideoPrimed = false
+  const disclosureVideoPlayers = new WeakMap()
+
+  function pauseDisclosureVideo(disclosure) {
+    const video = disclosure.querySelector('.scale-demo-video')
+    if (!video) {
+      return
+    }
+
+    const existingPlayer = disclosureVideoPlayers.get(video)
+    if (existingPlayer && typeof existingPlayer.pause === 'function') {
+      existingPlayer.pause()
+      return
+    }
+
+    if (typeof video.pause === 'function') {
+      video.pause()
+    }
+  }
 
   function normalizeTheme(theme) {
     return supportedThemes.has(theme) ? theme : 'system'
@@ -410,22 +428,28 @@ document.addEventListener('DOMContentLoaded', () => {
     primePromoVideo()
   }
 
-  function initializeScaleDemoVideoPlayer() {
-    if (scaleDemoVideoPlayer || !scaleDemoVideo) {
-      return scaleDemoVideoPlayer
+  function initializeDisclosureVideoPlayer(video) {
+    if (!video) {
+      return null
+    }
+
+    const existingPlayer = disclosureVideoPlayers.get(video)
+    if (existingPlayer) {
+      return existingPlayer
     }
 
     if (typeof window.videojs !== 'function') {
       return null
     }
 
-    scaleDemoVideoPlayer = window.videojs(scaleDemoVideo, {
+    const nextPlayer = window.videojs(video, {
       fluid: true,
-      preload: 'none',
-      aspectRatio: '1282:839',
+      preload: video.getAttribute('preload') || 'none',
+      aspectRatio: video.dataset.aspectRatio || '1282:839',
     })
+    disclosureVideoPlayers.set(video, nextPlayer)
 
-    return scaleDemoVideoPlayer
+    return nextPlayer
   }
 
   if (promoVideo && videoChapterButtons.length) {
@@ -487,17 +511,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (scaleDemoDisclosure && scaleDemoVideo) {
-    if (scaleDemoDisclosure.open) {
-      initializeScaleDemoVideoPlayer()
+  disclosureVideos.forEach((disclosure) => {
+    const video = disclosure.querySelector('.scale-demo-video')
+    if (!video) {
+      return
     }
 
-    scaleDemoDisclosure.addEventListener('toggle', () => {
-      if (scaleDemoDisclosure.open) {
-        initializeScaleDemoVideoPlayer()
+    if (disclosure.open) {
+      initializeDisclosureVideoPlayer(video)
+    }
+
+    disclosure.addEventListener('toggle', () => {
+      if (disclosure.open) {
+        initializeDisclosureVideoPlayer(video)
+        return
       }
+
+      pauseDisclosureVideo(disclosure)
     })
-  }
+  })
 
   // Enable :active states on iOS Safari
   document.addEventListener('touchstart', () => {}, { passive: true })

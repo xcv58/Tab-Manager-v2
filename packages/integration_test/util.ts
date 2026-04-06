@@ -4,6 +4,8 @@ import { join } from 'path'
 import { Page } from 'playwright'
 import { createServer, Server } from 'http'
 import type { AddressInfo } from 'net'
+import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { spawnSync } from 'child_process'
 
 export const EXTENSION_PATH = join(
   __dirname,
@@ -13,6 +15,12 @@ export const EXTENSION_PATH = join(
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const WINDOW_CARD_QUERY = '[data-testid^="window-card-"]'
 export const INTEGRATION_VIEWPORT = { width: 1280, height: 720 }
+const TEST_VIDEO_CAPTURE_FPS = Number(
+  process.env.TMV2_RECORD_TEST_VIDEO_FPS || '12',
+)
+const TEST_VIDEO_CAPTURE_QUALITY = Number(
+  process.env.TMV2_RECORD_TEST_VIDEO_QUALITY || '82',
+)
 
 export const URLS = [
   'https://pinboard.in/',
@@ -135,8 +143,102 @@ export const CLOSE_PAGES = async (browserContext: ChromiumBrowserContext) => {
   }
 }
 
+const encodeTestVideoFrames = (frameDir: string, outputPath: string) => {
+  const result = spawnSync(
+    'ffmpeg',
+    [
+      '-y',
+      '-framerate',
+      String(TEST_VIDEO_CAPTURE_FPS),
+      '-i',
+      join(frameDir, 'frame-%06d.jpg'),
+      '-c:v',
+      'libx264',
+      '-preset',
+      'veryfast',
+      '-crf',
+      '23',
+      '-vf',
+      'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black',
+      '-pix_fmt',
+      'yuv420p',
+      '-movflags',
+      '+faststart',
+      outputPath,
+    ],
+    { stdio: 'inherit' },
+  )
+
+  if (result.status !== 0) {
+    throw new Error(`ffmpeg failed while encoding ${outputPath}`)
+  }
+}
+
+const startTestVideoCapture = async (
+  page: Page,
+  captureDir: string,
+  captureLabel: string,
+) => {
+  const frameDir = join(captureDir, '.frames', captureLabel)
+  const outputPath = join(captureDir, `${captureLabel}.mp4`)
+
+  rmSync(frameDir, { recursive: true, force: true })
+  rmSync(outputPath, { force: true })
+  mkdirSync(frameDir, { recursive: true })
+  mkdirSync(captureDir, { recursive: true })
+
+  const client = await page.context().newCDPSession(page)
+  let frameIndex = 0
+
+  const onFrame = async ({
+    data,
+    sessionId,
+  }: {
+    data: string
+    sessionId: number
+  }) => {
+    frameIndex += 1
+    const framePath = join(
+      frameDir,
+      `frame-${String(frameIndex).padStart(6, '0')}.jpg`,
+    )
+    writeFileSync(framePath, Buffer.from(data, 'base64'))
+    await client.send('Page.screencastFrameAck', { sessionId })
+  }
+
+  client.on('Page.screencastFrame', onFrame)
+  await client.send('Page.startScreencast', {
+    format: 'jpeg',
+    quality: TEST_VIDEO_CAPTURE_QUALITY,
+    everyNthFrame: 1,
+  })
+
+  return {
+    async stop() {
+      try {
+        await page.waitForTimeout(200)
+        await client.send('Page.stopScreencast')
+      } finally {
+        client.off('Page.screencastFrame', onFrame)
+        await client.detach().catch(() => undefined)
+      }
+
+      if (frameIndex === 0) {
+        throw new Error(`No frames were captured for ${captureLabel}`)
+      }
+
+      encodeTestVideoFrames(frameDir, outputPath)
+      rmSync(frameDir, { recursive: true, force: true })
+      console.log(`saved test video ${outputPath}`)
+      return outputPath
+    },
+  }
+}
+
 export const initBrowserWithExtension = async () => {
   const userDataDir = `/tmp/test-user-data-${Math.random()}`
+  const captureDir = process.env.TMV2_RECORD_TEST_VIDEO_DIR
+  const captureLabel = process.env.TMV2_RECORD_TEST_VIDEO_LABEL
   const browserContext = (await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     screen: INTEGRATION_VIEWPORT,
@@ -162,6 +264,28 @@ export const initBrowserWithExtension = async () => {
     (await browserContext.newPage())
   if (page.url() !== extensionURL) {
     await page.goto(extensionURL)
+  }
+
+  const extensionVideoCapture =
+    captureDir && captureLabel
+      ? await startTestVideoCapture(page, captureDir, captureLabel)
+      : null
+  if (extensionVideoCapture) {
+    const originalClose = browserContext.close.bind(browserContext)
+    let videoPersisted = false
+
+    browserContext.close = async () => {
+      if (videoPersisted) {
+        return originalClose()
+      }
+      videoPersisted = true
+
+      try {
+        await extensionVideoCapture.stop()
+      } finally {
+        await originalClose()
+      }
+    }
   }
 
   return { browserContext, extensionURL, page }

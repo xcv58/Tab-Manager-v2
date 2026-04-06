@@ -828,8 +828,17 @@ code {
   line-height: 1.35;
 }
 
-.scale-demo-layout {
+.scale-demo-grid {
   margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.scale-demo-layout {
+  min-width: 0;
+  align-self: start;
 }
 
 .scale-demo-disclosure {
@@ -1374,6 +1383,10 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .scale-demo-grid {
+    grid-template-columns: 1fr;
+  }
+
   .versus-grid {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -1385,6 +1398,10 @@ code {
 }
 
 @media (max-width: 960px) and (orientation: landscape) {
+  .scale-demo-grid {
+    grid-template-columns: 1fr;
+  }
+
   .versus-grid {
     gap: 24px;
   }
@@ -1427,6 +1444,10 @@ code {
 
   .video-tour-list {
     grid-template-columns: 1fr;
+  }
+
+  .scale-demo-grid {
+    gap: 18px;
   }
 
   .scale-demo-summary {
