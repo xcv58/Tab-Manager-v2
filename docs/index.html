@@ -17,6 +17,69 @@
       })()
     </script>
 
+    <script>
+      ;(function () {
+        const fallbackLanguage = 'en'
+        const supportedLanguages = ['en', 'zh-Hans', 'zh-Hant']
+
+        function normalizeLanguage(language) {
+          if (supportedLanguages.includes(language)) {
+            return language
+          }
+
+          const normalized = String(language || '').toLowerCase()
+          if (!normalized) {
+            return fallbackLanguage
+          }
+
+          if (
+            normalized.includes('hant') ||
+            normalized === 'zh-tw' ||
+            normalized === 'zh-hk' ||
+            normalized === 'zh-mo'
+          ) {
+            return 'zh-Hant'
+          }
+
+          if (normalized.startsWith('zh')) {
+            return 'zh-Hans'
+          }
+
+          return fallbackLanguage
+        }
+
+        function getDeviceLanguage() {
+          const languages = Array.isArray(navigator.languages)
+            ? navigator.languages
+            : [navigator.language]
+          for (const language of languages) {
+            const normalized = String(language || '').toLowerCase()
+            if (normalized.startsWith('zh')) {
+              return normalizeLanguage(normalized)
+            }
+            if (normalized.startsWith('en')) {
+              return fallbackLanguage
+            }
+          }
+          return fallbackLanguage
+        }
+
+        let language = ''
+        try {
+          language = localStorage.getItem('site-language') || ''
+        } catch (error) {
+          language = ''
+        }
+
+        const resolvedLanguage = language
+          ? normalizeLanguage(language)
+          : getDeviceLanguage()
+
+        document.documentElement.lang = resolvedLanguage
+        document.documentElement.setAttribute('data-language', resolvedLanguage)
+      })()
+    </script>
+
     <title>Tab Manager v2 - See every tab across every window.</title>
     <meta
       name="description"
@@ -139,6 +202,36 @@
             >
           </nav>
 
+          <div class="language-select-wrap">
+            <svg
+              class="language-select-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M2 12h20"></path>
+              <path
+                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+              ></path>
+            </svg>
+            <label class="sr-only" for="language-selector">Language</label>
+            <select
+              id="language-selector"
+              class="language-select"
+              aria-label="Language"
+              title="Choose language"
+            >
+              <option value="en">English</option>
+              <option value="zh-Hans">简体中文</option>
+              <option value="zh-Hant">繁體中文</option>
+            </select>
+          </div>
+
           <div class="theme-switch" role="group" aria-label="Theme Toggle">
             <button
               id="btn-system"
@@ -224,6 +317,13 @@
         aria-atomic="true"
         class="sr-only"
         id="theme-announcement"
+      ></div>
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        class="sr-only"
+        id="language-announcement"
       ></div>
 
       <main id="main-content" role="main">
@@ -1023,7 +1123,7 @@
           <div class="faq-container">
             <details class="faq-item">
               <summary>Why is Safari not supported?</summary>
-              <p>
+              <p data-i18n-html="faq.safariUnsupportedBody">
                 Safari does not support the
                 <code>tabs.move()</code> WebExtension API that Tab Manager v2
                 relies on for drag-and-drop reordering and moving tabs between
@@ -1040,7 +1140,7 @@
             </details>
             <details class="faq-item">
               <summary>What permissions does the extension need?</summary>
-              <p>
+              <p data-i18n-html="faq.permissionsBody">
                 Tab Manager v2 uses <code>tabs</code>, <code>storage</code>, and
                 <code>management</code> for core tab and window management. It
                 also includes <code>history</code> for the optional browser
