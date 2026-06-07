@@ -39,6 +39,7 @@ references:
   playwright_setup: &playwright_setup
     run:
       name: Install Playwright Chromium runtime
+      no_output_timeout: 20m
       command: |
         pnpm --filter integration-test exec playwright install --with-deps chromium
 
