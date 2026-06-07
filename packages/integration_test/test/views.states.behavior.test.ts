@@ -1,4 +1,4 @@
-import { Page, ChromiumBrowserContext } from 'playwright'
+import { Page, ChromiumBrowserContext, Locator } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   WINDOW_CARD_QUERY,
@@ -18,6 +18,23 @@ let browserContext: ChromiumBrowserContext
 let extensionURL: string
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
+
+const screenshotLocatorTop = async (target: Locator, maxHeight: number) => {
+  await target.scrollIntoViewIfNeeded()
+  const box = await target.boundingBox()
+  if (!box) {
+    throw new Error('Unable to capture locator screenshot without a box')
+  }
+
+  return page.screenshot({
+    clip: {
+      x: Math.round(box.x),
+      y: Math.round(box.y),
+      width: Math.round(box.width),
+      height: Math.min(Math.round(box.height), maxHeight),
+    },
+  })
+}
 
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
@@ -360,7 +377,7 @@ test.describe('The Extension page should', () => {
     await expect(fontSizeControl).toBeVisible()
     await fontSizeInput.fill('6')
     await page.waitForTimeout(300)
-    const fontControlMinShot = await fontSizeControl.screenshot()
+    const fontControlMinShot = await screenshotLocatorTop(fontSizeControl, 202)
     expect(fontControlMinShot).toMatchSnapshot(
       'settings-font-control-min.png',
       {
@@ -370,7 +387,7 @@ test.describe('The Extension page should', () => {
     )
     await fontSizeInput.fill('36')
     await page.waitForTimeout(300)
-    const fontControlMaxShot = await fontSizeControl.screenshot()
+    const fontControlMaxShot = await screenshotLocatorTop(fontSizeControl, 202)
     expect(fontControlMaxShot).toMatchSnapshot(
       'settings-font-control-max.png',
       {

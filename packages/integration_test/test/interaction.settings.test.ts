@@ -1,4 +1,4 @@
-import { Page, ChromiumBrowserContext } from 'playwright'
+import { Page, ChromiumBrowserContext, Locator } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   URLS,
@@ -32,6 +32,27 @@ const waitForSettingsPanelToSettle = async (page: Page) => {
   const panel = page.getByTestId('settings-panel-theme-density')
   await expect(panel).toBeVisible()
   await waitForSurfaceToFullyAppear(page, panel)
+}
+
+const screenshotLocatorTop = async (
+  page: Page,
+  target: Locator,
+  maxHeight: number,
+) => {
+  await target.scrollIntoViewIfNeeded()
+  const box = await target.boundingBox()
+  if (!box) {
+    throw new Error('Unable to capture locator screenshot without a box')
+  }
+
+  return page.screenshot({
+    clip: {
+      x: Math.round(box.x),
+      y: Math.round(box.y),
+      width: Math.round(box.width),
+      height: Math.min(Math.round(box.height), maxHeight),
+    },
+  })
 }
 
 test.describe('The Extension page should', () => {
@@ -95,7 +116,7 @@ test.describe('The Extension page should', () => {
     const themedPanel = page.getByTestId('settings-panel-theme-density')
     await expect(themedPanel).toBeVisible()
     await waitForSurfaceToFullyAppear(page, themedPanel)
-    expect(await themedPanel.screenshot()).toMatchSnapshot(
+    expect(await screenshotLocatorTop(page, themedPanel, 586)).toMatchSnapshot(
       matchImageSnapshotOptions,
     )
 
