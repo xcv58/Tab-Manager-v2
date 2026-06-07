@@ -311,13 +311,22 @@ test.describe('The Extension page should', () => {
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
       .first()
     await expect(toolbarToggle).toBeVisible()
+    await waitForLocatorRectToStabilize(toolbarToggle, {
+      minWidth: 300,
+      minHeight: 30,
+      stableSamples: 4,
+    })
     const toggleBefore = await toolbarToggle.screenshot()
     expect(toggleBefore).toMatchSnapshot('settings-toggle-before.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
     })
     await toolbarToggle.click()
-    await page.waitForTimeout(300)
+    await waitForLocatorRectToStabilize(toolbarToggle, {
+      minWidth: 300,
+      minHeight: 30,
+      stableSamples: 4,
+    })
     const toggleAfter = await toolbarToggle.screenshot()
     expect(toggleAfter).toMatchSnapshot('settings-toggle-after.png', {
       maxDiffPixelRatio: 0.12,

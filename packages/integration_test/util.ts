@@ -720,6 +720,10 @@ export const waitForSurfaceToFullyAppear = async (
       await document.fonts?.ready
     }
   })
+  await waitForLocatorRectToStabilize(surface, {
+    timeout: 5000,
+    stableSamples: 3,
+  })
 }
 
 export const dragByTestId = async (
