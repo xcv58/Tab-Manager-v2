@@ -232,9 +232,11 @@ const DensityControl = ({
       data-testid={testId}
     >
       <div
-        className={`flex flex-col gap-3 md:flex-row md:justify-between ${
-          description ? 'md:items-start' : 'md:items-center'
-        }`}
+        className={
+          description
+            ? 'flex flex-col gap-3'
+            : 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
+        }
       >
         <div className="min-w-0">
           <h5 style={controlTitleStyle}>{title}</h5>
@@ -455,7 +457,10 @@ const SettingsSwitchOption = ({
       className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
         description ? 'items-center py-3.5' : 'items-center py-3'
       }`}
-      style={style}
+      style={{
+        ...style,
+        minHeight: 36,
+      }}
       aria-labelledby={containerAriaLabelledBy}
       aria-label={containerAriaLabel}
       onClick={handleContainerClick}
@@ -649,7 +654,7 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 data-testid="settings-ui-preset-toggle-group"
               >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-3">
                   <div className="min-w-0">
                     <h5 style={controlTitleStyle}>Interface style</h5>
                     <p style={controlDescriptionStyle}>
