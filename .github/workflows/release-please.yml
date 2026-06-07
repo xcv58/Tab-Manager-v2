@@ -109,7 +109,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Install Playwright
-        run: pnpm --filter integration-test exec playwright install --with-deps chromium
+        run: pnpm --filter integration-test exec playwright install --with-deps --no-shell chromium
 
       - name: Run release gate on Ubuntu
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
