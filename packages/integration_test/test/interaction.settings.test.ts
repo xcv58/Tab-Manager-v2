@@ -116,7 +116,7 @@ test.describe('The Extension page should', () => {
     const themedPanel = page.getByTestId('settings-panel-theme-density')
     await expect(themedPanel).toBeVisible()
     await waitForSurfaceToFullyAppear(page, themedPanel)
-    expect(await screenshotLocatorTop(page, themedPanel, 586)).toMatchSnapshot(
+    expect(await screenshotLocatorTop(page, themedPanel, 585)).toMatchSnapshot(
       matchImageSnapshotOptions,
     )
 
