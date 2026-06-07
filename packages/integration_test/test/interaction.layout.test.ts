@@ -57,6 +57,28 @@ const getRenderedWindowColumnCount = async (page: Page) => {
   return await page.locator('[data-testid^="window-column-"]').count()
 }
 
+const getRenderedWindowOrder = async (page: Page) => {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-testid^="window-column-"]'))
+      .flatMap((column) =>
+        Array.from(column.querySelectorAll('[data-testid^="window-card-"]')),
+      )
+      .map((node) => node.getAttribute('data-testid') || '')
+      .map((testId) => Number(testId.replace('window-card-', '')))
+      .filter((windowId) => Number.isFinite(windowId)),
+  )
+}
+
+const getRenderedCreatedWindowOrder = async (
+  page: Page,
+  createdWindowIds: number[],
+) => {
+  const createdWindowIdSet = new Set(createdWindowIds)
+  return (await getRenderedWindowOrder(page)).filter((windowId) =>
+    createdWindowIdSet.has(windowId),
+  )
+}
+
 const setupAutoFitColumnsScenario = async (
   page: Page,
   settings: Record<string, unknown> = {},
@@ -164,6 +186,7 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL)
     await page.evaluate(async () => {
       await chrome.storage.local.clear()
+      await chrome.storage.sync?.clear?.()
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
@@ -395,6 +418,57 @@ test.describe('The Extension page should', () => {
       .toBeGreaterThan(4)
   })
 
+  test('window order setting promotes last-used windows only when enabled', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+    const createdWindowIds = await createWindowsWithTabs(page, [
+      ['about:blank#window-order-default-1'],
+      ['about:blank#window-order-default-2'],
+      ['about:blank#window-order-default-3'],
+    ])
+    const lastUsedWindowId = createdWindowIds[2]
+
+    await page.evaluate(
+      async (windowLastUsedAt) => {
+        await chrome.storage.local.set({ windowLastUsedAt })
+      },
+      {
+        [String(lastUsedWindowId)]: Date.now() + 1000,
+      },
+    )
+
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    for (const windowId of createdWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+        timeout: 5000,
+      })
+      .toEqual(createdWindowIds)
+
+    await writeExtensionSettings(page, {
+      windowOrder: 'lastUsed',
+    })
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    for (const windowId of createdWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+        timeout: 5000,
+      })
+      .toEqual([lastUsedWindowId, ...createdWindowIds.slice(0, 2)])
+  })
+
   test('auto-fit columns avoids horizontal scrolling in wide windows', async () => {
     await page.setViewportSize({
       width: 1400,
@@ -409,6 +483,54 @@ test.describe('The Extension page should', () => {
 
     const metrics = await getScrollContainerMetrics(page)
     expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+  })
+
+  test('last-used order does not lock auto-fit columns to an older window count', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+    await writeExtensionSettings(page, {
+      autoFitColumns: true,
+      tabWidth: 20,
+      windowOrder: 'lastUsed',
+    })
+
+    const initialWindowIds = await createWindowsWithTabs(
+      page,
+      AUTO_FIT_WINDOW_URLS.slice(0, 2),
+    )
+    await page.evaluate(
+      async (windowLastUsedAt) => {
+        await chrome.storage.local.set({ windowLastUsedAt })
+      },
+      {
+        [String(initialWindowIds[1])]: Date.now() + 1000,
+      },
+    )
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    for (const windowId of initialWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(3)
+
+    const addedWindowIds = await createWindowsWithTabs(
+      page,
+      AUTO_FIT_WINDOW_URLS.slice(2),
+    )
+    for (const windowId of addedWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(4)
   })
 
   test('auto-fit columns reduces the rendered column count after narrowing the window', async () => {

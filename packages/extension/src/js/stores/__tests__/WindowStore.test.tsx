@@ -61,6 +61,7 @@ jest.mock('libs', () => ({
   notSelfPopup: jest.fn(() => true),
   windowComparator: jest.fn(() => 0),
   isSelfPopup: jest.fn(() => false),
+  isSelfPopupTab: jest.fn(() => false),
 }))
 
 const setVisibleLengths = (store: WindowStore, lengths: number[]) => {
@@ -82,6 +83,7 @@ const createWindowStore = () => {
       tabWidth: 20,
       showAppWindow: true,
       showUnmatchedTab: true,
+      windowOrder: 'default',
     },
     tabStore: {
       selection: new Map(),
@@ -230,6 +232,78 @@ describe('WindowStore layout policy', () => {
 
     expect(windowStore.columnCount).toBe(3)
     expect(windowStore.totalContentWidth).toBeLessThanOrEqual(1001)
+  })
+
+  it('reflows saved last-used columns when auto-fit column count changes', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.store.userStore.autoFitColumns = true
+    windowStore.height = 1000
+    windowStore.width = 1400
+    setVisibleLengths(windowStore, [1, 1, 1, 1, 1, 1])
+    windowStore.windowLastUsedColumnLayout = [
+      [1, 2, 3],
+      [4, 5, 6],
+    ]
+
+    const { layout, columnCount } = windowStore.computeColumnLayout(
+      windowStore.visibleWindows,
+    )
+
+    expect(columnCount).toBe(4)
+    expect(layout).toEqual([[1, 5], [2, 6], [3], [4]])
+  })
+
+  it('keeps last-used window order disabled by default', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 260
+    setVisibleLengths(windowStore, [3, 3, 3])
+
+    windowStore.repackLayout('manual')
+    windowStore.windowLastUsedAt = {
+      3: 10,
+    }
+
+    expect(windowStore.applyWindowLastUsedLayout('manual')).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[1, 2], [3]])
+  })
+
+  it('promotes last-used order through the base column packer', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 260
+    setVisibleLengths(windowStore, [3, 3, 3, 3, 3])
+    windowStore.columnLayout = [
+      [1, 2],
+      [3, 4],
+    ]
+    windowStore.windowLastUsedAt = {
+      5: 10,
+    }
+
+    const { layout } = windowStore.getLastUsedPromotedColumnLayout(
+      windowStore.visibleWindows,
+    )
+
+    expect(layout).toEqual([[5, 1], [2, 3], [4]])
+  })
+
+  it('promotes only the newest last-used window and keeps the rest stable', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1, 1])
+    windowStore.columnLayout = [[1, 2, 3, 4]]
+    windowStore.windowLastUsedAt = {
+      2: 20,
+      4: 10,
+    }
+
+    const { layout } = windowStore.getLastUsedPromotedColumnLayout(
+      windowStore.visibleWindows,
+    )
+
+    expect(layout).toEqual([[2, 1, 3, 4]])
   })
 
   it('renders only nearby columns for the horizontal viewport', () => {

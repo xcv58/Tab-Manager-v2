@@ -5,6 +5,11 @@ import {
   normalizeActionTabCountMode,
   type ActionTabCountMode,
 } from 'libs/actionTabCount'
+import {
+  DEFAULT_WINDOW_ORDER,
+  normalizeWindowOrder,
+  type WindowOrder,
+} from 'libs/windowOrder'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import log from 'libs/log'
@@ -37,6 +42,7 @@ const DEFAULT_SETTINGS = {
   showTabIcon: true,
   fontSize: 14,
   actionTabCountMode: DEFAULT_ACTION_TAB_COUNT_MODE as ActionTabCountMode,
+  windowOrder: DEFAULT_WINDOW_ORDER as WindowOrder,
 }
 
 const LEGACY_SETTINGS = ['groupByDomain'] as const
@@ -56,6 +62,7 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
   nextSettings.actionTabCountMode = normalizeActionTabCountMode(
     nextSettings.actionTabCountMode,
   )
+  nextSettings.windowOrder = normalizeWindowOrder(nextSettings.windowOrder)
   const legacyKeys: string[] = []
 
   LEGACY_SETTINGS.forEach((key) => {
@@ -105,10 +112,12 @@ export default class UserStore {
       ignoreHash: observable,
       fontSize: observable,
       actionTabCountMode: observable,
+      windowOrder: observable,
       theme: computed,
       selectTheme: action,
       selectUiPreset: action,
       selectActionTabCountMode: action,
+      selectWindowOrder: action,
       selectNextTheme: action,
       openDialog: action,
       closeDialog: action,
@@ -198,6 +207,7 @@ export default class UserStore {
     const previousFontSize = this.fontSize
     const previousTabWidth = this.tabWidth
     const previousAutoFitColumns = this.autoFitColumns
+    const previousWindowOrder = this.windowOrder
     try {
       const result = await this.readSettings()
       Object.assign(this, result)
@@ -208,6 +218,13 @@ export default class UserStore {
           this.autoFitColumns !== previousAutoFitColumns)
       ) {
         this.store.windowStore.repackLayout('settings-change')
+      }
+      if (this.store.windowStore && this.windowOrder !== previousWindowOrder) {
+        this.store.windowStore.loadAllWindows({
+          repackPolicy: 'always',
+          reason: 'settings-change',
+          preserveWindowOrder: false,
+        })
       }
     } catch (error) {
       log.error('UserStore.init failed to load settings', { error })
@@ -239,6 +256,7 @@ export default class UserStore {
   fontSize = 14
   showTabIcon = true
   actionTabCountMode: ActionTabCountMode = DEFAULT_ACTION_TAB_COUNT_MODE
+  windowOrder: WindowOrder = DEFAULT_WINDOW_ORDER
   dialogOpen = false
   dialogFocusTarget: HTMLElement | null = null
   toolbarVisible = true
@@ -275,6 +293,19 @@ export default class UserStore {
   selectActionTabCountMode = (actionTabCountMode: ActionTabCountMode) => {
     this.actionTabCountMode = actionTabCountMode
     this.save()
+  }
+
+  selectWindowOrder = (windowOrder: WindowOrder) => {
+    if (this.windowOrder === windowOrder) {
+      return
+    }
+    this.windowOrder = windowOrder
+    this.save()
+    this.store.windowStore?.loadAllWindows?.({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
   }
 
   selectNextTheme = () => {

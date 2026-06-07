@@ -59,6 +59,7 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL)
     await page.evaluate(async () => {
       await chrome.storage.local.clear()
+      await chrome.storage.sync?.clear?.()
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
@@ -169,6 +170,40 @@ test.describe('The Extension page should', () => {
         .locator('[data-testid^="tab-duplicate-marker-"]')
         .first(),
     ).toHaveCSS('opacity', '0')
+  })
+
+  test('persist window order mode across reload', async () => {
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await waitForSettingsPanelToSettle(page)
+
+    let windowOrderGroup = page.getByTestId(
+      'settings-window-order-toggle-group',
+    )
+    await expect(windowOrderGroup).toBeVisible()
+    let lastUsedButton = windowOrderGroup.getByRole('radio', {
+      name: 'Use last used window order',
+    })
+    await lastUsedButton.click()
+    await waitForSettingsPanelToSettle(page)
+    await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
+
+    expect(
+      await page.evaluate(async () => {
+        const result = await chrome.storage.sync.get(['windowOrder'])
+        return result.windowOrder
+      }),
+    ).toBe('lastUsed')
+
+    await page.reload()
+    await waitForMainSurfaceToSettle(page)
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await waitForSettingsPanelToSettle(page)
+
+    windowOrderGroup = page.getByTestId('settings-window-order-toggle-group')
+    lastUsedButton = windowOrderGroup.getByRole('radio', {
+      name: 'Use last used window order',
+    })
+    await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
   })
 
   test('support font size change', async () => {

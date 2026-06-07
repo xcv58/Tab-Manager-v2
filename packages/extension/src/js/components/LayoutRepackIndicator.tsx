@@ -12,8 +12,10 @@ export default observer(() => {
   const { windowStore } = useStore()
   const theme = useAppTheme()
   const isDark = theme.mode === 'dark'
+  const showRelayout =
+    windowStore.layoutDirty || windowStore.windowLastUsedLayoutDirty
 
-  if (!windowStore.layoutDirty) {
+  if (!showRelayout) {
     return null
   }
 
