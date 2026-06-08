@@ -46,7 +46,7 @@ references:
 jobs:
   build-test:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:25.9-browsers
     resource_class: large
     steps:
       - checkout
@@ -67,7 +67,7 @@ jobs:
 
   publish:
     docker:
-      - image: cimg/node:lts
+      - image: cimg/node:25.9
     steps:
       - checkout
       - *restore_cache
