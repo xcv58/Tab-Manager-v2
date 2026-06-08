@@ -47,13 +47,22 @@ jobs:
         run: pnpm install
 
       - name: Install xvfb
+        if: ${{ matrix.node == 25 }}
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Install Playwright
-        run: pnpm --filter integration-test exec playwright install --with-deps chromium webkit
+        if: ${{ matrix.node == 25 }}
+        run: pnpm --filter integration-test exec playwright install --with-deps --no-shell chromium
 
-      # Run all test
+      - name: Unit Test and Build
+        if: ${{ matrix.node == 24 }}
+        run: |
+          pnpm run test:unit
+          pnpm build
+
+      # Run all tests, including the browser integration suite.
       - name: Integration Test
+        if: ${{ matrix.node == 25 }}
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
 
       - uses: actions/upload-artifact@v4

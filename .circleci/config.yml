@@ -39,13 +39,14 @@ references:
   playwright_setup: &playwright_setup
     run:
       name: Install Playwright Chromium runtime
+      no_output_timeout: 20m
       command: |
-        pnpm --filter integration-test exec playwright install --with-deps chromium
+        pnpm --filter integration-test exec playwright install --with-deps --no-shell chromium
 
 jobs:
   build-test:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:25.9-browsers
     resource_class: large
     steps:
       - checkout
@@ -66,7 +67,7 @@ jobs:
 
   publish:
     docker:
-      - image: cimg/node:lts
+      - image: cimg/node:25.9
     steps:
       - checkout
       - *restore_cache
