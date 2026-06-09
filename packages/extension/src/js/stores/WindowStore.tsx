@@ -1049,6 +1049,12 @@ export default class WindowsStore {
       reason === 'filter-change')
 
   flushLayoutIfDirty = (reason: LayoutRepackReason) => {
+    if (this.windowLastUsedLayoutDirty) {
+      if (this.hasWindowLastUsedLayoutCandidate()) {
+        return this.applyWindowLastUsedLayout(reason)
+      }
+      this.windowLastUsedLayoutDirty = false
+    }
     if (!this.layoutDirty) {
       return false
     }

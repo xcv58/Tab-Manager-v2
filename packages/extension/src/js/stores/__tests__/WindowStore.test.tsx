@@ -344,6 +344,40 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnLayout).toEqual([[1, 2]])
   })
 
+  it('flushes pending last-used relayout when the UI goes to the background', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1])
+    windowStore.columnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedColumnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedAt = {
+      3: 20,
+    }
+    windowStore.windowLastUsedLayoutDirty = true
+
+    expect(windowStore.flushLayoutIfDirty('window-blur')).toBe(true)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+  })
+
+  it('clears stale last-used dirty state when there is no relayout candidate', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1])
+    windowStore.columnLayout = [[1, 2]]
+    windowStore.windowLastUsedLayoutDirty = true
+
+    expect(windowStore.flushLayoutIfDirty('visibility-hidden')).toBe(false)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[1, 2]])
+  })
+
   it('seeds last-used timestamps from tab history only when no explicit data exists', async () => {
     const windowStore = createWindowStore()
     windowStore.store.userStore.windowOrder = 'lastUsed'
