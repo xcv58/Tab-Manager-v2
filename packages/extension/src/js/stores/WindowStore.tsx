@@ -1049,9 +1049,12 @@ export default class WindowsStore {
       reason === 'filter-change')
 
   flushLayoutIfDirty = (reason: LayoutRepackReason) => {
-    if (this.windowLastUsedLayoutDirty) {
+    if (this.windowLastUsedLayoutDirty || this.layoutDirty) {
       if (this.hasWindowLastUsedLayoutCandidate()) {
-        return this.applyWindowLastUsedLayout(reason)
+        const applied = this.applyWindowLastUsedLayout(reason)
+        if (applied) {
+          return true
+        }
       }
       this.windowLastUsedLayoutDirty = false
     }
@@ -1868,6 +1871,9 @@ export default class WindowsStore {
   }
 
   loadAllWindows = async (options: LoadAllWindowsOptions = {}) => {
+    if (!this.initialWindowLoadStarted) {
+      this.initialWindowLoadStarted = true
+    }
     const { repackPolicy, reason, preserveWindowOrder = true } = options
     log.debug('loadAllWindows', { repackPolicy, reason, preserveWindowOrder })
     const wasInitialLoading = this.initialLoading

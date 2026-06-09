@@ -363,6 +363,25 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
   })
 
+  it('keeps last-used order when a normal dirty layout flushes in the background', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1])
+    windowStore.columnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedColumnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedAt = {
+      3: 20,
+    }
+    windowStore.layoutDirty = true
+
+    expect(windowStore.flushLayoutIfDirty('visibility-hidden')).toBe(true)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+  })
+
   it('clears stale last-used dirty state when there is no relayout candidate', () => {
     const windowStore = createWindowStore()
     windowStore.store.userStore.windowOrder = 'lastUsed'
@@ -376,6 +395,36 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.layoutDirty).toBe(false)
     expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
     expect(windowStore.columnLayout).toEqual([[1, 2]])
+  })
+
+  it('does not start a duplicate initial load when settings reload starts before mount', async () => {
+    const windowStore = createWindowStore()
+    let resolveGetAll: (windows: any[]) => void
+    const getAllPromise = new Promise<any[]>((resolve) => {
+      resolveGetAll = resolve
+    })
+    ;(browser.windows.getAll as jest.Mock).mockReturnValueOnce(getAllPromise)
+
+    const loadPromise = windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
+
+    expect(windowStore.initialWindowLoadStarted).toBe(true)
+    windowStore.didMount()
+    expect(browser.windows.getAll).toHaveBeenCalledTimes(1)
+
+    resolveGetAll!([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+    await loadPromise
+    windowStore.willUnmount()
   })
 
   it('seeds last-used timestamps from tab history only when no explicit data exists', async () => {
