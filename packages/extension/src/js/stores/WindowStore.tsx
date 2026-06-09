@@ -132,13 +132,6 @@ const mergeWindowLastUsedAt = (
   }, {} as WindowLastUsedAt)
 }
 
-const getMaxWindowLastUsedAt = (value: WindowLastUsedAt) =>
-  Object.values(value).reduce(
-    (max, timestamp) =>
-      Number.isFinite(timestamp) ? Math.max(max, timestamp) : max,
-    0,
-  )
-
 const normalizeWindowLastUsedAtFromTabHistory = (
   value: unknown,
   startAt = Date.now(),
@@ -591,11 +584,13 @@ export default class WindowsStore {
         this.windowLastUsedAt,
         storedLastUsedAt,
       )
+      if (Object.keys(baselineLastUsedAt).length > 0) {
+        return storedLastUsedAt
+      }
       const tabHistoryLastUsedAt = normalizeWindowLastUsedAtFromTabHistory(
         stored[WINDOW_TAB_HISTORY_STORAGE_KEY],
-        getMaxWindowLastUsedAt(baselineLastUsedAt),
       )
-      return mergeWindowLastUsedAt(storedLastUsedAt, tabHistoryLastUsedAt)
+      return tabHistoryLastUsedAt
     } catch {
       return this.windowLastUsedAt
     }
@@ -937,9 +932,11 @@ export default class WindowsStore {
     }
     if (this.isSameLayout(this.columnLayout, normalizedNextLayout)) {
       this.windowLastUsedColumnLayout = normalizedNextLayout
+      this.layoutDirty = false
+      this.dirtyWindowIds.clear()
       this.pendingLastUsedWindowId = null
       this.windowLastUsedLayoutDirty = false
-      return false
+      return true
     }
     this.windowLastUsedColumnLayout = normalizedNextLayout
     this.columnLayout = normalizedNextLayout
@@ -1931,8 +1928,7 @@ export default class WindowsStore {
         this.windowLastUsedLayoutDirty = false
         return false
       }
-      this.applyWindowLastUsedLayout(resolvedRepackReason)
-      return true
+      return this.applyWindowLastUsedLayout(resolvedRepackReason)
     }
 
     if (policy === 'always') {

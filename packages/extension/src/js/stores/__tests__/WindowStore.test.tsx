@@ -55,6 +55,17 @@ jest.mock('libs', () => ({
     runtime: {
       sendMessage: jest.fn(),
     },
+    storage: {
+      local: {
+        get: jest.fn(() =>
+          Promise.resolve({
+            windowLastUsedAt: {},
+            tabHistory: [],
+          }),
+        ),
+        set: jest.fn(() => Promise.resolve()),
+      },
+    },
   },
   moveTabs: jest.fn(() => Promise.resolve()),
   getLastFocusedWindowId: jest.fn(() => Promise.resolve(null)),
@@ -116,6 +127,11 @@ const createWindowStore = () => {
 describe('WindowStore layout policy', () => {
   beforeEach(() => {
     jest.restoreAllMocks()
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValue({
+      windowLastUsedAt: {},
+      tabHistory: [],
+    })
+    ;(browser.storage.local.set as jest.Mock).mockResolvedValue(undefined)
   })
 
   it('markLayoutDirtyIfNeeded marks only when computed layout differs', () => {
@@ -304,6 +320,63 @@ describe('WindowStore layout policy', () => {
     )
 
     expect(layout).toEqual([[2, 1, 3, 4]])
+  })
+
+  it('clears dirty state when applying last-used order keeps the same layout', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1])
+    windowStore.columnLayout = [[1, 2]]
+    windowStore.windowLastUsedColumnLayout = [[1, 2]]
+    windowStore.windowLastUsedAt = {
+      1: 20,
+    }
+    windowStore.layoutDirty = true
+    windowStore.dirtyWindowIds.add(2)
+    windowStore.windowLastUsedLayoutDirty = true
+
+    expect(windowStore.applyWindowLastUsedLayout('manual')).toBe(true)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.dirtyWindowIds.size).toBe(0)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[1, 2]])
+  })
+
+  it('seeds last-used timestamps from tab history only when no explicit data exists', async () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
+      windowLastUsedAt: {},
+      tabHistory: [
+        { tabId: 11, windowId: 1, url: 'about:blank#first' },
+        { tabId: 22, windowId: 2, url: 'about:blank#second' },
+      ],
+    })
+
+    const loadedLastUsedAt = await windowStore.loadWindowLastUsedAt()
+
+    expect(Object.keys(loadedLastUsedAt).sort()).toEqual(['1', '2'])
+    expect(loadedLastUsedAt['2']).toBeGreaterThan(loadedLastUsedAt['1'])
+  })
+
+  it('keeps stored last-used timestamps authoritative over stale tab history', async () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
+      windowLastUsedAt: {
+        2: 20,
+      },
+      tabHistory: [
+        { tabId: 22, windowId: 2, url: 'about:blank#newer-stored' },
+        { tabId: 11, windowId: 1, url: 'about:blank#stale-history' },
+      ],
+    })
+
+    await expect(windowStore.loadWindowLastUsedAt()).resolves.toEqual({
+      2: 20,
+    })
   })
 
   it('renders only nearby columns for the horizontal viewport', () => {
