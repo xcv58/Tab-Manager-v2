@@ -257,6 +257,8 @@ export default class WindowsStore {
 
   initialWindowLoadStarted = false
 
+  windowLoadRequestId = 0
+
   lifecycleListenersBound = false
 
   lifecycleSuppressionMs = 120
@@ -1874,6 +1876,7 @@ export default class WindowsStore {
     if (!this.initialWindowLoadStarted) {
       this.initialWindowLoadStarted = true
     }
+    const loadRequestId = (this.windowLoadRequestId += 1)
     const { repackPolicy, reason, preserveWindowOrder = true } = options
     log.debug('loadAllWindows', { repackPolicy, reason, preserveWindowOrder })
     const wasInitialLoading = this.initialLoading
@@ -1898,6 +1901,14 @@ export default class WindowsStore {
     const shouldApplyWindowLastUsedLayout =
       this.shouldApplyWindowLastUsedLayout(reason, wasInitialLoading)
     const windowLastUsedAt = await this.loadWindowLastUsedAt()
+    if (loadRequestId !== this.windowLoadRequestId) {
+      log.debug('WindowsStore.loadAllWindows ignored stale result', {
+        loadRequestId,
+        latestLoadRequestId: this.windowLoadRequestId,
+        reason,
+      })
+      return
+    }
     this.windowLastUsedAt = mergeWindowLastUsedAt(
       this.windowLastUsedAt,
       windowLastUsedAt,

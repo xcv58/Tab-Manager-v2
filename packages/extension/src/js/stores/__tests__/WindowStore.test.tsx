@@ -427,6 +427,59 @@ describe('WindowStore layout policy', () => {
     windowStore.willUnmount()
   })
 
+  it('ignores an older initial load that resolves after a settings reload', async () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    const windows = [1, 2, 3].map((windowId) => ({
+      id: windowId,
+      tabs: [
+        {
+          id: windowId * 10,
+          index: 0,
+          windowId,
+          title: String(windowId),
+          url: 'about:blank',
+        },
+      ],
+    }))
+    let resolveInitialGetAll: (windows: any[]) => void
+    let resolveSettingsGetAll: (windows: any[]) => void
+    const initialGetAllPromise = new Promise<any[]>((resolve) => {
+      resolveInitialGetAll = resolve
+    })
+    const settingsGetAllPromise = new Promise<any[]>((resolve) => {
+      resolveSettingsGetAll = resolve
+    })
+    ;(browser.windows.getAll as jest.Mock)
+      .mockReturnValueOnce(initialGetAllPromise)
+      .mockReturnValueOnce(settingsGetAllPromise)
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValue({
+      windowLastUsedAt: {
+        3: 20,
+      },
+      tabHistory: [],
+    })
+
+    const initialLoadPromise = windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'initial-load',
+    })
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    const settingsLoadPromise = windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
+
+    resolveSettingsGetAll!(windows)
+    await settingsLoadPromise
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+
+    resolveInitialGetAll!(windows)
+    await initialLoadPromise
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+  })
+
   it('seeds last-used timestamps from tab history only when no explicit data exists', async () => {
     const windowStore = createWindowStore()
     windowStore.store.userStore.windowOrder = 'lastUsed'
