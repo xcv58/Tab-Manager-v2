@@ -126,7 +126,6 @@ const setupLastUsedWindowOrderVisualScenario = async ({
   })
   await writeExtensionSettings(page, {
     tabWidth: 20,
-    windowOrder: 'lastUsed',
   })
   const createdWindowIds = await createWindowsWithTabs(
     page,
@@ -152,6 +151,9 @@ const setupLastUsedWindowOrderVisualScenario = async ({
     await waitForTestId(page, `window-card-${windowId}`)
   }
   await waitForMainSurfaceToSettle(page)
+  await enableLastUsedWindowOrderThroughSettings(page)
+  await waitForMainSurfaceToSettle(page)
+
   const expectedCreatedWindowOrder = [
     lastUsedWindowId,
     ...createdWindowIds.filter((windowId) => windowId !== lastUsedWindowId),
@@ -627,7 +629,6 @@ test.describe('The Extension page should', () => {
     await writeExtensionSettings(page, {
       autoFitColumns: true,
       tabWidth: 20,
-      windowOrder: 'lastUsed',
     })
 
     const initialWindowIds = await createWindowsWithTabs(
@@ -647,6 +648,8 @@ test.describe('The Extension page should', () => {
     for (const windowId of initialWindowIds) {
       await waitForTestId(page, `window-card-${windowId}`)
     }
+    await waitForMainSurfaceToSettle(page)
+    await enableLastUsedWindowOrderThroughSettings(page)
     await waitForMainSurfaceToSettle(page)
 
     await expect
