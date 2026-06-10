@@ -220,7 +220,7 @@ export default class UserStore {
         this.store.windowStore.repackLayout('settings-change')
       }
       if (this.store.windowStore && this.windowOrder !== previousWindowOrder) {
-        this.store.windowStore.loadAllWindows({
+        await this.store.windowStore.loadAllWindows({
           repackPolicy: 'always',
           reason: 'settings-change',
           preserveWindowOrder: false,

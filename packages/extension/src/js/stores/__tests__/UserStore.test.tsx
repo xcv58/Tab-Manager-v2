@@ -100,10 +100,15 @@ describe('UserStore', () => {
   })
 
   it('should reload windows after loading stored window order during initial window load', async () => {
-    const loadAllWindows = jest.fn()
+    let resolveWindowLoad: () => void
+    const windowLoadPromise = new Promise<void>((resolve) => {
+      resolveWindowLoad = resolve
+    })
+    const initSearch = jest.fn()
+    const loadAllWindows = jest.fn(() => windowLoadPromise)
     const userStore = new UserStore({
       searchStore: {
-        init: jest.fn(),
+        init: initSearch,
       },
       windowStore: {
         initialLoading: true,
@@ -113,11 +118,14 @@ describe('UserStore', () => {
     await flush()
 
     loadAllWindows.mockClear()
+    initSearch.mockClear()
+    userStore.loaded = false
     jest.spyOn(userStore, 'readSettings').mockResolvedValueOnce({
       windowOrder: 'lastUsed',
     })
 
-    await userStore.init()
+    const initPromise = userStore.init()
+    await flush()
 
     expect(userStore.windowOrder).toBe('lastUsed')
     expect(loadAllWindows).toHaveBeenCalledWith({
@@ -125,6 +133,14 @@ describe('UserStore', () => {
       reason: 'settings-change',
       preserveWindowOrder: false,
     })
+    expect(userStore.loaded).toBe(false)
+    expect(initSearch).not.toHaveBeenCalled()
+
+    resolveWindowLoad!()
+    await initPromise
+
+    expect(userStore.loaded).toBe(true)
+    expect(initSearch).toHaveBeenCalledTimes(1)
   })
 
   it('should repack layout when toggling unmatched tabs visibility', async () => {
