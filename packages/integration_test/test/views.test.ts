@@ -909,6 +909,11 @@ test.describe('The Extension page should', () => {
     await expect(toolbarToggle).toBeVisible()
     await page.mouse.move(1, 1)
     await page.waitForTimeout(100)
+    await waitForLocatorRectToStabilize(toolbarToggle, {
+      minWidth: 300,
+      minHeight: 30,
+      stableSamples: 4,
+    })
     const toolbarToggleScreenshot = await toolbarToggle.screenshot()
     expect(toolbarToggleScreenshot).toMatchSnapshot(
       'settings-toolbar-toggle-atom.png',

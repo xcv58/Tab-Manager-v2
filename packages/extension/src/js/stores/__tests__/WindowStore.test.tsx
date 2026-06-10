@@ -55,12 +55,24 @@ jest.mock('libs', () => ({
     runtime: {
       sendMessage: jest.fn(),
     },
+    storage: {
+      local: {
+        get: jest.fn(() =>
+          Promise.resolve({
+            windowLastUsedAt: {},
+            tabHistory: [],
+          }),
+        ),
+        set: jest.fn(() => Promise.resolve()),
+      },
+    },
   },
   moveTabs: jest.fn(() => Promise.resolve()),
   getLastFocusedWindowId: jest.fn(() => Promise.resolve(null)),
   notSelfPopup: jest.fn(() => true),
   windowComparator: jest.fn(() => 0),
   isSelfPopup: jest.fn(() => false),
+  isSelfPopupTab: jest.fn(() => false),
 }))
 
 const setVisibleLengths = (store: WindowStore, lengths: number[]) => {
@@ -82,6 +94,7 @@ const createWindowStore = () => {
       tabWidth: 20,
       showAppWindow: true,
       showUnmatchedTab: true,
+      windowOrder: 'default',
     },
     tabStore: {
       selection: new Map(),
@@ -114,6 +127,11 @@ const createWindowStore = () => {
 describe('WindowStore layout policy', () => {
   beforeEach(() => {
     jest.restoreAllMocks()
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValue({
+      windowLastUsedAt: {},
+      tabHistory: [],
+    })
+    ;(browser.storage.local.set as jest.Mock).mockResolvedValue(undefined)
   })
 
   it('markLayoutDirtyIfNeeded marks only when computed layout differs', () => {
@@ -230,6 +248,271 @@ describe('WindowStore layout policy', () => {
 
     expect(windowStore.columnCount).toBe(3)
     expect(windowStore.totalContentWidth).toBeLessThanOrEqual(1001)
+  })
+
+  it('reflows saved last-used columns when auto-fit column count changes', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.store.userStore.autoFitColumns = true
+    windowStore.height = 1000
+    windowStore.width = 1400
+    setVisibleLengths(windowStore, [1, 1, 1, 1, 1, 1])
+    windowStore.windowLastUsedColumnLayout = [
+      [1, 2, 3],
+      [4, 5, 6],
+    ]
+
+    const { layout, columnCount } = windowStore.computeColumnLayout(
+      windowStore.visibleWindows,
+    )
+
+    expect(columnCount).toBe(4)
+    expect(layout).toEqual([[1, 5], [2, 6], [3], [4]])
+  })
+
+  it('keeps last-used window order disabled by default', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 260
+    setVisibleLengths(windowStore, [3, 3, 3])
+
+    windowStore.repackLayout('manual')
+    windowStore.windowLastUsedAt = {
+      3: 10,
+    }
+
+    expect(windowStore.applyWindowLastUsedLayout('manual')).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[1, 2], [3]])
+  })
+
+  it('promotes last-used order through the base column packer', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 260
+    setVisibleLengths(windowStore, [3, 3, 3, 3, 3])
+    windowStore.columnLayout = [
+      [1, 2],
+      [3, 4],
+    ]
+    windowStore.windowLastUsedAt = {
+      5: 10,
+    }
+
+    const { layout } = windowStore.getLastUsedPromotedColumnLayout(
+      windowStore.visibleWindows,
+    )
+
+    expect(layout).toEqual([[5, 1], [2, 3], [4]])
+  })
+
+  it('promotes only the newest last-used window and keeps the rest stable', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1, 1])
+    windowStore.columnLayout = [[1, 2, 3, 4]]
+    windowStore.windowLastUsedAt = {
+      2: 20,
+      4: 10,
+    }
+
+    const { layout } = windowStore.getLastUsedPromotedColumnLayout(
+      windowStore.visibleWindows,
+    )
+
+    expect(layout).toEqual([[2, 1, 3, 4]])
+  })
+
+  it('clears dirty state when applying last-used order keeps the same layout', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1])
+    windowStore.columnLayout = [[1, 2]]
+    windowStore.windowLastUsedColumnLayout = [[1, 2]]
+    windowStore.windowLastUsedAt = {
+      1: 20,
+    }
+    windowStore.layoutDirty = true
+    windowStore.dirtyWindowIds.add(2)
+    windowStore.windowLastUsedLayoutDirty = true
+
+    expect(windowStore.applyWindowLastUsedLayout('manual')).toBe(true)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.dirtyWindowIds.size).toBe(0)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[1, 2]])
+  })
+
+  it('flushes pending last-used relayout when the UI goes to the background', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1])
+    windowStore.columnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedColumnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedAt = {
+      3: 20,
+    }
+    windowStore.windowLastUsedLayoutDirty = true
+
+    expect(windowStore.flushLayoutIfDirty('window-blur')).toBe(true)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+  })
+
+  it('keeps last-used order when a normal dirty layout flushes in the background', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1])
+    windowStore.columnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedColumnLayout = [[1, 2, 3]]
+    windowStore.windowLastUsedAt = {
+      3: 20,
+    }
+    windowStore.layoutDirty = true
+
+    expect(windowStore.flushLayoutIfDirty('visibility-hidden')).toBe(true)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+  })
+
+  it('clears stale last-used dirty state when there is no relayout candidate', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1])
+    windowStore.columnLayout = [[1, 2]]
+    windowStore.windowLastUsedLayoutDirty = true
+
+    expect(windowStore.flushLayoutIfDirty('visibility-hidden')).toBe(false)
+
+    expect(windowStore.layoutDirty).toBe(false)
+    expect(windowStore.windowLastUsedLayoutDirty).toBe(false)
+    expect(windowStore.columnLayout).toEqual([[1, 2]])
+  })
+
+  it('does not start a duplicate initial load when settings reload starts before mount', async () => {
+    const windowStore = createWindowStore()
+    let resolveGetAll: (windows: any[]) => void
+    const getAllPromise = new Promise<any[]>((resolve) => {
+      resolveGetAll = resolve
+    })
+    ;(browser.windows.getAll as jest.Mock).mockReturnValueOnce(getAllPromise)
+
+    const loadPromise = windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
+
+    expect(windowStore.initialWindowLoadStarted).toBe(true)
+    windowStore.didMount()
+    expect(browser.windows.getAll).toHaveBeenCalledTimes(1)
+
+    resolveGetAll!([
+      {
+        id: 1,
+        tabs: [
+          { id: 11, index: 0, windowId: 1, title: '1', url: 'about:blank' },
+        ],
+      },
+    ])
+    await loadPromise
+    windowStore.willUnmount()
+  })
+
+  it('ignores an older initial load that resolves after a settings reload', async () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    const windows = [1, 2, 3].map((windowId) => ({
+      id: windowId,
+      tabs: [
+        {
+          id: windowId * 10,
+          index: 0,
+          windowId,
+          title: String(windowId),
+          url: 'about:blank',
+        },
+      ],
+    }))
+    let resolveInitialGetAll: (windows: any[]) => void
+    let resolveSettingsGetAll: (windows: any[]) => void
+    const initialGetAllPromise = new Promise<any[]>((resolve) => {
+      resolveInitialGetAll = resolve
+    })
+    const settingsGetAllPromise = new Promise<any[]>((resolve) => {
+      resolveSettingsGetAll = resolve
+    })
+    ;(browser.windows.getAll as jest.Mock)
+      .mockReturnValueOnce(initialGetAllPromise)
+      .mockReturnValueOnce(settingsGetAllPromise)
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValue({
+      windowLastUsedAt: {
+        3: 20,
+      },
+      tabHistory: [],
+    })
+
+    const initialLoadPromise = windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'initial-load',
+    })
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    const settingsLoadPromise = windowStore.loadAllWindows({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
+
+    resolveSettingsGetAll!(windows)
+    await settingsLoadPromise
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+
+    resolveInitialGetAll!(windows)
+    await initialLoadPromise
+    expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+  })
+
+  it('seeds last-used timestamps from tab history only when no explicit data exists', async () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
+      windowLastUsedAt: {},
+      tabHistory: [
+        { tabId: 11, windowId: 1, url: 'about:blank#first' },
+        { tabId: 22, windowId: 2, url: 'about:blank#second' },
+      ],
+    })
+
+    const loadedLastUsedAt = await windowStore.loadWindowLastUsedAt()
+
+    expect(Object.keys(loadedLastUsedAt).sort()).toEqual(['1', '2'])
+    expect(loadedLastUsedAt['2']).toBeGreaterThan(loadedLastUsedAt['1'])
+  })
+
+  it('keeps stored last-used timestamps authoritative over stale tab history', async () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
+      windowLastUsedAt: {
+        2: 20,
+      },
+      tabHistory: [
+        { tabId: 22, windowId: 2, url: 'about:blank#newer-stored' },
+        { tabId: 11, windowId: 1, url: 'about:blank#stale-history' },
+      ],
+    })
+
+    await expect(windowStore.loadWindowLastUsedAt()).resolves.toEqual({
+      2: 20,
+    })
   })
 
   it('renders only nearby columns for the horizontal viewport', () => {

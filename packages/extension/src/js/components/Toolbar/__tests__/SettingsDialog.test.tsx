@@ -53,6 +53,8 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     toggleLitePopupMode: jest.fn(),
     actionTabCountMode: 'off',
     selectActionTabCountMode: jest.fn(),
+    windowOrder: 'default',
+    selectWindowOrder: jest.fn(),
     showShortcutHint: false,
     toggleShowShortcutHint: jest.fn(),
     toolbarAutoHide: false,
@@ -155,6 +157,18 @@ describe('SettingsDialog', () => {
     expect(userStore.selectActionTabCountMode).toHaveBeenCalledWith(
       'currentWindow',
     )
+  })
+
+  it('updates the window order mode from the segmented control', () => {
+    const { userStore } = renderSettingsDialog()
+
+    fireEvent.click(
+      screen.getByRole('radio', {
+        name: 'Use last used window order',
+      }),
+    )
+
+    expect(userStore.selectWindowOrder).toHaveBeenCalledWith('lastUsed')
   })
 
   it('marks tab display previews as decorative surfaces', () => {

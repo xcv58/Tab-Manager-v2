@@ -8,6 +8,7 @@ import {
   type ActionTabCountMode,
   ACTION_TAB_COUNT_MODES,
 } from 'libs/actionTabCount'
+import { type WindowOrder, WINDOW_ORDERS } from 'libs/windowOrder'
 import Slider from 'components/ui/Slider'
 import IconButton from 'components/ui/IconButton'
 import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
@@ -156,6 +157,14 @@ const actionTabCountOptions: {
         : 'Off',
 }))
 
+const windowOrderOptions: {
+  value: WindowOrder
+  label: string
+}[] = WINDOW_ORDERS.map((value) => ({
+  value,
+  label: value === 'lastUsed' ? 'Last used' : 'Default',
+}))
+
 const DensityControl = ({
   title,
   description,
@@ -223,9 +232,11 @@ const DensityControl = ({
       data-testid={testId}
     >
       <div
-        className={`flex flex-col gap-3 md:flex-row md:justify-between ${
-          description ? 'md:items-start' : 'md:items-center'
-        }`}
+        className={
+          description
+            ? 'flex flex-col gap-3'
+            : 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
+        }
       >
         <div className="min-w-0">
           <h5 style={controlTitleStyle}>{title}</h5>
@@ -446,7 +457,10 @@ const SettingsSwitchOption = ({
       className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
         description ? 'items-center py-3.5' : 'items-center py-3'
       }`}
-      style={style}
+      style={{
+        ...style,
+        minHeight: 36,
+      }}
       aria-labelledby={containerAriaLabelledBy}
       aria-label={containerAriaLabel}
       onClick={handleContainerClick}
@@ -523,6 +537,8 @@ export default observer(() => {
     toggleShowTabIcon,
     actionTabCountMode,
     selectActionTabCountMode,
+    windowOrder,
+    selectWindowOrder,
     uiPreset,
     selectUiPreset,
     theme,
@@ -638,7 +654,7 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 data-testid="settings-ui-preset-toggle-group"
               >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-3">
                   <div className="min-w-0">
                     <h5 style={controlTitleStyle}>Interface style</h5>
                     <p style={controlDescriptionStyle}>
@@ -817,6 +833,48 @@ export default observer(() => {
                 onChange={toggleAutoFitColumns}
                 style={rowDetailOptionStyle}
               />
+              <div
+                className="rounded-lg border px-3 py-3"
+                style={rowDetailOptionStyle}
+                data-testid="settings-window-order-toggle-group"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <h5 style={controlTitleStyle}>Window order</h5>
+                    <p style={controlDescriptionStyle}>
+                      Choose the default browser order or place recently used
+                      windows first.
+                    </p>
+                  </div>
+                  <ToggleGroup
+                    value={windowOrder}
+                    aria-label="Choose window order"
+                    onChange={(nextWindowOrder) => {
+                      if (!nextWindowOrder) {
+                        return
+                      }
+                      selectWindowOrder(nextWindowOrder as WindowOrder)
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {windowOrderOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.label.toLowerCase()} window order`}
+                        style={{
+                          minWidth: 78,
+                          ...(windowOrder === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
               <SettingsSwitchOption
                 title="Show shortcut hints"
                 description="Show the shortcut and its action when a shortcut is pressed."

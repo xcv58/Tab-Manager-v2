@@ -5,6 +5,7 @@ import {
   closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
   createWindowsWithTabs,
+  matchImageSnapshotOptions,
   waitForTestId,
   waitForDefaultExtensionView,
   waitForLocatorRectToStabilize,
@@ -26,6 +27,34 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
   })
 }
 
+const waitForSettingsPanelToSettle = async (page: Page) => {
+  const panel = page.getByTestId('settings-panel-behavior')
+  await expect(panel).toBeVisible()
+  await waitForLocatorRectToStabilize(panel, {
+    minWidth: 300,
+    minHeight: 200,
+    stableSamples: 3,
+  })
+}
+
+const enableLastUsedWindowOrderThroughSettings = async (page: Page) => {
+  await page.locator('button[aria-label="Settings"]').first().click()
+  await waitForSettingsPanelToSettle(page)
+
+  const windowOrderGroup = page.getByTestId(
+    'settings-window-order-toggle-group',
+  )
+  await expect(windowOrderGroup).toBeVisible()
+  const lastUsedButton = windowOrderGroup.getByRole('radio', {
+    name: 'Use last used window order',
+  })
+  await lastUsedButton.click()
+  await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
+
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+}
+
 const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
   Array.from(
     { length: 6 },
@@ -33,6 +62,8 @@ const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
       `about:blank#auto-fit-window-${windowIndex}-tab-${tabIndex}`,
   ),
 )
+
+const getTestLastUsedTimestamp = () => Date.now() + 60_000
 
 const writeExtensionSettings = async (
   page: Page,
@@ -55,6 +86,116 @@ const getScrollContainerMetrics = async (page: Page) => {
 
 const getRenderedWindowColumnCount = async (page: Page) => {
   return await page.locator('[data-testid^="window-column-"]').count()
+}
+
+const getRenderedWindowOrder = async (page: Page) => {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll('[data-testid^="window-column-"]'))
+      .flatMap((column) =>
+        Array.from(column.querySelectorAll('[data-testid^="window-card-"]')),
+      )
+      .map((node) => node.getAttribute('data-testid') || '')
+      .map((testId) => Number(testId.replace('window-card-', '')))
+      .filter((windowId) => Number.isFinite(windowId)),
+  )
+}
+
+const getRenderedCreatedWindowOrder = async (
+  page: Page,
+  createdWindowIds: number[],
+) => {
+  const createdWindowIdSet = new Set(createdWindowIds)
+  return (await getRenderedWindowOrder(page)).filter((windowId) =>
+    createdWindowIdSet.has(windowId),
+  )
+}
+
+const getWindowOrderSnapshotUrl = (title: string) =>
+  `data:text/html,${encodeURIComponent(`<title>${title}</title>${title}`)}`
+
+const setupLastUsedWindowOrderVisualScenario = async ({
+  windowCount,
+  lastUsedIndex,
+}: {
+  windowCount: number
+  lastUsedIndex: number
+}) => {
+  await page.setViewportSize({
+    width: 1280,
+    height: 720,
+  })
+  await writeExtensionSettings(page, {
+    tabWidth: 20,
+  })
+  const createdWindowIds = await createWindowsWithTabs(
+    page,
+    Array.from({ length: windowCount }, (_, index) => [
+      getWindowOrderSnapshotUrl(
+        `Last Used Window ${String(index + 1).padStart(2, '0')}`,
+      ),
+    ]),
+  )
+  const lastUsedWindowId = createdWindowIds[lastUsedIndex]
+  await page.evaluate(
+    async (windowLastUsedAt) => {
+      await chrome.storage.local.set({ windowLastUsedAt })
+    },
+    {
+      [String(lastUsedWindowId)]: getTestLastUsedTimestamp(),
+    },
+  )
+
+  await page.reload()
+  await page.waitForLoadState('domcontentloaded')
+  for (const windowId of createdWindowIds) {
+    await waitForTestId(page, `window-card-${windowId}`)
+  }
+  await waitForMainSurfaceToSettle(page)
+  await enableLastUsedWindowOrderThroughSettings(page)
+  await waitForMainSurfaceToSettle(page)
+
+  const expectedCreatedWindowOrder = [
+    lastUsedWindowId,
+    ...createdWindowIds.filter((windowId) => windowId !== lastUsedWindowId),
+  ]
+  await expect
+    .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+      timeout: 5000,
+    })
+    .toEqual(expectedCreatedWindowOrder)
+  await page.getByTestId('window-list-scroll-container').evaluate((node) => {
+    node.scrollTo({
+      left: 0,
+      top: 0,
+    })
+  })
+  await waitForMainSurfaceToSettle(page)
+}
+
+const hideExtensionWindowCardsForSnapshot = async () => {
+  const extensionWindowCardTestId = await page.evaluate(() => {
+    const extensionWindowCard = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid^="window-card-"]'),
+    ).find(
+      (card) =>
+        card.textContent?.includes('chrome-extension://') ||
+        card.textContent?.includes('Tab Manager v2'),
+    )
+    return extensionWindowCard?.getAttribute('data-testid') || null
+  })
+  if (extensionWindowCardTestId) {
+    await page.addStyleTag({
+      content: `[data-testid="${extensionWindowCardTestId}"] { display: none !important; }`,
+    })
+  }
+  await waitForMainSurfaceToSettle(page)
+}
+
+const captureWindowListSnapshot = async () => {
+  await hideExtensionWindowCardsForSnapshot()
+  return page.getByTestId('window-list-scroll-container').screenshot({
+    animations: 'disabled',
+  })
 }
 
 const setupAutoFitColumnsScenario = async (
@@ -164,6 +305,7 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL)
     await page.evaluate(async () => {
       await chrome.storage.local.clear()
+      await chrome.storage.sync?.clear?.()
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
@@ -395,6 +537,74 @@ test.describe('The Extension page should', () => {
       .toBeGreaterThan(4)
   })
 
+  test('window order setting promotes last-used windows only when enabled', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+    const createdWindowIds = await createWindowsWithTabs(page, [
+      ['about:blank#window-order-default-1'],
+      ['about:blank#window-order-default-2'],
+      ['about:blank#window-order-default-3'],
+    ])
+    const lastUsedWindowId = createdWindowIds[2]
+
+    await page.evaluate(
+      async (windowLastUsedAt) => {
+        await chrome.storage.local.set({ windowLastUsedAt })
+      },
+      {
+        [String(lastUsedWindowId)]: getTestLastUsedTimestamp(),
+      },
+    )
+
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    for (const windowId of createdWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+        timeout: 5000,
+      })
+      .toEqual(createdWindowIds)
+
+    await enableLastUsedWindowOrderThroughSettings(page)
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+        timeout: 5000,
+      })
+      .toEqual([lastUsedWindowId, ...createdWindowIds.slice(0, 2)])
+  })
+
+  test('render last-used order for a tiny 3-window workspace', async () => {
+    await setupLastUsedWindowOrderVisualScenario({
+      windowCount: 3,
+      lastUsedIndex: 2,
+    })
+
+    expect(await captureWindowListSnapshot()).toMatchSnapshot(
+      'last-used-window-order-3-windows.png',
+      matchImageSnapshotOptions,
+    )
+  })
+
+  test('render last-used order for a larger 10-window workspace', async () => {
+    await setupLastUsedWindowOrderVisualScenario({
+      windowCount: 10,
+      lastUsedIndex: 6,
+    })
+
+    expect(await captureWindowListSnapshot()).toMatchSnapshot(
+      'last-used-window-order-10-windows.png',
+      matchImageSnapshotOptions,
+    )
+  })
+
   test('auto-fit columns avoids horizontal scrolling in wide windows', async () => {
     await page.setViewportSize({
       width: 1400,
@@ -409,6 +619,55 @@ test.describe('The Extension page should', () => {
 
     const metrics = await getScrollContainerMetrics(page)
     expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+  })
+
+  test('last-used order does not lock auto-fit columns to an older window count', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+    await writeExtensionSettings(page, {
+      autoFitColumns: true,
+      tabWidth: 20,
+    })
+
+    const initialWindowIds = await createWindowsWithTabs(
+      page,
+      AUTO_FIT_WINDOW_URLS.slice(0, 2),
+    )
+    await page.evaluate(
+      async (windowLastUsedAt) => {
+        await chrome.storage.local.set({ windowLastUsedAt })
+      },
+      {
+        [String(initialWindowIds[1])]: getTestLastUsedTimestamp(),
+      },
+    )
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    for (const windowId of initialWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+    await enableLastUsedWindowOrderThroughSettings(page)
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(3)
+
+    const addedWindowIds = await createWindowsWithTabs(
+      page,
+      AUTO_FIT_WINDOW_URLS.slice(2),
+    )
+    for (const windowId of addedWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(4)
   })
 
   test('auto-fit columns reduces the rendered column count after narrowing the window', async () => {

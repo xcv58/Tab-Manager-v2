@@ -1,4 +1,4 @@
-import { Page, ChromiumBrowserContext } from 'playwright'
+import { Page, ChromiumBrowserContext, Locator } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   URLS,
@@ -34,6 +34,27 @@ const waitForSettingsPanelToSettle = async (page: Page) => {
   await waitForSurfaceToFullyAppear(page, panel)
 }
 
+const screenshotLocatorTop = async (
+  page: Page,
+  target: Locator,
+  maxHeight: number,
+) => {
+  await target.scrollIntoViewIfNeeded()
+  const box = await target.boundingBox()
+  if (!box) {
+    throw new Error('Unable to capture locator screenshot without a box')
+  }
+
+  return page.screenshot({
+    clip: {
+      x: Math.round(box.x),
+      y: Math.round(box.y),
+      width: Math.round(box.width),
+      height: Math.min(Math.round(box.height), maxHeight),
+    },
+  })
+}
+
 test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
@@ -59,6 +80,7 @@ test.describe('The Extension page should', () => {
     await page.goto(extensionURL)
     await page.evaluate(async () => {
       await chrome.storage.local.clear()
+      await chrome.storage.sync?.clear?.()
     })
     await page.goto(extensionURL)
     await CLOSE_PAGES(browserContext)
@@ -94,7 +116,7 @@ test.describe('The Extension page should', () => {
     const themedPanel = page.getByTestId('settings-panel-theme-density')
     await expect(themedPanel).toBeVisible()
     await waitForSurfaceToFullyAppear(page, themedPanel)
-    expect(await themedPanel.screenshot()).toMatchSnapshot(
+    expect(await screenshotLocatorTop(page, themedPanel, 585)).toMatchSnapshot(
       matchImageSnapshotOptions,
     )
 
@@ -169,6 +191,40 @@ test.describe('The Extension page should', () => {
         .locator('[data-testid^="tab-duplicate-marker-"]')
         .first(),
     ).toHaveCSS('opacity', '0')
+  })
+
+  test('persist window order mode across reload', async () => {
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await waitForSettingsPanelToSettle(page)
+
+    let windowOrderGroup = page.getByTestId(
+      'settings-window-order-toggle-group',
+    )
+    await expect(windowOrderGroup).toBeVisible()
+    let lastUsedButton = windowOrderGroup.getByRole('radio', {
+      name: 'Use last used window order',
+    })
+    await lastUsedButton.click()
+    await waitForSettingsPanelToSettle(page)
+    await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
+
+    expect(
+      await page.evaluate(async () => {
+        const result = await chrome.storage.sync.get(['windowOrder'])
+        return result.windowOrder
+      }),
+    ).toBe('lastUsed')
+
+    await page.reload()
+    await waitForMainSurfaceToSettle(page)
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await waitForSettingsPanelToSettle(page)
+
+    windowOrderGroup = page.getByTestId('settings-window-order-toggle-group')
+    lastUsedButton = windowOrderGroup.getByRole('radio', {
+      name: 'Use last used window order',
+    })
+    await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
   })
 
   test('support font size change', async () => {

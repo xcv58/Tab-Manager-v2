@@ -6,6 +6,7 @@ import {
   notSelfPopup,
   windowComparator,
   isSelfPopup,
+  isSelfPopupTab,
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
@@ -83,6 +84,74 @@ type LoadRepackPolicy = 'always' | 'if-clean' | 'never'
 type LoadAllWindowsOptions = {
   repackPolicy?: LoadRepackPolicy
   reason?: LayoutRepackReason | LayoutDirtyReason
+  preserveWindowOrder?: boolean
+}
+
+type WindowLastUsedAt = Record<string, number>
+
+type MarkWindowLastUsedOptions = {
+  markLayoutDirty?: boolean
+}
+
+const WINDOW_LAST_USED_STORAGE_KEY = 'windowLastUsedAt'
+const WINDOW_TAB_HISTORY_STORAGE_KEY = 'tabHistory'
+
+const normalizeWindowLastUsedAt = (value: unknown): WindowLastUsedAt => {
+  if (!value || typeof value !== 'object') {
+    return {}
+  }
+
+  return Object.keys(value as Record<string, unknown>).reduce(
+    (result, windowId) => {
+      const timestamp = Number((value as Record<string, unknown>)[windowId])
+      if (Number.isFinite(timestamp) && timestamp > 0) {
+        result[windowId] = timestamp
+      }
+      return result
+    },
+    {} as WindowLastUsedAt,
+  )
+}
+
+const mergeWindowLastUsedAt = (
+  left: WindowLastUsedAt,
+  right: WindowLastUsedAt,
+): WindowLastUsedAt => {
+  const keys = new Set([...Object.keys(left), ...Object.keys(right)])
+  return Array.from(keys).reduce((result, windowId) => {
+    const leftTimestamp = Number(left[windowId])
+    const rightTimestamp = Number(right[windowId])
+    const timestamp = Math.max(
+      Number.isFinite(leftTimestamp) ? leftTimestamp : 0,
+      Number.isFinite(rightTimestamp) ? rightTimestamp : 0,
+    )
+    if (Number.isFinite(timestamp) && timestamp > 0) {
+      result[windowId] = timestamp
+    }
+    return result
+  }, {} as WindowLastUsedAt)
+}
+
+const normalizeWindowLastUsedAtFromTabHistory = (
+  value: unknown,
+  startAt = Date.now(),
+): WindowLastUsedAt => {
+  if (!Array.isArray(value)) {
+    return {}
+  }
+
+  let timestamp = Math.max(Date.now(), startAt)
+  return value.reduce((result, entry) => {
+    if (!entry || typeof entry !== 'object' || isSelfPopupTab(entry)) {
+      return result
+    }
+    const windowId = Number((entry as { windowId?: unknown }).windowId)
+    if (Number.isFinite(windowId) && windowId > 0) {
+      timestamp += 1
+      result[String(windowId)] = timestamp
+    }
+    return result
+  }, {} as WindowLastUsedAt)
 }
 
 export default class WindowsStore {
@@ -92,10 +161,12 @@ export default class WindowsStore {
     makeAutoObservable(this)
 
     this.store = store
-    this.getAllWindows()
   }
 
   didMount = () => {
+    if (this.windowListenersBound) {
+      return
+    }
     browser.windows.onCreated.addListener(this.onWindowsCreated)
     browser.windows.onFocusChanged.addListener(this.onFocusChanged)
     // browser.windows.onRemoved.addListener(this.updateAllWindows)
@@ -113,10 +184,18 @@ export default class WindowsStore {
     // This event may not be relevant for or supported by browsers other than Chrome.
     // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/onReplaced
     browser.tabs.onReplaced.addListener(this.updateAllWindows)
+    this.windowListenersBound = true
     this.bindLifecycleLayoutRefresh()
+    if (!this.initialWindowLoadStarted) {
+      this.initialWindowLoadStarted = true
+      this.getAllWindows()
+    }
   }
 
   willUnmount = () => {
+    if (!this.windowListenersBound) {
+      return
+    }
     browser.windows.onCreated.removeListener(this.onWindowsCreated)
     browser.windows.onFocusChanged.removeListener(this.onFocusChanged)
 
@@ -128,6 +207,7 @@ export default class WindowsStore {
     browser.tabs.onRemoved.removeListener(this.onRemoved)
     browser.tabs.onUpdated.removeListener(this.onUpdated)
     browser.tabs.onReplaced.removeListener(this.updateAllWindows)
+    this.windowListenersBound = false
     this.unbindLifecycleLayoutRefresh()
   }
 
@@ -136,6 +216,17 @@ export default class WindowsStore {
   initialLoading = true
 
   lastFocusedWindowId: number | null = null
+
+  windowLastUsedAt: WindowLastUsedAt = {}
+
+  windowLastUsedColumnLayout: number[][] | null = null
+
+  windowLastUsedLayoutDirty = false
+
+  pendingLastUsedWindowId: number | null = null
+
+  isLastUsedWindowOrderEnabled = () =>
+    this.store.userStore?.windowOrder === 'lastUsed'
 
   height = 600
 
@@ -161,6 +252,12 @@ export default class WindowsStore {
     typeof window !== 'undefined' ? window.innerHeight || 0 : 0
 
   lastViewportWidth = typeof window !== 'undefined' ? window.innerWidth || 0 : 0
+
+  windowListenersBound = false
+
+  initialWindowLoadStarted = false
+
+  windowLoadRequestId = 0
 
   lifecycleListenersBound = false
 
@@ -473,6 +570,391 @@ export default class WindowsStore {
     return this.dirtyWindowIds.has(windowId)
   }
 
+  loadWindowLastUsedAt = async (): Promise<WindowLastUsedAt> => {
+    if (!this.isLastUsedWindowOrderEnabled() || !browser.storage?.local) {
+      return {}
+    }
+    try {
+      const stored = await browser.storage.local.get({
+        [WINDOW_LAST_USED_STORAGE_KEY]: {},
+        [WINDOW_TAB_HISTORY_STORAGE_KEY]: [],
+      })
+      const storedLastUsedAt = normalizeWindowLastUsedAt(
+        stored[WINDOW_LAST_USED_STORAGE_KEY],
+      )
+      const baselineLastUsedAt = mergeWindowLastUsedAt(
+        this.windowLastUsedAt,
+        storedLastUsedAt,
+      )
+      if (Object.keys(baselineLastUsedAt).length > 0) {
+        return storedLastUsedAt
+      }
+      const tabHistoryLastUsedAt = normalizeWindowLastUsedAtFromTabHistory(
+        stored[WINDOW_TAB_HISTORY_STORAGE_KEY],
+      )
+      return tabHistoryLastUsedAt
+    } catch {
+      return this.windowLastUsedAt
+    }
+  }
+
+  persistWindowLastUsedAt = () => {
+    if (!this.isLastUsedWindowOrderEnabled() || !browser.storage?.local) {
+      return
+    }
+    browser.storage.local.set({
+      [WINDOW_LAST_USED_STORAGE_KEY]: this.windowLastUsedAt,
+    })
+  }
+
+  getNextWindowLastUsedAt = () => {
+    const latestTimestamp = Object.values(this.windowLastUsedAt).reduce(
+      (latest, timestamp) =>
+        Number.isFinite(timestamp) ? Math.max(latest, timestamp) : latest,
+      0,
+    )
+    return Math.max(Date.now(), latestTimestamp + 1)
+  }
+
+  markWindowLastUsed = (
+    windowId?: number | null,
+    options: MarkWindowLastUsedOptions = {},
+  ) => {
+    if (
+      !this.isLastUsedWindowOrderEnabled() ||
+      typeof windowId !== 'number' ||
+      windowId <= 0
+    ) {
+      return false
+    }
+    this.pendingLastUsedWindowId = windowId
+    this.windowLastUsedAt = {
+      ...this.windowLastUsedAt,
+      [String(windowId)]: this.getNextWindowLastUsedAt(),
+    }
+    this.persistWindowLastUsedAt()
+    if (
+      options.markLayoutDirty &&
+      !this.initialLoading &&
+      this.wouldWindowLastUsedLayoutChange()
+    ) {
+      this.windowLastUsedLayoutDirty = true
+    }
+    return true
+  }
+
+  pruneWindowLastUsedAt = (windowIds: Set<number>) => {
+    if (!this.isLastUsedWindowOrderEnabled()) {
+      return
+    }
+    const nextWindowLastUsedAt = Object.keys(this.windowLastUsedAt).reduce(
+      (result, windowId) => {
+        if (windowIds.has(Number(windowId))) {
+          result[windowId] = this.windowLastUsedAt[windowId]
+        }
+        return result
+      },
+      {} as WindowLastUsedAt,
+    )
+    if (
+      Object.keys(nextWindowLastUsedAt).length ===
+      Object.keys(this.windowLastUsedAt).length
+    ) {
+      return
+    }
+    this.windowLastUsedAt = nextWindowLastUsedAt
+    this.persistWindowLastUsedAt()
+  }
+
+  sortWindowsForDisplay = (
+    windows: Window[],
+    previousWindowOrder: Map<number, number>,
+  ) =>
+    windows.sort((a, b) => {
+      const previousOrderA = previousWindowOrder.get(a.id)
+      const previousOrderB = previousWindowOrder.get(b.id)
+      const hasPreviousOrderA = typeof previousOrderA === 'number'
+      const hasPreviousOrderB = typeof previousOrderB === 'number'
+
+      if (hasPreviousOrderA && hasPreviousOrderB) {
+        return previousOrderA - previousOrderB
+      }
+
+      if (hasPreviousOrderA) {
+        return -1
+      }
+
+      if (hasPreviousOrderB) {
+        return 1
+      }
+
+      return windowComparator(a, b)
+    })
+
+  normalizeWindowLastUsedColumnLayout = (
+    layout: number[][] | null,
+    windows: Window[],
+    fallbackLayout: number[][],
+  ) => {
+    if (!layout?.length) {
+      return fallbackLayout.length > 0 ? fallbackLayout : [[]]
+    }
+    const visibleWindowIds = new Set(windows.map((win) => win.id))
+    const seen = new Set<number>()
+    const layoutColumnCount = Math.max(layout.length, 1)
+    const fallbackColumnCount = Math.max(fallbackLayout.length, 1)
+    const columnCount = Math.max(layoutColumnCount, fallbackColumnCount, 1)
+    const columns = Array.from({ length: columnCount }, (_, columnIndex) =>
+      (layout[columnIndex] || []).filter((windowId) => {
+        if (!visibleWindowIds.has(windowId) || seen.has(windowId)) {
+          return false
+        }
+        seen.add(windowId)
+        return true
+      }),
+    )
+
+    fallbackLayout.forEach((column, columnIndex) => {
+      column.forEach((windowId) => {
+        if (!visibleWindowIds.has(windowId) || seen.has(windowId)) {
+          return
+        }
+        columns[Math.min(columnIndex, columns.length - 1)].push(windowId)
+        seen.add(windowId)
+      })
+    })
+
+    windows.forEach((win) => {
+      if (!seen.has(win.id)) {
+        columns[0].push(win.id)
+        seen.add(win.id)
+      }
+    })
+
+    const shouldReflowColumns =
+      layoutColumnCount !== fallbackColumnCount ||
+      columns.some(
+        (column, columnIndex) =>
+          column.length === 0 && (fallbackLayout[columnIndex]?.length || 0) > 0,
+      )
+
+    if (shouldReflowColumns) {
+      const windowIds = this.getWindowIdOrderFromColumnLayout(columns, windows)
+      return this.computeColumnLayoutFromWindowIds(windows, windowIds).layout
+    }
+
+    const compactColumns = columns.filter((column) => column.length > 0)
+    return compactColumns.length > 0 ? compactColumns : [[]]
+  }
+
+  getWindowIdOrderFromColumnLayout = (
+    layout: number[][],
+    windows: Window[],
+  ) => {
+    const visibleWindowIds = new Set(windows.map((win) => win.id))
+    const seen = new Set<number>()
+    const orderedWindowIds: number[] = []
+
+    layout.forEach((column) => {
+      column.forEach((windowId) => {
+        if (!visibleWindowIds.has(windowId) || seen.has(windowId)) {
+          return
+        }
+        orderedWindowIds.push(windowId)
+        seen.add(windowId)
+      })
+    })
+
+    windows.forEach((win) => {
+      if (!seen.has(win.id)) {
+        orderedWindowIds.push(win.id)
+        seen.add(win.id)
+      }
+    })
+
+    return orderedWindowIds
+  }
+
+  promoteWindowIdsInOrder = (
+    windowIds: number[],
+    windowIdsToPromote: number[],
+  ) => {
+    if (!windowIdsToPromote.length) {
+      return windowIds
+    }
+    const windowIdSet = new Set(windowIds)
+    const promotedWindowIds = windowIdsToPromote.filter((windowId) =>
+      windowIdSet.has(windowId),
+    )
+    const promotedWindowIdSet = new Set(promotedWindowIds)
+    return [
+      ...promotedWindowIds,
+      ...windowIds.filter((windowId) => !promotedWindowIdSet.has(windowId)),
+    ]
+  }
+
+  computeColumnLayoutFromWindowIds = (
+    windows: Window[],
+    windowIds: number[],
+  ) => {
+    const windowById = new Map(windows.map((win) => [win.id, win]))
+    const orderedWindows = windowIds
+      .map((windowId) => windowById.get(windowId))
+      .filter((win): win is Window => !!win)
+    const seen = new Set(orderedWindows.map((win) => win.id))
+
+    windows.forEach((win) => {
+      if (!seen.has(win.id)) {
+        orderedWindows.push(win)
+        seen.add(win.id)
+      }
+    })
+
+    return this.computeBaseColumnLayout(orderedWindows)
+  }
+
+  getLastUsedWindowIds = (windows: Window[]) => {
+    const visibleWindowIds = new Set(windows.map((win) => win.id))
+    return Object.entries(this.windowLastUsedAt)
+      .map(([windowId, timestamp]) => ({
+        windowId: Number(windowId),
+        timestamp,
+      }))
+      .filter(
+        ({ windowId, timestamp }) =>
+          visibleWindowIds.has(windowId) &&
+          Number.isFinite(timestamp) &&
+          timestamp > 0,
+      )
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .map(({ windowId }) => windowId)
+  }
+
+  getWindowIdsToPromoteByLastUsed = (windows: Window[]) => {
+    const visibleWindowIds = new Set(windows.map((win) => win.id))
+    if (
+      typeof this.pendingLastUsedWindowId === 'number' &&
+      visibleWindowIds.has(this.pendingLastUsedWindowId)
+    ) {
+      return [this.pendingLastUsedWindowId]
+    }
+    const [lastUsedWindowId] = this.getLastUsedWindowIds(windows)
+    return typeof lastUsedWindowId === 'number' ? [lastUsedWindowId] : []
+  }
+
+  getLastUsedPromotedColumnLayout = (
+    windows: Window[],
+    sourceLayout: number[][] = this.columnLayout,
+  ) => {
+    const fallbackLayout = this.computeBaseColumnLayout(windows).layout
+    const currentLayout = this.normalizeWindowLastUsedColumnLayout(
+      sourceLayout,
+      windows,
+      fallbackLayout,
+    )
+    const windowIdsToPromote = this.getWindowIdsToPromoteByLastUsed(windows)
+    if (!windowIdsToPromote.length) {
+      return {
+        currentLayout,
+        layout: currentLayout,
+        windowIdsToPromote,
+      }
+    }
+    const currentWindowIds = this.getWindowIdOrderFromColumnLayout(
+      currentLayout,
+      windows,
+    )
+    const nextWindowIds = this.promoteWindowIdsInOrder(
+      currentWindowIds,
+      windowIdsToPromote,
+    )
+    const nextLayout = this.computeColumnLayoutFromWindowIds(
+      windows,
+      nextWindowIds,
+    ).layout
+    return {
+      currentLayout,
+      layout: this.normalizeWindowLastUsedColumnLayout(
+        nextLayout,
+        windows,
+        fallbackLayout,
+      ),
+      windowIdsToPromote,
+    }
+  }
+
+  hasWindowLastUsedLayoutCandidate = () =>
+    this.isLastUsedWindowOrderEnabled() &&
+    this.getWindowIdsToPromoteByLastUsed(this.visibleWindows).length > 0
+
+  wouldWindowLastUsedLayoutChange = () => {
+    if (!this.isLastUsedWindowOrderEnabled() || !this.visibleWindows.length) {
+      return false
+    }
+    const { currentLayout, layout, windowIdsToPromote } =
+      this.getLastUsedPromotedColumnLayout(this.visibleWindows)
+    return (
+      windowIdsToPromote.length > 0 && !this.isSameLayout(currentLayout, layout)
+    )
+  }
+
+  shouldApplyWindowLastUsedLayout = (
+    reason: LayoutRepackReason | LayoutDirtyReason | undefined,
+    wasInitialLoading = false,
+  ) =>
+    this.isLastUsedWindowOrderEnabled() &&
+    (wasInitialLoading ||
+      reason === 'sync' ||
+      reason === 'manual' ||
+      reason === 'settings-change')
+
+  computeBaseColumnLayout = (windows: Window[]) => {
+    if (this.autoFitColumnsEnabled) {
+      return this.computeAutoFitColumnLayout(windows)
+    }
+    return this.computePackedColumnLayout(windows)
+  }
+
+  applyWindowLastUsedLayout = (reason: LayoutRepackReason) => {
+    if (!this.isLastUsedWindowOrderEnabled()) {
+      return false
+    }
+    const visibleWindows = this.visibleWindows
+    if (!visibleWindows.length) {
+      this.windowLastUsedColumnLayout = null
+      this.pendingLastUsedWindowId = null
+      this.windowLastUsedLayoutDirty = false
+      return false
+    }
+    const { layout: normalizedNextLayout, windowIdsToPromote } =
+      this.getLastUsedPromotedColumnLayout(visibleWindows)
+    if (!windowIdsToPromote.length) {
+      this.windowLastUsedLayoutDirty = false
+      return false
+    }
+    if (this.isSameLayout(this.columnLayout, normalizedNextLayout)) {
+      this.windowLastUsedColumnLayout = normalizedNextLayout
+      this.layoutDirty = false
+      this.dirtyWindowIds.clear()
+      this.pendingLastUsedWindowId = null
+      this.windowLastUsedLayoutDirty = false
+      return true
+    }
+    this.windowLastUsedColumnLayout = normalizedNextLayout
+    this.columnLayout = normalizedNextLayout
+    this.columnCount = Math.max(normalizedNextLayout.length, 1)
+    this.layoutDirty = false
+    this.dirtyWindowIds.clear()
+    this.pendingLastUsedWindowId = null
+    this.windowLastUsedLayoutDirty = false
+    log.debug('WindowsStore.applyWindowLastUsedLayout', {
+      reason,
+      layout: normalizedNextLayout,
+      windowIdsToPromote,
+    })
+    return true
+  }
+
   computePackedColumnLayout = (windows: Window[]) => {
     if (!windows.length) {
       return {
@@ -540,13 +1022,44 @@ export default class WindowsStore {
   }
 
   computeColumnLayout = (windows: Window[]) => {
-    if (this.autoFitColumnsEnabled) {
-      return this.computeAutoFitColumnLayout(windows)
+    const computed = this.computeBaseColumnLayout(windows)
+    if (
+      !this.isLastUsedWindowOrderEnabled() ||
+      !this.windowLastUsedColumnLayout
+    ) {
+      return computed
     }
-    return this.computePackedColumnLayout(windows)
+    const layout = this.normalizeWindowLastUsedColumnLayout(
+      this.windowLastUsedColumnLayout,
+      windows,
+      computed.layout,
+    )
+    return {
+      layout,
+      columnCount: Math.max(layout.length, 1),
+    }
   }
 
+  shouldResetWindowLastUsedColumnLayoutForRepack = (
+    reason: LayoutRepackReason,
+  ) =>
+    this.isLastUsedWindowOrderEnabled() &&
+    (reason === 'settings-change' ||
+      reason === 'resize' ||
+      reason === 'window-change' ||
+      reason === 'search-change' ||
+      reason === 'filter-change')
+
   flushLayoutIfDirty = (reason: LayoutRepackReason) => {
+    if (this.windowLastUsedLayoutDirty || this.layoutDirty) {
+      if (this.hasWindowLastUsedLayoutCandidate()) {
+        const applied = this.applyWindowLastUsedLayout(reason)
+        if (applied) {
+          return true
+        }
+      }
+      this.windowLastUsedLayoutDirty = false
+    }
     if (!this.layoutDirty) {
       return false
     }
@@ -555,6 +1068,13 @@ export default class WindowsStore {
   }
 
   repackLayout = (reason: LayoutRepackReason) => {
+    const hadWindowLastUsedLayoutDirty = this.windowLastUsedLayoutDirty
+    if (
+      this.layoutDirty ||
+      this.shouldResetWindowLastUsedColumnLayoutForRepack(reason)
+    ) {
+      this.windowLastUsedColumnLayout = null
+    }
     const { layout, columnCount } = this.computeColumnLayout(
       this.visibleWindows,
     )
@@ -562,6 +1082,9 @@ export default class WindowsStore {
     this.columnCount = columnCount
     this.layoutDirty = false
     this.dirtyWindowIds.clear()
+    if (hadWindowLastUsedLayoutDirty) {
+      this.windowLastUsedLayoutDirty = this.wouldWindowLastUsedLayoutChange()
+    }
     log.debug('WindowsStore.repackLayout', {
       reason,
       columnCount,
@@ -619,6 +1142,7 @@ export default class WindowsStore {
 
   onWindowsCreated = async (win: Window) => {
     log.debug('windows.onCreated:', { win })
+    this.markWindowLastUsed(win.id)
     await this.getOrCreateWinById(win.id)
   }
 
@@ -646,6 +1170,7 @@ export default class WindowsStore {
     win = this.windows.find((x) => x.id === windowId)
     if (!win) {
       win = new Window(winData, this.store)
+      this.markWindowLastUsed(windowId)
       this.windows.push(win)
       this.repackLayout('window-change')
     }
@@ -739,6 +1264,7 @@ export default class WindowsStore {
     })
     if (win && !isSelfPopup(win)) {
       this.lastFocusedWindowId = windowId
+      this.markWindowLastUsed(windowId, { markLayoutDirty: true })
     }
   }
 
@@ -750,6 +1276,7 @@ export default class WindowsStore {
     const { index, windowId } = tab
     const win = this.windows.find((x) => x.id === windowId)
     if (!win) {
+      this.markWindowLastUsed(windowId)
       this.windows.push(
         new Window(
           {
@@ -772,7 +1299,10 @@ export default class WindowsStore {
     }
     const { tabId, windowId } = args
     log.debug('tabs.onActivate:', { tabId, windowId })
-    this.lastFocusedWindowId = windowId
+    if (typeof windowId === 'number') {
+      this.lastFocusedWindowId = windowId
+      this.markWindowLastUsed(windowId, { markLayoutDirty: true })
+    }
     const win = this.windows.find((x) => x.id === windowId)
     if (!win) {
       return
@@ -1330,7 +1860,12 @@ export default class WindowsStore {
   }
 
   repackLayoutAndRevealActiveTab = (origin: FocusOrigin = 'programmatic') => {
-    this.repackLayout('manual')
+    if (this.hasWindowLastUsedLayoutCandidate()) {
+      this.applyWindowLastUsedLayout('manual')
+    } else {
+      this.windowLastUsedLayoutDirty = false
+      this.repackLayout('manual')
+    }
     this.focusActiveTabInLastFocusedWindow({
       origin,
       reveal: true,
@@ -1338,11 +1873,19 @@ export default class WindowsStore {
   }
 
   loadAllWindows = async (options: LoadAllWindowsOptions = {}) => {
-    const { repackPolicy, reason } = options
-    log.debug('loadAllWindows', { repackPolicy, reason })
+    if (!this.initialWindowLoadStarted) {
+      this.initialWindowLoadStarted = true
+    }
+    const loadRequestId = (this.windowLoadRequestId += 1)
+    const { repackPolicy, reason, preserveWindowOrder = true } = options
+    log.debug('loadAllWindows', { repackPolicy, reason, preserveWindowOrder })
     const wasInitialLoading = this.initialLoading
     const policy: LoadRepackPolicy =
       repackPolicy || (wasInitialLoading ? 'always' : 'if-clean')
+    const resolvedRepackReason = this.resolveRepackReason(
+      reason,
+      wasInitialLoading ? 'initial-load' : 'window-change',
+    )
     const [windows, storedLastFocusedWindowId, currentWindow] =
       await Promise.all([
         browser.windows.getAll({
@@ -1355,6 +1898,21 @@ export default class WindowsStore {
           })
           .catch(() => null),
       ])
+    const shouldApplyWindowLastUsedLayout =
+      this.shouldApplyWindowLastUsedLayout(reason, wasInitialLoading)
+    const windowLastUsedAt = await this.loadWindowLastUsedAt()
+    if (loadRequestId !== this.windowLoadRequestId) {
+      log.debug('WindowsStore.loadAllWindows ignored stale result', {
+        loadRequestId,
+        latestLoadRequestId: this.windowLoadRequestId,
+        reason,
+      })
+      return
+    }
+    this.windowLastUsedAt = mergeWindowLastUsedAt(
+      this.windowLastUsedAt,
+      windowLastUsedAt,
+    )
     const currentFocusedWindowId =
       currentWindow &&
       currentWindow.focused &&
@@ -1365,51 +1923,46 @@ export default class WindowsStore {
     this.lastFocusedWindowId =
       currentFocusedWindowId ?? storedLastFocusedWindowId
     log.debug('lastFocusedWindowId:', this.lastFocusedWindowId)
-    const previousWindowOrder = new Map(
-      this.windows.map((win, index) => [win.id, index]),
-    )
+    const previousWindowOrder = preserveWindowOrder
+      ? new Map(this.windows.map((win, index) => [win.id, index]))
+      : new Map<number, number>()
 
     const nextWindows = windows
       .filter(notSelfPopup)
       .filter((win) => this.store.userStore.showAppWindow || win.type !== 'app')
       .map((win) => new Window(win, this.store))
 
-    this.windows = nextWindows.sort((a, b) => {
-      const previousOrderA = previousWindowOrder.get(a.id)
-      const previousOrderB = previousWindowOrder.get(b.id)
-      const hasPreviousOrderA = typeof previousOrderA === 'number'
-      const hasPreviousOrderB = typeof previousOrderB === 'number'
+    if (this.isLastUsedWindowOrderEnabled()) {
+      const liveWindowIds = new Set(nextWindows.map((win) => win.id))
+      this.pruneWindowLastUsedAt(liveWindowIds)
+    } else {
+      this.windowLastUsedColumnLayout = null
+      this.pendingLastUsedWindowId = null
+      this.windowLastUsedLayoutDirty = false
+    }
 
-      if (hasPreviousOrderA && hasPreviousOrderB) {
-        return previousOrderA - previousOrderB
+    this.windows = this.sortWindowsForDisplay(nextWindows, previousWindowOrder)
+
+    const applyWindowLastUsedLayoutIfAvailable = () => {
+      if (!shouldApplyWindowLastUsedLayout) {
+        return false
       }
-
-      if (hasPreviousOrderA) {
-        return -1
+      if (!this.hasWindowLastUsedLayoutCandidate()) {
+        this.windowLastUsedLayoutDirty = false
+        return false
       }
-
-      if (hasPreviousOrderB) {
-        return 1
-      }
-
-      return windowComparator(a, b)
-    })
+      return this.applyWindowLastUsedLayout(resolvedRepackReason)
+    }
 
     if (policy === 'always') {
-      this.repackLayout(
-        this.resolveRepackReason(
-          reason,
-          wasInitialLoading ? 'initial-load' : 'window-change',
-        ),
-      )
+      if (!applyWindowLastUsedLayoutIfAvailable()) {
+        this.repackLayout(resolvedRepackReason)
+      }
     } else if (policy === 'if-clean') {
       if (!this.layoutDirty) {
-        this.repackLayout(
-          this.resolveRepackReason(
-            reason,
-            wasInitialLoading ? 'initial-load' : 'window-change',
-          ),
-        )
+        if (!applyWindowLastUsedLayoutIfAvailable()) {
+          this.repackLayout(resolvedRepackReason)
+        }
       } else {
         this.markLayoutDirtyIfNeeded(this.resolveDirtyReason(reason))
       }

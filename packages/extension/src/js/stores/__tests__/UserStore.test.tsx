@@ -99,6 +99,50 @@ describe('UserStore', () => {
     expect(repackLayout).toHaveBeenCalledWith('settings-change')
   })
 
+  it('should reload windows after loading stored window order during initial window load', async () => {
+    let resolveWindowLoad: () => void
+    const windowLoadPromise = new Promise<void>((resolve) => {
+      resolveWindowLoad = resolve
+    })
+    const initSearch = jest.fn()
+    const loadAllWindows = jest.fn(() => windowLoadPromise)
+    const userStore = new UserStore({
+      searchStore: {
+        init: initSearch,
+      },
+      windowStore: {
+        initialLoading: true,
+        loadAllWindows,
+      },
+    } as any)
+    await flush()
+
+    loadAllWindows.mockClear()
+    initSearch.mockClear()
+    userStore.loaded = false
+    jest.spyOn(userStore, 'readSettings').mockResolvedValueOnce({
+      windowOrder: 'lastUsed',
+    })
+
+    const initPromise = userStore.init()
+    await flush()
+
+    expect(userStore.windowOrder).toBe('lastUsed')
+    expect(loadAllWindows).toHaveBeenCalledWith({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
+    expect(userStore.loaded).toBe(false)
+    expect(initSearch).not.toHaveBeenCalled()
+
+    resolveWindowLoad!()
+    await initPromise
+
+    expect(userStore.loaded).toBe(true)
+    expect(initSearch).toHaveBeenCalledTimes(1)
+  })
+
   it('should repack layout when toggling unmatched tabs visibility', async () => {
     const repackLayout = jest.fn()
     const userStore = new UserStore({
@@ -169,6 +213,14 @@ describe('UserStore', () => {
     })
 
     expect(settings.actionTabCountMode).toBe('off')
+  })
+
+  it('should normalize invalid windowOrder values back to default', () => {
+    const { settings } = stripLegacySettings({
+      windowOrder: 'createdAt',
+    })
+
+    expect(settings.windowOrder).toBe('default')
   })
 
   it('should remove legacy settings after normalization', async () => {
@@ -247,5 +299,29 @@ describe('UserStore', () => {
 
     expect(userStore.actionTabCountMode).toBe('allWindows')
     expect(save).toHaveBeenCalledTimes(1)
+  })
+
+  it('should persist window order selection and reload windows without preserving previous order', async () => {
+    const loadAllWindows = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+      windowStore: {
+        loadAllWindows,
+      },
+    } as any)
+    await flush()
+    const save = jest.spyOn(userStore, 'save').mockImplementation(() => {})
+
+    userStore.selectWindowOrder('lastUsed')
+
+    expect(userStore.windowOrder).toBe('lastUsed')
+    expect(save).toHaveBeenCalledTimes(1)
+    expect(loadAllWindows).toHaveBeenCalledWith({
+      repackPolicy: 'always',
+      reason: 'settings-change',
+      preserveWindowOrder: false,
+    })
   })
 })
