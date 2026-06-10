@@ -27,6 +27,34 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
   })
 }
 
+const waitForSettingsPanelToSettle = async (page: Page) => {
+  const panel = page.getByTestId('settings-panel-behavior')
+  await expect(panel).toBeVisible()
+  await waitForLocatorRectToStabilize(panel, {
+    minWidth: 300,
+    minHeight: 200,
+    stableSamples: 3,
+  })
+}
+
+const enableLastUsedWindowOrderThroughSettings = async (page: Page) => {
+  await page.locator('button[aria-label="Settings"]').first().click()
+  await waitForSettingsPanelToSettle(page)
+
+  const windowOrderGroup = page.getByTestId(
+    'settings-window-order-toggle-group',
+  )
+  await expect(windowOrderGroup).toBeVisible()
+  const lastUsedButton = windowOrderGroup.getByRole('radio', {
+    name: 'Use last used window order',
+  })
+  await lastUsedButton.click()
+  await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
+
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+}
+
 const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
   Array.from(
     { length: 6 },
@@ -34,6 +62,8 @@ const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
       `about:blank#auto-fit-window-${windowIndex}-tab-${tabIndex}`,
   ),
 )
+
+const getTestLastUsedTimestamp = () => Date.now() + 60_000
 
 const writeExtensionSettings = async (
   page: Page,
@@ -112,7 +142,7 @@ const setupLastUsedWindowOrderVisualScenario = async ({
       await chrome.storage.local.set({ windowLastUsedAt })
     },
     {
-      [String(lastUsedWindowId)]: Date.now() + 1000,
+      [String(lastUsedWindowId)]: getTestLastUsedTimestamp(),
     },
   )
 
@@ -522,7 +552,7 @@ test.describe('The Extension page should', () => {
         await chrome.storage.local.set({ windowLastUsedAt })
       },
       {
-        [String(lastUsedWindowId)]: Date.now() + 1000,
+        [String(lastUsedWindowId)]: getTestLastUsedTimestamp(),
       },
     )
 
@@ -539,14 +569,7 @@ test.describe('The Extension page should', () => {
       })
       .toEqual(createdWindowIds)
 
-    await writeExtensionSettings(page, {
-      windowOrder: 'lastUsed',
-    })
-    await page.reload()
-    await page.waitForLoadState('domcontentloaded')
-    for (const windowId of createdWindowIds) {
-      await waitForTestId(page, `window-card-${windowId}`)
-    }
+    await enableLastUsedWindowOrderThroughSettings(page)
     await waitForMainSurfaceToSettle(page)
 
     await expect
@@ -616,7 +639,7 @@ test.describe('The Extension page should', () => {
         await chrome.storage.local.set({ windowLastUsedAt })
       },
       {
-        [String(initialWindowIds[1])]: Date.now() + 1000,
+        [String(initialWindowIds[1])]: getTestLastUsedTimestamp(),
       },
     )
     await page.reload()
