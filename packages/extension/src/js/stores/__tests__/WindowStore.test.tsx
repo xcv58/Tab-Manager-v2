@@ -2,6 +2,8 @@ import WindowStore from 'stores/WindowStore'
 import Window from 'stores/Window'
 import { browser, getLastFocusedWindowId } from 'libs'
 
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
+
 jest.mock('libs', () => ({
   browser: {
     windows: {
@@ -127,6 +129,7 @@ const createWindowStore = () => {
 describe('WindowStore layout policy', () => {
   beforeEach(() => {
     jest.restoreAllMocks()
+    ;(browser.windows.getAll as jest.Mock).mockReset()
     ;(browser.storage.local.get as jest.Mock).mockResolvedValue({
       windowLastUsedAt: {},
       tabHistory: [],
@@ -425,6 +428,51 @@ describe('WindowStore layout policy', () => {
     ])
     await loadPromise
     windowStore.willUnmount()
+  })
+
+  it('waits for user settings before the initial mount load', async () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    let resolveSettingsLoad: () => void
+    const settingsLoadPromise = new Promise<void>((resolve) => {
+      resolveSettingsLoad = resolve
+    })
+    const windows = [1, 2, 3].map((windowId) => ({
+      id: windowId,
+      tabs: [
+        {
+          id: windowId * 10,
+          index: 0,
+          windowId,
+          title: String(windowId),
+          url: 'about:blank',
+        },
+      ],
+    }))
+    windowStore.store.userStore.initPromise = settingsLoadPromise
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce(windows)
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
+      windowLastUsedAt: {
+        3: 20,
+      },
+      tabHistory: [],
+    })
+
+    try {
+      windowStore.didMount()
+      await flush()
+
+      expect(browser.windows.getAll).not.toHaveBeenCalled()
+
+      windowStore.store.userStore.windowOrder = 'lastUsed'
+      resolveSettingsLoad!()
+      await windowStore.initialWindowLoadPromise
+
+      expect(browser.windows.getAll).toHaveBeenCalledTimes(1)
+      expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
+    } finally {
+      windowStore.willUnmount()
+    }
   })
 
   it('ignores an older initial load that resolves after a settings reload', async () => {

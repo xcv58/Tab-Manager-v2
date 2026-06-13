@@ -143,7 +143,7 @@ export default class UserStore {
     })
 
     this.store = store
-    this.init()
+    this.initPromise = this.init()
   }
 
   readSettings = async (): Promise<{ [key: string]: unknown }> => {
@@ -202,6 +202,8 @@ export default class UserStore {
       }
     }
   }
+
+  initPromise: Promise<void>
 
   init = async () => {
     const previousFontSize = this.fontSize

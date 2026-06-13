@@ -187,9 +187,17 @@ export default class WindowsStore {
     this.windowListenersBound = true
     this.bindLifecycleLayoutRefresh()
     if (!this.initialWindowLoadStarted) {
-      this.initialWindowLoadStarted = true
-      this.getAllWindows()
+      this.initialWindowLoadPromise = this.loadInitialWindowsAfterSettings()
+      void this.initialWindowLoadPromise
     }
+  }
+
+  loadInitialWindowsAfterSettings = async () => {
+    await this.store.userStore?.initPromise
+    if (!this.windowListenersBound || this.initialWindowLoadStarted) {
+      return
+    }
+    await this.getAllWindows()
   }
 
   willUnmount = () => {
@@ -256,6 +264,8 @@ export default class WindowsStore {
   windowListenersBound = false
 
   initialWindowLoadStarted = false
+
+  initialWindowLoadPromise: Promise<void> | null = null
 
   windowLoadRequestId = 0
 
