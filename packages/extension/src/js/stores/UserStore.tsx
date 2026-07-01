@@ -29,6 +29,8 @@ const DEFAULT_SETTINGS = {
   litePopupMode: false,
   toolbarAutoHide: false,
   highlightDuplicatedTab: true,
+  highlightActiveTabsInAllWindows: false,
+  increaseContrast: false,
   showTabTooltip: true,
   preserveSearch: true,
   searchHistory: true,
@@ -97,6 +99,8 @@ export default class UserStore {
       litePopupMode: observable,
       toolbarAutoHide: observable,
       highlightDuplicatedTab: observable,
+      highlightActiveTabsInAllWindows: observable,
+      increaseContrast: observable,
       showTabTooltip: observable,
       preserveSearch: observable,
       searchHistory: observable,
@@ -123,6 +127,8 @@ export default class UserStore {
       closeDialog: action,
       toggleDialog: action,
       toggleHighlightDuplicatedTab: action,
+      toggleHighlightActiveTabsInAllWindows: action,
+      toggleIncreaseContrast: action,
       toggleShowShortcutHint: action,
       toggleShowTabTooltip: action,
       togglePreserveSearch: action,
@@ -246,6 +252,8 @@ export default class UserStore {
   litePopupMode = false
   toolbarAutoHide = false
   highlightDuplicatedTab = true
+  highlightActiveTabsInAllWindows = false
+  increaseContrast = false
   showTabTooltip = true
   preserveSearch = true
   searchHistory = true
@@ -346,6 +354,16 @@ export default class UserStore {
 
   toggleHighlightDuplicatedTab = () => {
     this.highlightDuplicatedTab = !this.highlightDuplicatedTab
+    this.save()
+  }
+
+  toggleHighlightActiveTabsInAllWindows = () => {
+    this.highlightActiveTabsInAllWindows = !this.highlightActiveTabsInAllWindows
+    this.save()
+  }
+
+  toggleIncreaseContrast = () => {
+    this.increaseContrast = !this.increaseContrast
     this.save()
   }
 

@@ -227,6 +227,67 @@ test.describe('The Extension page should', () => {
     await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
   })
 
+  test('persist contrast and all-window active-tab settings across reload', async () => {
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await waitForSettingsPanelToSettle(page)
+
+    const contrastToggle = page.getByRole('checkbox', {
+      name: 'Increase contrast',
+    })
+    await expect(contrastToggle).toBeVisible()
+    await page
+      .getByTestId('settings-increase-contrast')
+      .getByTestId('switch-track')
+      .click()
+
+    const activeTabsToggle = page.getByRole('checkbox', {
+      name: 'Highlight active tabs in all windows',
+    })
+    await expect(activeTabsToggle).toBeVisible()
+    await page
+      .getByTestId('row-details-option-active-tabs')
+      .getByTestId('switch-track')
+      .click()
+
+    await expect
+      .poll(async () => {
+        return await page.evaluate(async () => {
+          const result = await chrome.storage.sync.get([
+            'increaseContrast',
+            'highlightActiveTabsInAllWindows',
+          ])
+          return {
+            increaseContrast: result.increaseContrast,
+            highlightActiveTabsInAllWindows:
+              result.highlightActiveTabsInAllWindows,
+          }
+        })
+      })
+      .toEqual({
+        increaseContrast: true,
+        highlightActiveTabsInAllWindows: true,
+      })
+
+    await expect(page.locator('main')).toHaveAttribute(
+      'data-increase-contrast',
+      'true',
+    )
+
+    await page.reload()
+    await waitForMainSurfaceToSettle(page)
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await waitForSettingsPanelToSettle(page)
+
+    await expect(
+      page.getByRole('checkbox', { name: 'Increase contrast' }),
+    ).toBeChecked()
+    await expect(
+      page.getByRole('checkbox', {
+        name: 'Highlight active tabs in all windows',
+      }),
+    ).toBeChecked()
+  })
+
   test('support font size change', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()

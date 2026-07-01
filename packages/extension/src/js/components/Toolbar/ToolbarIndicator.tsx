@@ -22,9 +22,14 @@ const IndicatorIcon = ({ toolbarVisible }: { toolbarVisible: boolean }) => {
 export default observer(() => {
   const theme = useAppTheme()
   const { userStore } = useStore()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
-  const { showToolbar, toolbarAutoHide, toolbarVisible } = userStore
+  const { increaseContrast, showToolbar, toolbarAutoHide, toolbarVisible } =
+    userStore
   const reduceMotion = useReduceMotion()
   return (
     <Slide
@@ -34,7 +39,15 @@ export default observer(() => {
     >
       <IconButton
         style={{
-          opacity: toolbarAutoHide ? (toolbarVisible ? 1 : 0.78) : 0.38,
+          opacity: toolbarAutoHide
+            ? toolbarVisible
+              ? 1
+              : increaseContrast
+                ? 0.9
+                : 0.78
+            : increaseContrast
+              ? 0.72
+              : 0.38,
           width: 44,
           height: 40,
           borderLeft:

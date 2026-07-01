@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import classNames from 'classnames'
 import { type AppTheme, useAppTheme } from 'libs/appTheme'
+import { useStore } from 'components/hooks/useStore'
 
 type Tone = 'default' | 'danger'
 type ControlSize = 'default' | 'medium' | 'compact'
@@ -36,10 +37,15 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     ref,
   ) => {
     const theme = useAppTheme()
+    const { userStore } = useStore()
     const { wh, pad } = SIZE_MAP[controlSize]
     const [interaction, setInteraction] = useState<InteractionState>('idle')
 
-    const colorStyles = getColorStyles(tone, theme)
+    const colorStyles = getColorStyles(
+      tone,
+      theme,
+      userStore?.increaseContrast ?? false,
+    )
 
     const resolvedColor = disabled
       ? colorStyles.disabledColor
@@ -112,16 +118,40 @@ IconButton.displayName = 'IconButton'
 
 export default IconButton
 
-function getColorStyles(tone: Tone, theme: AppTheme) {
+function getColorStyles(
+  tone: Tone,
+  theme: AppTheme,
+  increaseContrast: boolean,
+) {
   if (tone === 'danger') {
-    return theme.palette.danger
+    if (!increaseContrast) {
+      return theme.palette.danger
+    }
+    return {
+      ...theme.palette.danger,
+      color: theme.mode === 'dark' ? '#fecaca' : '#dc2626',
+      disabledColor: theme.mode === 'dark' ? '#fecaca' : '#dc2626',
+      disabledOpacity: 0.82,
+    }
   }
   return {
-    color: theme.app.icon.default,
+    color: increaseContrast
+      ? theme.mode === 'dark'
+        ? '#e2e8f0'
+        : '#1e293b'
+      : theme.app.icon.default,
     hoverColor: theme.palette.text.primary,
-    hoverBg: theme.palette.action.hover,
+    hoverBg: increaseContrast
+      ? theme.mode === 'dark'
+        ? 'rgba(216, 228, 247, 0.16)'
+        : 'rgba(26, 115, 232, 0.12)'
+      : theme.palette.action.hover,
     activeColor: theme.palette.text.primary,
-    activeBg: theme.palette.action.selected,
+    activeBg: increaseContrast
+      ? theme.mode === 'dark'
+        ? 'rgba(216, 228, 247, 0.24)'
+        : 'rgba(26, 115, 232, 0.18)'
+      : theme.palette.action.selected,
     disabledColor: theme.palette.action.disabled,
     disabledOpacity: 0.72,
   }

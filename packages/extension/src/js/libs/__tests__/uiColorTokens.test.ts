@@ -29,6 +29,22 @@ describe('uiColorTokens', () => {
     expect(tokens.selectedBackground).toBe('#d4e7ff')
   })
 
+  it('raises active indicator and muted text contrast when requested', () => {
+    const defaultTokens = getTabRowColorTokens(true, 'classic') as any
+    const contrastTokens = getTabRowColorTokens(true, 'classic', true) as any
+
+    expect(defaultTokens.mutedText).toBe('#9ca3af')
+    expect(contrastTokens.mutedText).toBe('#cbd5e1')
+    expect(defaultTokens.activeIndicatorWidth).toBe(3)
+    expect(contrastTokens.activeIndicatorWidth).toBe(4)
+    expect(defaultTokens.activeIndicatorSecondary).toBe(
+      'rgba(181, 199, 230, 0.56)',
+    )
+    expect(contrastTokens.activeIndicatorSecondary).toBe(
+      'rgba(216, 228, 247, 0.88)',
+    )
+  })
+
   it('restores the exact classic focused-window shadow while keeping unfocused windows flat', () => {
     const tokens = getUiColorTokens(false, 'classic') as any
 

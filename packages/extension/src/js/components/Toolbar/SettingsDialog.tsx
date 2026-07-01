@@ -507,6 +507,10 @@ export default observer(() => {
     closeDialog,
     highlightDuplicatedTab,
     toggleHighlightDuplicatedTab,
+    highlightActiveTabsInAllWindows,
+    toggleHighlightActiveTabsInAllWindows,
+    increaseContrast,
+    toggleIncreaseContrast,
     showTabTooltip,
     toggleShowTabTooltip,
     preserveSearch,
@@ -546,7 +550,7 @@ export default observer(() => {
   } = userStore
   const reduceMotion = useReduceMotion()
   const isDarkMode = muiTheme.mode === 'dark'
-  const uiColors = getUiColorTokens(isDarkMode, uiPreset)
+  const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsPanelSurface,
     borderColor: isDarkMode
@@ -728,6 +732,14 @@ export default observer(() => {
                   </ToggleGroup>
                 </div>
               </div>
+              <SettingsSwitchOption
+                testId="settings-increase-contrast"
+                title="Increase contrast"
+                description="Make controls, active indicators, and muted details easier to see."
+                checked={increaseContrast}
+                onChange={toggleIncreaseContrast}
+                style={rowDetailOptionStyle}
+              />
               <DensityControl
                 testId="settings-font-size-control"
                 title="Font size"
@@ -902,6 +914,37 @@ export default observer(() => {
           >
             <div className="space-y-3" data-testid="row-details-options">
               <RowDetailsOption
+                testId="row-details-option-active-tabs"
+                title="Highlight active tabs in all windows"
+                description="Show active-tab row highlighting for every browser window."
+                checked={highlightActiveTabsInAllWindows}
+                onChange={toggleHighlightActiveTabsInAllWindows}
+                style={rowDetailOptionStyle}
+                preview={
+                  <PreviewSurface
+                    style={previewSurfaceStyle}
+                    testId="row-details-preview-active-tabs"
+                  >
+                    <TabRowPreview
+                      config={{
+                        id: 9100,
+                        title: 'Active tab in another window',
+                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
+                        active: true,
+                        lastFocused: false,
+                        uiPreset,
+                        increaseContrast,
+                        highlightActiveTabsInAllWindows,
+                        showDuplicateMarker: false,
+                        showTabIcon: true,
+                        showUrl: true,
+                        showTabTooltip: false,
+                      }}
+                    />
+                  </PreviewSurface>
+                }
+              />
+              <RowDetailsOption
                 testId="row-details-option-duplicates"
                 title="Mark duplicate tabs"
                 checked={highlightDuplicatedTab}
@@ -919,6 +962,7 @@ export default observer(() => {
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         duplicatedTabCount: 2,
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: highlightDuplicatedTab,
                         showTabIcon: true,
                         showUrl: true,
@@ -946,6 +990,7 @@ export default observer(() => {
                         title: 'Tab Manager settings dialog',
                         url: 'https://github.com/xcv58/Tab-Manager-v2',
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: false,
                         showTabIcon,
                         showUrl: true,
@@ -972,6 +1017,7 @@ export default observer(() => {
                         title: 'Preview URLs inside settings',
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: false,
                         showTabIcon: true,
                         showUrl,
@@ -1000,6 +1046,7 @@ export default observer(() => {
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         duplicatedTabCount: 2,
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: false,
                         showTabIcon: true,
                         showUrl: false,

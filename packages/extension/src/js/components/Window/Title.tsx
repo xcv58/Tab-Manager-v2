@@ -23,7 +23,11 @@ export default observer((props: WinProps & { className: string }) => {
   const { focusStore, userStore } = useStore()
   const theme = useAppTheme()
   const isDarkTheme = useTheme()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
   const { className, win } = props
   const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =

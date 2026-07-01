@@ -13,7 +13,11 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 export default observer((props: WinProps & { width: string }) => {
   const theme = useAppTheme()
   const { userStore } = useStore()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const tabHeight = useTabHeight()
   const { win, width } = props
   const { showTabs, visibleLength, lastFocused } = win

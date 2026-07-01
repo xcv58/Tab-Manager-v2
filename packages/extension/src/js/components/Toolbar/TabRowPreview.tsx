@@ -13,7 +13,10 @@ type PreviewConfig = {
   duplicatedTabCount?: number
   pinned?: boolean
   active?: boolean
+  lastFocused?: boolean
   uiPreset?: UiPreset
+  increaseContrast?: boolean
+  highlightActiveTabsInAllWindows?: boolean
   showDuplicateMarker?: boolean
   showTabIcon?: boolean
   showUrl?: boolean
@@ -31,12 +34,19 @@ class PreviewUserStore {
 
   showTabIcon = true
 
+  increaseContrast = false
+
+  highlightActiveTabsInAllWindows = false
+
   constructor(config: PreviewConfig) {
     this.highlightDuplicatedTab = !!config.showDuplicateMarker
     this.uiPreset = config.uiPreset ?? 'modern'
     this.showTabTooltip = !!config.showTabTooltip
     this.showUrl = config.showUrl ?? true
     this.showTabIcon = config.showTabIcon ?? true
+    this.increaseContrast = !!config.increaseContrast
+    this.highlightActiveTabsInAllWindows =
+      !!config.highlightActiveTabsInAllWindows
     makeAutoObservable(this, {}, { autoBind: true })
   }
 }
@@ -114,7 +124,7 @@ class PreviewTabModel {
     this.active = !!config.active
     this.pinned = !!config.pinned
     this.win = {
-      lastFocused: true,
+      lastFocused: config.lastFocused ?? true,
       tabs: [this, { id: config.id + 1000 }],
     }
     makeAutoObservable(this, { store: false, win: false }, { autoBind: true })
@@ -184,7 +194,11 @@ class PreviewTabModel {
 
   get shouldHighlight() {
     return (
-      this.isHovered || this.isFocused || (this.active && this.win?.lastFocused)
+      this.isHovered ||
+      this.isFocused ||
+      (this.active &&
+        (this.win?.lastFocused ||
+          this.store.userStore.highlightActiveTabsInAllWindows))
     )
   }
 }
@@ -234,7 +248,10 @@ export default observer(
       [
         config.active,
         config.duplicatedTabCount,
+        config.highlightActiveTabsInAllWindows,
         config.id,
+        config.increaseContrast,
+        config.lastFocused,
         config.pinned,
         config.uiPreset,
         config.showDuplicateMarker,

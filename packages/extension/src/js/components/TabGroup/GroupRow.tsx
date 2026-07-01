@@ -45,7 +45,11 @@ export default observer((props: Props) => {
     userStore,
   } = useStore()
   const theme = useAppTheme()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const isDarkMode = theme.mode === 'dark'
   const isClassicUi = userStore.uiPreset === 'classic'
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)

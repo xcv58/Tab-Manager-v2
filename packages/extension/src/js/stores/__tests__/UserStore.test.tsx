@@ -186,6 +186,23 @@ describe('UserStore', () => {
     expect(save).toHaveBeenCalledTimes(1)
   })
 
+  it('should persist active-tab and contrast display toggles', async () => {
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+      },
+    } as any)
+    await flush()
+    const save = jest.spyOn(userStore, 'save').mockImplementation(() => {})
+
+    userStore.toggleHighlightActiveTabsInAllWindows()
+    userStore.toggleIncreaseContrast()
+
+    expect(userStore.highlightActiveTabsInAllWindows).toBe(true)
+    expect(userStore.increaseContrast).toBe(true)
+    expect(save).toHaveBeenCalledTimes(2)
+  })
+
   it('should strip the legacy groupByDomain setting', () => {
     const { settings, legacyKeys } = stripLegacySettings({
       groupByDomain: true,

@@ -245,7 +245,12 @@ export default class Tab extends Focusable {
     if (this.isSelected || !this.isMatched) {
       return false
     }
-    return this.isFocused || (this.active && this.win?.lastFocused)
+    return (
+      this.isFocused ||
+      (this.active &&
+        (this.win?.lastFocused ||
+          this.store.userStore.highlightActiveTabsInAllWindows))
+    )
   }
 
   get fingerPrint() {

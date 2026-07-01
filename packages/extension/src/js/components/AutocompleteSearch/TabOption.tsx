@@ -30,7 +30,11 @@ export default observer(function TabOption(props: Props) {
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
   const theme = useAppTheme()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const classicDuplicate =
     userStore.uiPreset === 'classic' &&
     userStore.highlightDuplicatedTab &&

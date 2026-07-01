@@ -30,6 +30,11 @@ body {
 
 .toolbar {
   opacity: 0.4;
+  transition: opacity 150ms ease-out;
+}
+
+.toolbar[data-increase-contrast='true'] {
+  opacity: 0.82;
 }
 
 .toolbar:hover {
