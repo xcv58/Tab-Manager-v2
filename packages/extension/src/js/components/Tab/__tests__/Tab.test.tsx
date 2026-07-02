@@ -214,4 +214,86 @@ describe('Tab', () => {
     })
     expect(indicator).toHaveClass('rounded-full')
   })
+
+  it('applies highlighted hover between selected and active precedence', () => {
+    const store = {
+      dragStore: {
+        dragging: false,
+      },
+      userStore: {
+        uiPreset: 'classic',
+        increaseContrast: true,
+      },
+      searchStore: observable({
+        typing: false,
+      }),
+      focusStore: {
+        shouldRevealNode: jest.fn(() => false),
+      },
+      tabGroupStore: {
+        isNoGroupId: jest.fn(() => true),
+      },
+    } as any
+    const tab = observable({
+      id: 3,
+      groupId: -1,
+      cookieStoreId: '',
+      active: false,
+      isFocused: false,
+      isHovered: true,
+      focusRequestId: 0,
+      isMatched: true,
+      isSelected: false,
+      pinned: false,
+      shouldHighlight: false,
+      shouldMoveDomFocus: true,
+      shouldRevealOnFocus: false,
+      removing: false,
+      hover: jest.fn(),
+      unhover: jest.fn(),
+      remove: jest.fn(),
+      setNodeRef: jest.fn(),
+      win: {
+        lastFocused: true,
+        tabs: [{ id: 3 }, { id: 4 }],
+      },
+    }) as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <ThemeContext.Provider value={true}>
+          <TabRow tab={tab} />
+        </ThemeContext.Provider>
+      </StoreContext.Provider>,
+    )
+
+    const row = screen.getByTestId('tab-row-3')
+
+    expect(row).toHaveStyle({ backgroundColor: '#1f2937' })
+
+    act(() => {
+      runInAction(() => {
+        tab.shouldHighlight = true
+      })
+    })
+
+    expect(row).toHaveStyle({ backgroundColor: '#506a86' })
+
+    act(() => {
+      runInAction(() => {
+        tab.isHovered = false
+      })
+    })
+
+    expect(row).toHaveStyle({ backgroundColor: '#465d76' })
+
+    act(() => {
+      runInAction(() => {
+        tab.isHovered = true
+        tab.isSelected = true
+      })
+    })
+
+    expect(row).toHaveStyle({ backgroundColor: '#5a7594' })
+  })
 })

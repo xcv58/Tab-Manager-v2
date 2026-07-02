@@ -33,6 +33,7 @@ export default observer((props: TabProps & { className?: string }) => {
     isFocused,
     isMatched,
     isSelected,
+    isHovered,
     pinned,
     shouldHighlight,
   } = tab
@@ -113,9 +114,13 @@ export default observer((props: TabProps & { className?: string }) => {
   const rowStyle = {
     backgroundColor: isSelected
       ? colorTokens.selectedBackground
-      : shouldHighlight
-        ? colorTokens.highlightedBackground
-        : colorTokens.rowSurface,
+      : shouldHighlight && isHovered && isActionable
+        ? colorTokens.highlightedHoverBackground
+        : shouldHighlight
+          ? colorTokens.highlightedBackground
+          : isHovered && isActionable
+            ? colorTokens.hoverBackground
+            : colorTokens.rowSurface,
     color: colorTokens.primaryText,
     ...(isFocused ? { outline: 'none' } : undefined),
   }
@@ -136,22 +141,6 @@ export default observer((props: TabProps & { className?: string }) => {
         {
           'opacity-25': !isMatched,
           'z-10': isFocused,
-          'hover:bg-blue-300':
-            isActionable && !isDarkTheme && isClassicUi && !increaseContrast,
-          'hover:bg-[#dcebff]':
-            isActionable && !isDarkTheme && isClassicUi && increaseContrast,
-          'hover:bg-gray-800':
-            isActionable && isDarkTheme && isClassicUi && !increaseContrast,
-          'hover:bg-[#435a73]':
-            isActionable && isDarkTheme && isClassicUi && increaseContrast,
-          'hover:bg-[rgba(15,23,42,0.04)]':
-            isActionable && !isDarkTheme && !isClassicUi && !increaseContrast,
-          'hover:bg-[rgba(15,23,42,0.07)]':
-            isActionable && !isDarkTheme && !isClassicUi && increaseContrast,
-          'hover:bg-[rgba(238,241,245,0.08)]':
-            isActionable && isDarkTheme && !isClassicUi && !increaseContrast,
-          'hover:bg-[rgba(238,241,245,0.12)]':
-            isActionable && isDarkTheme && !isClassicUi && increaseContrast,
         },
       )}
       style={rowStyle}

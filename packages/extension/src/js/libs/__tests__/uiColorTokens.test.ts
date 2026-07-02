@@ -23,10 +23,16 @@ describe('uiColorTokens', () => {
 
   it('keeps classic light highlight states in a stronger pale-blue range', () => {
     const tokens = getTabRowColorTokens(false, 'classic') as any
+    const contrastTokens = getTabRowColorTokens(false, 'classic', true) as any
 
     expect(tokens.hoverBackground).toBe('#edf5ff')
     expect(tokens.highlightedBackground).toBe('#e0eeff')
+    expect(tokens.highlightedHoverBackground).toBe('#daeaff')
     expect(tokens.selectedBackground).toBe('#d4e7ff')
+    expect(contrastTokens.hoverBackground).toBe('#eaf3ff')
+    expect(contrastTokens.highlightedBackground).toBe('#d9ebff')
+    expect(contrastTokens.highlightedHoverBackground).toBe('#cfe4ff')
+    expect(contrastTokens.selectedBackground).toBe('#bed9ff')
   })
 
   it('raises muted text contrast while keeping classic active rows restrained', () => {
@@ -45,6 +51,30 @@ describe('uiColorTokens', () => {
     )
     expect(defaultTokens.highlightedBackground).toBe('#425770')
     expect(contrastTokens.highlightedBackground).toBe('#465d76')
+    expect(defaultTokens.highlightedHoverBackground).toBe('#465d76')
+    expect(contrastTokens.highlightedHoverBackground).toBe('#506a86')
+    expect(defaultTokens.hoverBackground).toBe('#1f2937')
+    expect(contrastTokens.hoverBackground).toBe('#1f2937')
+  })
+
+  it('keeps modern highlighted hover states between highlight and selected strength', () => {
+    const lightTokens = getTabRowColorTokens(false, 'modern') as any
+    const darkContrastTokens = getTabRowColorTokens(true, 'modern', true) as any
+
+    expect(lightTokens.highlightedBackground).toBe('rgba(26, 115, 232, 0.08)')
+    expect(lightTokens.highlightedHoverBackground).toBe(
+      'rgba(26, 115, 232, 0.11)',
+    )
+    expect(lightTokens.selectedBackground).toBe('rgba(26, 115, 232, 0.14)')
+    expect(darkContrastTokens.highlightedBackground).toBe(
+      'rgba(181, 199, 230, 0.24)',
+    )
+    expect(darkContrastTokens.highlightedHoverBackground).toBe(
+      'rgba(181, 199, 230, 0.27)',
+    )
+    expect(darkContrastTokens.selectedBackground).toBe(
+      'rgba(181, 199, 230, 0.3)',
+    )
   })
 
   it('restores the exact classic focused-window shadow while keeping unfocused windows flat', () => {
