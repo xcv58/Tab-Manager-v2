@@ -554,41 +554,65 @@ export default observer(() => {
   const panelStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsPanelSurface,
     borderColor: isDarkMode
-      ? 'rgba(238, 241, 245, 0.14)'
-      : 'rgba(148, 163, 184, 0.26)',
+      ? increaseContrast
+        ? 'rgba(238, 241, 245, 0.28)'
+        : 'rgba(238, 241, 245, 0.14)'
+      : increaseContrast
+        ? 'rgba(100, 116, 139, 0.42)'
+        : 'rgba(148, 163, 184, 0.26)',
   }
   const rowDetailOptionStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsRowSurface,
     borderColor: isDarkMode
-      ? 'rgba(238, 241, 245, 0.1)'
-      : 'rgba(148, 163, 184, 0.22)',
+      ? increaseContrast
+        ? 'rgba(238, 241, 245, 0.24)'
+        : 'rgba(238, 241, 245, 0.1)'
+      : increaseContrast
+        ? 'rgba(100, 116, 139, 0.38)'
+        : 'rgba(148, 163, 184, 0.22)',
   }
   const previewSurfaceStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsPreviewSurface,
     borderColor: isDarkMode
-      ? 'rgba(238, 241, 245, 0.12)'
-      : 'rgba(148, 163, 184, 0.24)',
+      ? increaseContrast
+        ? 'rgba(238, 241, 245, 0.26)'
+        : 'rgba(238, 241, 245, 0.12)'
+      : increaseContrast
+        ? 'rgba(100, 116, 139, 0.4)'
+        : 'rgba(148, 163, 184, 0.24)',
   }
 
   const toggleGroupPillStyle: React.CSSProperties = {
     backgroundColor: isDarkMode
-      ? 'rgba(15, 23, 42, 0.44)'
-      : 'rgba(226, 232, 240, 0.7)',
+      ? increaseContrast
+        ? 'rgba(15, 23, 42, 0.66)'
+        : 'rgba(15, 23, 42, 0.44)'
+      : increaseContrast
+        ? 'rgba(203, 213, 225, 0.86)'
+        : 'rgba(226, 232, 240, 0.7)',
     border: `1px solid ${rowDetailOptionStyle.borderColor}`,
   }
 
   const selectedPillStyle: React.CSSProperties = {
     color: muiTheme.palette.text.primary,
     backgroundColor: isDarkMode
-      ? 'rgba(255, 255, 255, 0.12)'
+      ? increaseContrast
+        ? 'rgba(216, 228, 247, 0.2)'
+        : 'rgba(255, 255, 255, 0.12)'
       : 'rgba(255, 255, 255, 0.96)',
     boxShadow: isDarkMode
-      ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
-      : '0 1px 2px rgba(15, 23, 42, 0.14)',
+      ? increaseContrast
+        ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.22)'
+        : 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+      : increaseContrast
+        ? '0 1px 2px rgba(15, 23, 42, 0.18), inset 0 0 0 1px rgba(100, 116, 139, 0.28)'
+        : '0 1px 2px rgba(15, 23, 42, 0.14)',
   }
 
   const unselectedPillStyle: React.CSSProperties = {
-    color: muiTheme.palette.text.secondary,
+    color: increaseContrast
+      ? uiColors.mutedText
+      : muiTheme.palette.text.secondary,
     backgroundColor: 'transparent',
   }
 
@@ -735,7 +759,7 @@ export default observer(() => {
               <SettingsSwitchOption
                 testId="settings-increase-contrast"
                 title="Increase contrast"
-                description="Make controls, active indicators, and muted details easier to see."
+                description="Make toolbars, buttons, controls, and muted details easier to see."
                 checked={increaseContrast}
                 onChange={toggleIncreaseContrast}
                 style={rowDetailOptionStyle}

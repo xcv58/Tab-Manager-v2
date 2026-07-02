@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import classNames from 'classnames'
 import { useAppTheme } from 'libs/appTheme'
+import { useStore } from 'components/hooks/useStore'
 
 export interface CheckboxProps {
   checked?: boolean
@@ -50,7 +51,9 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const innerRef = useRef<HTMLInputElement>(null)
     const ref = (forwardedRef as React.RefObject<HTMLInputElement>) ?? innerRef
     const theme = useAppTheme()
+    const { userStore } = useStore()
     const [focused, setFocused] = useState(false)
+    const increaseContrast = userStore?.increaseContrast ?? false
 
     React.useEffect(() => {
       if (ref && 'current' in ref && ref.current) {
@@ -58,14 +61,33 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       }
     }, [indeterminate, ref])
 
+    const selectedColor = increaseContrast
+      ? theme.mode === 'dark'
+        ? '#d8e4f7'
+        : '#1a73e8'
+      : theme.palette.primary.main
+    const defaultColor = increaseContrast
+      ? theme.mode === 'dark'
+        ? '#e2e8f0'
+        : '#1e293b'
+      : theme.app.icon.default
+    const disabledColor = increaseContrast
+      ? theme.mode === 'dark'
+        ? 'rgba(226, 232, 240, 0.72)'
+        : 'rgba(30, 41, 59, 0.56)'
+      : theme.palette.action.disabled
     const iconColor =
       checked || indeterminate
-        ? theme.palette.primary.main
+        ? selectedColor
         : disabled
-          ? theme.palette.action.disabled
-          : theme.app.icon.default
+          ? disabledColor
+          : defaultColor
 
-    const focusRingColor = theme.app.checkbox.focusRing
+    const focusRingColor = increaseContrast
+      ? theme.mode === 'dark'
+        ? 'rgba(216, 228, 247, 0.38)'
+        : 'rgba(26, 115, 232, 0.32)'
+      : theme.app.checkbox.focusRing
 
     const renderIcon = () => {
       if (indeterminate) {

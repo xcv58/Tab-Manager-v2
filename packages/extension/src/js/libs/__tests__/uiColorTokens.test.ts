@@ -29,20 +29,22 @@ describe('uiColorTokens', () => {
     expect(tokens.selectedBackground).toBe('#d4e7ff')
   })
 
-  it('raises active indicator and muted text contrast when requested', () => {
+  it('raises muted text contrast while keeping classic active rows restrained', () => {
     const defaultTokens = getTabRowColorTokens(true, 'classic') as any
     const contrastTokens = getTabRowColorTokens(true, 'classic', true) as any
 
     expect(defaultTokens.mutedText).toBe('#9ca3af')
     expect(contrastTokens.mutedText).toBe('#cbd5e1')
     expect(defaultTokens.activeIndicatorWidth).toBe(3)
-    expect(contrastTokens.activeIndicatorWidth).toBe(4)
+    expect(contrastTokens.activeIndicatorWidth).toBe(3)
     expect(defaultTokens.activeIndicatorSecondary).toBe(
       'rgba(181, 199, 230, 0.56)',
     )
     expect(contrastTokens.activeIndicatorSecondary).toBe(
-      'rgba(216, 228, 247, 0.88)',
+      'rgba(199, 214, 237, 0.68)',
     )
+    expect(defaultTokens.highlightedBackground).toBe('#425770')
+    expect(contrastTokens.highlightedBackground).toBe('#465d76')
   })
 
   it('restores the exact classic focused-window shadow while keeping unfocused windows flat', () => {

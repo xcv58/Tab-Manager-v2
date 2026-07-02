@@ -157,18 +157,18 @@ export const getTabRowColorTokens = (
       ...uiColors,
       activeIndicatorPrimary: isDarkMode
         ? increaseContrast
-          ? '#d8e4f7'
+          ? '#c7d6ed'
           : '#b5c7e6'
         : '#1a73e8',
       activeIndicatorSecondary: isDarkMode
         ? increaseContrast
-          ? 'rgba(216, 228, 247, 0.88)'
+          ? 'rgba(199, 214, 237, 0.68)'
           : 'rgba(181, 199, 230, 0.56)'
         : increaseContrast
-          ? 'rgba(26, 115, 232, 0.72)'
+          ? 'rgba(26, 115, 232, 0.6)'
           : 'rgba(26, 115, 232, 0.52)',
-      activeIndicatorWidth: increaseContrast ? 4 : 3,
-      activeIndicatorHeight: increaseContrast ? 28 : 25,
+      activeIndicatorWidth: 3,
+      activeIndicatorHeight: 25,
       hoverBackground: isDarkMode
         ? increaseContrast
           ? '#435a73'
@@ -178,10 +178,10 @@ export const getTabRowColorTokens = (
           : '#edf5ff',
       highlightedBackground: isDarkMode
         ? increaseContrast
-          ? '#506a87'
+          ? '#465d76'
           : '#425770'
         : increaseContrast
-          ? '#cfe4ff'
+          ? '#d9ebff'
           : '#e0eeff',
       selectedBackground: isDarkMode
         ? increaseContrast
