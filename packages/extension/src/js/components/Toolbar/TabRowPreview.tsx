@@ -194,7 +194,6 @@ class PreviewTabModel {
 
   get shouldHighlight() {
     return (
-      this.isHovered ||
       this.isFocused ||
       (this.active &&
         (this.win?.lastFocused ||

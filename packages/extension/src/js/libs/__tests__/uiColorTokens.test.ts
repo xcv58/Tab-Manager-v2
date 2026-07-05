@@ -53,6 +53,7 @@ describe('uiColorTokens', () => {
     expect(contrastTokens.highlightedBackground).toBe('#465d76')
     expect(defaultTokens.highlightedHoverBackground).toBe('#465d76')
     expect(contrastTokens.highlightedHoverBackground).toBe('#506a86')
+    expect(contrastTokens.selectedBackground).toBe('#536d8a')
     expect(defaultTokens.hoverBackground).toBe('#1f2937')
     expect(contrastTokens.hoverBackground).toBe('#1f2937')
   })

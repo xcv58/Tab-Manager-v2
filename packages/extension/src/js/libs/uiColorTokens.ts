@@ -190,7 +190,7 @@ export const getTabRowColorTokens = (
           : '#daeaff',
       selectedBackground: isDarkMode
         ? increaseContrast
-          ? '#5a7594'
+          ? '#536d8a'
           : '#4c6480'
         : increaseContrast
           ? '#bed9ff'
