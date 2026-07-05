@@ -294,6 +294,6 @@ describe('Tab', () => {
       })
     })
 
-    expect(row).toHaveStyle({ backgroundColor: '#5a7594' })
+    expect(row).toHaveStyle({ backgroundColor: '#536d8a' })
   })
 })
