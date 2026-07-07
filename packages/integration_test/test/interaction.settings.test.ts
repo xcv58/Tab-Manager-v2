@@ -241,7 +241,7 @@ test.describe('The Extension page should', () => {
       .click()
 
     const activeTabsToggle = page.getByRole('checkbox', {
-      name: 'Highlight active tabs in all windows',
+      name: 'Highlight all active tabs',
     })
     await expect(activeTabsToggle).toBeVisible()
     await page
@@ -283,7 +283,7 @@ test.describe('The Extension page should', () => {
     ).toBeChecked()
     await expect(
       page.getByRole('checkbox', {
-        name: 'Highlight active tabs in all windows',
+        name: 'Highlight all active tabs',
       }),
     ).toBeChecked()
   })

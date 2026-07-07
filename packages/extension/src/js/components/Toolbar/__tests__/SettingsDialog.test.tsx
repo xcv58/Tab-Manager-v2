@@ -150,7 +150,7 @@ describe('SettingsDialog', () => {
     fireEvent.click(screen.getByTestId('settings-increase-contrast'))
     fireEvent.click(
       screen.getByRole('checkbox', {
-        name: 'Highlight active tabs in all windows',
+        name: 'Highlight all active tabs',
       }),
     )
 

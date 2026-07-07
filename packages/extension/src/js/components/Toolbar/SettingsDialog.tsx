@@ -939,8 +939,7 @@ export default observer(() => {
             <div className="space-y-3" data-testid="row-details-options">
               <RowDetailsOption
                 testId="row-details-option-active-tabs"
-                title="Highlight active tabs in all windows"
-                description="Show active-tab row highlighting for every browser window."
+                title="Highlight all active tabs"
                 checked={highlightActiveTabsInAllWindows}
                 onChange={toggleHighlightActiveTabsInAllWindows}
                 style={rowDetailOptionStyle}
@@ -952,7 +951,7 @@ export default observer(() => {
                     <TabRowPreview
                       config={{
                         id: 9100,
-                        title: 'Active tab in another window',
+                        title: 'Active tab in inactive window',
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
                         active: true,
                         lastFocused: false,
