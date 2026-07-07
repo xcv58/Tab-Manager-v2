@@ -1,6 +1,7 @@
 import React from 'react'
 import classNames from 'classnames'
 import { useTheme } from 'components/hooks/useTheme'
+import { useStore } from 'components/hooks/useStore'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export interface UrlProps {
@@ -26,10 +27,12 @@ export default (props: UrlProps) => {
     getHighlightNode,
     duplicated,
   } = props
+  const { userStore } = useStore()
   const isDarkTheme = useTheme()
   const uiColors = getUiColorTokens(
     isDarkTheme,
     duplicated ? 'classic' : 'modern',
+    userStore.increaseContrast,
   )
   return (
     <div

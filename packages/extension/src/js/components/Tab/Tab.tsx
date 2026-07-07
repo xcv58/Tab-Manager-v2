@@ -20,7 +20,12 @@ export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
   const { dragStore, searchStore, focusStore, userStore } = useStore()
   const isDarkTheme = useTheme()
-  const colorTokens = getTabRowColorTokens(isDarkTheme, userStore.uiPreset)
+  const increaseContrast = userStore.increaseContrast
+  const colorTokens = getTabRowColorTokens(
+    isDarkTheme,
+    userStore.uiPreset,
+    increaseContrast,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
   const { tab, className } = props
   const {
@@ -28,6 +33,7 @@ export default observer((props: TabProps & { className?: string }) => {
     isFocused,
     isMatched,
     isSelected,
+    isHovered,
     pinned,
     shouldHighlight,
   } = tab
@@ -108,9 +114,13 @@ export default observer((props: TabProps & { className?: string }) => {
   const rowStyle = {
     backgroundColor: isSelected
       ? colorTokens.selectedBackground
-      : shouldHighlight
-        ? colorTokens.highlightedBackground
-        : colorTokens.rowSurface,
+      : shouldHighlight && isHovered && isActionable
+        ? colorTokens.highlightedHoverBackground
+        : shouldHighlight
+          ? colorTokens.highlightedBackground
+          : isHovered && isActionable
+            ? colorTokens.hoverBackground
+            : colorTokens.rowSurface,
     color: colorTokens.primaryText,
     ...(isFocused ? { outline: 'none' } : undefined),
   }
@@ -131,12 +141,6 @@ export default observer((props: TabProps & { className?: string }) => {
         {
           'opacity-25': !isMatched,
           'z-10': isFocused,
-          'hover:bg-blue-300': isActionable && !isDarkTheme && isClassicUi,
-          'hover:bg-gray-800': isActionable && isDarkTheme && isClassicUi,
-          'hover:bg-[rgba(15,23,42,0.04)]':
-            isActionable && !isDarkTheme && !isClassicUi,
-          'hover:bg-[rgba(238,241,245,0.08)]':
-            isActionable && isDarkTheme && !isClassicUi,
         },
       )}
       style={rowStyle}
@@ -151,8 +155,8 @@ export default observer((props: TabProps & { className?: string }) => {
           style={{
             backgroundColor: activeIndicatorColor,
             left: 1,
-            width: 3,
-            height: 25,
+            width: colorTokens.activeIndicatorWidth,
+            height: colorTokens.activeIndicatorHeight,
           }}
         />
       )}

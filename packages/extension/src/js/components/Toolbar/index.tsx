@@ -9,13 +9,18 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 export default observer(() => {
   const theme = useAppTheme()
   const { userStore } = useStore()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
 
   const { lazyHideToolbar, showToolbar, toolbarVisible } = userStore
   return (
     <div
       className="toolbar"
+      data-increase-contrast={userStore.increaseContrast ? 'true' : 'false'}
       onMouseEnter={showToolbar}
       onMouseLeave={lazyHideToolbar}
       style={{

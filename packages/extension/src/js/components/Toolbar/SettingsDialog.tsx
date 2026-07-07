@@ -507,6 +507,10 @@ export default observer(() => {
     closeDialog,
     highlightDuplicatedTab,
     toggleHighlightDuplicatedTab,
+    highlightActiveTabsInAllWindows,
+    toggleHighlightActiveTabsInAllWindows,
+    increaseContrast,
+    toggleIncreaseContrast,
     showTabTooltip,
     toggleShowTabTooltip,
     preserveSearch,
@@ -546,45 +550,69 @@ export default observer(() => {
   } = userStore
   const reduceMotion = useReduceMotion()
   const isDarkMode = muiTheme.mode === 'dark'
-  const uiColors = getUiColorTokens(isDarkMode, uiPreset)
+  const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsPanelSurface,
     borderColor: isDarkMode
-      ? 'rgba(238, 241, 245, 0.14)'
-      : 'rgba(148, 163, 184, 0.26)',
+      ? increaseContrast
+        ? 'rgba(238, 241, 245, 0.28)'
+        : 'rgba(238, 241, 245, 0.14)'
+      : increaseContrast
+        ? 'rgba(100, 116, 139, 0.42)'
+        : 'rgba(148, 163, 184, 0.26)',
   }
   const rowDetailOptionStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsRowSurface,
     borderColor: isDarkMode
-      ? 'rgba(238, 241, 245, 0.1)'
-      : 'rgba(148, 163, 184, 0.22)',
+      ? increaseContrast
+        ? 'rgba(238, 241, 245, 0.24)'
+        : 'rgba(238, 241, 245, 0.1)'
+      : increaseContrast
+        ? 'rgba(100, 116, 139, 0.38)'
+        : 'rgba(148, 163, 184, 0.22)',
   }
   const previewSurfaceStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsPreviewSurface,
     borderColor: isDarkMode
-      ? 'rgba(238, 241, 245, 0.12)'
-      : 'rgba(148, 163, 184, 0.24)',
+      ? increaseContrast
+        ? 'rgba(238, 241, 245, 0.26)'
+        : 'rgba(238, 241, 245, 0.12)'
+      : increaseContrast
+        ? 'rgba(100, 116, 139, 0.4)'
+        : 'rgba(148, 163, 184, 0.24)',
   }
 
   const toggleGroupPillStyle: React.CSSProperties = {
     backgroundColor: isDarkMode
-      ? 'rgba(15, 23, 42, 0.44)'
-      : 'rgba(226, 232, 240, 0.7)',
+      ? increaseContrast
+        ? 'rgba(15, 23, 42, 0.66)'
+        : 'rgba(15, 23, 42, 0.44)'
+      : increaseContrast
+        ? 'rgba(203, 213, 225, 0.86)'
+        : 'rgba(226, 232, 240, 0.7)',
     border: `1px solid ${rowDetailOptionStyle.borderColor}`,
   }
 
   const selectedPillStyle: React.CSSProperties = {
     color: muiTheme.palette.text.primary,
     backgroundColor: isDarkMode
-      ? 'rgba(255, 255, 255, 0.12)'
+      ? increaseContrast
+        ? 'rgba(216, 228, 247, 0.2)'
+        : 'rgba(255, 255, 255, 0.12)'
       : 'rgba(255, 255, 255, 0.96)',
     boxShadow: isDarkMode
-      ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
-      : '0 1px 2px rgba(15, 23, 42, 0.14)',
+      ? increaseContrast
+        ? 'inset 0 0 0 1px rgba(238, 241, 245, 0.22)'
+        : 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
+      : increaseContrast
+        ? '0 1px 2px rgba(15, 23, 42, 0.18), inset 0 0 0 1px rgba(100, 116, 139, 0.28)'
+        : '0 1px 2px rgba(15, 23, 42, 0.14)',
   }
 
   const unselectedPillStyle: React.CSSProperties = {
-    color: muiTheme.palette.text.secondary,
+    color: increaseContrast
+      ? uiColors.mutedText
+      : muiTheme.palette.text.secondary,
     backgroundColor: 'transparent',
   }
 
@@ -728,6 +756,14 @@ export default observer(() => {
                   </ToggleGroup>
                 </div>
               </div>
+              <SettingsSwitchOption
+                testId="settings-increase-contrast"
+                title="Increase contrast"
+                description="Make toolbars, buttons, controls, and muted details easier to see."
+                checked={increaseContrast}
+                onChange={toggleIncreaseContrast}
+                style={rowDetailOptionStyle}
+              />
               <DensityControl
                 testId="settings-font-size-control"
                 title="Font size"
@@ -902,6 +938,36 @@ export default observer(() => {
           >
             <div className="space-y-3" data-testid="row-details-options">
               <RowDetailsOption
+                testId="row-details-option-active-tabs"
+                title="Highlight all active tabs"
+                checked={highlightActiveTabsInAllWindows}
+                onChange={toggleHighlightActiveTabsInAllWindows}
+                style={rowDetailOptionStyle}
+                preview={
+                  <PreviewSurface
+                    style={previewSurfaceStyle}
+                    testId="row-details-preview-active-tabs"
+                  >
+                    <TabRowPreview
+                      config={{
+                        id: 9100,
+                        title: 'Active tab in inactive window',
+                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
+                        active: true,
+                        lastFocused: false,
+                        uiPreset,
+                        increaseContrast,
+                        highlightActiveTabsInAllWindows,
+                        showDuplicateMarker: false,
+                        showTabIcon: true,
+                        showUrl: true,
+                        showTabTooltip: false,
+                      }}
+                    />
+                  </PreviewSurface>
+                }
+              />
+              <RowDetailsOption
                 testId="row-details-option-duplicates"
                 title="Mark duplicate tabs"
                 checked={highlightDuplicatedTab}
@@ -919,6 +985,7 @@ export default observer(() => {
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         duplicatedTabCount: 2,
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: highlightDuplicatedTab,
                         showTabIcon: true,
                         showUrl: true,
@@ -946,6 +1013,7 @@ export default observer(() => {
                         title: 'Tab Manager settings dialog',
                         url: 'https://github.com/xcv58/Tab-Manager-v2',
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: false,
                         showTabIcon,
                         showUrl: true,
@@ -972,6 +1040,7 @@ export default observer(() => {
                         title: 'Preview URLs inside settings',
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: false,
                         showTabIcon: true,
                         showUrl,
@@ -1000,6 +1069,7 @@ export default observer(() => {
                         url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                         duplicatedTabCount: 2,
                         uiPreset,
+                        increaseContrast,
                         showDuplicateMarker: false,
                         showTabIcon: true,
                         showUrl: false,

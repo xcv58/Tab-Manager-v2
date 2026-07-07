@@ -13,7 +13,11 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 export default observer(() => {
   const theme = useAppTheme()
   const { userStore } = useStore()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const isClassicUi = userStore.uiPreset === 'classic'
   if (!userStore.loaded) {
     return (

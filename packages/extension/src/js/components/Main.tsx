@@ -25,7 +25,11 @@ export default observer(() => {
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   const fontSize = useFontSize()
-  const uiColors = getUiColorTokens(theme.mode === 'dark', userStore.uiPreset)
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   useEffect(() => {
     tabGroupStore?.didMount?.()
     windowStore.didMount()
@@ -46,6 +50,7 @@ export default observer(() => {
         { 'pb-12': !toolbarAutoHide },
         useTextClasses(),
       )}
+      data-increase-contrast={userStore.increaseContrast ? 'true' : 'false'}
       style={{
         backgroundColor: uiColors.appCanvasSurface,
         color: theme.palette.text.primary,

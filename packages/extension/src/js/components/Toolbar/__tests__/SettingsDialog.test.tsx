@@ -37,6 +37,10 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     closeDialog: jest.fn(),
     highlightDuplicatedTab: false,
     toggleHighlightDuplicatedTab: jest.fn(),
+    highlightActiveTabsInAllWindows: false,
+    toggleHighlightActiveTabsInAllWindows: jest.fn(),
+    increaseContrast: false,
+    toggleIncreaseContrast: jest.fn(),
     showTabTooltip: false,
     toggleShowTabTooltip: jest.fn(),
     preserveSearch: false,
@@ -113,6 +117,9 @@ describe('SettingsDialog', () => {
     expect(screen.getByTestId('settings-lite-popup-mode')).toHaveClass(
       'focus-within:ring-2',
     )
+    expect(screen.getByTestId('settings-increase-contrast')).toHaveClass(
+      'focus-within:ring-2',
+    )
   })
 
   it('uses themed foreground colors when the dark settings dialog is open', () => {
@@ -135,14 +142,24 @@ describe('SettingsDialog', () => {
     expect(switchLabel).toHaveStyle('margin-top: 0px')
   })
 
-  it('toggles the search and lite popup settings from their visible rows', () => {
+  it('toggles settings from their visible controls', () => {
     const { userStore } = renderSettingsDialog()
 
     fireEvent.click(screen.getByTestId('settings-search-focus'))
     fireEvent.click(screen.getByTestId('settings-lite-popup-mode'))
+    fireEvent.click(screen.getByTestId('settings-increase-contrast'))
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: 'Highlight all active tabs',
+      }),
+    )
 
     expect(userStore.toggleAutoFocusSearch).toHaveBeenCalledTimes(1)
     expect(userStore.toggleLitePopupMode).toHaveBeenCalledTimes(1)
+    expect(userStore.toggleIncreaseContrast).toHaveBeenCalledTimes(1)
+    expect(
+      userStore.toggleHighlightActiveTabsInAllWindows,
+    ).toHaveBeenCalledTimes(1)
   })
 
   it('updates the extension icon count mode from the segmented control', () => {
@@ -174,6 +191,9 @@ describe('SettingsDialog', () => {
   it('marks tab display previews as decorative surfaces', () => {
     renderSettingsDialog()
 
+    expect(
+      screen.getByTestId('row-details-preview-active-tabs'),
+    ).toHaveAttribute('aria-hidden', 'true')
     expect(
       screen.getByTestId('row-details-preview-duplicates'),
     ).toHaveAttribute('aria-hidden', 'true')

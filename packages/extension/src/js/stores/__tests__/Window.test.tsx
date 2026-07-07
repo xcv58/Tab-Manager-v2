@@ -1,4 +1,5 @@
 import Window from 'stores/Window'
+import { observable } from 'mobx'
 
 jest.mock('libs', () => {
   const actual = jest.requireActual('libs')
@@ -21,6 +22,7 @@ const createStore = () =>
   ({
     windowStore: {
       initialLoading: false,
+      lastFocusedWindowId: 99,
     },
     hiddenWindowStore: {
       hiddenWindows: {},
@@ -30,9 +32,10 @@ const createStore = () =>
       selectAll: jest.fn(),
       unselectAll: jest.fn(),
     },
-    userStore: {
+    userStore: observable({
       showUnmatchedTab: true,
-    },
+      highlightActiveTabsInAllWindows: false,
+    }),
     searchStore: {
       matchedSet: new Set([1, 2, 3, 4]),
       _query: '',
@@ -69,5 +72,31 @@ describe('Window', () => {
     expect(result).toBe(true)
     expect(win.tabs.map((tab) => tab.id)).toEqual([2, 3, 1, 4])
     expect(win.tabs.map((tab) => tab.index)).toEqual([0, 1, 2, 3])
+  })
+
+  it('highlights active tabs outside the last-focused window when enabled', () => {
+    const store = createStore()
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: true,
+            index: 0,
+            windowId: 1,
+            title: 'Discarded Window',
+            url: 'https://example.test',
+          },
+        ],
+      },
+      store,
+    )
+
+    expect(win.tabs[0].shouldHighlight).toBe(false)
+
+    store.userStore.highlightActiveTabsInAllWindows = true
+
+    expect(win.tabs[0].shouldHighlight).toBe(true)
   })
 })
