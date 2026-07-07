@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.3.0...v2.4.0) (2026-07-07)
+
+
+### Features
+
+* add active-tab highlight and contrast settings ([eb0d983](https://github.com/xcv58/Tab-Manager-v2/commit/eb0d983e277a29649a424795169de0d57ddf58d1))
+* add last-used window order setting ([97762ed](https://github.com/xcv58/Tab-Manager-v2/commit/97762ed8fcfad531021576b47afff05001d29d6f))
+
+
+### Bug Fixes
+
+* wait for settings before initial window load ([#2634](https://github.com/xcv58/Tab-Manager-v2/issues/2634)) ([75a7cea](https://github.com/xcv58/Tab-Manager-v2/commit/75a7cea29a5f213185287ac8aa7c8f69ed54bb24))
+
 ## [2.3.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.2.0...v2.3.0) (2026-04-03)
 
 
