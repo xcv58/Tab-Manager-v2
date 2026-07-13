@@ -437,10 +437,12 @@ export default class WindowsStore {
       layouts.length,
     )
     const renderedLayouts = layouts.slice(start, end)
+    const dragOriginWindowId = this.dragOriginWindowId
+    if (dragOriginWindowId === null) {
+      return renderedLayouts
+    }
     const dragOriginColumn = layouts.find((column) =>
-      column.windows.some(
-        ({ windowId }) => this.dragOriginWindowId === windowId,
-      ),
+      column.windows.some(({ windowId }) => dragOriginWindowId === windowId),
     )
     if (
       !dragOriginColumn ||

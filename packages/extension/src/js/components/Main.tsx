@@ -24,6 +24,8 @@ export default observer(() => {
   const { windowStore, shortcutStore, tabGroupStore, userStore } = useStore()
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
+  // The preference applies only to the full-page view; popup results stay on.
+  const showSearchResultMenu = isPopup || userStore.showSearchResultMenu
   const fontSize = useFontSize()
   const uiColors = getUiColorTokens(
     theme.mode === 'dark',
@@ -60,9 +62,7 @@ export default observer(() => {
         <PopupView />
       ) : (
         <>
-          <DroppableTools
-            showSearchResultMenu={isPopup || userStore.showSearchResultMenu}
-          />
+          <DroppableTools showSearchResultMenu={showSearchResultMenu} />
           <WinList />
           <Toolbar />
           <DragLayer />

@@ -64,16 +64,21 @@ export default class DragStore {
 
   dragStartGroup = (groupId: number) => {
     this.dropped = false
-    this.dragging = true
+    this.dragging = false
     this.dragOriginWindowId = null
-    this.dragSource = 'group-header'
+    this.dragSource = 'tab-row'
     const { selection, unselectAll } = this.store.tabStore
-    unselectAll()
     if (this.isNoGroupId(groupId) || !this.store.tabGroupStore) {
-      return selection
+      return null
     }
     const groupTabs = this.store.tabGroupStore.getTabsForGroup(groupId)
-    this.dragOriginWindowId = groupTabs[0]?.windowId ?? null
+    if (!groupTabs.length) {
+      return null
+    }
+    this.dragging = true
+    this.dragOriginWindowId = groupTabs[0].windowId
+    this.dragSource = 'group-header'
+    unselectAll()
     groupTabs.forEach((tab) => {
       selection.set(tab.id, tab)
     })

@@ -109,6 +109,31 @@ describe('DragStore with tab groups', () => {
     expect(dragStore.dragOriginWindowId).toBe(8)
   })
 
+  it('dragStartGroup should cancel when the group has no tabs', () => {
+    process.env.TARGET_BROWSER = 'chrome'
+    const selection = new Map([[99, { id: 99 }]])
+    const tabStore = setupTabStore(selection)
+    const dragStore = new DragStore({
+      tabStore,
+      tabGroupStore: {
+        getTabsForGroup: jest.fn(() => []),
+        getNoGroupId: () => -1,
+        hasTabGroupsApi: () => true,
+        canMutateGroups: () => true,
+        canMoveGroups: () => true,
+      },
+    } as any)
+
+    const selected = dragStore.dragStartGroup(10)
+
+    expect(selected).toBeNull()
+    expect(tabStore.unselectAll).not.toHaveBeenCalled()
+    expect(selection.has(99)).toBe(true)
+    expect(dragStore.dragging).toBe(false)
+    expect(dragStore.dragOriginWindowId).toBeNull()
+    expect(dragStore.dragSource).toBe('tab-row')
+  })
+
   it('drop into grouped target should preserve before/after placement', async () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()
