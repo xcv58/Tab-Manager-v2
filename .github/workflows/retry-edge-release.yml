@@ -1,0 +1,59 @@
+name: Retry Edge Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub release tag to submit to Edge
+        required: true
+        default: v2.4.1
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish-edge:
+    name: Publish Edge (${{ inputs.release_tag }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: edge-addons
+    concurrency:
+      group: publish-edge-${{ inputs.release_tag }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+
+      - name: Use Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - name: Download Chrome package from the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          mkdir -p packages/extension/build
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern build_chrome.zip \
+            --pattern SHA256SUMS.txt \
+            --dir packages/extension/build
+
+      - name: Verify Chrome package checksum
+        working-directory: packages/extension
+        run: |
+          grep -E '  build/build_chrome\.zip$' build/SHA256SUMS.txt \
+            | sha256sum --check -
+
+      - name: Publish to Microsoft Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_SUBMISSION_NOTES: Retry GitHub release ${{ inputs.release_tag }}
+        run: node ./publish_edge.mjs
