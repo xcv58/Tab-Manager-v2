@@ -563,6 +563,32 @@ test.describe('The Extension page should', () => {
     })
   })
 
+  test('dismiss command results on blur when ordinary results are disabled', async () => {
+    await page.evaluate(async () => {
+      const settings = { showSearchResultMenu: false }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await waitForDefaultExtensionView(page)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.click()
+    await searchInput.fill('>')
+
+    const listbox = page.getByRole('listbox')
+    await expect(searchInput).toHaveAttribute('aria-expanded', 'true')
+    await expect(listbox).toBeVisible()
+
+    await searchInput.press('Tab')
+
+    await expect(searchInput).toHaveValue('')
+    await expect(searchInput).toHaveAttribute('aria-expanded', 'false')
+    await expect(listbox).toBeHidden()
+  })
+
   test('keep search open during non-option popup interaction', async () => {
     const urls = Array.from(
       { length: 22 },

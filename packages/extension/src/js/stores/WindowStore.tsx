@@ -303,21 +303,9 @@ export default class WindowsStore {
   }
 
   get minColumnWidthPx() {
-    const fallbackRootFontSize = 16
-    if (
-      typeof document === 'undefined' ||
-      typeof window === 'undefined' ||
-      !window.getComputedStyle
-    ) {
-      return Math.round(
-        (this.store.userStore?.tabWidth || 20) * fallbackRootFontSize,
-      )
-    }
-    const rootFontSize =
-      parseFloat(
-        window.getComputedStyle(document.documentElement).fontSize || '16',
-      ) || fallbackRootFontSize
-    return Math.round((this.store.userStore?.tabWidth || 20) * rootFontSize)
+    const tabWidth = this.store.userStore?.tabWidth || 20
+    const fontSize = this.store.userStore?.fontSize || 14
+    return Math.round(tabWidth * fontSize)
   }
 
   get autoFitColumnsEnabled() {
@@ -347,8 +335,9 @@ export default class WindowsStore {
     return Math.max(1, Math.round(Math.max(fluidWidth, this.minColumnWidthPx)))
   }
 
-  get virtualizationDisabled() {
-    return !!this.store.dragStore?.dragging
+  get dragOriginWindowId() {
+    const dragStore = this.store.dragStore
+    return dragStore?.dragging ? dragStore.dragOriginWindowId : null
   }
 
   get rawVisibleColumn() {
@@ -419,20 +408,19 @@ export default class WindowsStore {
         width: columnWidth,
         height: top,
         windows,
-        renderedWindows: this.virtualizationDisabled
-          ? windows
-          : windows.filter(
-              ({ top, bottom }) =>
-                bottom >= viewportTop - overscanPx &&
-                top <= viewportBottom + overscanPx,
-            ),
+        renderedWindows: windows.filter(
+          ({ windowId, top, bottom }) =>
+            this.dragOriginWindowId === windowId ||
+            (bottom >= viewportTop - overscanPx &&
+              top <= viewportBottom + overscanPx),
+        ),
       }
     })
   }
 
   get renderedColumnLayouts() {
     const layouts = this.columnLayoutsWithPosition
-    if (!layouts.length || this.virtualizationDisabled) {
+    if (!layouts.length) {
       return layouts
     }
 
@@ -448,7 +436,25 @@ export default class WindowsStore {
       Math.ceil(viewportRight / columnWidth) + overscanColumns,
       layouts.length,
     )
-    return layouts.slice(start, end)
+    const renderedLayouts = layouts.slice(start, end)
+    const dragOriginWindowId = this.dragOriginWindowId
+    if (dragOriginWindowId === null) {
+      return renderedLayouts
+    }
+    const dragOriginColumn = layouts.find((column) =>
+      column.windows.some(({ windowId }) => dragOriginWindowId === windowId),
+    )
+    if (
+      !dragOriginColumn ||
+      renderedLayouts.some(
+        ({ columnIndex }) => columnIndex === dragOriginColumn.columnIndex,
+      )
+    ) {
+      return renderedLayouts
+    }
+    return [...renderedLayouts, dragOriginColumn].sort(
+      (left, right) => left.columnIndex - right.columnIndex,
+    )
   }
 
   get totalContentWidth() {
@@ -1445,7 +1451,7 @@ export default class WindowsStore {
   getVisibleRowRange = (win: Window): VisibleRowRange => {
     const rows = win.rows
     if (
-      this.virtualizationDisabled ||
+      this.dragOriginWindowId === win.id ||
       win.hide ||
       rows.length === 0 ||
       this.height <= 0

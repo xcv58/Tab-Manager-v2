@@ -44,12 +44,15 @@ export default class DragStore {
 
   dragging = false
 
+  dragOriginWindowId: number | null = null
+
   dragSource: DropSource = 'tab-row'
 
   dragStartTab = (tab: Tab) => {
     tab.unhover()
     this.dropped = false
     this.dragging = true
+    this.dragOriginWindowId = tab.windowId
     this.dragSource = 'tab-row'
     const { selection, unselectAll } = this.store.tabStore
     if (!selection.has(tab.id)) {
@@ -61,14 +64,22 @@ export default class DragStore {
 
   dragStartGroup = (groupId: number) => {
     this.dropped = false
-    this.dragging = true
-    this.dragSource = 'group-header'
+    this.dragging = false
+    this.dragOriginWindowId = null
+    this.dragSource = 'tab-row'
     const { selection, unselectAll } = this.store.tabStore
-    unselectAll()
     if (this.isNoGroupId(groupId) || !this.store.tabGroupStore) {
-      return selection
+      return null
     }
-    this.store.tabGroupStore.getTabsForGroup(groupId).forEach((tab) => {
+    const groupTabs = this.store.tabGroupStore.getTabsForGroup(groupId)
+    if (!groupTabs.length) {
+      return null
+    }
+    this.dragging = true
+    this.dragOriginWindowId = groupTabs[0].windowId
+    this.dragSource = 'group-header'
+    unselectAll()
+    groupTabs.forEach((tab) => {
       selection.set(tab.id, tab)
     })
     return selection
@@ -78,6 +89,7 @@ export default class DragStore {
 
   dragEnd = () => {
     this.dragging = false
+    this.dragOriginWindowId = null
     this.dragSource = 'tab-row'
     if (!this.dropped) {
       this.clear()

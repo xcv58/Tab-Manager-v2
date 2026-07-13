@@ -517,6 +517,8 @@ export default observer(() => {
     togglePreserveSearch,
     searchHistory,
     toggleSearchHistory,
+    showSearchResultMenu,
+    toggleShowSearchResultMenu,
     showAppWindow,
     toggleShowAppWindow,
     showUnmatchedTab,
@@ -659,6 +661,14 @@ export default observer(() => {
                 title="Include browser history in results"
                 checked={searchHistory}
                 onChange={toggleSearchHistory}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
+                testId="settings-search-result-menu"
+                title="Show result menu in full-page view"
+                description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
+                checked={showSearchResultMenu}
+                onChange={toggleShowSearchResultMenu}
                 style={rowDetailOptionStyle}
               />
               <SettingsSwitchOption

@@ -47,6 +47,8 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     togglePreserveSearch: jest.fn(),
     searchHistory: false,
     toggleSearchHistory: jest.fn(),
+    showSearchResultMenu: true,
+    toggleShowSearchResultMenu: jest.fn(),
     showAppWindow: false,
     toggleShowAppWindow: jest.fn(),
     showUnmatchedTab: false,
@@ -146,6 +148,7 @@ describe('SettingsDialog', () => {
     const { userStore } = renderSettingsDialog()
 
     fireEvent.click(screen.getByTestId('settings-search-focus'))
+    fireEvent.click(screen.getByTestId('settings-search-result-menu'))
     fireEvent.click(screen.getByTestId('settings-lite-popup-mode'))
     fireEvent.click(screen.getByTestId('settings-increase-contrast'))
     fireEvent.click(
@@ -155,6 +158,7 @@ describe('SettingsDialog', () => {
     )
 
     expect(userStore.toggleAutoFocusSearch).toHaveBeenCalledTimes(1)
+    expect(userStore.toggleShowSearchResultMenu).toHaveBeenCalledTimes(1)
     expect(userStore.toggleLitePopupMode).toHaveBeenCalledTimes(1)
     expect(userStore.toggleIncreaseContrast).toHaveBeenCalledTimes(1)
     expect(

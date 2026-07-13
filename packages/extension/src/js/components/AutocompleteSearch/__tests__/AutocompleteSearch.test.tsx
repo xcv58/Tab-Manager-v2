@@ -99,11 +99,13 @@ const renderAutocompleteSearch = ({
   options = defaultOptions,
   open,
   bottomInset,
+  showResultMenu,
 }: {
   initialQuery?: string
   options?: any[]
   open?: boolean
   bottomInset?: number
+  showResultMenu?: boolean
 } = {}) => {
   const startType = jest.fn()
   const stopType = jest.fn()
@@ -151,6 +153,7 @@ const renderAutocompleteSearch = ({
         <AutocompleteSearch
           {...(open !== undefined ? { open } : {})}
           bottomInset={bottomInset}
+          showResultMenu={showResultMenu}
         />
       </AppThemeContext.Provider>
     )
@@ -184,6 +187,32 @@ describe('AutocompleteSearch', () => {
         'true',
       )
     })
+  })
+
+  it('keeps fuzzy matches while ranking stronger text matches first', async () => {
+    renderAutocompleteSearch({
+      initialQuery: 'abc',
+      open: true,
+      options: [
+        { id: 5, title: 'Archive big context', url: '', groupId: -1 },
+        { id: 4, title: 'Alpha Beta Charlie', url: '', groupId: -1 },
+        { id: 3, title: 'Project abc notes', url: '', groupId: -1 },
+        { id: 2, title: 'abc project', url: '', groupId: -1 },
+        { id: 1, title: 'abc', url: '', groupId: -1 },
+      ],
+    })
+
+    expect(
+      (await screen.findAllByRole('option')).map((option) =>
+        option.textContent?.trim(),
+      ),
+    ).toEqual([
+      'abc',
+      'abc project',
+      'Project abc notes',
+      'Alpha Beta Charlie',
+      'Archive big context',
+    ])
   })
 
   it('clears and dismisses the uncontrolled search field when Escape is pressed', async () => {
@@ -222,6 +251,39 @@ describe('AutocompleteSearch', () => {
       origin: 'search',
       reveal: true,
     })
+  })
+
+  it('hides ordinary tab results when the result menu is disabled', () => {
+    renderAutocompleteSearch({
+      initialQuery: 'tab',
+      open: true,
+      showResultMenu: false,
+    })
+
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(screen.queryByRole('option')).toBeNull()
+  })
+
+  it('keeps command results available when the result menu is disabled', async () => {
+    renderAutocompleteSearch({
+      initialQuery: '>sort',
+      showResultMenu: false,
+      options: [
+        {
+          name: 'Sort tabs',
+          command: jest.fn(),
+        },
+      ],
+    })
+
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+    expect(await screen.findByRole('option')).toHaveTextContent('Sort tabs')
   })
 
   it('uses the same smaller font size for the input text and the search hint', () => {

@@ -210,6 +210,7 @@ describe('UserStore', () => {
     })
 
     expect(settings.autoFitColumns).toBe(false)
+    expect(settings.showSearchResultMenu).toBe(true)
     expect(settings.showUrl).toBe(false)
     expect(settings.uiPreset).toBe('modern')
     expect(settings).not.toHaveProperty('groupByDomain')
