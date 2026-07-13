@@ -7,17 +7,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: release-please-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
       extension_release_created: ${{ steps.release.outputs['packages/extension--release_created'] }}
       extension_tag_name: ${{ steps.release.outputs['packages/extension--tag_name'] }}
@@ -33,28 +35,21 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-  publish-extension:
-    name: Publish Extension
+  build-release:
+    name: Build Release
     needs: release-please
     if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     concurrency:
-      group: publish-extension-${{ needs.release-please.outputs.extension_tag_name }}
+      group: build-release-${{ needs.release-please.outputs.extension_tag_name }}
       cancel-in-progress: false
-    env:
-      EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
-      CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
-      CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
-      WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
-      WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
-      EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
-      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
-      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.extension_tag_name }}
 
       - name: Use Node.js 25
         uses: actions/setup-node@v4
@@ -84,27 +79,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify release credentials
-        shell: bash
-        run: |
-          missing=0
-          for var in \
-            EXTENSION_ID \
-            CHROME_PUBLISHER_ID \
-            CHROME_SERVICE_ACCOUNT_JSON \
-            WEB_EXT_API_KEY \
-            WEB_EXT_API_SECRET \
-            EDGE_PRODUCT_ID \
-            EDGE_CLIENT_ID \
-            EDGE_API_KEY
-          do
-            if [ -z "${!var}" ]; then
-              echo "::error::Missing required secret for ${var}"
-              missing=1
-            fi
-          done
-          exit "$missing"
-
       - name: Install xvfb
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
@@ -118,10 +92,15 @@ jobs:
         run: |
           pnpm run deploy
           pnpm run package:firefox-source
+          cd packages/extension
+          sha256sum \
+            build/build_chrome.zip \
+            build/build_firefox.zip \
+            build/build_firefox_source.zip \
+            > build/SHA256SUMS.txt
 
       - name: Upload packaged extension artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
         with:
           name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
           path: |
@@ -131,16 +110,165 @@ jobs:
             packages/extension/build/SHA256SUMS.txt
           retention-days: 30
 
-      - name: Attach build artifacts to the GitHub release
+  attach-release-assets:
+    name: Attach Release Assets
+    needs: [release-please, build-release]
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download packaged extension artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
+          path: packages/extension/build
+
+      - name: Verify release artifacts
+        working-directory: packages/extension
+        run: sha256sum --check build/SHA256SUMS.txt
+
+      - name: Attach artifacts to the GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload "${{ needs.release-please.outputs.extension_tag_name }}" \
+          gh release upload \
+            "${{ needs.release-please.outputs.extension_tag_name }}" \
             packages/extension/build/build_chrome.zip \
             packages/extension/build/build_firefox.zip \
             packages/extension/build/build_firefox_source.zip \
             packages/extension/build/SHA256SUMS.txt \
-            --clobber
+            --clobber \
+            --repo "${{ github.repository }}"
 
-      - name: Publish to browser stores
-        run: pnpm run publish-extension
+  publish-chrome:
+    name: Publish Chrome
+    needs: [release-please, build-release]
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: chrome-web-store
+    concurrency:
+      group: publish-chrome-${{ needs.release-please.outputs.extension_tag_name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.extension_tag_name }}
+
+      - name: Use Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - name: Download packaged extension artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
+          path: packages/extension/build
+
+      - name: Verify release artifacts
+        working-directory: packages/extension
+        run: sha256sum --check build/SHA256SUMS.txt
+
+      - name: Publish to Chrome Web Store
+        env:
+          EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
+        run: node ./publish_chrome.mjs
+
+  publish-firefox:
+    name: Publish Firefox
+    needs: [release-please, build-release]
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: firefox-amo
+    concurrency:
+      group: publish-firefox-${{ needs.release-please.outputs.extension_tag_name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.extension_tag_name }}
+
+      - name: Use Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download packaged extension artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
+          path: packages/extension/build
+
+      - name: Verify release artifacts
+        working-directory: packages/extension
+        run: sha256sum --check build/SHA256SUMS.txt
+
+      - name: Expand Firefox package
+        run: |
+          mkdir -p packages/extension/build/build_firefox
+          unzip -q \
+            packages/extension/build/build_firefox.zip \
+            -d packages/extension/build/build_firefox
+
+      - name: Submit to Firefox Add-ons
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+        run: pnpm run publish:firefox:sign
+
+  publish-edge:
+    name: Publish Edge
+    needs: [release-please, build-release]
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment: edge-addons
+    concurrency:
+      group: publish-edge-${{ needs.release-please.outputs.extension_tag_name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.extension_tag_name }}
+
+      - name: Use Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - name: Download packaged extension artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
+          path: packages/extension/build
+
+      - name: Verify release artifacts
+        working-directory: packages/extension
+        run: sha256sum --check build/SHA256SUMS.txt
+
+      - name: Publish to Microsoft Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: node ./publish_edge.mjs

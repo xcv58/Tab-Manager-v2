@@ -10,8 +10,10 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
 1. Merge releasable commits such as `fix:` or `feat:` into `master`.
 2. `.github/workflows/release-please.yml` opens or updates one release PR.
 3. Merge the release PR after the Linux CI gate passes.
-4. The same workflow detects that a GitHub Release was created, rebuilds on
-   Ubuntu, uploads release artifacts, and runs `pnpm run publish-extension`.
+4. The same workflow detects that a GitHub Release was created and runs the
+   Linux release gate without browser-store credentials.
+5. That job uploads one checksummed artifact, which independent jobs attach to
+   the GitHub Release and submit to Chrome, Firefox, and Edge.
 
 ## Keeping changes releasable
 
@@ -141,11 +143,25 @@ instructions.
   4. Click `Create API credentials`.
   5. Copy the Client ID and API key into GitHub.
 
+Microsoft's v1.1 API keys are
+[valid for 72 days](https://blogs.windows.com/msedgedev/2025/01/08/enhanced-security-for-extensions-with-publish-api-next-steps/).
+Record the expiry shown in Partner Center and rotate `EDGE_API_KEY` before it
+expires. Keep `EDGE_CLIENT_ID` paired with the credentials shown by Partner
+Center, updating it too if Partner Center issues a new Client ID.
+
 ## Notes
 
 - The publish workflow intentionally reruns on Ubuntu before store submission,
   because popup and snapshot-sensitive UI verification in this repository must
   be trusted on Linux rather than local macOS runs.
+- Browser-store credentials are scoped to their store's final publishing step.
+  Checkout, dependency installation, tests, builds, checksum verification, and
+  the other store jobs cannot read them.
+- Chrome, Firefox, and Edge publish independently from the same immutable
+  artifact. If one store fails, use GitHub Actions' **Re-run failed jobs** to
+  retry only that store without resubmitting successful stores.
+- Configure the `chrome-web-store`, `firefox-amo`, and `edge-addons` GitHub
+  environments with any desired approval or deployment-branch protections.
 - Firefox submission is asynchronous from CI's point of view. A successful
   workflow means the package was submitted, not necessarily that AMO review has
   completed.
