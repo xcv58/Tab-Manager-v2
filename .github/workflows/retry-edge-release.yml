@@ -1,0 +1,84 @@
+name: Retry Edge Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub release tag to submit to Edge
+        required: true
+        default: v2.4.1
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish-edge:
+    name: Publish Edge (${{ inputs.release_tag }})
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: edge-addons
+    concurrency:
+      group: publish-edge-${{ inputs.release_tag }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout trusted publisher
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Use Node.js 24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Validate published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tag must use the vMAJOR.MINOR.PATCH format"
+            exit 1
+          fi
+
+          release_state="$(gh release view "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json tagName,isDraft,isPrerelease \
+            --jq '[.tagName, .isDraft, .isPrerelease] | @tsv')"
+          IFS=$'\t' read -r actual_tag is_draft is_prerelease <<< "$release_state"
+
+          if [[ "$actual_tag" != "$RELEASE_TAG" || \
+                "$is_draft" != "false" || \
+                "$is_prerelease" != "false" ]]; then
+            echo "::error::Release must be a published, non-prerelease GitHub Release"
+            exit 1
+          fi
+
+      - name: Download Chrome package from the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          mkdir -p packages/extension/build
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern build_chrome.zip \
+            --pattern SHA256SUMS.txt \
+            --dir packages/extension/build
+
+      - name: Verify Chrome package checksum
+        working-directory: packages/extension
+        run: |
+          grep -E '  build/build_chrome\.zip$' build/SHA256SUMS.txt \
+            | sha256sum --check -
+
+      - name: Publish to Microsoft Edge Add-ons
+        env:
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_SUBMISSION_NOTES: Retry GitHub release ${{ inputs.release_tag }}
+        run: node ./publish_edge.mjs
