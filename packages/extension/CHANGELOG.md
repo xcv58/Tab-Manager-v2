@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.4.0...v2.4.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* improve layout, drag, and search behavior ([#2638](https://github.com/xcv58/Tab-Manager-v2/issues/2638)) ([8a606b3](https://github.com/xcv58/Tab-Manager-v2/commit/8a606b3faf3e8be4ca37923c3cf63f1133bddf54))
+
 ## [2.4.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.3.0...v2.4.0) (2026-07-07)
 
 
