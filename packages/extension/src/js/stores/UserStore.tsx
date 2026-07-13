@@ -34,6 +34,7 @@ const DEFAULT_SETTINGS = {
   showTabTooltip: true,
   preserveSearch: true,
   searchHistory: true,
+  showSearchResultMenu: true,
   showUrl: true,
   autoFocusSearch: false,
   ignoreHash: false,
@@ -104,6 +105,7 @@ export default class UserStore {
       showTabTooltip: observable,
       preserveSearch: observable,
       searchHistory: observable,
+      showSearchResultMenu: observable,
       showUrl: observable,
       autoFocusSearch: observable,
       dialogOpen: observable,
@@ -133,6 +135,7 @@ export default class UserStore {
       toggleShowTabTooltip: action,
       togglePreserveSearch: action,
       toggleSearchHistory: action,
+      toggleShowSearchResultMenu: action,
       toggleShowUnmatchedTab: action,
       toggleAutoFitColumns: action,
       toggleAutoFocusSearch: action,
@@ -257,6 +260,7 @@ export default class UserStore {
   showTabTooltip = true
   preserveSearch = true
   searchHistory = true
+  showSearchResultMenu = true
   showUrl = true
   autoFocusSearch = false
   useSystemTheme = true
@@ -398,6 +402,11 @@ export default class UserStore {
 
   toggleSearchHistory = () => {
     this.searchHistory = !this.searchHistory
+    this.save()
+  }
+
+  toggleShowSearchResultMenu = () => {
+    this.showSearchResultMenu = !this.showSearchResultMenu
     this.save()
   }
 

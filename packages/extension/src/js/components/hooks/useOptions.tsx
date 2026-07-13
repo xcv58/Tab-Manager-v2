@@ -1,7 +1,10 @@
 import { useStore } from 'components/hooks/useStore'
 
-export const useOptions = () => {
+export const useOptions = (enabled = true) => {
   const { windowStore, shortcutStore, searchStore } = useStore()
+  if (!enabled) {
+    return []
+  }
   if (searchStore.isCommand) {
     const { shortcuts } = shortcutStore
     return shortcuts

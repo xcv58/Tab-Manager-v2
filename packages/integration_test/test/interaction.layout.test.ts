@@ -88,6 +88,33 @@ const getRenderedWindowColumnCount = async (page: Page) => {
   return await page.locator('[data-testid^="window-column-"]').count()
 }
 
+const getRenderedWindowColumnRects = async (page: Page) => {
+  return page.evaluate(() =>
+    Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid^="window-column-"]'),
+    )
+      .map((column) => {
+        const rect = column.getBoundingClientRect()
+        return {
+          left: rect.left,
+          right: rect.right,
+          width: rect.width,
+        }
+      })
+      .sort((left, right) => left.left - right.left),
+  )
+}
+
+const expectRenderedColumnsNotToOverlap = async (page: Page) => {
+  const columnRects = await getRenderedWindowColumnRects(page)
+  expect(columnRects.length).toBeGreaterThan(1)
+  for (let index = 0; index < columnRects.length - 1; index += 1) {
+    expect(columnRects[index].right).toBeLessThanOrEqual(
+      columnRects[index + 1].left + 1,
+    )
+  }
+}
+
 const getRenderedWindowOrder = async (page: Page) => {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-testid^="window-column-"]'))
@@ -722,5 +749,44 @@ test.describe('The Extension page should', () => {
 
     const metrics = await getScrollContainerMetrics(page)
     expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+  })
+
+  test('large saved font size does not overlap auto-fit columns', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+
+    await setupAutoFitColumnsScenario(page, {
+      fontSize: 28,
+    })
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBe(2)
+    await expectRenderedColumnsNotToOverlap(page)
+
+    const metrics = await getScrollContainerMetrics(page)
+    expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1)
+  })
+
+  test('large saved font size uses horizontal scrolling instead of overlapping columns', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+
+    await setupAutoFitColumnsScenario(page, {
+      autoFitColumns: false,
+      fontSize: 28,
+    })
+
+    await expect
+      .poll(() => getRenderedWindowColumnCount(page), { timeout: 5000 })
+      .toBeGreaterThanOrEqual(4)
+    await expectRenderedColumnsNotToOverlap(page)
+
+    const metrics = await getScrollContainerMetrics(page)
+    expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
   })
 })

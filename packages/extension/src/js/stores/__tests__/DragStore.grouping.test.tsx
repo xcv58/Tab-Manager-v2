@@ -65,6 +65,7 @@ describe('DragStore with tab groups', () => {
     const tab = {
       id: 1,
       groupId: 10,
+      windowId: 7,
       select: jest.fn(),
       unhover: jest.fn(),
     }
@@ -74,14 +75,19 @@ describe('DragStore with tab groups', () => {
     expect(tab.unhover).toHaveBeenCalled()
     expect(selected.size).toBe(1)
     expect(selected.has(1)).toBe(true)
+    expect(dragStore.dragOriginWindowId).toBe(7)
     expect(getTabsForGroup).not.toHaveBeenCalled()
+
+    dragStore.dragEnd()
+
+    expect(dragStore.dragOriginWindowId).toBeNull()
   })
 
   it('dragStartGroup should select full group block', () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map([[99, { id: 99 }]])
-    const tab1 = { id: 1, groupId: 10, index: 1 }
-    const tab2 = { id: 2, groupId: 10, index: 2 }
+    const tab1 = { id: 1, groupId: 10, index: 1, windowId: 8 }
+    const tab2 = { id: 2, groupId: 10, index: 2, windowId: 8 }
     const tabStore = setupTabStore(selection)
     const dragStore = new DragStore({
       tabStore,
@@ -100,6 +106,7 @@ describe('DragStore with tab groups', () => {
     expect(selected.size).toBe(2)
     expect(selected.has(1)).toBe(true)
     expect(selected.has(2)).toBe(true)
+    expect(dragStore.dragOriginWindowId).toBe(8)
   })
 
   it('drop into grouped target should preserve before/after placement', async () => {

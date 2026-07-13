@@ -11,7 +11,11 @@ import AutocompleteSearch from './AutocompleteSearch'
 import LayoutRepackIndicator from './LayoutRepackIndicator'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
-export default observer(() => {
+type Props = {
+  showSearchResultMenu: boolean
+}
+
+export default observer(({ showSearchResultMenu }: Props) => {
   const { userStore } = useStore()
   const theme = useAppTheme()
   const uiColors = getUiColorTokens(
@@ -38,7 +42,7 @@ export default observer(() => {
     >
       <Summary />
       <LayoutRepackIndicator />
-      <AutocompleteSearch />
+      <AutocompleteSearch showResultMenu={showSearchResultMenu} />
       <SyncButton />
       <ThemeToggle />
       <OpenInTab />

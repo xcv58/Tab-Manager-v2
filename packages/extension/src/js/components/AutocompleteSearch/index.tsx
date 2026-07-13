@@ -261,7 +261,12 @@ const renderCommand = (
   )
 }
 
-type Props = { autoFocus?: boolean; open?: boolean; bottomInset?: number }
+type Props = {
+  autoFocus?: boolean
+  open?: boolean
+  bottomInset?: number
+  showResultMenu?: boolean
+}
 
 const LISTBOX_PADDING = 8
 
@@ -291,12 +296,18 @@ export const getAutocompleteListHeight = ({
 }
 
 const AutocompleteSearch = observer((props: Props) => {
-  const { autoFocus, open: propOpen, bottomInset = 0 } = props
+  const {
+    autoFocus,
+    open: propOpen,
+    bottomInset = 0,
+    showResultMenu = true,
+  } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const options = useOptions()
   const { userStore, searchStore, tabGroupStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
+  const resultMenuEnabled = showResultMenu || isCommand
+  const options = useOptions(resultMenuEnabled)
   const tabHeight = useTabHeight()
   const rootRef = useRef<HTMLDivElement>(null)
   const isOpenControlled = propOpen !== undefined
@@ -307,14 +318,15 @@ const AutocompleteSearch = observer((props: Props) => {
   const [availableListHeight, setAvailableListHeight] = useState<number>(
     Number.POSITIVE_INFINITY,
   )
-  const isOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
+  const requestedOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
+  const isOpen = resultMenuEnabled && (requestedOpen || isCommand)
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
-      if (!isOpenControlled) {
+      if (!isOpenControlled && (!nextOpen || resultMenuEnabled)) {
         setUncontrolledIsOpen(nextOpen)
       }
     },
-    [isOpenControlled],
+    [isOpenControlled, resultMenuEnabled],
   )
 
   const groupedSectionTabIdsRef = useRef(new Set())
@@ -330,8 +342,11 @@ const AutocompleteSearch = observer((props: Props) => {
   )
 
   const filteredOptions = useMemo(() => {
+    if (!resultMenuEnabled) {
+      return []
+    }
     return filterOptions(options, { inputValue: query })
-  }, [options, query, filterOptions])
+  }, [options, query, filterOptions, resultMenuEnabled])
 
   const itemCount = filteredOptions.length
 

@@ -208,6 +208,17 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.totalContentWidth).toBeLessThanOrEqual(windowStore.width)
   })
 
+  it('derives minimum column width from the saved font size', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.tabWidth = 28
+    windowStore.store.userStore.fontSize = 28
+    document.documentElement.style.fontSize = '14px'
+
+    expect(windowStore.minColumnWidthPx).toBe(784)
+
+    document.documentElement.style.fontSize = ''
+  })
+
   it('auto-fit mode reduces columns when minimum tab width increases', () => {
     const windowStore = createWindowStore()
     windowStore.height = 1000
@@ -269,8 +280,8 @@ describe('WindowStore layout policy', () => {
       windowStore.visibleWindows,
     )
 
-    expect(columnCount).toBe(4)
-    expect(layout).toEqual([[1, 5], [2, 6], [3], [4]])
+    expect(columnCount).toBe(5)
+    expect(layout).toEqual([[1, 6], [2], [3], [4], [5]])
   })
 
   it('keeps last-used window order disabled by default', () => {
@@ -573,12 +584,30 @@ describe('WindowStore layout policy', () => {
     windowStore.updateScroll(0, 0)
     expect(
       windowStore.renderedColumnLayouts.map((column) => column.columnIndex),
-    ).toEqual([0, 1])
+    ).toEqual([0, 1, 2])
 
     windowStore.updateScroll(0, 640)
     expect(
       windowStore.renderedColumnLayouts.map((column) => column.columnIndex),
     ).toEqual([1, 2, 3])
+  })
+
+  it('keeps only the drag origin column pinned outside the horizontal viewport', () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 200
+    windowStore.width = 320
+    setVisibleLengths(windowStore, [4, 4, 4, 4])
+    windowStore.store.dragStore = {
+      dragging: true,
+      dragOriginWindowId: 1,
+    }
+
+    windowStore.repackLayout('manual')
+    windowStore.updateScroll(0, 960)
+
+    expect(
+      windowStore.renderedColumnLayouts.map((column) => column.columnIndex),
+    ).toEqual([0, 2, 3])
   })
 
   it('calculates visible row ranges for oversized windows', () => {
@@ -605,6 +634,45 @@ describe('WindowStore layout policy', () => {
     windowStore.repackLayout('manual')
 
     expect(windowStore.getVisibleRowRange(win)).toEqual({
+      start: 4,
+      end: 18,
+    })
+  })
+
+  it('keeps all rows mounted only for the drag origin window', () => {
+    const windowStore = createWindowStore()
+    const makeWindow = (windowId: number) =>
+      new Window(
+        {
+          id: windowId,
+          tabs: Array.from({ length: 20 }, (_, index) => ({
+            id: windowId * 100 + index,
+            index,
+            windowId,
+            title: `Tab ${windowId}-${index}`,
+            url: `https://example.com/${windowId}/${index}`,
+            groupId: -1,
+          })),
+        },
+        windowStore.store as any,
+      )
+    const sourceWindow = makeWindow(1)
+    const targetWindow = makeWindow(2)
+    windowStore.height = 200
+    windowStore.width = 320
+    windowStore.scrollTop = 400
+    windowStore.windows = [sourceWindow, targetWindow]
+    windowStore.store.dragStore = {
+      dragging: true,
+      dragOriginWindowId: sourceWindow.id,
+    }
+    windowStore.repackLayout('manual')
+
+    expect(windowStore.getVisibleRowRange(sourceWindow)).toEqual({
+      start: 0,
+      end: 20,
+    })
+    expect(windowStore.getVisibleRowRange(targetWindow)).toEqual({
       start: 4,
       end: 18,
     })

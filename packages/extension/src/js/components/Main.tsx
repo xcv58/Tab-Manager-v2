@@ -60,7 +60,9 @@ export default observer(() => {
         <PopupView />
       ) : (
         <>
-          <DroppableTools />
+          <DroppableTools
+            showSearchResultMenu={isPopup || userStore.showSearchResultMenu}
+          />
           <WinList />
           <Toolbar />
           <DragLayer />
