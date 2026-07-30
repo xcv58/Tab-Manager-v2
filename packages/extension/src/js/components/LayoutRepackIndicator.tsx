@@ -6,7 +6,7 @@ import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 import { useAppTheme } from 'libs/appTheme'
 
-const TITLE = 'Refresh layout'
+const TITLE = 'Relayout columns'
 
 export default observer(() => {
   const { windowStore } = useStore()

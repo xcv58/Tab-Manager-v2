@@ -1,4 +1,4 @@
-import { Page, ChromiumBrowserContext } from 'playwright'
+import { Locator, Page, ChromiumBrowserContext } from 'playwright'
 import { test, expect } from '@playwright/test'
 import {
   CLOSE_PAGES,
@@ -223,6 +223,222 @@ const captureWindowListSnapshot = async () => {
   return page.getByTestId('window-list-scroll-container').screenshot({
     animations: 'disabled',
   })
+}
+
+const EMPTY_COLUMN_WINDOW_URLS = Array.from({ length: 10 }, (_, windowIndex) =>
+  Array.from({ length: 6 }, (_, tabIndex) =>
+    getWindowOrderSnapshotUrl(
+      `Workspace ${String(windowIndex + 1).padStart(2, '0')} - Tab ${
+        tabIndex + 1
+      }`,
+    ),
+  ),
+)
+
+const LEFTMOST_EMPTY_COLUMN_WINDOW_URLS = [
+  Array.from({ length: 18 }, (_, tabIndex) =>
+    getWindowOrderSnapshotUrl(`Leftmost Window - Tab ${tabIndex + 1}`),
+  ),
+  ...EMPTY_COLUMN_WINDOW_URLS.slice(0, 6),
+]
+
+const setupEmptyColumnRelayoutVisualScenario = async (
+  emptyColumnPattern: 'adjacent' | 'separated' = 'adjacent',
+) => {
+  await page.setViewportSize({
+    width: 1280,
+    height: 720,
+  })
+  await writeExtensionSettings(page, {
+    autoFitColumns: false,
+    darkTheme: false,
+    tabWidth: 20,
+    useSystemTheme: false,
+  })
+  const createdWindowIds = await createWindowsWithTabs(
+    page,
+    EMPTY_COLUMN_WINDOW_URLS,
+  )
+  await page.reload()
+  await page.waitForLoadState('domcontentloaded')
+  await waitForTestId(page, `window-card-${createdWindowIds[0]}`)
+  await waitForMainSurfaceToSettle(page)
+
+  const createdWindowIdsByColumn = await page.evaluate((windowIds) => {
+    const createdWindowIdSet = new Set(windowIds)
+    return Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid^="window-column-"]'),
+    )
+      .map((column) =>
+        Array.from(
+          column.querySelectorAll<HTMLElement>('[data-testid^="window-card-"]'),
+        )
+          .map((card) =>
+            Number((card.dataset.testid || '').replace('window-card-', '')),
+          )
+          .filter((windowId) => createdWindowIdSet.has(windowId)),
+      )
+      .filter((windowIdsInColumn) => windowIdsInColumn.length > 0)
+  }, createdWindowIds)
+  expect(createdWindowIdsByColumn.length).toBeGreaterThanOrEqual(
+    emptyColumnPattern === 'separated' ? 4 : 3,
+  )
+
+  const removedColumnWindowIds =
+    emptyColumnPattern === 'separated'
+      ? [
+          createdWindowIdsByColumn.at(-3) || [],
+          createdWindowIdsByColumn.at(-1) || [],
+        ]
+      : createdWindowIdsByColumn.slice(-2)
+  const separatingWindowId =
+    emptyColumnPattern === 'separated'
+      ? createdWindowIdsByColumn.at(-2)?.[0] || null
+      : null
+  const removedWindowIds = removedColumnWindowIds.flat()
+  await page.evaluate(async (windowIds) => {
+    for (const windowId of windowIds) {
+      await chrome.windows.remove(windowId)
+    }
+  }, removedWindowIds)
+  for (const windowId of removedWindowIds) {
+    await expect(page.getByTestId(`window-card-${windowId}`)).toBeHidden()
+  }
+
+  const relayoutActions = page.locator(
+    'button[data-testid^="empty-column-relayout-"]',
+  )
+  await expect(relayoutActions).toHaveCount(
+    emptyColumnPattern === 'separated' ? 2 : 1,
+  )
+  for (const relayoutAction of await relayoutActions.all()) {
+    await expect(relayoutAction).toHaveAccessibleName('Relayout columns')
+    await expect(relayoutAction).toContainText('Relayout all columns')
+    await expect(relayoutAction).toContainText(
+      emptyColumnPattern === 'separated' ? 'Empty column' : '2 empty columns',
+    )
+  }
+  await expect(page.getByTestId('layout-repack-button')).toBeVisible()
+  const scrollContainer = page.getByTestId('window-list-scroll-container')
+  const relayoutLeft = await relayoutActions
+    .first()
+    .evaluate((node) => (node as HTMLElement).offsetLeft)
+  expect(relayoutLeft).toBeGreaterThan(0)
+  await scrollContainer.evaluate((node, actionLeft) => {
+    node.scrollTo({
+      left: Math.max(actionLeft - node.clientWidth / 4, 0),
+      top: 0,
+    })
+  }, relayoutLeft)
+  await expect
+    .poll(() => scrollContainer.evaluate((node) => node.scrollLeft))
+    .toBeGreaterThan(0)
+  await expect(relayoutActions.first()).toBeInViewport({ ratio: 0.95 })
+  await expect(relayoutActions.last()).toBeInViewport({ ratio: 0.95 })
+  await waitForMainSurfaceToSettle(page)
+
+  return {
+    relayoutActions,
+    separatingWindowId,
+  }
+}
+
+const setupLeftmostEmptyColumnVisualScenario = async () => {
+  await page.setViewportSize({
+    width: 1280,
+    height: 720,
+  })
+  await writeExtensionSettings(page, {
+    autoFitColumns: false,
+    darkTheme: false,
+    tabWidth: 20,
+    useSystemTheme: false,
+    windowOrder: 'default',
+  })
+  const createdWindowIds = await createWindowsWithTabs(
+    page,
+    LEFTMOST_EMPTY_COLUMN_WINDOW_URLS,
+  )
+  const targetWindowId = createdWindowIds[0]
+  await page.evaluate(
+    async ({ targetWindowId, timestamp }) => {
+      await chrome.storage.local.set({
+        windowLastUsedAt: {
+          [String(targetWindowId)]: timestamp,
+        },
+      })
+    },
+    {
+      targetWindowId,
+      timestamp: getTestLastUsedTimestamp(),
+    },
+  )
+
+  await page.reload()
+  await page.waitForLoadState('domcontentloaded')
+  await waitForTestId(page, `window-card-${targetWindowId}`)
+  await waitForMainSurfaceToSettle(page)
+  await enableLastUsedWindowOrderThroughSettings(page)
+  await waitForMainSurfaceToSettle(page)
+
+  const firstColumn = page.getByTestId('window-column-0')
+  await expect(
+    firstColumn.getByTestId(`window-card-${targetWindowId}`),
+  ).toBeVisible()
+  await expect(
+    firstColumn.locator('[data-testid^="window-card-"]'),
+  ).toHaveCount(1)
+
+  await page.evaluate(
+    async (windowId) => chrome.windows.remove(windowId),
+    targetWindowId,
+  )
+  await expect(page.getByTestId(`window-card-${targetWindowId}`)).toBeHidden()
+
+  const relayoutAction = page.locator(
+    'button[data-empty-column-start="0"][data-testid^="empty-column-relayout-"]',
+  )
+  await expect(relayoutAction).toHaveCount(1)
+  await expect(relayoutAction).toHaveAccessibleName('Relayout columns')
+  await expect(relayoutAction).toContainText('Empty column')
+  await expect(relayoutAction).toContainText('Relayout all columns')
+  await expect(relayoutAction).toBeInViewport({ ratio: 0.95 })
+
+  const scrollContainer = page.getByTestId('window-list-scroll-container')
+  const [relayoutRect, scrollRect] = await Promise.all([
+    relayoutAction.boundingBox(),
+    scrollContainer.boundingBox(),
+  ])
+  expect(relayoutRect).not.toBeNull()
+  expect(scrollRect).not.toBeNull()
+  expect(
+    Math.abs((relayoutRect?.x || 0) - (scrollRect?.x || 0)),
+  ).toBeLessThanOrEqual(5)
+  await expect(page.getByTestId('layout-repack-button')).toBeVisible()
+  await page.mouse.move(640, 20)
+  await page.evaluate(() => {
+    const activeElement = document.activeElement
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur()
+    }
+  })
+  await expect(page.locator('[role="tooltip"]')).toBeHidden()
+  await waitForMainSurfaceToSettle(page)
+
+  return relayoutAction
+}
+
+const focusRelayoutActionWithKeyboard = async (relayoutAction: Locator) => {
+  const nextToolbarAction = page.locator('button[aria-label="Settings"]').last()
+  await expect(nextToolbarAction).toBeVisible()
+  await nextToolbarAction.focus()
+  await page.keyboard.press('Shift+Tab')
+  await expect(relayoutAction).toBeFocused()
+  await expect
+    .poll(() =>
+      relayoutAction.evaluate((node) => node.matches(':focus-visible')),
+    )
+    .toBe(true)
 }
 
 const setupAutoFitColumnsScenario = async (
@@ -562,6 +778,124 @@ test.describe('The Extension page should', () => {
         { timeout: 2200 },
       )
       .toBeGreaterThan(4)
+  })
+
+  test('empty columns offer one polished manual relayout action', async () => {
+    const { relayoutActions } =
+      await setupEmptyColumnRelayoutVisualScenario('adjacent')
+    const relayoutAction = relayoutActions.first()
+
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'empty-columns-relayout-light-rest.png',
+      matchImageSnapshotOptions,
+    )
+
+    await relayoutAction.hover()
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'empty-columns-relayout-light-hover.png',
+      matchImageSnapshotOptions,
+    )
+
+    await focusRelayoutActionWithKeyboard(relayoutAction)
+    await expect(relayoutAction).toBeInViewport({ ratio: 0.95 })
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'empty-columns-relayout-light-focus.png',
+      matchImageSnapshotOptions,
+    )
+
+    await page.locator('[aria-label="Toggle light/dark theme"]').first().click()
+    await page.waitForTimeout(600)
+    await page.mouse.move(640, 20)
+    await page.evaluate(() => {
+      const activeElement = document.activeElement
+      if (activeElement instanceof HTMLElement) {
+        activeElement.blur()
+      }
+    })
+    await expect(page.locator('[role="tooltip"]')).toBeHidden()
+    await expect(relayoutAction).toBeInViewport({ ratio: 0.95 })
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'empty-columns-relayout-dark-rest.png',
+      matchImageSnapshotOptions,
+    )
+
+    await focusRelayoutActionWithKeyboard(relayoutAction)
+    await expect(relayoutAction).toBeInViewport({ ratio: 0.95 })
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'empty-columns-relayout-dark-focus.png',
+      matchImageSnapshotOptions,
+    )
+
+    await relayoutAction.click()
+    await expect(relayoutAction).toBeHidden()
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+  })
+
+  test('separate empty columns offer distinct surfaces for one global relayout', async () => {
+    const { relayoutActions, separatingWindowId } =
+      await setupEmptyColumnRelayoutVisualScenario('separated')
+    expect(separatingWindowId).not.toBeNull()
+
+    const separatingColumnRect = await page
+      .getByTestId(`window-card-${separatingWindowId}`)
+      .evaluate((node) => {
+        const column = node.closest<HTMLElement>(
+          '[data-testid^="window-column-"]',
+        )
+        if (!column) {
+          return null
+        }
+        const rect = column.getBoundingClientRect()
+        return {
+          left: rect.left,
+          right: rect.right,
+        }
+      })
+    expect(separatingColumnRect).not.toBeNull()
+    const relayoutRects = await relayoutActions.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect()
+        return {
+          left: rect.left,
+          right: rect.right,
+        }
+      }),
+    )
+    for (const relayoutRect of relayoutRects) {
+      expect(
+        relayoutRect.right <= (separatingColumnRect?.left || 0) + 1 ||
+          relayoutRect.left >= (separatingColumnRect?.right || 0) - 1,
+      ).toBe(true)
+    }
+
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'separate-empty-columns-relayout-light-rest.png',
+      matchImageSnapshotOptions,
+    )
+
+    await relayoutActions.last().click()
+    await expect(relayoutActions).toHaveCount(0)
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+  })
+
+  test('a leftmost empty column keeps the relayout action clear at the edge', async () => {
+    const relayoutAction = await setupLeftmostEmptyColumnVisualScenario()
+
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'leftmost-empty-column-relayout-light-rest.png',
+      matchImageSnapshotOptions,
+    )
+
+    await focusRelayoutActionWithKeyboard(relayoutAction)
+    await expect(relayoutAction).toBeInViewport({ ratio: 0.95 })
+    expect(await page.screenshot({ animations: 'disabled' })).toMatchSnapshot(
+      'leftmost-empty-column-relayout-light-focus.png',
+      matchImageSnapshotOptions,
+    )
+
+    await relayoutAction.click()
+    await expect(relayoutAction).toBeHidden()
+    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
   })
 
   test('window order setting promotes last-used windows only when enabled', async () => {

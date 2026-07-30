@@ -678,18 +678,23 @@ describe('WindowStore layout policy', () => {
     })
   })
 
-  it('clearWindow repacks immediately when removed window is the only one in its column', () => {
+  it('clearWindow keeps an empty sole-window column dirty until relayout', () => {
     const windowStore = createWindowStore()
     windowStore.height = 350
     setVisibleLengths(windowStore, [4, 4, 4])
     windowStore.repackLayout('manual')
 
-    windowStore.windows.find((win) => win.id === 3)!.tabs = [] as any
+    const removedWindow = windowStore.windows.find((win) => win.id === 3)!
+    Object.defineProperty(removedWindow, 'visibleLength', {
+      configurable: true,
+      get: () => (removedWindow.tabs.length ? 4 : 0),
+    })
+    removedWindow.tabs = [] as any
     const result = windowStore.clearWindow()
 
-    expect(result.repacked).toBe(true)
-    expect(windowStore.layoutDirty).toBe(false)
-    expect(windowStore.columnLayout).toEqual([[1, 2]])
+    expect(result.repacked).toBe(false)
+    expect(windowStore.layoutDirty).toBe(true)
+    expect(windowStore.columnLayout).toEqual([[1, 2], [3]])
   })
 
   it('clearWindow only marks dirty when removed window shares a rendered column', () => {

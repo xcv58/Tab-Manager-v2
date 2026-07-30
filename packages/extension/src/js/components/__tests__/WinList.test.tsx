@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { StoreContext } from 'components/hooks/useStore'
 import WinList from '../WinList'
 
@@ -38,6 +38,7 @@ describe('WinList', () => {
               left: 0,
               width: 320,
               height: 120,
+              windows: [{ windowId: 1 }],
               renderedWindows: [
                 {
                   windowId: 1,
@@ -143,6 +144,7 @@ describe('WinList', () => {
               left: 0,
               width: 320,
               height: 120,
+              windows: [{ windowId: 1 }],
               renderedWindows: [
                 {
                   windowId: 1,
@@ -219,6 +221,7 @@ describe('WinList', () => {
                   left: 0,
                   width: 320,
                   height: 120,
+                  windows: [{ windowId: 1 }],
                   renderedWindows: [
                     {
                       windowId: 1,
@@ -254,4 +257,216 @@ describe('WinList', () => {
     clientHeightSpy.mockRestore()
     clientWidthSpy.mockRestore()
   })
+
+  it('offers the entire empty column as a relayout action when layout is dirty', () => {
+    const repackLayoutAndRevealActiveTab = jest.fn()
+    const store = {
+      windowStore: {
+        initialLoading: false,
+        updateViewport: jest.fn(),
+        updateScroll: jest.fn(),
+        visibleWindows: [{ id: 1 }],
+        renderedColumnLayouts: [
+          {
+            columnIndex: 0,
+            left: 0,
+            right: 320,
+            width: 320,
+            height: 120,
+            windows: [{ windowId: 1 }],
+            renderedWindows: [{ windowId: 1, top: 0 }],
+          },
+          {
+            columnIndex: 1,
+            left: 320,
+            right: 640,
+            width: 320,
+            height: 0,
+            windows: [],
+            renderedWindows: [],
+          },
+        ],
+        totalContentWidth: 640,
+        totalContentHeight: 420,
+        height: 420,
+        scrollTop: 0,
+        layoutDirty: true,
+        repackLayoutAndRevealActiveTab,
+      },
+      userStore: {
+        tabWidth: 20,
+        toolbarAutoHide: false,
+        autoFitColumns: false,
+      },
+      dragStore: {
+        dragging: false,
+      },
+      searchStore: {
+        _query: '',
+      },
+      focusStore: {
+        setContainerRef: jest.fn(),
+      },
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const relayout = screen.getByRole('button', {
+      name: 'Relayout columns',
+    })
+    expect(relayout).toHaveTextContent('Empty column')
+    expect(relayout).toHaveTextContent('Relayout all columns')
+    expect(screen.getByTestId('empty-column-relayout-card-1')).toBeVisible()
+    expect(screen.getByTestId('window-column-1')).toHaveStyle({
+      height: '420px',
+    })
+
+    fireEvent.click(relayout)
+
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledTimes(1)
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledWith('mouse')
+  })
+
+  it('combines adjacent empty columns into one relayout action', () => {
+    const store = {
+      windowStore: {
+        initialLoading: false,
+        updateViewport: jest.fn(),
+        updateScroll: jest.fn(),
+        visibleWindows: [{ id: 1 }],
+        renderedColumnLayouts: [
+          {
+            columnIndex: 0,
+            left: 0,
+            right: 320,
+            width: 320,
+            height: 120,
+            windows: [{ windowId: 1 }],
+            renderedWindows: [{ windowId: 1, top: 0 }],
+          },
+          {
+            columnIndex: 1,
+            left: 320,
+            right: 640,
+            width: 320,
+            height: 0,
+            windows: [],
+            renderedWindows: [],
+          },
+          {
+            columnIndex: 2,
+            left: 640,
+            right: 960,
+            width: 320,
+            height: 0,
+            windows: [],
+            renderedWindows: [],
+          },
+        ],
+        totalContentWidth: 960,
+        totalContentHeight: 420,
+        height: 420,
+        scrollTop: 0,
+        layoutDirty: true,
+        repackLayoutAndRevealActiveTab: jest.fn(),
+      },
+      userStore: {
+        tabWidth: 20,
+        toolbarAutoHide: false,
+        autoFitColumns: false,
+      },
+      dragStore: {
+        dragging: false,
+      },
+      searchStore: {
+        _query: '',
+      },
+      focusStore: {
+        setContainerRef: jest.fn(),
+      },
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const relayoutActions = screen.getAllByRole('button', {
+      name: 'Relayout columns',
+    })
+    expect(relayoutActions).toHaveLength(1)
+    expect(relayoutActions[0]).toHaveTextContent('2 empty columns')
+    expect(relayoutActions[0]).toHaveTextContent('Relayout all columns')
+    expect(relayoutActions[0]).toHaveStyle({
+      left: '320px',
+      width: '640px',
+    })
+    expect(relayoutActions[0]).toHaveAttribute('data-empty-column-start', '1')
+    expect(relayoutActions[0]).toHaveAttribute('data-empty-column-end', '2')
+  })
+
+  it.each([
+    ['clean layout', false, false, ''],
+    ['active drag', true, true, ''],
+    ['active search', true, false, 'docs'],
+  ])(
+    'does not offer empty-column relayout for %s',
+    (_, layoutDirty, dragging, query) => {
+      render(
+        <StoreContext.Provider
+          value={
+            {
+              windowStore: {
+                initialLoading: false,
+                updateViewport: jest.fn(),
+                updateScroll: jest.fn(),
+                visibleWindows: [{ id: 1 }],
+                renderedColumnLayouts: [
+                  {
+                    columnIndex: 0,
+                    left: 0,
+                    width: 320,
+                    height: 0,
+                    windows: [],
+                    renderedWindows: [],
+                  },
+                ],
+                totalContentWidth: 320,
+                totalContentHeight: 420,
+                height: 420,
+                scrollTop: 0,
+                layoutDirty,
+                repackLayoutAndRevealActiveTab: jest.fn(),
+              },
+              userStore: {
+                tabWidth: 20,
+                toolbarAutoHide: false,
+                autoFitColumns: false,
+              },
+              dragStore: {
+                dragging,
+              },
+              searchStore: {
+                _query: query,
+              },
+              focusStore: {
+                setContainerRef: jest.fn(),
+              },
+            } as any
+          }
+        >
+          <WinList />
+        </StoreContext.Provider>,
+      )
+
+      expect(
+        screen.queryByRole('button', { name: 'Relayout columns' }),
+      ).toBeNull()
+    },
+  )
 })
