@@ -1882,10 +1882,14 @@ export default class WindowsStore {
       this.windowLastUsedLayoutDirty = false
       this.repackLayout('manual')
     }
-    this.focusActiveTabInLastFocusedWindow({
+    const focusedActiveTab = this.focusActiveTabInLastFocusedWindow({
       origin,
       reveal: true,
     })
+    if (!focusedActiveTab && origin === 'keyboard') {
+      this.store.searchStore?.focus?.()
+    }
+    return focusedActiveTab
   }
 
   loadAllWindows = async (options: LoadAllWindowsOptions = {}) => {

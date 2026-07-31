@@ -115,6 +115,7 @@ const createWindowStore = () => {
     searchStore: {
       matchedSet: new Set(),
       _query: '',
+      focus: jest.fn(),
     },
     tabGroupStore: {
       hasTabGroupsApi: () => false,
@@ -980,8 +981,9 @@ describe('WindowStore layout policy', () => {
     windowStore.windows = [win]
     windowStore.lastFocusedWindowId = 1
 
-    windowStore.repackLayoutAndRevealActiveTab('mouse')
+    const focused = windowStore.repackLayoutAndRevealActiveTab('mouse')
 
+    expect(focused).toBe(true)
     expect(focus).toHaveBeenCalledWith(
       expect.objectContaining({ id: 11 }),
       expect.objectContaining({
@@ -989,6 +991,16 @@ describe('WindowStore layout policy', () => {
         reveal: true,
       }),
     )
+  })
+
+  it('repackLayoutAndRevealActiveTab returns keyboard focus to search when no active tab survives', () => {
+    const windowStore = createWindowStore()
+    const searchFocus = (windowStore.store as any).searchStore.focus
+
+    const focused = windowStore.repackLayoutAndRevealActiveTab('keyboard')
+
+    expect(focused).toBe(false)
+    expect(searchFocus).toHaveBeenCalledTimes(1)
   })
 
   it('suppresses duplicate lifecycle triggers in the same family', () => {

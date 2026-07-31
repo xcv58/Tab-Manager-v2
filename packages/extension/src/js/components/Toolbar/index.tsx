@@ -29,6 +29,7 @@ export default observer(() => {
         position: 'fixed',
         bottom: 0,
         right: 0,
+        zIndex: 20,
         alignItems: 'stretch',
         overflow: 'hidden',
         backgroundColor: uiColors.toolbarShellBackground,

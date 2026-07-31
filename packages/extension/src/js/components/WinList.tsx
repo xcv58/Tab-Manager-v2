@@ -9,14 +9,13 @@ import { KeyboardArrowLeftIcon, ViewColumnIcon } from 'icons/materialIcons'
 import { useAppTheme } from 'libs/appTheme'
 
 const EMPTY_COLUMN_MIN_HEIGHT = 160
-const EMPTY_COLUMN_ARIA_LABEL = 'Relayout columns'
 
 type EmptyColumnRelayoutProps = {
   columnCount: number
   endColumnIndex: number
   height: number
   left: number
-  onRelayout: () => void
+  onRelayout: (event: React.MouseEvent<HTMLButtonElement>) => void
   startColumnIndex: number
   top: number
   width: number
@@ -55,7 +54,6 @@ const EmptyColumnRelayout = ({
   return (
     <button
       type="button"
-      aria-label={EMPTY_COLUMN_ARIA_LABEL}
       data-empty-column-end={endColumnIndex}
       data-empty-column-start={startColumnIndex}
       data-testid={`empty-column-relayout-${startColumnIndex}`}
@@ -106,7 +104,10 @@ export default observer(() => {
   } = useStore()
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
   const onRelayout = useCallback(
-    () => windowStore.repackLayoutAndRevealActiveTab('mouse'),
+    (event: React.MouseEvent<HTMLButtonElement>) =>
+      windowStore.repackLayoutAndRevealActiveTab(
+        event.detail === 0 ? 'keyboard' : 'mouse',
+      ),
     [windowStore],
   )
   const onResize = useCallback(() => {
@@ -148,7 +149,7 @@ export default observer(() => {
   } = windowStore
   const windowById = new Map(visibleWindows.map((win) => [win.id, win]))
   const showEmptyColumnRelayout =
-    windowStore.layoutDirty && !dragStore?.dragging && !searchStore?._query
+    windowStore.layoutDirty && !dragStore?.dragging && !searchStore?.query
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)

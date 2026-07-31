@@ -244,6 +244,7 @@ const LEFTMOST_EMPTY_COLUMN_WINDOW_URLS = [
 
 const setupEmptyColumnRelayoutVisualScenario = async (
   emptyColumnPattern: 'adjacent' | 'separated' = 'adjacent',
+  settings: Record<string, unknown> = {},
 ) => {
   await page.setViewportSize({
     width: 1280,
@@ -253,7 +254,9 @@ const setupEmptyColumnRelayoutVisualScenario = async (
     autoFitColumns: false,
     darkTheme: false,
     tabWidth: 20,
+    toolbarAutoHide: false,
     useSystemTheme: false,
+    ...settings,
   })
   const createdWindowIds = await createWindowsWithTabs(
     page,
@@ -312,13 +315,19 @@ const setupEmptyColumnRelayoutVisualScenario = async (
     emptyColumnPattern === 'separated' ? 2 : 1,
   )
   for (const relayoutAction of await relayoutActions.all()) {
-    await expect(relayoutAction).toHaveAccessibleName('Relayout columns')
+    await expect(relayoutAction).toHaveAccessibleName(
+      emptyColumnPattern === 'separated'
+        ? 'Empty column Relayout all columns'
+        : '2 empty columns Relayout all columns',
+    )
     await expect(relayoutAction).toContainText('Relayout all columns')
     await expect(relayoutAction).toContainText(
       emptyColumnPattern === 'separated' ? 'Empty column' : '2 empty columns',
     )
   }
-  await expect(page.getByTestId('layout-repack-button')).toBeVisible()
+  const toolbarRelayout = page.getByTestId('layout-repack-button')
+  await expect(toolbarRelayout).toBeVisible()
+  await expect(toolbarRelayout).toHaveAccessibleName('Relayout all columns')
   const scrollContainer = page.getByTestId('window-list-scroll-container')
   const relayoutLeft = await relayoutActions
     .first()
@@ -399,7 +408,9 @@ const setupLeftmostEmptyColumnVisualScenario = async () => {
     'button[data-empty-column-start="0"][data-testid^="empty-column-relayout-"]',
   )
   await expect(relayoutAction).toHaveCount(1)
-  await expect(relayoutAction).toHaveAccessibleName('Relayout columns')
+  await expect(relayoutAction).toHaveAccessibleName(
+    'Empty column Relayout all columns',
+  )
   await expect(relayoutAction).toContainText('Empty column')
   await expect(relayoutAction).toContainText('Relayout all columns')
   await expect(relayoutAction).toBeInViewport({ ratio: 0.95 })
@@ -826,9 +837,51 @@ test.describe('The Extension page should', () => {
       matchImageSnapshotOptions,
     )
 
-    await relayoutAction.click()
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await relayoutAction.hover()
+    const reducedMotionStyles = await relayoutAction.evaluate((node) => {
+      const card = node.querySelector<HTMLElement>(
+        '.empty-column-relayout-card',
+      )
+      const arrow = node.querySelector<HTMLElement>(
+        '.empty-column-relayout-arrow',
+      )
+      if (!card || !arrow) {
+        return null
+      }
+      const cardTransform = new DOMMatrixReadOnly(
+        getComputedStyle(card).transform,
+      )
+      return {
+        actionTransitionDuration: getComputedStyle(node).transitionDuration,
+        arrowTransform: getComputedStyle(arrow).transform,
+        arrowTransitionDuration: getComputedStyle(arrow).transitionDuration,
+        cardScaleX: cardTransform.a,
+        cardScaleY: cardTransform.d,
+        cardTransitionDuration: getComputedStyle(card).transitionDuration,
+      }
+    })
+    expect(reducedMotionStyles).toEqual({
+      actionTransitionDuration: '0s',
+      arrowTransform: 'none',
+      arrowTransitionDuration: '0s',
+      cardScaleX: 1,
+      cardScaleY: 1,
+      cardTransitionDuration: '0s',
+    })
+
+    await page.keyboard.press('Enter')
     await expect(relayoutAction).toBeHidden()
     await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            document.activeElement !== document.body &&
+            document.activeElement !== null,
+        ),
+      )
+      .toBe(true)
   })
 
   test('separate empty columns offer distinct surfaces for one global relayout', async () => {
@@ -876,6 +929,70 @@ test.describe('The Extension page should', () => {
     await relayoutActions.last().click()
     await expect(relayoutActions).toHaveCount(0)
     await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+  })
+
+  test('a right-aligned empty column keeps the auto-hidden toolbar reachable', async () => {
+    const { relayoutActions } = await setupEmptyColumnRelayoutVisualScenario(
+      'adjacent',
+      {
+        toolbarAutoHide: true,
+      },
+    )
+    const relayoutAction = relayoutActions.first()
+    const scrollContainer = page.getByTestId('window-list-scroll-container')
+    const toolbarToggle = page.getByRole('button', { name: 'Toggle toolbar' })
+    const [initialRelayoutRect, initialToolbarRect] = await Promise.all([
+      relayoutAction.boundingBox(),
+      toolbarToggle.boundingBox(),
+    ])
+    expect(initialRelayoutRect).not.toBeNull()
+    expect(initialToolbarRect).not.toBeNull()
+    const horizontalShift =
+      (initialToolbarRect?.x || 0) +
+      (initialToolbarRect?.width || 0) -
+      (initialRelayoutRect?.x || 0) -
+      (initialRelayoutRect?.width || 0)
+    await scrollContainer.evaluate((node, shift) => {
+      node.scrollTo({
+        left: Math.max(node.scrollLeft - shift, 0),
+        top: 0,
+      })
+    }, horizontalShift)
+    await waitForMainSurfaceToSettle(page)
+
+    const [relayoutRect, toolbarRect] = await Promise.all([
+      relayoutAction.boundingBox(),
+      toolbarToggle.boundingBox(),
+    ])
+    expect(relayoutRect).not.toBeNull()
+    expect(toolbarRect).not.toBeNull()
+    expect(
+      Math.min(
+        (relayoutRect?.x || 0) + (relayoutRect?.width || 0),
+        (toolbarRect?.x || 0) + (toolbarRect?.width || 0),
+      ) - Math.max(relayoutRect?.x || 0, toolbarRect?.x || 0),
+    ).toBeGreaterThan(0)
+    expect(
+      Math.min(
+        (relayoutRect?.y || 0) + (relayoutRect?.height || 0),
+        (toolbarRect?.y || 0) + (toolbarRect?.height || 0),
+      ) - Math.max(relayoutRect?.y || 0, toolbarRect?.y || 0),
+    ).toBeGreaterThan(0)
+
+    const topmostButtonName = await toolbarToggle.evaluate((node) => {
+      const rect = node.getBoundingClientRect()
+      const topmost = document.elementFromPoint(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+      )
+      return topmost?.closest('button')?.getAttribute('aria-label') || null
+    })
+    expect(topmostButtonName).toBe('Toggle toolbar')
+
+    await toolbarToggle.hover()
+    await expect(
+      page.locator('button[aria-label="Settings"]').last(),
+    ).toBeVisible()
   })
 
   test('a leftmost empty column keeps the relayout action clear at the edge', async () => {

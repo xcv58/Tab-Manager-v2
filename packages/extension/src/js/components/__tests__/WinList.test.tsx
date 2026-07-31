@@ -259,7 +259,7 @@ describe('WinList', () => {
   })
 
   it('offers the entire empty column as a relayout action when layout is dirty', () => {
-    const repackLayoutAndRevealActiveTab = jest.fn()
+    const repackLayoutAndRevealActiveTab = jest.fn(() => true)
     const store = {
       windowStore: {
         initialLoading: false,
@@ -302,7 +302,7 @@ describe('WinList', () => {
         dragging: false,
       },
       searchStore: {
-        _query: '',
+        query: '',
       },
       focusStore: {
         setContainerRef: jest.fn(),
@@ -316,7 +316,7 @@ describe('WinList', () => {
     )
 
     const relayout = screen.getByRole('button', {
-      name: 'Relayout columns',
+      name: 'Empty column Relayout all columns',
     })
     expect(relayout).toHaveTextContent('Empty column')
     expect(relayout).toHaveTextContent('Relayout all columns')
@@ -325,10 +325,16 @@ describe('WinList', () => {
       height: '420px',
     })
 
-    fireEvent.click(relayout)
+    fireEvent.click(relayout, { detail: 1 })
 
     expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledTimes(1)
     expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledWith('mouse')
+
+    repackLayoutAndRevealActiveTab.mockClear()
+    fireEvent.click(relayout, { detail: 0 })
+
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledTimes(1)
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledWith('keyboard')
   })
 
   it('combines adjacent empty columns into one relayout action', () => {
@@ -383,7 +389,7 @@ describe('WinList', () => {
         dragging: false,
       },
       searchStore: {
-        _query: '',
+        query: '',
       },
       focusStore: {
         setContainerRef: jest.fn(),
@@ -397,7 +403,7 @@ describe('WinList', () => {
     )
 
     const relayoutActions = screen.getAllByRole('button', {
-      name: 'Relayout columns',
+      name: '2 empty columns Relayout all columns',
     })
     expect(relayoutActions).toHaveLength(1)
     expect(relayoutActions[0]).toHaveTextContent('2 empty columns')
@@ -452,7 +458,7 @@ describe('WinList', () => {
                 dragging,
               },
               searchStore: {
-                _query: query,
+                query,
               },
               focusStore: {
                 setContainerRef: jest.fn(),
@@ -465,7 +471,7 @@ describe('WinList', () => {
       )
 
       expect(
-        screen.queryByRole('button', { name: 'Relayout columns' }),
+        screen.queryByRole('button', { name: /Relayout all columns/ }),
       ).toBeNull()
     },
   )
