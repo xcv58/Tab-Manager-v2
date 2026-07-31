@@ -146,6 +146,9 @@ export default observer(() => {
     totalContentHeight,
     pendingFocusedItemReveal,
     flushPendingFocusedItemReveal,
+    pendingKeyboardFocusVerification,
+    flushPendingKeyboardFocusVerification,
+    fallbackPendingKeyboardFocusVerification,
   } = windowStore
   const windowById = new Map(visibleWindows.map((win) => [win.id, win]))
   const showEmptyColumnRelayout =
@@ -187,6 +190,44 @@ export default observer(() => {
     pendingFocusedItemReveal,
     setContainerRef,
     userStore.toolbarAutoHide,
+    windowStore,
+  ])
+
+  useLayoutEffect(() => {
+    if (!pendingKeyboardFocusVerification) {
+      return
+    }
+    let cancelled = false
+    let frameId = 0
+    let attempts = 0
+    const tryVerifyKeyboardFocus = () => {
+      if (cancelled) {
+        return
+      }
+      if (flushPendingKeyboardFocusVerification()) {
+        return
+      }
+      if (!windowStore.pendingKeyboardFocusVerification) {
+        return
+      }
+      if (attempts >= 6) {
+        fallbackPendingKeyboardFocusVerification()
+        return
+      }
+      attempts += 1
+      frameId = window.requestAnimationFrame(tryVerifyKeyboardFocus)
+    }
+    frameId = window.requestAnimationFrame(tryVerifyKeyboardFocus)
+    return () => {
+      cancelled = true
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
+  }, [
+    fallbackPendingKeyboardFocusVerification,
+    flushPendingKeyboardFocusVerification,
+    pendingKeyboardFocusVerification,
     windowStore,
   ])
 

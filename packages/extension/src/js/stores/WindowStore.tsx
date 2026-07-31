@@ -282,6 +282,8 @@ export default class WindowsStore {
 
   pendingFocusedItemReveal = false
 
+  pendingKeyboardFocusVerification: Focusable | null = null
+
   get tabCount() {
     return this.windows
       .map((x) => x.tabs.length)
@@ -1411,6 +1413,47 @@ export default class WindowsStore {
     return true
   }
 
+  flushPendingKeyboardFocusVerification = () => {
+    const item = this.pendingKeyboardFocusVerification
+    if (!item) {
+      return true
+    }
+    if (!item.isFocused) {
+      this.pendingKeyboardFocusVerification = null
+      return true
+    }
+    const node = item.nodeRef?.current
+    const ownerDocument =
+      node?.ownerDocument ?? (typeof document === 'undefined' ? null : document)
+    if (!ownerDocument) {
+      return false
+    }
+    const activeElement = ownerDocument.activeElement
+    if (node && activeElement && node.contains(activeElement)) {
+      this.pendingKeyboardFocusVerification = null
+      return true
+    }
+    if (
+      activeElement &&
+      activeElement !== ownerDocument.body &&
+      activeElement !== ownerDocument.documentElement
+    ) {
+      this.pendingKeyboardFocusVerification = null
+      return true
+    }
+    return false
+  }
+
+  fallbackPendingKeyboardFocusVerification = () => {
+    if (!this.pendingKeyboardFocusVerification) {
+      return false
+    }
+    this.pendingKeyboardFocusVerification = null
+    this.store.focusStore?.defocus?.()
+    this.store.searchStore?.focus?.()
+    return true
+  }
+
   focusActiveTabInLastFocusedWindow = ({
     origin = 'programmatic',
     moveDomFocus = true,
@@ -1422,19 +1465,18 @@ export default class WindowsStore {
   } = {}) => {
     const { lastFocusedWindow } = this
     if (!lastFocusedWindow || lastFocusedWindow.hide) {
-      return false
+      return null
     }
     const activeTab = lastFocusedWindow.tabs.find((tab) => tab.active)
     if (!activeTab?.isVisible) {
-      return false
+      return null
     }
-    return (
-      this.store.focusStore?.focus(activeTab, {
-        origin,
-        moveDomFocus,
-        reveal,
-      }) ?? false
-    )
+    this.store.focusStore?.focus(activeTab, {
+      origin,
+      moveDomFocus,
+      reveal,
+    })
+    return activeTab
   }
 
   getWindowLayout = (windowId: number) => {
@@ -1868,11 +1910,13 @@ export default class WindowsStore {
       reason: 'sync',
     })
     if (revealActiveTab) {
-      this.pendingFocusedItemReveal = this.focusActiveTabInLastFocusedWindow({
-        origin,
-        moveDomFocus,
-        reveal: false,
-      })
+      this.pendingFocusedItemReveal = Boolean(
+        this.focusActiveTabInLastFocusedWindow({
+          origin,
+          moveDomFocus,
+          reveal: false,
+        }),
+      )
     }
   }
 
@@ -1883,6 +1927,7 @@ export default class WindowsStore {
       this.windowLastUsedLayoutDirty = false
       this.repackLayout('manual')
     }
+    this.pendingKeyboardFocusVerification = null
     const focusedActiveTab = this.focusActiveTabInLastFocusedWindow({
       origin,
       reveal: true,
@@ -1890,8 +1935,10 @@ export default class WindowsStore {
     if (!focusedActiveTab && origin === 'keyboard') {
       this.store.focusStore?.defocus?.()
       this.store.searchStore?.focus?.()
+    } else if (focusedActiveTab && origin === 'keyboard') {
+      this.pendingKeyboardFocusVerification = focusedActiveTab
     }
-    return focusedActiveTab
+    return Boolean(focusedActiveTab)
   }
 
   loadAllWindows = async (options: LoadAllWindowsOptions = {}) => {
