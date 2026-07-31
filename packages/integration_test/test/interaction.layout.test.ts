@@ -245,6 +245,7 @@ const LEFTMOST_EMPTY_COLUMN_WINDOW_URLS = [
 const setupEmptyColumnRelayoutVisualScenario = async (
   emptyColumnPattern: 'adjacent' | 'separated' = 'adjacent',
   settings: Record<string, unknown> = {},
+  { focusSurvivingWindow = false } = {},
 ) => {
   await page.setViewportSize({
     width: 1280,
@@ -262,6 +263,14 @@ const setupEmptyColumnRelayoutVisualScenario = async (
     page,
     EMPTY_COLUMN_WINDOW_URLS,
   )
+  const expectedActiveTabId = focusSurvivingWindow
+    ? await page.evaluate(async (windowId) => {
+        await chrome.windows.update(windowId, { focused: true })
+        await chrome.storage.local.set({ lastFocusedWindowId: windowId })
+        const win = await chrome.windows.get(windowId, { populate: true })
+        return win.tabs?.find((tab) => tab.active)?.id ?? null
+      }, createdWindowIds[0])
+    : null
   await page.reload()
   await page.waitForLoadState('domcontentloaded')
   await waitForTestId(page, `window-card-${createdWindowIds[0]}`)
@@ -347,6 +356,7 @@ const setupEmptyColumnRelayoutVisualScenario = async (
   await waitForMainSurfaceToSettle(page)
 
   return {
+    expectedActiveTabId,
     relayoutActions,
     separatingWindowId,
   }
@@ -873,15 +883,30 @@ test.describe('The Extension page should', () => {
     await page.keyboard.press('Enter')
     await expect(relayoutAction).toBeHidden()
     await expect(page.getByTestId('layout-repack-button')).toBeHidden()
-    await expect
-      .poll(() =>
-        page.evaluate(
-          () =>
-            document.activeElement !== document.body &&
-            document.activeElement !== null,
-        ),
+    await expect(
+      page.getByTestId('toolbar-search-input').locator('input'),
+    ).toBeFocused()
+  })
+
+  test('keyboard relayout focuses a surviving virtualized active tab', async () => {
+    const { expectedActiveTabId, relayoutActions } =
+      await setupEmptyColumnRelayoutVisualScenario(
+        'adjacent',
+        {},
+        {
+          focusSurvivingWindow: true,
+        },
       )
-      .toBe(true)
+    expect(expectedActiveTabId).not.toBeNull()
+    const relayoutAction = relayoutActions.first()
+    const expectedActiveTab = page.getByTestId(`tab-row-${expectedActiveTabId}`)
+    await expect(expectedActiveTab).toBeHidden()
+
+    await focusRelayoutActionWithKeyboard(relayoutAction)
+    await page.keyboard.press('Enter')
+
+    await expect(relayoutAction).toBeHidden()
+    await expect(expectedActiveTab).toBeFocused()
   })
 
   test('separate empty columns offer distinct surfaces for one global relayout', async () => {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { StoreContext } from 'components/hooks/useStore'
 import WinList from '../WinList'
 
@@ -7,6 +7,82 @@ jest.mock('react-resize-detector', () => () => null)
 jest.mock('components/Window', () => (props) => (
   <div data-testid={`window-${props.win.id}`} />
 ))
+
+const makePendingKeyboardFocusStore = ({
+  fallbackPendingKeyboardFocusVerification,
+  flushPendingKeyboardFocusVerification,
+}: {
+  fallbackPendingKeyboardFocusVerification: jest.Mock
+  flushPendingKeyboardFocusVerification: jest.Mock
+}) =>
+  ({
+    windowStore: {
+      initialLoading: false,
+      updateViewport: jest.fn(),
+      updateScroll: jest.fn(),
+      visibleWindows: [{ id: 1 }],
+      renderedColumnLayouts: [
+        {
+          columnIndex: 0,
+          left: 0,
+          right: 320,
+          width: 320,
+          height: 120,
+          windows: [{ windowId: 1 }],
+          renderedWindows: [{ windowId: 1, top: 0 }],
+        },
+      ],
+      totalContentWidth: 320,
+      totalContentHeight: 120,
+      layoutDirty: false,
+      pendingKeyboardFocusVerification: { id: 11 },
+      fallbackPendingKeyboardFocusVerification,
+      flushPendingKeyboardFocusVerification,
+    },
+    userStore: {
+      tabWidth: 20,
+      toolbarAutoHide: false,
+      autoFitColumns: false,
+    },
+    focusStore: {
+      setContainerRef: jest.fn(),
+    },
+  }) as any
+
+const mockAnimationFrameQueue = () => {
+  let nextFrameId = 1
+  const callbacks = new Map<number, FrameRequestCallback>()
+  const requestSpy = jest
+    .spyOn(window, 'requestAnimationFrame')
+    .mockImplementation((callback: FrameRequestCallback) => {
+      const frameId = nextFrameId
+      nextFrameId += 1
+      callbacks.set(frameId, callback)
+      return frameId
+    })
+  const cancelSpy = jest
+    .spyOn(window, 'cancelAnimationFrame')
+    .mockImplementation((frameId: number) => {
+      callbacks.delete(frameId)
+    })
+  const runNext = () => {
+    const next = callbacks.entries().next().value as
+      | [number, FrameRequestCallback]
+      | undefined
+    if (!next) {
+      throw new Error('Expected a pending animation frame')
+    }
+    const [frameId, callback] = next
+    callbacks.delete(frameId)
+    act(() => callback(frameId * 16))
+  }
+  return {
+    callbacks,
+    cancelSpy,
+    requestSpy,
+    runNext,
+  }
+}
 
 describe('WinList', () => {
   afterEach(() => {
@@ -188,6 +264,88 @@ describe('WinList', () => {
     cancelAnimationFrameSpy.mockRestore()
     clientHeightSpy.mockRestore()
     clientWidthSpy.mockRestore()
+  })
+
+  it('retries pending keyboard focus until the target receives focus', () => {
+    const flushPendingKeyboardFocusVerification = jest
+      .fn()
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true)
+    const fallbackPendingKeyboardFocusVerification = jest.fn()
+    const frames = mockAnimationFrameQueue()
+
+    render(
+      <StoreContext.Provider
+        value={makePendingKeyboardFocusStore({
+          fallbackPendingKeyboardFocusVerification,
+          flushPendingKeyboardFocusVerification,
+        })}
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    expect(frames.callbacks.size).toBe(1)
+    frames.runNext()
+    expect(flushPendingKeyboardFocusVerification).toHaveBeenCalledTimes(1)
+    expect(frames.callbacks.size).toBe(1)
+
+    frames.runNext()
+    expect(flushPendingKeyboardFocusVerification).toHaveBeenCalledTimes(2)
+    expect(fallbackPendingKeyboardFocusVerification).not.toHaveBeenCalled()
+    expect(frames.callbacks.size).toBe(0)
+  })
+
+  it('falls back after pending keyboard focus exhausts its retry budget', () => {
+    const flushPendingKeyboardFocusVerification = jest.fn(() => false)
+    const fallbackPendingKeyboardFocusVerification = jest.fn()
+    const frames = mockAnimationFrameQueue()
+
+    render(
+      <StoreContext.Provider
+        value={makePendingKeyboardFocusStore({
+          fallbackPendingKeyboardFocusVerification,
+          flushPendingKeyboardFocusVerification,
+        })}
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    for (let attempt = 0; attempt < 7; attempt += 1) {
+      frames.runNext()
+    }
+
+    expect(flushPendingKeyboardFocusVerification).toHaveBeenCalledTimes(7)
+    expect(fallbackPendingKeyboardFocusVerification).toHaveBeenCalledTimes(1)
+    expect(frames.callbacks.size).toBe(0)
+  })
+
+  it('cancels pending keyboard-focus verification when WinList unmounts', () => {
+    const flushPendingKeyboardFocusVerification = jest.fn(() => false)
+    const fallbackPendingKeyboardFocusVerification = jest.fn()
+    const frames = mockAnimationFrameQueue()
+
+    const { unmount } = render(
+      <StoreContext.Provider
+        value={makePendingKeyboardFocusStore({
+          fallbackPendingKeyboardFocusVerification,
+          flushPendingKeyboardFocusVerification,
+        })}
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+    const pendingCallback = frames.callbacks.values().next()
+      .value as FrameRequestCallback
+
+    unmount()
+
+    expect(frames.cancelSpy).toHaveBeenCalledTimes(1)
+    expect(frames.callbacks.size).toBe(0)
+    act(() => pendingCallback(16))
+    expect(flushPendingKeyboardFocusVerification).not.toHaveBeenCalled()
+    expect(fallbackPendingKeyboardFocusVerification).not.toHaveBeenCalled()
   })
 
   it('uses vertical-only scrolling when auto-fit columns is enabled', () => {
