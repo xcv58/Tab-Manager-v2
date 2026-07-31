@@ -1428,12 +1428,13 @@ export default class WindowsStore {
     if (!activeTab?.isVisible) {
       return false
     }
-    this.store.focusStore?.focus(activeTab, {
-      origin,
-      moveDomFocus,
-      reveal,
-    })
-    return true
+    return (
+      this.store.focusStore?.focus(activeTab, {
+        origin,
+        moveDomFocus,
+        reveal,
+      }) ?? false
+    )
   }
 
   getWindowLayout = (windowId: number) => {
@@ -1887,6 +1888,7 @@ export default class WindowsStore {
       reveal: true,
     })
     if (!focusedActiveTab && origin === 'keyboard') {
+      this.store.focusStore?.defocus?.()
       this.store.searchStore?.focus?.()
     }
     return focusedActiveTab

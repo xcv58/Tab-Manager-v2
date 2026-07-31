@@ -131,6 +131,17 @@ export default class FocusStore {
     if (options.reveal) {
       this.revealItem(item)
     }
+
+    if (options.moveDomFocus === false) {
+      return true
+    }
+
+    const node = item.nodeRef?.current
+    if (!node || (item instanceof Tab && this.store.searchStore.typing)) {
+      return false
+    }
+    node.focus({ preventScroll: true })
+    return node.ownerDocument.activeElement === node
   }
 
   // Toggle select of focused tab, or the focused window.tabs

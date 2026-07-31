@@ -107,6 +107,7 @@ const createWindowStore = () => {
     },
     focusStore: {
       containerRef: { current: null },
+      defocus: jest.fn(),
       setDefaultFocusedTab: jest.fn(),
       setDefaultFocusedTabWithOptions: jest.fn(() => false),
       revealItem: jest.fn(),
@@ -922,7 +923,7 @@ describe('WindowStore layout policy', () => {
     const windowStore = createWindowStore()
     windowStore.hasAppliedInitialDefaultFocus = true
     windowStore.initialLoading = false
-    const focus = jest.fn()
+    const focus = jest.fn(() => true)
     ;(windowStore.store as any).focusStore.focus = focus
     ;(getLastFocusedWindowId as jest.Mock).mockResolvedValueOnce(1)
     ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
@@ -959,7 +960,7 @@ describe('WindowStore layout policy', () => {
 
   it('repackLayoutAndRevealActiveTab immediately reveals the active tab for manual actions', () => {
     const windowStore = createWindowStore()
-    const focus = jest.fn()
+    const focus = jest.fn(() => true)
     ;(windowStore.store as any).focusStore.focus = focus
     const win = new Window(
       {
@@ -1000,6 +1001,50 @@ describe('WindowStore layout policy', () => {
     const focused = windowStore.repackLayoutAndRevealActiveTab('keyboard')
 
     expect(focused).toBe(false)
+    expect((windowStore.store as any).focusStore.defocus).toHaveBeenCalledTimes(
+      1,
+    )
+    expect(searchFocus).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns keyboard focus to search when the active tab cannot receive DOM focus', () => {
+    const windowStore = createWindowStore()
+    const focus = jest.fn(() => false)
+    ;(windowStore.store as any).focusStore.focus = focus
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 11,
+            active: true,
+            index: 0,
+            windowId: 1,
+            title: 'Window 1',
+            url: 'https://example.com/1',
+            groupId: -1,
+          },
+        ],
+      },
+      windowStore.store as any,
+    )
+    windowStore.windows = [win]
+    windowStore.lastFocusedWindowId = 1
+    const searchFocus = (windowStore.store as any).searchStore.focus
+
+    const focused = windowStore.repackLayoutAndRevealActiveTab('keyboard')
+
+    expect(focused).toBe(false)
+    expect(focus).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 11 }),
+      expect.objectContaining({
+        origin: 'keyboard',
+        reveal: true,
+      }),
+    )
+    expect((windowStore.store as any).focusStore.defocus).toHaveBeenCalledTimes(
+      1,
+    )
     expect(searchFocus).toHaveBeenCalledTimes(1)
   })
 
