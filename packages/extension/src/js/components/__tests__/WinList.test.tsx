@@ -574,7 +574,11 @@ describe('WinList', () => {
     expect(relayoutActions[0]).toHaveAttribute('data-empty-column-end', '2')
   })
 
-  it('keeps a virtualized empty run identity stable while clipping its geometry', () => {
+  it('keeps a virtualized empty run stable and transfers focus after it leaves', () => {
+    const focusSearch = jest.fn(() => {
+      screen.getByTestId('search-focus-fallback').focus()
+    })
+    const defocus = jest.fn()
     const columnLayoutsWithPosition = [
       {
         columnIndex: 0,
@@ -621,14 +625,17 @@ describe('WinList', () => {
       searchStore: {
         query: '',
         _query: '',
+        focus: focusSearch,
       },
       focusStore: {
+        defocus,
         setContainerRef: jest.fn(),
       },
     } as any
 
     const { rerender } = render(
       <StoreContext.Provider value={store}>
+        <input data-testid="search-focus-fallback" />
         <WinList />
       </StoreContext.Provider>,
     )
@@ -649,6 +656,7 @@ describe('WinList', () => {
     } as any
     rerender(
       <StoreContext.Provider value={scrolledStore}>
+        <input data-testid="search-focus-fallback" />
         <WinList />
       </StoreContext.Provider>,
     )
@@ -661,6 +669,29 @@ describe('WinList', () => {
     expect(scrolledRelayout).toHaveStyle({ left: '640px', width: '640px' })
     expect(scrolledRelayout).toHaveAttribute('data-empty-column-start', '1')
     expect(scrolledRelayout).toHaveAttribute('data-empty-column-end', '4')
+
+    const pastRunStore = {
+      ...store,
+      windowStore: {
+        ...store.windowStore,
+        renderedColumnLayouts: columnLayoutsWithPosition.slice(0, 1),
+      },
+    } as any
+    rerender(
+      <StoreContext.Provider value={pastRunStore}>
+        <input data-testid="search-focus-fallback" />
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    expect(
+      screen.queryByRole('button', {
+        name: '4 empty columns Relayout all columns',
+      }),
+    ).toBeNull()
+    expect(defocus).toHaveBeenCalledTimes(1)
+    expect(focusSearch).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('search-focus-fallback')).toHaveFocus()
   })
 
   it.each([

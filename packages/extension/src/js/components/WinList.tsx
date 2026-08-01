@@ -15,6 +15,8 @@ type EmptyColumnRelayoutProps = {
   endColumnIndex: number
   height: number
   left: number
+  onBlur: () => void
+  onFocus: () => void
   onRelayout: (event: React.MouseEvent<HTMLButtonElement>) => void
   startColumnIndex: number
   top: number
@@ -26,6 +28,8 @@ const EmptyColumnRelayout = ({
   endColumnIndex,
   height,
   left,
+  onBlur,
+  onFocus,
   onRelayout,
   startColumnIndex,
   top,
@@ -65,7 +69,9 @@ const EmptyColumnRelayout = ({
         height,
         width,
       }}
+      onBlur={onBlur}
       onClick={onRelayout}
+      onFocus={onFocus}
     >
       <span
         data-testid={`empty-column-relayout-card-${startColumnIndex}`}
@@ -95,14 +101,14 @@ const EmptyColumnRelayout = ({
 }
 
 export default observer(() => {
-  const {
-    windowStore,
-    userStore,
-    dragStore,
-    searchStore,
-    focusStore: { setContainerRef },
-  } = useStore()
+  const { windowStore, userStore, dragStore, searchStore, focusStore } =
+    useStore()
+  const { setContainerRef } = focusStore
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
+  const focusedEmptyColumnRunRef = useRef<{
+    endColumnIndex: number
+    startColumnIndex: number
+  } | null>(null)
   const onRelayout = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) =>
       windowStore.repackLayoutAndRevealActiveTab(
@@ -157,6 +163,17 @@ export default observer(() => {
     !dragStore?.dragging &&
     !searchStore?.query &&
     !searchStore?._query
+  const focusedEmptyColumnRun = focusedEmptyColumnRunRef.current
+  const shouldTransferEmptyColumnFocus = Boolean(
+    !initialLoading &&
+    showEmptyColumnRelayout &&
+    focusedEmptyColumnRun &&
+    !renderedColumnLayouts.some(
+      (column) =>
+        column.columnIndex >= focusedEmptyColumnRun.startColumnIndex &&
+        column.columnIndex <= focusedEmptyColumnRun.endColumnIndex,
+    ),
+  )
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
@@ -234,6 +251,15 @@ export default observer(() => {
     pendingKeyboardFocusVerification,
     windowStore,
   ])
+
+  useLayoutEffect(() => {
+    if (!shouldTransferEmptyColumnFocus) {
+      return
+    }
+    focusedEmptyColumnRunRef.current = null
+    focusStore.defocus?.()
+    searchStore?.focus?.()
+  }, [focusStore, searchStore, shouldTransferEmptyColumnFocus])
 
   const resizeDetector = (
     <ReactResizeDetector
@@ -364,6 +390,21 @@ export default observer(() => {
             endColumnIndex={run.endColumnIndex}
             height={relayoutHeight}
             left={clippedLeft}
+            onBlur={() => {
+              const focusedRun = focusedEmptyColumnRunRef.current
+              if (
+                focusedRun?.startColumnIndex === run.startColumnIndex &&
+                focusedRun.endColumnIndex === run.endColumnIndex
+              ) {
+                focusedEmptyColumnRunRef.current = null
+              }
+            }}
+            onFocus={() => {
+              focusedEmptyColumnRunRef.current = {
+                endColumnIndex: run.endColumnIndex,
+                startColumnIndex: run.startColumnIndex,
+              }
+            }}
             onRelayout={onRelayout}
             startColumnIndex={run.startColumnIndex}
             top={relayoutTop}
