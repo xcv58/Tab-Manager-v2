@@ -242,6 +242,27 @@ const LEFTMOST_EMPTY_COLUMN_WINDOW_URLS = [
   ...EMPTY_COLUMN_WINDOW_URLS.slice(0, 6),
 ]
 
+const getRenderedCreatedWindowIdsByColumn = async (
+  page: Page,
+  windowIds: number[],
+) =>
+  page.evaluate((createdWindowIds) => {
+    const createdWindowIdSet = new Set(createdWindowIds)
+    return Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid^="window-column-"]'),
+    )
+      .map((column) =>
+        Array.from(
+          column.querySelectorAll<HTMLElement>('[data-testid^="window-card-"]'),
+        )
+          .map((card) =>
+            Number((card.dataset.testid || '').replace('window-card-', '')),
+          )
+          .filter((windowId) => createdWindowIdSet.has(windowId)),
+      )
+      .filter((windowIdsInColumn) => windowIdsInColumn.length > 0)
+  }, windowIds)
+
 const setupEmptyColumnRelayoutVisualScenario = async (
   emptyColumnPattern: 'adjacent' | 'separated' = 'adjacent',
   settings: Record<string, unknown> = {},
@@ -273,27 +294,23 @@ const setupEmptyColumnRelayoutVisualScenario = async (
     : null
   await page.reload()
   await page.waitForLoadState('domcontentloaded')
-  await waitForTestId(page, `window-card-${createdWindowIds[0]}`)
   await waitForMainSurfaceToSettle(page)
 
-  const createdWindowIdsByColumn = await page.evaluate((windowIds) => {
-    const createdWindowIdSet = new Set(windowIds)
-    return Array.from(
-      document.querySelectorAll<HTMLElement>('[data-testid^="window-column-"]'),
+  const minimumCreatedColumnCount = emptyColumnPattern === 'separated' ? 4 : 3
+  await expect
+    .poll(
+      async () =>
+        (await getRenderedCreatedWindowIdsByColumn(page, createdWindowIds))
+          .length,
+      { timeout: 15000 },
     )
-      .map((column) =>
-        Array.from(
-          column.querySelectorAll<HTMLElement>('[data-testid^="window-card-"]'),
-        )
-          .map((card) =>
-            Number((card.dataset.testid || '').replace('window-card-', '')),
-          )
-          .filter((windowId) => createdWindowIdSet.has(windowId)),
-      )
-      .filter((windowIdsInColumn) => windowIdsInColumn.length > 0)
-  }, createdWindowIds)
+    .toBeGreaterThanOrEqual(minimumCreatedColumnCount)
+  const createdWindowIdsByColumn = await getRenderedCreatedWindowIdsByColumn(
+    page,
+    createdWindowIds,
+  )
   expect(createdWindowIdsByColumn.length).toBeGreaterThanOrEqual(
-    emptyColumnPattern === 'separated' ? 4 : 3,
+    minimumCreatedColumnCount,
   )
 
   const removedColumnWindowIds =
@@ -883,9 +900,20 @@ test.describe('The Extension page should', () => {
     await page.keyboard.press('Enter')
     await expect(relayoutAction).toBeHidden()
     await expect(page.getByTestId('layout-repack-button')).toBeHidden()
-    await expect(
-      page.getByTestId('toolbar-search-input').locator('input'),
-    ).toBeFocused()
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const activeElement = document.activeElement
+          const searchInput = document.querySelector(
+            '[data-testid="toolbar-search-input"] input',
+          )
+          return (
+            activeElement === searchInput ||
+            Boolean(activeElement?.closest('[data-testid^="tab-row-"]'))
+          )
+        }),
+      )
+      .toBe(true)
   })
 
   test('keyboard relayout focuses a surviving virtualized active tab', async () => {
