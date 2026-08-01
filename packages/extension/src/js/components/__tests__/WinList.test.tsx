@@ -640,12 +640,15 @@ describe('WinList', () => {
     relayout.focus()
     expect(relayout).toHaveFocus()
 
-    store.windowStore.renderedColumnLayouts = columnLayoutsWithPosition.slice(
-      2,
-      4,
-    )
+    const scrolledStore = {
+      ...store,
+      windowStore: {
+        ...store.windowStore,
+        renderedColumnLayouts: columnLayoutsWithPosition.slice(2, 4),
+      },
+    } as any
     rerender(
-      <StoreContext.Provider value={store}>
+      <StoreContext.Provider value={scrolledStore}>
         <WinList />
       </StoreContext.Provider>,
     )
