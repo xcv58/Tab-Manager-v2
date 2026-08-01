@@ -141,6 +141,7 @@ export default observer(() => {
   const {
     initialLoading,
     visibleWindows,
+    columnLayoutsWithPosition,
     renderedColumnLayouts,
     totalContentWidth,
     totalContentHeight,
@@ -152,7 +153,10 @@ export default observer(() => {
   } = windowStore
   const windowById = new Map(visibleWindows.map((win) => [win.id, win]))
   const showEmptyColumnRelayout =
-    windowStore.layoutDirty && !dragStore?.dragging && !searchStore?.query
+    windowStore.layoutDirty &&
+    !dragStore?.dragging &&
+    !searchStore?.query &&
+    !searchStore?._query
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
@@ -290,7 +294,7 @@ export default observer(() => {
     )
   })
   const emptyColumnRuns = showEmptyColumnRelayout
-    ? renderedColumnLayouts.reduce<
+    ? (columnLayoutsWithPosition ?? renderedColumnLayouts).reduce<
         Array<{
           endColumnIndex: number
           left: number
@@ -320,6 +324,17 @@ export default observer(() => {
         return runs
       }, [])
     : []
+  const renderedColumnBounds = renderedColumnLayouts.reduce<{
+    left: number
+    right: number
+  } | null>((bounds, column) => {
+    if (!bounds) {
+      return { left: column.left, right: column.right }
+    }
+    bounds.left = Math.min(bounds.left, column.left)
+    bounds.right = Math.max(bounds.right, column.right)
+    return bounds
+  }, null)
   const relayoutHeight = Math.max(
     windowStore.height - 16,
     EMPTY_COLUMN_MIN_HEIGHT,
@@ -335,19 +350,28 @@ export default observer(() => {
       relayoutColumnHeight - relayoutHeight - 8,
     ),
   )
-  const emptyColumnActions = emptyColumnRuns.map((run) => (
-    <EmptyColumnRelayout
-      key={`empty-column-relayout-${run.startColumnIndex}-${run.endColumnIndex}`}
-      columnCount={run.endColumnIndex - run.startColumnIndex + 1}
-      endColumnIndex={run.endColumnIndex}
-      height={relayoutHeight}
-      left={run.left}
-      onRelayout={onRelayout}
-      startColumnIndex={run.startColumnIndex}
-      top={relayoutTop}
-      width={run.right - run.left}
-    />
-  ))
+  const emptyColumnActions = renderedColumnBounds
+    ? emptyColumnRuns.map((run) => {
+        const clippedLeft = Math.max(run.left, renderedColumnBounds.left)
+        const clippedRight = Math.min(run.right, renderedColumnBounds.right)
+        if (clippedRight <= clippedLeft) {
+          return null
+        }
+        return (
+          <EmptyColumnRelayout
+            key={`empty-column-relayout-${run.startColumnIndex}-${run.endColumnIndex}`}
+            columnCount={run.endColumnIndex - run.startColumnIndex + 1}
+            endColumnIndex={run.endColumnIndex}
+            height={relayoutHeight}
+            left={clippedLeft}
+            onRelayout={onRelayout}
+            startColumnIndex={run.startColumnIndex}
+            top={relayoutTop}
+            width={clippedRight - clippedLeft}
+          />
+        )
+      })
+    : []
   return (
     <div
       ref={scrollbarRef}

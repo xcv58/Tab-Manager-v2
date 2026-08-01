@@ -574,13 +574,100 @@ describe('WinList', () => {
     expect(relayoutActions[0]).toHaveAttribute('data-empty-column-end', '2')
   })
 
+  it('keeps a virtualized empty run identity stable while clipping its geometry', () => {
+    const columnLayoutsWithPosition = [
+      {
+        columnIndex: 0,
+        left: 0,
+        right: 320,
+        width: 320,
+        height: 120,
+        windows: [{ windowId: 1 }],
+        renderedWindows: [{ windowId: 1, top: 0 }],
+      },
+      ...[1, 2, 3, 4].map((columnIndex) => ({
+        columnIndex,
+        left: columnIndex * 320,
+        right: (columnIndex + 1) * 320,
+        width: 320,
+        height: 0,
+        windows: [],
+        renderedWindows: [],
+      })),
+    ]
+    const store = {
+      windowStore: {
+        initialLoading: false,
+        updateViewport: jest.fn(),
+        updateScroll: jest.fn(),
+        visibleWindows: [{ id: 1 }],
+        columnLayoutsWithPosition,
+        renderedColumnLayouts: columnLayoutsWithPosition.slice(1, 3),
+        totalContentWidth: 1600,
+        totalContentHeight: 420,
+        height: 420,
+        scrollTop: 0,
+        layoutDirty: true,
+        repackLayoutAndRevealActiveTab: jest.fn(),
+      },
+      userStore: {
+        tabWidth: 20,
+        toolbarAutoHide: false,
+        autoFitColumns: false,
+      },
+      dragStore: {
+        dragging: false,
+      },
+      searchStore: {
+        query: '',
+        _query: '',
+      },
+      focusStore: {
+        setContainerRef: jest.fn(),
+      },
+    } as any
+
+    const { rerender } = render(
+      <StoreContext.Provider value={store}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const relayout = screen.getByRole('button', {
+      name: '4 empty columns Relayout all columns',
+    })
+    expect(relayout).toHaveStyle({ left: '320px', width: '640px' })
+    relayout.focus()
+    expect(relayout).toHaveFocus()
+
+    store.windowStore.renderedColumnLayouts = columnLayoutsWithPosition.slice(
+      2,
+      4,
+    )
+    rerender(
+      <StoreContext.Provider value={store}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const scrolledRelayout = screen.getByRole('button', {
+      name: '4 empty columns Relayout all columns',
+    })
+    expect(scrolledRelayout).toBe(relayout)
+    expect(scrolledRelayout).toHaveFocus()
+    expect(scrolledRelayout).toHaveStyle({ left: '640px', width: '640px' })
+    expect(scrolledRelayout).toHaveAttribute('data-empty-column-start', '1')
+    expect(scrolledRelayout).toHaveAttribute('data-empty-column-end', '4')
+  })
+
   it.each([
-    ['clean layout', false, false, ''],
-    ['active drag', true, true, ''],
-    ['active search', true, false, 'docs'],
+    ['clean layout', false, false, '', ''],
+    ['active drag', true, true, '', ''],
+    ['immediate search query', true, false, 'docs', ''],
+    ['applied search query', true, false, '', 'docs'],
   ])(
     'does not offer empty-column relayout for %s',
-    (_, layoutDirty, dragging, query) => {
+    (_, layoutDirty, dragging, query, appliedQuery) => {
       render(
         <StoreContext.Provider
           value={
@@ -617,6 +704,7 @@ describe('WinList', () => {
               },
               searchStore: {
                 query,
+                _query: appliedQuery,
               },
               focusStore: {
                 setContainerRef: jest.fn(),
