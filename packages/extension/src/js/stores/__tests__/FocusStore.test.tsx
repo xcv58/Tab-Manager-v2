@@ -481,15 +481,74 @@ describe('FocusStore', () => {
     store.windowStore.tabs = win.tabs
     store.windowStore.windows = [win]
 
-    store.focusStore.focus(win.tabs[0], {
+    const focused = store.focusStore.focus(win.tabs[0], {
       origin: 'keyboard',
       reveal: false,
       moveDomFocus: false,
     })
 
+    expect(focused).toBe(true)
     expect(store.focusStore.focusedTabId).toBe(1)
     expect(win.tabs[0].shouldMoveDomFocus).toBe(false)
     expect(win.tabs[0].shouldRevealOnFocus).toBe(false)
+  })
+
+  it('returns whether native DOM focus moved to the requested item', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: true,
+            groupId: -1,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    const tabNode = document.createElement('div')
+    tabNode.tabIndex = 0
+    document.body.appendChild(tabNode)
+    win.tabs[0].setNodeRef({ current: tabNode })
+
+    const focused = store.focusStore.focus(win.tabs[0], {
+      origin: 'keyboard',
+    })
+
+    expect(focused).toBe(true)
+    expect(document.activeElement).toBe(tabNode)
+    tabNode.remove()
+  })
+
+  it('returns false when the requested item cannot receive native focus', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: true,
+            groupId: -1,
+            index: 0,
+            title: 'Alpha',
+            url: 'https://example.com/a',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+
+    expect(store.focusStore.focus(win.tabs[0], { origin: 'keyboard' })).toBe(
+      false,
+    )
   })
 
   it('lets group activation carry mouse-origin focus', () => {

@@ -6,7 +6,7 @@ import { TOOLTIP_DELAY } from 'libs'
 import { useStore } from 'components/hooks/useStore'
 import { useAppTheme } from 'libs/appTheme'
 
-const TITLE = 'Refresh layout'
+const TITLE = 'Relayout all columns'
 
 export default observer(() => {
   const { windowStore } = useStore()
@@ -23,7 +23,11 @@ export default observer(() => {
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <button
         type="button"
-        onClick={() => windowStore.repackLayoutAndRevealActiveTab('mouse')}
+        onClick={(event) =>
+          windowStore.repackLayoutAndRevealActiveTab(
+            event.detail === 0 ? 'keyboard' : 'mouse',
+          )
+        }
         aria-label={TITLE}
         data-testid="layout-repack-button"
         className="inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap border focus:outline-none transition-colors duration-200"

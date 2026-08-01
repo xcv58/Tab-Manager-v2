@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { StoreContext } from 'components/hooks/useStore'
 import WinList from '../WinList'
 
@@ -7,6 +7,82 @@ jest.mock('react-resize-detector', () => () => null)
 jest.mock('components/Window', () => (props) => (
   <div data-testid={`window-${props.win.id}`} />
 ))
+
+const makePendingKeyboardFocusStore = ({
+  fallbackPendingKeyboardFocusVerification,
+  flushPendingKeyboardFocusVerification,
+}: {
+  fallbackPendingKeyboardFocusVerification: jest.Mock
+  flushPendingKeyboardFocusVerification: jest.Mock
+}) =>
+  ({
+    windowStore: {
+      initialLoading: false,
+      updateViewport: jest.fn(),
+      updateScroll: jest.fn(),
+      visibleWindows: [{ id: 1 }],
+      renderedColumnLayouts: [
+        {
+          columnIndex: 0,
+          left: 0,
+          right: 320,
+          width: 320,
+          height: 120,
+          windows: [{ windowId: 1 }],
+          renderedWindows: [{ windowId: 1, top: 0 }],
+        },
+      ],
+      totalContentWidth: 320,
+      totalContentHeight: 120,
+      layoutDirty: false,
+      pendingKeyboardFocusVerification: { id: 11 },
+      fallbackPendingKeyboardFocusVerification,
+      flushPendingKeyboardFocusVerification,
+    },
+    userStore: {
+      tabWidth: 20,
+      toolbarAutoHide: false,
+      autoFitColumns: false,
+    },
+    focusStore: {
+      setContainerRef: jest.fn(),
+    },
+  }) as any
+
+const mockAnimationFrameQueue = () => {
+  let nextFrameId = 1
+  const callbacks = new Map<number, FrameRequestCallback>()
+  const requestSpy = jest
+    .spyOn(window, 'requestAnimationFrame')
+    .mockImplementation((callback: FrameRequestCallback) => {
+      const frameId = nextFrameId
+      nextFrameId += 1
+      callbacks.set(frameId, callback)
+      return frameId
+    })
+  const cancelSpy = jest
+    .spyOn(window, 'cancelAnimationFrame')
+    .mockImplementation((frameId: number) => {
+      callbacks.delete(frameId)
+    })
+  const runNext = () => {
+    const next = callbacks.entries().next().value as
+      | [number, FrameRequestCallback]
+      | undefined
+    if (!next) {
+      throw new Error('Expected a pending animation frame')
+    }
+    const [frameId, callback] = next
+    callbacks.delete(frameId)
+    act(() => callback(frameId * 16))
+  }
+  return {
+    callbacks,
+    cancelSpy,
+    requestSpy,
+    runNext,
+  }
+}
 
 describe('WinList', () => {
   afterEach(() => {
@@ -38,6 +114,7 @@ describe('WinList', () => {
               left: 0,
               width: 320,
               height: 120,
+              windows: [{ windowId: 1 }],
               renderedWindows: [
                 {
                   windowId: 1,
@@ -143,6 +220,7 @@ describe('WinList', () => {
               left: 0,
               width: 320,
               height: 120,
+              windows: [{ windowId: 1 }],
               renderedWindows: [
                 {
                   windowId: 1,
@@ -188,6 +266,88 @@ describe('WinList', () => {
     clientWidthSpy.mockRestore()
   })
 
+  it('retries pending keyboard focus until the target receives focus', () => {
+    const flushPendingKeyboardFocusVerification = jest
+      .fn()
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true)
+    const fallbackPendingKeyboardFocusVerification = jest.fn()
+    const frames = mockAnimationFrameQueue()
+
+    render(
+      <StoreContext.Provider
+        value={makePendingKeyboardFocusStore({
+          fallbackPendingKeyboardFocusVerification,
+          flushPendingKeyboardFocusVerification,
+        })}
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    expect(frames.callbacks.size).toBe(1)
+    frames.runNext()
+    expect(flushPendingKeyboardFocusVerification).toHaveBeenCalledTimes(1)
+    expect(frames.callbacks.size).toBe(1)
+
+    frames.runNext()
+    expect(flushPendingKeyboardFocusVerification).toHaveBeenCalledTimes(2)
+    expect(fallbackPendingKeyboardFocusVerification).not.toHaveBeenCalled()
+    expect(frames.callbacks.size).toBe(0)
+  })
+
+  it('falls back after pending keyboard focus exhausts its retry budget', () => {
+    const flushPendingKeyboardFocusVerification = jest.fn(() => false)
+    const fallbackPendingKeyboardFocusVerification = jest.fn()
+    const frames = mockAnimationFrameQueue()
+
+    render(
+      <StoreContext.Provider
+        value={makePendingKeyboardFocusStore({
+          fallbackPendingKeyboardFocusVerification,
+          flushPendingKeyboardFocusVerification,
+        })}
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    for (let attempt = 0; attempt < 7; attempt += 1) {
+      frames.runNext()
+    }
+
+    expect(flushPendingKeyboardFocusVerification).toHaveBeenCalledTimes(7)
+    expect(fallbackPendingKeyboardFocusVerification).toHaveBeenCalledTimes(1)
+    expect(frames.callbacks.size).toBe(0)
+  })
+
+  it('cancels pending keyboard-focus verification when WinList unmounts', () => {
+    const flushPendingKeyboardFocusVerification = jest.fn(() => false)
+    const fallbackPendingKeyboardFocusVerification = jest.fn()
+    const frames = mockAnimationFrameQueue()
+
+    const { unmount } = render(
+      <StoreContext.Provider
+        value={makePendingKeyboardFocusStore({
+          fallbackPendingKeyboardFocusVerification,
+          flushPendingKeyboardFocusVerification,
+        })}
+      >
+        <WinList />
+      </StoreContext.Provider>,
+    )
+    const pendingCallback = frames.callbacks.values().next()
+      .value as FrameRequestCallback
+
+    unmount()
+
+    expect(frames.cancelSpy).toHaveBeenCalledTimes(1)
+    expect(frames.callbacks.size).toBe(0)
+    act(() => pendingCallback(16))
+    expect(flushPendingKeyboardFocusVerification).not.toHaveBeenCalled()
+    expect(fallbackPendingKeyboardFocusVerification).not.toHaveBeenCalled()
+  })
+
   it('uses vertical-only scrolling when auto-fit columns is enabled', () => {
     const computedStyleSpy = jest
       .spyOn(window, 'getComputedStyle')
@@ -219,6 +379,7 @@ describe('WinList', () => {
                   left: 0,
                   width: 320,
                   height: 120,
+                  windows: [{ windowId: 1 }],
                   renderedWindows: [
                     {
                       windowId: 1,
@@ -254,4 +415,454 @@ describe('WinList', () => {
     clientHeightSpy.mockRestore()
     clientWidthSpy.mockRestore()
   })
+
+  it('offers the entire empty column as a relayout action when layout is dirty', () => {
+    const repackLayoutAndRevealActiveTab = jest.fn(() => true)
+    const store = {
+      windowStore: {
+        initialLoading: false,
+        updateViewport: jest.fn(),
+        updateScroll: jest.fn(),
+        visibleWindows: [{ id: 1 }],
+        renderedColumnLayouts: [
+          {
+            columnIndex: 0,
+            left: 0,
+            right: 320,
+            width: 320,
+            height: 120,
+            windows: [{ windowId: 1 }],
+            renderedWindows: [{ windowId: 1, top: 0 }],
+          },
+          {
+            columnIndex: 1,
+            left: 320,
+            right: 640,
+            width: 320,
+            height: 0,
+            windows: [],
+            renderedWindows: [],
+          },
+        ],
+        totalContentWidth: 640,
+        totalContentHeight: 420,
+        height: 420,
+        scrollTop: 0,
+        layoutDirty: true,
+        repackLayoutAndRevealActiveTab,
+      },
+      userStore: {
+        tabWidth: 20,
+        toolbarAutoHide: false,
+        autoFitColumns: false,
+      },
+      dragStore: {
+        dragging: false,
+      },
+      searchStore: {
+        query: '',
+      },
+      focusStore: {
+        setContainerRef: jest.fn(),
+      },
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const relayout = screen.getByRole('button', {
+      name: 'Empty column Relayout all columns',
+    })
+    expect(relayout).toHaveTextContent('Empty column')
+    expect(relayout).toHaveTextContent('Relayout all columns')
+    expect(screen.getByTestId('empty-column-relayout-card-1')).toBeVisible()
+    expect(screen.getByTestId('window-column-1')).toHaveStyle({
+      height: '420px',
+    })
+
+    fireEvent.click(relayout, { detail: 1 })
+
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledTimes(1)
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledWith('mouse')
+
+    repackLayoutAndRevealActiveTab.mockClear()
+    fireEvent.click(relayout, { detail: 0 })
+
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledTimes(1)
+    expect(repackLayoutAndRevealActiveTab).toHaveBeenCalledWith('keyboard')
+  })
+
+  it('combines adjacent empty columns into one relayout action', () => {
+    const store = {
+      windowStore: {
+        initialLoading: false,
+        updateViewport: jest.fn(),
+        updateScroll: jest.fn(),
+        visibleWindows: [{ id: 1 }],
+        renderedColumnLayouts: [
+          {
+            columnIndex: 0,
+            left: 0,
+            right: 320,
+            width: 320,
+            height: 120,
+            windows: [{ windowId: 1 }],
+            renderedWindows: [{ windowId: 1, top: 0 }],
+          },
+          {
+            columnIndex: 1,
+            left: 320,
+            right: 640,
+            width: 320,
+            height: 0,
+            windows: [],
+            renderedWindows: [],
+          },
+          {
+            columnIndex: 2,
+            left: 640,
+            right: 960,
+            width: 320,
+            height: 0,
+            windows: [],
+            renderedWindows: [],
+          },
+        ],
+        totalContentWidth: 960,
+        totalContentHeight: 420,
+        height: 420,
+        scrollTop: 0,
+        layoutDirty: true,
+        repackLayoutAndRevealActiveTab: jest.fn(),
+      },
+      userStore: {
+        tabWidth: 20,
+        toolbarAutoHide: false,
+        autoFitColumns: false,
+      },
+      dragStore: {
+        dragging: false,
+      },
+      searchStore: {
+        query: '',
+      },
+      focusStore: {
+        setContainerRef: jest.fn(),
+      },
+    } as any
+
+    render(
+      <StoreContext.Provider value={store}>
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const relayoutActions = screen.getAllByRole('button', {
+      name: '2 empty columns Relayout all columns',
+    })
+    expect(relayoutActions).toHaveLength(1)
+    expect(relayoutActions[0]).toHaveTextContent('2 empty columns')
+    expect(relayoutActions[0]).toHaveTextContent('Relayout all columns')
+    expect(relayoutActions[0]).toHaveStyle({
+      left: '320px',
+      width: '640px',
+    })
+    expect(relayoutActions[0]).toHaveAttribute('data-empty-column-start', '1')
+    expect(relayoutActions[0]).toHaveAttribute('data-empty-column-end', '2')
+  })
+
+  it('keeps a virtualized empty run stable and transfers focus after it leaves', () => {
+    const focusSearch = jest.fn(() => {
+      screen.getByTestId('search-focus-fallback').focus()
+    })
+    const defocus = jest.fn()
+    const columnLayoutsWithPosition = [
+      {
+        columnIndex: 0,
+        left: 0,
+        right: 320,
+        width: 320,
+        height: 120,
+        windows: [{ windowId: 1 }],
+        renderedWindows: [{ windowId: 1, top: 0 }],
+      },
+      ...[1, 2, 3, 4].map((columnIndex) => ({
+        columnIndex,
+        left: columnIndex * 320,
+        right: (columnIndex + 1) * 320,
+        width: 320,
+        height: 0,
+        windows: [],
+        renderedWindows: [],
+      })),
+    ]
+    const store = {
+      windowStore: {
+        initialLoading: false,
+        updateViewport: jest.fn(),
+        updateScroll: jest.fn(),
+        visibleWindows: [{ id: 1 }],
+        columnLayoutsWithPosition,
+        renderedColumnLayouts: columnLayoutsWithPosition.slice(1, 3),
+        totalContentWidth: 1600,
+        totalContentHeight: 420,
+        height: 420,
+        scrollTop: 0,
+        layoutDirty: true,
+        repackLayoutAndRevealActiveTab: jest.fn(),
+      },
+      userStore: {
+        tabWidth: 20,
+        toolbarAutoHide: false,
+        autoFitColumns: false,
+      },
+      dragStore: {
+        dragging: false,
+      },
+      searchStore: {
+        query: '',
+        _query: '',
+        focus: focusSearch,
+      },
+      focusStore: {
+        defocus,
+        setContainerRef: jest.fn(),
+      },
+    } as any
+
+    const { rerender } = render(
+      <StoreContext.Provider value={store}>
+        <input data-testid="search-focus-fallback" />
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const relayout = screen.getByRole('button', {
+      name: '4 empty columns Relayout all columns',
+    })
+    expect(relayout).toHaveStyle({ left: '320px', width: '640px' })
+    relayout.focus()
+    expect(relayout).toHaveFocus()
+
+    const scrolledStore = {
+      ...store,
+      windowStore: {
+        ...store.windowStore,
+        renderedColumnLayouts: columnLayoutsWithPosition.slice(2, 4),
+      },
+    } as any
+    rerender(
+      <StoreContext.Provider value={scrolledStore}>
+        <input data-testid="search-focus-fallback" />
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    const scrolledRelayout = screen.getByRole('button', {
+      name: '4 empty columns Relayout all columns',
+    })
+    expect(scrolledRelayout).toBe(relayout)
+    expect(scrolledRelayout).toHaveFocus()
+    expect(scrolledRelayout).toHaveStyle({ left: '640px', width: '640px' })
+    expect(scrolledRelayout).toHaveAttribute('data-empty-column-start', '1')
+    expect(scrolledRelayout).toHaveAttribute('data-empty-column-end', '4')
+
+    const pastRunStore = {
+      ...store,
+      windowStore: {
+        ...store.windowStore,
+        renderedColumnLayouts: columnLayoutsWithPosition.slice(0, 1),
+      },
+    } as any
+    rerender(
+      <StoreContext.Provider value={pastRunStore}>
+        <input data-testid="search-focus-fallback" />
+        <WinList />
+      </StoreContext.Provider>,
+    )
+
+    expect(
+      screen.queryByRole('button', {
+        name: '4 empty columns Relayout all columns',
+      }),
+    ).toBeNull()
+    expect(defocus).toHaveBeenCalledTimes(1)
+    expect(focusSearch).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('search-focus-fallback')).toHaveFocus()
+  })
+
+  it.each([
+    ['expands', [2], [2, 3], 2, 3],
+    ['shrinks', [2, 3], [2], 2, 2],
+    ['splits', [1, 2, 3], [1, 3], 1, 1],
+  ])(
+    'preserves focus on an overlapping successor when an empty run %s',
+    (
+      _,
+      initialEmptyColumnIndexes,
+      nextEmptyColumnIndexes,
+      successorStartColumnIndex,
+      successorEndColumnIndex,
+    ) => {
+      const focusSearch = jest.fn(() => {
+        screen.getByTestId('search-focus-fallback').focus()
+      })
+      const defocus = jest.fn()
+      const makeColumnLayouts = (emptyColumnIndexes: number[]) => {
+        const emptyColumnIndexSet = new Set(emptyColumnIndexes)
+        return Array.from({ length: 5 }, (_, columnIndex) => {
+          const windowId = columnIndex + 1
+          const isEmpty = emptyColumnIndexSet.has(columnIndex)
+          return {
+            columnIndex,
+            left: columnIndex * 320,
+            right: (columnIndex + 1) * 320,
+            width: 320,
+            height: isEmpty ? 0 : 120,
+            windows: isEmpty ? [] : [{ windowId }],
+            renderedWindows: isEmpty ? [] : [{ windowId, top: 0 }],
+          }
+        })
+      }
+      const makeStore = (emptyColumnIndexes: number[]) => {
+        const columnLayouts = makeColumnLayouts(emptyColumnIndexes)
+        return {
+          windowStore: {
+            initialLoading: false,
+            updateViewport: jest.fn(),
+            updateScroll: jest.fn(),
+            visibleWindows: Array.from({ length: 5 }, (_, index) => ({
+              id: index + 1,
+            })),
+            columnLayoutsWithPosition: columnLayouts,
+            renderedColumnLayouts: columnLayouts,
+            totalContentWidth: 1600,
+            totalContentHeight: 420,
+            height: 420,
+            scrollTop: 0,
+            layoutDirty: true,
+            repackLayoutAndRevealActiveTab: jest.fn(),
+          },
+          userStore: {
+            tabWidth: 20,
+            toolbarAutoHide: false,
+            autoFitColumns: false,
+          },
+          dragStore: {
+            dragging: false,
+          },
+          searchStore: {
+            query: '',
+            _query: '',
+            focus: focusSearch,
+          },
+          focusStore: {
+            defocus,
+            setContainerRef: jest.fn(),
+          },
+        } as any
+      }
+      const initialStartColumnIndex = Math.min(...initialEmptyColumnIndexes)
+      const initialEndColumnIndex = Math.max(...initialEmptyColumnIndexes)
+      const { rerender } = render(
+        <StoreContext.Provider value={makeStore(initialEmptyColumnIndexes)}>
+          <input data-testid="search-focus-fallback" />
+          <WinList />
+        </StoreContext.Provider>,
+      )
+      const initialRelayout = screen.getByTestId(
+        `empty-column-relayout-${initialStartColumnIndex}`,
+      )
+      expect(initialRelayout).toHaveAttribute(
+        'data-empty-column-end',
+        String(initialEndColumnIndex),
+      )
+      initialRelayout.focus()
+      expect(initialRelayout).toHaveFocus()
+
+      rerender(
+        <StoreContext.Provider value={makeStore(nextEmptyColumnIndexes)}>
+          <input data-testid="search-focus-fallback" />
+          <WinList />
+        </StoreContext.Provider>,
+      )
+
+      const successorRelayout = screen.getByTestId(
+        `empty-column-relayout-${successorStartColumnIndex}`,
+      )
+      expect(successorRelayout).not.toBe(initialRelayout)
+      expect(successorRelayout).toHaveAttribute(
+        'data-empty-column-end',
+        String(successorEndColumnIndex),
+      )
+      expect(successorRelayout).toHaveFocus()
+      expect(defocus).not.toHaveBeenCalled()
+      expect(focusSearch).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each([
+    ['clean layout', false, false, '', ''],
+    ['active drag', true, true, '', ''],
+    ['immediate search query', true, false, 'docs', ''],
+    ['applied search query', true, false, '', 'docs'],
+  ])(
+    'does not offer empty-column relayout for %s',
+    (_, layoutDirty, dragging, query, appliedQuery) => {
+      render(
+        <StoreContext.Provider
+          value={
+            {
+              windowStore: {
+                initialLoading: false,
+                updateViewport: jest.fn(),
+                updateScroll: jest.fn(),
+                visibleWindows: [{ id: 1 }],
+                renderedColumnLayouts: [
+                  {
+                    columnIndex: 0,
+                    left: 0,
+                    width: 320,
+                    height: 0,
+                    windows: [],
+                    renderedWindows: [],
+                  },
+                ],
+                totalContentWidth: 320,
+                totalContentHeight: 420,
+                height: 420,
+                scrollTop: 0,
+                layoutDirty,
+                repackLayoutAndRevealActiveTab: jest.fn(),
+              },
+              userStore: {
+                tabWidth: 20,
+                toolbarAutoHide: false,
+                autoFitColumns: false,
+              },
+              dragStore: {
+                dragging,
+              },
+              searchStore: {
+                query,
+                _query: appliedQuery,
+              },
+              focusStore: {
+                setContainerRef: jest.fn(),
+              },
+            } as any
+          }
+        >
+          <WinList />
+        </StoreContext.Provider>,
+      )
+
+      expect(
+        screen.queryByRole('button', { name: /Relayout all columns/ }),
+      ).toBeNull()
+    },
+  )
 })

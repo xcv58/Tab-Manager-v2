@@ -107,6 +107,7 @@ const createWindowStore = () => {
     },
     focusStore: {
       containerRef: { current: null },
+      defocus: jest.fn(),
       setDefaultFocusedTab: jest.fn(),
       setDefaultFocusedTabWithOptions: jest.fn(() => false),
       revealItem: jest.fn(),
@@ -115,6 +116,7 @@ const createWindowStore = () => {
     searchStore: {
       matchedSet: new Set(),
       _query: '',
+      focus: jest.fn(),
     },
     tabGroupStore: {
       hasTabGroupsApi: () => false,
@@ -678,18 +680,23 @@ describe('WindowStore layout policy', () => {
     })
   })
 
-  it('clearWindow repacks immediately when removed window is the only one in its column', () => {
+  it('clearWindow keeps an empty sole-window column dirty until relayout', () => {
     const windowStore = createWindowStore()
     windowStore.height = 350
     setVisibleLengths(windowStore, [4, 4, 4])
     windowStore.repackLayout('manual')
 
-    windowStore.windows.find((win) => win.id === 3)!.tabs = [] as any
+    const removedWindow = windowStore.windows.find((win) => win.id === 3)!
+    Object.defineProperty(removedWindow, 'visibleLength', {
+      configurable: true,
+      get: () => (removedWindow.tabs.length ? 4 : 0),
+    })
+    removedWindow.tabs = [] as any
     const result = windowStore.clearWindow()
 
-    expect(result.repacked).toBe(true)
-    expect(windowStore.layoutDirty).toBe(false)
-    expect(windowStore.columnLayout).toEqual([[1, 2]])
+    expect(result.repacked).toBe(false)
+    expect(windowStore.layoutDirty).toBe(true)
+    expect(windowStore.columnLayout).toEqual([[1, 2], [3]])
   })
 
   it('clearWindow only marks dirty when removed window shares a rendered column', () => {
@@ -912,11 +919,11 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.pendingFocusedItemReveal).toBe(false)
   })
 
-  it('queues active-tab reveal after an explicit sync action', async () => {
+  it('queues active-tab reveal after sync before the DOM target mounts', async () => {
     const windowStore = createWindowStore()
     windowStore.hasAppliedInitialDefaultFocus = true
     windowStore.initialLoading = false
-    const focus = jest.fn()
+    const focus = jest.fn(() => false)
     ;(windowStore.store as any).focusStore.focus = focus
     ;(getLastFocusedWindowId as jest.Mock).mockResolvedValueOnce(1)
     ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
@@ -953,7 +960,7 @@ describe('WindowStore layout policy', () => {
 
   it('repackLayoutAndRevealActiveTab immediately reveals the active tab for manual actions', () => {
     const windowStore = createWindowStore()
-    const focus = jest.fn()
+    const focus = jest.fn(() => true)
     ;(windowStore.store as any).focusStore.focus = focus
     const win = new Window(
       {
@@ -975,8 +982,9 @@ describe('WindowStore layout policy', () => {
     windowStore.windows = [win]
     windowStore.lastFocusedWindowId = 1
 
-    windowStore.repackLayoutAndRevealActiveTab('mouse')
+    const focused = windowStore.repackLayoutAndRevealActiveTab('mouse')
 
+    expect(focused).toBe(true)
     expect(focus).toHaveBeenCalledWith(
       expect.objectContaining({ id: 11 }),
       expect.objectContaining({
@@ -984,6 +992,111 @@ describe('WindowStore layout policy', () => {
         reveal: true,
       }),
     )
+  })
+
+  it('repackLayoutAndRevealActiveTab returns keyboard focus to search when no active tab survives', () => {
+    const windowStore = createWindowStore()
+    const searchFocus = (windowStore.store as any).searchStore.focus
+
+    const focused = windowStore.repackLayoutAndRevealActiveTab('keyboard')
+
+    expect(focused).toBe(false)
+    expect((windowStore.store as any).focusStore.defocus).toHaveBeenCalledTimes(
+      1,
+    )
+    expect(searchFocus).toHaveBeenCalledTimes(1)
+  })
+
+  it('defers keyboard fallback while an active tab is waiting to mount', () => {
+    const windowStore = createWindowStore()
+    const focus = jest.fn((item) => {
+      item.setFocusState({ focused: true, origin: 'keyboard' })
+      return false
+    })
+    ;(windowStore.store as any).focusStore.focus = focus
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 11,
+            active: true,
+            index: 0,
+            windowId: 1,
+            title: 'Window 1',
+            url: 'https://example.com/1',
+            groupId: -1,
+          },
+        ],
+      },
+      windowStore.store as any,
+    )
+    windowStore.windows = [win]
+    windowStore.lastFocusedWindowId = 1
+    const searchFocus = (windowStore.store as any).searchStore.focus
+
+    const focused = windowStore.repackLayoutAndRevealActiveTab('keyboard')
+
+    expect(focused).toBe(true)
+    expect(focus).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 11 }),
+      expect.objectContaining({
+        origin: 'keyboard',
+        reveal: true,
+      }),
+    )
+    expect(windowStore.pendingKeyboardFocusVerification).toBe(win.tabs[0])
+    expect(windowStore.flushPendingKeyboardFocusVerification()).toBe(false)
+    expect((windowStore.store as any).focusStore.defocus).not.toHaveBeenCalled()
+    expect(searchFocus).not.toHaveBeenCalled()
+
+    expect(windowStore.fallbackPendingKeyboardFocusVerification()).toBe(true)
+    expect((windowStore.store as any).focusStore.defocus).toHaveBeenCalledTimes(
+      1,
+    )
+    expect(searchFocus).toHaveBeenCalledTimes(1)
+  })
+
+  it('accepts delayed keyboard focus after the active tab mounts', () => {
+    const windowStore = createWindowStore()
+    const focus = jest.fn((item) => {
+      item.setFocusState({ focused: true, origin: 'keyboard' })
+      return false
+    })
+    ;(windowStore.store as any).focusStore.focus = focus
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 11,
+            active: true,
+            index: 0,
+            windowId: 1,
+            title: 'Window 1',
+            url: 'https://example.com/1',
+            groupId: -1,
+          },
+        ],
+      },
+      windowStore.store as any,
+    )
+    windowStore.windows = [win]
+    windowStore.lastFocusedWindowId = 1
+    const tabNode = document.createElement('div')
+    tabNode.tabIndex = -1
+    document.body.appendChild(tabNode)
+
+    expect(windowStore.repackLayoutAndRevealActiveTab('keyboard')).toBe(true)
+    expect(windowStore.flushPendingKeyboardFocusVerification()).toBe(false)
+
+    win.tabs[0].setNodeRef({ current: tabNode })
+    tabNode.focus()
+
+    expect(windowStore.flushPendingKeyboardFocusVerification()).toBe(true)
+    expect(windowStore.pendingKeyboardFocusVerification).toBeNull()
+    expect((windowStore.store as any).searchStore.focus).not.toHaveBeenCalled()
+    tabNode.remove()
   })
 
   it('suppresses duplicate lifecycle triggers in the same family', () => {

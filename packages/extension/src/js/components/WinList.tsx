@@ -5,14 +5,119 @@ import ReactResizeDetector from 'react-resize-detector'
 import Loading from './Loading'
 import { useStore } from './hooks/useStore'
 import Window from './Window'
+import { KeyboardArrowLeftIcon, ViewColumnIcon } from 'icons/materialIcons'
+import { useAppTheme } from 'libs/appTheme'
+
+const EMPTY_COLUMN_MIN_HEIGHT = 160
+
+type EmptyColumnRelayoutProps = {
+  columnCount: number
+  endColumnIndex: number
+  height: number
+  left: number
+  onBlur: () => void
+  onFocus: () => void
+  onRelayout: (event: React.MouseEvent<HTMLButtonElement>) => void
+  startColumnIndex: number
+  top: number
+  width: number
+}
+
+const EmptyColumnRelayout = ({
+  columnCount,
+  endColumnIndex,
+  height,
+  left,
+  onBlur,
+  onFocus,
+  onRelayout,
+  startColumnIndex,
+  top,
+  width,
+}: EmptyColumnRelayoutProps) => {
+  const theme = useAppTheme()
+  const isDark = theme.mode === 'dark'
+  const emptyColumnLabel =
+    columnCount === 1 ? 'Empty column' : `${columnCount} empty columns`
+  const style = {
+    '--empty-column-background-active': theme.palette.action.hover,
+    '--empty-column-card-background': theme.palette.background.paper,
+    '--empty-column-card-border': theme.palette.divider,
+    '--empty-column-card-shadow': isDark
+      ? '0 10px 24px rgba(0, 0, 0, 0.28)'
+      : '0 10px 24px rgba(15, 23, 42, 0.1)',
+    '--empty-column-card-shadow-hover': isDark
+      ? '0 14px 30px rgba(0, 0, 0, 0.38)'
+      : '0 14px 30px rgba(15, 23, 42, 0.16)',
+    '--empty-column-focus-ring': theme.palette.primary.main,
+    '--empty-column-helper-text': theme.palette.text.secondary,
+    '--empty-column-icon-text': theme.palette.text.primary,
+    '--empty-column-title-text': theme.palette.text.primary,
+  } as React.CSSProperties
+
+  return (
+    <button
+      type="button"
+      data-empty-column-end={endColumnIndex}
+      data-empty-column-start={startColumnIndex}
+      data-testid={`empty-column-relayout-${startColumnIndex}`}
+      className="empty-column-relayout absolute z-10 flex items-center justify-center text-center focus:outline-none"
+      style={{
+        ...style,
+        left,
+        top,
+        height,
+        width,
+      }}
+      onBlur={onBlur}
+      onClick={onRelayout}
+      onFocus={onFocus}
+    >
+      <span
+        data-testid={`empty-column-relayout-card-${startColumnIndex}`}
+        className="empty-column-relayout-card absolute flex max-w-56 flex-col items-center gap-1.5 rounded-xl border px-5 py-3"
+        style={{ width: 'calc(100% - 32px)' }}
+      >
+        <span
+          aria-hidden="true"
+          className="empty-column-relayout-icon inline-flex h-10 items-center justify-center rounded-full px-2"
+          style={{ backgroundColor: theme.palette.action.selected }}
+        >
+          <KeyboardArrowLeftIcon
+            className="empty-column-relayout-arrow"
+            fontSize={18}
+          />
+          <ViewColumnIcon fontSize={24} />
+        </span>
+        <span className="empty-column-relayout-title text-base font-semibold">
+          {emptyColumnLabel}
+        </span>
+        <span className="empty-column-relayout-helper text-sm">
+          Relayout all columns
+        </span>
+      </span>
+    </button>
+  )
+}
 
 export default observer(() => {
-  const {
-    windowStore,
-    userStore,
-    focusStore: { setContainerRef },
-  } = useStore()
+  const { windowStore, userStore, dragStore, searchStore, focusStore } =
+    useStore()
+  const { setContainerRef } = focusStore
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
+  const focusedEmptyColumnRunRef = useRef<{
+    endColumnIndex: number
+    startColumnIndex: number
+  } | null>(null)
+  const onRelayout = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      focusedEmptyColumnRunRef.current = null
+      windowStore.repackLayoutAndRevealActiveTab(
+        event.detail === 0 ? 'keyboard' : 'mouse',
+      )
+    },
+    [windowStore],
+  )
   const onResize = useCallback(() => {
     if (!scrollbarRef.current) {
       return
@@ -44,13 +149,98 @@ export default observer(() => {
   const {
     initialLoading,
     visibleWindows,
+    columnLayoutsWithPosition,
     renderedColumnLayouts,
     totalContentWidth,
     totalContentHeight,
     pendingFocusedItemReveal,
     flushPendingFocusedItemReveal,
+    pendingKeyboardFocusVerification,
+    flushPendingKeyboardFocusVerification,
+    fallbackPendingKeyboardFocusVerification,
   } = windowStore
   const windowById = new Map(visibleWindows.map((win) => [win.id, win]))
+  const showEmptyColumnRelayout =
+    windowStore.layoutDirty &&
+    !dragStore?.dragging &&
+    !searchStore?.query &&
+    !searchStore?._query
+  const emptyColumnRuns = showEmptyColumnRelayout
+    ? (columnLayoutsWithPosition ?? renderedColumnLayouts).reduce<
+        Array<{
+          endColumnIndex: number
+          left: number
+          right: number
+          startColumnIndex: number
+        }>
+      >((runs, column) => {
+        if (column.windows.length > 0) {
+          return runs
+        }
+        const previousRun = runs[runs.length - 1]
+        const continuesPreviousRun =
+          previousRun &&
+          previousRun.endColumnIndex + 1 === column.columnIndex &&
+          Math.abs(previousRun.right - column.left) < 1
+        if (continuesPreviousRun) {
+          previousRun.endColumnIndex = column.columnIndex
+          previousRun.right = column.right
+          return runs
+        }
+        runs.push({
+          endColumnIndex: column.columnIndex,
+          left: column.left,
+          right: column.right,
+          startColumnIndex: column.columnIndex,
+        })
+        return runs
+      }, [])
+    : []
+  const renderedColumnBounds = renderedColumnLayouts.reduce<{
+    left: number
+    right: number
+  } | null>((bounds, column) => {
+    if (!bounds) {
+      return { left: column.left, right: column.right }
+    }
+    bounds.left = Math.min(bounds.left, column.left)
+    bounds.right = Math.max(bounds.right, column.right)
+    return bounds
+  }, null)
+  const renderedEmptyColumnRuns = renderedColumnBounds
+    ? emptyColumnRuns.flatMap((run) => {
+        const left = Math.max(run.left, renderedColumnBounds.left)
+        const right = Math.min(run.right, renderedColumnBounds.right)
+        return right > left ? [{ ...run, left, right }] : []
+      })
+    : []
+  const focusedEmptyColumnRun = focusedEmptyColumnRunRef.current
+  const focusedEmptyColumnRunStillRendered = Boolean(
+    focusedEmptyColumnRun &&
+    renderedEmptyColumnRuns.some(
+      (run) =>
+        run.startColumnIndex === focusedEmptyColumnRun.startColumnIndex &&
+        run.endColumnIndex === focusedEmptyColumnRun.endColumnIndex,
+    ),
+  )
+  const focusedEmptyColumnRunSuccessor = focusedEmptyColumnRunStillRendered
+    ? null
+    : renderedEmptyColumnRuns.find(
+        (run) =>
+          focusedEmptyColumnRun &&
+          run.startColumnIndex <= focusedEmptyColumnRun.endColumnIndex &&
+          run.endColumnIndex >= focusedEmptyColumnRun.startColumnIndex,
+      )
+  const shouldRestoreEmptyColumnFocus = Boolean(
+    !initialLoading &&
+    showEmptyColumnRelayout &&
+    focusedEmptyColumnRun &&
+    !focusedEmptyColumnRunStillRendered,
+  )
+  const successorStartColumnIndex =
+    focusedEmptyColumnRunSuccessor?.startColumnIndex ?? null
+  const successorEndColumnIndex =
+    focusedEmptyColumnRunSuccessor?.endColumnIndex ?? null
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
@@ -91,6 +281,71 @@ export default observer(() => {
     windowStore,
   ])
 
+  useLayoutEffect(() => {
+    if (!pendingKeyboardFocusVerification) {
+      return
+    }
+    let cancelled = false
+    let frameId = 0
+    let attempts = 0
+    const tryVerifyKeyboardFocus = () => {
+      if (cancelled) {
+        return
+      }
+      if (flushPendingKeyboardFocusVerification()) {
+        return
+      }
+      if (!windowStore.pendingKeyboardFocusVerification) {
+        return
+      }
+      if (attempts >= 6) {
+        fallbackPendingKeyboardFocusVerification()
+        return
+      }
+      attempts += 1
+      frameId = window.requestAnimationFrame(tryVerifyKeyboardFocus)
+    }
+    frameId = window.requestAnimationFrame(tryVerifyKeyboardFocus)
+    return () => {
+      cancelled = true
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+    }
+  }, [
+    fallbackPendingKeyboardFocusVerification,
+    flushPendingKeyboardFocusVerification,
+    pendingKeyboardFocusVerification,
+    windowStore,
+  ])
+
+  useLayoutEffect(() => {
+    if (!shouldRestoreEmptyColumnFocus) {
+      return
+    }
+    if (
+      successorStartColumnIndex !== null &&
+      successorEndColumnIndex !== null
+    ) {
+      const successorAction = scrollbarRef.current?.querySelector<HTMLElement>(
+        `[data-empty-column-start="${successorStartColumnIndex}"][data-empty-column-end="${successorEndColumnIndex}"]`,
+      )
+      if (successorAction) {
+        successorAction.focus()
+        return
+      }
+    }
+    focusedEmptyColumnRunRef.current = null
+    focusStore.defocus?.()
+    searchStore?.focus?.()
+  }, [
+    focusStore,
+    searchStore,
+    shouldRestoreEmptyColumnFocus,
+    successorEndColumnIndex,
+    successorStartColumnIndex,
+  ])
+
   const resizeDetector = (
     <ReactResizeDetector
       handleWidth
@@ -112,35 +367,88 @@ export default observer(() => {
       </div>
     )
   }
-  const columns = renderedColumnLayouts.map((column) => (
-    <div
-      key={`window-column-${column.columnIndex}`}
-      data-testid={`window-column-${column.columnIndex}`}
-      className="absolute top-0"
-      style={{
-        left: column.left,
-        width: column.width,
-        minWidth: `${userStore.tabWidth}rem`,
-        height: column.height,
-      }}
-    >
-      {column.renderedWindows.map((layout) => {
-        const win = windowById.get(layout.windowId)
-        if (!win) {
-          return null
-        }
-        return (
-          <div
-            key={win.id}
-            className="absolute inset-x-0"
-            style={{ top: layout.top }}
-          >
-            <Window width="100%" win={win} />
-          </div>
-        )
-      })}
-    </div>
-  ))
+  const columns = renderedColumnLayouts.map((column) => {
+    const isEmpty = column.windows.length === 0
+    const showRelayout = showEmptyColumnRelayout && isEmpty
+    const columnHeight = showRelayout
+      ? Math.max(totalContentHeight, EMPTY_COLUMN_MIN_HEIGHT)
+      : column.height
+
+    return (
+      <div
+        key={`window-column-${column.columnIndex}`}
+        data-testid={`window-column-${column.columnIndex}`}
+        className="absolute top-0"
+        style={{
+          left: column.left,
+          width: column.width,
+          minWidth: `${userStore.tabWidth}rem`,
+          height: columnHeight,
+        }}
+      >
+        {column.renderedWindows.map((layout) => {
+          const win = windowById.get(layout.windowId)
+          if (!win) {
+            return null
+          }
+          return (
+            <div
+              key={win.id}
+              className="absolute inset-x-0"
+              style={{ top: layout.top }}
+            >
+              <Window width="100%" win={win} />
+            </div>
+          )
+        })}
+      </div>
+    )
+  })
+  const relayoutHeight = Math.max(
+    windowStore.height - 16,
+    EMPTY_COLUMN_MIN_HEIGHT,
+  )
+  const relayoutColumnHeight = Math.max(
+    totalContentHeight,
+    EMPTY_COLUMN_MIN_HEIGHT,
+  )
+  const relayoutTop = Math.max(
+    8,
+    Math.min(
+      windowStore.scrollTop + 8,
+      relayoutColumnHeight - relayoutHeight - 8,
+    ),
+  )
+  const emptyColumnActions = renderedEmptyColumnRuns.map((run) => {
+    return (
+      <EmptyColumnRelayout
+        key={`empty-column-relayout-${run.startColumnIndex}-${run.endColumnIndex}`}
+        columnCount={run.endColumnIndex - run.startColumnIndex + 1}
+        endColumnIndex={run.endColumnIndex}
+        height={relayoutHeight}
+        left={run.left}
+        onBlur={() => {
+          const focusedRun = focusedEmptyColumnRunRef.current
+          if (
+            focusedRun?.startColumnIndex === run.startColumnIndex &&
+            focusedRun.endColumnIndex === run.endColumnIndex
+          ) {
+            focusedEmptyColumnRunRef.current = null
+          }
+        }}
+        onFocus={() => {
+          focusedEmptyColumnRunRef.current = {
+            endColumnIndex: run.endColumnIndex,
+            startColumnIndex: run.startColumnIndex,
+          }
+        }}
+        onRelayout={onRelayout}
+        startColumnIndex={run.startColumnIndex}
+        top={relayoutTop}
+        width={run.right - run.left}
+      />
+    )
+  })
   return (
     <div
       ref={scrollbarRef}
@@ -159,6 +467,7 @@ export default observer(() => {
         }}
       >
         {columns}
+        {emptyColumnActions}
       </div>
       {resizeDetector}
     </div>

@@ -41,6 +41,86 @@ body {
   opacity: 1;
 }
 
+.empty-column-relayout {
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 160ms ease-out;
+}
+
+.empty-column-relayout:hover,
+.empty-column-relayout:focus-visible {
+  background-color: var(--empty-column-background-active);
+}
+
+.empty-column-relayout-card {
+  top: clamp(88px, 30%, 220px);
+  border-color: var(--empty-column-card-border);
+  background-color: var(--empty-column-card-background);
+  box-shadow: var(--empty-column-card-shadow);
+  transform: translateY(-50%);
+  transition:
+    border-color 160ms ease-out,
+    box-shadow 160ms ease-out,
+    transform 160ms ease-out;
+}
+
+.empty-column-relayout:hover .empty-column-relayout-card {
+  box-shadow: var(--empty-column-card-shadow-hover);
+  transform: translateY(-50%) scale(1.015);
+}
+
+.empty-column-relayout:focus-visible .empty-column-relayout-card {
+  box-shadow:
+    0 0 0 2px var(--empty-column-card-background),
+    0 0 0 4px var(--empty-column-focus-ring),
+    var(--empty-column-card-shadow-hover);
+  transform: translateY(-50%) scale(1.015);
+}
+
+.empty-column-relayout:active .empty-column-relayout-card {
+  transform: translateY(-50%) scale(0.99);
+}
+
+.empty-column-relayout-icon {
+  color: var(--empty-column-icon-text);
+}
+
+.empty-column-relayout-title {
+  color: var(--empty-column-title-text);
+}
+
+.empty-column-relayout-helper {
+  color: var(--empty-column-helper-text);
+}
+
+.empty-column-relayout-arrow {
+  transition: transform 160ms ease-out;
+}
+
+.empty-column-relayout:hover .empty-column-relayout-arrow,
+.empty-column-relayout:focus-visible .empty-column-relayout-arrow {
+  transform: translateX(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-column-relayout,
+  .empty-column-relayout-card,
+  .empty-column-relayout-arrow {
+    transition: none;
+  }
+
+  .empty-column-relayout:hover .empty-column-relayout-card,
+  .empty-column-relayout:focus-visible .empty-column-relayout-card,
+  .empty-column-relayout:active .empty-column-relayout-card {
+    transform: translateY(-50%);
+  }
+
+  .empty-column-relayout:hover .empty-column-relayout-arrow,
+  .empty-column-relayout:focus-visible .empty-column-relayout-arrow {
+    transform: none;
+  }
+}
+
 /* Below are css code form load awesome */
 
 /*!
