@@ -695,6 +695,116 @@ describe('WinList', () => {
   })
 
   it.each([
+    ['expands', [2], [2, 3], 2, 3],
+    ['shrinks', [2, 3], [2], 2, 2],
+    ['splits', [1, 2, 3], [1, 3], 1, 1],
+  ])(
+    'preserves focus on an overlapping successor when an empty run %s',
+    (
+      _,
+      initialEmptyColumnIndexes,
+      nextEmptyColumnIndexes,
+      successorStartColumnIndex,
+      successorEndColumnIndex,
+    ) => {
+      const focusSearch = jest.fn(() => {
+        screen.getByTestId('search-focus-fallback').focus()
+      })
+      const defocus = jest.fn()
+      const makeColumnLayouts = (emptyColumnIndexes: number[]) => {
+        const emptyColumnIndexSet = new Set(emptyColumnIndexes)
+        return Array.from({ length: 5 }, (_, columnIndex) => {
+          const windowId = columnIndex + 1
+          const isEmpty = emptyColumnIndexSet.has(columnIndex)
+          return {
+            columnIndex,
+            left: columnIndex * 320,
+            right: (columnIndex + 1) * 320,
+            width: 320,
+            height: isEmpty ? 0 : 120,
+            windows: isEmpty ? [] : [{ windowId }],
+            renderedWindows: isEmpty ? [] : [{ windowId, top: 0 }],
+          }
+        })
+      }
+      const makeStore = (emptyColumnIndexes: number[]) => {
+        const columnLayouts = makeColumnLayouts(emptyColumnIndexes)
+        return {
+          windowStore: {
+            initialLoading: false,
+            updateViewport: jest.fn(),
+            updateScroll: jest.fn(),
+            visibleWindows: Array.from({ length: 5 }, (_, index) => ({
+              id: index + 1,
+            })),
+            columnLayoutsWithPosition: columnLayouts,
+            renderedColumnLayouts: columnLayouts,
+            totalContentWidth: 1600,
+            totalContentHeight: 420,
+            height: 420,
+            scrollTop: 0,
+            layoutDirty: true,
+            repackLayoutAndRevealActiveTab: jest.fn(),
+          },
+          userStore: {
+            tabWidth: 20,
+            toolbarAutoHide: false,
+            autoFitColumns: false,
+          },
+          dragStore: {
+            dragging: false,
+          },
+          searchStore: {
+            query: '',
+            _query: '',
+            focus: focusSearch,
+          },
+          focusStore: {
+            defocus,
+            setContainerRef: jest.fn(),
+          },
+        } as any
+      }
+      const initialStartColumnIndex = Math.min(...initialEmptyColumnIndexes)
+      const initialEndColumnIndex = Math.max(...initialEmptyColumnIndexes)
+      const { rerender } = render(
+        <StoreContext.Provider value={makeStore(initialEmptyColumnIndexes)}>
+          <input data-testid="search-focus-fallback" />
+          <WinList />
+        </StoreContext.Provider>,
+      )
+      const initialRelayout = screen.getByTestId(
+        `empty-column-relayout-${initialStartColumnIndex}`,
+      )
+      expect(initialRelayout).toHaveAttribute(
+        'data-empty-column-end',
+        String(initialEndColumnIndex),
+      )
+      initialRelayout.focus()
+      expect(initialRelayout).toHaveFocus()
+
+      rerender(
+        <StoreContext.Provider value={makeStore(nextEmptyColumnIndexes)}>
+          <input data-testid="search-focus-fallback" />
+          <WinList />
+        </StoreContext.Provider>,
+      )
+
+      const successorRelayout = screen.getByTestId(
+        `empty-column-relayout-${successorStartColumnIndex}`,
+      )
+      expect(successorRelayout).not.toBe(initialRelayout)
+      expect(successorRelayout).toHaveAttribute(
+        'data-empty-column-end',
+        String(successorEndColumnIndex),
+      )
+      expect(successorRelayout).toHaveFocus()
+      expect(defocus).not.toHaveBeenCalled()
+      expect(focusSearch).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each([
     ['clean layout', false, false, '', ''],
     ['active drag', true, true, '', ''],
     ['immediate search query', true, false, 'docs', ''],

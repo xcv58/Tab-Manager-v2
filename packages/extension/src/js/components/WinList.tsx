@@ -110,10 +110,12 @@ export default observer(() => {
     startColumnIndex: number
   } | null>(null)
   const onRelayout = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) =>
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      focusedEmptyColumnRunRef.current = null
       windowStore.repackLayoutAndRevealActiveTab(
         event.detail === 0 ? 'keyboard' : 'mouse',
-      ),
+      )
+    },
     [windowStore],
   )
   const onResize = useCallback(() => {
@@ -163,17 +165,82 @@ export default observer(() => {
     !dragStore?.dragging &&
     !searchStore?.query &&
     !searchStore?._query
+  const emptyColumnRuns = showEmptyColumnRelayout
+    ? (columnLayoutsWithPosition ?? renderedColumnLayouts).reduce<
+        Array<{
+          endColumnIndex: number
+          left: number
+          right: number
+          startColumnIndex: number
+        }>
+      >((runs, column) => {
+        if (column.windows.length > 0) {
+          return runs
+        }
+        const previousRun = runs[runs.length - 1]
+        const continuesPreviousRun =
+          previousRun &&
+          previousRun.endColumnIndex + 1 === column.columnIndex &&
+          Math.abs(previousRun.right - column.left) < 1
+        if (continuesPreviousRun) {
+          previousRun.endColumnIndex = column.columnIndex
+          previousRun.right = column.right
+          return runs
+        }
+        runs.push({
+          endColumnIndex: column.columnIndex,
+          left: column.left,
+          right: column.right,
+          startColumnIndex: column.columnIndex,
+        })
+        return runs
+      }, [])
+    : []
+  const renderedColumnBounds = renderedColumnLayouts.reduce<{
+    left: number
+    right: number
+  } | null>((bounds, column) => {
+    if (!bounds) {
+      return { left: column.left, right: column.right }
+    }
+    bounds.left = Math.min(bounds.left, column.left)
+    bounds.right = Math.max(bounds.right, column.right)
+    return bounds
+  }, null)
+  const renderedEmptyColumnRuns = renderedColumnBounds
+    ? emptyColumnRuns.flatMap((run) => {
+        const left = Math.max(run.left, renderedColumnBounds.left)
+        const right = Math.min(run.right, renderedColumnBounds.right)
+        return right > left ? [{ ...run, left, right }] : []
+      })
+    : []
   const focusedEmptyColumnRun = focusedEmptyColumnRunRef.current
-  const shouldTransferEmptyColumnFocus = Boolean(
+  const focusedEmptyColumnRunStillRendered = Boolean(
+    focusedEmptyColumnRun &&
+    renderedEmptyColumnRuns.some(
+      (run) =>
+        run.startColumnIndex === focusedEmptyColumnRun.startColumnIndex &&
+        run.endColumnIndex === focusedEmptyColumnRun.endColumnIndex,
+    ),
+  )
+  const focusedEmptyColumnRunSuccessor = focusedEmptyColumnRunStillRendered
+    ? null
+    : renderedEmptyColumnRuns.find(
+        (run) =>
+          focusedEmptyColumnRun &&
+          run.startColumnIndex <= focusedEmptyColumnRun.endColumnIndex &&
+          run.endColumnIndex >= focusedEmptyColumnRun.startColumnIndex,
+      )
+  const shouldRestoreEmptyColumnFocus = Boolean(
     !initialLoading &&
     showEmptyColumnRelayout &&
     focusedEmptyColumnRun &&
-    !renderedColumnLayouts.some(
-      (column) =>
-        column.columnIndex >= focusedEmptyColumnRun.startColumnIndex &&
-        column.columnIndex <= focusedEmptyColumnRun.endColumnIndex,
-    ),
+    !focusedEmptyColumnRunStillRendered,
   )
+  const successorStartColumnIndex =
+    focusedEmptyColumnRunSuccessor?.startColumnIndex ?? null
+  const successorEndColumnIndex =
+    focusedEmptyColumnRunSuccessor?.endColumnIndex ?? null
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
@@ -253,13 +320,31 @@ export default observer(() => {
   ])
 
   useLayoutEffect(() => {
-    if (!shouldTransferEmptyColumnFocus) {
+    if (!shouldRestoreEmptyColumnFocus) {
       return
+    }
+    if (
+      successorStartColumnIndex !== null &&
+      successorEndColumnIndex !== null
+    ) {
+      const successorAction = scrollbarRef.current?.querySelector<HTMLElement>(
+        `[data-empty-column-start="${successorStartColumnIndex}"][data-empty-column-end="${successorEndColumnIndex}"]`,
+      )
+      if (successorAction) {
+        successorAction.focus()
+        return
+      }
     }
     focusedEmptyColumnRunRef.current = null
     focusStore.defocus?.()
     searchStore?.focus?.()
-  }, [focusStore, searchStore, shouldTransferEmptyColumnFocus])
+  }, [
+    focusStore,
+    searchStore,
+    shouldRestoreEmptyColumnFocus,
+    successorEndColumnIndex,
+    successorStartColumnIndex,
+  ])
 
   const resizeDetector = (
     <ReactResizeDetector
@@ -319,48 +404,6 @@ export default observer(() => {
       </div>
     )
   })
-  const emptyColumnRuns = showEmptyColumnRelayout
-    ? (columnLayoutsWithPosition ?? renderedColumnLayouts).reduce<
-        Array<{
-          endColumnIndex: number
-          left: number
-          right: number
-          startColumnIndex: number
-        }>
-      >((runs, column) => {
-        if (column.windows.length > 0) {
-          return runs
-        }
-        const previousRun = runs[runs.length - 1]
-        const continuesPreviousRun =
-          previousRun &&
-          previousRun.endColumnIndex + 1 === column.columnIndex &&
-          Math.abs(previousRun.right - column.left) < 1
-        if (continuesPreviousRun) {
-          previousRun.endColumnIndex = column.columnIndex
-          previousRun.right = column.right
-          return runs
-        }
-        runs.push({
-          endColumnIndex: column.columnIndex,
-          left: column.left,
-          right: column.right,
-          startColumnIndex: column.columnIndex,
-        })
-        return runs
-      }, [])
-    : []
-  const renderedColumnBounds = renderedColumnLayouts.reduce<{
-    left: number
-    right: number
-  } | null>((bounds, column) => {
-    if (!bounds) {
-      return { left: column.left, right: column.right }
-    }
-    bounds.left = Math.min(bounds.left, column.left)
-    bounds.right = Math.max(bounds.right, column.right)
-    return bounds
-  }, null)
   const relayoutHeight = Math.max(
     windowStore.height - 16,
     EMPTY_COLUMN_MIN_HEIGHT,
@@ -376,43 +419,36 @@ export default observer(() => {
       relayoutColumnHeight - relayoutHeight - 8,
     ),
   )
-  const emptyColumnActions = renderedColumnBounds
-    ? emptyColumnRuns.map((run) => {
-        const clippedLeft = Math.max(run.left, renderedColumnBounds.left)
-        const clippedRight = Math.min(run.right, renderedColumnBounds.right)
-        if (clippedRight <= clippedLeft) {
-          return null
-        }
-        return (
-          <EmptyColumnRelayout
-            key={`empty-column-relayout-${run.startColumnIndex}-${run.endColumnIndex}`}
-            columnCount={run.endColumnIndex - run.startColumnIndex + 1}
-            endColumnIndex={run.endColumnIndex}
-            height={relayoutHeight}
-            left={clippedLeft}
-            onBlur={() => {
-              const focusedRun = focusedEmptyColumnRunRef.current
-              if (
-                focusedRun?.startColumnIndex === run.startColumnIndex &&
-                focusedRun.endColumnIndex === run.endColumnIndex
-              ) {
-                focusedEmptyColumnRunRef.current = null
-              }
-            }}
-            onFocus={() => {
-              focusedEmptyColumnRunRef.current = {
-                endColumnIndex: run.endColumnIndex,
-                startColumnIndex: run.startColumnIndex,
-              }
-            }}
-            onRelayout={onRelayout}
-            startColumnIndex={run.startColumnIndex}
-            top={relayoutTop}
-            width={clippedRight - clippedLeft}
-          />
-        )
-      })
-    : []
+  const emptyColumnActions = renderedEmptyColumnRuns.map((run) => {
+    return (
+      <EmptyColumnRelayout
+        key={`empty-column-relayout-${run.startColumnIndex}-${run.endColumnIndex}`}
+        columnCount={run.endColumnIndex - run.startColumnIndex + 1}
+        endColumnIndex={run.endColumnIndex}
+        height={relayoutHeight}
+        left={run.left}
+        onBlur={() => {
+          const focusedRun = focusedEmptyColumnRunRef.current
+          if (
+            focusedRun?.startColumnIndex === run.startColumnIndex &&
+            focusedRun.endColumnIndex === run.endColumnIndex
+          ) {
+            focusedEmptyColumnRunRef.current = null
+          }
+        }}
+        onFocus={() => {
+          focusedEmptyColumnRunRef.current = {
+            endColumnIndex: run.endColumnIndex,
+            startColumnIndex: run.startColumnIndex,
+          }
+        }}
+        onRelayout={onRelayout}
+        startColumnIndex={run.startColumnIndex}
+        top={relayoutTop}
+        width={run.right - run.left}
+      />
+    )
+  })
   return (
     <div
       ref={scrollbarRef}
