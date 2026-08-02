@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.4.1...v2.5.0) (2026-08-01)
+
+
+### Features
+
+* **layout:** add empty-column relayout actions ([#2642](https://github.com/xcv58/Tab-Manager-v2/issues/2642)) ([a0e4002](https://github.com/xcv58/Tab-Manager-v2/commit/a0e40024c315b5d3dad2f0714b9f0e198b936df7))
+
 ## [2.4.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.4.0...v2.4.1) (2026-07-13)
 
 
