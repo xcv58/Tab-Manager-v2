@@ -401,7 +401,11 @@ export default class UserStore {
   }
 
   toggleSearchHistory = () => {
-    this.searchHistory = !this.searchHistory
+    const searchHistory = !this.searchHistory
+    if (!searchHistory) {
+      this.store.searchStore?.disableHistorySearch?.()
+    }
+    this.searchHistory = searchHistory
     this.save()
   }
 

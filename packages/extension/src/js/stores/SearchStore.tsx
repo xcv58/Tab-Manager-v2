@@ -101,7 +101,10 @@ export default class SearchStore {
   }
 
   get searchMatchDocuments(): Array<TabSearchDocument | HistoryItem> {
-    return [...this.tabSearchDocuments, ...this.historyTabs]
+    const historyTabs = this.store.userStore.searchHistory
+      ? this.historyTabs
+      : []
+    return [...this.tabSearchDocuments, ...historyTabs]
   }
 
   getMatchModeForQuery = (query: string) =>
@@ -245,7 +248,10 @@ export default class SearchStore {
           text: nextQuery,
           startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
         })
-        if (historySearchVersion !== this.historySearchVersion) {
+        if (
+          historySearchVersion !== this.historySearchVersion ||
+          !this.store.userStore.searchHistory
+        ) {
           return
         }
         const visibleRowCountsBeforeHistory =
@@ -262,6 +268,22 @@ export default class SearchStore {
         this.clearFilteredFocusedTab()
       }
     }
+  }
+
+  disableHistorySearch = () => {
+    const visibleRowCountsBefore =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
+    this.historySearchVersion += 1
+    this.historyTabs = []
+    const shouldRepackLayout =
+      visibleRowCountsBefore == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBefore,
+      ) !== false
+    if (shouldRepackLayout) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
+    this.clearFilteredFocusedTab()
   }
 
   _updateTabQuery = () => {

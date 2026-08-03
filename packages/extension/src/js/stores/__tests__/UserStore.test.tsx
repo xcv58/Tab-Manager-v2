@@ -51,6 +51,24 @@ describe('UserStore', () => {
     expect(repackLayout).toHaveBeenNthCalledWith(2, 'settings-change')
   })
 
+  it('clears and invalidates history before disabling history search', async () => {
+    const disableHistorySearch = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+        disableHistorySearch,
+      },
+    } as any)
+    await flush()
+
+    userStore.searchHistory = true
+    disableHistorySearch.mockClear()
+    userStore.toggleSearchHistory()
+
+    expect(disableHistorySearch).toHaveBeenCalledTimes(1)
+    expect(userStore.searchHistory).toBe(false)
+  })
+
   it('should repack layout after loading stored font size or tab width', async () => {
     const repackLayout = jest.fn()
     const userStore = new UserStore({

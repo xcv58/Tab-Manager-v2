@@ -374,6 +374,117 @@ describe('SearchStore', () => {
     expect(searchStore.rawMatchedTabs).toEqual([fuzzyTab])
   })
 
+  it('ignores history responses from an older search', async () => {
+    let resolveFirstHistory: (items: any[]) => void
+    let resolveSecondHistory: (items: any[]) => void
+    const firstHistory = new Promise<any[]>((resolve) => {
+      resolveFirstHistory = resolve
+    })
+    const secondHistory = new Promise<any[]>((resolve) => {
+      resolveSecondHistory = resolve
+    })
+    jest
+      .spyOn(browser.history, 'search')
+      .mockReturnValueOnce(firstHistory as any)
+      .mockReturnValueOnce(secondHistory as any)
+
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+      },
+    } as any)
+
+    searchStore.query = 'first'
+    const firstUpdate = searchStore._updateQuery()
+    searchStore.query = 'second'
+    const secondUpdate = searchStore._updateQuery()
+
+    const secondItems = [
+      { id: 'second', title: 'Second result', visitCount: 1 },
+    ]
+    resolveSecondHistory!(secondItems)
+    await secondUpdate
+    resolveFirstHistory!([
+      { id: 'first', title: 'First result', visitCount: 1 },
+    ])
+    await firstUpdate
+
+    expect(searchStore.historyTabs).toEqual(secondItems)
+  })
+
+  it('ignores an in-flight history response after history is disabled', async () => {
+    let resolveHistory: (items: any[]) => void
+    const historyResponse = new Promise<any[]>((resolve) => {
+      resolveHistory = resolve
+    })
+    jest
+      .spyOn(browser.history, 'search')
+      .mockReturnValue(historyResponse as any)
+    const userStore = {
+      showUrl: false,
+      searchHistory: true,
+    }
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore,
+    } as any)
+
+    searchStore.query = 'disc'
+    const update = searchStore._updateQuery()
+    searchStore.disableHistorySearch()
+    userStore.searchHistory = false
+    resolveHistory!([{ id: 'history-1', title: 'Discord', visitCount: 1 }])
+    await update
+
+    expect(searchStore.historyTabs).toEqual([])
+    expect(searchStore.searchMatchDocuments).toEqual([])
+  })
+
+  it('repacks and defocuses when history changes the adaptive phase', async () => {
+    jest
+      .spyOn(browser.history, 'search')
+      .mockResolvedValue([
+        { id: 'history-1', title: 'Discord', url: '', visitCount: 1 },
+      ] as any)
+    const repackLayout = jest.fn()
+    const defocus = jest.fn()
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          {
+            id: 1,
+            title: 'Daily Interesting Science Course',
+            url: '',
+            isVisible: true,
+          },
+        ],
+        getVisibleRowCountSnapshot: jest.fn(() => []),
+        haveVisibleRowCountsChanged: jest.fn(() => true),
+        repackLayout,
+      },
+      focusStore: { focusedTabId: 1, defocus },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+      },
+    } as any)
+
+    searchStore.query = 'disc'
+    await searchStore._updateQuery()
+
+    expect(searchStore.matchMode).toBe('contiguous')
+    expect(searchStore.rawMatchedTabs).toEqual([])
+    expect(repackLayout).toHaveBeenCalledTimes(2)
+    expect(defocus).toHaveBeenCalledTimes(1)
+  })
+
   it('suppresses stale highlights while the filtered query catches up', () => {
     jest.useFakeTimers()
     const searchStore = new SearchStore({
