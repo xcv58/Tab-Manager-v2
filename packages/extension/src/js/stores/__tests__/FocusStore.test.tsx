@@ -364,12 +364,12 @@ describe('FocusStore', () => {
     )
     store.windowStore.tabs = win.tabs
     store.windowStore.windows = [win]
-    const container = {
-      scrollTop: 120,
-      scrollLeft: 0,
-      clientHeight: 160,
-      clientWidth: 320,
-    }
+    const container = document.createElement('div')
+    Object.defineProperties(container, {
+      clientHeight: { configurable: true, value: 160 },
+      clientWidth: { configurable: true, value: 320 },
+    })
+    container.scrollTop = 40
     store.focusStore.setContainerRef({ current: container })
     store.focusStore.focus(win.tabs[2])
 
