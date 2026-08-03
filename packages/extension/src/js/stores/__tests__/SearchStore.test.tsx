@@ -1,5 +1,6 @@
 import SearchStore, { matchesSearchText } from 'stores/SearchStore'
 import { browser } from 'libs'
+import log from 'libs/log'
 
 describe('SearchStore', () => {
   afterEach(() => {
@@ -629,6 +630,40 @@ describe('SearchStore', () => {
 
     expect(searchStore.historyTabs).toEqual([])
     expect(searchStore.searchMatchDocuments).toEqual([])
+  })
+
+  it('handles rejected history searches without disrupting query cleanup', async () => {
+    const historyError = new Error('history unavailable')
+    jest.spyOn(browser.history, 'search').mockRejectedValue(historyError)
+    const warn = jest.spyOn(log, 'warn').mockImplementation()
+    const repackLayout = jest.fn()
+    const defocus = jest.fn()
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [],
+        getVisibleRowCountSnapshot: jest.fn(() => []),
+        haveVisibleRowCountsChanged: jest.fn(() => true),
+        repackLayout,
+      },
+      focusStore: { focusedTabId: 999, defocus },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+      },
+    } as any)
+
+    searchStore.query = 'disc'
+
+    await expect(searchStore._updateQuery()).resolves.toBeUndefined()
+
+    expect(searchStore._query).toBe('disc')
+    expect(searchStore.historyTabs).toEqual([])
+    expect(repackLayout).toHaveBeenCalledWith('search-change')
+    expect(defocus).toHaveBeenCalledTimes(1)
+    expect(warn).toHaveBeenCalledWith('SearchStore.loadHistoryTabs failed', {
+      error: historyError,
+    })
   })
 
   it('repacks and defocuses when history changes the adaptive phase', async () => {

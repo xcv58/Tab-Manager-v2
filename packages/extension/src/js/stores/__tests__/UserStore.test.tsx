@@ -63,6 +63,9 @@ describe('UserStore', () => {
 
     userStore.searchHistory = true
     disableHistorySearch.mockClear()
+    disableHistorySearch.mockImplementation(() => {
+      expect(userStore.searchHistory).toBe(true)
+    })
     userStore.toggleSearchHistory()
 
     expect(disableHistorySearch).toHaveBeenCalledTimes(1)

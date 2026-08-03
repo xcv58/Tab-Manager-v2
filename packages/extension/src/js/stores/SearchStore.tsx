@@ -259,10 +259,16 @@ export default class SearchStore {
   }
 
   loadHistoryTabs = async (query: string, historySearchVersion: number) => {
-    const historyTabs = await browser.history.search({
-      text: query,
-      startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
-    })
+    let historyTabs: HistoryItem[]
+    try {
+      historyTabs = await browser.history.search({
+        text: query,
+        startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
+      })
+    } catch (error) {
+      log.warn('SearchStore.loadHistoryTabs failed', { error })
+      return
+    }
     if (
       historySearchVersion !== this.historySearchVersion ||
       query !== this.query ||
