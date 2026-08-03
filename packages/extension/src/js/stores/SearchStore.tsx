@@ -205,6 +205,7 @@ export default class SearchStore {
     this.typing = false
     if (this.isCommand) {
       this.query = this._query
+      void this.refreshHistorySearch()
     }
   }
 
@@ -293,7 +294,7 @@ export default class SearchStore {
     this.clearFilteredFocusedTab()
   }
 
-  enableHistorySearch = async () => {
+  refreshHistorySearch = async () => {
     const historySearchVersion = ++this.historySearchVersion
     this.historyTabs = []
     if (
@@ -305,6 +306,8 @@ export default class SearchStore {
       await this.loadHistoryTabs(this.query, historySearchVersion)
     }
   }
+
+  enableHistorySearch = () => this.refreshHistorySearch()
 
   _updateTabQuery = () => {
     log.debug('_updateTabQuery:', {

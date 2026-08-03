@@ -481,6 +481,55 @@ describe('SearchStore', () => {
     expect(searchStore.matchMode).toBe('contiguous')
   })
 
+  it('refreshes an invalidated history request after command search closes', async () => {
+    jest.useFakeTimers()
+    let resolveFirstHistory: (items: any[]) => void
+    let resolveSecondHistory: (items: any[]) => void
+    const firstHistory = new Promise<any[]>((resolve) => {
+      resolveFirstHistory = resolve
+    })
+    const secondHistory = new Promise<any[]>((resolve) => {
+      resolveSecondHistory = resolve
+    })
+    jest
+      .spyOn(browser.history, 'search')
+      .mockReturnValueOnce(firstHistory as any)
+      .mockReturnValueOnce(secondHistory as any)
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+        preserveSearch: false,
+      },
+    } as any)
+
+    searchStore.search('disc')
+    jest.advanceTimersByTime(200)
+    await Promise.resolve()
+    expect(browser.history.search).toHaveBeenCalledTimes(1)
+
+    searchStore.search('>group')
+    searchStore.stopType()
+    expect(searchStore.query).toBe('disc')
+    expect(browser.history.search).toHaveBeenCalledTimes(2)
+
+    const currentItems = [{ id: 'current', title: 'Discord', visitCount: 1 }]
+    resolveSecondHistory!(currentItems)
+    await Promise.resolve()
+    await Promise.resolve()
+    resolveFirstHistory!([{ id: 'stale', title: 'Stale', visitCount: 1 }])
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(searchStore.historyTabs).toEqual(currentItems)
+
+    jest.clearAllTimers()
+    jest.useRealTimers()
+  })
+
   it('ignores an in-flight history response after history is disabled', async () => {
     let resolveHistory: (items: any[]) => void
     const historyResponse = new Promise<any[]>((resolve) => {
