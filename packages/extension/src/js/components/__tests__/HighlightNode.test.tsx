@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import HighlightNode, { getHighlightRanges } from 'components/HighlightNode'
+import { getSearchMatchMode, matchItemsInMode } from 'libs/searchMatching'
 
 describe('HighlightNode', () => {
   it('highlights one complete case-preserving substring in contiguous mode', () => {
@@ -75,6 +76,30 @@ describe('HighlightNode', () => {
       'data-search-highlight',
       'contiguous',
     )
+  })
+
+  it('uses whole-string casing for context-sensitive Unicode matches', () => {
+    render(<HighlightNode query="ος" text="ΟΣ" mode="contiguous" />)
+
+    expect(screen.getByText('ΟΣ')).toHaveAttribute(
+      'data-search-highlight',
+      'contiguous',
+    )
+  })
+
+  it('does not highlight a nonmatching field admitted by another search key', () => {
+    const item = { title: 'ΟΣ', url: 'https://example.com/οσ' }
+    const query = 'οσ'
+    const keys = ['title', 'url']
+    const mode = getSearchMatchMode([item], query, { keys })
+
+    expect(mode).toBe('contiguous')
+    expect(matchItemsInMode([item], query, mode, { keys })).toEqual([item])
+
+    const { container } = render(
+      <HighlightNode query={query} text={item.title} mode={mode} />,
+    )
+    expect(container.querySelector('[data-search-highlight]')).toBeNull()
   })
 
   it('maps expanded accent normalization back to one source character', () => {

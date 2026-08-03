@@ -57,6 +57,20 @@ describe('searchMatching', () => {
     })
   })
 
+  it('uses whole-string casing for context-sensitive Unicode matches', () => {
+    expect(adaptiveMatchSorter(['ΟΣ'], 'ος')).toEqual({
+      items: ['ΟΣ'],
+      mode: 'contiguous',
+    })
+    expect(normalizeSearchTextWithOffsets('ΟΣ')).toEqual({
+      text: 'ος',
+      sourceRanges: [
+        [0, 1],
+        [1, 2],
+      ],
+    })
+  })
+
   it('builds source offsets with linear normalization work', () => {
     const text = 'a'.repeat(50_000)
     mockNormalizedInputLength = 0

@@ -31,8 +31,8 @@ const isCombiningMark = (character: string) => {
 
 export const normalizeSearchTextWithOffsets = (text: string) => {
   const sourceText = text || ''
-  let normalizedText = ''
-  const sourceRanges: Array<[number, number]> = []
+  let preparedText = ''
+  const preparedSourceRanges: Array<[number, number]> = []
 
   for (let sourceStart = 0; sourceStart < sourceText.length; ) {
     const firstCodePoint = sourceText.codePointAt(sourceStart)
@@ -48,15 +48,40 @@ export const normalizeSearchTextWithOffsets = (text: string) => {
       sourceEnd += nextCharacter.length
     }
 
-    const normalizedSegment = normalizeSearchText(
+    const preparedSegment = removeAccents(
       sourceText.slice(sourceStart, sourceEnd),
     )
-    normalizedText += normalizedSegment
-    for (let index = 0; index < normalizedSegment.length; index += 1) {
-      sourceRanges.push([sourceStart, sourceEnd])
+    preparedText += preparedSegment
+    for (let index = 0; index < preparedSegment.length; index += 1) {
+      preparedSourceRanges.push([sourceStart, sourceEnd])
     }
 
     sourceStart = sourceEnd
+  }
+
+  // match-sorter lowercases the complete accent-normalized value. Doing the
+  // same here preserves context-sensitive mappings such as Greek final sigma.
+  const normalizedText = preparedText.toLowerCase()
+  const sourceRanges: Array<[number, number]> = []
+  for (let preparedStart = 0; preparedStart < preparedText.length; ) {
+    const codePoint = preparedText.codePointAt(preparedStart)
+    const preparedCharacter = String.fromCodePoint(codePoint || 0)
+    const preparedEnd = preparedStart + preparedCharacter.length
+    const startRange = preparedSourceRanges[preparedStart]
+    const endRange = preparedSourceRanges[preparedEnd - 1]
+
+    if (startRange && endRange) {
+      const sourceRange: [number, number] = [startRange[0], endRange[1]]
+      for (
+        let index = 0;
+        index < preparedCharacter.toLowerCase().length;
+        index += 1
+      ) {
+        sourceRanges.push(sourceRange)
+      }
+    }
+
+    preparedStart = preparedEnd
   }
 
   return { text: normalizedText, sourceRanges }
