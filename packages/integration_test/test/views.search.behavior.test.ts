@@ -6,6 +6,7 @@ import {
   URLS,
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
+  IntegrationFixtureServer,
   initBrowserWithExtension,
   openPages,
   groupTabsByUrl,
@@ -17,6 +18,7 @@ import {
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
+let fixtureServer: IntegrationFixtureServer
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
 
@@ -69,6 +71,7 @@ test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
   test.beforeAll(async () => {
+    fixtureServer = await startIntegrationFixtureServer()
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
@@ -77,6 +80,7 @@ test.describe('The Extension page should', () => {
 
   test.afterAll(async () => {
     await browserContext?.close()
+    await fixtureServer?.close()
     browserContext = null
     page = null
     extensionURL = ''
@@ -148,56 +152,49 @@ test.describe('The Extension page should', () => {
   })
 
   test('use a history-only contiguous match for both search surfaces', async () => {
-    const fixtureServer = await startIntegrationFixtureServer()
-    try {
-      await page.evaluate(async () => {
-        const settings = {
-          query: '',
-          searchHistory: true,
-          showSearchResultMenu: true,
-          showUnmatchedTab: false,
-          showUrl: true,
-        }
-        await chrome.storage.local.set(settings)
-        await chrome.storage.sync?.set?.(settings)
-      })
-      await page.reload()
-      await page.waitForTimeout(700)
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        searchHistory: true,
+        showSearchResultMenu: true,
+        showUnmatchedTab: false,
+        showUrl: true,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
 
-      const fuzzyTitle =
-        'Planning Hub Analysis Search Engineering Knowledge Explorer Yesterday'
-      const fuzzyUrl = `data:text/html,<title>${encodeURIComponent(fuzzyTitle)}</title>`
-      const historyUrl = `${fixtureServer.baseUrl}/phasekey?title=Phasekey%20History`
-      const [, historyPage] = await openPages(browserContext, [
-        fuzzyUrl,
-        historyUrl,
-      ])
-      await historyPage.close()
-      await page.bringToFront()
-      await page.reload()
-      await page.waitForTimeout(700)
+    const fuzzyTitle =
+      'Planning Hub Analysis Search Engineering Knowledge Explorer Yesterday'
+    const fuzzyUrl = `data:text/html,<title>${encodeURIComponent(fuzzyTitle)}</title>`
+    const historyUrl = `${fixtureServer.baseUrl}/phasekey?title=Phasekey%20History`
+    const [, historyPage] = await openPages(browserContext, [
+      fuzzyUrl,
+      historyUrl,
+    ])
+    await historyPage.close()
+    await page.bringToFront()
+    await page.reload()
+    await page.waitForTimeout(700)
 
-      const searchInput = page.locator(
-        'input[placeholder*="Search tabs or URLs"]',
-      )
-      await searchInput.fill('phasekey')
-      await page.waitForTimeout(900)
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.fill('phasekey')
+    await page.waitForTimeout(900)
 
-      const fuzzyFullPageRow = page
-        .locator('[data-testid^="tab-row-"]')
-        .filter({ hasText: fuzzyTitle })
-      await expect(fuzzyFullPageRow).toHaveCount(0)
+    const fuzzyFullPageRow = page
+      .locator('[data-testid^="tab-row-"]')
+      .filter({ hasText: fuzzyTitle })
+    await expect(fuzzyFullPageRow).toHaveCount(0)
 
-      const options = page.locator('[role="option"]')
-      await expect(
-        options.filter({ hasText: 'Phasekey History' }),
-      ).toBeVisible()
-      expect((await options.allTextContents()).join(' ')).not.toContain(
-        fuzzyTitle,
-      )
-    } finally {
-      await fixtureServer.close()
-    }
+    const options = page.locator('[role="option"]')
+    await expect(options.filter({ hasText: 'Phasekey History' })).toBeVisible()
+    expect((await options.allTextContents()).join(' ')).not.toContain(
+      fuzzyTitle,
+    )
   })
 
   test('prefer contiguous full-page matches and fall back to fuzzy matching', async () => {
