@@ -4,6 +4,7 @@ import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import AutocompleteSearch from '../index'
 import { useOptions } from 'components/hooks/useOptions'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
+import { getSearchMatchMode } from 'libs/searchMatching'
 
 jest.mock('components/hooks/useOptions', () => ({
   useOptions: jest.fn(),
@@ -130,6 +131,10 @@ const renderAutocompleteSearch = ({
           return query.startsWith('>')
         },
         search: (nextValue: string) => setQuery(nextValue),
+        getMatchModeForQuery: (nextValue: string) =>
+          getSearchMatchMode(options, nextValue, {
+            keys: ['title', 'url'],
+          }),
         setSearchEl,
         startType,
         stopType,
@@ -189,7 +194,7 @@ describe('AutocompleteSearch', () => {
     })
   })
 
-  it('keeps fuzzy matches while ranking stronger text matches first', async () => {
+  it('shows only contiguous matches and ranks stronger text matches first', async () => {
     renderAutocompleteSearch({
       initialQuery: 'abc',
       open: true,
@@ -206,13 +211,77 @@ describe('AutocompleteSearch', () => {
       (await screen.findAllByRole('option')).map((option) =>
         option.textContent?.trim(),
       ),
-    ).toEqual([
-      'abc',
-      'abc project',
-      'Project abc notes',
-      'Alpha Beta Charlie',
-      'Archive big context',
-    ])
+    ).toEqual(['abc', 'abc project', 'Project abc notes'])
+  })
+
+  it('falls back to fuzzy matches when no contiguous match exists', async () => {
+    renderAutocompleteSearch({
+      initialQuery: 'abc',
+      open: true,
+      options: [
+        { id: 2, title: 'Archive big context', url: '', groupId: -1 },
+        { id: 1, title: 'Alpha Beta Charlie', url: '', groupId: -1 },
+      ],
+    })
+
+    expect(
+      (await screen.findAllByRole('option')).map((option) =>
+        option.textContent?.trim(),
+      ),
+    ).toEqual(['Alpha Beta Charlie', 'Archive big context'])
+  })
+
+  it('uses one adaptive match mode when history has the only contiguous match', async () => {
+    renderAutocompleteSearch({
+      initialQuery: 'disc',
+      open: true,
+      options: [
+        {
+          id: 1,
+          title: 'Daily Interesting Science Course',
+          url: '',
+          groupId: -1,
+        },
+        {
+          id: 'history-1',
+          title: 'Discord',
+          url: '',
+          visitCount: 1,
+        },
+      ],
+    })
+
+    const optionTexts = (await screen.findAllByRole('option')).map((option) =>
+      option.textContent?.trim(),
+    )
+    expect(optionTexts).toHaveLength(2)
+    expect(optionTexts[0]).toContain('History')
+    expect(optionTexts[1]).toBe('Discord')
+    expect(optionTexts.join(' ')).not.toContain(
+      'Daily Interesting Science Course',
+    )
+  })
+
+  it('restores both tab and history results during fuzzy fallback', async () => {
+    renderAutocompleteSearch({
+      initialQuery: 'dsc',
+      open: true,
+      options: [
+        { id: 1, title: 'Discord', url: '', groupId: -1 },
+        {
+          id: 'history-1',
+          title: 'Daily Science Course',
+          url: '',
+          visitCount: 1,
+        },
+      ],
+    })
+
+    const options = await screen.findAllByRole('option')
+    expect(options).toHaveLength(3)
+    expect(options[0]).toHaveTextContent('Discord')
+    expect(options[1]).toHaveTextContent('History')
+    expect(options[2]).toHaveTextContent('Daily Science Course')
   })
 
   it('clears and dismisses the uncontrolled search field when Escape is pressed', async () => {
@@ -269,7 +338,7 @@ describe('AutocompleteSearch', () => {
 
   it('keeps command results available when the result menu is disabled', async () => {
     renderAutocompleteSearch({
-      initialQuery: '>sort',
+      initialQuery: '>srt',
       showResultMenu: false,
       options: [
         {

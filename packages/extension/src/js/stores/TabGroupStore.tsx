@@ -379,9 +379,8 @@ export default class GroupStore {
   getRowsForWindow = (win: Window): WindowRow[] => {
     const rows: WindowRow[] = []
     const { tabs } = win
-    const { matchedSet, _query } = this.store.searchStore
+    const { matchedSet, queryActive } = this.store.searchStore
     const { showUnmatchedTab } = this.store.userStore
-    const queryActive = !!_query
     const processedGroupIds = new Set<number>()
 
     for (let i = 0; i < tabs.length; i += 1) {

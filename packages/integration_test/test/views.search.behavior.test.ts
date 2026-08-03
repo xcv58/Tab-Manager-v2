@@ -6,9 +6,11 @@ import {
   URLS,
   CLOSE_PAGES,
   closeCurrentWindowTabsExceptActive,
+  IntegrationFixtureServer,
   initBrowserWithExtension,
   openPages,
   groupTabsByUrl,
+  startIntegrationFixtureServer,
   waitForDefaultExtensionView,
   waitForTestId,
 } from '../util'
@@ -16,6 +18,7 @@ import {
 let page: Page
 let browserContext: ChromiumBrowserContext
 let extensionURL: string
+let fixtureServer: IntegrationFixtureServer
 
 const snapShotOptions = { maxDiffPixelRatio: 0.18, threshold: 0.2 }
 
@@ -68,6 +71,7 @@ test.describe('The Extension page should', () => {
   test.describe.configure({ mode: 'serial' })
   test.setTimeout(60000)
   test.beforeAll(async () => {
+    fixtureServer = await startIntegrationFixtureServer()
     const init = await initBrowserWithExtension()
     browserContext = init.browserContext
     extensionURL = init.extensionURL
@@ -76,6 +80,7 @@ test.describe('The Extension page should', () => {
 
   test.afterAll(async () => {
     await browserContext?.close()
+    await fixtureServer?.close()
     browserContext = null
     page = null
     extensionURL = ''
@@ -146,6 +151,209 @@ test.describe('The Extension page should', () => {
     )
   })
 
+  test('use a history-only contiguous match for both search surfaces', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        searchHistory: true,
+        showSearchResultMenu: true,
+        showUnmatchedTab: false,
+        showUrl: true,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const fuzzyTitle =
+      'Planning Hub Analysis Search Engineering Knowledge Explorer Yesterday'
+    const fuzzyUrl = `data:text/html,<title>${encodeURIComponent(fuzzyTitle)}</title>`
+    const historyUrl = `${fixtureServer.baseUrl}/phasekey?title=Phasekey%20History`
+    const [, historyPage] = await openPages(browserContext, [
+      fuzzyUrl,
+      historyUrl,
+    ])
+    await historyPage.close()
+    await page.bringToFront()
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.fill('phasekey')
+    await page.waitForTimeout(900)
+
+    const fuzzyFullPageRow = page
+      .locator('[data-testid^="tab-row-"]')
+      .filter({ hasText: fuzzyTitle })
+    await expect(fuzzyFullPageRow).toHaveCount(0)
+
+    const options = page.locator('[role="option"]')
+    await expect(options.filter({ hasText: 'Phasekey History' })).toBeVisible()
+    expect((await options.allTextContents()).join(' ')).not.toContain(
+      fuzzyTitle,
+    )
+  })
+
+  test('ignore hidden history when selecting the full-page match phase', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        searchHistory: true,
+        showSearchResultMenu: false,
+        showUnmatchedTab: false,
+        showUrl: true,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const fuzzyTitle =
+      'Planning Hub Analysis Search Engineering Knowledge Explorer Yesterday'
+    const fuzzyUrl = `data:text/html,<title>${encodeURIComponent(fuzzyTitle)}</title>`
+    const historyUrl = `${fixtureServer.baseUrl}/phasekey?title=Phasekey%20History`
+    const [, historyPage] = await openPages(browserContext, [
+      fuzzyUrl,
+      historyUrl,
+    ])
+    await historyPage.close()
+    await page.bringToFront()
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.fill('phasekey')
+    await page.waitForTimeout(900)
+
+    const fuzzyFullPageRow = page
+      .locator('[data-testid^="tab-row-"]')
+      .filter({ hasText: fuzzyTitle })
+    await expect(fuzzyFullPageRow).toBeVisible()
+    await expect(
+      fuzzyFullPageRow.locator('[data-search-highlight="fuzzy"]').first(),
+    ).toBeVisible()
+    await expect(page.locator('[role="option"]')).toHaveCount(0)
+  })
+
+  test('prefer contiguous full-page matches and fall back to fuzzy matching', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        showSearchResultMenu: false,
+        showUnmatchedTab: false,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const titles = [
+      'Daily Interesting Science Course',
+      'Project DISC Notes',
+      'Discord Guide',
+    ]
+    await openPages(browserContext, [
+      'data:text/html,<title>Daily%20Interesting%20Science%20Course</title>',
+      'data:text/html,<title>Project%20DISC%20Notes</title>',
+      'data:text/html,<title>Discord%20Guide</title>',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    const visibleRows = page.locator('[data-testid^="tab-row-"]')
+    const readVisibleTitles = async () =>
+      (await visibleRows.allTextContents())
+        .map((text) => titles.find((title) => text.includes(title)))
+        .filter(Boolean)
+
+    await searchInput.fill('disc')
+    await page.waitForTimeout(700)
+
+    await expect
+      .poll(readVisibleTitles)
+      .toEqual(['Project DISC Notes', 'Discord Guide'])
+    await expect(page.locator('[role="option"]')).toHaveCount(0)
+    const discordRow = visibleRows.filter({ hasText: 'Discord Guide' })
+    await expect(
+      discordRow.locator('[data-search-highlight="contiguous"]').first(),
+    ).toHaveText('Disc')
+
+    await searchInput.fill('dsc')
+    await page.waitForTimeout(700)
+
+    await expect.poll(readVisibleTitles).toEqual(titles)
+    const dailyRow = visibleRows.filter({
+      hasText: 'Daily Interesting Science Course',
+    })
+    await expect(
+      dailyRow.locator('[data-search-highlight="fuzzy"]').first(),
+    ).toBeVisible()
+  })
+
+  test('apply adaptive matching and relevance ranking in the result menu', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        showSearchResultMenu: true,
+        showUnmatchedTab: true,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    await openPages(browserContext, [
+      'data:text/html,<title>Daily%20Interesting%20Science%20Course</title>',
+      'data:text/html,<title>Project%20DISC%20Notes</title>',
+      'data:text/html,<title>Discord%20Guide</title>',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    const options = page.locator('[role="option"]')
+
+    await searchInput.fill('disc')
+    await page.waitForTimeout(700)
+
+    await expect.poll(() => options.count()).toBeGreaterThanOrEqual(2)
+    const contiguousOptionTexts = await options.allTextContents()
+    expect(contiguousOptionTexts[0]).toContain('Discord Guide')
+    expect(contiguousOptionTexts[1]).toContain('Project DISC Notes')
+    expect(contiguousOptionTexts.join(' ')).not.toContain(
+      'Daily Interesting Science Course',
+    )
+
+    await searchInput.fill('dsc')
+    await page.waitForTimeout(700)
+
+    await expect.poll(() => options.count()).toBeGreaterThanOrEqual(3)
+    const fuzzyOption = options.filter({
+      hasText: 'Daily Interesting Science Course',
+    })
+    await expect(fuzzyOption.first()).toBeVisible()
+    await expect(
+      fuzzyOption.first().locator('[data-search-highlight="fuzzy"]').first(),
+    ).toBeVisible()
+  })
+
   test('show grouped search context even when the query matches only the tab title', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
@@ -182,13 +390,29 @@ test.describe('The Extension page should', () => {
     await searchInput.fill('SearchDocs')
     await page.waitForTimeout(700)
     const groupedHeader = page.getByTestId(`search-group-header-${groupId}`)
+    const fullPageGroupTitle = page.getByTestId(`tab-group-title-${groupId}`)
     await expect(groupedHeader).toBeVisible()
     await expect(groupedHeader).toContainText('SearchDocs')
+    await expect(
+      groupedHeader.locator('[data-search-highlight="contiguous"]'),
+    ).toHaveText('SearchDocs')
+    await expect(
+      fullPageGroupTitle.locator('[data-search-highlight="contiguous"]'),
+    ).toHaveText('SearchDocs')
     const groupMatchedOption = page
       .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(groupMatchedOption).not.toContainText('SearchDocs')
+
+    await searchInput.fill('sdocs')
+    await page.waitForTimeout(700)
+    await expect(
+      groupedHeader.locator('[data-search-highlight="fuzzy"]'),
+    ).toHaveCount(5)
+    await expect(
+      fullPageGroupTitle.locator('[data-search-highlight="fuzzy"]'),
+    ).toHaveCount(5)
 
     await searchInput.fill('Alpha Guide')
     await page.waitForTimeout(700)
@@ -225,6 +449,46 @@ test.describe('The Extension page should', () => {
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(titleMatchedWithoutUrl).not.toContainText('SearchDocs')
+  })
+
+  test('keep collapsed groups closed for whitespace-only input', async () => {
+    const alphaUrl =
+      'data:text/html,<title>Whitespace%20Alpha</title>whitespace-alpha'
+    const betaUrl =
+      'data:text/html,<title>Whitespace%20Beta</title>whitespace-beta'
+    await openPages(browserContext, [alphaUrl, betaUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: [alphaUrl, betaUrl],
+      title: 'Whitespace Group',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.evaluate(async (id) => {
+      await chrome.tabGroups.update(id, { collapsed: true })
+    }, groupId)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.fill('   ')
+    await page.waitForTimeout(700)
+
+    await expect(page.getByTestId(`tab-group-header-${groupId}`)).toBeVisible()
+    await expect(
+      page.locator('[data-testid^="tab-row-"]').filter({
+        hasText: 'Whitespace Alpha',
+      }),
+    ).toHaveCount(0)
+    await expect(
+      page.locator('[data-testid^="tab-row-"]').filter({
+        hasText: 'Whitespace Beta',
+      }),
+    ).toHaveCount(0)
   })
 
   test('use natural tab order and grouped sections when the search box is empty', async () => {

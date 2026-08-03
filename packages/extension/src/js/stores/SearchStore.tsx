@@ -1,24 +1,21 @@
 import { MutableRefObject } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { browser } from 'libs'
+import { browser, NOT_POPUP } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
-import { matchSorter } from 'match-sorter'
 import debounce from 'lodash.debounce'
+import {
+  getSearchMatchMode,
+  matchItemsInMode,
+  normalizeSearchQuery,
+} from 'libs/searchMatching'
 import Tab from './Tab'
+
+export { matchesSearchText } from 'libs/searchMatching'
 
 const hasCommandPrefix = (value: string) => value.startsWith('>')
 
 const DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24
-
-export const matchesSearchText = (text: string, query: string) => {
-  const normalizedText = (text || '').trim()
-  const normalizedQuery = (query || '').trim()
-  if (!normalizedText || !normalizedQuery) {
-    return false
-  }
-  return matchSorter([normalizedText], normalizedQuery).length > 0
-}
 
 export const getTabSearchKeys = ({
   showUrl,
@@ -57,7 +54,12 @@ export default class SearchStore {
   store: Store
 
   constructor(store: Store) {
-    makeAutoObservable(this)
+    makeAutoObservable(this, {
+      updateQuery: false,
+      updateTabQuery: false,
+      activeHistorySearch: false,
+      refreshHistoryAfterCommand: false,
+    })
 
     this.store = store
   }
@@ -80,10 +82,43 @@ export default class SearchStore {
 
   historyTabs: HistoryItem[] = []
 
+  historySearchVersion = 0
+
+  activeHistorySearch: { query: string; version: number } | null = null
+
+  refreshHistoryAfterCommand = false
+
   typing = false
 
   get isCommand() {
     return hasCommandPrefix(this.query)
+  }
+
+  get effectiveInputQuery() {
+    return normalizeSearchQuery(this.query)
+  }
+
+  get effectiveQuery() {
+    return normalizeSearchQuery(this._query)
+  }
+
+  get effectiveTabQuery() {
+    return normalizeSearchQuery(this._tabQuery)
+  }
+
+  get inputQueryActive() {
+    return !!this.effectiveInputQuery
+  }
+
+  get queryActive() {
+    return !!this.effectiveQuery
+  }
+
+  get searchResultMenuEnabled() {
+    const isPopup =
+      typeof window === 'undefined' ||
+      !new URLSearchParams(window.location.search).has(NOT_POPUP)
+    return isPopup || this.store.userStore.showSearchResultMenu
   }
 
   get tabSearchKeys() {
@@ -105,13 +140,40 @@ export default class SearchStore {
     }))
   }
 
-  get rawMatchedTabDocuments(): TabSearchDocument[] {
-    if (!this._query) {
-      return this.tabSearchDocuments
-    }
-    return matchSorter(this.tabSearchDocuments, this._query, {
+  get searchMatchDocuments(): Array<TabSearchDocument | HistoryItem> {
+    const historyTabs =
+      this.store.userStore.searchHistory && this.searchResultMenuEnabled
+        ? this.historyTabs
+        : []
+    return [...this.tabSearchDocuments, ...historyTabs]
+  }
+
+  getMatchModeForQuery = (query: string) =>
+    getSearchMatchMode(this.searchMatchDocuments, query, {
       keys: this.tabSearchKeys,
     })
+
+  get rawMatchedTabDocuments(): TabSearchDocument[] {
+    return matchItemsInMode(
+      this.tabSearchDocuments,
+      this.effectiveQuery,
+      this.matchMode,
+      { keys: this.tabSearchKeys },
+    )
+  }
+
+  get matchMode() {
+    return this.getMatchModeForQuery(this.effectiveQuery)
+  }
+
+  get tabHighlightQuery() {
+    return this.effectiveTabQuery === this.effectiveQuery
+      ? this.effectiveTabQuery
+      : ''
+  }
+
+  get tabHighlightMatchMode() {
+    return this.getMatchModeForQuery(this.tabHighlightQuery)
   }
 
   get matchedTabs(): Tab[] {
@@ -185,7 +247,13 @@ export default class SearchStore {
   stopType = () => {
     this.typing = false
     if (this.isCommand) {
+      const shouldRefreshHistory = this.refreshHistoryAfterCommand
+      this.refreshHistoryAfterCommand = false
       this.query = this._query
+      this._tabQuery = this._query
+      if (shouldRefreshHistory) {
+        void this.refreshHistorySearch()
+      }
     }
   }
 
@@ -194,23 +262,38 @@ export default class SearchStore {
     if (this.query === query) {
       return
     }
+    const enteringCommand = !this.isCommand && hasCommandPrefix(query)
+    if (enteringCommand) {
+      this.refreshHistoryAfterCommand =
+        this.activeHistorySearch?.query === this.effectiveQuery
+    }
+    // Invalidate an active history request as soon as the public query
+    // changes. Waiting for the debounced update would leave a window where
+    // results for the previous query could still be committed.
+    this.historySearchVersion += 1
     this.query = query
     if (!this.isCommand) {
+      this.refreshHistoryAfterCommand = false
       this.updateQuery()
       this.updateTabQuery()
       if (this.store.userStore.preserveSearch) {
         browser.storage.local.set({ query })
       }
     } else {
+      this.updateQuery.cancel()
+      this.updateTabQuery.cancel()
       browser.storage.local.set({ lastCommand: query.slice(1) })
     }
   }
 
   _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
+    const nextQuery = this.effectiveInputQuery
+    const historySearchVersion = ++this.historySearchVersion
     const visibleRowCountsBefore =
       this.store.windowStore?.getVisibleRowCountSnapshot?.()
-    this._query = this.query
+    this._query = nextQuery
+    this.historyTabs = []
     const shouldRepackLayout =
       visibleRowCountsBefore == null ||
       this.store.windowStore?.haveVisibleRowCountsChanged?.(
@@ -220,23 +303,84 @@ export default class SearchStore {
       this.store.windowStore?.repackLayout?.('search-change')
     }
     this.clearFilteredFocusedTab()
-    if (this.store.userStore.searchHistory) {
-      if (browser.history) {
-        const historyTabs = await browser.history.search({
-          text: this._query,
-          startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
-        })
-        this.historyTabs = historyTabs
-      }
+    if (this.store.userStore.searchHistory && browser.history) {
+      await this.loadHistoryTabs(nextQuery, historySearchVersion)
     }
   }
+
+  loadHistoryTabs = async (query: string, historySearchVersion: number) => {
+    this.activeHistorySearch = { query, version: historySearchVersion }
+    let historyTabs: HistoryItem[]
+    try {
+      historyTabs = await browser.history.search({
+        text: query,
+        startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
+      })
+    } catch (error) {
+      log.warn('SearchStore.loadHistoryTabs failed', { error })
+      return
+    } finally {
+      if (this.activeHistorySearch?.version === historySearchVersion) {
+        this.activeHistorySearch = null
+      }
+    }
+    if (
+      historySearchVersion !== this.historySearchVersion ||
+      query !== this.effectiveInputQuery ||
+      !this.store.userStore.searchHistory
+    ) {
+      return
+    }
+    const visibleRowCountsBeforeHistory =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
+    this.historyTabs = historyTabs
+    const shouldRepackAfterHistory =
+      visibleRowCountsBeforeHistory == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBeforeHistory,
+      ) !== false
+    if (shouldRepackAfterHistory) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
+    this.clearFilteredFocusedTab()
+  }
+
+  disableHistorySearch = () => {
+    const visibleRowCountsBefore =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
+    this.historySearchVersion += 1
+    this.historyTabs = []
+    const shouldRepackLayout =
+      visibleRowCountsBefore == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBefore,
+      ) !== false
+    if (shouldRepackLayout) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
+    this.clearFilteredFocusedTab()
+  }
+
+  refreshHistorySearch = async () => {
+    const historySearchVersion = ++this.historySearchVersion
+    if (
+      browser.history &&
+      !this.isCommand &&
+      this.effectiveInputQuery === this.effectiveQuery &&
+      this.store.userStore.searchHistory
+    ) {
+      await this.loadHistoryTabs(this.effectiveQuery, historySearchVersion)
+    }
+  }
+
+  enableHistorySearch = () => this.refreshHistorySearch()
 
   _updateTabQuery = () => {
     log.debug('_updateTabQuery:', {
       _tabQuery: this._tabQuery,
       query: this.query,
     })
-    this._tabQuery = this.query
+    this._tabQuery = this.effectiveInputQuery
   }
 
   updateQuery = debounce(this._updateQuery, 200)
@@ -246,15 +390,25 @@ export default class SearchStore {
   clear = () => this.search('')
 
   clearFilteredFocusedTab = () => {
-    const focusedTabId = this.store.focusStore.focusedTabId
-    if (focusedTabId != null && !this.matchedSet.has(focusedTabId)) {
+    const { focusedTabId, focusedGroupId } = this.store.focusStore
+    const focusedTabFiltered =
+      focusedTabId != null &&
+      !(this.store.windowStore?.tabs || []).some(
+        (tab) => tab.id === focusedTabId && tab.isVisible,
+      )
+    const focusedGroupFiltered =
+      focusedGroupId != null &&
+      !(this.store.windowStore?.windows || []).some((win) =>
+        win.getVisibleGroupRow?.(focusedGroupId),
+      )
+    if (focusedTabFiltered || focusedGroupFiltered) {
       this.store.focusStore.defocus()
     }
   }
 
   fuzzySearch = () => {
     log.debug('SearchStore.fuzzySearch:', { _query: this._query })
-    if (!this._query) {
+    if (!this.queryActive) {
       return this.rawMatchedTabs
     }
     return this.rawMatchedTabs

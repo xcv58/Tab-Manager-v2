@@ -401,12 +401,30 @@ export default class UserStore {
   }
 
   toggleSearchHistory = () => {
-    this.searchHistory = !this.searchHistory
+    const searchHistory = !this.searchHistory
+    if (!searchHistory) {
+      this.store.searchStore?.disableHistorySearch?.()
+      this.searchHistory = false
+    } else {
+      this.searchHistory = true
+      void this.store.searchStore?.enableHistorySearch?.()
+    }
     this.save()
   }
 
   toggleShowSearchResultMenu = () => {
+    const visibleRowCountsBefore =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
     this.showSearchResultMenu = !this.showSearchResultMenu
+    const shouldRepackLayout =
+      visibleRowCountsBefore == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBefore,
+      ) !== false
+    if (shouldRepackLayout) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
+    this.store.searchStore?.clearFilteredFocusedTab?.()
     this.save()
   }
 
