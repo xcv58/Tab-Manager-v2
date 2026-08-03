@@ -382,11 +382,22 @@ export default class FocusStore {
       targetWindow.showTabs = true
     }
 
+    const targetWindowLayout = targetWindow
+      ? this.store.windowStore.getItemLayout(targetWindow)
+      : null
+    // Keep the title row visible when revealing the first row in a window.
+    const revealTop =
+      targetWindowLayout &&
+      itemLayout.top ===
+        targetWindowLayout.top + this.store.windowStore.rowHeight
+        ? targetWindowLayout.top
+        : itemLayout.top
+
     let nextScrollTop = container.scrollTop
     let nextScrollLeft = container.scrollLeft
 
-    if (itemLayout.top < container.scrollTop) {
-      nextScrollTop = itemLayout.top
+    if (revealTop < container.scrollTop) {
+      nextScrollTop = revealTop
     } else if (
       itemLayout.bottom >
       container.scrollTop + container.clientHeight
