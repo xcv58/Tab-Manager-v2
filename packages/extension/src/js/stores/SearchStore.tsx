@@ -296,7 +296,6 @@ export default class SearchStore {
 
   refreshHistorySearch = async () => {
     const historySearchVersion = ++this.historySearchVersion
-    this.historyTabs = []
     if (
       browser.history &&
       !this.isCommand &&

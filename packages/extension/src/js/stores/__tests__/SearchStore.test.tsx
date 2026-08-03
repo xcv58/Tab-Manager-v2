@@ -511,10 +511,15 @@ describe('SearchStore', () => {
     await Promise.resolve()
     expect(browser.history.search).toHaveBeenCalledTimes(1)
 
+    const cachedItems = [
+      { id: 'cached', title: 'Discord cached', visitCount: 1 },
+    ]
+    searchStore.historyTabs = cachedItems
     searchStore.search('>group')
     searchStore.stopType()
     expect(searchStore.query).toBe('disc')
     expect(browser.history.search).toHaveBeenCalledTimes(2)
+    expect(searchStore.historyTabs).toEqual(cachedItems)
 
     const currentItems = [{ id: 'current', title: 'Discord', visitCount: 1 }]
     resolveSecondHistory!(currentItems)
