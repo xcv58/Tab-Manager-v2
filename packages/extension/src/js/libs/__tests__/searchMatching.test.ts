@@ -125,6 +125,17 @@ describe('searchMatching', () => {
     ).toEqual([])
   })
 
+  it('does not invoke result sorting during phase detection', () => {
+    const sorter = jest.fn((rankedItems: any[]) => rankedItems)
+
+    expect(
+      getSearchMatchMode(['Discord', 'Project DISC notes'], 'disc', {
+        sorter,
+      }),
+    ).toBe('contiguous')
+    expect(sorter).not.toHaveBeenCalled()
+  })
+
   it('returns input order and no match mode for a blank query', () => {
     expect(adaptiveMatchSorter(titles, '  ')).toEqual({
       items: titles,

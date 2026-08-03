@@ -332,6 +332,48 @@ describe('SearchStore', () => {
     )
   })
 
+  it('uses history when selecting the full-page adaptive match mode', () => {
+    const fuzzyTab = {
+      id: 1,
+      title: 'Daily Interesting Science Course',
+      url: '',
+      isVisible: true,
+    }
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [fuzzyTab],
+      },
+      focusStore: {
+        focusedTabId: null,
+        defocus: jest.fn(),
+      },
+      tabStore: {
+        isTabSelected: () => false,
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+      },
+    } as any)
+
+    searchStore._query = 'disc'
+    searchStore.historyTabs = [
+      {
+        id: 'history-1',
+        title: 'Discord',
+        url: '',
+        visitCount: 1,
+      },
+    ]
+
+    expect(searchStore.matchMode).toBe('contiguous')
+    expect(searchStore.rawMatchedTabs).toEqual([])
+
+    searchStore.historyTabs = []
+    expect(searchStore.matchMode).toBe('fuzzy')
+    expect(searchStore.rawMatchedTabs).toEqual([fuzzyTab])
+  })
+
   it('suppresses stale highlights while the filtered query catches up', () => {
     jest.useFakeTimers()
     const searchStore = new SearchStore({

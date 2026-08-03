@@ -4,7 +4,7 @@ import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
 import debounce from 'lodash.debounce'
-import { adaptiveMatchSorter, getSearchMatchMode } from 'libs/searchMatching'
+import { getSearchMatchMode, matchItemsInMode } from 'libs/searchMatching'
 import Tab from './Tab'
 
 export { matchesSearchText } from 'libs/searchMatching'
@@ -73,6 +73,8 @@ export default class SearchStore {
 
   historyTabs: HistoryItem[] = []
 
+  historySearchVersion = 0
+
   typing = false
 
   get isCommand() {
@@ -98,16 +100,26 @@ export default class SearchStore {
     }))
   }
 
-  get rawMatchedTabDocuments(): TabSearchDocument[] {
-    return adaptiveMatchSorter(this.tabSearchDocuments, this._query, {
+  get searchMatchDocuments(): Array<TabSearchDocument | HistoryItem> {
+    return [...this.tabSearchDocuments, ...this.historyTabs]
+  }
+
+  getMatchModeForQuery = (query: string) =>
+    getSearchMatchMode(this.searchMatchDocuments, query, {
       keys: this.tabSearchKeys,
-    }).items
+    })
+
+  get rawMatchedTabDocuments(): TabSearchDocument[] {
+    return matchItemsInMode(
+      this.tabSearchDocuments,
+      this._query,
+      this.matchMode,
+      { keys: this.tabSearchKeys },
+    )
   }
 
   get matchMode() {
-    return getSearchMatchMode(this.tabSearchDocuments, this._query, {
-      keys: this.tabSearchKeys,
-    })
+    return this.getMatchModeForQuery(this._query)
   }
 
   get tabHighlightQuery() {
@@ -115,9 +127,7 @@ export default class SearchStore {
   }
 
   get tabHighlightMatchMode() {
-    return getSearchMatchMode(this.tabSearchDocuments, this.tabHighlightQuery, {
-      keys: this.tabSearchKeys,
-    })
+    return this.getMatchModeForQuery(this.tabHighlightQuery)
   }
 
   get matchedTabs(): Tab[] {
@@ -214,9 +224,12 @@ export default class SearchStore {
 
   _updateQuery = async () => {
     log.debug('_updateQuery:', { _query: this._query, query: this.query })
+    const nextQuery = this.query
+    const historySearchVersion = ++this.historySearchVersion
     const visibleRowCountsBefore =
       this.store.windowStore?.getVisibleRowCountSnapshot?.()
-    this._query = this.query
+    this._query = nextQuery
+    this.historyTabs = []
     const shouldRepackLayout =
       visibleRowCountsBefore == null ||
       this.store.windowStore?.haveVisibleRowCountsChanged?.(
@@ -229,10 +242,24 @@ export default class SearchStore {
     if (this.store.userStore.searchHistory) {
       if (browser.history) {
         const historyTabs = await browser.history.search({
-          text: this._query,
+          text: nextQuery,
           startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
         })
+        if (historySearchVersion !== this.historySearchVersion) {
+          return
+        }
+        const visibleRowCountsBeforeHistory =
+          this.store.windowStore?.getVisibleRowCountSnapshot?.()
         this.historyTabs = historyTabs
+        const shouldRepackAfterHistory =
+          visibleRowCountsBeforeHistory == null ||
+          this.store.windowStore?.haveVisibleRowCountsChanged?.(
+            visibleRowCountsBeforeHistory,
+          ) !== false
+        if (shouldRepackAfterHistory) {
+          this.store.windowStore?.repackLayout?.('search-change')
+        }
+        this.clearFilteredFocusedTab()
       }
     }
   }

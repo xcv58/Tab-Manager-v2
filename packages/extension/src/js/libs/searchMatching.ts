@@ -117,6 +117,7 @@ export const getSearchMatchMode = <Item>(
   return matchSorter(items, normalizedQuery, {
     ...options,
     threshold: rankings.CONTAINS,
+    sorter: (rankedItems) => rankedItems,
   }).length
     ? 'contiguous'
     : 'fuzzy'

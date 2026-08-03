@@ -18,11 +18,7 @@ import { filterCommandOptions, type CommandOption } from './filterOptions'
 import { useCombobox } from 'components/ui/Combobox'
 import { VariableSizeList } from 'react-window'
 import { useAppTheme } from 'libs/appTheme'
-import {
-  getSearchMatchMode,
-  matchItemsInMode,
-  type SearchMatchMode,
-} from 'libs/searchMatching'
+import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
@@ -119,6 +115,7 @@ const getFilterOptions = (
   tabGroupStore,
   groupedSectionTabIdsRef,
   searchMatchModeRef,
+  searchStore,
 ) => {
   if (isCommand) {
     return (options, state) => {
@@ -157,11 +154,7 @@ const getFilterOptions = (
       showUrl,
       hasTabGroupsApi: !!tabGroupStore?.hasTabGroupsApi?.(),
     })
-    const searchMatchMode = getSearchMatchMode(
-      [...tabs, ...history],
-      trimmedValue,
-      { keys },
-    )
+    const searchMatchMode = searchStore.getMatchModeForQuery(trimmedValue)
     searchMatchModeRef.current = searchMatchMode
     const matchedTabs = matchItemsInMode(tabs, trimmedValue, searchMatchMode, {
       keys,
@@ -373,8 +366,9 @@ const AutocompleteSearch = observer((props: Props) => {
         tabGroupStore,
         groupedSectionTabIdsRef,
         searchMatchModeRef,
+        searchStore,
       ),
-    [userStore.showUrl, isCommand, tabGroupStore],
+    [userStore.showUrl, isCommand, tabGroupStore, searchStore],
   )
 
   const filteredOptions = useMemo(() => {
