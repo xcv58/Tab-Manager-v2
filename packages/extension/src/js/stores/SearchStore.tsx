@@ -53,6 +53,8 @@ export default class SearchStore {
     makeAutoObservable(this, {
       updateQuery: false,
       updateTabQuery: false,
+      activeHistorySearch: false,
+      refreshHistoryAfterCommand: false,
     })
 
     this.store = store
@@ -77,6 +79,10 @@ export default class SearchStore {
   historyTabs: HistoryItem[] = []
 
   historySearchVersion = 0
+
+  activeHistorySearch: { query: string; version: number } | null = null
+
+  refreshHistoryAfterCommand = false
 
   typing = false
 
@@ -207,9 +213,13 @@ export default class SearchStore {
   stopType = () => {
     this.typing = false
     if (this.isCommand) {
+      const shouldRefreshHistory = this.refreshHistoryAfterCommand
+      this.refreshHistoryAfterCommand = false
       this.query = this._query
       this._tabQuery = this._query
-      void this.refreshHistorySearch()
+      if (shouldRefreshHistory) {
+        void this.refreshHistorySearch()
+      }
     }
   }
 
@@ -218,12 +228,18 @@ export default class SearchStore {
     if (this.query === query) {
       return
     }
+    const enteringCommand = !this.isCommand && hasCommandPrefix(query)
+    if (enteringCommand) {
+      this.refreshHistoryAfterCommand =
+        this.activeHistorySearch?.query === this._query
+    }
     // Invalidate an active history request as soon as the public query
     // changes. Waiting for the debounced update would leave a window where
     // results for the previous query could still be committed.
     this.historySearchVersion += 1
     this.query = query
     if (!this.isCommand) {
+      this.refreshHistoryAfterCommand = false
       this.updateQuery()
       this.updateTabQuery()
       if (this.store.userStore.preserveSearch) {
@@ -259,6 +275,7 @@ export default class SearchStore {
   }
 
   loadHistoryTabs = async (query: string, historySearchVersion: number) => {
+    this.activeHistorySearch = { query, version: historySearchVersion }
     let historyTabs: HistoryItem[]
     try {
       historyTabs = await browser.history.search({
@@ -268,6 +285,10 @@ export default class SearchStore {
     } catch (error) {
       log.warn('SearchStore.loadHistoryTabs failed', { error })
       return
+    } finally {
+      if (this.activeHistorySearch?.version === historySearchVersion) {
+        this.activeHistorySearch = null
+      }
     }
     if (
       historySearchVersion !== this.historySearchVersion ||

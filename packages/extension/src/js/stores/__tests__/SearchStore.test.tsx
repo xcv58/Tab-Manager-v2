@@ -536,6 +536,52 @@ describe('SearchStore', () => {
     jest.useRealTimers()
   })
 
+  it('does not search history when command search closes from a fresh blank query', () => {
+    jest.spyOn(browser.history, 'search').mockResolvedValue([])
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+        preserveSearch: false,
+      },
+    } as any)
+
+    searchStore.search('>group')
+    searchStore.stopType()
+
+    expect(searchStore.query).toBe('')
+    expect(browser.history.search).not.toHaveBeenCalled()
+  })
+
+  it('does not refresh settled history after command search closes', async () => {
+    const historyItems = [{ id: 'history-1', title: 'Discord', visitCount: 1 }]
+    jest.spyOn(browser.history, 'search').mockResolvedValue(historyItems as any)
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+        preserveSearch: false,
+      },
+    } as any)
+    searchStore.query = 'disc'
+
+    await searchStore._updateQuery()
+    expect(browser.history.search).toHaveBeenCalledTimes(1)
+
+    searchStore.search('>group')
+    searchStore.stopType()
+
+    expect(searchStore.query).toBe('disc')
+    expect(searchStore.historyTabs).toEqual(historyItems)
+    expect(browser.history.search).toHaveBeenCalledTimes(1)
+  })
+
   it('cancels pending normal query updates when command search starts', () => {
     jest.useFakeTimers()
     const searchStore = new SearchStore({
