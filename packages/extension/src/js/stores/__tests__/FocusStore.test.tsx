@@ -377,6 +377,14 @@ describe('FocusStore', () => {
 
     expect(store.focusStore.focusedTabId).toBe(1)
     expect(container.scrollTop).toBe(0)
+
+    container.scrollTop = 40
+    store.focusStore.focus(win.tabs[0], {
+      origin: 'search',
+      reveal: true,
+    })
+
+    expect(container.scrollTop).toBe(40)
   })
 
   it('skips collapsed rows from hidden windows during keyboard navigation', () => {

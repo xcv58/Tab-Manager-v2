@@ -385,8 +385,9 @@ export default class FocusStore {
     const targetWindowLayout = targetWindow
       ? this.store.windowStore.getItemLayout(targetWindow)
       : null
-    // Keep the title row visible when revealing the first row in a window.
+    // Keep the title row visible for keyboard reveals of a window's first row.
     const revealTop =
+      item.focusOrigin === 'keyboard' &&
       targetWindowLayout &&
       itemLayout.top ===
         targetWindowLayout.top + this.store.windowStore.rowHeight
