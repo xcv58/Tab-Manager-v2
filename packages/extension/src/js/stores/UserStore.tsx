@@ -404,8 +404,11 @@ export default class UserStore {
     const searchHistory = !this.searchHistory
     if (!searchHistory) {
       this.store.searchStore?.disableHistorySearch?.()
+      this.searchHistory = false
+    } else {
+      this.searchHistory = true
+      void this.store.searchStore?.enableHistorySearch?.()
     }
-    this.searchHistory = searchHistory
     this.save()
   }
 

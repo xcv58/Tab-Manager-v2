@@ -213,6 +213,10 @@ export default class SearchStore {
     if (this.query === query) {
       return
     }
+    // Invalidate an active history request as soon as the public query
+    // changes. Waiting for the debounced update would leave a window where
+    // results for the previous query could still be committed.
+    this.historySearchVersion += 1
     this.query = query
     if (!this.isCommand) {
       this.updateQuery()
@@ -242,32 +246,35 @@ export default class SearchStore {
       this.store.windowStore?.repackLayout?.('search-change')
     }
     this.clearFilteredFocusedTab()
-    if (this.store.userStore.searchHistory) {
-      if (browser.history) {
-        const historyTabs = await browser.history.search({
-          text: nextQuery,
-          startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
-        })
-        if (
-          historySearchVersion !== this.historySearchVersion ||
-          !this.store.userStore.searchHistory
-        ) {
-          return
-        }
-        const visibleRowCountsBeforeHistory =
-          this.store.windowStore?.getVisibleRowCountSnapshot?.()
-        this.historyTabs = historyTabs
-        const shouldRepackAfterHistory =
-          visibleRowCountsBeforeHistory == null ||
-          this.store.windowStore?.haveVisibleRowCountsChanged?.(
-            visibleRowCountsBeforeHistory,
-          ) !== false
-        if (shouldRepackAfterHistory) {
-          this.store.windowStore?.repackLayout?.('search-change')
-        }
-        this.clearFilteredFocusedTab()
-      }
+    if (this.store.userStore.searchHistory && browser.history) {
+      await this.loadHistoryTabs(nextQuery, historySearchVersion)
     }
+  }
+
+  loadHistoryTabs = async (query: string, historySearchVersion: number) => {
+    const historyTabs = await browser.history.search({
+      text: query,
+      startTime: Date.now() - DAY_IN_MILLISECONDS * 7,
+    })
+    if (
+      historySearchVersion !== this.historySearchVersion ||
+      query !== this.query ||
+      !this.store.userStore.searchHistory
+    ) {
+      return
+    }
+    const visibleRowCountsBeforeHistory =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
+    this.historyTabs = historyTabs
+    const shouldRepackAfterHistory =
+      visibleRowCountsBeforeHistory == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBeforeHistory,
+      ) !== false
+    if (shouldRepackAfterHistory) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
+    this.clearFilteredFocusedTab()
   }
 
   disableHistorySearch = () => {
@@ -284,6 +291,19 @@ export default class SearchStore {
       this.store.windowStore?.repackLayout?.('search-change')
     }
     this.clearFilteredFocusedTab()
+  }
+
+  enableHistorySearch = async () => {
+    const historySearchVersion = ++this.historySearchVersion
+    this.historyTabs = []
+    if (
+      browser.history &&
+      !this.isCommand &&
+      this.query === this._query &&
+      this.store.userStore.searchHistory
+    ) {
+      await this.loadHistoryTabs(this.query, historySearchVersion)
+    }
   }
 
   _updateTabQuery = () => {

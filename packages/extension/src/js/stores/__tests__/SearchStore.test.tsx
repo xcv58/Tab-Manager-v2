@@ -416,6 +416,71 @@ describe('SearchStore', () => {
     expect(searchStore.historyTabs).toEqual(secondItems)
   })
 
+  it('invalidates active history before the next debounced update starts', async () => {
+    jest.useFakeTimers()
+    let resolveFirstHistory: (items: any[]) => void
+    const firstHistory = new Promise<any[]>((resolve) => {
+      resolveFirstHistory = resolve
+    })
+    jest
+      .spyOn(browser.history, 'search')
+      .mockReturnValueOnce(firstHistory as any)
+
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: true,
+        preserveSearch: false,
+      },
+    } as any)
+
+    searchStore.search('first')
+    jest.advanceTimersByTime(200)
+    await Promise.resolve()
+    expect(browser.history.search).toHaveBeenCalledTimes(1)
+
+    searchStore.search('second')
+    resolveFirstHistory!([
+      { id: 'first', title: 'First result', visitCount: 1 },
+    ])
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(searchStore.query).toBe('second')
+    expect(searchStore.historyTabs).toEqual([])
+
+    jest.clearAllTimers()
+    jest.useRealTimers()
+  })
+
+  it('refreshes history for an unchanged query when history is enabled', async () => {
+    const historyItems = [{ id: 'history-1', title: 'Discord', visitCount: 1 }]
+    jest.spyOn(browser.history, 'search').mockResolvedValue(historyItems as any)
+    const userStore = {
+      showUrl: false,
+      searchHistory: true,
+    }
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore,
+    } as any)
+    searchStore.query = 'disc'
+    searchStore._query = 'disc'
+
+    await searchStore.enableHistorySearch()
+
+    expect(browser.history.search).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'disc' }),
+    )
+    expect(searchStore.historyTabs).toEqual(historyItems)
+    expect(searchStore.matchMode).toBe('contiguous')
+  })
+
   it('ignores an in-flight history response after history is disabled', async () => {
     let resolveHistory: (items: any[]) => void
     const historyResponse = new Promise<any[]>((resolve) => {
