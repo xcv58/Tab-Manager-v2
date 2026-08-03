@@ -535,6 +535,38 @@ describe('SearchStore', () => {
     jest.useRealTimers()
   })
 
+  it('cancels pending normal query updates when command search starts', () => {
+    jest.useFakeTimers()
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+        preserveSearch: false,
+      },
+    } as any)
+    searchStore.query = 'settled'
+    searchStore._query = 'settled'
+    searchStore._tabQuery = 'settled'
+
+    searchStore.search('pending normal')
+    jest.advanceTimersByTime(100)
+    searchStore.search('>group')
+    jest.advanceTimersByTime(500)
+
+    expect(searchStore._query).toBe('settled')
+    expect(searchStore._tabQuery).toBe('settled')
+
+    searchStore.stopType()
+    expect(searchStore.query).toBe('settled')
+    expect(searchStore.isCommand).toBe(false)
+
+    jest.clearAllTimers()
+    jest.useRealTimers()
+  })
+
   it('ignores an in-flight history response after history is disabled', async () => {
     let resolveHistory: (items: any[]) => void
     const historyResponse = new Promise<any[]>((resolve) => {

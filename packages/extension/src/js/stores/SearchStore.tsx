@@ -50,7 +50,10 @@ export default class SearchStore {
   store: Store
 
   constructor(store: Store) {
-    makeAutoObservable(this)
+    makeAutoObservable(this, {
+      updateQuery: false,
+      updateTabQuery: false,
+    })
 
     this.store = store
   }
@@ -226,6 +229,8 @@ export default class SearchStore {
         browser.storage.local.set({ query })
       }
     } else {
+      this.updateQuery.cancel()
+      this.updateTabQuery.cancel()
       browser.storage.local.set({ lastCommand: query.slice(1) })
     }
   }
