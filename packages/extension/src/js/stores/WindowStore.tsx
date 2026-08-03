@@ -828,6 +828,9 @@ export default class WindowsStore {
       }
     })
 
+    if (this.autoFitColumnsEnabled) {
+      return this.computeOrderedAutoFitColumnLayout(orderedWindows)
+    }
     return this.computeBaseColumnLayout(orderedWindows)
   }
 
@@ -850,14 +853,19 @@ export default class WindowsStore {
 
   getWindowIdsToPromoteByLastUsed = (windows: Window[]) => {
     const visibleWindowIds = new Set(windows.map((win) => win.id))
+    const lastUsedWindowIds = this.getLastUsedWindowIds(windows)
     if (
       typeof this.pendingLastUsedWindowId === 'number' &&
       visibleWindowIds.has(this.pendingLastUsedWindowId)
     ) {
-      return [this.pendingLastUsedWindowId]
+      return [
+        this.pendingLastUsedWindowId,
+        ...lastUsedWindowIds.filter(
+          (windowId) => windowId !== this.pendingLastUsedWindowId,
+        ),
+      ]
     }
-    const [lastUsedWindowId] = this.getLastUsedWindowIds(windows)
-    return typeof lastUsedWindowId === 'number' ? [lastUsedWindowId] : []
+    return lastUsedWindowIds
   }
 
   getLastUsedPromotedColumnLayout = (
@@ -878,10 +886,7 @@ export default class WindowsStore {
         windowIdsToPromote,
       }
     }
-    const currentWindowIds = this.getWindowIdOrderFromColumnLayout(
-      currentLayout,
-      windows,
-    )
+    const currentWindowIds = windows.map((win) => win.id)
     const nextWindowIds = this.promoteWindowIdsInOrder(
       currentWindowIds,
       windowIdsToPromote,
@@ -1039,6 +1044,55 @@ export default class WindowsStore {
     }
   }
 
+  computeOrderedAutoFitColumnLayout = (windows: Window[]) => {
+    if (!windows.length) {
+      return {
+        layout: [[]],
+        columnCount: 1,
+      }
+    }
+
+    const columnCount = this.getAutoFitColumnCount(windows.length)
+    const layout = Array.from({ length: columnCount }, () => [] as number[])
+    const windowHeights = windows.map((win) => win.visibleLength)
+    let remainingHeight = windowHeights.reduce(
+      (total, windowHeight) => total + windowHeight,
+      0,
+    )
+    let windowIndex = 0
+
+    for (let columnIndex = 0; columnIndex < columnCount; columnIndex += 1) {
+      const remainingColumnCount = columnCount - columnIndex
+      const targetHeight = remainingHeight / remainingColumnCount
+      let columnHeight = 0
+
+      while (windowIndex < windows.length) {
+        const remainingWindowCount = windows.length - windowIndex
+        if (remainingWindowCount <= remainingColumnCount - 1) {
+          break
+        }
+        const nextWindowHeight = windowHeights[windowIndex]
+        if (
+          layout[columnIndex].length > 0 &&
+          Math.abs(targetHeight - columnHeight) <=
+            Math.abs(targetHeight - (columnHeight + nextWindowHeight))
+        ) {
+          break
+        }
+        layout[columnIndex].push(windows[windowIndex].id)
+        columnHeight += nextWindowHeight
+        windowIndex += 1
+      }
+
+      remainingHeight -= columnHeight
+    }
+
+    return {
+      layout,
+      columnCount,
+    }
+  }
+
   computeColumnLayout = (windows: Window[]) => {
     const computed = this.computeBaseColumnLayout(windows)
     if (
@@ -1092,6 +1146,12 @@ export default class WindowsStore {
       this.shouldResetWindowLastUsedColumnLayoutForRepack(reason)
     ) {
       this.windowLastUsedColumnLayout = null
+    }
+    if (
+      this.hasWindowLastUsedLayoutCandidate() &&
+      this.applyWindowLastUsedLayout(reason)
+    ) {
+      return
     }
     const { layout, columnCount } = this.computeColumnLayout(
       this.visibleWindows,

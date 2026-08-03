@@ -284,7 +284,7 @@ describe('WindowStore layout policy', () => {
     )
 
     expect(columnCount).toBe(5)
-    expect(layout).toEqual([[1, 6], [2], [3], [4], [5]])
+    expect(layout).toEqual([[1], [2], [3], [4], [5, 6]])
   })
 
   it('keeps last-used window order disabled by default', () => {
@@ -321,7 +321,7 @@ describe('WindowStore layout policy', () => {
     expect(layout).toEqual([[5, 1], [2, 3], [4]])
   })
 
-  it('promotes only the newest last-used window and keeps the rest stable', () => {
+  it('reconstructs the complete last-used window order from timestamps', () => {
     const windowStore = createWindowStore()
     windowStore.store.userStore.windowOrder = 'lastUsed'
     windowStore.height = 1000
@@ -336,7 +336,59 @@ describe('WindowStore layout policy', () => {
       windowStore.visibleWindows,
     )
 
-    expect(layout).toEqual([[2, 1, 3, 4]])
+    expect(layout).toEqual([[2, 4, 1, 3]])
+  })
+
+  it('keeps the complete last-used order across auto-fit column resizing', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.store.userStore.autoFitColumns = true
+    windowStore.height = 1000
+    windowStore.width = 560
+    setVisibleLengths(windowStore, [1, 1, 1, 1, 1, 1])
+    windowStore.windowLastUsedAt = {
+      6: 20,
+      5: 10,
+    }
+
+    windowStore.repackLayout('settings-change')
+    expect(windowStore.columnLayout).toEqual([
+      [6, 5, 1],
+      [2, 3, 4],
+    ])
+
+    windowStore.updateViewport(1000, 840)
+
+    expect(windowStore.columnLayout).toEqual([
+      [6, 5],
+      [1, 2],
+      [3, 4],
+    ])
+    expect(windowStore.windowLastUsedColumnLayout).toEqual([
+      [6, 5],
+      [1, 2],
+      [3, 4],
+    ])
+  })
+
+  it('restores untimestamped windows in fallback order after filtering', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    windowStore.height = 1000
+    setVisibleLengths(windowStore, [1, 1, 1, 1])
+    windowStore.windowLastUsedAt = {
+      2: 20,
+      4: 10,
+    }
+
+    windowStore.repackLayout('filter-change')
+    expect(windowStore.columnLayout).toEqual([[2, 4, 1, 3]])
+    ;(windowStore.windows[0] as any).visibleLength = 0
+    windowStore.repackLayout('filter-change')
+    expect(windowStore.columnLayout).toEqual([[2, 4, 3]])
+    ;(windowStore.windows[0] as any).visibleLength = 1
+    windowStore.repackLayout('filter-change')
+    expect(windowStore.columnLayout).toEqual([[2, 4, 1, 3]])
   })
 
   it('clears dirty state when applying last-used order keeps the same layout', () => {
