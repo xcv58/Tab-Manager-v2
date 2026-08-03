@@ -22,6 +22,7 @@ import { ItemTypes } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import GroupDragHandle from './GroupDragHandle'
 import ControlIconButton from 'components/ControlIconButton'
+import HighlightNode from 'components/HighlightNode'
 import { browser } from 'libs'
 import {
   DEFAULT_CONTROL_SIZE,
@@ -320,7 +321,12 @@ export default observer((props: Props) => {
               }}
               data-testid={`tab-group-title-${row.groupId}`}
             >
-              {row.title}
+              <HighlightNode
+                query={searchStore.tabHighlightQuery}
+                text={row.title}
+                mode={searchStore.tabHighlightMatchMode}
+                inline
+              />
             </span>
             <span
               className="ml-2 text-xs opacity-70"

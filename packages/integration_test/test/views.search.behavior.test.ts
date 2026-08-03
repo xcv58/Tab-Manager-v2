@@ -146,6 +146,119 @@ test.describe('The Extension page should', () => {
     )
   })
 
+  test('prefer contiguous full-page matches and fall back to fuzzy matching', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        showSearchResultMenu: false,
+        showUnmatchedTab: false,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const titles = [
+      'Daily Interesting Science Course',
+      'Project DISC Notes',
+      'Discord Guide',
+    ]
+    await openPages(browserContext, [
+      'data:text/html,<title>Daily%20Interesting%20Science%20Course</title>',
+      'data:text/html,<title>Project%20DISC%20Notes</title>',
+      'data:text/html,<title>Discord%20Guide</title>',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    const visibleRows = page.locator('[data-testid^="tab-row-"]')
+    const readVisibleTitles = async () =>
+      (await visibleRows.allTextContents())
+        .map((text) => titles.find((title) => text.includes(title)))
+        .filter(Boolean)
+
+    await searchInput.fill('disc')
+    await page.waitForTimeout(700)
+
+    await expect
+      .poll(readVisibleTitles)
+      .toEqual(['Project DISC Notes', 'Discord Guide'])
+    await expect(page.locator('[role="option"]')).toHaveCount(0)
+    const discordRow = visibleRows.filter({ hasText: 'Discord Guide' })
+    await expect(
+      discordRow.locator('[data-search-highlight="contiguous"]').first(),
+    ).toHaveText('Disc')
+
+    await searchInput.fill('dsc')
+    await page.waitForTimeout(700)
+
+    await expect.poll(readVisibleTitles).toEqual(titles)
+    const dailyRow = visibleRows.filter({
+      hasText: 'Daily Interesting Science Course',
+    })
+    await expect(
+      dailyRow.locator('[data-search-highlight="fuzzy"]').first(),
+    ).toBeVisible()
+  })
+
+  test('apply adaptive matching and relevance ranking in the result menu', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        showSearchResultMenu: true,
+        showUnmatchedTab: true,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    await openPages(browserContext, [
+      'data:text/html,<title>Daily%20Interesting%20Science%20Course</title>',
+      'data:text/html,<title>Project%20DISC%20Notes</title>',
+      'data:text/html,<title>Discord%20Guide</title>',
+    ])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    const options = page.locator('[role="option"]')
+
+    await searchInput.fill('disc')
+    await page.waitForTimeout(700)
+
+    await expect.poll(() => options.count()).toBeGreaterThanOrEqual(2)
+    const contiguousOptionTexts = await options.allTextContents()
+    expect(contiguousOptionTexts[0]).toContain('Discord Guide')
+    expect(contiguousOptionTexts[1]).toContain('Project DISC Notes')
+    expect(contiguousOptionTexts.join(' ')).not.toContain(
+      'Daily Interesting Science Course',
+    )
+
+    await searchInput.fill('dsc')
+    await page.waitForTimeout(700)
+
+    await expect.poll(() => options.count()).toBeGreaterThanOrEqual(3)
+    const fuzzyOption = options.filter({
+      hasText: 'Daily Interesting Science Course',
+    })
+    await expect(fuzzyOption.first()).toBeVisible()
+    await expect(
+      fuzzyOption.first().locator('[data-search-highlight="fuzzy"]').first(),
+    ).toBeVisible()
+  })
+
   test('show grouped search context even when the query matches only the tab title', async () => {
     await page.evaluate(async () => {
       await chrome.storage.local.set({
@@ -182,13 +295,29 @@ test.describe('The Extension page should', () => {
     await searchInput.fill('SearchDocs')
     await page.waitForTimeout(700)
     const groupedHeader = page.getByTestId(`search-group-header-${groupId}`)
+    const fullPageGroupTitle = page.getByTestId(`tab-group-title-${groupId}`)
     await expect(groupedHeader).toBeVisible()
     await expect(groupedHeader).toContainText('SearchDocs')
+    await expect(
+      groupedHeader.locator('[data-search-highlight="contiguous"]'),
+    ).toHaveText('SearchDocs')
+    await expect(
+      fullPageGroupTitle.locator('[data-search-highlight="contiguous"]'),
+    ).toHaveText('SearchDocs')
     const groupMatchedOption = page
       .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(groupMatchedOption).not.toContainText('SearchDocs')
+
+    await searchInput.fill('sdocs')
+    await page.waitForTimeout(700)
+    await expect(
+      groupedHeader.locator('[data-search-highlight="fuzzy"]'),
+    ).toHaveCount(5)
+    await expect(
+      fullPageGroupTitle.locator('[data-search-highlight="fuzzy"]'),
+    ).toHaveCount(5)
 
     await searchInput.fill('Alpha Guide')
     await page.waitForTimeout(700)

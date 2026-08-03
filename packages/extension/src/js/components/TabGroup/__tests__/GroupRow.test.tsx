@@ -53,6 +53,7 @@ const mockHeaderRect = (node: HTMLDivElement) => {
 const renderGroupRow = (
   dragSource: 'tab-row' | 'group-header',
   dropAt: any,
+  searchStoreOverrides = {},
 ) => {
   const groupRow = {
     isFocused: false,
@@ -80,6 +81,9 @@ const renderGroupRow = (
     },
     searchStore: {
       _query: '',
+      tabHighlightQuery: '',
+      tabHighlightMatchMode: 'none',
+      ...searchStoreOverrides,
     },
     windowStore: {
       getDuplicateTabsToRemoveCount: jest.fn(() => 0),
@@ -106,6 +110,7 @@ const renderGroupRow = (
     collapsed: false,
     tabIds: [1, 2],
     matchedCount: 2,
+    title: 'My group',
   }
   const win = {
     id: 1,
@@ -161,6 +166,8 @@ describe('GroupRow', () => {
       },
       searchStore: {
         _query: '',
+        tabHighlightQuery: '',
+        tabHighlightMatchMode: 'none',
       },
       windowStore: {
         getDuplicateTabsToRemoveCount: jest.fn(() => 0),
@@ -187,6 +194,7 @@ describe('GroupRow', () => {
       collapsed: false,
       tabIds: [1, 2],
       matchedCount: 2,
+      title: 'My group',
     }
     const win = {
       id: 1,
@@ -230,6 +238,18 @@ describe('GroupRow', () => {
       before: true,
       source: 'group-header',
     })
+  })
+
+  it('highlights a matching group title with the active search phase', () => {
+    renderGroupRow('tab-row', jest.fn(), {
+      tabHighlightQuery: 'group',
+      tabHighlightMatchMode: 'contiguous',
+    })
+
+    const highlight = screen
+      .getByTestId('tab-group-title-100')
+      .querySelector('[data-search-highlight="contiguous"]')
+    expect(highlight).toHaveTextContent('group')
   })
 
   it('keeps group-header before-zone drops separate', () => {

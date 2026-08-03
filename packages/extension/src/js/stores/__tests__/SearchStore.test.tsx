@@ -289,6 +289,148 @@ describe('SearchStore', () => {
     expect(searchStore.rawMatchedTabs.map((tab) => tab.id)).toEqual([2])
   })
 
+  it('prefers contiguous tab matches and falls back to fuzzy matches', () => {
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          {
+            id: 1,
+            title: 'Daily Interesting Science Course',
+            url: '',
+            isVisible: true,
+          },
+          {
+            id: 2,
+            title: 'Discord Guide',
+            url: '',
+            isVisible: true,
+          },
+        ],
+      },
+      focusStore: {
+        focusedTabId: null,
+        defocus: jest.fn(),
+      },
+      tabStore: {
+        isTabSelected: () => false,
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+
+    searchStore._query = 'disc'
+    expect(searchStore.matchMode).toBe('contiguous')
+    expect(searchStore.rawMatchedTabs.map((tab) => tab.id)).toEqual([2])
+    expect(Array.from(searchStore.matchedSet)).toEqual([2])
+
+    searchStore._query = 'dsc'
+    expect(searchStore.matchMode).toBe('fuzzy')
+    expect(new Set(searchStore.rawMatchedTabs.map((tab) => tab.id))).toEqual(
+      new Set([1, 2]),
+    )
+  })
+
+  it('suppresses stale highlights while the filtered query catches up', () => {
+    jest.useFakeTimers()
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          {
+            id: 1,
+            title: 'Daily Science Course',
+            url: '',
+            isVisible: true,
+          },
+          {
+            id: 2,
+            title: 'Discord Guide',
+            url: '',
+            isVisible: true,
+          },
+        ],
+        repackLayout: jest.fn(),
+      },
+      focusStore: {
+        focusedTabId: null,
+        defocus: jest.fn(),
+      },
+      tabStore: {
+        isTabSelected: () => false,
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+        preserveSearch: false,
+      },
+    } as any)
+
+    try {
+      searchStore.query = 'dsc'
+      searchStore._query = 'dsc'
+      searchStore._tabQuery = 'dsc'
+
+      searchStore.search('disc')
+      jest.advanceTimersByTime(200)
+
+      expect(searchStore._query).toBe('disc')
+      expect(searchStore._tabQuery).toBe('dsc')
+      expect(searchStore.tabHighlightQuery).toBe('')
+      expect(searchStore.tabHighlightMatchMode).toBe('none')
+
+      jest.advanceTimersByTime(300)
+
+      expect(searchStore._tabQuery).toBe('disc')
+      expect(searchStore.tabHighlightQuery).toBe('disc')
+      expect(searchStore.tabHighlightMatchMode).toBe('contiguous')
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('uses only enabled URL and group-title fields for adaptive matching', () => {
+    const userStore = {
+      showUrl: false,
+      searchHistory: false,
+    }
+    const tabGroupStore = {
+      hasTabGroupsApi: () => false,
+    }
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          {
+            id: 1,
+            title: 'Alpha tab',
+            url: 'https://example.com/needle',
+            groupTitle: 'ResearchDocs',
+            isVisible: true,
+          },
+        ],
+      },
+      focusStore: {
+        focusedTabId: null,
+        defocus: jest.fn(),
+      },
+      tabStore: {
+        isTabSelected: () => false,
+      },
+      tabGroupStore,
+      userStore,
+    } as any)
+
+    searchStore._query = 'needle'
+    expect(searchStore.rawMatchedTabs).toEqual([])
+    userStore.showUrl = true
+    expect(searchStore.rawMatchedTabs.map((tab) => tab.id)).toEqual([1])
+
+    searchStore._query = 'research'
+    expect(searchStore.rawMatchedTabs).toEqual([])
+    tabGroupStore.hasTabGroupsApi = () => true
+    expect(searchStore.rawMatchedTabs.map((tab) => tab.id)).toEqual([1])
+  })
+
   it('should detect when a query matches a group title', () => {
     expect(matchesSearchText('SearchDocs', 'SearchDocs')).toBe(true)
     expect(matchesSearchText('SearchDocs', 'docs')).toBe(true)

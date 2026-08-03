@@ -3,22 +3,15 @@ import { makeAutoObservable } from 'mobx'
 import { browser } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
-import { matchSorter } from 'match-sorter'
 import debounce from 'lodash.debounce'
+import { adaptiveMatchSorter, getSearchMatchMode } from 'libs/searchMatching'
 import Tab from './Tab'
+
+export { matchesSearchText } from 'libs/searchMatching'
 
 const hasCommandPrefix = (value: string) => value.startsWith('>')
 
 const DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24
-
-export const matchesSearchText = (text: string, query: string) => {
-  const normalizedText = (text || '').trim()
-  const normalizedQuery = (query || '').trim()
-  if (!normalizedText || !normalizedQuery) {
-    return false
-  }
-  return matchSorter([normalizedText], normalizedQuery).length > 0
-}
 
 export const getTabSearchKeys = ({
   showUrl,
@@ -106,10 +99,23 @@ export default class SearchStore {
   }
 
   get rawMatchedTabDocuments(): TabSearchDocument[] {
-    if (!this._query) {
-      return this.tabSearchDocuments
-    }
-    return matchSorter(this.tabSearchDocuments, this._query, {
+    return adaptiveMatchSorter(this.tabSearchDocuments, this._query, {
+      keys: this.tabSearchKeys,
+    }).items
+  }
+
+  get matchMode() {
+    return getSearchMatchMode(this.tabSearchDocuments, this._query, {
+      keys: this.tabSearchKeys,
+    })
+  }
+
+  get tabHighlightQuery() {
+    return this._tabQuery === this._query ? this._tabQuery : ''
+  }
+
+  get tabHighlightMatchMode() {
+    return getSearchMatchMode(this.tabSearchDocuments, this.tabHighlightQuery, {
       keys: this.tabSearchKeys,
     })
   }
