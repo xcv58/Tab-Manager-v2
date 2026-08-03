@@ -91,7 +91,14 @@ const TabContent = observer(
 export default observer((props: TabProps) => {
   const { userStore } = useStore()
   const { faked } = props
-  const { title, isMatched, query, removing, remove } = props.tab
+  const {
+    title,
+    isMatched,
+    query,
+    removing,
+    remove,
+    searchMatchMode = 'fuzzy',
+  } = props.tab
   const onAuxClick = (event: SyntheticEvent) => {
     // Middle mouse button
     if (event.button === 1 && !removing) {
@@ -104,9 +111,9 @@ export default observer((props: TabProps) => {
       if (!isMatched || !query) {
         return text
       }
-      return <HighlightNode {...{ query, text }} />
+      return <HighlightNode query={query} text={text} mode={searchMatchMode} />
     },
-    [isMatched, query],
+    [isMatched, query, searchMatchMode],
   )
   const duplicated =
     uiPreset === 'classic' && highlightDuplicatedTab

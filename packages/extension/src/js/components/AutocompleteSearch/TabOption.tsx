@@ -16,17 +16,18 @@ import { useStore } from 'components/hooks/useStore'
 import { TOOLTIP_DELAY } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
+import { matchesSearchText, type SearchMatchMode } from 'libs/searchMatching'
 import { getUiColorTokens } from 'libs/uiColorTokens'
-import { matchesSearchText } from 'stores/SearchStore'
 import Tab from 'stores/Tab'
 
 type Props = {
   tab: Tab
   showInlineGroupBadge?: boolean
+  matchMode?: SearchMatchMode
 }
 
 export default observer(function TabOption(props: Props) {
-  const { tab, showInlineGroupBadge = true } = props
+  const { tab, showInlineGroupBadge = true, matchMode = 'fuzzy' } = props
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
   const theme = useAppTheme()
@@ -48,7 +49,7 @@ export default observer(function TabOption(props: Props) {
   const showGroupContext = !!groupLabel
   const showInlineGroupContext = showGroupContext && showInlineGroupBadge
   const groupColor = getChromeTabGroupColor(tabGroup?.color)
-  const showGroupTitle = matchesSearchText(groupLabel, query)
+  const showGroupTitle = matchesSearchText(groupLabel, query, matchMode)
   const pin = tab.pinned && PIN
 
   const onRemove = (event: React.SyntheticEvent) => {
@@ -70,9 +71,9 @@ export default observer(function TabOption(props: Props) {
       if (!query) {
         return text
       }
-      return <HighlightNode {...{ query, text }} />
+      return <HighlightNode query={query} text={text} mode={matchMode} />
     },
-    [query],
+    [matchMode, query],
   )
 
   const tooltip = showGroupContext ? (

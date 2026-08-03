@@ -116,6 +116,7 @@ const createWindowStore = () => {
     searchStore: {
       matchedSet: new Set(),
       _query: '',
+      queryActive: false,
       focus: jest.fn(),
     },
     tabGroupStore: {
@@ -1240,6 +1241,7 @@ describe('WindowStore layout policy', () => {
       },
     ] as any
     ;(windowStore.store as any).searchStore._query = 'match'
+    ;(windowStore.store as any).searchStore.queryActive = true
     ;(windowStore.store as any).searchStore.clearFilteredFocusedTab =
       clearFilteredFocusedTab
 
@@ -1281,6 +1283,7 @@ describe('WindowStore layout policy', () => {
     }
     ;(windowStore.store as any).searchStore = {
       _query: 'match',
+      queryActive: true,
       matchedSet: new Set(),
       clearFilteredFocusedTab() {
         const focusedTabId = windowStore.store.focusStore.focusedTabId

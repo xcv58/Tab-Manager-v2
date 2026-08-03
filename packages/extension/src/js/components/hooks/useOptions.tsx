@@ -3,7 +3,7 @@ import { useStore } from 'components/hooks/useStore'
 const EMPTY_OPTIONS: never[] = []
 
 export const useOptions = (enabled = true) => {
-  const { windowStore, shortcutStore, searchStore } = useStore()
+  const { windowStore, shortcutStore, searchStore, userStore } = useStore()
   if (!enabled) {
     return EMPTY_OPTIONS
   }
@@ -19,6 +19,6 @@ export const useOptions = (enabled = true) => {
       .filter((x) => x)
       .sort((a, b) => a.name.localeCompare(b.name))
   }
-  const { historyTabs } = searchStore
+  const historyTabs = userStore.searchHistory ? searchStore.historyTabs : []
   return [...windowStore.tabs, ...historyTabs]
 }

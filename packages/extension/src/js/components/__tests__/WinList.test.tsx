@@ -625,6 +625,8 @@ describe('WinList', () => {
       searchStore: {
         query: '',
         _query: '',
+        inputQueryActive: false,
+        queryActive: false,
         focus: focusSearch,
       },
       focusStore: {
@@ -757,6 +759,8 @@ describe('WinList', () => {
           searchStore: {
             query: '',
             _query: '',
+            inputQueryActive: false,
+            queryActive: false,
             focus: focusSearch,
           },
           focusStore: {
@@ -849,6 +853,8 @@ describe('WinList', () => {
               searchStore: {
                 query,
                 _query: appliedQuery,
+                inputQueryActive: !!query.trim(),
+                queryActive: !!appliedQuery.trim(),
               },
               focusStore: {
                 setContainerRef: jest.fn(),

@@ -180,6 +180,7 @@ describe('TabGroupStore', () => {
       searchStore: {
         matchedSet: new Set([1]),
         _query: 'pin',
+        queryActive: true,
       },
       windowStore: {
         tabs,

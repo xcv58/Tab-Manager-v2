@@ -51,6 +51,76 @@ describe('UserStore', () => {
     expect(repackLayout).toHaveBeenNthCalledWith(2, 'settings-change')
   })
 
+  it('clears and invalidates history before disabling history search', async () => {
+    const disableHistorySearch = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+        disableHistorySearch,
+      },
+    } as any)
+    await flush()
+
+    userStore.searchHistory = true
+    disableHistorySearch.mockClear()
+    disableHistorySearch.mockImplementation(() => {
+      expect(userStore.searchHistory).toBe(true)
+    })
+    userStore.toggleSearchHistory()
+
+    expect(disableHistorySearch).toHaveBeenCalledTimes(1)
+    expect(userStore.searchHistory).toBe(false)
+  })
+
+  it('enables history before refreshing the current search', async () => {
+    const enableHistorySearch = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+        enableHistorySearch,
+      },
+    } as any)
+    await flush()
+
+    userStore.searchHistory = false
+    enableHistorySearch.mockClear()
+    enableHistorySearch.mockImplementation(() => {
+      expect(userStore.searchHistory).toBe(true)
+    })
+    userStore.toggleSearchHistory()
+
+    expect(enableHistorySearch).toHaveBeenCalledTimes(1)
+    expect(userStore.searchHistory).toBe(true)
+  })
+
+  it('reconciles layout and focus when result-menu visibility changes', async () => {
+    const visibleRowCounts = [{ windowId: 1, visibleLength: 2 }]
+    const repackLayout = jest.fn()
+    const clearFilteredFocusedTab = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+        clearFilteredFocusedTab,
+      },
+      windowStore: {
+        getVisibleRowCountSnapshot: jest.fn(() => visibleRowCounts),
+        haveVisibleRowCountsChanged: jest.fn(() => true),
+        repackLayout,
+      },
+    } as any)
+    await flush()
+
+    repackLayout.mockClear()
+    clearFilteredFocusedTab.mockClear()
+    userStore.showSearchResultMenu = true
+
+    userStore.toggleShowSearchResultMenu()
+
+    expect(userStore.showSearchResultMenu).toBe(false)
+    expect(repackLayout).toHaveBeenCalledWith('search-change')
+    expect(clearFilteredFocusedTab).toHaveBeenCalledTimes(1)
+  })
+
   it('should repack layout after loading stored font size or tab width', async () => {
     const repackLayout = jest.fn()
     const userStore = new UserStore({

@@ -221,7 +221,11 @@ export default class Tab extends Focusable {
   }
 
   get query() {
-    return this.store.searchStore._tabQuery
+    return this.store.searchStore.tabHighlightQuery
+  }
+
+  get searchMatchMode() {
+    return this.store.searchStore.tabHighlightMatchMode
   }
 
   get isHiddenByCollapsedGroup() {
@@ -235,7 +239,7 @@ export default class Tab extends Focusable {
     if (!tabGroup || !tabGroup.collapsed) {
       return false
     }
-    if (this.store.searchStore._query && this.isMatched) {
+    if (this.store.searchStore.queryActive && this.isMatched) {
       return false
     }
     return true

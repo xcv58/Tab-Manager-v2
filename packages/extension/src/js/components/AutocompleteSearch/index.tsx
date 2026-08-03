@@ -4,11 +4,12 @@ import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
 import TabOption from './TabOption'
-import { matchSorter, defaultBaseSortFn } from 'match-sorter'
+import { defaultBaseSortFn } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
 import Shortcuts from 'components/Shortcut/Shortcuts'
 import HistoryItemTab from 'components/Tab/HistoryItemTab'
+import HighlightNode from 'components/HighlightNode'
 import Tab from 'stores/Tab'
 import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
 import { getNoun, openURL } from 'libs'
@@ -17,6 +18,7 @@ import { filterCommandOptions, type CommandOption } from './filterOptions'
 import { useCombobox } from 'components/ui/Combobox'
 import { VariableSizeList } from 'react-window'
 import { useAppTheme } from 'libs/appTheme'
+import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
@@ -112,10 +114,13 @@ const getFilterOptions = (
   isCommand,
   tabGroupStore,
   groupedSectionTabIdsRef,
+  searchMatchModeRef,
+  searchStore,
 ) => {
   if (isCommand) {
     return (options, state) => {
       groupedSectionTabIdsRef.current = new Set()
+      searchMatchModeRef.current = 'fuzzy'
       return commandFilter(options, state)
     }
   }
@@ -125,6 +130,7 @@ const getFilterOptions = (
     const history = options.filter((option) => option.visitCount)
     const trimmedValue = inputValue.trim()
     if (!trimmedValue) {
+      searchMatchModeRef.current = 'none'
       const { items: groupedTabs, sectionTabIds } = buildGroupedTabSections(
         tabs,
         tabGroupStore,
@@ -148,7 +154,9 @@ const getFilterOptions = (
       showUrl,
       hasTabGroupsApi: !!tabGroupStore?.hasTabGroupsApi?.(),
     })
-    const matchedTabs = matchSorter(tabs, inputValue, {
+    const searchMatchMode = searchStore.getMatchModeForQuery(trimmedValue)
+    searchMatchModeRef.current = searchMatchMode
+    const matchedTabs = matchItemsInMode(tabs, trimmedValue, searchMatchMode, {
       keys,
       sorter: (rankedItems) =>
         rankedItems.sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn)),
@@ -159,7 +167,12 @@ const getFilterOptions = (
       1,
     )
     groupedSectionTabIdsRef.current = sectionTabIds
-    const matchedHistory = matchSorter(history, inputValue, { keys })
+    const matchedHistory = matchItemsInMode(
+      history,
+      trimmedValue,
+      searchMatchMode,
+      { keys },
+    )
     if (matchedHistory.length) {
       return [
         ...groupedTabs,
@@ -186,7 +199,13 @@ type DividerOption = {
 
 type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
 
-const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
+const renderTabOption = (
+  tab: SearchOption,
+  theme,
+  groupedSectionTabIds,
+  matchMode: SearchMatchMode,
+  query: string,
+) => {
   if (tab.isDivider) {
     if (tab.dividerType === 'group') {
       const groupColor = getChromeTabGroupColor(tab.color)
@@ -205,7 +224,14 @@ const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
               }}
               data-testid={`search-group-header-chip-${tab.groupId}`}
             >
-              <span className="truncate">{tab.title}</span>
+              <span className="truncate">
+                <HighlightNode
+                  query={query}
+                  text={tab.title}
+                  mode={matchMode}
+                  inline
+                />
+              </span>
             </div>
           </div>
           <div
@@ -228,12 +254,13 @@ const renderTabOption = (tab: SearchOption, theme, groupedSectionTabIds) => {
     )
   }
   if (tab.visitCount) {
-    return <HistoryItemTab tab={tab} />
+    return <HistoryItemTab tab={tab} matchMode={matchMode} />
   }
   return (
     <TabOption
       tab={tab}
       showInlineGroupBadge={!groupedSectionTabIds.has(tab.id)}
+      matchMode={matchMode}
     />
   )
 }
@@ -330,6 +357,7 @@ const AutocompleteSearch = observer((props: Props) => {
   )
 
   const groupedSectionTabIdsRef = useRef(new Set())
+  const searchMatchModeRef = useRef<SearchMatchMode>('none')
   const filterOptions = useMemo(
     () =>
       getFilterOptions(
@@ -337,8 +365,10 @@ const AutocompleteSearch = observer((props: Props) => {
         isCommand,
         tabGroupStore,
         groupedSectionTabIdsRef,
+        searchMatchModeRef,
+        searchStore,
       ),
-    [userStore.showUrl, isCommand, tabGroupStore],
+    [userStore.showUrl, isCommand, tabGroupStore, searchStore],
   )
 
   const filteredOptions = useMemo(() => {
@@ -438,7 +468,13 @@ const AutocompleteSearch = observer((props: Props) => {
       >
         {isCommand
           ? renderCommand(option, { inputValue: query })
-          : renderTabOption(option, theme, groupedSectionTabIdsRef.current)}
+          : renderTabOption(
+              option,
+              theme,
+              groupedSectionTabIdsRef.current,
+              searchMatchModeRef.current,
+              query,
+            )}
       </li>
     )
   }

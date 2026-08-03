@@ -163,8 +163,8 @@ export default observer(() => {
   const showEmptyColumnRelayout =
     windowStore.layoutDirty &&
     !dragStore?.dragging &&
-    !searchStore?.query &&
-    !searchStore?._query
+    !searchStore?.inputQueryActive &&
+    !searchStore?.queryActive
   const emptyColumnRuns = showEmptyColumnRelayout
     ? (columnLayoutsWithPosition ?? renderedColumnLayouts).reduce<
         Array<{
