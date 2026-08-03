@@ -1053,38 +1053,65 @@ export default class WindowsStore {
     }
 
     const columnCount = this.getAutoFitColumnCount(windows.length)
-    const layout = Array.from({ length: columnCount }, () => [] as number[])
     const windowHeights = windows.map((win) => win.visibleLength)
-    let remainingHeight = windowHeights.reduce(
-      (total, windowHeight) => total + windowHeight,
-      0,
+    const cumulativeHeights = windowHeights.reduce(
+      (totals, windowHeight) => {
+        totals.push(totals[totals.length - 1] + windowHeight)
+        return totals
+      },
+      [0],
     )
-    let windowIndex = 0
+    const minimumMaxHeights = Array.from({ length: columnCount + 1 }, () =>
+      Array(windows.length + 1).fill(Number.POSITIVE_INFINITY),
+    )
+    const splitIndexes = Array.from({ length: columnCount + 1 }, () =>
+      Array(windows.length + 1).fill(0),
+    )
+    minimumMaxHeights[0][0] = 0
 
-    for (let columnIndex = 0; columnIndex < columnCount; columnIndex += 1) {
-      const remainingColumnCount = columnCount - columnIndex
-      const targetHeight = remainingHeight / remainingColumnCount
-      let columnHeight = 0
-
-      while (windowIndex < windows.length) {
-        const remainingWindowCount = windows.length - windowIndex
-        if (remainingWindowCount <= remainingColumnCount - 1) {
-          break
-        }
-        const nextWindowHeight = windowHeights[windowIndex]
-        if (
-          layout[columnIndex].length > 0 &&
-          Math.abs(targetHeight - columnHeight) <=
-            Math.abs(targetHeight - (columnHeight + nextWindowHeight))
+    for (
+      let partitionCount = 1;
+      partitionCount <= columnCount;
+      partitionCount += 1
+    ) {
+      for (
+        let endIndex = partitionCount;
+        endIndex <= windows.length;
+        endIndex += 1
+      ) {
+        for (
+          let splitIndex = partitionCount - 1;
+          splitIndex < endIndex;
+          splitIndex += 1
         ) {
-          break
+          const partitionHeight =
+            cumulativeHeights[endIndex] - cumulativeHeights[splitIndex]
+          const candidateMaxHeight = Math.max(
+            minimumMaxHeights[partitionCount - 1][splitIndex],
+            partitionHeight,
+          )
+          if (
+            candidateMaxHeight < minimumMaxHeights[partitionCount][endIndex]
+          ) {
+            minimumMaxHeights[partitionCount][endIndex] = candidateMaxHeight
+            splitIndexes[partitionCount][endIndex] = splitIndex
+          }
         }
-        layout[columnIndex].push(windows[windowIndex].id)
-        columnHeight += nextWindowHeight
-        windowIndex += 1
       }
+    }
 
-      remainingHeight -= columnHeight
+    const layout = Array.from({ length: columnCount }, () => [] as number[])
+    let endIndex = windows.length
+    for (
+      let partitionCount = columnCount;
+      partitionCount > 0;
+      partitionCount -= 1
+    ) {
+      const splitIndex = splitIndexes[partitionCount][endIndex]
+      layout[partitionCount - 1] = windows
+        .slice(splitIndex, endIndex)
+        .map((win) => win.id)
+      endIndex = splitIndex
     }
 
     return {

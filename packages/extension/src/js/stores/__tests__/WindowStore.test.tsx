@@ -287,6 +287,32 @@ describe('WindowStore layout policy', () => {
     expect(layout).toEqual([[1], [2], [3], [4], [5, 6]])
   })
 
+  it('optimally balances ordered auto-fit columns with unequal heights', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.autoFitColumns = true
+    windowStore.width = 1120
+    setVisibleLengths(windowStore, [7, 2, 4, 5, 9, 5])
+
+    const { layout, columnCount } =
+      windowStore.computeOrderedAutoFitColumnLayout(windowStore.visibleWindows)
+
+    expect(columnCount).toBe(4)
+    expect(layout).toEqual([[1, 2], [3, 4], [5], [6]])
+  })
+
+  it('uses stable split positions when ordered auto-fit partitions tie', () => {
+    const windowStore = createWindowStore()
+    windowStore.store.userStore.autoFitColumns = true
+    windowStore.width = 1400
+    setVisibleLengths(windowStore, [1, 1, 1, 1, 1, 1])
+
+    const { layout, columnCount } =
+      windowStore.computeOrderedAutoFitColumnLayout(windowStore.visibleWindows)
+
+    expect(columnCount).toBe(5)
+    expect(layout).toEqual([[1], [2], [3], [4], [5, 6]])
+  })
+
   it('keeps last-used window order disabled by default', () => {
     const windowStore = createWindowStore()
     windowStore.height = 260
