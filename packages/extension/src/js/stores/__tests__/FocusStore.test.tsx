@@ -325,6 +325,68 @@ describe('FocusStore', () => {
     expect(store.focusStore.focusedGroupId).toBe(100)
   })
 
+  it('keeps the window title visible when jumping to its first row', () => {
+    const store = createStore(false)
+    const win = new Window(
+      {
+        id: 1,
+        tabs: [
+          {
+            id: 1,
+            active: false,
+            groupId: -1,
+            index: 0,
+            title: 'First',
+            url: 'https://example.com/first',
+            windowId: 1,
+          },
+          {
+            id: 2,
+            active: false,
+            groupId: -1,
+            index: 1,
+            title: 'Second',
+            url: 'https://example.com/second',
+            windowId: 1,
+          },
+          {
+            id: 3,
+            active: false,
+            groupId: -1,
+            index: 2,
+            title: 'Third',
+            url: 'https://example.com/third',
+            windowId: 1,
+          },
+        ],
+      },
+      store,
+    )
+    store.windowStore.tabs = win.tabs
+    store.windowStore.windows = [win]
+    const container = document.createElement('div')
+    Object.defineProperties(container, {
+      clientHeight: { configurable: true, value: 160 },
+      clientWidth: { configurable: true, value: 320 },
+    })
+    container.scrollTop = 40
+    store.focusStore.setContainerRef({ current: container })
+    store.focusStore.focus(win.tabs[2])
+
+    store.focusStore.firstTab()
+
+    expect(store.focusStore.focusedTabId).toBe(1)
+    expect(container.scrollTop).toBe(0)
+
+    container.scrollTop = 40
+    store.focusStore.focus(win.tabs[0], {
+      origin: 'search',
+      reveal: true,
+    })
+
+    expect(container.scrollTop).toBe(40)
+  })
+
   it('skips collapsed rows from hidden windows during keyboard navigation', () => {
     const store = createStore(false)
     store.hiddenWindowStore.hiddenWindows[1] = true
