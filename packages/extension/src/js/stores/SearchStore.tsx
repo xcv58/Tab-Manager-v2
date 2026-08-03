@@ -208,6 +208,7 @@ export default class SearchStore {
     this.typing = false
     if (this.isCommand) {
       this.query = this._query
+      this._tabQuery = this._query
       void this.refreshHistorySearch()
     }
   }

@@ -567,6 +567,40 @@ describe('SearchStore', () => {
     jest.useRealTimers()
   })
 
+  it('restores highlights when command search interrupts their debounce', () => {
+    jest.useFakeTimers()
+    const searchStore = new SearchStore({
+      windowStore: { tabs: [] },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+        preserveSearch: false,
+      },
+    } as any)
+    searchStore.query = 'old'
+    searchStore._query = 'old'
+    searchStore._tabQuery = 'old'
+
+    searchStore.search('new')
+    jest.advanceTimersByTime(200)
+
+    expect(searchStore._query).toBe('new')
+    expect(searchStore._tabQuery).toBe('old')
+    expect(searchStore.tabHighlightQuery).toBe('')
+
+    searchStore.search('>group')
+    searchStore.stopType()
+
+    expect(searchStore.query).toBe('new')
+    expect(searchStore._tabQuery).toBe('new')
+    expect(searchStore.tabHighlightQuery).toBe('new')
+
+    jest.clearAllTimers()
+    jest.useRealTimers()
+  })
+
   it('ignores an in-flight history response after history is disabled', async () => {
     let resolveHistory: (items: any[]) => void
     const historyResponse = new Promise<any[]>((resolve) => {
