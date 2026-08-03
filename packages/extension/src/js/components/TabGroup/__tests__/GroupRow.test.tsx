@@ -81,6 +81,7 @@ const renderGroupRow = (
     },
     searchStore: {
       _query: '',
+      queryActive: false,
       tabHighlightQuery: '',
       tabHighlightMatchMode: 'none',
       ...searchStoreOverrides,
@@ -166,6 +167,7 @@ describe('GroupRow', () => {
       },
       searchStore: {
         _query: '',
+        queryActive: false,
         tabHighlightQuery: '',
         tabHighlightMatchMode: 'none',
       },

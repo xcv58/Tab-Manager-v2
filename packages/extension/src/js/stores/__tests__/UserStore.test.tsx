@@ -93,6 +93,34 @@ describe('UserStore', () => {
     expect(userStore.searchHistory).toBe(true)
   })
 
+  it('reconciles layout and focus when result-menu visibility changes', async () => {
+    const visibleRowCounts = [{ windowId: 1, visibleLength: 2 }]
+    const repackLayout = jest.fn()
+    const clearFilteredFocusedTab = jest.fn()
+    const userStore = new UserStore({
+      searchStore: {
+        init: jest.fn(),
+        clearFilteredFocusedTab,
+      },
+      windowStore: {
+        getVisibleRowCountSnapshot: jest.fn(() => visibleRowCounts),
+        haveVisibleRowCountsChanged: jest.fn(() => true),
+        repackLayout,
+      },
+    } as any)
+    await flush()
+
+    repackLayout.mockClear()
+    clearFilteredFocusedTab.mockClear()
+    userStore.showSearchResultMenu = true
+
+    userStore.toggleShowSearchResultMenu()
+
+    expect(userStore.showSearchResultMenu).toBe(false)
+    expect(repackLayout).toHaveBeenCalledWith('search-change')
+    expect(clearFilteredFocusedTab).toHaveBeenCalledTimes(1)
+  })
+
   it('should repack layout after loading stored font size or tab width', async () => {
     const repackLayout = jest.fn()
     const userStore = new UserStore({

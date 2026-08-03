@@ -122,11 +122,11 @@ export default observer((props: Props) => {
   }
 
   const countLabel = useMemo(() => {
-    if (searchStore._query && row.matchedCount !== row.tabIds.length) {
+    if (searchStore.queryActive && row.matchedCount !== row.tabIds.length) {
       return `${row.matchedCount}/${row.tabIds.length}`
     }
     return `${row.tabIds.length}`
-  }, [row.matchedCount, row.tabIds.length, searchStore._query])
+  }, [row.matchedCount, row.tabIds.length, searchStore.queryActive])
 
   const getGroupStartIndex = useCallback(() => {
     const groupTabs = tabGroupStore

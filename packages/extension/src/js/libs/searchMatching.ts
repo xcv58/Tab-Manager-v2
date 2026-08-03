@@ -13,7 +13,7 @@ export type SearchMatchResult<Item> = {
   mode: SearchMatchMode
 }
 
-const normalizeQuery = (query: string) => (query || '').trim()
+export const normalizeSearchQuery = (query: string) => (query || '').trim()
 
 export const normalizeSearchText = (text: string) =>
   removeAccents(text || '').toLowerCase()
@@ -93,7 +93,7 @@ export const matchItemsInMode = <Item>(
   mode: SearchMatchMode,
   options: SearchMatchOptions<Item> = {},
 ): Item[] => {
-  const normalizedQuery = normalizeQuery(query)
+  const normalizedQuery = normalizeSearchQuery(query)
   if (!normalizedQuery || mode === 'none') {
     return [...items]
   }
@@ -109,7 +109,7 @@ export const getSearchMatchMode = <Item>(
   query: string,
   options: SearchMatchOptions<Item> = {},
 ): SearchMatchMode => {
-  const normalizedQuery = normalizeQuery(query)
+  const normalizedQuery = normalizeSearchQuery(query)
   if (!normalizedQuery) {
     return 'none'
   }
@@ -141,7 +141,7 @@ export const matchesSearchText = (
   mode?: SearchMatchMode,
 ) => {
   const normalizedText = (text || '').trim()
-  const normalizedQuery = normalizeQuery(query)
+  const normalizedQuery = normalizeSearchQuery(query)
   if (!normalizedText || !normalizedQuery) {
     return false
   }

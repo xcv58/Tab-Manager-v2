@@ -239,7 +239,7 @@ export default class Tab extends Focusable {
     if (!tabGroup || !tabGroup.collapsed) {
       return false
     }
-    if (this.store.searchStore._query && this.isMatched) {
+    if (this.store.searchStore.queryActive && this.isMatched) {
       return false
     }
     return true

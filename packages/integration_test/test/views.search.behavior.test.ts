@@ -197,6 +197,50 @@ test.describe('The Extension page should', () => {
     )
   })
 
+  test('ignore hidden history when selecting the full-page match phase', async () => {
+    await page.evaluate(async () => {
+      const settings = {
+        query: '',
+        searchHistory: true,
+        showSearchResultMenu: false,
+        showUnmatchedTab: false,
+        showUrl: true,
+      }
+      await chrome.storage.local.set(settings)
+      await chrome.storage.sync?.set?.(settings)
+    })
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const fuzzyTitle =
+      'Planning Hub Analysis Search Engineering Knowledge Explorer Yesterday'
+    const fuzzyUrl = `data:text/html,<title>${encodeURIComponent(fuzzyTitle)}</title>`
+    const historyUrl = `${fixtureServer.baseUrl}/phasekey?title=Phasekey%20History`
+    const [, historyPage] = await openPages(browserContext, [
+      fuzzyUrl,
+      historyUrl,
+    ])
+    await historyPage.close()
+    await page.bringToFront()
+    await page.reload()
+    await page.waitForTimeout(700)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.fill('phasekey')
+    await page.waitForTimeout(900)
+
+    const fuzzyFullPageRow = page
+      .locator('[data-testid^="tab-row-"]')
+      .filter({ hasText: fuzzyTitle })
+    await expect(fuzzyFullPageRow).toBeVisible()
+    await expect(
+      fuzzyFullPageRow.locator('[data-search-highlight="fuzzy"]').first(),
+    ).toBeVisible()
+    await expect(page.locator('[role="option"]')).toHaveCount(0)
+  })
+
   test('prefer contiguous full-page matches and fall back to fuzzy matching', async () => {
     await page.evaluate(async () => {
       const settings = {
@@ -405,6 +449,46 @@ test.describe('The Extension page should', () => {
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(titleMatchedWithoutUrl).not.toContainText('SearchDocs')
+  })
+
+  test('keep collapsed groups closed for whitespace-only input', async () => {
+    const alphaUrl =
+      'data:text/html,<title>Whitespace%20Alpha</title>whitespace-alpha'
+    const betaUrl =
+      'data:text/html,<title>Whitespace%20Beta</title>whitespace-beta'
+    await openPages(browserContext, [alphaUrl, betaUrl])
+    await page.bringToFront()
+    await page.waitForTimeout(800)
+
+    const groupId = await groupTabsByUrl(page, {
+      urls: [alphaUrl, betaUrl],
+      title: 'Whitespace Group',
+      color: 'blue',
+    })
+    expect(groupId).toBeGreaterThan(-1)
+    await page.evaluate(async (id) => {
+      await chrome.tabGroups.update(id, { collapsed: true })
+    }, groupId)
+    await page.reload()
+    await waitForTestId(page, `tab-group-header-${groupId}`)
+
+    const searchInput = page.locator(
+      'input[placeholder*="Search tabs or URLs"]',
+    )
+    await searchInput.fill('   ')
+    await page.waitForTimeout(700)
+
+    await expect(page.getByTestId(`tab-group-header-${groupId}`)).toBeVisible()
+    await expect(
+      page.locator('[data-testid^="tab-row-"]').filter({
+        hasText: 'Whitespace Alpha',
+      }),
+    ).toHaveCount(0)
+    await expect(
+      page.locator('[data-testid^="tab-row-"]').filter({
+        hasText: 'Whitespace Beta',
+      }),
+    ).toHaveCount(0)
   })
 
   test('use natural tab order and grouped sections when the search box is empty', async () => {

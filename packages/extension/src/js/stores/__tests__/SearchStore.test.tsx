@@ -1,5 +1,5 @@
 import SearchStore, { matchesSearchText } from 'stores/SearchStore'
-import { browser } from 'libs'
+import { browser, NOT_POPUP } from 'libs'
 import log from 'libs/log'
 
 describe('SearchStore', () => {
@@ -192,7 +192,7 @@ describe('SearchStore', () => {
     expect(Array.from(searchStore.matchedSet)).toEqual([1, 2])
   })
 
-  it('clears focused tab state when the focused tab falls out of the match set', () => {
+  it('clears focused tab state when the focused tab falls out of the visible layout', () => {
     const defocus = jest.fn()
     const searchStore = new SearchStore({
       windowStore: {
@@ -213,6 +213,72 @@ describe('SearchStore', () => {
         isTabSelected: () => false,
         selectAll: jest.fn(),
         invertSelect: jest.fn(),
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+
+    searchStore.clearFilteredFocusedTab()
+
+    expect(defocus).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps focused tab state when an unmatched tab remains visible', () => {
+    const defocus = jest.fn()
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          {
+            id: 1,
+            title: 'Alpha tab',
+            url: 'https://example.com/alpha',
+            isVisible: true,
+          },
+        ],
+      },
+      focusStore: {
+        focusedTabId: 1,
+        defocus,
+      },
+      tabStore: {
+        isTabSelected: () => false,
+        selectAll: jest.fn(),
+        invertSelect: jest.fn(),
+      },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+    searchStore._query = 'needle'
+
+    expect(searchStore.matchedSet.has(1)).toBe(false)
+
+    searchStore.clearFilteredFocusedTab()
+
+    expect(defocus).not.toHaveBeenCalled()
+  })
+
+  it('clears focused group state when its row falls out of the visible layout', () => {
+    const defocus = jest.fn()
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [],
+        windows: [
+          {
+            getVisibleGroupRow: jest.fn(() => null),
+          },
+        ],
+      },
+      focusStore: {
+        focusedTabId: null,
+        focusedGroupId: 100,
+        defocus,
+      },
+      tabStore: {
+        isTabSelected: () => false,
       },
       userStore: {
         showUrl: false,
@@ -333,6 +399,34 @@ describe('SearchStore', () => {
     )
   })
 
+  it('treats whitespace-only input as an inactive query', async () => {
+    const tabs = [
+      { id: 1, title: 'Alpha tab', url: '', isVisible: true },
+      { id: 2, title: 'Beta tab', url: '', isVisible: true },
+    ]
+    const searchStore = new SearchStore({
+      windowStore: { tabs },
+      focusStore: { focusedTabId: null, defocus: jest.fn() },
+      tabStore: { isTabSelected: () => false },
+      userStore: {
+        showUrl: false,
+        searchHistory: false,
+      },
+    } as any)
+    searchStore.query = '   '
+
+    await searchStore._updateQuery()
+    searchStore._updateTabQuery()
+
+    expect(searchStore._query).toBe('')
+    expect(searchStore._tabQuery).toBe('')
+    expect(searchStore.queryActive).toBe(false)
+    expect(searchStore.inputQueryActive).toBe(false)
+    expect(searchStore.matchMode).toBe('none')
+    expect(searchStore.rawMatchedTabs).toEqual(tabs)
+    expect(searchStore.tabHighlightQuery).toBe('')
+  })
+
   it('uses history when selecting the full-page adaptive match mode', () => {
     const fuzzyTab = {
       id: 1,
@@ -373,6 +467,50 @@ describe('SearchStore', () => {
     searchStore.historyTabs = []
     expect(searchStore.matchMode).toBe('fuzzy')
     expect(searchStore.rawMatchedTabs).toEqual([fuzzyTab])
+  })
+
+  it('excludes hidden history from the full-page adaptive match mode', () => {
+    const originalUrl = window.location.href
+    window.history.replaceState({}, '', `/?${NOT_POPUP}=1`)
+    try {
+      const fuzzyTab = {
+        id: 1,
+        title: 'Daily Interesting Science Course',
+        url: '',
+        isVisible: true,
+      }
+      const userStore = {
+        showUrl: false,
+        searchHistory: true,
+        showSearchResultMenu: false,
+      }
+      const searchStore = new SearchStore({
+        windowStore: { tabs: [fuzzyTab] },
+        focusStore: { focusedTabId: null, defocus: jest.fn() },
+        tabStore: { isTabSelected: () => false },
+        userStore,
+      } as any)
+      searchStore._query = 'disc'
+      searchStore.historyTabs = [
+        {
+          id: 'history-1',
+          title: 'Discord',
+          url: '',
+          visitCount: 1,
+        },
+      ]
+
+      expect(searchStore.searchResultMenuEnabled).toBe(false)
+      expect(searchStore.matchMode).toBe('fuzzy')
+      expect(searchStore.rawMatchedTabs).toEqual([fuzzyTab])
+
+      userStore.showSearchResultMenu = true
+      expect(searchStore.searchResultMenuEnabled).toBe(true)
+      expect(searchStore.matchMode).toBe('contiguous')
+      expect(searchStore.rawMatchedTabs).toEqual([])
+    } finally {
+      window.history.replaceState({}, '', originalUrl)
+    }
   })
 
   it('ignores history responses from an older search', async () => {
@@ -720,16 +858,17 @@ describe('SearchStore', () => {
       ] as any)
     const repackLayout = jest.fn()
     const defocus = jest.fn()
+    const tab = {
+      id: 1,
+      title: 'Daily Interesting Science Course',
+      url: '',
+      get isVisible() {
+        return searchStore.rawMatchedTabs.some(({ id }) => id === this.id)
+      },
+    }
     const searchStore = new SearchStore({
       windowStore: {
-        tabs: [
-          {
-            id: 1,
-            title: 'Daily Interesting Science Course',
-            url: '',
-            isVisible: true,
-          },
-        ],
+        tabs: [tab],
         getVisibleRowCountSnapshot: jest.fn(() => []),
         haveVisibleRowCountsChanged: jest.fn(() => true),
         repackLayout,

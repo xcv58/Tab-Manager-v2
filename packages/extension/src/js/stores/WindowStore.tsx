@@ -1248,7 +1248,7 @@ export default class WindowsStore {
     log.debug('tabs.onUpdated:', { tabId, changeInfo, newTab })
     const tab = this.tabs.find((x) => x.id === tabId)
     if (tab) {
-      const queryActive = !!this.store.searchStore?._query
+      const queryActive = !!this.store.searchStore?.queryActive
       const previousGroupId = tab.groupId
       const previousTitle = tab.title
       const previousUrl = tab.url

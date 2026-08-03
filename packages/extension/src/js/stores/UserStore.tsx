@@ -413,7 +413,18 @@ export default class UserStore {
   }
 
   toggleShowSearchResultMenu = () => {
+    const visibleRowCountsBefore =
+      this.store.windowStore?.getVisibleRowCountSnapshot?.()
     this.showSearchResultMenu = !this.showSearchResultMenu
+    const shouldRepackLayout =
+      visibleRowCountsBefore == null ||
+      this.store.windowStore?.haveVisibleRowCountsChanged?.(
+        visibleRowCountsBefore,
+      ) !== false
+    if (shouldRepackLayout) {
+      this.store.windowStore?.repackLayout?.('search-change')
+    }
+    this.store.searchStore?.clearFilteredFocusedTab?.()
     this.save()
   }
 
