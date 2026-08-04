@@ -16,7 +16,6 @@ const TAB_LOAD_POLL_INTERVAL_MS = 250
 const TAB_STATE_STABLE_POLLS = 12
 const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
 const SCREENSHOT_SETTLE_DELAY_MS = 600
-const SCROLLBAR_FADE_DELAY_MS = 2400
 const TAB_CREATE_BATCH_SIZE = 6
 const TAB_CREATE_BATCH_DELAY_MS = 2500
 const DENSE_OVERVIEW_FOCUS_WINDOW_INDEX = 5
@@ -68,7 +67,7 @@ const REQUIRED_TAB_TITLE_RULES = [
   ['https://cloud.google.com/', ['google cloud']],
   ['https://css-tricks.com/', ['css-tricks']],
   ['https://deepmind.google/', ['deepmind']],
-  ['https://deno.com/', ['deno']],
+  ['https://deno.com/', ['deno'], { allowStableLoading: true }],
   ['https://dev.to/', ['dev community']],
   ['https://developer.chrome.com/', ['chrome']],
   ['https://developer.mozilla.org/', ['mdn web docs']],
@@ -96,7 +95,7 @@ const REQUIRED_TAB_TITLE_RULES = [
   ['https://notion.so/', ['notion']],
   ['https://openrouter.ai/', ['openrouter']],
   ['https://pagespeed.web.dev/', ['pagespeed insights']],
-  ['https://playwright.dev/', ['playwright']],
+  ['https://playwright.dev/', ['fast and reliable']],
   ['https://pnpm.io/', ['pnpm']],
   ['https://www.postgresql.org/', ['postgresql'], { allowStableLoading: true }],
   ['https://prometheus.io/', ['prometheus']],
@@ -122,7 +121,7 @@ const REQUIRED_TAB_TITLE_RULES = [
   ['https://vite.dev/', ['vite']],
   ['https://vuejs.org/', ['vue.js']],
   ['https://web.dev/', ['web.dev']],
-  ['https://www.bbc.com/', ['bbc']],
+  ['https://www.bbc.com/', ['bbc'], { allowStableLoading: true }],
   ['https://www.box.com/', ['box']],
   ['https://www.cloudflare.com/', ['cloudflare']],
   ['https://www.datadoghq.com/', ['datadog']],
@@ -193,12 +192,6 @@ const CANONICAL_SOURCE_ALIASES = {
   'https://sentry.io/': ['https://sentry.io/welcome'],
   'https://zoom.us/': ['https://zoom.com/'],
 }
-const FALLBACK_TAB_ICON_DATA_URL = `data:image/svg+xml,${encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-    <path fill="none" stroke="#64748b" stroke-linejoin="round" stroke-width="1.5" d="M4.5 2.5h7l4 4v11h-11z"/>
-    <path fill="none" stroke="#64748b" stroke-linejoin="round" stroke-width="1.5" d="M11.5 2.5v4h4"/>
-  </svg>
-`)}`
 const FALLBACK_TAB_ICON_STATE = '(deterministic-fallback)'
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
@@ -285,7 +278,7 @@ const REAL_URLS = {
   'reading/performance-review': 'https://pagespeed.web.dev/',
   'reading/changelog-draft': 'https://css-tricks.com/',
   'support/customer-4821': 'https://news.ycombinator.com/',
-  'support/customer-5104': 'https://apnews.com/',
+  'support/customer-5104': 'https://www.wikipedia.org/',
   'support/release-mail': 'https://www.reddit.com/r/chrome_extensions/',
   'support/docs-ticket':
     'https://developer.chrome.com/docs/extensions/get-started/',
@@ -592,7 +585,7 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://deno.com/',
+      'https://nodejs.org/',
       'https://github.com/eslint/eslint',
       'https://github.com/prettier/prettier',
       'https://github.com/vitest-dev/vitest',
@@ -681,7 +674,6 @@ async function initExtensionPage() {
       `--load-extension=${EXTENSION_PATH}`,
     ],
   })
-
   const controlPage = context.pages()[0]
   await controlPage.setViewportSize(VIEWPORT)
   await controlPage.goto('chrome://inspect/#extensions')
@@ -737,6 +729,8 @@ async function initExtensionPage() {
   }
 
   await popupPage.setViewportSize(VIEWPORT)
+  const captureSession = await context.newCDPSession(popupPage)
+  await captureSession.send('Emulation.setScrollbarsHidden', { hidden: true })
   await controlPage.close()
   await popupPage.bringToFront()
   const controller = await popupPage.evaluate(async (expectedUrl) => {
@@ -761,7 +755,14 @@ async function initExtensionPage() {
       tabId: controllerTab.id,
     }
   }, fullPageUrl)
-  return { context, controller, page: popupPage, fullPageUrl, userDataDir }
+  return {
+    captureSession,
+    context,
+    controller,
+    page: popupPage,
+    fullPageUrl,
+    userDataDir,
+  }
 }
 
 async function waitForUi(page) {
@@ -896,6 +897,76 @@ async function focusDemoWindow(
   return targetWindow.windowId
 }
 
+async function alignCaptureToWholeWindowCards(page, anchorWindowId) {
+  if (typeof anchorWindowId === 'number') {
+    const selector = `[data-testid="window-card-${anchorWindowId}"]`
+    await page.waitForSelector(selector, { timeout: UI_READY_TIMEOUT_MS })
+    await page.evaluate((targetSelector) => {
+      document.querySelector(targetSelector)?.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'start',
+      })
+    }, selector)
+  }
+  let aligned = false
+  let lastClippedRemainders = { left: 0, right: 0 }
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    lastClippedRemainders = await page.evaluate(() => {
+      const scrollContainer = document.querySelector(
+        '[data-testid="window-list-scroll-container"]',
+      )
+      if (scrollContainer instanceof HTMLElement) {
+        const containerRect = scrollContainer.getBoundingClientRect()
+        const clientLeft = containerRect.left + scrollContainer.clientLeft
+        const clientRight = clientLeft + scrollContainer.clientWidth
+        const windowCardRects = Array.from(
+          document.querySelectorAll('[data-testid^="window-card-"]'),
+        ).map((windowCard) => windowCard.getBoundingClientRect())
+        const leftClippedRemainder = Math.max(
+          0,
+          ...windowCardRects
+            .filter((rect) => rect.left < clientLeft && rect.right > clientLeft)
+            .map((rect) => rect.right - clientLeft),
+        )
+        const rightClippedRemainder = Math.max(
+          0,
+          ...windowCardRects
+            .filter(
+              (rect) => rect.left < clientRight && rect.right > clientRight,
+            )
+            .map((rect) => clientRight - rect.left),
+        )
+        const content = scrollContainer.firstElementChild
+        if (leftClippedRemainder > 0 && content instanceof HTMLElement) {
+          const currentPaddingRight =
+            Number.parseFloat(content.style.paddingRight) || 0
+          content.style.boxSizing = 'content-box'
+          content.style.paddingRight = `${currentPaddingRight + Math.ceil(leftClippedRemainder)}px`
+          scrollContainer.scrollLeft += leftClippedRemainder
+        } else if (rightClippedRemainder > 0) {
+          scrollContainer.scrollLeft -= rightClippedRemainder
+        }
+        return {
+          left: leftClippedRemainder,
+          right: rightClippedRemainder,
+        }
+      }
+      return { left: 0, right: 0 }
+    })
+    if (lastClippedRemainders.left < 0.5 && lastClippedRemainders.right < 0.5) {
+      aligned = true
+      break
+    }
+    await page.waitForTimeout(100)
+  }
+  if (!aligned) {
+    throw new Error(
+      `Failed to align release capture to whole window cards: ${JSON.stringify(lastClippedRemainders)}`,
+    )
+  }
+}
+
 async function scrollWindowIntoView(page, windowId) {
   const selector = `[data-testid="window-card-${windowId}"]`
   await page.waitForSelector(selector, { timeout: UI_READY_TIMEOUT_MS })
@@ -907,30 +978,11 @@ async function scrollWindowIntoView(page, windowId) {
         block: 'nearest',
         inline: 'start',
       })
-      const scrollContainer = document.querySelector(
-        '[data-testid="window-list-scroll-container"]',
-      )
-      if (scrollContainer instanceof HTMLElement) {
-        const leftClippedRemainder = Math.max(
-          0,
-          ...Array.from(
-            document.querySelectorAll('[data-testid^="window-card-"]'),
-          )
-            .map((windowCard) => windowCard.getBoundingClientRect())
-            .filter((rect) => rect.left < 0 && rect.right > 0)
-            .map((rect) => rect.right),
-        )
-        const content = scrollContainer.firstElementChild
-        if (leftClippedRemainder > 0 && content instanceof HTMLElement) {
-          content.style.boxSizing = 'content-box'
-          content.style.paddingRight = `${Math.ceil(leftClippedRemainder)}px`
-        }
-        scrollContainer.scrollLeft += leftClippedRemainder
-      }
     }
   }, selector)
   await page.waitForTimeout(UI_SETTLE_DELAY_MS)
-  await page.waitForTimeout(SCROLLBAR_FADE_DELAY_MS)
+  await alignCaptureToWholeWindowCards(page)
+  await page.waitForTimeout(100)
 }
 
 async function createDemoWindows(page, windows) {
@@ -1453,14 +1505,48 @@ async function assertFinalCaptureState(page, name, browserState) {
         )
       }
 
+      const clipRectFor = (element) => {
+        const clipRect = {
+          left: 0,
+          right: window.innerWidth,
+          top: 0,
+          bottom: window.innerHeight,
+        }
+        let ancestor = element.parentElement
+        while (ancestor && ancestor !== document.body) {
+          const style = window.getComputedStyle(ancestor)
+          const ancestorRect = ancestor.getBoundingClientRect()
+          const clientLeft = ancestorRect.left + ancestor.clientLeft
+          const clientTop = ancestorRect.top + ancestor.clientTop
+          if (style.overflowX !== 'visible') {
+            clipRect.left = Math.max(clipRect.left, clientLeft)
+            clipRect.right = Math.min(
+              clipRect.right,
+              clientLeft + ancestor.clientWidth,
+            )
+          }
+          if (style.overflowY !== 'visible') {
+            clipRect.top = Math.max(clipRect.top, clientTop)
+            clipRect.bottom = Math.min(
+              clipRect.bottom,
+              clientTop + ancestor.clientHeight,
+            )
+          }
+          ancestor = ancestor.parentElement
+        }
+        return clipRect
+      }
       const elementIsVisible = (element) => {
         const rect = element.getBoundingClientRect()
+        const clipRect = clipRectFor(element)
         const style = window.getComputedStyle(element)
         return (
-          rect.bottom > 0 &&
-          rect.right > 0 &&
-          rect.top < window.innerHeight &&
-          rect.left < window.innerWidth &&
+          Math.min(rect.right, clipRect.right) -
+            Math.max(rect.left, clipRect.left) >
+            1 &&
+          Math.min(rect.bottom, clipRect.bottom) -
+            Math.max(rect.top, clipRect.top) >
+            1 &&
           rect.width > 0 &&
           rect.height > 0 &&
           style.display !== 'none' &&
@@ -1474,26 +1560,7 @@ async function assertFinalCaptureState(page, name, browserState) {
       const clippedRows = []
       for (const tabRow of visibleTabRows) {
         const rect = tabRow.getBoundingClientRect()
-        const clipRect = {
-          left: 0,
-          right: window.innerWidth,
-          top: 0,
-          bottom: window.innerHeight,
-        }
-        let ancestor = tabRow.parentElement
-        while (ancestor && ancestor !== document.body) {
-          const style = window.getComputedStyle(ancestor)
-          const ancestorRect = ancestor.getBoundingClientRect()
-          if (style.overflowX !== 'visible') {
-            clipRect.left = Math.max(clipRect.left, ancestorRect.left)
-            clipRect.right = Math.min(clipRect.right, ancestorRect.right)
-          }
-          if (style.overflowY !== 'visible') {
-            clipRect.top = Math.max(clipRect.top, ancestorRect.top)
-            clipRect.bottom = Math.min(clipRect.bottom, ancestorRect.bottom)
-          }
-          ancestor = ancestor.parentElement
-        }
+        const clipRect = clipRectFor(tabRow)
         const tolerance = 1
         if (
           rect.left < clipRect.left - tolerance ||
@@ -1543,44 +1610,63 @@ async function assertFinalCaptureState(page, name, browserState) {
           .filter(elementIsVisible)
           .map((card) => ({
             card,
+            clipRect: clipRectFor(card),
             rect: card.getBoundingClientRect(),
             windowId: parseTestId(card, 'window-card-'),
           }))
           .filter((entry) => {
             const visibleWidth =
-              Math.min(entry.rect.right, window.innerWidth) -
-              Math.max(entry.rect.left, 0)
+              Math.min(entry.rect.right, entry.clipRect.right) -
+              Math.max(entry.rect.left, entry.clipRect.left)
             const visibleHeight =
-              Math.min(entry.rect.bottom, window.innerHeight) -
-              Math.max(entry.rect.top, 0)
+              Math.min(entry.rect.bottom, entry.clipRect.bottom) -
+              Math.max(entry.rect.top, entry.clipRect.top)
             return visibleWidth > 1 && visibleHeight > 1
           })
           .filter((entry) => typeof entry.windowId === 'number')
           .sort((a, b) => a.rect.left - b.rect.left || a.rect.top - b.rect.top)
         const clippedWindowCards = visibleWindowCards.filter(
           (entry) =>
-            entry.rect.left < -1 ||
-            entry.rect.right > window.innerWidth + 1 ||
-            entry.rect.top < -1 ||
-            entry.rect.bottom > window.innerHeight + 1,
+            entry.rect.left < entry.clipRect.left - 1 ||
+            entry.rect.right > entry.clipRect.right + 1 ||
+            entry.rect.top < entry.clipRect.top - 1 ||
+            entry.rect.bottom > entry.clipRect.bottom + 1,
         )
         if (clippedWindowCards.length > 0) {
           throw new Error(
             `Visible window cards are clipped before ${expectations.name}.png: ${JSON.stringify(
               clippedWindowCards.map((entry) => ({
                 windowId: entry.windowId,
+                clipRect: entry.clipRect,
                 rect: entry.rect.toJSON(),
               })),
             )}`,
           )
         }
-        compareIds(
-          'visible window-card order',
-          visibleWindowCards.map((entry) => entry.windowId),
+        const actualVisibleWindowIds = visibleWindowCards.map(
+          (entry) => entry.windowId,
+        )
+        const expectedVisibleWindowIds =
           expectations.captureDomExpectation.visibleWindows.map(
             (entry) => entry.windowId,
-          ),
-        )
+          )
+        if (
+          JSON.stringify(actualVisibleWindowIds) !==
+          JSON.stringify(expectedVisibleWindowIds)
+        ) {
+          throw new Error(
+            `Unexpected visible window-card order before ${expectations.name}.png: ${JSON.stringify(
+              {
+                actual: visibleWindowCards.map((entry) => ({
+                  clipRect: entry.clipRect,
+                  rect: entry.rect.toJSON(),
+                  windowId: entry.windowId,
+                })),
+                expectedIds: expectedVisibleWindowIds,
+              },
+            )}`,
+          )
+        }
 
         const top = Math.min(
           ...visibleWindowCards.map((entry) => entry.rect.top),
@@ -1755,6 +1841,9 @@ async function assertFinalCaptureState(page, name, browserState) {
       for (const tabRow of document.querySelectorAll(
         '[data-testid^="tab-row-"]',
       )) {
+        if (tabRow.closest('[data-testid^="row-details-preview-"]') !== null) {
+          continue
+        }
         const tabId = Number(tabRow.getAttribute('data-testid')?.slice(8))
         const tab = Number.isFinite(tabId) ? liveTabsById.get(tabId) : undefined
         const title = String(tab?.title || '')
@@ -1769,6 +1858,7 @@ async function assertFinalCaptureState(page, name, browserState) {
         )
         const icon = tabRow.querySelector('img')
         const iconSrc = String(icon?.currentSrc || icon?.src || '')
+        const usedCaptureFallback = icon?.dataset.captureFallback === 'true'
         if (
           !tab ||
           !title ||
@@ -1781,7 +1871,8 @@ async function assertFinalCaptureState(page, name, browserState) {
           !icon.complete ||
           icon.naturalWidth <= 0 ||
           !iconSrc ||
-          iconSrc.endsWith('/empty.png')
+          iconSrc.endsWith('/empty.png') ||
+          usedCaptureFallback
         ) {
           mountedRowDiagnostics.push({
             tabId,
@@ -1792,6 +1883,7 @@ async function assertFinalCaptureState(page, name, browserState) {
             iconComplete: icon?.complete,
             iconNaturalWidth: icon?.naturalWidth,
             iconSrc,
+            usedCaptureFallback,
           })
         }
       }
@@ -1802,6 +1894,50 @@ async function assertFinalCaptureState(page, name, browserState) {
           )}`,
         )
       }
+
+      const normalizedIconSource = (iconSource) => {
+        if (iconSource.startsWith('data:')) {
+          return iconSource
+        }
+        try {
+          const normalizedUrl = new URL(iconSource)
+          normalizedUrl.search = ''
+          normalizedUrl.hash = ''
+          return normalizedUrl.href
+        } catch {
+          return iconSource
+        }
+      }
+      const renderedRows = Array.from(
+        document.querySelectorAll('[data-testid^="tab-row-"]'),
+      )
+        .filter(elementIsVisible)
+        .map((tabRow) => {
+          const tabId = Number(tabRow.getAttribute('data-testid')?.slice(8))
+          const tab = Number.isFinite(tabId)
+            ? liveTabsById.get(tabId)
+            : undefined
+          const icon = tabRow.querySelector('img')
+          const iconSrc = String(icon?.currentSrc || icon?.src || '')
+          return {
+            browserFaviconSource: normalizedIconSource(
+              String(tab?.favIconUrl || ''),
+            ),
+            renderedIconSource: normalizedIconSource(iconSrc),
+            renderedText: String(tabRow.innerText || '')
+              .replace(/\s+/g, ' ')
+              .trim(),
+            source:
+              expectedUrlByTabId.get(tabId) ||
+              (tabRow.closest('[data-testid^="row-details-preview-"]')
+                ? '(settings-preview)'
+                : '(unexpected)'),
+          }
+        })
+      captureStructureSignature = JSON.stringify({
+        layout: captureStructureSignature,
+        renderedRows,
+      })
 
       const visibleTooltips = Array.from(
         document.querySelectorAll('[role="tooltip"]'),
@@ -2278,20 +2414,26 @@ async function waitForRenderedTabContent(page, browserState) {
           expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
-      const tabIds = Array.from(
+      const visibleTabRows = Array.from(
         document.querySelectorAll('[data-testid^="tab-row-"]'),
+      ).filter((tabRow) => {
+        const rect = tabRow.getBoundingClientRect()
+        return (
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < window.innerHeight &&
+          rect.left < window.innerWidth
+        )
+      })
+      const tabRowsById = new Map(
+        visibleTabRows
+          .map((tabRow) => [
+            Number(tabRow.getAttribute('data-testid')?.slice(8)),
+            tabRow,
+          ])
+          .filter(([tabId]) => Number.isFinite(tabId)),
       )
-        .filter((tabRow) => {
-          const rect = tabRow.getBoundingClientRect()
-          return (
-            rect.bottom > 0 &&
-            rect.right > 0 &&
-            rect.top < window.innerHeight &&
-            rect.left < window.innerWidth
-          )
-        })
-        .map((tabRow) => Number(tabRow.getAttribute('data-testid')?.slice(8)))
-        .filter(Number.isFinite)
+      const tabIds = [...tabRowsById.keys()]
       const tabs = await Promise.all(
         tabIds.map((tabId) => chrome.tabs.get(tabId).catch(() => undefined)),
       )
@@ -2323,6 +2465,16 @@ async function waitForRenderedTabContent(page, browserState) {
           const statusSettled =
             tab?.status === 'complete' ||
             (matchingTitleRule?.allowStableLoading && tab?.status === 'loading')
+          const icon = tabRowsById.get(tab?.id)?.querySelector('img')
+          const iconSrc = String(icon?.currentSrc || icon?.src || '')
+          const iconReady =
+            !!icon &&
+            icon.complete &&
+            icon.naturalWidth > 0 &&
+            iconSrc.length > 0 &&
+            !iconSrc.endsWith('/empty.png')
+          const browserFaviconReady =
+            isControllerTab || String(tab?.favIconUrl || '').trim().length > 0
           return (
             !tab ||
             !title ||
@@ -2330,6 +2482,8 @@ async function waitForRenderedTabContent(page, browserState) {
             !statusSettled ||
             (!expectedUrl && !isControllerTab) ||
             (!!expectedUrl && !sourceMatchesExpected(expectedUrl, url)) ||
+            !browserFaviconReady ||
+            !iconReady ||
             url.startsWith('chrome-error://') ||
             blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
@@ -2423,11 +2577,14 @@ async function waitForRenderedTabContent(page, browserState) {
           const statusSettled =
             tab?.status === 'complete' ||
             (matchingTitleRule?.allowStableLoading && tab?.status === 'loading')
+          const browserFaviconReady =
+            isControllerTab || String(tab?.favIconUrl || '').trim().length > 0
           return (
             !!tab &&
             title.length > 0 &&
             titleRuleSatisfied &&
             statusSettled &&
+            browserFaviconReady &&
             (isControllerTab ||
               (!!expectedUrl && sourceMatchesExpected(expectedUrl, url))) &&
             !url.startsWith('chrome-error://') &&
@@ -2438,6 +2595,16 @@ async function waitForRenderedTabContent(page, browserState) {
           for (const tabId of tabIds) {
             try {
               await chrome.tabs.update(tabId, { active: true })
+              const activatedTab = await chrome.tabs.get(tabId)
+              const isControllerTab = String(activatedTab?.url || '')
+                .toLowerCase()
+                .startsWith(`${location.origin.toLowerCase()}/`)
+              if (
+                !isControllerTab &&
+                !String(activatedTab?.favIconUrl || '').trim()
+              ) {
+                await chrome.tabs.reload(tabId)
+              }
               for (let attempt = 0; attempt < 40; attempt += 1) {
                 const tab = await chrome.tabs.get(tabId)
                 if (isSettledTab(tab)) {
@@ -2479,54 +2646,6 @@ async function waitForRenderedTabContent(page, browserState) {
       },
     )
   }
-  await page.evaluate(
-    async ({ fallbackIconDataUrl, pollIntervalMs }) => {
-      const delay = (ms) =>
-        new Promise((resolve) => {
-          setTimeout(resolve, ms)
-        })
-      const mountedTabIcons = () =>
-        Array.from(document.querySelectorAll('[data-testid^="tab-row-"]'))
-          .map((tabRow) => tabRow.querySelector('img'))
-          .filter(Boolean)
-      for (let attempt = 0; attempt < 40; attempt += 1) {
-        if (mountedTabIcons().every((icon) => icon.complete)) {
-          break
-        }
-        await delay(pollIntervalMs)
-      }
-      const icons = mountedTabIcons()
-      for (const icon of icons) {
-        const replaceWithFallback = async () => {
-          icon.src = fallbackIconDataUrl
-          icon.dataset.captureFallback = 'true'
-          await icon.decode()
-        }
-        if (
-          !icon.complete ||
-          icon.naturalWidth <= 0 ||
-          icon.src.endsWith('/empty.png')
-        ) {
-          await replaceWithFallback()
-        } else {
-          try {
-            await icon.decode()
-          } catch {
-            await replaceWithFallback()
-          }
-        }
-        if (!icon.complete || icon.naturalWidth <= 0) {
-          throw new Error(
-            `Mounted tab favicon did not decode: ${String(icon.src)}`,
-          )
-        }
-      }
-    },
-    {
-      fallbackIconDataUrl: FALLBACK_TAB_ICON_DATA_URL,
-      pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
-    },
-  )
   await page.evaluate(
     async ({
       blockedTitleSnippets,
@@ -2733,6 +2852,10 @@ async function saveScreenshot(page, name, browserState) {
   await dismissHoverTooltips(page)
   await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
+  await alignCaptureToWholeWindowCards(
+    page,
+    browserState.captureDomExpectation?.visibleWindows[0]?.windowId,
+  )
   const captureStructureSignature = await assertFinalCaptureState(
     page,
     name,
@@ -2775,9 +2898,12 @@ async function captureOverview(page, fullPageUrl, theme, controller) {
     await expectedBrowserStateFor(page, controller, createdWindows),
     createdWindows,
     {
-      stackedWindowIndexes: [[6, 7]],
-      topWindowIndexes: [3, 4, 5, 6, 8],
-      visibleWindowIndexes: [3, 4, 5, 6, 7, 8],
+      stackedWindowIndexes: [
+        [5, 6],
+        [7, 8],
+      ],
+      topWindowIndexes: [2, 3, 4, 5, 7],
+      visibleWindowIndexes: [2, 3, 4, 5, 6, 7, 8],
     },
   )
   console.log('    stabilizing overview browser state')
@@ -2827,10 +2953,32 @@ async function captureGroupEditing(page, fullPageUrl, theme, controller) {
   await page.getByTestId(`tab-group-menu-${groupId}`).click()
   await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
   await page.waitForSelector(`[data-testid="tab-group-editor-${groupId}"]`)
-  await page
-    .getByTestId(`tab-group-editor-title-${groupId}`)
-    .fill('AI Workspace')
-  await saveScreenshot(
+  const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
+  await titleInput.fill('AI Workspace')
+  const selection = await titleInput.evaluate(async (input) => {
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    })
+    if (!(input instanceof HTMLInputElement)) {
+      throw new Error('Expected the group editor title control to be an input')
+    }
+    const caretPosition = input.value.length
+    input.setSelectionRange(caretPosition, caretPosition)
+    return {
+      end: input.selectionEnd,
+      start: input.selectionStart,
+      valueLength: input.value.length,
+    }
+  })
+  if (
+    selection.start !== selection.valueLength ||
+    selection.end !== selection.valueLength
+  ) {
+    throw new Error(
+      `Failed to normalize group editor title selection: ${JSON.stringify(selection)}`,
+    )
+  }
+  return saveScreenshot(
     page,
     screenshotName('02-group-editing', theme.name),
     await expectedBrowserStateFor(page, controller, createdWindows),
@@ -2872,7 +3020,7 @@ async function captureSearchGroups(page, fullPageUrl, theme, controller) {
   const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
   await searchInput.fill('jenny')
   await page.waitForTimeout(250)
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('03-search-groups', theme.name),
     await expectedBrowserStateFor(page, controller, createdWindows),
@@ -2943,7 +3091,7 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme, controller) {
   await page.waitForSelector(
     'button[aria-label^="Clean "][aria-label*="duplicate"]',
   )
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('04-duplicate-cleanup', theme.name),
     await expectedBrowserStateFor(page, controller, createdWindows),
@@ -2980,7 +3128,7 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme, controller) {
     .getByRole('heading', { name: 'Keyboard Shortcuts', exact: true })
     .waitFor()
   await page.getByRole('searchbox', { name: 'Search' }).fill('group')
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('05-keyboard-shortcuts', theme.name),
     await expectedBrowserStateFor(page, controller, createdWindows),
@@ -3012,9 +3160,12 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
     createdWindows,
     {
       selectedTabIds: targetGroup.tabIds,
-      stackedWindowIndexes: [[6, 7]],
-      topWindowIndexes: [2, 3, 4, 5, 6],
-      visibleWindowIndexes: [2, 3, 4, 5, 6, 7],
+      stackedWindowIndexes: [
+        [5, 6],
+        [7, 8],
+      ],
+      topWindowIndexes: [2, 3, 4, 5, 7],
+      visibleWindowIndexes: [2, 3, 4, 5, 6, 7, 8],
     },
   )
   console.log('    stabilizing grouped focus browser state')
@@ -3060,7 +3211,7 @@ async function captureSettings(page, fullPageUrl, theme, controller) {
   await waitForScenarioReady(page, scenarioCounts(windows))
   await page.locator('button[aria-label="Settings"]').first().click()
   await page.getByTestId('settings-panel-theme-density').waitFor()
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('07-settings', theme.name),
     await expectedBrowserStateFor(page, controller, createdWindows),
@@ -3096,7 +3247,7 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
   const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
   await searchInput.fill('>sort')
   await page.waitForSelector('[role="option"]')
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('08-command-palette', theme.name),
     await expectedBrowserStateFor(page, controller, createdWindows),
@@ -3220,23 +3371,26 @@ async function main() {
           theme,
           controller,
         )
-        if (typeof captureStructureSignature === 'string') {
-          const previousSignature = captureStructureSignatureByScenario.get(
-            scenario.id,
-          )
-          if (
-            previousSignature &&
-            previousSignature !== captureStructureSignature
-          ) {
-            throw new Error(
-              `Theme-paired capture structure drift for ${scenario.id}`,
-            )
-          }
-          captureStructureSignatureByScenario.set(
-            scenario.id,
-            captureStructureSignature,
+        if (typeof captureStructureSignature !== 'string') {
+          throw new Error(
+            `Missing theme-pair capture signature for ${scenario.id}`,
           )
         }
+        const previousSignature = captureStructureSignatureByScenario.get(
+          scenario.id,
+        )
+        if (
+          previousSignature !== undefined &&
+          previousSignature !== captureStructureSignature
+        ) {
+          throw new Error(
+            `Theme-paired capture structure drift for ${scenario.id}`,
+          )
+        }
+        captureStructureSignatureByScenario.set(
+          scenario.id,
+          captureStructureSignature,
+        )
       }
     }
   } finally {
