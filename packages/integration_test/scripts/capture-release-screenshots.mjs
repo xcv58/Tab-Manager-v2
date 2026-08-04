@@ -13,7 +13,7 @@ const UI_SETTLE_DELAY_MS = 700
 const NAVIGATION_TIMEOUT_MS = 120000
 const TAB_LOAD_TIMEOUT_MS = 90000
 const TAB_LOAD_POLL_INTERVAL_MS = 250
-const TAB_TITLE_STABLE_POLLS = 4
+const TAB_STATE_STABLE_POLLS = 4
 const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
 const SCREENSHOT_SETTLE_DELAY_MS = 600
 const SCROLLBAR_FADE_DELAY_MS = 2400
@@ -33,14 +33,21 @@ const REQUIRED_TAB_TITLE_RULES = [
     urlPrefix: 'https://www.youtube.com/@jennytv1',
     titleIncludes: 'jenny tv',
   },
+  {
+    urlPrefix: 'https://news.ycombinator.com/',
+    titleIncludes: 'hacker news',
+  },
+  {
+    urlPrefix: 'https://www.postgresql.org/',
+    titleIncludes: 'postgresql',
+    allowStableLoading: true,
+  },
 ]
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
 const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
 const EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
-const REQUESTED_THEMES = String(
-  process.env.RELEASE_SCREENSHOT_THEMES || '',
-)
+const REQUESTED_THEMES = String(process.env.RELEASE_SCREENSHOT_THEMES || '')
   .split(',')
   .map((value) => value.trim())
   .filter(Boolean)
@@ -99,10 +106,8 @@ const REAL_URLS = {
   'launch/support-plan': 'https://vercel.com/',
   'launch/qa-signoff': 'https://react.dev/',
   'launch/rollout-plan': 'https://nodejs.org/',
-  'research/tab-groups-api':
-    'https://developer.chrome.com/docs/extensions/',
-  'research/firefox-parity':
-    'https://extensionworkshop.com/',
+  'research/tab-groups-api': 'https://developer.chrome.com/docs/extensions/',
+  'research/firefox-parity': 'https://extensionworkshop.com/',
   'research/edge-review':
     'https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/',
   'research/keyboard-flows': 'https://playwright.dev/',
@@ -112,7 +117,7 @@ const REAL_URLS = {
   'reading/accessibility-audit': 'https://web.dev/',
   'reading/performance-review': 'https://pagespeed.web.dev/',
   'reading/changelog-draft': 'https://css-tricks.com/',
-  'support/customer-4821': 'https://www.reuters.com/',
+  'support/customer-4821': 'https://news.ycombinator.com/',
   'support/customer-5104': 'https://apnews.com/',
   'support/release-mail': 'https://www.reddit.com/r/chrome_extensions/',
   'support/docs-ticket':
@@ -343,7 +348,7 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://www.reuters.com/',
+      'https://www.npr.org/',
       'https://www.bbc.com/',
       'https://www.theguardian.com/international',
       'https://apnews.com/',
@@ -658,7 +663,12 @@ async function waitForScenarioReady(page, counts) {
   await page.waitForTimeout(UI_SETTLE_DELAY_MS + 2000)
 }
 
-async function focusDemoWindow(page, createdWindows, windowIndex, tabIndex = 0) {
+async function focusDemoWindow(
+  page,
+  createdWindows,
+  windowIndex,
+  tabIndex = 0,
+) {
   const targetWindow =
     createdWindows[
       Math.max(0, Math.min(windowIndex, Math.max(createdWindows.length - 1, 0)))
@@ -668,10 +678,15 @@ async function focusDemoWindow(page, createdWindows, windowIndex, tabIndex = 0) 
   }
   const targetTabId =
     targetWindow.tabIds[
-      Math.max(0, Math.min(tabIndex, Math.max(targetWindow.tabIds.length - 1, 0)))
+      Math.max(
+        0,
+        Math.min(tabIndex, Math.max(targetWindow.tabIds.length - 1, 0)),
+      )
     ]
   if (typeof targetTabId !== 'number') {
-    throw new Error(`Missing target demo tab for window ${targetWindow.windowId}`)
+    throw new Error(
+      `Missing target demo tab for window ${targetWindow.windowId}`,
+    )
   }
   await page.evaluate(
     async ({ windowId, tabId }) => {
@@ -941,115 +956,143 @@ async function waitForNoVisibleInterstitialText(page, name) {
 }
 
 async function waitForRenderedTabContent(page) {
-  const unsettledTabIds = await page.evaluate(async ({
-    blockedTitleSnippets,
-    requiredTitleRules,
-  }) => {
-    const tabIds = Array.from(
-      document.querySelectorAll('[data-testid^="tab-row-"]'),
-    )
-      .filter((tabRow) => {
-        const rect = tabRow.getBoundingClientRect()
-        return (
-          rect.bottom > 0 &&
-          rect.right > 0 &&
-          rect.top < window.innerHeight &&
-          rect.left < window.innerWidth
-        )
-      })
-      .map((tabRow) => Number(tabRow.getAttribute('data-testid')?.slice(8)))
-      .filter(Number.isFinite)
-    const tabs = await Promise.all(
-      tabIds.map((tabId) => chrome.tabs.get(tabId).catch(() => undefined)),
-    )
-    return tabs
-      .filter((tab) => {
-        const title = String(tab?.title || '').trim().toLowerCase()
-        const url = String(tab?.url || '').trim().toLowerCase()
-        const titleRuleSatisfied = requiredTitleRules.every(
-          (rule) =>
-            !url.startsWith(rule.urlPrefix) || title.includes(rule.titleIncludes),
-        )
-        return (
-          !tab ||
-          !title ||
-          !titleRuleSatisfied ||
-          url.startsWith('chrome-error://') ||
-          blockedTitleSnippets.some((snippet) => title.includes(snippet))
-        )
-      })
-      .map((tab) => tab?.id)
-      .filter(Number.isFinite)
-  }, {
-    blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
-    requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
-  })
-  if (unsettledTabIds.length > 0) {
-    await page.evaluate(async ({
-      tabIds,
-      pollIntervalMs,
-      blockedTitleSnippets,
-      requiredTitleRules,
-    }) => {
-      const delay = (ms) =>
-        new Promise((resolve) => {
-          setTimeout(resolve, ms)
+  const unsettledTabIds = await page.evaluate(
+    async ({ blockedTitleSnippets, requiredTitleRules }) => {
+      const tabIds = Array.from(
+        document.querySelectorAll('[data-testid^="tab-row-"]'),
+      )
+        .filter((tabRow) => {
+          const rect = tabRow.getBoundingClientRect()
+          return (
+            rect.bottom > 0 &&
+            rect.right > 0 &&
+            rect.top < window.innerHeight &&
+            rect.left < window.innerWidth
+          )
         })
-      const isSettledTab = (tab) => {
-        const title = String(tab?.title || '').trim().toLowerCase()
-        const url = String(tab?.url || '').trim().toLowerCase()
-        const titleRuleSatisfied = requiredTitleRules.every(
-          (rule) =>
-            !url.startsWith(rule.urlPrefix) || title.includes(rule.titleIncludes),
-        )
-        return (
-          !!tab &&
-          title.length > 0 &&
-          titleRuleSatisfied &&
-          !url.startsWith('chrome-error://') &&
-          !blockedTitleSnippets.some((snippet) => title.includes(snippet))
-        )
-      }
-      const activeTabIds = []
-      const affectedWindowIds = new Set()
-      for (const tabId of tabIds) {
-        const tab = await chrome.tabs.get(tabId).catch(() => undefined)
-        if (typeof tab?.windowId === 'number') {
-          affectedWindowIds.add(tab.windowId)
-        }
-      }
-      for (const windowId of affectedWindowIds) {
-        const [activeTab] = await chrome.tabs.query({ active: true, windowId })
-        if (typeof activeTab?.id === 'number') {
-          activeTabIds.push(activeTab.id)
-        }
-      }
-      try {
-        for (const tabId of tabIds) {
-          try {
-            await chrome.tabs.update(tabId, { active: true })
-            for (let attempt = 0; attempt < 40; attempt += 1) {
-              const tab = await chrome.tabs.get(tabId)
-              if (isSettledTab(tab)) {
-                break
-              }
-              await delay(pollIntervalMs)
-            }
-          } catch {
-            // The final rendered-content assertion reports any unresolved row.
-          }
-        }
-      } finally {
-        for (const tabId of activeTabIds) {
-          await chrome.tabs.update(tabId, { active: true }).catch(() => undefined)
-        }
-      }
-    }, {
-      tabIds: unsettledTabIds,
-      pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
+        .map((tabRow) => Number(tabRow.getAttribute('data-testid')?.slice(8)))
+        .filter(Number.isFinite)
+      const tabs = await Promise.all(
+        tabIds.map((tabId) => chrome.tabs.get(tabId).catch(() => undefined)),
+      )
+      return tabs
+        .filter((tab) => {
+          const title = String(tab?.title || '')
+            .trim()
+            .toLowerCase()
+          const url = String(tab?.url || '')
+            .trim()
+            .toLowerCase()
+          const matchingTitleRule = requiredTitleRules.find((rule) =>
+            url.startsWith(rule.urlPrefix),
+          )
+          const titleRuleSatisfied =
+            !matchingTitleRule ||
+            title.includes(matchingTitleRule.titleIncludes)
+          const statusSettled =
+            tab?.status === 'complete' ||
+            (matchingTitleRule?.allowStableLoading && tab?.status === 'loading')
+          return (
+            !tab ||
+            !title ||
+            !titleRuleSatisfied ||
+            !statusSettled ||
+            url.startsWith('chrome-error://') ||
+            blockedTitleSnippets.some((snippet) => title.includes(snippet))
+          )
+        })
+        .map((tab) => tab?.id)
+        .filter(Number.isFinite)
+    },
+    {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
-    })
+    },
+  )
+  if (unsettledTabIds.length > 0) {
+    await page.evaluate(
+      async ({
+        tabIds,
+        pollIntervalMs,
+        blockedTitleSnippets,
+        requiredTitleRules,
+      }) => {
+        const delay = (ms) =>
+          new Promise((resolve) => {
+            setTimeout(resolve, ms)
+          })
+        const isSettledTab = (tab) => {
+          const title = String(tab?.title || '')
+            .trim()
+            .toLowerCase()
+          const url = String(tab?.url || '')
+            .trim()
+            .toLowerCase()
+          const matchingTitleRule = requiredTitleRules.find((rule) =>
+            url.startsWith(rule.urlPrefix),
+          )
+          const titleRuleSatisfied =
+            !matchingTitleRule ||
+            title.includes(matchingTitleRule.titleIncludes)
+          const statusSettled =
+            tab?.status === 'complete' ||
+            (matchingTitleRule?.allowStableLoading && tab?.status === 'loading')
+          return (
+            !!tab &&
+            title.length > 0 &&
+            titleRuleSatisfied &&
+            statusSettled &&
+            !url.startsWith('chrome-error://') &&
+            !blockedTitleSnippets.some((snippet) => title.includes(snippet))
+          )
+        }
+        const activeTabIds = []
+        const affectedWindowIds = new Set()
+        for (const tabId of tabIds) {
+          const tab = await chrome.tabs.get(tabId).catch(() => undefined)
+          if (typeof tab?.windowId === 'number') {
+            affectedWindowIds.add(tab.windowId)
+          }
+        }
+        for (const windowId of affectedWindowIds) {
+          const [activeTab] = await chrome.tabs.query({
+            active: true,
+            windowId,
+          })
+          if (typeof activeTab?.id === 'number') {
+            activeTabIds.push(activeTab.id)
+          }
+        }
+        try {
+          for (const tabId of tabIds) {
+            try {
+              await chrome.tabs.update(tabId, { active: true })
+              for (let attempt = 0; attempt < 40; attempt += 1) {
+                const tab = await chrome.tabs.get(tabId)
+                if (isSettledTab(tab)) {
+                  break
+                }
+                await delay(pollIntervalMs)
+              }
+            } catch {
+              // The final rendered-content assertion reports any unresolved row.
+            }
+          }
+        } finally {
+          for (const tabId of activeTabIds) {
+            await chrome.tabs
+              .update(tabId, { active: true })
+              .catch(() => undefined)
+          }
+        }
+      },
+      {
+        tabIds: unsettledTabIds,
+        pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
+        blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+        requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
+      },
+    )
   }
   await page.evaluate(
     async ({
@@ -1063,8 +1106,8 @@ async function waitForRenderedTabContent(page) {
         new Promise((resolve) => {
           setTimeout(resolve, ms)
         })
-      let previousRequiredTitleSignature = ''
-      let stableTitlePolls = 0
+      let previousTabStateSignature = ''
+      let stableStatePolls = 0
       let lastDiagnostics = []
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
         const tabRows = Array.from(
@@ -1078,24 +1121,37 @@ async function waitForRenderedTabContent(page) {
             rect.left < window.innerWidth
           )
         })
-        const requiredTitles = []
+        const tabStates = []
         const diagnostics = []
         let allRowsSettled = tabRows.length > 0
         for (const tabRow of tabRows) {
-          const rowText = String(tabRow.innerText || '').trim().toLowerCase()
+          const rowText = String(tabRow.innerText || '')
+            .trim()
+            .toLowerCase()
           const tabId = Number(tabRow.getAttribute('data-testid')?.slice(8))
           const tab = Number.isFinite(tabId)
             ? await chrome.tabs.get(tabId).catch(() => undefined)
             : undefined
-          const title = String(tab?.title || '').trim().toLowerCase()
-          const url = String(tab?.url || '').trim().toLowerCase()
+          const title = String(tab?.title || '')
+            .trim()
+            .toLowerCase()
+          const url = String(tab?.url || '')
+            .trim()
+            .toLowerCase()
+          const status = String(tab?.status || '')
+            .trim()
+            .toLowerCase()
           const matchingTitleRule = requiredTitleRules.find((rule) =>
             url.startsWith(rule.urlPrefix),
           )
+          const statusSettled =
+            status === 'complete' ||
+            (matchingTitleRule?.allowStableLoading && status === 'loading')
           if (
             !tab ||
             !title ||
             !rowText.includes(title) ||
+            !statusSettled ||
             (matchingTitleRule &&
               !title.includes(matchingTitleRule.titleIncludes)) ||
             url.startsWith('chrome-error://') ||
@@ -1108,36 +1164,30 @@ async function waitForRenderedTabContent(page) {
               url,
               rowText,
               requiredTitle: matchingTitleRule?.titleIncludes,
+              allowStableLoading: matchingTitleRule?.allowStableLoading,
             })
             allRowsSettled = false
             break
           }
-          if (matchingTitleRule) {
-            requiredTitles.push(`${tabId}:${title}`)
-          }
+          tabStates.push(`${tabId}:${status}:${url}:${title}`)
         }
-        const requiredTitleSignature = requiredTitles.join('|')
+        const tabStateSignature = tabStates.join('|')
         lastDiagnostics = diagnostics
-        if (
-          allRowsSettled &&
-          requiredTitleSignature === previousRequiredTitleSignature
-        ) {
-          stableTitlePolls += 1
-          if (stableTitlePolls >= stablePolls) {
+        if (allRowsSettled && tabStateSignature === previousTabStateSignature) {
+          stableStatePolls += 1
+          if (stableStatePolls >= stablePolls) {
             return
           }
         } else {
-          previousRequiredTitleSignature = allRowsSettled
-            ? requiredTitleSignature
-            : ''
-          stableTitlePolls = 0
+          previousTabStateSignature = allRowsSettled ? tabStateSignature : ''
+          stableStatePolls = 0
         }
         await delay(pollIntervalMs)
       }
       throw new Error(
-        `Timed out waiting for stable rendered tab titles: ${JSON.stringify({
-          stableTitlePolls,
-          previousRequiredTitleSignature,
+        `Timed out waiting for stable rendered tab states: ${JSON.stringify({
+          stableStatePolls,
+          previousTabStateSignature,
           lastDiagnostics,
         })}`,
       )
@@ -1146,7 +1196,7 @@ async function waitForRenderedTabContent(page) {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
       pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
-      stablePolls: TAB_TITLE_STABLE_POLLS,
+      stablePolls: TAB_STATE_STABLE_POLLS,
       maxAttempts: Math.ceil(UI_READY_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
     },
   )
