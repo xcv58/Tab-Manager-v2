@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.5.0...v2.6.0) (2026-08-04)
+
+
+### Features
+
+* prioritize contiguous search matches ([#2644](https://github.com/xcv58/Tab-Manager-v2/issues/2644)) ([4f31c71](https://github.com/xcv58/Tab-Manager-v2/commit/4f31c711b6c2831b83a937fa755158d94cfa8eb2))
+
+
+### Bug Fixes
+
+* keep window title visible on first-tab navigation ([3ec301b](https://github.com/xcv58/Tab-Manager-v2/commit/3ec301beb033c779146711dae12ee70988ea26a3))
+* preserve last-used window order ([#2647](https://github.com/xcv58/Tab-Manager-v2/issues/2647)) ([fb00fab](https://github.com/xcv58/Tab-Manager-v2/commit/fb00fab80b2d48c2cf7bec8399be7e92849b10ad))
+
 ## [2.5.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.4.1...v2.5.0) (2026-08-01)
 
 
