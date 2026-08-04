@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Synthetic local-fixture demo focused on UI behavior at scale.':
         '使用本地模拟数据，重点展示大规模标签页下的界面表现。',
       Testing: '测试',
-      'Every change, fully tested.': '每次改动，都完整测试。',
+      'Every change, tested end to end.': '每次改动，都经过端到端测试。',
       'A 10x capture of the Playwright-based extension suite running end to end. It exercises search, grouping, cleanup, keyboard workflows, settings, and snapshot-sensitive UI behavior.':
         '这是一段以 10 倍速播放的 Playwright 扩展端到端测试录屏，覆盖搜索、分组、清理、键盘流程、设置，以及对界面快照敏感的 UI 行为。',
       'Your browser does not support embedded videos. You can download the integration test video directly instead.':
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Synthetic local-fixture demo focused on UI behavior at scale.':
         '使用本機模擬資料，重點展示大量分頁下的介面表現。',
       Testing: '測試',
-      'Every change, fully tested.': '每次變更，都完整測試。',
+      'Every change, tested end to end.': '每次變更，都經過端對端測試。',
       'A 10x capture of the Playwright-based extension suite running end to end. It exercises search, grouping, cleanup, keyboard workflows, settings, and snapshot-sensitive UI behavior.':
         '這是一段以 10 倍速播放的 Playwright 擴充功能端對端測試錄影，涵蓋搜尋、群組、清理、鍵盤流程、設定，以及對畫面快照敏感的 UI 行為。',
       'Your browser does not support embedded videos. You can download the integration test video directly instead.':

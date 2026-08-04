@@ -2,14 +2,14 @@
 
 Tab Manager v2 turns crowded browser sessions into a searchable workspace. Find tabs across windows, move matching tabs in bulk, manage native tab groups where supported by the browser, and clean up duplicates without bouncing between browser windows.
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)](https://chrome.google.com/webstore/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/users/nimllkpgmmbdglnjneeakdgcpkbgbfbp)](https://chromewebstore.google.com/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 [![Mozilla Add-on](https://img.shields.io/amo/users/tab-manager-v2)](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2/)
 [![Node CI](https://github.com/xcv58/Tab-Manager-v2/actions/workflows/nodejs.yml/badge.svg)](https://github.com/xcv58/Tab-Manager-v2/actions/workflows/nodejs.yml)
 [![codecov](https://codecov.io/gh/xcv58/Tab-Manager-v2/branch/master/graph/badge.svg)](https://codecov.io/gh/xcv58/Tab-Manager-v2)
 
 ## Install
 
-- [Chrome Web Store](https://xcv58.xyz/tabs)
+- [Chrome Web Store](https://chromewebstore.google.com/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2)
 - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb)
 

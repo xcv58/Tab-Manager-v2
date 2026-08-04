@@ -13,7 +13,7 @@ const UI_SETTLE_DELAY_MS = 700
 const NAVIGATION_TIMEOUT_MS = 120000
 const TAB_LOAD_TIMEOUT_MS = 90000
 const TAB_LOAD_POLL_INTERVAL_MS = 250
-const TAB_LOAD_STABLE_POLLS = 4
+const TAB_TITLE_STABLE_POLLS = 4
 const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
 const SCREENSHOT_SETTLE_DELAY_MS = 600
 const SCROLLBAR_FADE_DELAY_MS = 2400
@@ -27,6 +27,12 @@ const INTERSTITIAL_TITLE_SNIPPETS = [
   'attention required',
   'checking your browser',
   'please wait',
+]
+const REQUIRED_TAB_TITLE_RULES = [
+  {
+    urlPrefix: 'https://www.youtube.com/@jennytv1',
+    titleIncludes: 'jenny tv',
+  },
 ]
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
@@ -85,7 +91,7 @@ const DEFAULT_SETTINGS = {
 // Avoid URLs that frequently trigger bot checks during automation captures.
 const REAL_URLS = {
   'brand/jenny-home': 'https://jenny.media/',
-  'brand/jenny-short': 'https://s.jenny.media/',
+  'brand/tab-manager': 'https://tab.jenny.media/',
   'brand/jenny-youtube': 'https://www.youtube.com/@JennyTV1',
   'launch/release-roadmap': 'https://developer.chrome.com/',
   'launch/store-copy': 'https://developer.mozilla.org/',
@@ -112,7 +118,7 @@ const REAL_URLS = {
   'support/docs-ticket':
     'https://developer.chrome.com/docs/extensions/get-started/',
   'ops/duplicate-tabs': 'https://jenny.media/',
-  'ops/window-groups': 'https://s.jenny.media/',
+  'ops/window-groups': 'https://tab.jenny.media/',
 }
 
 function buildWindowsFromGroupLayout(groups, layout) {
@@ -142,8 +148,8 @@ const DENSE_OVERVIEW_GROUPS = [
     title: 'AI Workspace',
     color: 'blue',
     urls: [
-      'https://openai.com/chatgpt/',
-      'https://www.anthropic.com/claude',
+      'https://chatgpt.com/',
+      'https://claude.ai/login',
       'https://gemini.google.com/',
       'https://ai.google.dev/',
     ],
@@ -218,7 +224,7 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     urls: [
       'https://jenny.media/',
-      'https://s.jenny.media/',
+      'https://tab.jenny.media/',
       'https://developer.mozilla.org/',
       'https://developer.chrome.com/',
     ],
@@ -641,12 +647,12 @@ async function waitForScenarioReady(page, counts) {
       )
     },
     {
-      timeout: TAB_LOAD_TIMEOUT_MS,
-      polling: TAB_LOAD_POLL_INTERVAL_MS,
-    },
-    {
       expectedWindowCount: counts.windowCount,
       expectedTabCount: counts.tabCount,
+    },
+    {
+      timeout: TAB_LOAD_TIMEOUT_MS,
+      polling: TAB_LOAD_POLL_INTERVAL_MS,
     },
   )
   await page.waitForTimeout(UI_SETTLE_DELAY_MS + 2000)
@@ -693,7 +699,7 @@ async function scrollWindowIntoView(page, windowId) {
       target.scrollIntoView({
         behavior: 'auto',
         block: 'nearest',
-        inline: 'center',
+        inline: 'start',
       })
     }
   }, selector)
@@ -730,53 +736,22 @@ async function createDemoWindows(page, windows) {
       }
 
       const waitForCreatedWindows = async (createdWindows) => {
-        const blockedTitleSnippets = waitOptions.blockedTitleSnippets.map(
-          (snippet) => snippet.toLowerCase(),
-        )
-        const isSettledTab = (tab) => {
-          const title = String(tab.title || '').trim().toLowerCase()
-          const url = String(tab.url || '').trim().toLowerCase()
-          return (
-            tab.status === 'complete' &&
-            title.length > 0 &&
-            !url.startsWith('chrome-error://') &&
-            !blockedTitleSnippets.some((snippet) => title.includes(snippet))
-          )
-        }
-        let highestLoadedCount = -1
-        let stablePolls = 0
         for (let attempt = 0; attempt < waitOptions.maxAttempts; attempt += 1) {
           let hasExpectedCounts = true
-          let expectedTabCount = 0
-          let loadedTabCount = 0
           for (const createdWindow of createdWindows) {
             const tabs = await chrome.tabs.query({ windowId: createdWindow.id })
-            expectedTabCount += createdWindow.expectedCount
             if (tabs.length !== createdWindow.expectedCount) {
               hasExpectedCounts = false
               break
             }
-            loadedTabCount += tabs.filter(isSettledTab).length
           }
-          if (!hasExpectedCounts) {
-            await delay(waitOptions.pollIntervalMs)
-            continue
-          }
-          if (loadedTabCount > highestLoadedCount) {
-            highestLoadedCount = loadedTabCount
-            stablePolls = 0
-          } else {
-            stablePolls += 1
-          }
-          if (
-            loadedTabCount === expectedTabCount ||
-            stablePolls >= waitOptions.stablePolls
-          ) {
+          if (hasExpectedCounts) {
             await delay(waitOptions.postLoadSettleMs)
             return
           }
           await delay(waitOptions.pollIntervalMs)
         }
+        throw new Error('Timed out waiting for all demo window tab counts')
       }
 
       const createWindowWithTabs = async (urls) => {
@@ -885,11 +860,9 @@ async function createDemoWindows(page, windows) {
       waitOptions: {
         maxAttempts: Math.ceil(TAB_LOAD_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
         pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
-        stablePolls: TAB_LOAD_STABLE_POLLS,
         postLoadSettleMs: TAB_POST_LOAD_SETTLE_DELAY_MS,
         batchSize: TAB_CREATE_BATCH_SIZE,
         batchPauseMs: TAB_CREATE_BATCH_DELAY_MS,
-        blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
       },
     },
   )
@@ -924,20 +897,279 @@ async function waitForNoVisibleInterstitialText(page, name) {
   try {
     await page.waitForFunction(
       (snippets) => {
-        const bodyText = String(document.body?.innerText || '').toLowerCase()
-        return !snippets.some((snippet) => bodyText.includes(snippet))
+        const visibleText = []
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+        )
+        let textNode = walker.nextNode()
+        while (textNode) {
+          const element = textNode.parentElement
+          if (element) {
+            const rect = element.getBoundingClientRect()
+            const style = window.getComputedStyle(element)
+            if (
+              rect.bottom > 0 &&
+              rect.right > 0 &&
+              rect.top < window.innerHeight &&
+              rect.left < window.innerWidth &&
+              rect.width > 0 &&
+              rect.height > 0 &&
+              style.display !== 'none' &&
+              style.visibility !== 'hidden' &&
+              style.opacity !== '0'
+            ) {
+              visibleText.push(textNode.nodeValue || '')
+            }
+          }
+          textNode = walker.nextNode()
+        }
+        const viewportText = visibleText.join(' ').toLowerCase()
+        return !snippets.some((snippet) => viewportText.includes(snippet))
       },
+      INTERSTITIAL_TITLE_SNIPPETS,
       {
         timeout: 15000,
         polling: 500,
       },
-      INTERSTITIAL_TITLE_SNIPPETS,
     )
-  } catch {
-    console.log(
-      `    continuing despite visible interstitial text before ${name}.png`,
-    )
+  } catch (error) {
+    throw new Error(`Visible interstitial text before ${name}.png`, {
+      cause: error,
+    })
   }
+}
+
+async function waitForRenderedTabContent(page) {
+  const unsettledTabIds = await page.evaluate(async ({
+    blockedTitleSnippets,
+    requiredTitleRules,
+  }) => {
+    const tabIds = Array.from(
+      document.querySelectorAll('[data-testid^="tab-row-"]'),
+    )
+      .filter((tabRow) => {
+        const rect = tabRow.getBoundingClientRect()
+        return (
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < window.innerHeight &&
+          rect.left < window.innerWidth
+        )
+      })
+      .map((tabRow) => Number(tabRow.getAttribute('data-testid')?.slice(8)))
+      .filter(Number.isFinite)
+    const tabs = await Promise.all(
+      tabIds.map((tabId) => chrome.tabs.get(tabId).catch(() => undefined)),
+    )
+    return tabs
+      .filter((tab) => {
+        const title = String(tab?.title || '').trim().toLowerCase()
+        const url = String(tab?.url || '').trim().toLowerCase()
+        const titleRuleSatisfied = requiredTitleRules.every(
+          (rule) =>
+            !url.startsWith(rule.urlPrefix) || title.includes(rule.titleIncludes),
+        )
+        return (
+          !tab ||
+          !title ||
+          !titleRuleSatisfied ||
+          url.startsWith('chrome-error://') ||
+          blockedTitleSnippets.some((snippet) => title.includes(snippet))
+        )
+      })
+      .map((tab) => tab?.id)
+      .filter(Number.isFinite)
+  }, {
+    blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+    requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
+  })
+  if (unsettledTabIds.length > 0) {
+    await page.evaluate(async ({
+      tabIds,
+      pollIntervalMs,
+      blockedTitleSnippets,
+      requiredTitleRules,
+    }) => {
+      const delay = (ms) =>
+        new Promise((resolve) => {
+          setTimeout(resolve, ms)
+        })
+      const isSettledTab = (tab) => {
+        const title = String(tab?.title || '').trim().toLowerCase()
+        const url = String(tab?.url || '').trim().toLowerCase()
+        const titleRuleSatisfied = requiredTitleRules.every(
+          (rule) =>
+            !url.startsWith(rule.urlPrefix) || title.includes(rule.titleIncludes),
+        )
+        return (
+          !!tab &&
+          title.length > 0 &&
+          titleRuleSatisfied &&
+          !url.startsWith('chrome-error://') &&
+          !blockedTitleSnippets.some((snippet) => title.includes(snippet))
+        )
+      }
+      const activeTabIds = []
+      const affectedWindowIds = new Set()
+      for (const tabId of tabIds) {
+        const tab = await chrome.tabs.get(tabId).catch(() => undefined)
+        if (typeof tab?.windowId === 'number') {
+          affectedWindowIds.add(tab.windowId)
+        }
+      }
+      for (const windowId of affectedWindowIds) {
+        const [activeTab] = await chrome.tabs.query({ active: true, windowId })
+        if (typeof activeTab?.id === 'number') {
+          activeTabIds.push(activeTab.id)
+        }
+      }
+      try {
+        for (const tabId of tabIds) {
+          try {
+            await chrome.tabs.update(tabId, { active: true })
+            for (let attempt = 0; attempt < 40; attempt += 1) {
+              const tab = await chrome.tabs.get(tabId)
+              if (isSettledTab(tab)) {
+                break
+              }
+              await delay(pollIntervalMs)
+            }
+          } catch {
+            // The final rendered-content assertion reports any unresolved row.
+          }
+        }
+      } finally {
+        for (const tabId of activeTabIds) {
+          await chrome.tabs.update(tabId, { active: true }).catch(() => undefined)
+        }
+      }
+    }, {
+      tabIds: unsettledTabIds,
+      pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
+      blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+      requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
+    })
+  }
+  await page.evaluate(
+    async ({
+      blockedTitleSnippets,
+      requiredTitleRules,
+      pollIntervalMs,
+      stablePolls,
+      maxAttempts,
+    }) => {
+      const delay = (ms) =>
+        new Promise((resolve) => {
+          setTimeout(resolve, ms)
+        })
+      let previousRequiredTitleSignature = ''
+      let stableTitlePolls = 0
+      let lastDiagnostics = []
+      for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        const tabRows = Array.from(
+          document.querySelectorAll('[data-testid^="tab-row-"]'),
+        ).filter((tabRow) => {
+          const rect = tabRow.getBoundingClientRect()
+          return (
+            rect.bottom > 0 &&
+            rect.right > 0 &&
+            rect.top < window.innerHeight &&
+            rect.left < window.innerWidth
+          )
+        })
+        const requiredTitles = []
+        const diagnostics = []
+        let allRowsSettled = tabRows.length > 0
+        for (const tabRow of tabRows) {
+          const rowText = String(tabRow.innerText || '').trim().toLowerCase()
+          const tabId = Number(tabRow.getAttribute('data-testid')?.slice(8))
+          const tab = Number.isFinite(tabId)
+            ? await chrome.tabs.get(tabId).catch(() => undefined)
+            : undefined
+          const title = String(tab?.title || '').trim().toLowerCase()
+          const url = String(tab?.url || '').trim().toLowerCase()
+          const matchingTitleRule = requiredTitleRules.find((rule) =>
+            url.startsWith(rule.urlPrefix),
+          )
+          if (
+            !tab ||
+            !title ||
+            !rowText.includes(title) ||
+            (matchingTitleRule &&
+              !title.includes(matchingTitleRule.titleIncludes)) ||
+            url.startsWith('chrome-error://') ||
+            blockedTitleSnippets.some((snippet) => title.includes(snippet))
+          ) {
+            diagnostics.push({
+              tabId,
+              status: tab?.status,
+              title,
+              url,
+              rowText,
+              requiredTitle: matchingTitleRule?.titleIncludes,
+            })
+            allRowsSettled = false
+            break
+          }
+          if (matchingTitleRule) {
+            requiredTitles.push(`${tabId}:${title}`)
+          }
+        }
+        const requiredTitleSignature = requiredTitles.join('|')
+        lastDiagnostics = diagnostics
+        if (
+          allRowsSettled &&
+          requiredTitleSignature === previousRequiredTitleSignature
+        ) {
+          stableTitlePolls += 1
+          if (stableTitlePolls >= stablePolls) {
+            return
+          }
+        } else {
+          previousRequiredTitleSignature = allRowsSettled
+            ? requiredTitleSignature
+            : ''
+          stableTitlePolls = 0
+        }
+        await delay(pollIntervalMs)
+      }
+      throw new Error(
+        `Timed out waiting for stable rendered tab titles: ${JSON.stringify({
+          stableTitlePolls,
+          previousRequiredTitleSignature,
+          lastDiagnostics,
+        })}`,
+      )
+    },
+    {
+      blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+      requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
+      pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
+      stablePolls: TAB_TITLE_STABLE_POLLS,
+      maxAttempts: Math.ceil(UI_READY_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
+    },
+  )
+}
+
+async function dismissHoverTooltips(page) {
+  await page.mouse.move(1, 1, { steps: 2 })
+  await page.waitForFunction(
+    () =>
+      Array.from(document.querySelectorAll('[role="tooltip"]')).every(
+        (tooltip) => {
+          const style = window.getComputedStyle(tooltip)
+          return (
+            tooltip.getClientRects().length === 0 ||
+            style.display === 'none' ||
+            style.visibility === 'hidden' ||
+            style.opacity === '0'
+          )
+        },
+      ),
+    undefined,
+    { timeout: UI_READY_TIMEOUT_MS, polling: 100 },
+  )
 }
 
 async function saveScreenshot(page, name) {
@@ -946,6 +1178,8 @@ async function saveScreenshot(page, name) {
   const rawPath = join(rawDir, `${name}-raw.png`)
   const outputPath = pathForScreenshot(name)
   await page.bringToFront()
+  await waitForRenderedTabContent(page)
+  await dismissHoverTooltips(page)
   await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
   await page.screenshot({
@@ -963,7 +1197,10 @@ async function saveScreenshot(page, name) {
 }
 
 async function captureOverview(page, fullPageUrl, theme) {
-  await resetScenario(page, fullPageUrl, theme.settings)
+  await resetScenario(page, fullPageUrl, {
+    ...theme.settings,
+    tabWidth: 18,
+  })
   console.log('    creating overview demo windows')
   const createdWindows = await createDemoWindows(page, DENSE_OVERVIEW_WINDOWS)
   console.log('    focusing overview target window')
@@ -988,7 +1225,7 @@ async function captureGroupEditing(page, fullPageUrl, theme) {
     {
       tabs: [
         realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
+        realUrl('brand/tab-manager'),
         realUrl('brand/jenny-youtube'),
         realUrl('launch/support-plan'),
         realUrl('launch/rollout-plan'),
@@ -1000,7 +1237,7 @@ async function captureGroupEditing(page, fullPageUrl, theme) {
           color: 'green',
           urls: [
             realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
+            realUrl('brand/tab-manager'),
             realUrl('brand/jenny-youtube'),
           ],
         },
@@ -1027,7 +1264,7 @@ async function captureSearchGroups(page, fullPageUrl, theme) {
     {
       tabs: [
         realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
+        realUrl('brand/tab-manager'),
         realUrl('brand/jenny-youtube'),
         realUrl('research/tab-groups-api'),
         realUrl('launch/support-plan'),
@@ -1040,7 +1277,7 @@ async function captureSearchGroups(page, fullPageUrl, theme) {
           collapsed: true,
           urls: [
             realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
+            realUrl('brand/tab-manager'),
             realUrl('brand/jenny-youtube'),
           ],
         },
@@ -1095,8 +1332,8 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
       tabs: [
         realUrl('brand/jenny-home'),
         realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
-        realUrl('brand/jenny-short'),
+        realUrl('brand/tab-manager'),
+        realUrl('brand/tab-manager'),
         realUrl('support/customer-4821'),
         realUrl('support/customer-5104'),
       ],
@@ -1106,7 +1343,7 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
           color: 'green',
           urls: [
             realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
+            realUrl('brand/tab-manager'),
             realUrl('support/customer-4821'),
           ],
         },
@@ -1164,7 +1401,7 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme) {
 async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
   await resetScenario(page, fullPageUrl, {
     ...theme.settings,
-    tabWidth: 22,
+    tabWidth: 18,
   })
   console.log('    creating grouped focus demo windows')
   const createdWindows = await createDemoWindows(page, DENSE_OVERVIEW_WINDOWS)
@@ -1244,7 +1481,7 @@ async function captureCommandPalette(page, fullPageUrl, theme) {
   await waitForScenarioReady(page, scenarioCounts(windows))
   const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
   await searchInput.fill('>sort')
-  await page.waitForSelector('.MuiAutocomplete-option')
+  await page.waitForSelector('[role="option"]')
   await saveScreenshot(page, screenshotName('08-command-palette', theme.name))
 }
 
