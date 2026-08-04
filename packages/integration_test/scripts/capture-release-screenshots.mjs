@@ -620,7 +620,29 @@ async function initExtensionPage() {
   await popupPage.setViewportSize(VIEWPORT)
   await controlPage.close()
   await popupPage.bringToFront()
-  return { context, page: popupPage, fullPageUrl, userDataDir }
+  const controller = await popupPage.evaluate(async (expectedUrl) => {
+    const currentWindow = await chrome.windows.getCurrent({ populate: true })
+    const tabs = currentWindow.tabs || []
+    const controllerTab = tabs.find((tab) => tab.url === expectedUrl)
+    if (
+      typeof currentWindow.id !== 'number' ||
+      typeof controllerTab?.id !== 'number' ||
+      tabs.length !== 1
+    ) {
+      throw new Error(
+        `Unexpected controller browser state: ${JSON.stringify({
+          windowId: currentWindow.id,
+          tabIds: tabs.map((tab) => tab.id),
+          urls: tabs.map((tab) => tab.url),
+        })}`,
+      )
+    }
+    return {
+      windowId: currentWindow.id,
+      tabId: controllerTab.id,
+    }
+  }, fullPageUrl)
+  return { context, controller, page: popupPage, fullPageUrl, userDataDir }
 }
 
 async function waitForUi(page) {
@@ -942,6 +964,53 @@ function expectedTabsFor(createdWindows) {
   return createdWindows.flatMap((windowData) => windowData.expectedTabs)
 }
 
+function expectedBrowserStateFor(controller, createdWindows) {
+  return {
+    expectedTabs: expectedTabsFor(createdWindows),
+    expectedWindows: [
+      {
+        windowId: controller.windowId,
+        tabIds: [controller.tabId],
+      },
+      ...createdWindows.map((windowData) => ({
+        windowId: windowData.windowId,
+        tabIds: windowData.expectedTabs.map((tab) => tab.tabId),
+      })),
+    ],
+  }
+}
+
+async function assertExpectedBrowserState(page, expectedWindows) {
+  await page.evaluate(async (windowExpectations) => {
+    const normalizeWindowTabs = (windows) =>
+      windows
+        .filter((win) => typeof win.windowId === 'number')
+        .map((win) => ({
+          windowId: win.windowId,
+          tabIds: win.tabIds
+            .filter((tabId) => typeof tabId === 'number')
+            .sort((a, b) => a - b),
+        }))
+        .sort((a, b) => a.windowId - b.windowId)
+    const liveWindows = await chrome.windows.getAll({ populate: true })
+    const expectedState = normalizeWindowTabs(windowExpectations)
+    const liveState = normalizeWindowTabs(
+      liveWindows.map((win) => ({
+        windowId: win.id,
+        tabIds: (win.tabs || []).map((tab) => tab.id),
+      })),
+    )
+    if (JSON.stringify(liveState) !== JSON.stringify(expectedState)) {
+      throw new Error(
+        `Unexpected global browser state: ${JSON.stringify({
+          expectedState,
+          liveState,
+        })}`,
+      )
+    }
+  }, expectedWindows)
+}
+
 function pathForScreenshot(name) {
   mkdirSync(PNG_OUTPUT_DIR, { recursive: true })
   return join(PNG_OUTPUT_DIR, `${name}.png`)
@@ -1014,12 +1083,14 @@ async function waitForNoVisibleInterstitialText(page, name) {
   }
 }
 
-async function waitForExpectedTabStates(page, expectedTabs) {
+async function waitForExpectedTabStates(page, browserState) {
+  const { expectedTabs, expectedWindows } = browserState
   await page.evaluate(
     async ({
       blockedTitleSnippets,
       canonicalHostAliases,
       expectedTabs,
+      expectedWindows,
       maxAttempts,
       pollIntervalMs,
       requiredTitleRules,
@@ -1116,32 +1187,36 @@ async function waitForExpectedTabStates(page, expectedTabs) {
           },
         }
       }
-      const assertExpectedTabSets = async () => {
-        for (const [windowId, expectations] of expectationsByWindowId) {
-          const liveTabs = await chrome.tabs.query({ windowId })
-          const expectedIds = new Set(
-            expectations.map((expectation) => expectation.tabId),
+      const assertExpectedGlobalState = async () => {
+        const normalizeWindowTabs = (windows) =>
+          windows
+            .filter((win) => typeof win.windowId === 'number')
+            .map((win) => ({
+              windowId: win.windowId,
+              tabIds: win.tabIds
+                .filter((tabId) => typeof tabId === 'number')
+                .sort((a, b) => a - b),
+            }))
+            .sort((a, b) => a.windowId - b.windowId)
+        const liveWindows = await chrome.windows.getAll({ populate: true })
+        const expectedState = normalizeWindowTabs(expectedWindows)
+        const liveState = normalizeWindowTabs(
+          liveWindows.map((win) => ({
+            windowId: win.id,
+            tabIds: (win.tabs || []).map((tab) => tab.id),
+          })),
+        )
+        if (JSON.stringify(liveState) !== JSON.stringify(expectedState)) {
+          throw new Error(
+            `Unexpected global browser state: ${JSON.stringify({
+              expectedState,
+              liveState,
+            })}`,
           )
-          const liveIds = new Set(liveTabs.map((tab) => tab.id))
-          const missingIds = [...expectedIds].filter(
-            (tabId) => !liveIds.has(tabId),
-          )
-          const unexpectedIds = [...liveIds].filter(
-            (tabId) => !expectedIds.has(tabId),
-          )
-          if (missingIds.length > 0 || unexpectedIds.length > 0) {
-            throw new Error(
-              `Unexpected scenario tab set: ${JSON.stringify({
-                windowId,
-                missingIds,
-                unexpectedIds,
-              })}`,
-            )
-          }
         }
       }
 
-      await assertExpectedTabSets()
+      await assertExpectedGlobalState()
       const activeTabIds = []
       for (const windowId of expectationsByWindowId.keys()) {
         const [activeTab] = await chrome.tabs.query({ active: true, windowId })
@@ -1184,7 +1259,7 @@ async function waitForExpectedTabStates(page, expectedTabs) {
       let stableStatePolls = 0
       let lastDiagnostics = []
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-        await assertExpectedTabSets()
+        await assertExpectedGlobalState()
         const states = []
         const diagnostics = []
         for (const expectation of normalizedExpectations) {
@@ -1231,6 +1306,7 @@ async function waitForExpectedTabStates(page, expectedTabs) {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
       canonicalHostAliases: CANONICAL_HOST_ALIASES,
       expectedTabs,
+      expectedWindows,
       maxAttempts: Math.ceil(UI_READY_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
       pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
@@ -1239,8 +1315,9 @@ async function waitForExpectedTabStates(page, expectedTabs) {
   )
 }
 
-async function waitForRenderedTabContent(page, expectedTabs) {
-  await waitForExpectedTabStates(page, expectedTabs)
+async function waitForRenderedTabContent(page, browserState) {
+  const { expectedTabs } = browserState
+  await waitForExpectedTabStates(page, browserState)
   const unsettledTabIds = await page.evaluate(
     async ({
       blockedTitleSnippets,
@@ -1717,16 +1794,17 @@ async function dismissHoverTooltips(page) {
   )
 }
 
-async function saveScreenshot(page, name, expectedTabs) {
+async function saveScreenshot(page, name, browserState) {
   const rawDir = join(tmpdir(), 'tmv2-release-raw')
   mkdirSync(rawDir, { recursive: true })
   const rawPath = join(rawDir, `${name}-raw.png`)
   const outputPath = pathForScreenshot(name)
   await page.bringToFront()
-  await waitForRenderedTabContent(page, expectedTabs)
+  await waitForRenderedTabContent(page, browserState)
   await dismissHoverTooltips(page)
   await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
+  await assertExpectedBrowserState(page, browserState.expectedWindows)
   await page.screenshot({
     path: rawPath,
     animations: 'disabled',
@@ -1741,7 +1819,7 @@ async function saveScreenshot(page, name, expectedTabs) {
   console.log(`${name}.png -> ${details}`)
 }
 
-async function captureOverview(page, fullPageUrl, theme) {
+async function captureOverview(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, {
     ...theme.settings,
     tabWidth: 18,
@@ -1764,11 +1842,11 @@ async function captureOverview(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('01-overview-groups', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureGroupEditing(page, fullPageUrl, theme) {
+async function captureGroupEditing(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, theme.settings)
   const windows = [
     {
@@ -1808,11 +1886,11 @@ async function captureGroupEditing(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('02-group-editing', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureSearchGroups(page, fullPageUrl, theme) {
+async function captureSearchGroups(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, theme.settings)
   const windows = [
     {
@@ -1850,11 +1928,11 @@ async function captureSearchGroups(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('03-search-groups', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureDuplicateCleanup(page, fullPageUrl, theme) {
+async function captureDuplicateCleanup(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, {
     ...theme.settings,
     highlightDuplicatedTab: true,
@@ -1921,11 +1999,11 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('04-duplicate-cleanup', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureKeyboardShortcuts(page, fullPageUrl, theme) {
+async function captureKeyboardShortcuts(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, theme.settings)
   const windows = [
     {
@@ -1958,11 +2036,11 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('05-keyboard-shortcuts', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
+async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, {
     ...theme.settings,
     tabWidth: 18,
@@ -1991,11 +2069,11 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('06-grouped-tabs-focus', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureSettings(page, fullPageUrl, theme) {
+async function captureSettings(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, theme.settings)
   const windows = [
     {
@@ -2024,11 +2102,11 @@ async function captureSettings(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('07-settings', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
-async function captureCommandPalette(page, fullPageUrl, theme) {
+async function captureCommandPalette(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, theme.settings)
   const windows = [
     {
@@ -2060,7 +2138,7 @@ async function captureCommandPalette(page, fullPageUrl, theme) {
   await saveScreenshot(
     page,
     screenshotName('08-command-palette', theme.name),
-    expectedTabsFor(createdWindows),
+    expectedBrowserStateFor(controller, createdWindows),
   )
 }
 
@@ -2128,13 +2206,13 @@ async function main() {
     const init = await initExtensionPage()
     context = init.context
     userDataDir = init.userDataDir
-    const { page, fullPageUrl } = init
+    const { controller, page, fullPageUrl } = init
 
     for (const theme of themeVariants) {
       console.log(`Capturing ${theme.name} theme`)
       for (const scenario of scenarioSteps) {
         console.log(`  ${scenario.label}`)
-        await scenario.run(page, fullPageUrl, theme)
+        await scenario.run(page, fullPageUrl, theme, controller)
       }
     }
   } finally {
