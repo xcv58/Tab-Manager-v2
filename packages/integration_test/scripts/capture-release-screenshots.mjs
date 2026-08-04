@@ -59,8 +59,29 @@ const REQUIRED_TAB_TITLE_RULES = [
     urlPrefix: 'https://testing-library.com/',
     titleIncludes: 'testing library',
   },
+  {
+    urlPrefix: 'https://arstechnica.com/',
+    titleIncludes: 'ars technica',
+    allowStableLoading: true,
+  },
+  {
+    urlPrefix: 'https://www.engadget.com/',
+    titleIncludes: 'engadget',
+    allowStableLoading: true,
+  },
+  {
+    urlPrefix: 'https://apnews.com/',
+    titleIncludes: 'associated press news',
+    allowStableLoading: true,
+  },
+  {
+    urlPrefix: 'https://www.theguardian.com/international',
+    titleIncludes: 'the guardian',
+    allowStableLoading: true,
+  },
 ]
 const CANONICAL_HOST_ALIASES = {
+  'gitlab.com': ['about.gitlab.com'],
   'notion.so': ['notion.com'],
   'zoom.us': ['zoom.com'],
 }
@@ -204,7 +225,7 @@ const DENSE_OVERVIEW_GROUPS = [
       'https://zoom.us/',
       'https://calendly.com/',
       'https://airtable.com/',
-      'https://www.canva.com/',
+      'https://github.com/Canva',
     ],
   },
   {
@@ -300,7 +321,7 @@ const DENSE_OVERVIEW_GROUPS = [
     urls: [
       'https://www.heroku.com/',
       'https://www.mongodb.com/',
-      'https://redis.io/',
+      'https://github.com/redis/redis',
       'https://stripe.com/',
     ],
   },
@@ -345,7 +366,7 @@ const DENSE_OVERVIEW_GROUPS = [
       'https://news.ycombinator.com/',
       'https://www.reddit.com/',
       'https://dev.to/',
-      'https://medium.com/',
+      'https://github.com/Medium',
     ],
   },
   {
@@ -354,7 +375,7 @@ const DENSE_OVERVIEW_GROUPS = [
     collapsed: true,
     urls: [
       'https://substack.com/',
-      'https://www.producthunt.com/',
+      'https://github.com/topics/content-creation',
       'https://lobste.rs/',
       'https://www.youtube.com/',
     ],
@@ -411,7 +432,7 @@ const DENSE_OVERVIEW_GROUPS = [
       'https://openrouter.ai/',
       'https://huggingface.co/',
       'https://replicate.com/',
-      'https://cohere.com/',
+      'https://huggingface.co/blog',
     ],
   },
   {
@@ -453,9 +474,9 @@ const DENSE_OVERVIEW_GROUPS = [
     collapsed: true,
     urls: [
       'https://deno.com/',
-      'https://eslint.org/',
-      'https://prettier.io/',
-      'https://vitest.dev/',
+      'https://github.com/eslint/eslint',
+      'https://github.com/prettier/prettier',
+      'https://github.com/vitest-dev/vitest',
     ],
   },
   {
@@ -465,7 +486,7 @@ const DENSE_OVERVIEW_GROUPS = [
       'https://www.youtube.com/@JennyTV1',
       'https://playwright.dev/',
       'https://testing-library.com/',
-      'https://storybook.js.org/',
+      'https://github.com/storybookjs/storybook',
     ],
   },
 ]
@@ -530,10 +551,12 @@ async function initExtensionPage() {
   const userDataDir = mkdtempSync(join(tmpdir(), 'tmv2-release-'))
   const context = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
+    ignoreDefaultArgs: ['--enable-automation'],
     screen: VIEWPORT,
     viewport: VIEWPORT,
     args: [
       '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
       '--ipc=host',
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
@@ -897,6 +920,7 @@ async function createDemoWindows(page, windows) {
         groups: item.groups,
         expectedTabs: item.tabIds.map((tabId, index) => ({
           tabId,
+          windowId: item.windowId,
           expectedUrl: item.urls[index],
         })),
       }))
@@ -990,7 +1014,233 @@ async function waitForNoVisibleInterstitialText(page, name) {
   }
 }
 
+async function waitForExpectedTabStates(page, expectedTabs) {
+  await page.evaluate(
+    async ({
+      blockedTitleSnippets,
+      canonicalHostAliases,
+      expectedTabs,
+      maxAttempts,
+      pollIntervalMs,
+      requiredTitleRules,
+      stablePolls,
+    }) => {
+      const delay = (ms) =>
+        new Promise((resolve) => {
+          setTimeout(resolve, ms)
+        })
+      const normalizedHost = (url) => {
+        try {
+          return new URL(url).hostname.toLowerCase().replace(/^www\./, '')
+        } catch {
+          return ''
+        }
+      }
+      const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
+        const expectedHost = normalizedHost(expectedUrl)
+        const actualHost = normalizedHost(actualUrl)
+        return (
+          expectedHost.length > 0 &&
+          (expectedHost === actualHost ||
+            (canonicalHostAliases[expectedHost] || []).includes(actualHost))
+        )
+      }
+      const isGenericTitle = (title, url) => {
+        const normalizedTitle = title
+          .replace(/^https?:\/\//, '')
+          .replace(/^www\./, '')
+          .replace(/[/?#]+$/, '')
+        const normalizedUrl = url
+          .replace(/^https?:\/\//, '')
+          .replace(/^www\./, '')
+          .replace(/[/?#]+$/, '')
+        return (
+          normalizedTitle === normalizedHost(url) ||
+          normalizedTitle === normalizedUrl ||
+          title.startsWith('http://') ||
+          title.startsWith('https://')
+        )
+      }
+      const normalizedExpectations = expectedTabs.map((expectation) => ({
+        ...expectation,
+        expectedUrl: expectation.expectedUrl.toLowerCase(),
+      }))
+      const expectationsByWindowId = new Map()
+      for (const expectation of normalizedExpectations) {
+        const windowExpectations =
+          expectationsByWindowId.get(expectation.windowId) || []
+        windowExpectations.push(expectation)
+        expectationsByWindowId.set(expectation.windowId, windowExpectations)
+      }
+      const validateTab = (expectation, tab) => {
+        const title = String(tab?.title || '')
+          .trim()
+          .toLowerCase()
+        const url = String(tab?.url || '')
+          .trim()
+          .toLowerCase()
+        const status = String(tab?.status || '')
+          .trim()
+          .toLowerCase()
+        const matchingTitleRule = requiredTitleRules.find((rule) =>
+          expectation.expectedUrl.startsWith(rule.urlPrefix),
+        )
+        const titleRuleSatisfied = matchingTitleRule?.titleIncludes
+          ? title.includes(matchingTitleRule.titleIncludes)
+          : !isGenericTitle(title, url)
+        const statusSettled =
+          status === 'complete' ||
+          (matchingTitleRule?.allowStableLoading && status === 'loading')
+        const blockedTitle = blockedTitleSnippets.find((snippet) =>
+          title.includes(snippet),
+        )
+        return {
+          settled:
+            !!tab &&
+            title.length > 0 &&
+            titleRuleSatisfied &&
+            statusSettled &&
+            hostMatchesExpectedSource(expectation.expectedUrl, url) &&
+            !url.startsWith('chrome-error://') &&
+            !blockedTitle,
+          state: {
+            tabId: expectation.tabId,
+            windowId: expectation.windowId,
+            expectedUrl: expectation.expectedUrl,
+            status,
+            title,
+            url,
+            requiredTitle: matchingTitleRule?.titleIncludes,
+            allowStableLoading: matchingTitleRule?.allowStableLoading,
+            blockedTitle,
+          },
+        }
+      }
+      const assertExpectedTabSets = async () => {
+        for (const [windowId, expectations] of expectationsByWindowId) {
+          const liveTabs = await chrome.tabs.query({ windowId })
+          const expectedIds = new Set(
+            expectations.map((expectation) => expectation.tabId),
+          )
+          const liveIds = new Set(liveTabs.map((tab) => tab.id))
+          const missingIds = [...expectedIds].filter(
+            (tabId) => !liveIds.has(tabId),
+          )
+          const unexpectedIds = [...liveIds].filter(
+            (tabId) => !expectedIds.has(tabId),
+          )
+          if (missingIds.length > 0 || unexpectedIds.length > 0) {
+            throw new Error(
+              `Unexpected scenario tab set: ${JSON.stringify({
+                windowId,
+                missingIds,
+                unexpectedIds,
+              })}`,
+            )
+          }
+        }
+      }
+
+      await assertExpectedTabSets()
+      const activeTabIds = []
+      for (const windowId of expectationsByWindowId.keys()) {
+        const [activeTab] = await chrome.tabs.query({ active: true, windowId })
+        if (typeof activeTab?.id === 'number') {
+          activeTabIds.push(activeTab.id)
+        }
+      }
+      try {
+        await Promise.all(
+          [...expectationsByWindowId.values()].map(async (expectations) => {
+            for (const expectation of expectations) {
+              let tab = await chrome.tabs
+                .get(expectation.tabId)
+                .catch(() => undefined)
+              if (validateTab(expectation, tab).settled) {
+                continue
+              }
+              await chrome.tabs.update(expectation.tabId, { active: true })
+              for (let attempt = 0; attempt < 40; attempt += 1) {
+                tab = await chrome.tabs
+                  .get(expectation.tabId)
+                  .catch(() => undefined)
+                if (validateTab(expectation, tab).settled) {
+                  break
+                }
+                await delay(pollIntervalMs)
+              }
+            }
+          }),
+        )
+      } finally {
+        for (const tabId of activeTabIds) {
+          await chrome.tabs
+            .update(tabId, { active: true })
+            .catch(() => undefined)
+        }
+      }
+
+      let previousTabStateSignature = ''
+      let stableStatePolls = 0
+      let lastDiagnostics = []
+      for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        await assertExpectedTabSets()
+        const states = []
+        const diagnostics = []
+        for (const expectation of normalizedExpectations) {
+          const tab = await chrome.tabs
+            .get(expectation.tabId)
+            .catch(() => undefined)
+          const validation = validateTab(expectation, tab)
+          states.push(validation.state)
+          if (!validation.settled) {
+            diagnostics.push(validation.state)
+          }
+        }
+        const tabStateSignature = states
+          .map(
+            ({ tabId, status, title, url }) =>
+              `${tabId}:${status}:${url}:${title}`,
+          )
+          .join('|')
+        lastDiagnostics = diagnostics
+        if (
+          diagnostics.length === 0 &&
+          tabStateSignature === previousTabStateSignature
+        ) {
+          stableStatePolls += 1
+          if (stableStatePolls >= stablePolls) {
+            return
+          }
+        } else {
+          previousTabStateSignature =
+            diagnostics.length === 0 ? tabStateSignature : ''
+          stableStatePolls = 0
+        }
+        await delay(pollIntervalMs)
+      }
+      throw new Error(
+        `Timed out waiting for complete expected tab states: ${JSON.stringify({
+          stableStatePolls,
+          previousTabStateSignature,
+          lastDiagnostics,
+        })}`,
+      )
+    },
+    {
+      blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+      canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      expectedTabs,
+      maxAttempts: Math.ceil(UI_READY_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
+      pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
+      requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
+      stablePolls: TAB_STATE_STABLE_POLLS,
+    },
+  )
+}
+
 async function waitForRenderedTabContent(page, expectedTabs) {
+  await waitForExpectedTabStates(page, expectedTabs)
   const unsettledTabIds = await page.evaluate(
     async ({
       blockedTitleSnippets,
@@ -1061,9 +1311,13 @@ async function waitForRenderedTabContent(page, expectedTabs) {
           const url = String(tab?.url || '')
             .trim()
             .toLowerCase()
-          const expectedUrl = expectationsByTabId.get(tab?.id) || url
+          const expectedUrl = expectationsByTabId.get(tab?.id)
+          const isControllerTab = url.startsWith(
+            `${location.origin.toLowerCase()}/`,
+          )
+          const validationSourceUrl = expectedUrl || url
           const matchingTitleRule = requiredTitleRules.find((rule) =>
-            expectedUrl.startsWith(rule.urlPrefix),
+            validationSourceUrl.startsWith(rule.urlPrefix),
           )
           const titleRuleSatisfied = matchingTitleRule?.titleIncludes
             ? title.includes(matchingTitleRule.titleIncludes)
@@ -1076,7 +1330,8 @@ async function waitForRenderedTabContent(page, expectedTabs) {
             !title ||
             !titleRuleSatisfied ||
             !statusSettled ||
-            !hostMatchesExpectedSource(expectedUrl, url) ||
+            (!expectedUrl && !isControllerTab) ||
+            (!!expectedUrl && !hostMatchesExpectedSource(expectedUrl, url)) ||
             url.startsWith('chrome-error://') ||
             blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
@@ -1150,9 +1405,13 @@ async function waitForRenderedTabContent(page, expectedTabs) {
           const url = String(tab?.url || '')
             .trim()
             .toLowerCase()
-          const expectedUrl = expectationsByTabId.get(tab?.id) || url
+          const expectedUrl = expectationsByTabId.get(tab?.id)
+          const isControllerTab = url.startsWith(
+            `${location.origin.toLowerCase()}/`,
+          )
+          const validationSourceUrl = expectedUrl || url
           const matchingTitleRule = requiredTitleRules.find((rule) =>
-            expectedUrl.startsWith(rule.urlPrefix),
+            validationSourceUrl.startsWith(rule.urlPrefix),
           )
           const titleRuleSatisfied = matchingTitleRule?.titleIncludes
             ? title.includes(matchingTitleRule.titleIncludes)
@@ -1165,7 +1424,8 @@ async function waitForRenderedTabContent(page, expectedTabs) {
             title.length > 0 &&
             titleRuleSatisfied &&
             statusSettled &&
-            hostMatchesExpectedSource(expectedUrl, url) &&
+            (isControllerTab ||
+              (!!expectedUrl && hostMatchesExpectedSource(expectedUrl, url))) &&
             !url.startsWith('chrome-error://') &&
             !blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
@@ -1352,9 +1612,13 @@ async function waitForRenderedTabContent(page, expectedTabs) {
           const status = String(tab?.status || '')
             .trim()
             .toLowerCase()
-          const expectedUrl = expectationsByTabId.get(tabId) || url
+          const expectedUrl = expectationsByTabId.get(tabId)
+          const isControllerTab = url.startsWith(
+            `${location.origin.toLowerCase()}/`,
+          )
+          const validationSourceUrl = expectedUrl || url
           const matchingTitleRule = requiredTitleRules.find((rule) =>
-            expectedUrl.startsWith(rule.urlPrefix),
+            validationSourceUrl.startsWith(rule.urlPrefix),
           )
           const statusSettled =
             status === 'complete' ||
@@ -1376,7 +1640,8 @@ async function waitForRenderedTabContent(page, expectedTabs) {
             !rowText.includes(title) ||
             !statusSettled ||
             !titleRuleSatisfied ||
-            !hostMatchesExpectedSource(expectedUrl, url) ||
+            (!expectedUrl && !isControllerTab) ||
+            (!!expectedUrl && !hostMatchesExpectedSource(expectedUrl, url)) ||
             !iconReady ||
             url.startsWith('chrome-error://') ||
             blockedTitleSnippets.some((snippet) => title.includes(snippet))
@@ -1386,7 +1651,7 @@ async function waitForRenderedTabContent(page, expectedTabs) {
               status: tab?.status,
               title,
               url,
-              expectedUrl,
+              expectedUrl: expectedUrl || '(unregistered)',
               rowText,
               requiredTitle: matchingTitleRule?.titleIncludes,
               allowStableLoading: matchingTitleRule?.allowStableLoading,
