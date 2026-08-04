@@ -810,6 +810,26 @@ async function scrollWindowIntoView(page, windowId) {
         block: 'nearest',
         inline: 'start',
       })
+      const scrollContainer = document.querySelector(
+        '[data-testid="window-list-scroll-container"]',
+      )
+      if (scrollContainer instanceof HTMLElement) {
+        const leftClippedRemainder = Math.max(
+          0,
+          ...Array.from(
+            document.querySelectorAll('[data-testid^="window-card-"]'),
+          )
+            .map((windowCard) => windowCard.getBoundingClientRect())
+            .filter((rect) => rect.left < 0 && rect.right > 0)
+            .map((rect) => rect.right),
+        )
+        const content = scrollContainer.firstElementChild
+        if (leftClippedRemainder > 0 && content instanceof HTMLElement) {
+          content.style.boxSizing = 'content-box'
+          content.style.paddingRight = `${Math.ceil(leftClippedRemainder)}px`
+        }
+        scrollContainer.scrollLeft += leftClippedRemainder
+      }
     }
   }, selector)
   await page.waitForTimeout(UI_SETTLE_DELAY_MS)
@@ -962,7 +982,28 @@ async function createDemoWindows(page, windows) {
             collapsed: !!group.collapsed,
           })
         }
-        created.push({ windowId, tabIds, expectedCount, groups, urls })
+        const expectedUrlByTabId = new Map(
+          tabIds.map((tabId, index) => [tabId, urls[index]]),
+        )
+        const orderedTabs = (await chrome.tabs.query({ windowId }))
+          .slice()
+          .sort((a, b) => a.index - b.index)
+        const orderedTabIds = orderedTabs.map((tab) => tab.id)
+        if (
+          orderedTabIds.length !== expectedCount ||
+          orderedTabIds.some((tabId) => !expectedUrlByTabId.has(tabId))
+        ) {
+          throw new Error(
+            `Unexpected post-group tab order for window ${windowId}`,
+          )
+        }
+        created.push({
+          windowId,
+          tabIds: orderedTabIds,
+          expectedCount,
+          groups,
+          expectedUrlByTabId,
+        })
       }
       await waitForCreatedWindows(
         created.map((item) => ({
@@ -974,10 +1015,10 @@ async function createDemoWindows(page, windows) {
         windowId: item.windowId,
         tabIds: item.tabIds,
         groups: item.groups,
-        expectedTabs: item.tabIds.map((tabId, index) => ({
+        expectedTabs: item.tabIds.map((tabId) => ({
           tabId,
           windowId: item.windowId,
-          expectedUrl: item.urls[index],
+          expectedUrl: item.expectedUrlByTabId.get(tabId),
         })),
       }))
     },
@@ -1054,8 +1095,55 @@ async function expectedBrowserStateFor(page, controller, createdWindows) {
   }
 }
 
+function withDenseCaptureDomExpectation(
+  browserState,
+  createdWindows,
+  {
+    selectedTabIds = [],
+    stackedWindowIndexes,
+    topWindowIndexes,
+    visibleWindowIndexes,
+  },
+) {
+  const expectedGroupById = new Map(
+    browserState.expectedGroups.map((group) => [group.groupId, group]),
+  )
+  const windowExpectationAt = (windowIndex) => {
+    const windowData = createdWindows[windowIndex]
+    if (!windowData) {
+      throw new Error(`Missing dense capture window at index ${windowIndex}`)
+    }
+    return {
+      windowId: windowData.windowId,
+      groupIds: windowData.groups.map((group) => group.groupId),
+      rowTabIds: windowData.groups.flatMap((group) => {
+        const expectedGroup = expectedGroupById.get(group.groupId)
+        if (!expectedGroup) {
+          throw new Error(`Missing expected dense group ${group.groupId}`)
+        }
+        return expectedGroup.collapsed ? [] : expectedGroup.tabIds
+      }),
+    }
+  }
+  const windowIdAt = (windowIndex) => windowExpectationAt(windowIndex).windowId
+  return {
+    ...browserState,
+    captureDomExpectation: {
+      selectedTabIds,
+      stackedWindows: stackedWindowIndexes.map(
+        ([aboveWindowIndex, belowWindowIndex]) => ({
+          aboveWindowId: windowIdAt(aboveWindowIndex),
+          belowWindowId: windowIdAt(belowWindowIndex),
+        }),
+      ),
+      topWindowIds: topWindowIndexes.map(windowIdAt),
+      visibleWindows: visibleWindowIndexes.map(windowExpectationAt),
+    },
+  }
+}
+
 async function assertFinalCaptureState(page, name, browserState) {
-  await page.evaluate(
+  return page.evaluate(
     async (expectations) => {
       const normalizeWindowTabs = (windows) =>
         windows
@@ -1317,6 +1405,230 @@ async function assertFinalCaptureState(page, name, browserState) {
         )
       }
 
+      let captureStructureSignature = null
+      if (expectations.captureDomExpectation) {
+        const parseTestId = (element, prefix) => {
+          const testId = String(element.getAttribute('data-testid') || '')
+          const value = Number(testId.slice(prefix.length))
+          return Number.isFinite(value) ? value : undefined
+        }
+        const compareIds = (label, actualIds, expectedIds) => {
+          if (JSON.stringify(actualIds) !== JSON.stringify(expectedIds)) {
+            throw new Error(
+              `Unexpected ${label} before ${expectations.name}.png: ${JSON.stringify(
+                { actualIds, expectedIds },
+              )}`,
+            )
+          }
+        }
+        const visibleWindowCards = Array.from(
+          document.querySelectorAll('[data-testid^="window-card-"]'),
+        )
+          .filter(elementIsVisible)
+          .map((card) => ({
+            card,
+            rect: card.getBoundingClientRect(),
+            windowId: parseTestId(card, 'window-card-'),
+          }))
+          .filter((entry) => {
+            const visibleWidth =
+              Math.min(entry.rect.right, window.innerWidth) -
+              Math.max(entry.rect.left, 0)
+            const visibleHeight =
+              Math.min(entry.rect.bottom, window.innerHeight) -
+              Math.max(entry.rect.top, 0)
+            return visibleWidth > 1 && visibleHeight > 1
+          })
+          .filter((entry) => typeof entry.windowId === 'number')
+          .sort((a, b) => a.rect.left - b.rect.left || a.rect.top - b.rect.top)
+        const clippedWindowCards = visibleWindowCards.filter(
+          (entry) =>
+            entry.rect.left < -1 ||
+            entry.rect.right > window.innerWidth + 1 ||
+            entry.rect.top < -1 ||
+            entry.rect.bottom > window.innerHeight + 1,
+        )
+        if (clippedWindowCards.length > 0) {
+          throw new Error(
+            `Visible window cards are clipped before ${expectations.name}.png: ${JSON.stringify(
+              clippedWindowCards.map((entry) => ({
+                windowId: entry.windowId,
+                rect: entry.rect.toJSON(),
+              })),
+            )}`,
+          )
+        }
+        compareIds(
+          'visible window-card order',
+          visibleWindowCards.map((entry) => entry.windowId),
+          expectations.captureDomExpectation.visibleWindows.map(
+            (entry) => entry.windowId,
+          ),
+        )
+
+        const top = Math.min(
+          ...visibleWindowCards.map((entry) => entry.rect.top),
+        )
+        const topWindowIds = visibleWindowCards
+          .filter((entry) => Math.abs(entry.rect.top - top) <= 1)
+          .map((entry) => entry.windowId)
+        compareIds(
+          'top-row window-card order',
+          topWindowIds,
+          expectations.captureDomExpectation.topWindowIds,
+        )
+
+        const visibleWindowById = new Map(
+          visibleWindowCards.map((entry) => [entry.windowId, entry]),
+        )
+        for (const windowExpectation of expectations.captureDomExpectation
+          .visibleWindows) {
+          const windowEntry = visibleWindowById.get(windowExpectation.windowId)
+          if (!windowEntry) {
+            throw new Error(
+              `Missing expected visible window ${windowExpectation.windowId}`,
+            )
+          }
+          const groupIds = Array.from(
+            windowEntry.card.querySelectorAll(
+              '[data-testid^="tab-group-header-"]',
+            ),
+          )
+            .map((groupHeader) => parseTestId(groupHeader, 'tab-group-header-'))
+            .filter((groupId) => typeof groupId === 'number')
+          compareIds(
+            `group headers in window ${windowExpectation.windowId}`,
+            groupIds,
+            windowExpectation.groupIds,
+          )
+          const rowTabIds = Array.from(
+            windowEntry.card.querySelectorAll('[data-testid^="tab-row-"]'),
+          )
+            .map((tabRow) => parseTestId(tabRow, 'tab-row-'))
+            .filter((tabId) => typeof tabId === 'number')
+          compareIds(
+            `rendered tab rows in window ${windowExpectation.windowId}`,
+            rowTabIds,
+            windowExpectation.rowTabIds,
+          )
+        }
+
+        for (const placement of expectations.captureDomExpectation
+          .stackedWindows) {
+          const above = visibleWindowById.get(placement.aboveWindowId)
+          const below = visibleWindowById.get(placement.belowWindowId)
+          if (
+            !above ||
+            !below ||
+            Math.abs(above.rect.left - below.rect.left) > 1 ||
+            below.rect.top < above.rect.bottom - 1
+          ) {
+            throw new Error(
+              `Unexpected stacked window placement before ${expectations.name}.png: ${JSON.stringify(
+                {
+                  placement,
+                  above: above?.rect.toJSON(),
+                  below: below?.rect.toJSON(),
+                },
+              )}`,
+            )
+          }
+        }
+
+        const selectedTabIds = Array.from(
+          document.querySelectorAll('[data-testid^="tab-row-"]'),
+        )
+          .filter((tabRow) =>
+            Boolean(
+              tabRow.querySelector('input[aria-label="Toggle select"]:checked'),
+            ),
+          )
+          .map((tabRow) => parseTestId(tabRow, 'tab-row-'))
+          .filter((tabId) => typeof tabId === 'number')
+          .sort((a, b) => a - b)
+        compareIds(
+          'selected tab IDs',
+          selectedTabIds,
+          expectations.captureDomExpectation.selectedTabIds
+            .slice()
+            .sort((a, b) => a - b),
+        )
+        const selectedSummaryMatch = String(document.body.innerText || '')
+          .toLowerCase()
+          .match(/,\s*(\d+)\s+tabs?\s+selected/)
+        const selectedSummaryCount = Number(selectedSummaryMatch?.[1])
+        if (
+          selectedSummaryCount !==
+          expectations.captureDomExpectation.selectedTabIds.length
+        ) {
+          throw new Error(
+            `Unexpected selected-tab summary before ${expectations.name}.png: ${JSON.stringify(
+              {
+                actual: selectedSummaryCount,
+                expected:
+                  expectations.captureDomExpectation.selectedTabIds.length,
+              },
+            )}`,
+          )
+        }
+
+        const expectedUrlByTabId = new Map(
+          expectations.expectedTabs.map((expectation) => [
+            expectation.tabId,
+            canonicalSourceUrl(expectation.expectedUrl),
+          ]),
+        )
+        const expectedGroupById = new Map(
+          expectations.expectedGroups.map((group) => [group.groupId, group]),
+        )
+        const expectedWindowById = new Map(
+          expectations.expectedWindows.map((win) => [win.windowId, win]),
+        )
+        const columns = []
+        for (const windowEntry of visibleWindowCards) {
+          let column = columns.find(
+            (candidate) =>
+              Math.abs(candidate.left - windowEntry.rect.left) <= 1,
+          )
+          if (!column) {
+            column = { left: windowEntry.rect.left, windows: [] }
+            columns.push(column)
+          }
+          const groupTitles = Array.from(
+            windowEntry.card.querySelectorAll(
+              '[data-testid^="tab-group-header-"]',
+            ),
+          ).map((groupHeader) => {
+            const groupId = parseTestId(groupHeader, 'tab-group-header-')
+            return String(expectedGroupById.get(groupId)?.title || '')
+          })
+          const rowSources = Array.from(
+            windowEntry.card.querySelectorAll('[data-testid^="tab-row-"]'),
+          ).map((tabRow) => {
+            const tabId = parseTestId(tabRow, 'tab-row-')
+            return expectedUrlByTabId.get(tabId) || '(unexpected)'
+          })
+          const selectedSources = selectedTabIds
+            .filter((tabId) =>
+              windowEntry.card.querySelector(
+                `[data-testid="tab-row-${tabId}"]`,
+              ),
+            )
+            .map((tabId) => expectedUrlByTabId.get(tabId) || '(unexpected)')
+          column.windows.push({
+            groupTitles,
+            rowSources,
+            selectedSources,
+            tabCount:
+              expectedWindowById.get(windowEntry.windowId)?.tabIds.length || 0,
+          })
+        }
+        captureStructureSignature = JSON.stringify({
+          columns: columns.map((column) => column.windows),
+          selectedSummaryCount,
+        })
+      }
+
       const mountedRowDiagnostics = []
       const expectedUrlByTabId = new Map(
         expectations.expectedTabs.map((expectation) => [
@@ -1410,6 +1722,7 @@ async function assertFinalCaptureState(page, name, browserState) {
           `Visible interstitial text before ${expectations.name}.png: ${visibleInterstitial}`,
         )
       }
+      return captureStructureSignature
     },
     {
       ...browserState,
@@ -2345,7 +2658,11 @@ async function saveScreenshot(page, name, browserState) {
   await dismissHoverTooltips(page)
   await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
-  await assertFinalCaptureState(page, name, browserState)
+  const captureStructureSignature = await assertFinalCaptureState(
+    page,
+    name,
+    browserState,
+  )
   await page.screenshot({
     path: rawPath,
     animations: 'disabled',
@@ -2358,6 +2675,7 @@ async function saveScreenshot(page, name, browserState) {
   )
   const details = identify.status === 0 ? identify.stdout.trim() : 'unknown'
   console.log(`${name}.png -> ${details}`)
+  return captureStructureSignature
 }
 
 async function captureOverview(page, fullPageUrl, theme, controller) {
@@ -2378,10 +2696,14 @@ async function captureOverview(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    waiting for overview scenario counts')
   await waitForScenarioReady(page, scenarioCounts(DENSE_OVERVIEW_WINDOWS))
-  const browserState = await expectedBrowserStateFor(
-    page,
-    controller,
+  const browserState = withDenseCaptureDomExpectation(
+    await expectedBrowserStateFor(page, controller, createdWindows),
     createdWindows,
+    {
+      stackedWindowIndexes: [[6, 7]],
+      topWindowIndexes: [3, 4, 5, 6, 8],
+      visibleWindowIndexes: [3, 4, 5, 6, 7, 8],
+    },
   )
   console.log('    stabilizing overview browser state')
   await waitForExpectedTabStates(page, browserState)
@@ -2389,7 +2711,7 @@ async function captureOverview(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    scrolling overview target window into view')
   await scrollWindowIntoView(page, targetWindowId)
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('01-overview-groups', theme.name),
     browserState,
@@ -2608,10 +2930,17 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    waiting for grouped focus scenario counts')
   await waitForScenarioReady(page, scenarioCounts(DENSE_OVERVIEW_WINDOWS))
-  const browserState = await expectedBrowserStateFor(
-    page,
-    controller,
+  const targetGroup =
+    createdWindows[GROUPED_FOCUS_WINDOW_INDEX].groups[GROUPED_FOCUS_GROUP_INDEX]
+  const browserState = withDenseCaptureDomExpectation(
+    await expectedBrowserStateFor(page, controller, createdWindows),
     createdWindows,
+    {
+      selectedTabIds: targetGroup.tabIds,
+      stackedWindowIndexes: [[6, 7]],
+      topWindowIndexes: [2, 3, 4, 5, 6],
+      visibleWindowIndexes: [2, 3, 4, 5, 6, 7],
+    },
   )
   console.log('    stabilizing grouped focus browser state')
   await waitForExpectedTabStates(page, browserState)
@@ -2619,13 +2948,11 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    scrolling grouped focus target window into view')
   await scrollWindowIntoView(page, targetWindowId)
-  const targetGroup =
-    createdWindows[GROUPED_FOCUS_WINDOW_INDEX].groups[GROUPED_FOCUS_GROUP_INDEX]
   console.log(`    selecting focused group ${targetGroup.title}`)
   await page.getByTestId(`tab-group-toggle-${targetGroup.groupId}`).focus()
   await page.keyboard.press('x')
   await page.getByText('4 tabs selected', { exact: false }).waitFor()
-  await saveScreenshot(
+  return saveScreenshot(
     page,
     screenshotName('06-grouped-tabs-focus', theme.name),
     browserState,
@@ -2794,6 +3121,7 @@ async function main() {
 
   let context = null
   let userDataDir = null
+  const captureStructureSignatureByScenario = new Map()
   try {
     const init = await initExtensionPage()
     context = init.context
@@ -2804,7 +3132,29 @@ async function main() {
       console.log(`Capturing ${theme.name} theme`)
       for (const scenario of scenarioSteps) {
         console.log(`  ${scenario.label}`)
-        await scenario.run(page, fullPageUrl, theme, controller)
+        const captureStructureSignature = await scenario.run(
+          page,
+          fullPageUrl,
+          theme,
+          controller,
+        )
+        if (typeof captureStructureSignature === 'string') {
+          const previousSignature = captureStructureSignatureByScenario.get(
+            scenario.id,
+          )
+          if (
+            previousSignature &&
+            previousSignature !== captureStructureSignature
+          ) {
+            throw new Error(
+              `Theme-paired capture structure drift for ${scenario.id}`,
+            )
+          }
+          captureStructureSignatureByScenario.set(
+            scenario.id,
+            captureStructureSignature,
+          )
+        }
       }
     }
   } finally {
