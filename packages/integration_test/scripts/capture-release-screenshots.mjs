@@ -28,73 +28,160 @@ const INTERSTITIAL_TITLE_SNIPPETS = [
   'just a moment',
   'are you a robot',
   'attention required',
+  'before you continue',
   'checking your browser',
   'please wait',
   'access denied',
   'captcha',
   'forbidden',
+  'internal server error',
+  'page not found',
   'request unsuccessful',
   'security check',
+  'service unavailable',
+  'site not found',
+  'something went wrong',
+  'temporarily unavailable',
   'verify you are human',
 ]
+const AUTH_TITLE_SNIPPETS = ['sign in', 'log in', 'login']
 const REQUIRED_TAB_TITLE_RULES = [
-  {
-    urlPrefix: 'https://www.youtube.com/@jennytv1',
-    titleIncludes: 'jenny tv',
-  },
-  {
-    urlPrefix: 'https://news.ycombinator.com/',
-    titleIncludes: 'hacker news',
-  },
-  {
-    urlPrefix: 'https://www.postgresql.org/',
-    titleIncludes: 'postgresql',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://web.dev/',
-    titleIncludes: 'web.dev',
-  },
-  {
-    urlPrefix: 'https://testing-library.com/',
-    titleIncludes: 'testing library',
-  },
-  {
-    urlPrefix: 'https://arstechnica.com/',
-    titleIncludes: 'ars technica',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://www.engadget.com/',
-    titleIncludes: 'engadget',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://apnews.com/',
-    titleIncludes: 'associated press news',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://www.theguardian.com/international',
-    titleIncludes: 'the guardian',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://www.npr.org/',
-    titleIncludes: 'npr',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://www.theverge.com/',
-    titleIncludes: 'the verge',
-    allowStableLoading: true,
-  },
-  {
-    urlPrefix: 'https://techcrunch.com/',
-    titleIncludes: 'techcrunch',
-    allowStableLoading: true,
-  },
-]
+  ['https://www.youtube.com/@jennytv1', ['jenny tv']],
+  [
+    'https://about.gitlab.com/',
+    ['gitlab', 'ai for the entire software lifecycle'],
+  ],
+  ['https://ai.google.dev/', ['google ai']],
+  ['https://airtable.com/', ['airtable']],
+  ['https://apnews.com/', ['associated press'], { allowStableLoading: true }],
+  ['https://arstechnica.com/', ['ars technica'], { allowStableLoading: true }],
+  ['https://asana.com/', ['asana']],
+  ['https://aws.amazon.com/', ['amazon web services', 'aws']],
+  ['https://azure.microsoft.com/', ['microsoft azure']],
+  ['https://bitbucket.org/', ['bitbucket']],
+  ['https://blog.mozilla.org/', ['mozilla']],
+  ['https://bun.sh/', ['bun']],
+  ['https://calendly.com/', ['calendly']],
+  ['https://chatgpt.com/', ['chatgpt']],
+  ['https://claude.ai/login', ['claude'], { allowAuthTitle: true }],
+  ['https://clickup.com/', ['clickup']],
+  ['https://cloud.google.com/', ['google cloud']],
+  ['https://css-tricks.com/', ['css-tricks']],
+  ['https://deepmind.google/', ['deepmind']],
+  ['https://deno.com/', ['deno']],
+  ['https://dev.to/', ['dev community']],
+  ['https://developer.chrome.com/', ['chrome']],
+  ['https://developer.mozilla.org/', ['mdn web docs']],
+  ['https://discord.com/', ['discord']],
+  ['https://extensionworkshop.com/', ['extension workshop']],
+  ['https://firebase.google.com/', ['firebase']],
+  ['https://fly.io/', ['fly']],
+  ['https://gemini.google.com/', ['gemini']],
+  ['https://github.com/', ['github']],
+  ['https://gitlab.com/', ['gitlab', 'ai for the entire software lifecycle']],
+  ['https://go.dev/', ['go programming language']],
+  ['https://grafana.com/', ['grafana']],
+  ['https://huggingface.co/', ['hugging face']],
+  ['https://jenny.media/', ['jenny']],
+  ['https://kubernetes.io/', ['kubernetes']],
+  ['https://learn.microsoft.com/', ['microsoft edge']],
+  ['https://linear.app/', ['linear']],
+  ['https://lobste.rs/', ['lobsters']],
+  ['https://miro.com/', ['miro']],
+  ['https://mistral.ai/', ['mistral']],
+  ['https://monday.com/', ['monday']],
+  ['https://news.ycombinator.com/', ['hacker news']],
+  ['https://nextjs.org/', ['next.js']],
+  ['https://nodejs.org/', ['node.js']],
+  ['https://notion.so/', ['notion']],
+  ['https://openrouter.ai/', ['openrouter']],
+  ['https://pagespeed.web.dev/', ['pagespeed insights']],
+  ['https://playwright.dev/', ['playwright']],
+  ['https://pnpm.io/', ['pnpm']],
+  ['https://www.postgresql.org/', ['postgresql'], { allowStableLoading: true }],
+  ['https://prometheus.io/', ['prometheus']],
+  ['https://railway.com/', ['railway']],
+  ['https://react.dev/', ['react']],
+  ['https://readwise.io/', ['readwise']],
+  ['https://render.com/', ['render']],
+  ['https://replicate.com/', ['replicate']],
+  ['https://sentry.io/', ['sentry']],
+  ['https://slack.com/', ['slack']],
+  ['https://stability.ai/', ['stability ai']],
+  ['https://stripe.com/', ['stripe']],
+  ['https://substack.com/', ['substack']],
+  ['https://supabase.com/', ['supabase']],
+  ['https://svelte.dev/', ['svelte']],
+  ['https://tab.jenny.media/', ['tab manager']],
+  ['https://tailwindcss.com/', ['tailwind css']],
+  ['https://techcrunch.com/', ['techcrunch'], { allowStableLoading: true }],
+  ['https://testing-library.com/', ['testing library']],
+  ['https://todoist.com/', ['todoist']],
+  ['https://trello.com/', ['trello', 'capture, organize, and tackle']],
+  ['https://vercel.com/', ['vercel']],
+  ['https://vite.dev/', ['vite']],
+  ['https://vuejs.org/', ['vue.js']],
+  ['https://web.dev/', ['web.dev']],
+  ['https://www.bbc.com/', ['bbc']],
+  ['https://www.box.com/', ['box']],
+  ['https://www.cloudflare.com/', ['cloudflare']],
+  ['https://www.datadoghq.com/', ['datadog']],
+  ['https://www.digitalocean.com/', ['digitalocean']],
+  ['https://www.docker.com/', ['docker']],
+  ['https://www.dropbox.com/', ['dropbox']],
+  ['https://www.engadget.com/', ['engadget'], { allowStableLoading: true }],
+  ['https://www.figma.com/', ['figma']],
+  ['https://www.grammarly.com/', ['grammarly']],
+  ['https://www.heroku.com/', ['heroku']],
+  ['https://www.langchain.com/', ['langchain']],
+  ['https://www.linkedin.com/', ['linkedin'], { allowAuthTitle: true }],
+  ['https://www.loom.com/', ['loom']],
+  ['https://www.mongodb.com/', ['mongodb']],
+  ['https://www.netlify.com/', ['netlify']],
+  ['https://www.notion.so/', ['notion']],
+  ['https://www.npr.org/', ['npr'], { allowStableLoading: true }],
+  ['https://www.postman.com/', ['postman']],
+  ['https://www.python.org/', ['python']],
+  [
+    'https://www.reddit.com/r/chrome_extensions/',
+    ['chrome extensions enthusiasts'],
+  ],
+  ['https://www.reddit.com/', ['reddit']],
+  ['https://www.rust-lang.org/', ['rust']],
+  ['https://www.smashingmagazine.com/', ['smashing magazine']],
+  [
+    'https://www.theguardian.com/international',
+    ['the guardian'],
+    { allowStableLoading: true },
+  ],
+  ['https://www.theverge.com/', ['the verge'], { allowStableLoading: true }],
+  ['https://www.twitch.tv/', ['twitch']],
+  ['https://www.typescriptlang.org/', ['typescript']],
+  ['https://www.wikipedia.org/', ['wikipedia']],
+  ['https://www.youtube.com/', ['youtube']],
+  ['https://zapier.com/', ['zapier']],
+  ['https://zoom.us/', ['zoom']],
+].map(([urlPrefix, titleIncludesAny, options = {}]) => ({
+  urlPrefix,
+  titleIncludesAny,
+  blockedTitleIncludes: options.allowAuthTitle ? [] : AUTH_TITLE_SNIPPETS,
+  allowStableLoading: options.allowStableLoading || false,
+}))
+
+function assertExplicitTitleExpectations(urls, context) {
+  const uncoveredUrls = Array.from(new Set(urls)).filter(
+    (url) =>
+      !REQUIRED_TAB_TITLE_RULES.some((rule) =>
+        url.toLowerCase().startsWith(rule.urlPrefix),
+      ),
+  )
+  if (uncoveredUrls.length > 0) {
+    throw new Error(
+      `Missing explicit title expectations for ${context}: ${JSON.stringify(uncoveredUrls)}`,
+    )
+  }
+}
+
 const CANONICAL_SOURCE_ALIASES = {
   'https://azure.microsoft.com/': ['https://azure.microsoft.com/en-us'],
   'https://blog.mozilla.org/': ['https://blog.mozilla.org/en'],
@@ -102,6 +189,7 @@ const CANONICAL_SOURCE_ALIASES = {
   'https://gemini.google.com/': ['https://gemini.google.com/app'],
   'https://gitlab.com/': ['https://about.gitlab.com/'],
   'https://notion.so/': ['https://notion.com/'],
+  'https://nodejs.org/': ['https://nodejs.org/en'],
   'https://sentry.io/': ['https://sentry.io/welcome'],
   'https://zoom.us/': ['https://zoom.com/'],
 }
@@ -116,16 +204,25 @@ const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
 const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
 const EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
-const REQUESTED_THEMES = String(process.env.RELEASE_SCREENSHOT_THEMES || '')
-  .split(',')
-  .map((value) => value.trim())
-  .filter(Boolean)
-const REQUESTED_SCENARIOS = new Set(
-  String(process.env.RELEASE_SCREENSHOT_SCENARIOS || '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean),
+const parseRequestedFilter = (environmentName) => {
+  if (!Object.prototype.hasOwnProperty.call(process.env, environmentName)) {
+    return { provided: false, values: [] }
+  }
+  const rawValue = String(process.env[environmentName] ?? '')
+  const values = rawValue.split(',').map((value) => value.trim())
+  if (values.some((value) => value.length === 0)) {
+    throw new Error(
+      `${environmentName} was provided with an empty filter value`,
+    )
+  }
+  return { provided: true, values }
+}
+const REQUESTED_THEME_FILTER = parseRequestedFilter('RELEASE_SCREENSHOT_THEMES')
+const REQUESTED_SCENARIO_FILTER = parseRequestedFilter(
+  'RELEASE_SCREENSHOT_SCENARIOS',
 )
+const REQUESTED_THEMES = REQUESTED_THEME_FILTER.values
+const REQUESTED_SCENARIOS = new Set(REQUESTED_SCENARIO_FILTER.values)
 
 const THEME_VARIANTS = [
   {
@@ -837,6 +934,10 @@ async function scrollWindowIntoView(page, windowId) {
 }
 
 async function createDemoWindows(page, windows) {
+  assertExplicitTitleExpectations(
+    windows.flatMap((windowDefinition) => windowDefinition.tabs),
+    'selected release capture scenario',
+  )
   return page.evaluate(
     async ({ definitions, waitOptions }) => {
       const delay = (ms) =>
@@ -939,6 +1040,31 @@ async function createDemoWindows(page, windows) {
         return picked
       }
 
+      const derivePostGroupTabOrder = (initialTabIds, groupTabIdSets) => {
+        let orderedTabIds = initialTabIds.slice()
+        for (const groupTabIds of groupTabIdSets) {
+          const groupTabIdSet = new Set(groupTabIds)
+          const selectedTabIds = orderedTabIds.filter((tabId) =>
+            groupTabIdSet.has(tabId),
+          )
+          if (selectedTabIds.length !== groupTabIds.length) {
+            throw new Error('Failed to derive native group tab order')
+          }
+          const insertionIndex = Math.min(
+            ...selectedTabIds.map((tabId) => orderedTabIds.indexOf(tabId)),
+          )
+          const remainingTabIds = orderedTabIds.filter(
+            (tabId) => !groupTabIdSet.has(tabId),
+          )
+          orderedTabIds = [
+            ...remainingTabIds.slice(0, insertionIndex),
+            ...selectedTabIds,
+            ...remainingTabIds.slice(insertionIndex),
+          ]
+        }
+        return orderedTabIds
+      }
+
       const createdBase = []
       for (const definition of definitions) {
         const urls = definition.tabs
@@ -989,12 +1115,20 @@ async function createDemoWindows(page, windows) {
           .slice()
           .sort((a, b) => a.index - b.index)
         const orderedTabIds = orderedTabs.map((tab) => tab.id)
+        const expectedOrderedTabIds = derivePostGroupTabOrder(
+          tabIds,
+          groups.map((group) => group.tabIds),
+        )
         if (
           orderedTabIds.length !== expectedCount ||
-          orderedTabIds.some((tabId) => !expectedUrlByTabId.has(tabId))
+          orderedTabIds.some((tabId) => !expectedUrlByTabId.has(tabId)) ||
+          JSON.stringify(orderedTabIds) !==
+            JSON.stringify(expectedOrderedTabIds)
         ) {
           throw new Error(
-            `Unexpected post-group tab order for window ${windowId}`,
+            `Unexpected post-group tab order for window ${windowId}: ${JSON.stringify(
+              { expectedOrderedTabIds, orderedTabIds },
+            )}`,
           )
         }
         created.push({
@@ -1193,29 +1327,6 @@ async function assertFinalCaptureState(page, name, browserState) {
           expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
-      const isGenericTitle = (title, url) => {
-        const normalizedTitle = title
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        const normalizedUrl = url
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        return (
-          normalizedTitle ===
-            (() => {
-              try {
-                return new URL(url).hostname.toLowerCase().replace(/^www\./, '')
-              } catch {
-                return ''
-              }
-            })() ||
-          normalizedTitle === normalizedUrl ||
-          title.startsWith('http://') ||
-          title.startsWith('https://')
-        )
-      }
       const faviconStateFor = (tab) => {
         const faviconUrl = String(tab?.favIconUrl || '').trim()
         if (!faviconUrl) {
@@ -1298,9 +1409,14 @@ async function assertFinalCaptureState(page, name, browserState) {
         const matchingTitleRule = expectations.requiredTitleRules.find((rule) =>
           expectedUrl.startsWith(rule.urlPrefix),
         )
-        const titleRuleSatisfied = matchingTitleRule?.titleIncludes
-          ? title.includes(matchingTitleRule.titleIncludes)
-          : !isGenericTitle(title, url)
+        const titleRuleSatisfied =
+          !!matchingTitleRule &&
+          matchingTitleRule.titleIncludesAny.some((snippet) =>
+            title.includes(snippet),
+          ) &&
+          !matchingTitleRule.blockedTitleIncludes.some((snippet) =>
+            title.includes(snippet),
+          )
         const statusSettled =
           status === 'complete' ||
           (matchingTitleRule?.allowStableLoading && status === 'loading')
@@ -1325,7 +1441,7 @@ async function assertFinalCaptureState(page, name, browserState) {
             title,
             url,
             faviconState,
-            requiredTitle: matchingTitleRule?.titleIncludes,
+            requiredTitle: matchingTitleRule?.titleIncludesAny,
             allowStableLoading: matchingTitleRule?.allowStableLoading,
             blockedTitle,
           })
@@ -1856,22 +1972,6 @@ async function waitForExpectedTabStates(page, browserState) {
           expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
-      const isGenericTitle = (title, url) => {
-        const normalizedTitle = title
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        const normalizedUrl = url
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        return (
-          normalizedTitle === normalizedHost(url) ||
-          normalizedTitle === normalizedUrl ||
-          title.startsWith('http://') ||
-          title.startsWith('https://')
-        )
-      }
       const faviconStateFor = (tab) => {
         const faviconUrl = String(tab?.favIconUrl || '').trim()
         if (!faviconUrl) {
@@ -1910,9 +2010,14 @@ async function waitForExpectedTabStates(page, browserState) {
         const matchingTitleRule = requiredTitleRules.find((rule) =>
           expectation.expectedUrl.startsWith(rule.urlPrefix),
         )
-        const titleRuleSatisfied = matchingTitleRule?.titleIncludes
-          ? title.includes(matchingTitleRule.titleIncludes)
-          : !isGenericTitle(title, url)
+        const titleRuleSatisfied =
+          !!matchingTitleRule &&
+          matchingTitleRule.titleIncludesAny.some((snippet) =>
+            title.includes(snippet),
+          ) &&
+          !matchingTitleRule.blockedTitleIncludes.some((snippet) =>
+            title.includes(snippet),
+          )
         const statusSettled =
           status === 'complete' ||
           (matchingTitleRule?.allowStableLoading && status === 'loading')
@@ -1938,7 +2043,7 @@ async function waitForExpectedTabStates(page, browserState) {
             title,
             url,
             faviconState,
-            requiredTitle: matchingTitleRule?.titleIncludes,
+            requiredTitle: matchingTitleRule?.titleIncludesAny,
             allowStableLoading: matchingTitleRule?.allowStableLoading,
             blockedTitle,
           },
@@ -2173,22 +2278,6 @@ async function waitForRenderedTabContent(page, browserState) {
           expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
-      const isGenericTitle = (title, url) => {
-        const normalizedTitle = title
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        const normalizedUrl = url
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        return (
-          normalizedTitle === normalizedHost(url) ||
-          normalizedTitle === normalizedUrl ||
-          title.startsWith('http://') ||
-          title.startsWith('https://')
-        )
-      }
       const tabIds = Array.from(
         document.querySelectorAll('[data-testid^="tab-row-"]'),
       )
@@ -2222,9 +2311,15 @@ async function waitForRenderedTabContent(page, browserState) {
           const matchingTitleRule = requiredTitleRules.find((rule) =>
             validationSourceUrl.startsWith(rule.urlPrefix),
           )
-          const titleRuleSatisfied = matchingTitleRule?.titleIncludes
-            ? title.includes(matchingTitleRule.titleIncludes)
-            : !isGenericTitle(title, url)
+          const titleRuleSatisfied =
+            isControllerTab ||
+            (!!matchingTitleRule &&
+              matchingTitleRule.titleIncludesAny.some((snippet) =>
+                title.includes(snippet),
+              ) &&
+              !matchingTitleRule.blockedTitleIncludes.some((snippet) =>
+                title.includes(snippet),
+              ))
           const statusSettled =
             tab?.status === 'complete' ||
             (matchingTitleRule?.allowStableLoading && tab?.status === 'loading')
@@ -2301,22 +2396,6 @@ async function waitForRenderedTabContent(page, browserState) {
             expectedSource.length > 0 && allowedSources.includes(actualSource)
           )
         }
-        const isGenericTitle = (title, url) => {
-          const normalizedTitle = title
-            .replace(/^https?:\/\//, '')
-            .replace(/^www\./, '')
-            .replace(/[/?#]+$/, '')
-          const normalizedUrl = url
-            .replace(/^https?:\/\//, '')
-            .replace(/^www\./, '')
-            .replace(/[/?#]+$/, '')
-          return (
-            normalizedTitle === normalizedHost(url) ||
-            normalizedTitle === normalizedUrl ||
-            title.startsWith('http://') ||
-            title.startsWith('https://')
-          )
-        }
         const isSettledTab = (tab) => {
           const title = String(tab?.title || '')
             .trim()
@@ -2332,9 +2411,15 @@ async function waitForRenderedTabContent(page, browserState) {
           const matchingTitleRule = requiredTitleRules.find((rule) =>
             validationSourceUrl.startsWith(rule.urlPrefix),
           )
-          const titleRuleSatisfied = matchingTitleRule?.titleIncludes
-            ? title.includes(matchingTitleRule.titleIncludes)
-            : !isGenericTitle(title, url)
+          const titleRuleSatisfied =
+            isControllerTab ||
+            (!!matchingTitleRule &&
+              matchingTitleRule.titleIncludesAny.some((snippet) =>
+                title.includes(snippet),
+              ) &&
+              !matchingTitleRule.blockedTitleIncludes.some((snippet) =>
+                title.includes(snippet),
+              ))
           const statusSettled =
             tab?.status === 'complete' ||
             (matchingTitleRule?.allowStableLoading && tab?.status === 'loading')
@@ -2492,22 +2577,6 @@ async function waitForRenderedTabContent(page, browserState) {
           expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
-      const isGenericTitle = (title, url) => {
-        const normalizedTitle = title
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        const normalizedUrl = url
-          .replace(/^https?:\/\//, '')
-          .replace(/^www\./, '')
-          .replace(/[/?#]+$/, '')
-        return (
-          normalizedTitle === normalizedHost(url) ||
-          normalizedTitle === normalizedUrl ||
-          title.startsWith('http://') ||
-          title.startsWith('https://')
-        )
-      }
       let previousTabStateSignature = ''
       let stableStatePolls = 0
       let lastDiagnostics = []
@@ -2562,9 +2631,15 @@ async function waitForRenderedTabContent(page, browserState) {
             icon.naturalWidth > 0 &&
             iconSrc.length > 0 &&
             !iconSrc.endsWith('/empty.png')
-          const titleRuleSatisfied = matchingTitleRule?.titleIncludes
-            ? title.includes(matchingTitleRule.titleIncludes)
-            : !isGenericTitle(title, url)
+          const titleRuleSatisfied =
+            isControllerTab ||
+            (!!matchingTitleRule &&
+              matchingTitleRule.titleIncludesAny.some((snippet) =>
+                title.includes(snippet),
+              ) &&
+              !matchingTitleRule.blockedTitleIncludes.some((snippet) =>
+                title.includes(snippet),
+              ))
           if (
             !tab ||
             !title ||
@@ -2584,7 +2659,7 @@ async function waitForRenderedTabContent(page, browserState) {
               url,
               expectedUrl: expectedUrl || '(unregistered)',
               rowText,
-              requiredTitle: matchingTitleRule?.titleIncludes,
+              requiredTitle: matchingTitleRule?.titleIncludesAny,
               allowStableLoading: matchingTitleRule?.allowStableLoading,
               iconComplete: icon?.complete,
               iconNaturalWidth: icon?.naturalWidth,
@@ -3029,6 +3104,13 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
 }
 
 async function main() {
+  assertExplicitTitleExpectations(
+    [
+      ...Object.values(REAL_URLS),
+      ...DENSE_OVERVIEW_GROUPS.flatMap((group) => group.urls),
+    ],
+    'release capture source registry',
+  )
   ensureBuildExists()
   ensureMagickExists()
 
@@ -3114,7 +3196,7 @@ async function main() {
     )
   }
 
-  if (REQUESTED_THEMES.length === 0 && REQUESTED_SCENARIOS.size === 0) {
+  if (!REQUESTED_THEME_FILTER.provided && !REQUESTED_SCENARIO_FILTER.provided) {
     rmSync(PNG_OUTPUT_DIR, { recursive: true, force: true })
   }
   mkdirSync(OUTPUT_ROOT_DIR, { recursive: true })

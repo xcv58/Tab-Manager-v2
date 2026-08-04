@@ -923,6 +923,10 @@ document.addEventListener('DOMContentLoaded', () => {
       selectScreenshotTheme(theme)
     })
 
+    button.addEventListener('focus', () => {
+      selectScreenshotTheme(theme)
+    })
+
     button.addEventListener('click', (event) => {
       event.preventDefault()
       selectScreenshotTheme(theme)
