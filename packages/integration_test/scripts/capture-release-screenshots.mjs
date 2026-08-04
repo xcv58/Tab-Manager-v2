@@ -79,6 +79,21 @@ const REQUIRED_TAB_TITLE_RULES = [
     titleIncludes: 'the guardian',
     allowStableLoading: true,
   },
+  {
+    urlPrefix: 'https://www.npr.org/',
+    titleIncludes: 'npr',
+    allowStableLoading: true,
+  },
+  {
+    urlPrefix: 'https://www.theverge.com/',
+    titleIncludes: 'the verge',
+    allowStableLoading: true,
+  },
+  {
+    urlPrefix: 'https://techcrunch.com/',
+    titleIncludes: 'techcrunch',
+    allowStableLoading: true,
+  },
 ]
 const CANONICAL_HOST_ALIASES = {
   'gitlab.com': ['about.gitlab.com'],
@@ -91,6 +106,7 @@ const FALLBACK_TAB_ICON_DATA_URL = `data:image/svg+xml,${encodeURIComponent(`
     <path fill="none" stroke="#64748b" stroke-linejoin="round" stroke-width="1.5" d="M11.5 2.5v4h4"/>
   </svg>
 `)}`
+const FALLBACK_TAB_ICON_STATE = '(deterministic-fallback)'
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
 const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
@@ -869,6 +885,11 @@ async function createDemoWindows(page, windows) {
           await delay(waitOptions.batchPauseMs)
         }
         const tabs = await waitForTabCount(windowId, urls.length)
+        const [firstTab] = tabs
+        if (typeof firstTab?.id !== 'number') {
+          throw new Error(`Missing first tab for demo window ${windowId}`)
+        }
+        await chrome.tabs.update(firstTab.id, { active: true })
         return {
           windowId,
           tabIds: tabs.map((tab) => tab.id),
@@ -926,7 +947,14 @@ async function createDemoWindows(page, windows) {
             color: group.color,
             collapsed: !!group.collapsed,
           })
-          groups.push({ groupId, title: group.title })
+          groups.push({
+            groupId,
+            windowId,
+            tabIds: groupTabIds,
+            title: group.title,
+            color: group.color,
+            collapsed: !!group.collapsed,
+          })
         }
         created.push({ windowId, tabIds, expectedCount, groups, urls })
       }
@@ -964,51 +992,251 @@ function expectedTabsFor(createdWindows) {
   return createdWindows.flatMap((windowData) => windowData.expectedTabs)
 }
 
-function expectedBrowserStateFor(controller, createdWindows) {
+async function expectedBrowserStateFor(page, controller, createdWindows) {
+  const expectedWindows = [
+    {
+      windowId: controller.windowId,
+      tabIds: [controller.tabId],
+    },
+    ...createdWindows.map((windowData) => ({
+      windowId: windowData.windowId,
+      tabIds: windowData.expectedTabs.map((tab) => tab.tabId),
+    })),
+  ]
+  const definedGroups = createdWindows.flatMap(
+    (windowData) => windowData.groups,
+  )
+  const activeTabIdsByWindow = await page.evaluate(
+    async (windowIds) => {
+      const activeEntries = []
+      for (const windowId of windowIds) {
+        const [activeTab] = await chrome.tabs.query({ active: true, windowId })
+        if (typeof activeTab?.id !== 'number') {
+          throw new Error(`Missing active tab for expected window ${windowId}`)
+        }
+        activeEntries.push([windowId, activeTab.id])
+      }
+      return activeEntries
+    },
+    expectedWindows.map((expectation) => expectation.windowId),
+  )
+  const activeTabIdByWindowId = new Map(activeTabIdsByWindow)
+  const expectedGroups = definedGroups.map((group) => ({
+    ...group,
+    collapsed: group.tabIds.includes(activeTabIdByWindowId.get(group.windowId))
+      ? false
+      : group.collapsed,
+  }))
+  await page.evaluate(async (groupExpectations) => {
+    for (const expectation of groupExpectations) {
+      const group = await chrome.tabGroups.get(expectation.groupId)
+      if (group.collapsed !== expectation.collapsed) {
+        await chrome.tabGroups.update(expectation.groupId, {
+          collapsed: expectation.collapsed,
+        })
+      }
+    }
+  }, expectedGroups)
+  await page.waitForTimeout(UI_SETTLE_DELAY_MS)
   return {
     expectedTabs: expectedTabsFor(createdWindows),
-    expectedWindows: [
-      {
-        windowId: controller.windowId,
-        tabIds: [controller.tabId],
-      },
-      ...createdWindows.map((windowData) => ({
-        windowId: windowData.windowId,
-        tabIds: windowData.expectedTabs.map((tab) => tab.tabId),
-      })),
-    ],
+    expectedGroups,
+    expectedWindows: expectedWindows.map((expectation) => ({
+      ...expectation,
+      activeTabId: activeTabIdByWindowId.get(expectation.windowId),
+    })),
   }
 }
 
-async function assertExpectedBrowserState(page, expectedWindows) {
-  await page.evaluate(async (windowExpectations) => {
-    const normalizeWindowTabs = (windows) =>
-      windows
-        .filter((win) => typeof win.windowId === 'number')
-        .map((win) => ({
-          windowId: win.windowId,
-          tabIds: win.tabIds
-            .filter((tabId) => typeof tabId === 'number')
-            .sort((a, b) => a - b),
-        }))
-        .sort((a, b) => a.windowId - b.windowId)
-    const liveWindows = await chrome.windows.getAll({ populate: true })
-    const expectedState = normalizeWindowTabs(windowExpectations)
-    const liveState = normalizeWindowTabs(
-      liveWindows.map((win) => ({
-        windowId: win.id,
-        tabIds: (win.tabs || []).map((tab) => tab.id),
-      })),
-    )
-    if (JSON.stringify(liveState) !== JSON.stringify(expectedState)) {
-      throw new Error(
-        `Unexpected global browser state: ${JSON.stringify({
-          expectedState,
-          liveState,
-        })}`,
+async function assertExpectedBrowserState(page, browserState) {
+  await page.evaluate(
+    async (expectations) => {
+      const normalizeWindowTabs = (windows) =>
+        windows
+          .filter((win) => typeof win.windowId === 'number')
+          .map((win) => ({
+            windowId: win.windowId,
+            activeTabId: win.activeTabId,
+            tabIds: win.tabIds
+              .filter((tabId) => typeof tabId === 'number')
+              .sort((a, b) => a - b),
+          }))
+          .sort((a, b) => a.windowId - b.windowId)
+      const normalizeGroups = (groups) =>
+        groups
+          .filter((group) => typeof group.groupId === 'number')
+          .map((group) => ({
+            groupId: group.groupId,
+            windowId: group.windowId,
+            tabIds: group.tabIds
+              .filter((tabId) => typeof tabId === 'number')
+              .sort((a, b) => a - b),
+            title: String(group.title || ''),
+            color: group.color,
+            collapsed: !!group.collapsed,
+          }))
+          .sort((a, b) => a.groupId - b.groupId)
+      const normalizedHost = (url) => {
+        try {
+          return new URL(url).hostname.toLowerCase().replace(/^www\./, '')
+        } catch {
+          return ''
+        }
+      }
+      const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
+        const expectedHost = normalizedHost(expectedUrl)
+        const actualHost = normalizedHost(actualUrl)
+        return (
+          expectedHost.length > 0 &&
+          (expectedHost === actualHost ||
+            (expectations.canonicalHostAliases[expectedHost] || []).includes(
+              actualHost,
+            ))
+        )
+      }
+      const isGenericTitle = (title, url) => {
+        const normalizedTitle = title
+          .replace(/^https?:\/\//, '')
+          .replace(/^www\./, '')
+          .replace(/[/?#]+$/, '')
+        const normalizedUrl = url
+          .replace(/^https?:\/\//, '')
+          .replace(/^www\./, '')
+          .replace(/[/?#]+$/, '')
+        return (
+          normalizedTitle === normalizedHost(url) ||
+          normalizedTitle === normalizedUrl ||
+          title.startsWith('http://') ||
+          title.startsWith('https://')
+        )
+      }
+      const faviconStateFor = (tab) => {
+        const faviconUrl = String(tab?.favIconUrl || '').trim()
+        if (!faviconUrl) {
+          return expectations.fallbackIconState
+        }
+        try {
+          const normalizedUrl = new URL(faviconUrl)
+          normalizedUrl.search = ''
+          normalizedUrl.hash = ''
+          return normalizedUrl.href
+        } catch {
+          return faviconUrl
+        }
+      }
+      const liveWindows = await chrome.windows.getAll({ populate: true })
+      const expectedState = normalizeWindowTabs(expectations.expectedWindows)
+      const liveState = normalizeWindowTabs(
+        liveWindows.map((win) => ({
+          windowId: win.id,
+          activeTabId: (win.tabs || []).find((tab) => tab.active)?.id,
+          tabIds: (win.tabs || []).map((tab) => tab.id),
+        })),
       )
-    }
-  }, expectedWindows)
+      if (JSON.stringify(liveState) !== JSON.stringify(expectedState)) {
+        throw new Error(
+          `Unexpected global browser state: ${JSON.stringify({
+            expectedState,
+            liveState,
+          })}`,
+        )
+      }
+      const allLiveTabs = liveWindows.flatMap((win) => win.tabs || [])
+      const groupTabIdsByGroupId = new Map()
+      for (const tab of allLiveTabs) {
+        if (typeof tab.groupId !== 'number' || tab.groupId < 0) {
+          continue
+        }
+        const groupTabIds = groupTabIdsByGroupId.get(tab.groupId) || []
+        groupTabIds.push(tab.id)
+        groupTabIdsByGroupId.set(tab.groupId, groupTabIds)
+      }
+      const liveGroups = await chrome.tabGroups.query({})
+      const liveGroupState = normalizeGroups(
+        liveGroups.map((group) => ({
+          groupId: group.id,
+          windowId: group.windowId,
+          tabIds: groupTabIdsByGroupId.get(group.id) || [],
+          title: group.title,
+          color: group.color,
+          collapsed: group.collapsed,
+        })),
+      )
+      const expectedGroupState = normalizeGroups(expectations.expectedGroups)
+      if (
+        JSON.stringify(liveGroupState) !== JSON.stringify(expectedGroupState)
+      ) {
+        throw new Error(
+          `Unexpected global tab-group state: ${JSON.stringify({
+            expectedGroupState,
+            liveGroupState,
+          })}`,
+        )
+      }
+      const liveTabsById = new Map(allLiveTabs.map((tab) => [tab.id, tab]))
+      const unsettledTabs = []
+      for (const expectation of expectations.expectedTabs) {
+        const tab = liveTabsById.get(expectation.tabId)
+        const title = String(tab?.title || '')
+          .trim()
+          .toLowerCase()
+        const url = String(tab?.url || '')
+          .trim()
+          .toLowerCase()
+        const status = String(tab?.status || '')
+          .trim()
+          .toLowerCase()
+        const expectedUrl = expectation.expectedUrl.toLowerCase()
+        const matchingTitleRule = expectations.requiredTitleRules.find((rule) =>
+          expectedUrl.startsWith(rule.urlPrefix),
+        )
+        const titleRuleSatisfied = matchingTitleRule?.titleIncludes
+          ? title.includes(matchingTitleRule.titleIncludes)
+          : !isGenericTitle(title, url)
+        const statusSettled =
+          status === 'complete' ||
+          (matchingTitleRule?.allowStableLoading && status === 'loading')
+        const blockedTitle = expectations.blockedTitleSnippets.find((snippet) =>
+          title.includes(snippet),
+        )
+        const faviconState = faviconStateFor(tab)
+        if (
+          !tab ||
+          title.length === 0 ||
+          !titleRuleSatisfied ||
+          !statusSettled ||
+          !hostMatchesExpectedSource(expectedUrl, url) ||
+          url.startsWith('chrome-error://') ||
+          blockedTitle ||
+          faviconState.length === 0
+        ) {
+          unsettledTabs.push({
+            tabId: expectation.tabId,
+            expectedUrl,
+            status,
+            title,
+            url,
+            faviconState,
+            requiredTitle: matchingTitleRule?.titleIncludes,
+            allowStableLoading: matchingTitleRule?.allowStableLoading,
+            blockedTitle,
+          })
+        }
+      }
+      if (unsettledTabs.length > 0) {
+        throw new Error(
+          `Unexpected final tab readiness state: ${JSON.stringify(unsettledTabs)}`,
+        )
+      }
+    },
+    {
+      ...browserState,
+      blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
+      canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      fallbackIconState: FALLBACK_TAB_ICON_STATE,
+      requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
+    },
+  )
 }
 
 function pathForScreenshot(name) {
@@ -1084,13 +1312,15 @@ async function waitForNoVisibleInterstitialText(page, name) {
 }
 
 async function waitForExpectedTabStates(page, browserState) {
-  const { expectedTabs, expectedWindows } = browserState
+  const { expectedGroups, expectedTabs, expectedWindows } = browserState
   await page.evaluate(
     async ({
       blockedTitleSnippets,
       canonicalHostAliases,
+      expectedGroups,
       expectedTabs,
       expectedWindows,
+      fallbackIconState,
       maxAttempts,
       pollIntervalMs,
       requiredTitleRules,
@@ -1132,6 +1362,20 @@ async function waitForExpectedTabStates(page, browserState) {
           title.startsWith('https://')
         )
       }
+      const faviconStateFor = (tab) => {
+        const faviconUrl = String(tab?.favIconUrl || '').trim()
+        if (!faviconUrl) {
+          return fallbackIconState
+        }
+        try {
+          const normalizedUrl = new URL(faviconUrl)
+          normalizedUrl.search = ''
+          normalizedUrl.hash = ''
+          return normalizedUrl.href
+        } catch {
+          return faviconUrl
+        }
+      }
       const normalizedExpectations = expectedTabs.map((expectation) => ({
         ...expectation,
         expectedUrl: expectation.expectedUrl.toLowerCase(),
@@ -1165,6 +1409,7 @@ async function waitForExpectedTabStates(page, browserState) {
         const blockedTitle = blockedTitleSnippets.find((snippet) =>
           title.includes(snippet),
         )
+        const faviconState = faviconStateFor(tab)
         return {
           settled:
             !!tab &&
@@ -1173,7 +1418,8 @@ async function waitForExpectedTabStates(page, browserState) {
             statusSettled &&
             hostMatchesExpectedSource(expectation.expectedUrl, url) &&
             !url.startsWith('chrome-error://') &&
-            !blockedTitle,
+            !blockedTitle &&
+            faviconState.length > 0,
           state: {
             tabId: expectation.tabId,
             windowId: expectation.windowId,
@@ -1181,6 +1427,7 @@ async function waitForExpectedTabStates(page, browserState) {
             status,
             title,
             url,
+            faviconState,
             requiredTitle: matchingTitleRule?.titleIncludes,
             allowStableLoading: matchingTitleRule?.allowStableLoading,
             blockedTitle,
@@ -1193,16 +1440,32 @@ async function waitForExpectedTabStates(page, browserState) {
             .filter((win) => typeof win.windowId === 'number')
             .map((win) => ({
               windowId: win.windowId,
+              activeTabId: win.activeTabId,
               tabIds: win.tabIds
                 .filter((tabId) => typeof tabId === 'number')
                 .sort((a, b) => a - b),
             }))
             .sort((a, b) => a.windowId - b.windowId)
+        const normalizeGroups = (groups) =>
+          groups
+            .filter((group) => typeof group.groupId === 'number')
+            .map((group) => ({
+              groupId: group.groupId,
+              windowId: group.windowId,
+              tabIds: group.tabIds
+                .filter((tabId) => typeof tabId === 'number')
+                .sort((a, b) => a - b),
+              title: String(group.title || ''),
+              color: group.color,
+              collapsed: !!group.collapsed,
+            }))
+            .sort((a, b) => a.groupId - b.groupId)
         const liveWindows = await chrome.windows.getAll({ populate: true })
         const expectedState = normalizeWindowTabs(expectedWindows)
         const liveState = normalizeWindowTabs(
           liveWindows.map((win) => ({
             windowId: win.id,
+            activeTabId: (win.tabs || []).find((tab) => tab.active)?.id,
             tabIds: (win.tabs || []).map((tab) => tab.id),
           })),
         )
@@ -1214,16 +1477,57 @@ async function waitForExpectedTabStates(page, browserState) {
             })}`,
           )
         }
+        const groupTabIdsByGroupId = new Map()
+        for (const tab of liveWindows.flatMap((win) => win.tabs || [])) {
+          if (typeof tab.groupId !== 'number' || tab.groupId < 0) {
+            continue
+          }
+          const groupTabIds = groupTabIdsByGroupId.get(tab.groupId) || []
+          groupTabIds.push(tab.id)
+          groupTabIdsByGroupId.set(tab.groupId, groupTabIds)
+        }
+        const liveGroups = await chrome.tabGroups.query({})
+        const liveGroupState = normalizeGroups(
+          liveGroups.map((group) => ({
+            groupId: group.id,
+            windowId: group.windowId,
+            tabIds: groupTabIdsByGroupId.get(group.id) || [],
+            title: group.title,
+            color: group.color,
+            collapsed: group.collapsed,
+          })),
+        )
+        const expectedGroupState = normalizeGroups(expectedGroups)
+        if (
+          JSON.stringify(liveGroupState) !== JSON.stringify(expectedGroupState)
+        ) {
+          throw new Error(
+            `Unexpected global tab-group state: ${JSON.stringify({
+              expectedGroupState,
+              liveGroupState,
+            })}`,
+          )
+        }
+      }
+      const restoreExpectedPresentationState = async () => {
+        for (const expectation of expectedWindows) {
+          if (typeof expectation.activeTabId !== 'number') {
+            throw new Error(
+              `Missing expected active tab for window ${expectation.windowId}`,
+            )
+          }
+          await chrome.tabs.update(expectation.activeTabId, { active: true })
+        }
+        for (const group of expectedGroups) {
+          await chrome.tabGroups.update(group.groupId, {
+            title: group.title,
+            color: group.color,
+            collapsed: group.collapsed,
+          })
+        }
       }
 
       await assertExpectedGlobalState()
-      const activeTabIds = []
-      for (const windowId of expectationsByWindowId.keys()) {
-        const [activeTab] = await chrome.tabs.query({ active: true, windowId })
-        if (typeof activeTab?.id === 'number') {
-          activeTabIds.push(activeTab.id)
-        }
-      }
       try {
         await Promise.all(
           [...expectationsByWindowId.values()].map(async (expectations) => {
@@ -1248,11 +1552,7 @@ async function waitForExpectedTabStates(page, browserState) {
           }),
         )
       } finally {
-        for (const tabId of activeTabIds) {
-          await chrome.tabs
-            .update(tabId, { active: true })
-            .catch(() => undefined)
-        }
+        await restoreExpectedPresentationState()
       }
 
       let previousTabStateSignature = ''
@@ -1274,8 +1574,8 @@ async function waitForExpectedTabStates(page, browserState) {
         }
         const tabStateSignature = states
           .map(
-            ({ tabId, status, title, url }) =>
-              `${tabId}:${status}:${url}:${title}`,
+            ({ tabId, status, title, url, faviconState }) =>
+              `${tabId}:${status}:${url}:${title}:${faviconState}`,
           )
           .join('|')
         lastDiagnostics = diagnostics
@@ -1305,8 +1605,10 @@ async function waitForExpectedTabStates(page, browserState) {
     {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
       canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      expectedGroups,
       expectedTabs,
       expectedWindows,
+      fallbackIconState: FALLBACK_TAB_ICON_STATE,
       maxAttempts: Math.ceil(UI_READY_TIMEOUT_MS / TAB_LOAD_POLL_INTERVAL_MS),
       pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
@@ -1316,7 +1618,7 @@ async function waitForExpectedTabStates(page, browserState) {
 }
 
 async function waitForRenderedTabContent(page, browserState) {
-  const { expectedTabs } = browserState
+  const { expectedGroups, expectedTabs, expectedWindows } = browserState
   await waitForExpectedTabStates(page, browserState)
   const unsettledTabIds = await page.evaluate(
     async ({
@@ -1430,7 +1732,9 @@ async function waitForRenderedTabContent(page, browserState) {
         pollIntervalMs,
         blockedTitleSnippets,
         canonicalHostAliases,
+        expectedGroups,
         expectedTabs,
+        expectedWindows,
         requiredTitleRules,
       }) => {
         const delay = (ms) =>
@@ -1507,23 +1811,6 @@ async function waitForRenderedTabContent(page, browserState) {
             !blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
         }
-        const activeTabIds = []
-        const affectedWindowIds = new Set()
-        for (const tabId of tabIds) {
-          const tab = await chrome.tabs.get(tabId).catch(() => undefined)
-          if (typeof tab?.windowId === 'number') {
-            affectedWindowIds.add(tab.windowId)
-          }
-        }
-        for (const windowId of affectedWindowIds) {
-          const [activeTab] = await chrome.tabs.query({
-            active: true,
-            windowId,
-          })
-          if (typeof activeTab?.id === 'number') {
-            activeTabIds.push(activeTab.id)
-          }
-        }
         try {
           for (const tabId of tabIds) {
             try {
@@ -1540,10 +1827,20 @@ async function waitForRenderedTabContent(page, browserState) {
             }
           }
         } finally {
-          for (const tabId of activeTabIds) {
-            await chrome.tabs
-              .update(tabId, { active: true })
-              .catch(() => undefined)
+          for (const expectation of expectedWindows) {
+            if (typeof expectation.activeTabId !== 'number') {
+              throw new Error(
+                `Missing expected active tab for window ${expectation.windowId}`,
+              )
+            }
+            await chrome.tabs.update(expectation.activeTabId, { active: true })
+          }
+          for (const group of expectedGroups) {
+            await chrome.tabGroups.update(group.groupId, {
+              title: group.title,
+              color: group.color,
+              collapsed: group.collapsed,
+            })
           }
         }
       },
@@ -1552,7 +1849,9 @@ async function waitForRenderedTabContent(page, browserState) {
         pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
         blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
         canonicalHostAliases: CANONICAL_HOST_ALIASES,
+        expectedGroups,
         expectedTabs,
+        expectedWindows,
         requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
       },
     )
@@ -1804,7 +2103,7 @@ async function saveScreenshot(page, name, browserState) {
   await dismissHoverTooltips(page)
   await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
-  await assertExpectedBrowserState(page, browserState.expectedWindows)
+  await assertExpectedBrowserState(page, browserState)
   await page.screenshot({
     path: rawPath,
     animations: 'disabled',
@@ -1837,12 +2136,21 @@ async function captureOverview(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    waiting for overview scenario counts')
   await waitForScenarioReady(page, scenarioCounts(DENSE_OVERVIEW_WINDOWS))
+  const browserState = await expectedBrowserStateFor(
+    page,
+    controller,
+    createdWindows,
+  )
+  console.log('    stabilizing overview browser state')
+  await waitForExpectedTabStates(page, browserState)
+  console.log('    reloading normalized overview popup')
+  await reloadPopup(page)
   console.log('    scrolling overview target window into view')
   await scrollWindowIntoView(page, targetWindowId)
   await saveScreenshot(
     page,
     screenshotName('01-overview-groups', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    browserState,
   )
 }
 
@@ -1886,7 +2194,7 @@ async function captureGroupEditing(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('02-group-editing', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    await expectedBrowserStateFor(page, controller, createdWindows),
   )
 }
 
@@ -1928,7 +2236,7 @@ async function captureSearchGroups(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('03-search-groups', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    await expectedBrowserStateFor(page, controller, createdWindows),
   )
 }
 
@@ -1999,7 +2307,7 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('04-duplicate-cleanup', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    await expectedBrowserStateFor(page, controller, createdWindows),
   )
 }
 
@@ -2036,7 +2344,7 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('05-keyboard-shortcuts', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    await expectedBrowserStateFor(page, controller, createdWindows),
   )
 }
 
@@ -2058,6 +2366,15 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    waiting for grouped focus scenario counts')
   await waitForScenarioReady(page, scenarioCounts(DENSE_OVERVIEW_WINDOWS))
+  const browserState = await expectedBrowserStateFor(
+    page,
+    controller,
+    createdWindows,
+  )
+  console.log('    stabilizing grouped focus browser state')
+  await waitForExpectedTabStates(page, browserState)
+  console.log('    reloading normalized grouped focus popup')
+  await reloadPopup(page)
   console.log('    scrolling grouped focus target window into view')
   await scrollWindowIntoView(page, targetWindowId)
   const targetGroup =
@@ -2069,7 +2386,7 @@ async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('06-grouped-tabs-focus', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    browserState,
   )
 }
 
@@ -2102,7 +2419,7 @@ async function captureSettings(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('07-settings', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    await expectedBrowserStateFor(page, controller, createdWindows),
   )
 }
 
@@ -2138,7 +2455,7 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
   await saveScreenshot(
     page,
     screenshotName('08-command-palette', theme.name),
-    expectedBrowserStateFor(controller, createdWindows),
+    await expectedBrowserStateFor(page, controller, createdWindows),
   )
 }
 
