@@ -1112,6 +1112,76 @@ test.describe('The Extension page should', () => {
       .toEqual([lastUsedWindowId, ...createdWindowIds.slice(0, 2)])
   })
 
+  test('last-used window order survives reload and sync', async () => {
+    await page.setViewportSize({
+      width: 1400,
+      height: 720,
+    })
+    const createdWindowIds = await createWindowsWithTabs(page, [
+      ['about:blank#window-order-persisted-1'],
+      ['about:blank#window-order-persisted-2'],
+      ['about:blank#window-order-persisted-3'],
+    ])
+    const expectedWindowOrder = [
+      createdWindowIds[2],
+      createdWindowIds[1],
+      createdWindowIds[0],
+    ]
+    const timestamp = getTestLastUsedTimestamp()
+
+    await writeExtensionSettings(page, {
+      windowOrder: 'lastUsed',
+    })
+    await page.evaluate(
+      async (windowLastUsedAt) => {
+        await chrome.storage.local.set({ windowLastUsedAt })
+      },
+      {
+        [String(createdWindowIds[2])]: timestamp + 2,
+        [String(createdWindowIds[1])]: timestamp + 1,
+      },
+    )
+
+    await page.reload()
+    await page.waitForLoadState('domcontentloaded')
+    for (const windowId of createdWindowIds) {
+      await waitForTestId(page, `window-card-${windowId}`)
+    }
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+        timeout: 5000,
+      })
+      .toEqual(expectedWindowOrder)
+
+    const expectedSyncedWindowOrder = [
+      createdWindowIds[0],
+      createdWindowIds[1],
+      createdWindowIds[2],
+    ]
+    await page.evaluate(
+      async (windowLastUsedAt) => {
+        await chrome.storage.local.set({ windowLastUsedAt })
+      },
+      {
+        [String(createdWindowIds[0])]: timestamp + 6,
+        [String(createdWindowIds[1])]: timestamp + 5,
+        [String(createdWindowIds[2])]: timestamp + 4,
+      },
+    )
+
+    await page.locator('main').click()
+    await page.keyboard.press('s')
+    await waitForMainSurfaceToSettle(page)
+
+    await expect
+      .poll(() => getRenderedCreatedWindowOrder(page, createdWindowIds), {
+        timeout: 5000,
+      })
+      .toEqual(expectedSyncedWindowOrder)
+  })
+
   test('render last-used order for a tiny 3-window workspace', async () => {
     await setupLastUsedWindowOrderVisualScenario({
       windowCount: 3,
