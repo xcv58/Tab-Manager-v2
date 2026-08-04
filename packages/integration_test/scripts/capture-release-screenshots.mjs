@@ -95,10 +95,15 @@ const REQUIRED_TAB_TITLE_RULES = [
     allowStableLoading: true,
   },
 ]
-const CANONICAL_HOST_ALIASES = {
-  'gitlab.com': ['about.gitlab.com'],
-  'notion.so': ['notion.com'],
-  'zoom.us': ['zoom.com'],
+const CANONICAL_SOURCE_ALIASES = {
+  'https://azure.microsoft.com/': ['https://azure.microsoft.com/en-us'],
+  'https://blog.mozilla.org/': ['https://blog.mozilla.org/en'],
+  'https://developer.mozilla.org/': ['https://developer.mozilla.org/en-us'],
+  'https://gemini.google.com/': ['https://gemini.google.com/app'],
+  'https://gitlab.com/': ['https://about.gitlab.com/'],
+  'https://notion.so/': ['https://notion.com/'],
+  'https://sentry.io/': ['https://sentry.io/welcome'],
+  'https://zoom.us/': ['https://zoom.com/'],
 }
 const FALLBACK_TAB_ICON_DATA_URL = `data:image/svg+xml,${encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -158,6 +163,7 @@ const DEFAULT_SETTINGS = {
   showTabIcon: true,
   fontSize: 14,
 }
+const GROUPED_FOCUS_TAB_WIDTH = VIEWPORT.width / 5 / DEFAULT_SETTINGS.fontSize
 
 // Avoid URLs that frequently trigger bot checks during automation captures.
 const REAL_URLS = {
@@ -1048,7 +1054,7 @@ async function expectedBrowserStateFor(page, controller, createdWindows) {
   }
 }
 
-async function assertExpectedBrowserState(page, browserState) {
+async function assertFinalCaptureState(page, name, browserState) {
   await page.evaluate(
     async (expectations) => {
       const normalizeWindowTabs = (windows) =>
@@ -1057,9 +1063,7 @@ async function assertExpectedBrowserState(page, browserState) {
           .map((win) => ({
             windowId: win.windowId,
             activeTabId: win.activeTabId,
-            tabIds: win.tabIds
-              .filter((tabId) => typeof tabId === 'number')
-              .sort((a, b) => a - b),
+            tabIds: win.tabIds.filter((tabId) => typeof tabId === 'number'),
           }))
           .sort((a, b) => a.windowId - b.windowId)
       const normalizeGroups = (groups) =>
@@ -1076,22 +1080,29 @@ async function assertExpectedBrowserState(page, browserState) {
             collapsed: !!group.collapsed,
           }))
           .sort((a, b) => a.groupId - b.groupId)
-      const normalizedHost = (url) => {
+      const canonicalSourceUrl = (url) => {
         try {
-          return new URL(url).hostname.toLowerCase().replace(/^www\./, '')
+          const parsedUrl = new URL(url)
+          const protocol = parsedUrl.protocol.toLowerCase()
+          const hostname = parsedUrl.hostname
+            .toLowerCase()
+            .replace(/^www\./, '')
+          const port = parsedUrl.port ? `:${parsedUrl.port}` : ''
+          const pathname = parsedUrl.pathname.replace(/\/+$/, '') || '/'
+          return `${protocol}//${hostname}${port}${pathname}`
         } catch {
           return ''
         }
       }
-      const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
-        const expectedHost = normalizedHost(expectedUrl)
-        const actualHost = normalizedHost(actualUrl)
+      const sourceMatchesExpected = (expectedUrl, actualUrl) => {
+        const expectedSource = canonicalSourceUrl(expectedUrl)
+        const actualSource = canonicalSourceUrl(actualUrl)
+        const allowedSources = [
+          expectedSource,
+          ...(expectations.canonicalSourceAliases[expectedSource] || []),
+        ].map(canonicalSourceUrl)
         return (
-          expectedHost.length > 0 &&
-          (expectedHost === actualHost ||
-            (expectations.canonicalHostAliases[expectedHost] || []).includes(
-              actualHost,
-            ))
+          expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
       const isGenericTitle = (title, url) => {
@@ -1104,7 +1115,14 @@ async function assertExpectedBrowserState(page, browserState) {
           .replace(/^www\./, '')
           .replace(/[/?#]+$/, '')
         return (
-          normalizedTitle === normalizedHost(url) ||
+          normalizedTitle ===
+            (() => {
+              try {
+                return new URL(url).hostname.toLowerCase().replace(/^www\./, '')
+              } catch {
+                return ''
+              }
+            })() ||
           normalizedTitle === normalizedUrl ||
           title.startsWith('http://') ||
           title.startsWith('https://')
@@ -1130,7 +1148,9 @@ async function assertExpectedBrowserState(page, browserState) {
         liveWindows.map((win) => ({
           windowId: win.id,
           activeTabId: (win.tabs || []).find((tab) => tab.active)?.id,
-          tabIds: (win.tabs || []).map((tab) => tab.id),
+          tabIds: [...(win.tabs || [])]
+            .sort((a, b) => a.index - b.index)
+            .map((tab) => tab.id),
         })),
       )
       if (JSON.stringify(liveState) !== JSON.stringify(expectedState)) {
@@ -1205,7 +1225,7 @@ async function assertExpectedBrowserState(page, browserState) {
           title.length === 0 ||
           !titleRuleSatisfied ||
           !statusSettled ||
-          !hostMatchesExpectedSource(expectedUrl, url) ||
+          !sourceMatchesExpected(expectedUrl, url) ||
           url.startsWith('chrome-error://') ||
           blockedTitle ||
           faviconState.length === 0
@@ -1228,11 +1248,174 @@ async function assertExpectedBrowserState(page, browserState) {
           `Unexpected final tab readiness state: ${JSON.stringify(unsettledTabs)}`,
         )
       }
+
+      const elementIsVisible = (element) => {
+        const rect = element.getBoundingClientRect()
+        const style = window.getComputedStyle(element)
+        return (
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < window.innerHeight &&
+          rect.left < window.innerWidth &&
+          rect.width > 0 &&
+          rect.height > 0 &&
+          style.display !== 'none' &&
+          style.visibility !== 'hidden' &&
+          style.opacity !== '0'
+        )
+      }
+      const visibleTabRows = Array.from(
+        document.querySelectorAll('[data-testid^="tab-row-"]'),
+      ).filter(elementIsVisible)
+      const clippedRows = []
+      for (const tabRow of visibleTabRows) {
+        const rect = tabRow.getBoundingClientRect()
+        const clipRect = {
+          left: 0,
+          right: window.innerWidth,
+          top: 0,
+          bottom: window.innerHeight,
+        }
+        let ancestor = tabRow.parentElement
+        while (ancestor && ancestor !== document.body) {
+          const style = window.getComputedStyle(ancestor)
+          const ancestorRect = ancestor.getBoundingClientRect()
+          if (style.overflowX !== 'visible') {
+            clipRect.left = Math.max(clipRect.left, ancestorRect.left)
+            clipRect.right = Math.min(clipRect.right, ancestorRect.right)
+          }
+          if (style.overflowY !== 'visible') {
+            clipRect.top = Math.max(clipRect.top, ancestorRect.top)
+            clipRect.bottom = Math.min(clipRect.bottom, ancestorRect.bottom)
+          }
+          ancestor = ancestor.parentElement
+        }
+        const tolerance = 1
+        if (
+          rect.left < clipRect.left - tolerance ||
+          rect.right > clipRect.right + tolerance ||
+          rect.top < clipRect.top - tolerance ||
+          rect.bottom > clipRect.bottom + tolerance
+        ) {
+          clippedRows.push({
+            testId: tabRow.getAttribute('data-testid'),
+            rect: {
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+              bottom: rect.bottom,
+            },
+            clipRect,
+          })
+        }
+      }
+      if (clippedRows.length > 0) {
+        throw new Error(
+          `Visible tab rows are clipped before ${expectations.name}.png: ${JSON.stringify(
+            clippedRows,
+          )}`,
+        )
+      }
+
+      const mountedRowDiagnostics = []
+      const expectedUrlByTabId = new Map(
+        expectations.expectedTabs.map((expectation) => [
+          expectation.tabId,
+          expectation.expectedUrl.toLowerCase(),
+        ]),
+      )
+      for (const tabRow of document.querySelectorAll(
+        '[data-testid^="tab-row-"]',
+      )) {
+        const tabId = Number(tabRow.getAttribute('data-testid')?.slice(8))
+        const tab = Number.isFinite(tabId) ? liveTabsById.get(tabId) : undefined
+        const title = String(tab?.title || '')
+          .trim()
+          .toLowerCase()
+        const url = String(tab?.url || '')
+          .trim()
+          .toLowerCase()
+        const expectedUrl = expectedUrlByTabId.get(tabId)
+        const isControllerTab = url.startsWith(
+          `${location.origin.toLowerCase()}/`,
+        )
+        const icon = tabRow.querySelector('img')
+        const iconSrc = String(icon?.currentSrc || icon?.src || '')
+        if (
+          !tab ||
+          !title ||
+          !String(tabRow.innerText || '')
+            .toLowerCase()
+            .includes(title) ||
+          (!expectedUrl && !isControllerTab) ||
+          (!!expectedUrl && !sourceMatchesExpected(expectedUrl, url)) ||
+          !icon ||
+          !icon.complete ||
+          icon.naturalWidth <= 0 ||
+          !iconSrc ||
+          iconSrc.endsWith('/empty.png')
+        ) {
+          mountedRowDiagnostics.push({
+            tabId,
+            title,
+            url,
+            expectedUrl: expectedUrl || '(unregistered)',
+            rowText: String(tabRow.innerText || '').trim(),
+            iconComplete: icon?.complete,
+            iconNaturalWidth: icon?.naturalWidth,
+            iconSrc,
+          })
+        }
+      }
+      if (mountedRowDiagnostics.length > 0) {
+        throw new Error(
+          `Unexpected final mounted tab rows before ${expectations.name}.png: ${JSON.stringify(
+            mountedRowDiagnostics,
+          )}`,
+        )
+      }
+
+      const visibleTooltips = Array.from(
+        document.querySelectorAll('[role="tooltip"]'),
+      ).filter(elementIsVisible)
+      if (visibleTooltips.length > 0) {
+        throw new Error(
+          `Visible tooltip before ${expectations.name}.png: ${JSON.stringify(
+            visibleTooltips.map((tooltip) => tooltip.textContent),
+          )}`,
+        )
+      }
+
+      const visibleText = []
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+      )
+      let textNode = walker.nextNode()
+      while (textNode) {
+        if (
+          textNode.parentElement &&
+          elementIsVisible(textNode.parentElement)
+        ) {
+          visibleText.push(textNode.nodeValue || '')
+        }
+        textNode = walker.nextNode()
+      }
+      const viewportText = visibleText.join(' ').toLowerCase()
+      const visibleInterstitial = expectations.blockedTitleSnippets.find(
+        (snippet) => viewportText.includes(snippet),
+      )
+      if (visibleInterstitial) {
+        throw new Error(
+          `Visible interstitial text before ${expectations.name}.png: ${visibleInterstitial}`,
+        )
+      }
     },
     {
       ...browserState,
+      name,
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
-      canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      canonicalSourceAliases: CANONICAL_SOURCE_ALIASES,
       fallbackIconState: FALLBACK_TAB_ICON_STATE,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
     },
@@ -1316,7 +1499,7 @@ async function waitForExpectedTabStates(page, browserState) {
   await page.evaluate(
     async ({
       blockedTitleSnippets,
-      canonicalHostAliases,
+      canonicalSourceAliases,
       expectedGroups,
       expectedTabs,
       expectedWindows,
@@ -1337,13 +1520,27 @@ async function waitForExpectedTabStates(page, browserState) {
           return ''
         }
       }
-      const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
-        const expectedHost = normalizedHost(expectedUrl)
-        const actualHost = normalizedHost(actualUrl)
+      const canonicalSourceUrl = (url) => {
+        try {
+          const parsedUrl = new URL(url)
+          const protocol = parsedUrl.protocol.toLowerCase()
+          const hostname = normalizedHost(url)
+          const port = parsedUrl.port ? `:${parsedUrl.port}` : ''
+          const pathname = parsedUrl.pathname.replace(/\/+$/, '') || '/'
+          return `${protocol}//${hostname}${port}${pathname}`
+        } catch {
+          return ''
+        }
+      }
+      const sourceMatchesExpected = (expectedUrl, actualUrl) => {
+        const expectedSource = canonicalSourceUrl(expectedUrl)
+        const actualSource = canonicalSourceUrl(actualUrl)
+        const allowedSources = [
+          expectedSource,
+          ...(canonicalSourceAliases[expectedSource] || []),
+        ].map(canonicalSourceUrl)
         return (
-          expectedHost.length > 0 &&
-          (expectedHost === actualHost ||
-            (canonicalHostAliases[expectedHost] || []).includes(actualHost))
+          expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
       const isGenericTitle = (title, url) => {
@@ -1416,7 +1613,7 @@ async function waitForExpectedTabStates(page, browserState) {
             title.length > 0 &&
             titleRuleSatisfied &&
             statusSettled &&
-            hostMatchesExpectedSource(expectation.expectedUrl, url) &&
+            sourceMatchesExpected(expectation.expectedUrl, url) &&
             !url.startsWith('chrome-error://') &&
             !blockedTitle &&
             faviconState.length > 0,
@@ -1441,9 +1638,7 @@ async function waitForExpectedTabStates(page, browserState) {
             .map((win) => ({
               windowId: win.windowId,
               activeTabId: win.activeTabId,
-              tabIds: win.tabIds
-                .filter((tabId) => typeof tabId === 'number')
-                .sort((a, b) => a - b),
+              tabIds: win.tabIds.filter((tabId) => typeof tabId === 'number'),
             }))
             .sort((a, b) => a.windowId - b.windowId)
         const normalizeGroups = (groups) =>
@@ -1466,7 +1661,9 @@ async function waitForExpectedTabStates(page, browserState) {
           liveWindows.map((win) => ({
             windowId: win.id,
             activeTabId: (win.tabs || []).find((tab) => tab.active)?.id,
-            tabIds: (win.tabs || []).map((tab) => tab.id),
+            tabIds: [...(win.tabs || [])]
+              .sort((a, b) => a.index - b.index)
+              .map((tab) => tab.id),
           })),
         )
         if (JSON.stringify(liveState) !== JSON.stringify(expectedState)) {
@@ -1604,7 +1801,7 @@ async function waitForExpectedTabStates(page, browserState) {
     },
     {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
-      canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      canonicalSourceAliases: CANONICAL_SOURCE_ALIASES,
       expectedGroups,
       expectedTabs,
       expectedWindows,
@@ -1623,7 +1820,7 @@ async function waitForRenderedTabContent(page, browserState) {
   const unsettledTabIds = await page.evaluate(
     async ({
       blockedTitleSnippets,
-      canonicalHostAliases,
+      canonicalSourceAliases,
       expectedTabs,
       requiredTitleRules,
     }) => {
@@ -1640,13 +1837,27 @@ async function waitForRenderedTabContent(page, browserState) {
           return ''
         }
       }
-      const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
-        const expectedHost = normalizedHost(expectedUrl)
-        const actualHost = normalizedHost(actualUrl)
+      const canonicalSourceUrl = (url) => {
+        try {
+          const parsedUrl = new URL(url)
+          const protocol = parsedUrl.protocol.toLowerCase()
+          const hostname = normalizedHost(url)
+          const port = parsedUrl.port ? `:${parsedUrl.port}` : ''
+          const pathname = parsedUrl.pathname.replace(/\/+$/, '') || '/'
+          return `${protocol}//${hostname}${port}${pathname}`
+        } catch {
+          return ''
+        }
+      }
+      const sourceMatchesExpected = (expectedUrl, actualUrl) => {
+        const expectedSource = canonicalSourceUrl(expectedUrl)
+        const actualSource = canonicalSourceUrl(actualUrl)
+        const allowedSources = [
+          expectedSource,
+          ...(canonicalSourceAliases[expectedSource] || []),
+        ].map(canonicalSourceUrl)
         return (
-          !expectedHost ||
-          expectedHost === actualHost ||
-          (canonicalHostAliases[expectedHost] || []).includes(actualHost)
+          expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
       const isGenericTitle = (title, url) => {
@@ -1710,7 +1921,7 @@ async function waitForRenderedTabContent(page, browserState) {
             !titleRuleSatisfied ||
             !statusSettled ||
             (!expectedUrl && !isControllerTab) ||
-            (!!expectedUrl && !hostMatchesExpectedSource(expectedUrl, url)) ||
+            (!!expectedUrl && !sourceMatchesExpected(expectedUrl, url)) ||
             url.startsWith('chrome-error://') ||
             blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
@@ -1720,7 +1931,7 @@ async function waitForRenderedTabContent(page, browserState) {
     },
     {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
-      canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      canonicalSourceAliases: CANONICAL_SOURCE_ALIASES,
       expectedTabs,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
     },
@@ -1731,7 +1942,7 @@ async function waitForRenderedTabContent(page, browserState) {
         tabIds,
         pollIntervalMs,
         blockedTitleSnippets,
-        canonicalHostAliases,
+        canonicalSourceAliases,
         expectedGroups,
         expectedTabs,
         expectedWindows,
@@ -1754,13 +1965,27 @@ async function waitForRenderedTabContent(page, browserState) {
             return ''
           }
         }
-        const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
-          const expectedHost = normalizedHost(expectedUrl)
-          const actualHost = normalizedHost(actualUrl)
+        const canonicalSourceUrl = (url) => {
+          try {
+            const parsedUrl = new URL(url)
+            const protocol = parsedUrl.protocol.toLowerCase()
+            const hostname = normalizedHost(url)
+            const port = parsedUrl.port ? `:${parsedUrl.port}` : ''
+            const pathname = parsedUrl.pathname.replace(/\/+$/, '') || '/'
+            return `${protocol}//${hostname}${port}${pathname}`
+          } catch {
+            return ''
+          }
+        }
+        const sourceMatchesExpected = (expectedUrl, actualUrl) => {
+          const expectedSource = canonicalSourceUrl(expectedUrl)
+          const actualSource = canonicalSourceUrl(actualUrl)
+          const allowedSources = [
+            expectedSource,
+            ...(canonicalSourceAliases[expectedSource] || []),
+          ].map(canonicalSourceUrl)
           return (
-            !expectedHost ||
-            expectedHost === actualHost ||
-            (canonicalHostAliases[expectedHost] || []).includes(actualHost)
+            expectedSource.length > 0 && allowedSources.includes(actualSource)
           )
         }
         const isGenericTitle = (title, url) => {
@@ -1806,7 +2031,7 @@ async function waitForRenderedTabContent(page, browserState) {
             titleRuleSatisfied &&
             statusSettled &&
             (isControllerTab ||
-              (!!expectedUrl && hostMatchesExpectedSource(expectedUrl, url))) &&
+              (!!expectedUrl && sourceMatchesExpected(expectedUrl, url))) &&
             !url.startsWith('chrome-error://') &&
             !blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
@@ -1848,7 +2073,7 @@ async function waitForRenderedTabContent(page, browserState) {
         tabIds: unsettledTabIds,
         pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
         blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
-        canonicalHostAliases: CANONICAL_HOST_ALIASES,
+        canonicalSourceAliases: CANONICAL_SOURCE_ALIASES,
         expectedGroups,
         expectedTabs,
         expectedWindows,
@@ -1862,39 +2087,42 @@ async function waitForRenderedTabContent(page, browserState) {
         new Promise((resolve) => {
           setTimeout(resolve, ms)
         })
-      const visibleTabIcons = () =>
+      const mountedTabIcons = () =>
         Array.from(document.querySelectorAll('[data-testid^="tab-row-"]'))
-          .filter((tabRow) => {
-            const rect = tabRow.getBoundingClientRect()
-            return (
-              rect.bottom > 0 &&
-              rect.right > 0 &&
-              rect.top < window.innerHeight &&
-              rect.left < window.innerWidth
-            )
-          })
           .map((tabRow) => tabRow.querySelector('img'))
           .filter(Boolean)
       for (let attempt = 0; attempt < 40; attempt += 1) {
-        if (visibleTabIcons().every((icon) => icon.complete)) {
+        if (mountedTabIcons().every((icon) => icon.complete)) {
           break
         }
         await delay(pollIntervalMs)
       }
-      const icons = visibleTabIcons()
+      const icons = mountedTabIcons()
       for (const icon of icons) {
+        const replaceWithFallback = async () => {
+          icon.src = fallbackIconDataUrl
+          icon.dataset.captureFallback = 'true'
+          await icon.decode()
+        }
         if (
           !icon.complete ||
           icon.naturalWidth <= 0 ||
           icon.src.endsWith('/empty.png')
         ) {
-          icon.src = fallbackIconDataUrl
-          icon.dataset.captureFallback = 'true'
+          await replaceWithFallback()
+        } else {
+          try {
+            await icon.decode()
+          } catch {
+            await replaceWithFallback()
+          }
+        }
+        if (!icon.complete || icon.naturalWidth <= 0) {
+          throw new Error(
+            `Mounted tab favicon did not decode: ${String(icon.src)}`,
+          )
         }
       }
-      await Promise.all(
-        icons.map((icon) => icon.decode().catch(() => undefined)),
-      )
     },
     {
       fallbackIconDataUrl: FALLBACK_TAB_ICON_DATA_URL,
@@ -1904,7 +2132,7 @@ async function waitForRenderedTabContent(page, browserState) {
   await page.evaluate(
     async ({
       blockedTitleSnippets,
-      canonicalHostAliases,
+      canonicalSourceAliases,
       expectedTabs,
       requiredTitleRules,
       pollIntervalMs,
@@ -1928,13 +2156,27 @@ async function waitForRenderedTabContent(page, browserState) {
           return ''
         }
       }
-      const hostMatchesExpectedSource = (expectedUrl, actualUrl) => {
-        const expectedHost = normalizedHost(expectedUrl)
-        const actualHost = normalizedHost(actualUrl)
+      const canonicalSourceUrl = (url) => {
+        try {
+          const parsedUrl = new URL(url)
+          const protocol = parsedUrl.protocol.toLowerCase()
+          const hostname = normalizedHost(url)
+          const port = parsedUrl.port ? `:${parsedUrl.port}` : ''
+          const pathname = parsedUrl.pathname.replace(/\/+$/, '') || '/'
+          return `${protocol}//${hostname}${port}${pathname}`
+        } catch {
+          return ''
+        }
+      }
+      const sourceMatchesExpected = (expectedUrl, actualUrl) => {
+        const expectedSource = canonicalSourceUrl(expectedUrl)
+        const actualSource = canonicalSourceUrl(actualUrl)
+        const allowedSources = [
+          expectedSource,
+          ...(canonicalSourceAliases[expectedSource] || []),
+        ].map(canonicalSourceUrl)
         return (
-          !expectedHost ||
-          expectedHost === actualHost ||
-          (canonicalHostAliases[expectedHost] || []).includes(actualHost)
+          expectedSource.length > 0 && allowedSources.includes(actualSource)
         )
       }
       const isGenericTitle = (title, url) => {
@@ -2017,7 +2259,7 @@ async function waitForRenderedTabContent(page, browserState) {
             !statusSettled ||
             !titleRuleSatisfied ||
             (!expectedUrl && !isControllerTab) ||
-            (!!expectedUrl && !hostMatchesExpectedSource(expectedUrl, url)) ||
+            (!!expectedUrl && !sourceMatchesExpected(expectedUrl, url)) ||
             !iconReady ||
             url.startsWith('chrome-error://') ||
             blockedTitleSnippets.some((snippet) => title.includes(snippet))
@@ -2063,7 +2305,7 @@ async function waitForRenderedTabContent(page, browserState) {
     },
     {
       blockedTitleSnippets: INTERSTITIAL_TITLE_SNIPPETS,
-      canonicalHostAliases: CANONICAL_HOST_ALIASES,
+      canonicalSourceAliases: CANONICAL_SOURCE_ALIASES,
       expectedTabs,
       requiredTitleRules: REQUIRED_TAB_TITLE_RULES,
       pollIntervalMs: TAB_LOAD_POLL_INTERVAL_MS,
@@ -2103,7 +2345,7 @@ async function saveScreenshot(page, name, browserState) {
   await dismissHoverTooltips(page)
   await waitForNoVisibleInterstitialText(page, name)
   await page.waitForTimeout(SCREENSHOT_SETTLE_DELAY_MS)
-  await assertExpectedBrowserState(page, browserState)
+  await assertFinalCaptureState(page, name, browserState)
   await page.screenshot({
     path: rawPath,
     animations: 'disabled',
@@ -2351,7 +2593,7 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme, controller) {
 async function captureGroupedTabsFocus(page, fullPageUrl, theme, controller) {
   await resetScenario(page, fullPageUrl, {
     ...theme.settings,
-    tabWidth: 18,
+    tabWidth: GROUPED_FOCUS_TAB_WIDTH,
   })
   console.log('    creating grouped focus demo windows')
   const createdWindows = await createDemoWindows(page, DENSE_OVERVIEW_WINDOWS)
@@ -2462,12 +2704,8 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
 async function main() {
   ensureBuildExists()
   ensureMagickExists()
-  if (REQUESTED_THEMES.length === 0 && REQUESTED_SCENARIOS.size === 0) {
-    rmSync(PNG_OUTPUT_DIR, { recursive: true, force: true })
-  }
-  mkdirSync(OUTPUT_ROOT_DIR, { recursive: true })
 
-  const scenarioSteps = [
+  const availableScenarioSteps = [
     {
       id: 'overview',
       label: '01 overview groups',
@@ -2508,7 +2746,29 @@ async function main() {
       label: '08 command palette',
       run: captureCommandPalette,
     },
-  ].filter(
+  ]
+  const availableScenarioNames = new Set(
+    availableScenarioSteps.map((scenario) => scenario.id),
+  )
+  const availableThemeNames = new Set(THEME_VARIANTS.map((theme) => theme.name))
+  const unknownScenarios = [...REQUESTED_SCENARIOS].filter(
+    (name) => !availableScenarioNames.has(name),
+  )
+  const unknownThemes = REQUESTED_THEMES.filter(
+    (name) => !availableThemeNames.has(name),
+  )
+  if (unknownThemes.length > 0 || unknownScenarios.length > 0) {
+    throw new Error(
+      `Unknown release screenshot filter: ${JSON.stringify({
+        unknownThemes,
+        unknownScenarios,
+        availableThemes: [...availableThemeNames],
+        availableScenarios: [...availableScenarioNames],
+      })}`,
+    )
+  }
+
+  const scenarioSteps = availableScenarioSteps.filter(
     (scenario) =>
       REQUESTED_SCENARIOS.size === 0 || REQUESTED_SCENARIOS.has(scenario.id),
   )
@@ -2516,6 +2776,21 @@ async function main() {
     (theme) =>
       REQUESTED_THEMES.length === 0 || REQUESTED_THEMES.includes(theme.name),
   )
+  if (themeVariants.length === 0 || scenarioSteps.length === 0) {
+    throw new Error(
+      `Release screenshot filters resolved to an empty selection: ${JSON.stringify(
+        {
+          themes: themeVariants.map((theme) => theme.name),
+          scenarios: scenarioSteps.map((scenario) => scenario.id),
+        },
+      )}`,
+    )
+  }
+
+  if (REQUESTED_THEMES.length === 0 && REQUESTED_SCENARIOS.size === 0) {
+    rmSync(PNG_OUTPUT_DIR, { recursive: true, force: true })
+  }
+  mkdirSync(OUTPUT_ROOT_DIR, { recursive: true })
 
   let context = null
   let userDataDir = null
