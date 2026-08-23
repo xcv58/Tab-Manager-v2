@@ -59,7 +59,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
-          version: 9
+          version: 10.32.1
           run_install: false
 
       - name: Get pnpm store directory
@@ -205,7 +205,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
-          version: 9
+          version: 10.32.1
           run_install: false
 
       - name: Install dependencies

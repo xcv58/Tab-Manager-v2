@@ -94,7 +94,7 @@ No. Core tab and window management works across Chrome, Edge, and Firefox, but s
 ### Prerequisites
 
 - Node.js
-- `pnpm` 9.x
+- `pnpm` 10.32.1
 
 ### Install dependencies
 

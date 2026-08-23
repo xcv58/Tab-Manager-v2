@@ -16,9 +16,9 @@ docker run --rm --ipc=host \
     echo 'Installing xvfb...'
     apt-get update && apt-get install -y xvfb
     echo 'Installing pnpm...'
-    npm install -g pnpm@9.15.9
+    npm install -g pnpm@10.32.1
     echo 'Installing dependencies...'
-    pnpm install --frozen-lockfile=false
+    pnpm install --frozen-lockfile
     echo 'Running update-snapshots...'
     # Directly reuse the test script from packages/integration_test/package.json
     # CI=true ensures it runs with xvfb-run
