@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.0...v2.6.1) (2026-08-23)
+
+
+### Bug Fixes
+
+* **deps:** remediate dependency vulnerabilities ([250b5aa](https://github.com/xcv58/Tab-Manager-v2/commit/250b5aa814003ebdad4fc0c0b21d49b83e2ac6bb))
+
 ## [2.6.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.5.0...v2.6.0) (2026-08-04)
 
 
