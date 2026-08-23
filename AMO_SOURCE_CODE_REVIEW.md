@@ -6,7 +6,7 @@ the built add-on package for AMO review.
 ## Build environment
 
 - Node.js 24
-- pnpm 9
+- pnpm 10.32.1
 
 ## Install dependencies
 
