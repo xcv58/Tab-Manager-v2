@@ -103,12 +103,23 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   // activating discarded successors when the source active tab is removed.
   let planned = destination.slice()
   let cursor = from
+  const plannedIds = new Set()
   movingTabs.forEach((tab) => {
     planned = planned.filter((item) => item.id !== tab.id)
     const position = insertIndex(planned, tab, cursor)
     planned.splice(position, 0, tab)
+    plannedIds.add(tab.id)
     if (from !== -1) {
-      cursor = position + 1
+      // A pinned insertion can land before previously planned unpinned tabs.
+      // Continue after the last planned moving tab to preserve caller order.
+      let last = position
+      for (let i = planned.length - 1; i > position; i--) {
+        if (plannedIds.has(planned[i].id)) {
+          last = i
+          break
+        }
+      }
+      cursor = last + 1
     }
   })
   const pendingIds = new Set(movingTabs.map((tab) => tab.id))

@@ -322,6 +322,15 @@ const scenarios = [
   { name: 'multiple-source-windows', count: 10, active: 0, windows: 3 },
   { name: 'mixed-pins-active-pinned', count: 20, active: 0, pins: 5 },
   { name: 'mixed-pins-active-unpinned', count: 20, active: 10, pins: 5 },
+  {
+    name: 'mixed-pins-across-source-windows',
+    count: 10,
+    active: 0,
+    pins: 5,
+    pinsByWindow: [0, 5],
+    windows: 2,
+    append: true,
+  },
 ]
 ;(async () => {
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
@@ -370,9 +379,10 @@ const scenarios = [
         if(c.pins) await browser.tabs.update(dest.tabs[0].id,{pinned:true});
         for(let w=0;w<(c.windows||1);w++){
           const source=await browser.windows.create({url:base+'/probe/'+c.name+'/'+w+'/0',focused:false}); windows.push(source.id);
+          const sourcePins=c.pinsByWindow?.[w]??c.pins??0;
           const tabs=[source.tabs[0]];
-          for(let i=1;i<=c.count;i++) { tabs.push(await browser.tabs.create({windowId:source.id,url:base+'/probe/'+c.name+'/'+w+'/'+i,active:false,pinned:i<(c.pins||0)})); }
-          if(c.pins) await browser.tabs.update(tabs[0].id,{pinned:true});
+          for(let i=1;i<=c.count;i++) { tabs.push(await browser.tabs.create({windowId:source.id,url:base+'/probe/'+c.name+'/'+w+'/'+i,active:false,pinned:i<sourcePins})); }
+          if(sourcePins) await browser.tabs.update(tabs[0].id,{pinned:true});
           await browser.tabs.update(tabs[c.active].id,{active:true});
           let ready=false;
           for(let i=0;i<300;i++){if((await browser.tabs.query({windowId:source.id})).every(t=>t.status==='complete')){ready=true;break;}await new Promise(r=>setTimeout(r,100));}

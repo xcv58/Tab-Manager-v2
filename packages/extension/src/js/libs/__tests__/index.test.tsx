@@ -262,6 +262,40 @@ describe('ItemTypes', () => {
     ])
   })
 
+  it.each([
+    ['retained pins', false, false],
+    ['unpinning transfers', true, false],
+    ['appended pins', false, true],
+  ])(
+    'preserves mixed caller order around a deferred pinned active tab with %s',
+    async (_behavior, unpinTransfers, appendTransferredPins) => {
+      const initial = [
+        { ...makeTab(1, 9, 0), pinned: true, active: true },
+        { ...makeTab(5, 2, 0), pinned: true, active: true },
+        { ...makeTab(2, 2, 1), discarded: true },
+        { ...makeTab(4, 2, 2), discarded: true },
+      ]
+      const model = simulateBrowser(
+        initial,
+        Boolean(unpinTransfers),
+        Boolean(appendTransferredPins),
+      )
+      await moveTabs([initial[2], initial[1], initial[3]], 9, 1)
+
+      expect(model.windows.get(9).map((tab) => tab.id)).toEqual([1, 5, 2, 4])
+      expect(model.reloaded).toEqual([])
+      expect(model.getTab(2).discarded).toBe(true)
+      expect(model.getTab(4).discarded).toBe(true)
+      expect(model.getTab(5).pinned).toBe(true)
+      expect(model.getTab(2).pinned).toBe(false)
+      expect(model.getTab(4).pinned).toBe(false)
+      expect(model.getTab(1).active).toBe(true)
+      const calls = mockTabsMove.mock.calls.map(([id]) => id)
+      expect(calls.indexOf(5)).toBeGreaterThan(calls.indexOf(2))
+      expect(calls.indexOf(5)).toBeGreaterThan(calls.indexOf(4))
+    },
+  )
+
   it('corrects transferred pinned order when the browser appends pins instead of honoring the index', async () => {
     const initial = [
       { ...makeTab(1, 1, 0), pinned: true, active: true },
