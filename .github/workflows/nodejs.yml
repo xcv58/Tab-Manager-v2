@@ -60,17 +60,19 @@ jobs:
           pnpm run test:unit
           pnpm build
 
-      # Run all tests, including the browser integration suite.
-      - name: Integration Test
-        if: ${{ matrix.node == 25 }}
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
-
       - name: Unloaded tab move regression
         timeout-minutes: 5
         if: ${{ matrix.node == 25 }}
         env:
           TM_CHROME_FLAGS_EXTENSION: '1'
-        run: pnpm test:integration:unloaded-tabs
+        run: |
+          pnpm test:integration:build
+          pnpm test:integration:unloaded-tabs
+
+      # Run all tests, including the browser integration suite.
+      - name: Integration Test
+        if: ${{ matrix.node == 25 }}
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
 
       - name: Upload unloaded tab results
         if: ${{ matrix.node == 25 && !cancelled() }}

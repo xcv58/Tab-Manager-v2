@@ -204,20 +204,48 @@ async function chrome() {
   const version = await send('Browser.getVersion')
   let id
   if (process.env.TM_CHROME_FLAGS_EXTENSION) {
-    for (let i = 0; i < 100; i++) {
+    const expected = JSON.parse(
+      fs.readFileSync(path.join(extension, 'manifest.json'), 'utf8'),
+    )
+    // Component extensions may also start workers. Identify our build instead
+    // of assuming the first extension worker belongs to Tab Manager.
+    for (let i = 0; i < 100 && !id; i++) {
       const targets = await send('Target.getTargets')
-      const worker = targets.targetInfos.find(
+      const workers = targets.targetInfos.filter(
         (target) =>
           target.type === 'service_worker' &&
-          target.url.startsWith('chrome-extension://'),
+          target.url.startsWith('chrome-extension://') &&
+          new URL(target.url).pathname ===
+            '/' + expected.background.service_worker,
       )
-      if (worker) {
-        id = new URL(worker.url).host
-        break
+      for (const worker of workers) {
+        const attached = await send('Target.attachToTarget', {
+          targetId: worker.targetId,
+          flatten: true,
+        })
+        try {
+          await send('Runtime.enable', {}, attached.sessionId)
+          const manifest = await send(
+            'Runtime.evaluate',
+            { expression: 'chrome.runtime.getManifest()', returnByValue: true },
+            attached.sessionId,
+          )
+          if (
+            manifest.result?.value?.name === expected.name &&
+            manifest.result.value.version === expected.version
+          ) {
+            id = new URL(worker.url).host
+            break
+          }
+        } finally {
+          await send('Target.detachFromTarget', {
+            sessionId: attached.sessionId,
+          })
+        }
       }
-      await sleep(100)
+      if (!id) await sleep(100)
     }
-    assert.ok(id, 'Extension worker missing')
+    assert.ok(id, 'Built Tab Manager extension worker missing')
   } else ({ id } = await send('Extensions.loadUnpacked', { path: extension }))
   const { targetId } = await send('Target.createTarget', {
     url: `chrome-extension://${id}/popup.html?not_popup=1`,
@@ -227,6 +255,7 @@ async function chrome() {
     flatten: true,
   })
   await send('Runtime.enable', {}, sessionId)
+  console.log('Browser', version.product, 'extension', id)
   const waitForPopup = async () => {
     for (let attempt = 0; attempt < 200; attempt++) {
       const state = await send(
@@ -241,7 +270,19 @@ async function chrome() {
       if (state.result?.value === true) return
       await sleep(50)
     }
-    throw new Error('Built extension popup did not become ready')
+    const diagnostic = await send(
+      'Runtime.evaluate',
+      {
+        expression:
+          '({url:location.href,title:document.title,readyState:document.readyState,windowsApi:typeof globalThis.chrome?.windows,body:document.body?.innerText.slice(0,500)})',
+        returnByValue: true,
+      },
+      sessionId,
+    )
+    throw new Error(
+      'Built extension popup did not become ready: ' +
+        JSON.stringify(diagnostic.result?.value),
+    )
   }
   await waitForPopup()
   return {
