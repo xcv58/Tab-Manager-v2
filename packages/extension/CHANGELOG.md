@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.1...v2.6.2) (2026-09-27)
+
+
+### Bug Fixes
+
+* preserve unloaded tabs when moving between windows ([#2652](https://github.com/xcv58/Tab-Manager-v2/issues/2652)) ([92804fe](https://github.com/xcv58/Tab-Manager-v2/commit/92804fedc07f87e0f11a413c4f44a8b1513bf2da))
+
 ## [2.6.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.0...v2.6.1) (2026-08-23)
 
 
