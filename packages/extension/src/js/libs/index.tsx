@@ -26,11 +26,120 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   if (!tabs || tabs.length === 0) {
     return
   }
-  for (let i = 0; i < tabs.length; i++) {
-    const { id, pinned } = tabs[i]
-    const index = from + (from !== -1 ? i : 0)
-    await browser.tabs.update(id, { pinned })
-    await browser.tabs.move(id, { windowId, index })
+
+  // Read active state from the browser: the store can be suspended during drops.
+  // Keep the caller's pinned value because domain grouping can change pinning.
+  const movingTabs = await Promise.all(
+    tabs.map(async (tab) => {
+      const current = await browser.tabs.get(tab.id)
+      return { ...tab, ...current, pinned: tab.pinned ?? current?.pinned }
+    }),
+  )
+  let destination = (await browser.tabs.query({ windowId }))
+    .filter((tab) => tab.windowId === windowId)
+    .sort((a, b) => a.index - b.index)
+
+  const insertIndex = (list, tab, index) => {
+    const pinnedCount = list.filter((item) => item.pinned).length
+    const requested = index === -1 ? list.length : Math.max(0, index)
+    return tab.pinned
+      ? Math.min(requested, pinnedCount)
+      : Math.min(list.length, Math.max(requested, pinnedCount))
+  }
+  const track = (tab) => {
+    if (!tab || tab.windowId !== windowId) {
+      return
+    }
+    destination = destination.filter((item) => item.id !== tab.id)
+    destination.splice(tab.index, 0, tab)
+  }
+  const moveOne = async (tab, index) => {
+    track(await browser.tabs.update(tab.id, { pinned: tab.pinned }))
+    const remaining = destination.filter((item) => item.id !== tab.id)
+    const position = insertIndex(remaining, tab, index)
+    const moveIndex = index === -1 && !tab.pinned ? -1 : position
+    const result = await browser.tabs.move(tab.id, {
+      windowId,
+      index: moveIndex,
+    })
+    const moved = Array.isArray(result) ? result[0] : result
+    if (Array.isArray(result) && !moved) {
+      throw new Error(`Tab ${tab.id} was not moved to window ${windowId}`)
+    }
+    track(moved ?? { ...tab, windowId, index: position })
+    // Chromium can unpin a tab when transferring it between windows.
+    if (moved && moved.pinned !== tab.pinned) {
+      const restored = await browser.tabs.update(tab.id, {
+        pinned: tab.pinned,
+      })
+      track(restored)
+    }
+    // Firefox can retain pinning but append transferred pins to the pinned
+    // section instead of honoring the requested cross-window index.
+    const placed = destination.find((item) => item.id === tab.id)
+    if (placed && placed.index !== position) {
+      const repositioned = await browser.tabs.move(tab.id, {
+        windowId,
+        index: position,
+      })
+      track(Array.isArray(repositioned) ? repositioned[0] : repositioned)
+    }
+  }
+
+  const deferredIds = new Set(
+    movingTabs
+      .filter((tab) => tab.active && tab.windowId !== windowId)
+      .map((tab) => tab.id),
+  )
+  if (!deferredIds.size) {
+    // Retain the existing forward sequence for same-window reorders.
+    for (let i = 0; i < movingTabs.length; i++) {
+      await moveOne(movingTabs[i], from === -1 ? -1 : from + i)
+    }
+    return
+  }
+
+  // Preserve caller order while respecting the pinned boundary, without
+  // activating discarded successors when the source active tab is removed.
+  let planned = destination.slice()
+  let cursor = from
+  const plannedIds = new Set()
+  movingTabs.forEach((tab) => {
+    planned = planned.filter((item) => item.id !== tab.id)
+    const position = insertIndex(planned, tab, cursor)
+    planned.splice(position, 0, tab)
+    plannedIds.add(tab.id)
+    if (from !== -1) {
+      // A pinned insertion can land before previously planned unpinned tabs.
+      // Continue after the last planned moving tab to preserve caller order.
+      let last = position
+      for (let i = planned.length - 1; i > position; i--) {
+        if (plannedIds.has(planned[i].id)) {
+          last = i
+          break
+        }
+      }
+      cursor = last + 1
+    }
+  })
+  const pendingIds = new Set(movingTabs.map((tab) => tab.id))
+  const selected = planned.filter((tab) => pendingIds.has(tab.id)).reverse()
+  const order = [
+    ...selected.filter((tab) => !deferredIds.has(tab.id)),
+    ...selected.filter((tab) => deferredIds.has(tab.id)),
+  ]
+  for (const tab of order) {
+    pendingIds.delete(tab.id)
+    const remaining = destination.filter((item) => item.id !== tab.id)
+    const next = planned
+      .slice(planned.findIndex((item) => item.id === tab.id) + 1)
+      .find(
+        (item) =>
+          !pendingIds.has(item.id) &&
+          remaining.some((candidate) => candidate.id === item.id),
+      )
+    const index = next ? remaining.findIndex((item) => item.id === next.id) : -1
+    await moveOne(tab, index)
   }
 }
 
