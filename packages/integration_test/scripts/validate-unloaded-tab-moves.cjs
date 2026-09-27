@@ -23,7 +23,9 @@ const server = http.createServer((req, res) => {
     'Content-Type': 'text/html',
     'Cache-Control': 'no-store',
   })
-  res.end(`<title>${req.url}</title><p>Unloaded tab integration fixture</p>`)
+  res.end(
+    '<title>Unloaded tab fixture</title><p>Unloaded tab integration fixture</p>',
+  )
 })
 let browserProcess, driverProcess, firefoxPid
 let closeSession = async () => {}
@@ -225,13 +227,42 @@ async function chrome() {
     flatten: true,
   })
   await send('Runtime.enable', {}, sessionId)
+  const waitForPopup = async () => {
+    for (let attempt = 0; attempt < 200; attempt++) {
+      const state = await send(
+        'Runtime.evaluate',
+        {
+          expression:
+            "location.protocol === 'chrome-extension:' && document.readyState === 'complete' && typeof chrome.windows?.create === 'function'",
+          returnByValue: true,
+        },
+        sessionId,
+      )
+      if (state.result?.value === true) return
+      await sleep(50)
+    }
+    throw new Error('Built extension popup did not become ready')
+  }
+  await waitForPopup()
   return {
     version: version.product,
     run: async (body, ...args) => {
-      const result = await send(
+      // A reload replaces the execution context. Resolve the current global
+      // only after navigation has completed and extension APIs are available.
+      await waitForPopup()
+      const global = await send(
         'Runtime.evaluate',
         {
-          expression: `(async()=>{const browser=chrome,args=${JSON.stringify(args)};${body}})()`,
+          expression: 'globalThis',
+        },
+        sessionId,
+      )
+      const result = await send(
+        'Runtime.callFunctionOn',
+        {
+          objectId: global.result.objectId,
+          functionDeclaration: `async function(...args) { const browser = chrome; ${body} }`,
+          arguments: args.map((value) => ({ value })),
           awaitPromise: true,
           returnByValue: true,
         },
