@@ -73,13 +73,16 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
         pinned: tab.pinned,
       })
       track(restored)
-      if (restored && restored.index !== position) {
-        const repositioned = await browser.tabs.move(tab.id, {
-          windowId,
-          index: position,
-        })
-        track(Array.isArray(repositioned) ? repositioned[0] : repositioned)
-      }
+    }
+    // Firefox can retain pinning but append transferred pins to the pinned
+    // section instead of honoring the requested cross-window index.
+    const placed = destination.find((item) => item.id === tab.id)
+    if (placed && placed.index !== position) {
+      const repositioned = await browser.tabs.move(tab.id, {
+        windowId,
+        index: position,
+      })
+      track(Array.isArray(repositioned) ? repositioned[0] : repositioned)
     }
   }
 
@@ -96,16 +99,17 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
     return
   }
 
-  // Plan the same final order as forward insertion, without activating each
-  // discarded successor as the source window's active tab is removed.
+  // Preserve caller order while respecting the pinned boundary, without
+  // activating discarded successors when the source active tab is removed.
   let planned = destination.slice()
-  movingTabs.forEach((tab, i) => {
+  let cursor = from
+  movingTabs.forEach((tab) => {
     planned = planned.filter((item) => item.id !== tab.id)
-    planned.splice(
-      insertIndex(planned, tab, from === -1 ? -1 : from + i),
-      0,
-      tab,
-    )
+    const position = insertIndex(planned, tab, cursor)
+    planned.splice(position, 0, tab)
+    if (from !== -1) {
+      cursor = position + 1
+    }
   })
   const pendingIds = new Set(movingTabs.map((tab) => tab.id))
   const selected = planned.filter((tab) => pendingIds.has(tab.id)).reverse()

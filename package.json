@@ -44,7 +44,8 @@
     "stat": "pnpm --filter ./packages/extension stat",
     "lint": "eslint .",
     "prettier": "prettier --write",
-    "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix"
+    "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix",
+    "test:integration:unloaded-tabs": "pnpm --filter integration-test exec node scripts/validate-unloaded-tab-moves.cjs"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",

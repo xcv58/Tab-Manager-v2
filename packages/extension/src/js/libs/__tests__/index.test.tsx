@@ -105,6 +105,7 @@ describe('ItemTypes', () => {
       ReturnType<typeof makeTab> & { active?: boolean; discarded?: boolean }
     >,
     unpinTransfers = false,
+    appendTransferredPins = false,
   ) => {
     const windows = new Map<number, any[]>()
     initialTabs.forEach((tab) => {
@@ -158,7 +159,13 @@ describe('ItemTypes', () => {
       }
       const target = windows.get(windowId) || []
       windows.set(windowId, target)
-      target.splice(index === -1 ? target.length : index, 0, tab)
+      const position =
+        appendTransferredPins && current.windowId !== windowId && tab.pinned
+          ? target.filter((item) => item.pinned).length
+          : index === -1
+            ? target.length
+            : index
+      target.splice(position, 0, tab)
       return getTab(id)
     })
     return { getTab, windows, reloaded }
@@ -237,6 +244,40 @@ describe('ItemTypes', () => {
     expect(model.windows.get(9).map((tab) => tab.id)).toEqual([
       1, 2, 99, 3, 100,
     ])
+  })
+
+  it('keeps consecutive unpinned tabs in order after a destination pin shifts the insertion boundary', async () => {
+    const initial = [
+      { ...makeTab(1, 1, 0), pinned: true, active: true },
+      { ...makeTab(2, 1, 1), discarded: true },
+      { ...makeTab(3, 1, 2), discarded: true },
+      { ...makeTab(99, 9, 0), pinned: true, active: true },
+      makeTab(100, 9, 1),
+    ]
+    const model = simulateBrowser(initial)
+    await moveTabs(initial.slice(0, 3), 9, 0)
+    expect(model.reloaded).toEqual([])
+    expect(model.windows.get(9).map((tab) => tab.id)).toEqual([
+      1, 99, 2, 3, 100,
+    ])
+  })
+
+  it('corrects transferred pinned order when the browser appends pins instead of honoring the index', async () => {
+    const initial = [
+      { ...makeTab(1, 1, 0), pinned: true, active: true },
+      { ...makeTab(2, 1, 1), pinned: true, discarded: true },
+      { ...makeTab(3, 1, 2), discarded: true },
+      { ...makeTab(99, 9, 0), pinned: true, active: true },
+      makeTab(100, 9, 1),
+    ]
+    const model = simulateBrowser(initial, false, true)
+    await moveTabs(initial.slice(0, 3), 9, 0)
+    expect(model.reloaded).toEqual([])
+    expect(model.windows.get(9).map((tab) => tab.id)).toEqual([
+      1, 2, 99, 3, 100,
+    ])
+    expect(model.getTab(1).pinned).toBe(true)
+    expect(model.getTab(2).pinned).toBe(true)
   })
 
   it('keeps forward same-window reorders and intentional pin changes', async () => {
