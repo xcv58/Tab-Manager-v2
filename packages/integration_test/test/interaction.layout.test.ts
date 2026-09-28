@@ -957,7 +957,9 @@ test.describe('The Extension page should', () => {
   for (const action of ['empty column', 'toolbar'] as const) {
     test(`mouse relayout from the ${action} keeps the viewed window in place`, async () => {
       const { relayoutActions, separatingWindowId } =
-        await setupEmptyColumnRelayoutVisualScenario('separated')
+        await setupEmptyColumnRelayoutVisualScenario('separated', {
+          autoFocusSearch: false,
+        })
       expect(separatingWindowId).not.toBeNull()
       const windowId = separatingWindowId as number
       await page.getByTestId(`window-card-${windowId}`).evaluate((card) => {
@@ -988,6 +990,9 @@ test.describe('The Extension page should', () => {
       const after = await getWindowColumnViewportPosition(page, windowId)
       expect(after.scrollLeft).toBeLessThan(before.scrollLeft)
       expect(Math.abs(after.left - before.left)).toBeLessThanOrEqual(2)
+      await expect(
+        page.getByTestId('toolbar-search-input').locator('input'),
+      ).not.toBeFocused()
     })
   }
 

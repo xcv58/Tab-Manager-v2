@@ -252,16 +252,7 @@ export default observer(() => {
       return
     }
     windowStore.flushPendingManualRelayoutScroll(container)
-    // Both manual buttons can disappear after the layout is repacked.
-    if (document.activeElement === document.body) {
-      searchStore?.focus?.()
-    }
-  }, [
-    initialLoading,
-    pendingManualRelayoutScrollLeft,
-    searchStore,
-    windowStore,
-  ])
+  }, [initialLoading, pendingManualRelayoutScrollLeft, windowStore])
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
