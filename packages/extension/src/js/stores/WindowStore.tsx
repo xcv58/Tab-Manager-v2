@@ -284,6 +284,8 @@ export default class WindowsStore {
 
   pendingKeyboardFocusVerification: Focusable | null = null
 
+  pendingManualRelayoutScrollLeft: number | null = null
+
   get tabCount() {
     return this.windows
       .map((x) => x.tabs.length)
@@ -1841,6 +1843,18 @@ export default class WindowsStore {
     }
   }
 
+  flushPendingManualRelayoutScroll = (container: HTMLElement) => {
+    if (this.pendingManualRelayoutScrollLeft === null) {
+      return
+    }
+    container.scrollLeft = Math.min(
+      this.pendingManualRelayoutScrollLeft,
+      Math.max(container.scrollWidth - container.clientWidth, 0),
+    )
+    this.pendingManualRelayoutScrollLeft = null
+    this.updateScroll(container.scrollTop, container.scrollLeft)
+  }
+
   isLayoutRepackReason = (
     reason?: LayoutRepackReason | LayoutDirtyReason,
   ): reason is LayoutRepackReason => {
@@ -2008,6 +2022,19 @@ export default class WindowsStore {
   }
 
   repackLayoutAndRevealActiveTab = (origin: FocusOrigin = 'programmatic') => {
+    const previousScrollLeft = this.scrollLeft
+    const previousColumns =
+      origin === 'mouse' ? this.columnLayoutsWithPosition : []
+    // Keep a surviving window at the same viewport position when columns move.
+    const occupiedColumns = previousColumns.filter(
+      (column) => column.windows.length > 0,
+    )
+    const anchorColumn =
+      previousColumns.find(
+        (column) =>
+          column.windows.length > 0 && column.right > previousScrollLeft,
+      ) || occupiedColumns[occupiedColumns.length - 1]
+    const anchorWindowId = anchorColumn?.windows[0]?.windowId
     if (this.hasWindowLastUsedLayoutCandidate()) {
       this.applyWindowLastUsedLayout('manual')
     } else {
@@ -2015,6 +2042,21 @@ export default class WindowsStore {
       this.repackLayout('manual')
     }
     this.pendingKeyboardFocusVerification = null
+    if (origin === 'mouse') {
+      const nextColumn = this.columnLayoutsWithPosition.find((column) =>
+        column.windows.some(({ windowId }) => windowId === anchorWindowId),
+      )
+      const anchoredLeft =
+        anchorColumn && nextColumn
+          ? previousScrollLeft + nextColumn.left - anchorColumn.left
+          : previousScrollLeft
+      this.pendingManualRelayoutScrollLeft = Math.max(
+        0,
+        Math.min(anchoredLeft, this.totalContentWidth - this.width),
+      )
+      this.scrollLeft = this.pendingManualRelayoutScrollLeft
+      return false
+    }
     const focusedActiveTab = this.focusActiveTabInLastFocusedWindow({
       origin,
       reveal: true,

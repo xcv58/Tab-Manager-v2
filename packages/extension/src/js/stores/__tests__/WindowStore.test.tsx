@@ -1037,7 +1037,7 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.pendingFocusedItemReveal).toBe(true)
   })
 
-  it('repackLayoutAndRevealActiveTab immediately reveals the active tab for manual actions', () => {
+  it('keeps mouse relayout from revealing an offscreen active tab', () => {
     const windowStore = createWindowStore()
     const focus = jest.fn(() => true)
     ;(windowStore.store as any).focusStore.focus = focus
@@ -1063,14 +1063,36 @@ describe('WindowStore layout policy', () => {
 
     const focused = windowStore.repackLayoutAndRevealActiveTab('mouse')
 
-    expect(focused).toBe(true)
-    expect(focus).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 11 }),
-      expect.objectContaining({
-        origin: 'mouse',
-        reveal: true,
-      }),
-    )
+    expect(focused).toBe(false)
+    expect(focus).not.toHaveBeenCalled()
+    expect(windowStore.pendingManualRelayoutScrollLeft).toBe(0)
+  })
+
+  it('anchors a surviving window when mouse relayout removes an earlier empty column', () => {
+    const windowStore = createWindowStore()
+    setVisibleLengths(windowStore, [1, 1])
+    windowStore.width = 280
+    windowStore.columnLayout = [[1], [], [2]]
+    windowStore.columnCount = 3
+    windowStore.layoutDirty = true
+    windowStore.scrollLeft = 560
+    jest.spyOn(windowStore, 'repackLayout').mockImplementation(() => {
+      windowStore.columnLayout = [[1], [2]]
+      windowStore.columnCount = 2
+      windowStore.layoutDirty = false
+    })
+
+    windowStore.repackLayoutAndRevealActiveTab('mouse')
+
+    expect(windowStore.pendingManualRelayoutScrollLeft).toBe(280)
+    const container = document.createElement('div')
+    Object.defineProperties(container, {
+      clientWidth: { value: 280 },
+      scrollWidth: { value: 560 },
+    })
+    windowStore.flushPendingManualRelayoutScroll(container)
+    expect(container.scrollLeft).toBe(280)
+    expect(windowStore.pendingManualRelayoutScrollLeft).toBeNull()
   })
 
   it('repackLayoutAndRevealActiveTab returns keyboard focus to search when no active tab survives', () => {

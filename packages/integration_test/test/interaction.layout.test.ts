@@ -84,6 +84,23 @@ const getScrollContainerMetrics = async (page: Page) => {
   }))
 }
 
+const getWindowColumnViewportPosition = async (page: Page, windowId: number) =>
+  page.getByTestId(`window-card-${windowId}`).evaluate((card) => {
+    const column = card.closest<HTMLElement>('[data-testid^="window-column-"]')
+    const container = document.querySelector<HTMLElement>(
+      '[data-testid="window-list-scroll-container"]',
+    )
+    if (!column || !container) {
+      throw new Error('Window column or scroll container is missing')
+    }
+    return {
+      left:
+        column.getBoundingClientRect().left -
+        container.getBoundingClientRect().left,
+      scrollLeft: container.scrollLeft,
+    }
+  })
+
 const getRenderedWindowColumnCount = async (page: Page) => {
   return await page.locator('[data-testid^="window-column-"]').count()
 }
@@ -935,6 +952,65 @@ test.describe('The Extension page should', () => {
 
     await expect(relayoutAction).toBeHidden()
     await expect(expectedActiveTab).toBeFocused()
+  })
+
+  for (const action of ['empty column', 'toolbar'] as const) {
+    test(`mouse relayout from the ${action} keeps the viewed window in place`, async () => {
+      const { relayoutActions, separatingWindowId } =
+        await setupEmptyColumnRelayoutVisualScenario('separated')
+      expect(separatingWindowId).not.toBeNull()
+      const windowId = separatingWindowId as number
+      await page.getByTestId(`window-card-${windowId}`).evaluate((card) => {
+        const column = card.closest<HTMLElement>(
+          '[data-testid^="window-column-"]',
+        )
+        const container = document.querySelector<HTMLElement>(
+          '[data-testid="window-list-scroll-container"]',
+        )
+        if (!column || !container) {
+          throw new Error('Window column or scroll container is missing')
+        }
+        container.scrollLeft = column.offsetLeft - 80
+      })
+      await waitForMainSurfaceToSettle(page)
+      const before = await getWindowColumnViewportPosition(page, windowId)
+      expect(before.scrollLeft).toBeGreaterThan(0)
+      expect(before.left).toBeGreaterThanOrEqual(0)
+      expect(before.left).toBeLessThan(200)
+
+      if (action === 'empty column') {
+        await relayoutActions.last().click()
+      } else {
+        await page.getByTestId('layout-repack-button').click()
+      }
+
+      await expect(relayoutActions).toHaveCount(0)
+      const after = await getWindowColumnViewportPosition(page, windowId)
+      expect(after.scrollLeft).toBeLessThan(before.scrollLeft)
+      expect(Math.abs(after.left - before.left)).toBeLessThanOrEqual(2)
+    })
+  }
+
+  test('mouse relayout clamps the view when rightmost empty columns disappear', async () => {
+    const { relayoutActions } =
+      await setupEmptyColumnRelayoutVisualScenario('adjacent')
+    const scrollContainer = page.getByTestId('window-list-scroll-container')
+    await scrollContainer.evaluate((node) => {
+      node.scrollLeft = node.scrollWidth - node.clientWidth
+    })
+    await waitForMainSurfaceToSettle(page)
+    const before = await scrollContainer.evaluate((node) => node.scrollLeft)
+    expect(before).toBeGreaterThan(0)
+
+    await relayoutActions.first().click()
+
+    await expect(relayoutActions).toHaveCount(0)
+    const after = await scrollContainer.evaluate((node) => ({
+      scrollLeft: node.scrollLeft,
+      maxScrollLeft: Math.max(node.scrollWidth - node.clientWidth, 0),
+    }))
+    expect(before).toBeGreaterThan(after.maxScrollLeft)
+    expect(after.scrollLeft).toBe(after.maxScrollLeft)
   })
 
   test('separate empty columns offer distinct surfaces for one global relayout', async () => {
