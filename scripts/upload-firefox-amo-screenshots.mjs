@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createHash, createHmac, randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
@@ -40,23 +40,30 @@ if (!apiKey || !apiSecret) {
 }
 
 const base64url = (value) => Buffer.from(value).toString('base64url')
-const authorization = () => {
+const authorization = async () => {
   const now = Math.floor(Date.now() / 1000)
   const header = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
   const payload = base64url(
     JSON.stringify({ iss: apiKey, jti: randomUUID(), iat: now, exp: now + 60 }),
   )
   const signed = `${header}.${payload}`
-  const signature = createHmac('sha256', apiSecret)
-    .update(signed)
-    .digest('base64url')
+  const signingKey = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(apiSecret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+  const signature = Buffer.from(
+    await crypto.subtle.sign('HMAC', signingKey, new TextEncoder().encode(signed)),
+  ).toString('base64url')
   return `JWT ${signed}.${signature}`
 }
 
 async function request(path, options = {}) {
   const response = await fetch(new URL(path, API_ROOT), {
     ...options,
-    headers: { Authorization: authorization(), ...options.headers },
+    headers: { Authorization: await authorization(), ...options.headers },
   })
   const body = await response.json()
   if (!response.ok) {
