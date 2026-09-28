@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.2...v2.6.3) (2026-09-28)
+
+
+### Bug Fixes
+
+* preserve viewed windows during manual relayout ([#2654](https://github.com/xcv58/Tab-Manager-v2/issues/2654)) ([26abfdd](https://github.com/xcv58/Tab-Manager-v2/commit/26abfddd39d6426696b810af3c6df89066f908ed))
+
 ## [2.6.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.1...v2.6.2) (2026-09-27)
 
 
