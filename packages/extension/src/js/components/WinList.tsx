@@ -154,6 +154,7 @@ export default observer(() => {
     totalContentWidth,
     totalContentHeight,
     pendingFocusedItemReveal,
+    pendingManualRelayoutScrollLeft,
     flushPendingFocusedItemReveal,
     pendingKeyboardFocusVerification,
     flushPendingKeyboardFocusVerification,
@@ -241,6 +242,17 @@ export default observer(() => {
     focusedEmptyColumnRunSuccessor?.startColumnIndex ?? null
   const successorEndColumnIndex =
     focusedEmptyColumnRunSuccessor?.endColumnIndex ?? null
+
+  useLayoutEffect(() => {
+    if (initialLoading || pendingManualRelayoutScrollLeft == null) {
+      return
+    }
+    const container = scrollbarRef.current
+    if (!container) {
+      return
+    }
+    windowStore.flushPendingManualRelayoutScroll(container)
+  }, [initialLoading, pendingManualRelayoutScrollLeft, windowStore])
 
   useLayoutEffect(() => {
     setContainerRef(scrollbarRef)
