@@ -7,6 +7,9 @@ import { resolve } from 'node:path'
 
 const API_ROOT = 'https://addons.mozilla.org/api/v5/addons/addon/tab-manager-v2/'
 const EXPECTED_ADDON_ID = 1485563
+// The first run uploaded these two previews before AMO throttled a caption edit.
+// Their published pixels were compared against the selected PNGs before resuming.
+const VERIFIED_PARTIAL_PREVIEW_IDS = [415441, 415442]
 const SCREENSHOT_DIR = fileURLToPath(
   new URL('../docs/assets/images/release-candidates/png/', import.meta.url),
 )
@@ -61,15 +64,26 @@ const authorization = async () => {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(new URL(path, API_ROOT), {
-    ...options,
-    headers: { Authorization: await authorization(), ...options.headers },
-  })
-  const body = await response.json()
-  if (!response.ok) {
-    throw new Error(`AMO ${options.method || 'GET'} ${path}: ${response.status} ${JSON.stringify(body)}`)
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const response = await fetch(new URL(path, API_ROOT), {
+      ...options,
+      headers: { Authorization: await authorization(), ...options.headers },
+    })
+    const body = await response.json()
+    if (response.status === 429 && attempt < 9) {
+      const retryHeader = Number(response.headers.get('Retry-After'))
+      const retryMessage = Number(body.detail?.match(/available in (\d+) seconds/)?.[1])
+      const delaySeconds = Math.max(retryHeader || retryMessage || 60, 1) + 2
+      console.log(`AMO rate limit reached; retrying in ${delaySeconds}s`)
+      await new Promise((resolve) => setTimeout(resolve, delaySeconds * 1000))
+      continue
+    }
+    if (!response.ok) {
+      throw new Error(`AMO ${options.method || 'GET'} ${path}: ${response.status} ${JSON.stringify(body)}`)
+    }
+    return body
   }
-  return body
+  throw new Error(`AMO ${options.method || 'GET'} ${path}: retry limit reached`)
 }
 
 async function main() {
@@ -91,14 +105,26 @@ async function main() {
   if (addon.id !== EXPECTED_ADDON_ID) {
     throw new Error(`Unexpected AMO add-on ID: ${addon.id}`)
   }
-  if (!Array.isArray(addon.previews) || addon.previews.length !== 0) {
-    throw new Error('AMO gallery is no longer empty; review it before uploading')
+  if (!Array.isArray(addon.previews)) {
+    throw new Error('AMO did not return a preview list')
   }
+  const existingIds = addon.previews.map((preview) => preview.id).sort((a, b) => a - b)
+  const resuming =
+    JSON.stringify(existingIds) === JSON.stringify(VERIFIED_PARTIAL_PREVIEW_IDS)
+  if (existingIds.length !== 0 && !resuming) {
+    throw new Error(`Unexpected AMO gallery contents: ${existingIds.join(', ')}`)
+  }
+  if (resuming) console.log('Resuming after two verified preview uploads')
 
   for (const [index, item] of SCREENSHOTS.entries()) {
-    const form = new FormData()
-    form.append('image', new Blob([images[index]], { type: 'image/png' }), item.file)
-    const preview = await request('previews/', { method: 'POST', body: form })
+    let preview = addon.previews.find(
+      (candidate) => resuming && candidate.id === VERIFIED_PARTIAL_PREVIEW_IDS[index],
+    )
+    if (!preview) {
+      const form = new FormData()
+      form.append('image', new Blob([images[index]], { type: 'image/png' }), item.file)
+      preview = await request('previews/', { method: 'POST', body: form })
+    }
     if (!Number.isInteger(preview.id)) {
       throw new Error(`AMO did not return an ID for ${item.file}`)
     }
@@ -110,7 +136,7 @@ async function main() {
         position: index + 1,
       }),
     })
-    console.log(`Uploaded ${index + 1}/${SCREENSHOTS.length}: ${item.file}`)
+    console.log(`Published ${index + 1}/${SCREENSHOTS.length}: ${item.file}`)
   }
 
   const updated = await request('')
