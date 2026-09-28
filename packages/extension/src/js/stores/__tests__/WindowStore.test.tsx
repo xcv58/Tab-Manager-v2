@@ -1071,19 +1071,16 @@ describe('WindowStore layout policy', () => {
   it('anchors a surviving window when mouse relayout removes an earlier empty column', () => {
     const windowStore = createWindowStore()
     setVisibleLengths(windowStore, [1, 1])
+    windowStore.height = windowStore.rowHeight
     windowStore.width = 280
     windowStore.columnLayout = [[1], [], [2]]
     windowStore.columnCount = 3
     windowStore.layoutDirty = true
     windowStore.scrollLeft = 560
-    jest.spyOn(windowStore, 'repackLayout').mockImplementation(() => {
-      windowStore.columnLayout = [[1], [2]]
-      windowStore.columnCount = 2
-      windowStore.layoutDirty = false
-    })
 
     windowStore.repackLayoutAndRevealActiveTab('mouse')
 
+    expect(windowStore.columnLayout).toEqual([[1], [2]])
     expect(windowStore.pendingManualRelayoutScrollLeft).toBe(280)
     const container = document.createElement('div')
     Object.defineProperties(container, {
