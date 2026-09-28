@@ -1092,6 +1092,23 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.pendingManualRelayoutScrollLeft).toBeNull()
   })
 
+  it('anchors the visible window when mouse relayout splits a vertically scrolled column', () => {
+    const windowStore = createWindowStore()
+    setVisibleLengths(windowStore, [3, 3, 3, 15])
+    windowStore.height = 7 * windowStore.rowHeight
+    windowStore.width = 280
+    windowStore.columnLayout = [[1], [], [2, 3], [4]]
+    windowStore.columnCount = 4
+    windowStore.layoutDirty = true
+    windowStore.scrollTop = 4 * windowStore.rowHeight
+    windowStore.scrollLeft = 560
+
+    windowStore.repackLayoutAndRevealActiveTab('mouse')
+
+    expect(windowStore.columnLayout).toEqual([[1, 2], [3], [4]])
+    expect(windowStore.pendingManualRelayoutScrollLeft).toBe(280)
+  })
+
   it('repackLayoutAndRevealActiveTab returns keyboard focus to search when no active tab survives', () => {
     const windowStore = createWindowStore()
     const searchFocus = (windowStore.store as any).searchStore.focus

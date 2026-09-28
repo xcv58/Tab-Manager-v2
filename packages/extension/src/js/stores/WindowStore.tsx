@@ -2034,7 +2034,11 @@ export default class WindowsStore {
         (column) =>
           column.windows.length > 0 && column.right > previousScrollLeft,
       ) || occupiedColumns[occupiedColumns.length - 1]
-    const anchorWindowId = anchorColumn?.windows[0]?.windowId
+    const anchorWindowId =
+      anchorColumn?.windows.find(
+        ({ top, bottom }) =>
+          bottom > this.scrollTop && top < this.scrollTop + this.height,
+      )?.windowId ?? anchorColumn?.windows[0]?.windowId
     if (this.hasWindowLastUsedLayoutCandidate()) {
       this.applyWindowLastUsedLayout('manual')
     } else {
