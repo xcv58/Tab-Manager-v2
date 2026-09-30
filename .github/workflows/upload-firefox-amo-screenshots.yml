@@ -1,0 +1,30 @@
+name: Upload Firefox AMO screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type upload to publish the reviewed screenshot set
+        required: true
+        type: string
+
+jobs:
+  upload:
+    if: ${{ inputs.confirm == 'upload' }}
+    runs-on: ubuntu-latest
+    environment: firefox-amo
+    permissions:
+      contents: read
+    concurrency:
+      group: firefox-amo-listing-screenshots
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25
+      - name: Upload and caption screenshots
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+        run: node scripts/upload-firefox-amo-screenshots.mjs
