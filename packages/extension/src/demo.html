@@ -1,60 +1,122 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="system">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <meta
       name="description"
-      content="Try Tab Manager v2 with an interactive sample workspace. No extension required."
+      content="Explore Tab Manager v2 with sample workspaces, from one tab to 1,500. No extension required."
     />
-    <link rel="icon" href="./img/icon-48-dark.png" />
+    <link rel="icon" href="./site/logo.png" />
+    <script src="./site/site-shell.js"></script>
+    <link rel="stylesheet" href="./site/style.css" />
     <title>Try Tab Manager v2 · Interactive demo</title>
   </head>
-  <body>
-    <a class="demo-skip" href="#workspace">Skip to demo workspace</a>
-    <div class="demo-page">
-      <header class="demo-header">
-        <a class="demo-brand" href="../"
-          ><img src="./img/icon-48-dark.png" width="32" height="32" alt="" />Tab
-          Manager v2</a
-        >
-        <span class="demo-badge">Sample workspace</span>
-        <a class="demo-back" href="../"
-          >Back to website <span aria-hidden="true">↗</span></a
-        >
-        <a class="demo-install" href="../#install">Get the extension</a>
-      </header>
+  <body class="demo-site">
+    <a
+      class="skip-link"
+      href="#workspace"
+      data-demo-copy="Skip to demo workspace"
+      >Skip to demo workspace</a
+    >
+    <div class="container demo-page">
+      <%= siteHeader %>
+      <div
+        class="sr-only"
+        id="theme-announcement"
+        role="status"
+        aria-live="polite"
+      ></div>
+      <div
+        class="sr-only"
+        id="language-announcement"
+        role="status"
+        aria-live="polite"
+      ></div>
       <main>
         <section class="demo-intro" aria-labelledby="demo-heading">
-          <div>
-            <p class="demo-eyebrow">Try before you install</p>
-            <h1 id="demo-heading">Make room for what matters.</h1>
-            <p>
-              The real extension interface, with sample tabs you can freely
-              organize. Everything resets when you refresh. Your browser tabs
-              stay untouched.
-            </p>
-          </div>
-          <p class="demo-memory">
-            Sample data only.<br />No extension required.
+          <p class="demo-eyebrow" data-demo-copy="Try before you install">
+            Try before you install
+          </p>
+          <h1
+            id="demo-heading"
+            data-demo-copy="Explore your kind of workspace."
+          >
+            Explore your kind of workspace.
+          </h1>
+          <p
+            data-demo-copy="Use the real extension interface with sample tabs. Your browser tabs stay untouched."
+          >
+            Use the real extension interface with sample tabs. Your browser tabs
+            stay untouched.
+          </p>
+          <p
+            class="demo-memory"
+            data-demo-copy="Sample data only. No extension required."
+          >
+            Sample data only. No extension required.
           </p>
         </section>
-        <section class="demo-controls" aria-label="Demo controls">
+        <section class="demo-controls" aria-labelledby="scenario-label">
           <div class="demo-control-row">
-            <label for="scenario">Workspace</label>
-            <select id="scenario">
-              <option value="workspace">Everyday workspace</option>
-              <option value="duplicates">Duplicate cleanup</option>
-              <option value="large">Crowded workspace</option>
-              <option value="empty">Fresh start</option>
-            </select>
-            <button id="add-tab" type="button">Add sample tab</button>
-            <button id="reset-demo" type="button">Start over</button>
-            <span id="demo-counts" class="demo-counts">Loading workspace…</span>
+            <div class="demo-picker">
+              <label
+                for="scenario"
+                id="scenario-label"
+                data-demo-copy="Choose a workspace"
+                >Choose a workspace</label
+              >
+              <select id="scenario" aria-describedby="scenario-reset"></select>
+            </div>
+            <div class="demo-actions">
+              <button
+                id="add-tab"
+                type="button"
+                data-demo-copy="Add sample tab"
+              >
+                Add sample tab
+              </button>
+              <button id="reset-demo" type="button" data-demo-copy="Start over">
+                Start over
+              </button>
+            </div>
           </div>
-          <p id="scenario-hint" class="demo-hint"></p>
+          <p
+            id="scenario-reset"
+            class="demo-reset-note"
+            data-demo-copy="Switching workspaces resets sample edits and demo preferences. Website theme and language stay unchanged."
+          >
+            Switching workspaces resets sample edits and demo preferences.
+            Website theme and language stay unchanged.
+          </p>
+          <div class="demo-scenario-detail">
+            <div>
+              <h2 id="scenario-title"></h2>
+              <p id="scenario-description"></p>
+              <p id="scenario-size" class="demo-start-counts"></p>
+            </div>
+            <p id="scenario-hint" class="demo-hint"></p>
+          </div>
+          <p
+            id="scenario-stress"
+            class="demo-scale-note"
+            hidden
+            data-demo-copy="Simulated scale, not a browser memory benchmark."
+          >
+            Simulated scale, not a browser memory benchmark.
+          </p>
         </section>
+        <div class="demo-workspace-status">
+          <span data-demo-copy="In your workspace">In your workspace</span>
+          <span
+            id="demo-counts"
+            class="demo-counts"
+            role="status"
+            aria-live="polite"
+            >Loading workspace…</span
+          >
+        </div>
         <div class="demo-frame-wrap" id="workspace" tabindex="-1">
           <iframe
             id="demo-frame"
@@ -68,23 +130,23 @@
       </main>
       <footer class="demo-footer">
         <p id="demo-activity" role="status" aria-live="polite">
-          Ready to explore. Click inside the workspace to use keyboard
-          shortcuts.
+          A fresh sample workspace. All changes stay in this page.
         </p>
         <details>
-          <summary>What can I try?</summary>
-          <p>
+          <summary data-demo-copy="What can I try?">What can I try?</summary>
+          <p
+            data-demo-copy="Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings."
+          >
             Search titles, URLs, groups, and sample history. Select, pin, move,
-            sort, reload, or close tabs; rename, recolor, collapse, and ungroup
-            groups; clean duplicates; try the command palette, shortcuts,
-            themes, and settings.
+            sort, reload, or close tabs; edit groups; clean duplicates; try
+            commands, shortcuts, themes, and settings.
           </p>
-          <p>
-            Tab activation, loading, window focus, and browser history are
-            simulated. Settings stay in this page’s memory. Firefox containers
-            and browser toolbar badges require the installed extension. Copy
-            actions copy sample URLs to your clipboard. “Start over” restores
-            the selected scenario and preferences.
+          <p
+            data-demo-copy="Activation, reloads, focus, and history are simulated. Demo preferences reset with the workspace. Copy actions copy sample URLs. The extension interface is shown in English."
+          >
+            Activation, reloads, focus, and history are simulated. Demo
+            preferences reset with the workspace. Copy actions copy sample URLs.
+            The extension interface is shown in English.
           </p>
         </details>
       </footer>

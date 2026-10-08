@@ -5,80 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="assets/images/logo.png" />
 
-    <script>
-      ;(function () {
-        let theme = 'system'
-        try {
-          theme = localStorage.getItem('theme') || 'system'
-        } catch (error) {
-          theme = 'system'
-        }
-        document.documentElement.setAttribute('data-theme', theme)
-      })()
-    </script>
-
-    <script>
-      ;(function () {
-        const fallbackLanguage = 'en'
-        const supportedLanguages = ['en', 'zh-Hans', 'zh-Hant']
-
-        function normalizeLanguage(language) {
-          if (supportedLanguages.includes(language)) {
-            return language
-          }
-
-          const normalized = String(language || '').toLowerCase()
-          if (!normalized) {
-            return fallbackLanguage
-          }
-
-          if (
-            normalized.includes('hant') ||
-            normalized === 'zh-tw' ||
-            normalized === 'zh-hk' ||
-            normalized === 'zh-mo'
-          ) {
-            return 'zh-Hant'
-          }
-
-          if (normalized.startsWith('zh')) {
-            return 'zh-Hans'
-          }
-
-          return fallbackLanguage
-        }
-
-        function getDeviceLanguage() {
-          const languages = Array.isArray(navigator.languages)
-            ? navigator.languages
-            : [navigator.language]
-          for (const language of languages) {
-            const normalized = String(language || '').toLowerCase()
-            if (normalized.startsWith('zh')) {
-              return normalizeLanguage(normalized)
-            }
-            if (normalized.startsWith('en')) {
-              return fallbackLanguage
-            }
-          }
-          return fallbackLanguage
-        }
-
-        let language = ''
-        try {
-          language = localStorage.getItem('site-language') || ''
-        } catch (error) {
-          language = ''
-        }
-
-        const resolvedLanguage = language
-          ? normalizeLanguage(language)
-          : getDeviceLanguage()
-
-        document.documentElement.lang = resolvedLanguage
-        document.documentElement.setAttribute('data-language', resolvedLanguage)
-      })()
-    </script>
+    <script src="assets/site-shell.js"></script>
 
     <title>Tab Manager v2 - See every tab across every window.</title>
     <meta
@@ -182,7 +109,11 @@
 
         <div class="nav-wrapper">
           <nav class="nav-links" role="navigation" aria-label="Main navigation">
-            <a href="demo/">Try demo</a>
+            <a href="index.html" data-site-link="overview" aria-current="page"
+              >Overview</a
+            >
+            <a href="demo/" data-site-link="demo">Try demo</a>
+            <a href="#install" data-site-link="install">Install</a>
             <a
               href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md"
               target="_blank"

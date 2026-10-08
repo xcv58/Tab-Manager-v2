@@ -6,6 +6,7 @@
 /* --- Design Tokens --- */
 
 :root {
+  color-scheme: light;
   --bg-color: #ffffff;
   --surface: #edf0f8;
   --surface-hover: #e3e7f1;
@@ -48,6 +49,7 @@
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
   --bg-color: #1c2129;
   --surface: #272c36;
   --surface-hover: #303640;
@@ -67,6 +69,7 @@
 
 @media (prefers-color-scheme: dark) {
   [data-theme='system'] {
+    color-scheme: dark;
     --bg-color: #1c2129;
     --surface: #272c36;
     --surface-hover: #303640;
@@ -300,12 +303,14 @@ code {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .nav-links a {
@@ -320,6 +325,11 @@ code {
 
 .nav-links a:hover {
   color: var(--accent);
+}
+
+.nav-links a[aria-current='page'] {
+  color: var(--text-primary);
+  box-shadow: inset 0 -2px var(--accent);
 }
 
 /* Language Selector */
@@ -1545,7 +1555,9 @@ code {
   }
 
   .nav-links {
-    display: none;
+    display: flex;
+    width: 100%;
+    gap: 4px 14px;
   }
 
   .hero {

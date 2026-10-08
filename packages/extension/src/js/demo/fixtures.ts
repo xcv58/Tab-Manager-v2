@@ -1,33 +1,7 @@
-export type DemoScenarioId = 'workspace' | 'duplicates' | 'large' | 'empty'
+import type { DemoScenarioId } from './scenarios'
 
-export const demoScenarios: Array<{
-  id: DemoScenarioId
-  label: string
-  description: string
-}> = [
-  {
-    id: 'workspace',
-    label: 'Everyday workspace',
-    description:
-      'Three windows with groups, pinned tabs, and a few duplicates.',
-  },
-  {
-    id: 'duplicates',
-    label: 'Duplicate cleanup',
-    description: 'Repeated URLs and hash variants to try the cleanup settings.',
-  },
-  {
-    id: 'large',
-    label: '120 tabs',
-    description:
-      'Six windows for search, bulk actions, and layout exploration.',
-  },
-  {
-    id: 'empty',
-    label: 'Empty workspace',
-    description: 'Start fresh and add sample tabs.',
-  },
-]
+export { demoScenarios } from './scenarios'
+export type { DemoScenarioId } from './scenarios'
 
 export type DemoTab = {
   id: number
@@ -177,22 +151,253 @@ export const createDemoWindow = (
   top: 0,
 })
 
+type FixtureGroupSpec = {
+  start: number
+  length: number
+  title?: string
+  collapsed?: boolean
+}
+
+const groupNames = [
+  'AI tools',
+  'Development',
+  'Reading',
+  'Research',
+  'Design review',
+  'Later',
+  'Planning',
+  'Reference',
+  'Writing',
+  'Media',
+  'Inbox',
+  'Project notes',
+]
+const groupColors = [
+  'blue',
+  'purple',
+  'green',
+  'orange',
+  'cyan',
+  'pink',
+  'red',
+  'yellow',
+  'grey',
+]
+
+const getWindowTabCounts = (scenario: DemoScenarioId): number[] => {
+  switch (scenario) {
+    case 'empty':
+      return []
+    case 'one-tab':
+      return [1]
+    case 'duplicates':
+      return [8, 8, 8]
+    case 'large':
+    case 'ungrouped':
+      return Array(6).fill(20)
+    case 'many-windows':
+      return Array.from(
+        { length: 20 },
+        (_, index) => [1, 3, 5, 8, 14][index % 5],
+      )
+    case 'uneven-windows':
+      return [100, 2, 3, 3, 4, 4, 5, 7]
+    case 'dense-groups':
+      return Array(4).fill(24)
+    case 'sparse-groups':
+      return Array(8).fill(14)
+    case 'single-window':
+      return [240]
+    case 'mixed-states':
+      return [14, 14, 14]
+    case 'stress':
+      return Array(50).fill(30)
+    default:
+      return [10, 10, 10]
+  }
+}
+
+const getPinnedCount = (
+  scenario: DemoScenarioId,
+  tabCount: number,
+  windowIndex: number,
+) => {
+  if (scenario === 'one-tab') return 0
+  if (scenario === 'many-windows')
+    return tabCount < 5 ? 0 : tabCount >= 14 ? 2 : 1
+  if (scenario === 'uneven-windows')
+    return windowIndex === 0 ? 3 : tabCount > 3 ? 1 : 0
+  if (scenario === 'single-window') return 3
+  if (
+    scenario === 'dense-groups' ||
+    scenario === 'mixed-states' ||
+    scenario === 'stress'
+  )
+    return 2
+  if (scenario === 'ungrouped') return windowIndex % 2 === 0 ? 3 : 1
+  return 1
+}
+
+const getGroupSpecs = (
+  scenario: DemoScenarioId,
+  windowIndex: number,
+  tabCount: number,
+): FixtureGroupSpec[] => {
+  switch (scenario) {
+    case 'empty':
+    case 'one-tab':
+    case 'ungrouped':
+      return []
+    case 'many-windows':
+      return tabCount < 8
+        ? []
+        : [
+            { start: 2, length: 3 },
+            {
+              start: 6,
+              length: tabCount === 8 ? 2 : 4,
+              collapsed: windowIndex % 3 === 0,
+            },
+          ]
+    case 'uneven-windows':
+      if (windowIndex === 0)
+        return Array.from({ length: 5 }, (_, index) => ({
+          start: 4 + index * 18,
+          length: 14,
+          title: `${groupNames[index]} in the large window`,
+          collapsed: index === 3,
+        }))
+      return tabCount >= 5 ? [{ start: 1, length: 3 }] : []
+    case 'dense-groups':
+      return [
+        { start: 2, length: 1, title: windowIndex % 2 === 0 ? '' : 'One task' },
+        { start: 3, length: 2, title: 'Quick review', collapsed: true },
+        { start: 5, length: 3, title: 'Research' },
+        { start: 8, length: 4, title: windowIndex === 1 ? '' : 'Project work' },
+        {
+          start: 12,
+          length: 6,
+          title: 'Design review',
+          collapsed: windowIndex % 2 === 0,
+        },
+        { start: 18, length: 6, title: 'Reference and reading' },
+      ]
+    case 'sparse-groups':
+      return windowIndex === 1 || windowIndex === 6
+        ? [{ start: 4, length: 3, title: 'Occasional research' }]
+        : []
+    case 'single-window':
+      return Array.from({ length: 12 }, (_, index) => ({
+        start: 3 + index * 19,
+        length: 18,
+        title: `${groupNames[index]} ${index + 1}`,
+        collapsed: index % 4 === 3,
+      }))
+    case 'mixed-states':
+      return [
+        { start: 3, length: 4, title: 'Apps and media' },
+        { start: 8, length: 4, title: 'Documentation and reading' },
+      ]
+    case 'stress':
+      return [
+        { start: 2, length: 6, title: `Project ${windowIndex + 1}` },
+        { start: 10, length: 6, title: `Research ${windowIndex + 1}` },
+        {
+          start: 20,
+          length: 8,
+          title: `Review ${windowIndex + 1}`,
+          collapsed: windowIndex % 5 === 0,
+        },
+      ]
+    default:
+      return [
+        { start: 2, length: scenario === 'large' ? 4 : 3 },
+        {
+          start: 6,
+          length: scenario === 'large' ? 4 : Math.min(3, tabCount - 6),
+        },
+      ]
+  }
+}
+
+const applyMixedTabStates = (
+  tab: DemoTab,
+  index: number,
+  windowIndex: number,
+) => {
+  switch (index) {
+    case 2:
+      tab.title = `Active workspace • 工作区 • ワークスペース ${windowIndex + 1}`
+      break
+    case 3:
+      tab.status = 'loading'
+      tab.title = `Loading sample • ${tab.title}`
+      break
+    case 4:
+      tab.audible = true
+      tab.title = `Audio playing sample • ${tab.title}`
+      break
+    case 5:
+      tab.mutedInfo.muted = true
+      tab.title = `Muted audio sample • ${tab.title}`
+      break
+    case 6:
+      tab.discarded = true
+      tab.title = `Sleeping sample • ${tab.title}`
+      break
+    case 7:
+      // Empty favicon data exercises the extension's bundled fallback icon.
+      tab.favIconUrl = ''
+      tab.title = `Fallback icon • ${tab.title}`
+      break
+    case 8:
+      tab.title =
+        'Research notebook • 工作笔记 • 調査メモ • خطة البحث — comparing documentation, project discussions, reference material, and saved reading across a long browser session'
+      break
+    case 9:
+      tab.title = `Résumé and accessibility notes • ${tab.title}`
+      break
+    case 10:
+      tab.title = `设计评审与产品笔记 • ${tab.title}`
+      break
+    case 11:
+      tab.title = `Project notes with a long URL • ${tab.title}`
+      tab.url +=
+        '&topic=layout-and-keyboard-navigation&source=sample-workspace&view=detailed-reference'
+      break
+    default:
+      break
+  }
+}
+
 export const createDemoFixture = (scenario: DemoScenarioId) => {
   const windows: DemoWindow[] = []
   const groups: DemoGroup[] = []
   let nextTabId = 1
   let nextGroupId = 101
-  const windowCount = scenario === 'empty' ? 0 : scenario === 'large' ? 6 : 3
-  const tabCount =
-    scenario === 'large' ? 20 : scenario === 'duplicates' ? 8 : 10
-  for (let windowIndex = 0; windowIndex < windowCount; windowIndex += 1) {
+  const windowTabCounts = getWindowTabCounts(scenario)
+  const useDistinctWorkItems =
+    scenario !== 'workspace' &&
+    scenario !== 'duplicates' &&
+    scenario !== 'one-tab'
+  let pageOffset = 0
+  for (
+    let windowIndex = 0;
+    windowIndex < windowTabCounts.length;
+    windowIndex += 1
+  ) {
+    const tabCount = windowTabCounts[windowIndex]
     const windowId = windowIndex + 1
+    const pinnedCount = getPinnedCount(scenario, tabCount, windowIndex)
+    const activeIndex = scenario === 'mixed-states' ? 2 : 0
     const tabs = Array.from({ length: tabCount }, (_, index) => {
       const pageIndex =
-        scenario === 'duplicates' ? index % 5 : windowIndex * tabCount + index
+        scenario === 'duplicates' ? index % 5 : pageOffset + index
       const tab = createSampleTab(nextTabId++, windowId, index, pageIndex)
-      tab.pinned = index === 0
-      if (scenario === 'large') {
+      tab.pinned = index < pinnedCount
+      tab.active = index === activeIndex
+      tab.highlighted = tab.active
+      if (useDistinctWorkItems) {
         // Distinct work items retain real public hostnames and useful search
         // terms, without loading their URLs.
         tab.title = `${tab.title} · workspace ${windowId}, item ${index + 1}`
@@ -201,35 +406,34 @@ export const createDemoFixture = (scenario: DemoScenarioId) => {
       if (scenario === 'duplicates' && index >= 5) {
         tab.url += index === 7 ? '#overview' : ''
       }
+      if (scenario === 'mixed-states')
+        applyMixedTabStates(tab, index, windowIndex)
       return tab
     })
     const win = createDemoWindow(windowId, tabs)
     win.focused = windowIndex === 0
+    win.width = [1280, 960, 1440, 1920][windowIndex % 4]
+    win.height = [800, 720, 900][windowIndex % 3]
+    win.left = (windowIndex % 4) * 24
+    win.top = (windowIndex % 3) * 18
     windows.push(win)
-    const groupNames =
-      windowIndex === 0
-        ? ['AI tools', 'Development']
-        : windowIndex === 1
-          ? ['Reading', 'Research']
-          : ['Projects', 'Later']
-    const colors = ['blue', 'purple', 'green', 'orange', 'cyan', 'pink']
-    for (let groupIndex = 0; groupIndex < 2; groupIndex += 1) {
-      const start = groupIndex === 0 ? 2 : 6
-      const end =
-        scenario === 'large' ? start + 4 : Math.min(start + 3, tabs.length)
-      if (end <= start) continue
+    const specs = getGroupSpecs(scenario, windowIndex, tabCount)
+    specs.forEach((spec, groupIndex) => {
       const group: DemoGroup = {
         id: nextGroupId++,
         windowId,
-        title: groupNames[groupIndex],
-        color: colors[(windowIndex + groupIndex) % colors.length],
-        collapsed: false,
+        title:
+          spec.title ??
+          groupNames[(windowIndex * 2 + groupIndex) % groupNames.length],
+        color: groupColors[(windowIndex + groupIndex) % groupColors.length],
+        collapsed: spec.collapsed ?? false,
       }
       groups.push(group)
-      tabs.slice(start, end).forEach((tab) => {
+      tabs.slice(spec.start, spec.start + spec.length).forEach((tab) => {
         tab.groupId = group.id
       })
-    }
+    })
+    pageOffset += tabCount
   }
   const now = Date.now()
   const history: DemoHistoryItem[] = [
@@ -272,6 +476,6 @@ export const createDemoFixture = (scenario: DemoScenarioId) => {
     history,
     nextTabId,
     nextGroupId,
-    nextWindowId: windowCount + 1,
+    nextWindowId: windowTabCounts.length + 1,
   }
 }

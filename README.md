@@ -126,9 +126,14 @@ Open <http://127.0.0.1:3002/demo/> for the interactive demo, or
 For access from other devices on your local network, run
 `DEMO_HOST=0.0.0.0 pnpm dev:demo` and use your computer's LAN IP address.
 The demo reuses the real extension UI with an isolated in-memory browser adapter.
-Tabs, groups, history, and preferences are sample data; refresh or **Start over**
-discards changes. Scenarios cover everyday use, duplicates, a crowded workspace,
-and a fresh start. No extension installation is required.
+Tabs, groups, history, and demo preferences are sample data; refresh or
+**Start over** discards changes. The grouped workspace picker offers 13 cases:
+everyday use, duplicates, mixed tab states, many or uneven windows, many/few/no
+groups, a crowded workspace, a single 240-tab window, one tab, an empty workspace,
+and an opt-in 1,500-tab workspace across 50 windows. This last case exercises the
+simulated interface, not native browser memory usage. Preset links use
+`/demo/?scenario=stress` (or another preset ID) and survive refresh. No extension
+installation is required.
 
 ```shell
 pnpm build:demo
@@ -144,8 +149,11 @@ pnpm build:site
 ```
 
 This builds one deployable website in `dist/site/`: the marketing pages and
-assets from `docs/`, with the interactive demo at `/demo/`. The header and hero
-link to the demo; its **Get the extension** link returns to the install buttons.
+assets from `docs/`, with the interactive demo at `/demo/`. Both pages share the
+same header, navigation, styles, theme, and language controller. Website theme
+and language persist when switching pages or resetting a sample workspace;
+the embedded extension follows the website theme and displays its UI in English.
+The shared **Install** link returns to the website's install buttons.
 Generated bundles stay out of source control. CI builds this folder and uploads
 it as the `website-preview` artifact.
 

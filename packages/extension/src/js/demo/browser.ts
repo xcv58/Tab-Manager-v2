@@ -84,6 +84,10 @@ const localData: Record<string, unknown> = {
 const syncData: Record<string, unknown> = {
   autoFocusSearch: false,
   searchHistory: true,
+  useSystemTheme: false,
+  darkTheme:
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.hash.slice(1)).get('theme') === 'dark',
 }
 
 export const getDemoState = () => ({
