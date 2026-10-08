@@ -34,89 +34,85 @@
         role="status"
         aria-live="polite"
       ></div>
-      <main>
-        <section class="demo-intro" aria-labelledby="demo-heading">
-          <p class="demo-eyebrow" data-demo-copy="Try before you install">
-            Try before you install
-          </p>
-          <h1
-            id="demo-heading"
-            data-demo-copy="Explore your kind of workspace."
-          >
-            Explore your kind of workspace.
-          </h1>
-          <p
-            data-demo-copy="Use the real extension interface with sample tabs. Your browser tabs stay untouched."
-          >
-            Use the real extension interface with sample tabs. Your browser tabs
-            stay untouched.
-          </p>
-          <p
-            class="demo-memory"
-            data-demo-copy="Sample data only. No extension required."
-          >
-            Sample data only. No extension required.
-          </p>
-        </section>
-        <section class="demo-controls" aria-labelledby="scenario-label">
-          <div class="demo-control-row">
-            <div class="demo-picker">
-              <label
-                for="scenario"
-                id="scenario-label"
-                data-demo-copy="Choose a workspace"
-                >Choose a workspace</label
-              >
-              <select id="scenario" aria-describedby="scenario-reset"></select>
-            </div>
-            <div class="demo-actions">
-              <button
-                id="add-tab"
-                type="button"
-                data-demo-copy="Add sample tab"
-              >
-                Add sample tab
-              </button>
-              <button id="reset-demo" type="button" data-demo-copy="Start over">
-                Start over
-              </button>
-            </div>
+      <main class="demo-main">
+        <section class="demo-controls" aria-labelledby="demo-heading">
+          <div class="demo-title">
+            <h1 id="demo-heading" data-demo-copy="Interactive demo">
+              Interactive demo
+            </h1>
+            <p data-demo-copy="Sample tabs. Your browser stays untouched.">
+              Sample tabs. Your browser stays untouched.
+            </p>
           </div>
-          <p
-            id="scenario-reset"
-            class="demo-reset-note"
-            data-demo-copy="Switching workspaces resets sample edits and demo preferences. Website theme and language stay unchanged."
-          >
-            Switching workspaces resets sample edits and demo preferences.
-            Website theme and language stay unchanged.
-          </p>
-          <div class="demo-scenario-detail">
-            <div>
+          <div class="demo-picker">
+            <label
+              class="sr-only"
+              for="scenario"
+              id="scenario-label"
+              data-demo-copy="Choose a workspace"
+              >Choose a workspace</label
+            >
+            <select id="scenario" aria-describedby="scenario-reset"></select>
+          </div>
+          <div class="demo-actions">
+            <button id="add-tab" type="button" data-demo-copy="Add tab">
+              Add tab
+            </button>
+            <button id="reset-demo" type="button" data-demo-copy="Start over">
+              Start over
+            </button>
+          </div>
+          <details class="demo-about" id="demo-about">
+            <summary data-demo-copy="About this workspace">
+              About this workspace
+            </summary>
+            <div
+              class="demo-guide"
+              tabindex="0"
+              role="region"
+              aria-labelledby="scenario-title"
+            >
               <h2 id="scenario-title"></h2>
               <p id="scenario-description"></p>
               <p id="scenario-size" class="demo-start-counts"></p>
+              <p id="scenario-hint" class="demo-hint"></p>
+              <p
+                id="scenario-stress"
+                class="demo-scale-note"
+                hidden
+                data-demo-copy="Simulated scale, not a browser memory benchmark."
+              >
+                Simulated scale, not a browser memory benchmark.
+              </p>
+              <p
+                id="scenario-reset"
+                class="demo-reset-note"
+                data-demo-copy="Switching workspaces resets sample edits and demo preferences. Website theme and language stay unchanged."
+              >
+                Switching workspaces resets sample edits and demo preferences.
+                Website theme and language stay unchanged.
+              </p>
+              <h3 data-demo-copy="What can I try?">What can I try?</h3>
+              <p
+                data-demo-copy="Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings."
+              >
+                Search titles, URLs, groups, and sample history. Select, pin,
+                move, sort, reload, or close tabs; edit groups; clean
+                duplicates; try commands, shortcuts, themes, and settings.
+              </p>
+              <p data-demo-copy="Sample data only. No extension required.">
+                Sample data only. No extension required.
+              </p>
+              <p
+                data-demo-copy="Activation, reloads, focus, and history are simulated. Demo preferences reset with the workspace. Copy actions copy sample URLs. The extension interface is shown in English."
+              >
+                Activation, reloads, focus, and history are simulated. Demo
+                preferences reset with the workspace. Copy actions copy sample
+                URLs. The extension interface is shown in English.
+              </p>
             </div>
-            <p id="scenario-hint" class="demo-hint"></p>
-          </div>
-          <p
-            id="scenario-stress"
-            class="demo-scale-note"
-            hidden
-            data-demo-copy="Simulated scale, not a browser memory benchmark."
-          >
-            Simulated scale, not a browser memory benchmark.
-          </p>
+          </details>
         </section>
-        <div class="demo-workspace-status">
-          <span data-demo-copy="In your workspace">In your workspace</span>
-          <span
-            id="demo-counts"
-            class="demo-counts"
-            role="status"
-            aria-live="polite"
-            >Loading workspace…</span
-          >
-        </div>
         <div class="demo-frame-wrap" id="workspace" tabindex="-1">
           <iframe
             id="demo-frame"
@@ -129,26 +125,19 @@
         </div>
       </main>
       <footer class="demo-footer">
+        <span class="sr-only" data-demo-copy="In your workspace"
+          >In your workspace</span
+        >
+        <span
+          id="demo-counts"
+          class="demo-counts"
+          role="status"
+          aria-live="polite"
+          >Loading workspace…</span
+        >
         <p id="demo-activity" role="status" aria-live="polite">
           A fresh sample workspace. All changes stay in this page.
         </p>
-        <details>
-          <summary data-demo-copy="What can I try?">What can I try?</summary>
-          <p
-            data-demo-copy="Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings."
-          >
-            Search titles, URLs, groups, and sample history. Select, pin, move,
-            sort, reload, or close tabs; edit groups; clean duplicates; try
-            commands, shortcuts, themes, and settings.
-          </p>
-          <p
-            data-demo-copy="Activation, reloads, focus, and history are simulated. Demo preferences reset with the workspace. Copy actions copy sample URLs. The extension interface is shown in English."
-          >
-            Activation, reloads, focus, and history are simulated. Demo
-            preferences reset with the workspace. Copy actions copy sample URLs.
-            The extension interface is shown in English.
-          </p>
-        </details>
       </footer>
     </div>
   </body>

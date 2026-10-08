@@ -25,6 +25,7 @@ const size = document.querySelector<HTMLElement>('#scenario-size')!
 const stress = document.querySelector<HTMLElement>('#scenario-stress')!
 const addTab = document.querySelector<HTMLButtonElement>('#add-tab')!
 const reset = document.querySelector<HTMLButtonElement>('#reset-demo')!
+const about = document.querySelector<HTMLDetailsElement>('#demo-about')!
 
 const requested = new URL(window.location.href).searchParams.get('scenario')
 let selected: DemoScenario =
@@ -174,6 +175,19 @@ window.addEventListener('message', (event) => {
 })
 scenario.addEventListener('change', loadWorkspace)
 reset.addEventListener('click', loadWorkspace)
+document.addEventListener('click', (event) => {
+  if (event.target instanceof Node && !about.contains(event.target))
+    about.open = false
+})
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && about.open) {
+    about.open = false
+    about.querySelector('summary')!.focus()
+  }
+})
+window.addEventListener('blur', () => {
+  if (document.activeElement === frame) about.open = false
+})
 addTab.addEventListener('click', () => {
   frame.contentWindow?.postMessage(
     { type: 'demo:add-tab' },
