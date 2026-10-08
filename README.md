@@ -156,7 +156,8 @@ python3 -m http.server 3002 --bind 0.0.0.0 --directory dist/site
 ```
 
 Stop `pnpm dev:demo` first if it already uses port 3002, or choose another port.
-The root `vercel.json` sets the site build command and output folder, and
+The root `vercel.json` installs the workspace dependencies (including build
+tools), sets the site build command and output folder, and
 redirects `/demo` to `/demo/` so relative assets resolve correctly. Vercel's
 **Root Directory must be the repository root**, with framework **Other**;
 a project rooted at `docs/` needs that setting changed before deployment.
