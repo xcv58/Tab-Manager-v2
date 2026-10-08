@@ -6,6 +6,8 @@ import { browser } from 'libs'
 
 export type DropSource = 'tab-row' | 'group-header' | 'window-zone'
 
+export type WindowEdge = 'beginning' | 'end'
+
 export type DropAtOptions = {
   windowId: number
   index: number
@@ -14,6 +16,7 @@ export type DropAtOptions = {
   before?: boolean
   forceUngroup?: boolean
   source?: DropSource
+  windowEdge?: WindowEdge
 }
 
 type GroupBoundTab = {
@@ -44,11 +47,16 @@ export default class DragStore {
 
   dragging = false
 
+  pendingWindowEdgeDrop = false
+
   dragOriginWindowId: number | null = null
 
   dragSource: DropSource = 'tab-row'
 
   dragStartTab = (tab: Tab) => {
+    if (this.pendingWindowEdgeDrop) {
+      return null
+    }
     tab.unhover()
     this.dropped = false
     this.dragging = true
@@ -63,6 +71,9 @@ export default class DragStore {
   }
 
   dragStartGroup = (groupId: number) => {
+    if (this.pendingWindowEdgeDrop) {
+      return null
+    }
     this.dropped = false
     this.dragging = false
     this.dragOriginWindowId = null
@@ -91,7 +102,7 @@ export default class DragStore {
     this.dragging = false
     this.dragOriginWindowId = null
     this.dragSource = 'tab-row'
-    if (!this.dropped) {
+    if (!this.dropped && !this.pendingWindowEdgeDrop) {
       this.clear()
     }
   }
@@ -368,6 +379,33 @@ export default class DragStore {
     })
   }
 
+  moveSelectedTabsToWindowEdge = async (
+    windowId: number,
+    position: WindowEdge,
+  ) => {
+    if (this.pendingWindowEdgeDrop || !this.store.tabStore.selection.size) {
+      return
+    }
+    const win = this.store.windowStore.getTargetWindow(windowId)
+    if (!win.canDrop) {
+      return
+    }
+    // HTML5 drag end fires before the asynchronous browser move settles.
+    // Keep its selection until dropAt clears it on success or retains it on failure.
+    this.pendingWindowEdgeDrop = true
+    try {
+      await this.dropAt({
+        windowId,
+        index: position === 'beginning' ? 0 : win.tabs.length,
+        windowEdge: position,
+        forceUngroup: this.dragSource !== 'group-header',
+        source: 'window-zone',
+      })
+    } finally {
+      this.pendingWindowEdgeDrop = false
+    }
+  }
+
   dropAt = async (options: DropAtOptions) => {
     const { moveTabs, getTargetWindow, suspend, resume } =
       this.store.windowStore
@@ -394,8 +432,9 @@ export default class DragStore {
       const shouldMovePreservedWholeGroupsWithGroupApi =
         shouldPreserveWholeGroupsOnBlankSpace &&
         this.canMoveGroups() &&
-        sources.some((tab) => tab.windowId !== options.windowId) &&
-        sources.some((tab) => this.isNoGroupId(tab.groupId))
+        (options.windowEdge != null ||
+          (sources.some((tab) => tab.windowId !== options.windowId) &&
+            sources.some((tab) => this.isNoGroupId(tab.groupId))))
       const sourceTabIds = sources.map((x) => x.id)
       // Blank-space drops detach only the selected tabs that are still partial
       // group fragments; fully selected groups stay intact.
@@ -425,9 +464,12 @@ export default class DragStore {
           win.tabs.length,
         ),
       )
-      const index = this.getUnselectedTabs(
-        win.tabs.slice(0, targetIndex),
-      ).length
+      // Append each source in order; a fixed index can leave gaps when moving
+      // nonadjacent tabs to the end of their own window.
+      const index =
+        options.windowEdge === 'end'
+          ? -1
+          : this.getUnselectedTabs(win.tabs.slice(0, targetIndex)).length
       const hasTabGroupFlow =
         this.hasTabGroupsApi() && !!this.store.tabGroupStore
       const hasTargetGroup = !this.isNoGroupId(targetGroupId)
@@ -464,9 +506,15 @@ export default class DragStore {
         (!!options.forceUngroup || !hasTargetGroup)
       let movedByGroupApi = false
       if (canMoveGroup) {
+        const groupIndex =
+          options.windowEdge === 'beginning'
+            ? (await this.getWindowTabsFromBrowser(windowId)).filter(
+                (tab) => tab.pinned,
+              ).length
+            : index
         await this.store.tabGroupStore.moveGroup(sourceGroupId, {
           windowId,
-          index,
+          index: groupIndex,
         })
         movedByGroupApi = true
       }
@@ -535,17 +583,30 @@ export default class DragStore {
               sources,
               wholeSelectedGroupIds,
             )
+            // Prepending blocks in reverse keeps their original order, even
+            // when pinned tabs constrain the first unpinned insertion point.
+            if (options.windowEdge === 'beginning') {
+              blocks.reverse()
+            }
             let currentIndex = index
             for (const block of blocks) {
               if (block.kind === 'group') {
+                const groupIndex =
+                  options.windowEdge === 'beginning'
+                    ? (await this.getWindowTabsFromBrowser(windowId)).filter(
+                        (tab) => tab.pinned,
+                      ).length
+                    : currentIndex
                 await this.store.tabGroupStore.moveGroup(block.groupId, {
                   windowId,
-                  index: currentIndex,
+                  index: groupIndex,
                 })
               } else {
                 await moveTabs(block.tabs, windowId, currentIndex)
               }
-              currentIndex += block.tabs.length
+              if (currentIndex !== -1 && options.windowEdge !== 'beginning') {
+                currentIndex += block.tabs.length
+              }
             }
           } else {
             await moveTabs(sources, windowId, index)

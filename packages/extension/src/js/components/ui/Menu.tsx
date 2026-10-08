@@ -69,7 +69,8 @@ export default function Menu({
         '[role="menuitem"]:not(:disabled)',
       ) || [],
     )
-    enabledItems[0]?.focus()
+    const focusTarget = enabledItems[0] ?? menuRef.current
+    focusTarget?.focus()
   }, [open])
 
   const handleClickOutside = useCallback(
@@ -181,6 +182,7 @@ export default function Menu({
     <div
       ref={menuRef}
       role="menu"
+      tabIndex={-1}
       data-testid={testId}
       onKeyDown={handleKeyDown}
       style={{

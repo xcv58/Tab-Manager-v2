@@ -29,12 +29,21 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
 
   // Read active state from the browser: the store can be suspended during drops.
   // Keep the caller's pinned value because domain grouping can change pinning.
-  const movingTabs = await Promise.all(
+  const currentTabs = await Promise.all(
     tabs.map(async (tab) => {
       const current = await browser.tabs.get(tab.id)
       return { ...tab, ...current, pinned: tab.pinned ?? current?.pinned }
     }),
   )
+  // Beginning means the start of each pin class. Source windows can contribute
+  // unpinned tabs before pins, so place pins first without changing class order.
+  const movingTabs =
+    from === 0
+      ? [
+          ...currentTabs.filter((tab) => tab.pinned),
+          ...currentTabs.filter((tab) => !tab.pinned),
+        ]
+      : currentTabs
   let destination = (await browser.tabs.query({ windowId }))
     .filter((tab) => tab.windowId === windowId)
     .sort((a, b) => a.index - b.index)
@@ -92,9 +101,22 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
       .map((tab) => tab.id),
   )
   if (!deferredIds.size) {
-    // Retain the existing forward sequence for same-window reorders.
+    let cursor = from
+    const movedIds = new Set()
     for (let i = 0; i < movingTabs.length; i++) {
-      await moveOne(movingTabs[i], from === -1 ? -1 : from + i)
+      await moveOne(
+        movingTabs[i],
+        from === 0 ? cursor : from === -1 ? -1 : from + i,
+      )
+      if (from === 0) {
+        // Beginning moves can be clamped past the destination's pinned tabs.
+        // Continue after the tabs already placed so that clamp keeps their order.
+        movedIds.add(movingTabs[i].id)
+        cursor = destination.reduce(
+          (next, tab, index) => (movedIds.has(tab.id) ? index + 1 : next),
+          0,
+        )
+      }
     }
     return
   }

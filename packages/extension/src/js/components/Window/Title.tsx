@@ -10,6 +10,7 @@ import { getNoun } from 'libs'
 import classNames from 'classnames'
 import Reload from './Reload'
 import HideToggle from './HideToggle'
+import WindowActionsMenu from './WindowActionsMenu'
 import { WinProps } from 'components/types'
 import { useTheme } from 'components/hooks/useTheme'
 import { useStore } from 'components/hooks/useStore'
@@ -186,6 +187,9 @@ export default observer((props: WinProps & { className: string }) => {
           )}
         </button>
         <RowActionRail>
+          <RowActionSlot visible>
+            <WindowActionsMenu win={win} />
+          </RowActionSlot>
           <RowActionSlot visible={!hide}>
             {!hide && <Sort {...props} />}
           </RowActionSlot>

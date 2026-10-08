@@ -9,6 +9,9 @@ jest.mock('../SelectAll', () => () => <div data-testid="select-all" />)
 jest.mock('../Sort', () => () => <div data-testid="sort" />)
 jest.mock('../Reload', () => () => <div data-testid="reload" />)
 jest.mock('../HideToggle', () => () => <div data-testid="hide-toggle" />)
+jest.mock('../WindowActionsMenu', () => () => (
+  <div data-testid="window-actions" />
+))
 jest.mock('components/CloseButton', () => ({ tone = 'danger' }) => (
   <div data-testid="close" data-tone={tone} />
 ))
