@@ -1099,6 +1099,7 @@ code {
 }
 
 #advantage.section-divider,
+#features.section-divider,
 #faq.section-divider {
   border-top-color: transparent;
 }
@@ -1414,6 +1415,10 @@ code {
   gap: 20px;
   color: var(--text-secondary);
   font-size: 0.92rem;
+}
+
+.site-footer:not(.page-footer) {
+  border-top-color: transparent;
 }
 
 .footer-links {
