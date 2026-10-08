@@ -242,7 +242,7 @@ test.describe('The Extension page should', () => {
     )
     await expect(hiddenCounterTitle).toBeVisible()
     const hideToggle = hiddenCounterTitle.locator(
-      'button[aria-label="Toggle window hide"]',
+      'button[aria-label="Collapse window"]',
     )
     await hiddenCounterTitle.hover()
     await expect(hideToggle).toBeVisible()

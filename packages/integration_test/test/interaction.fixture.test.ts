@@ -12,6 +12,7 @@ import {
   ungroupTabGroup,
   waitForDefaultExtensionView,
   waitForTestId,
+  sortFirstWindowTabs,
   startIntegrationFixtureServer,
 } from '../util'
 
@@ -87,10 +88,7 @@ test.describe('The Extension page should', () => {
     const beforeGroupedTabIds = await getGroupedTabIds()
     expect(beforeGroupedTabIds).toHaveLength(2)
 
-    await page.locator('[data-testid^="window-title-"]').first().hover()
-    await page.waitForTimeout(150)
-    const sortTabsButton = await page.$('button[aria-label="Sort tabs"]')
-    await sortTabsButton.click()
+    await sortFirstWindowTabs(page)
     await page.waitForTimeout(1000)
     expect(await getGroupedTabIds()).toEqual(beforeGroupedTabIds)
 

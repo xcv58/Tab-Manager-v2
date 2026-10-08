@@ -2,7 +2,13 @@
 
 import { spawnSync } from 'node:child_process'
 import { createServer } from 'node:http'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -75,8 +81,7 @@ const REAL_URLS = {
   'launch/support-plan': 'https://vercel.com/',
   'launch/qa-signoff': 'https://react.dev/',
   'launch/rollout-plan': 'https://nodejs.org/',
-  'research/tab-groups-api':
-    'https://developer.chrome.com/docs/extensions/',
+  'research/tab-groups-api': 'https://developer.chrome.com/docs/extensions/',
   'research/firefox-parity': 'https://extensionworkshop.com/',
   'research/edge-review':
     'https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/',
@@ -136,7 +141,12 @@ function createSeededRandom(seed) {
   }
 }
 
-function buildWeightedTabCounts(totalTabs, windowCount, minimumTabsPerWindow, seed) {
+function buildWeightedTabCounts(
+  totalTabs,
+  windowCount,
+  minimumTabsPerWindow,
+  seed,
+) {
   if (windowCount <= 0) {
     return []
   }
@@ -173,7 +183,11 @@ function buildWeightedTabCounts(totalTabs, windowCount, minimumTabsPerWindow, se
   return counts
 }
 
-function buildScaleDemoWindowTabs(tabCount, windowIndex = 0, resolveUrl = realUrl) {
+function buildScaleDemoWindowTabs(
+  tabCount,
+  windowIndex = 0,
+  resolveUrl = realUrl,
+) {
   const keyCount = SCALE_DEMO_URL_KEYS.length
 
   return Array.from({ length: tabCount }, (_, tabIndex) => {
@@ -248,13 +262,15 @@ function buildThousandTwentyFourScaleWindows(resolveUrl = realUrl) {
   )
 
   return [
-    ...[featuredWindowTabs, ...otherWindowCounts].map((tabCount, windowIndex) => {
-      const tabs = buildScaleDemoWindowTabs(tabCount, windowIndex, resolveUrl)
-      return {
-        tabs,
-        groups: buildScaleDemoWindowGroups(tabs, windowIndex),
-      }
-    }),
+    ...[featuredWindowTabs, ...otherWindowCounts].map(
+      (tabCount, windowIndex) => {
+        const tabs = buildScaleDemoWindowTabs(tabCount, windowIndex, resolveUrl)
+        return {
+          tabs,
+          groups: buildScaleDemoWindowGroups(tabs, windowIndex),
+        }
+      },
+    ),
   ]
 }
 
@@ -495,8 +511,12 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
         )
 
         const isSettledTab = (tab) => {
-          const title = String(tab.title || '').trim().toLowerCase()
-          const url = String(tab.url || '').trim().toLowerCase()
+          const title = String(tab.title || '')
+            .trim()
+            .toLowerCase()
+          const url = String(tab.url || '')
+            .trim()
+            .toLowerCase()
           return (
             tab.status === 'complete' &&
             title.length > 0 &&
@@ -611,7 +631,12 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
       }
 
       const created = []
-      for (const { definition, windowId, tabIds, expectedCount } of createdBase) {
+      for (const {
+        definition,
+        windowId,
+        tabIds,
+        expectedCount,
+      } of createdBase) {
         const groups = []
         for (const group of definition.groups || []) {
           const groupTabIds = pickTabIds(definition.tabs, tabIds, group.urls)
@@ -728,10 +753,13 @@ async function openPopupPage(controlPage, fullPageUrl) {
   let popupPage = null
   for (let attempt = 0; attempt < 60; attempt += 1) {
     popupPage =
-      controlPage.context().pages().find(
-        (candidate) =>
-          candidate.url() === fullPageUrl && candidate !== controlPage,
-      ) || null
+      controlPage
+        .context()
+        .pages()
+        .find(
+          (candidate) =>
+            candidate.url() === fullPageUrl && candidate !== controlPage,
+        ) || null
     if (popupPage) {
       break
     }
@@ -765,9 +793,7 @@ async function waitForFreshGroupTitle(page, createdWindows) {
     return
   }
 
-  const locator = page.getByTestId(
-    `tab-group-title-${expectedGroup.groupId}`,
-  )
+  const locator = page.getByTestId(`tab-group-title-${expectedGroup.groupId}`)
   const deadline = Date.now() + UI_READY_TIMEOUT_MS
 
   while (Date.now() < deadline) {
@@ -1022,7 +1048,10 @@ async function waitForVisibleWindowTabOrderChange(
     const changedOrder =
       currentTitles.length === previousTitles.length &&
       currentTitles.some((title, index) => title !== previousTitles[index])
-    if (changedOrder && hasOrderedTitlePairs(currentTitles, orderedTitlePairs)) {
+    if (
+      changedOrder &&
+      hasOrderedTitlePairs(currentTitles, orderedTitlePairs)
+    ) {
       return currentTitles
     }
 
@@ -1063,7 +1092,9 @@ async function waitForFloatingUiToClear(page) {
       }
 
       return [
-        ...document.querySelectorAll('.MuiPopover-root, .MuiAutocomplete-popper'),
+        ...document.querySelectorAll(
+          '.MuiPopover-root, .MuiAutocomplete-popper',
+        ),
       ].every((element) => !isVisible(element))
     },
     { timeout: UI_READY_TIMEOUT_MS },
@@ -1179,12 +1210,9 @@ async function withScenario(
 
     await installDemoCursor(popupPage)
     const startPoint = { x: 84, y: 744 }
-    await popupPage.evaluate(
-      ({ x, y }) => {
-        window.__demoCursorApi.moveTo(x, y)
-      },
-      startPoint,
-    )
+    await popupPage.evaluate(({ x, y }) => {
+      window.__demoCursorApi.moveTo(x, y)
+    }, startPoint)
     await popupPage.mouse.move(startPoint.x, startPoint.y)
     await demoPause(popupPage, 200)
 
@@ -1616,7 +1644,9 @@ async function recordCustomizeView() {
       await clickCurrent(page)
       await demoHold(page, 700)
 
-      const fontIncrease = page.locator('[aria-label="Increase Font Size"]').first()
+      const fontIncrease = page
+        .locator('[aria-label="Increase Font Size"]')
+        .first()
       const fontCenter = await getCenter(fontIncrease)
       await moveCursor(page, darkCenter, fontCenter, 700)
       await demoPause(page, 120)
@@ -1657,11 +1687,21 @@ async function recordHundredPlusTabsScale() {
       await moveCursor(page, startPoint, titleCenter, 820)
       await demoPause(page, 180)
 
-      const windowCard = page.getByTestId(`window-card-${windowId}`)
-      const sortButton = windowCard.locator('button[aria-label="Sort tabs"]')
+      const actionsButton = windowTitle.getByRole('button', {
+        name: 'Window actions',
+      })
+      await actionsButton.waitFor({ state: 'visible', timeout: 15000 })
+      const actionsCenter = await getCenter(actionsButton)
+      await moveCursor(page, titleCenter, actionsCenter, 430)
+      await demoPause(page, 120)
+      await clickLocator(page, actionsButton)
+      const sortButton = page.getByRole('menuitem', {
+        name: 'Sort tabs in this window',
+        exact: true,
+      })
       await sortButton.waitFor({ state: 'visible', timeout: 15000 })
       const sortCenter = await getCenter(sortButton)
-      await moveCursor(page, titleCenter, sortCenter, 430)
+      await moveCursor(page, actionsCenter, sortCenter, 430)
       await demoPause(page, 120)
       await clickLocator(page, sortButton)
       await demoHold(page, 1050)
@@ -1738,7 +1778,6 @@ async function recordThousandTwentyFourTabsScale() {
         await moveCursor(page, startPoint, titleCenter, 900)
         await demoPause(page, 180)
 
-        const heroWindowCard = page.getByTestId(`window-card-${heroWindowId}`)
         const expectedSortedPairs = [
           [
             normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[7])),
@@ -1760,12 +1799,21 @@ async function recordThousandTwentyFourTabsScale() {
           )
         }
 
-        const sortButton = heroWindowCard.locator(
-          'button[aria-label="Sort tabs"]',
-        )
+        const actionsButton = heroWindowTitle.getByRole('button', {
+          name: 'Window actions',
+        })
+        await actionsButton.waitFor({ state: 'visible', timeout: 15000 })
+        const actionsCenter = await getCenter(actionsButton)
+        await moveCursor(page, titleCenter, actionsCenter, 430)
+        await demoPause(page, 120)
+        await clickLocator(page, actionsButton)
+        const sortButton = page.getByRole('menuitem', {
+          name: 'Sort tabs in this window',
+          exact: true,
+        })
         await sortButton.waitFor({ state: 'visible', timeout: 15000 })
         const sortCenter = await getCenter(sortButton)
-        await moveCursor(page, titleCenter, sortCenter, 430)
+        await moveCursor(page, actionsCenter, sortCenter, 430)
         await demoPause(page, 120)
         await clickLocator(page, sortButton)
         await waitForVisibleWindowTabOrderChange(
@@ -1821,7 +1869,9 @@ async function recordThousandTwentyFourTabsScale() {
         await demoPause(page, 120)
         await clickLocator(page, renameItem)
 
-        const editor = page.getByTestId(`tab-group-editor-${renamedHeroGroupId}`)
+        const editor = page.getByTestId(
+          `tab-group-editor-${renamedHeroGroupId}`,
+        )
         await editor.waitFor({ state: 'visible', timeout: 15000 })
         const titleInput = page.getByTestId(
           `tab-group-editor-title-${renamedHeroGroupId}`,
@@ -1870,7 +1920,9 @@ async function recordThousandTwentyFourTabsScale() {
         await page.keyboard.press('s')
         await demoHold(page, 900)
 
-        const sideGroupHeader = page.getByTestId(`tab-group-header-${sideGroupId}`)
+        const sideGroupHeader = page.getByTestId(
+          `tab-group-header-${sideGroupId}`,
+        )
         const sideGroupHeaderCenter = await getCenter(sideGroupHeader)
         await moveCursor(page, syncPoint, sideGroupHeaderCenter, 760)
         await demoPause(page, 100)
@@ -1886,13 +1938,20 @@ async function recordThousandTwentyFourTabsScale() {
         await sideGroupHeader.waitFor({ state: 'hidden', timeout: 15000 })
         await demoHold(page, 700)
 
-        const closingWindowTitle = page.getByTestId(`window-title-${closedWindowId}`)
+        const closingWindowTitle = page.getByTestId(
+          `window-title-${closedWindowId}`,
+        )
         const closingWindowTitleCenter = await getCenter(closingWindowTitle)
-        await moveCursor(page, sideGroupCloseCenter, closingWindowTitleCenter, 720)
+        await moveCursor(
+          page,
+          sideGroupCloseCenter,
+          closingWindowTitleCenter,
+          720,
+        )
         await demoPause(page, 100)
         await closingWindowTitle.focus()
         const closingWindowButton = closingWindowTitle.locator(
-          'button[aria-label="Close"]',
+          'button[aria-label="Close window"]',
         )
         await closingWindowButton.waitFor({ state: 'visible', timeout: 15000 })
         const closingWindowCenter = await getCenter(closingWindowButton)
@@ -1935,7 +1994,10 @@ const CLIPS = [
   { id: '05-keyboard-workflow', capture: recordKeyboardWorkflow },
   { id: '06-customize-the-view', capture: recordCustomizeView },
   { id: '07-hundred-plus-tabs-scale', capture: recordHundredPlusTabsScale },
-  { id: '08-thousand-twenty-four-tabs-scale', capture: recordThousandTwentyFourTabsScale },
+  {
+    id: '08-thousand-twenty-four-tabs-scale',
+    capture: recordThousandTwentyFourTabsScale,
+  },
 ]
 
 async function main() {

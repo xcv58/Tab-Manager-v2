@@ -6,15 +6,21 @@ import { ThemeContext } from 'components/hooks/useTheme'
 import Title from '../Title'
 
 jest.mock('../SelectAll', () => () => <div data-testid="select-all" />)
-jest.mock('../Sort', () => () => <div data-testid="sort" />)
-jest.mock('../Reload', () => () => <div data-testid="reload" />)
-jest.mock('../HideToggle', () => () => <div data-testid="hide-toggle" />)
 jest.mock('../WindowActionsMenu', () => () => (
   <div data-testid="window-actions" />
 ))
-jest.mock('components/CloseButton', () => ({ tone = 'danger' }) => (
-  <div data-testid="close" data-tone={tone} />
-))
+jest.mock(
+  'components/CloseButton',
+  () =>
+    ({ tone = 'danger', 'aria-label': label, onClick }) => (
+      <button
+        data-testid="close"
+        data-tone={tone}
+        aria-label={label}
+        onClick={onClick}
+      />
+    ),
+)
 jest.mock('components/RowActionRail', () => ({ children }) => (
   <div>{children}</div>
 ))
@@ -71,7 +77,7 @@ describe('Window Title', () => {
     })
   })
 
-  it('keeps the window close control visible with the shared close tone', () => {
+  it('keeps collapse and close visible while removing direct sort and reload controls', () => {
     const store = {
       focusStore: {
         focus: jest.fn(),
@@ -87,6 +93,7 @@ describe('Window Title', () => {
       activate: jest.fn(),
       invisibleTabs: [],
       reload: jest.fn(),
+      close: jest.fn(),
       hide: false,
       toggleHide: jest.fn(),
       isFocused: false,
@@ -107,7 +114,30 @@ describe('Window Title', () => {
     )
 
     expect(screen.getByTestId('close')).toHaveAttribute('data-tone', 'danger')
-    expect(screen.queryByTestId('reload')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Close window' })).toBeVisible()
+    const collapse = screen.getByRole('button', { name: 'Collapse window' })
+    expect(collapse).toBeVisible()
+    expect(collapse).toHaveAttribute('aria-expanded', 'true')
+    expect(collapse.style.backgroundColor).toBe('')
+    fireEvent.mouseEnter(collapse)
+    expect(collapse).toHaveStyle({
+      backgroundColor: lightAppTheme.palette.action.hover,
+    })
+    fireEvent.mouseDown(collapse)
+    fireEvent.mouseUp(collapse)
+    fireEvent.click(collapse)
+    expect(win.toggleHide).toHaveBeenCalledTimes(1)
+    fireEvent.mouseLeave(collapse)
+    expect(collapse.style.backgroundColor).toBe('')
+    fireEvent.click(screen.getByRole('button', { name: 'Close window' }))
+    expect(win.close).toHaveBeenCalledTimes(1)
+    fireEvent.mouseEnter(screen.getByTestId('window-title-8'))
+    expect(
+      screen.queryByRole('button', { name: 'Sort tabs' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Reload all tabs' }),
+    ).not.toBeInTheDocument()
   })
 
   it('removes the divider below the window title in classic mode', () => {
@@ -148,6 +178,32 @@ describe('Window Title', () => {
     expect(screen.getByTestId('window-title-9')).toHaveStyle({
       borderBottomStyle: 'none',
     })
+  })
+
+  it('offers an expanded-state label while the window is collapsed', () => {
+    const win = {
+      id: 11,
+      tabs: [{ id: 1 }],
+      invisibleTabs: [],
+      hide: true,
+      activate: jest.fn(),
+      toggleHide: jest.fn(),
+      setNodeRef: jest.fn(),
+    } as any
+    const store = {
+      focusStore: { focus: jest.fn() },
+      userStore: { uiPreset: 'modern' },
+    } as any
+    render(
+      <StoreContext.Provider value={store}>
+        <Title className="" win={win} />
+      </StoreContext.Provider>,
+    )
+    const expand = screen.getByRole('button', { name: 'Expand window' })
+    expect(expand).toBeVisible()
+    expect(expand).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(expand)
+    expect(win.toggleHide).toHaveBeenCalledTimes(1)
   })
 
   it('keeps the select-all checkbox column flush with tab rows', () => {

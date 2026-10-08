@@ -2,13 +2,11 @@ import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
 import SelectAll from 'components/Window/SelectAll'
-import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
 import RowActionRail from 'components/RowActionRail'
 import { getNoun } from 'libs'
 import classNames from 'classnames'
-import Reload from './Reload'
 import HideToggle from './HideToggle'
 import WindowActionsMenu from './WindowActionsMenu'
 import { WinProps } from 'components/types'
@@ -31,16 +29,13 @@ export default observer((props: WinProps & { className: string }) => {
   )
   const isClassicUi = userStore.uiPreset === 'classic'
   const { className, win } = props
-  const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
-    win
+  const { tabs, activate, invisibleTabs, hide, toggleHide, isFocused } = win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
   const invisibleLength = invisibleTabs.length
   const [titleDisplayMode, setTitleDisplayMode] = useState<
     'full' | 'compact' | 'minimal'
   >('full')
-  const [isHeaderHovered, setIsHeaderHovered] = useState(false)
-  const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
   const hiddenText = useMemo(() => {
     if (hide || invisibleLength <= 0) {
       return ''
@@ -59,8 +54,6 @@ export default observer((props: WinProps & { className: string }) => {
     }
     return `${text} / ${invisibleLength} hidden`
   }, [hide, invisibleLength, text])
-  const emphasizeWindowControls =
-    isClassicUi || isHeaderHovered || isHeaderFocusWithin || isFocused
   const needsTooltip =
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
   useEffect(() => {
@@ -144,15 +137,6 @@ export default observer((props: WinProps & { className: string }) => {
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
-      onMouseEnter={() => setIsHeaderHovered(true)}
-      onMouseLeave={() => setIsHeaderHovered(false)}
-      onFocusCapture={() => setIsHeaderFocusWithin(true)}
-      onBlurCapture={(event) => {
-        const nextTarget = event.relatedTarget as Node | null
-        if (!event.currentTarget.contains(nextTarget)) {
-          setIsHeaderFocusWithin(false)
-        }
-      }}
       style={{
         backgroundColor: headerSurface,
         borderColor: theme.palette.divider,
@@ -188,15 +172,6 @@ export default observer((props: WinProps & { className: string }) => {
         </button>
         <RowActionRail>
           <RowActionSlot visible>
-            <WindowActionsMenu win={win} />
-          </RowActionSlot>
-          <RowActionSlot visible={!hide}>
-            {!hide && <Sort {...props} />}
-          </RowActionSlot>
-          <RowActionSlot visible={emphasizeWindowControls && !hide}>
-            {!hide && <Reload {...{ reload }} />}
-          </RowActionSlot>
-          <RowActionSlot visible={emphasizeWindowControls}>
             <HideToggle
               {...{
                 hide,
@@ -205,11 +180,19 @@ export default observer((props: WinProps & { className: string }) => {
             />
           </RowActionSlot>
           <RowActionSlot visible>
-            <CloseButton
-              onClick={() => props.win.close()}
-              size="compact"
-              tone="danger"
-            />
+            <WindowActionsMenu win={win} />
+          </RowActionSlot>
+          <RowActionSlot visible>
+            <Tooltip title="Close window">
+              <span className="inline-flex">
+                <CloseButton
+                  onClick={() => props.win.close()}
+                  aria-label="Close window"
+                  size="compact"
+                  tone="danger"
+                />
+              </span>
+            </Tooltip>
           </RowActionSlot>
         </RowActionRail>
       </div>

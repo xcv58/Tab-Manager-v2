@@ -790,55 +790,75 @@ test.describe('The Extension page should', () => {
     )
   })
 
-  test('render window control icon atoms', async () => {
+  test('keeps compact window controls stable and exposes window actions in the menu', async () => {
     await openPages(browserContext, ['data:text/html,window-controls-atom'])
     await page.bringToFront()
     await page.waitForTimeout(700)
     await page.reload()
 
     const windowTitle = page.locator('[data-testid^="window-title-"]').first()
-    await expect(windowTitle).toBeVisible()
-    const sortButton = page.locator('button[aria-label="Sort tabs"]').first()
-    const sortButtonSlot = sortButton.locator('xpath=ancestor::div[1]')
-    await expect(sortButton).toBeVisible()
-    await expect(sortButtonSlot).toHaveCSS('opacity', '1')
-    await windowTitle.hover()
-    await waitForLocatorRectToStabilize(sortButton, {
-      minWidth: 20,
-      minHeight: 20,
-      stableSamples: 3,
+    const collapse = windowTitle.getByRole('button', {
+      name: 'Collapse window',
     })
-    await expect(sortButton).toBeVisible()
-    await expect(sortButtonSlot).toHaveCSS('opacity', '1')
-    const sortButtonScreenshot = await sortButton.screenshot()
-    expect(sortButtonScreenshot).toMatchSnapshot(
-      'window-sort-button-atom.png',
-      {
-        maxDiffPixelRatio: 0.08,
-        threshold: 0.2,
-      },
-    )
+    const actions = windowTitle.getByRole('button', { name: 'Window actions' })
+    const close = windowTitle.getByRole('button', { name: 'Close window' })
+    await page.mouse.move(1, 1)
+    await expect(collapse).toBeVisible()
+    await expect(collapse).toHaveAttribute('aria-expanded', 'true')
+    await expect(actions).toBeVisible()
+    await expect(close).toBeVisible()
+    await expect(windowTitle.getByRole('button')).toHaveCount(4)
+    await expect(
+      windowTitle.getByRole('button', { name: 'Sort tabs', exact: true }),
+    ).toHaveCount(0)
+    await expect(
+      windowTitle.getByRole('button', { name: 'Reload all tabs', exact: true }),
+    ).toHaveCount(0)
 
-    const reloadButton = page
-      .locator('button[aria-label="Reload all tabs"]')
-      .first()
-    const reloadButtonSlot = reloadButton.locator('xpath=ancestor::div[1]')
-    await windowTitle.focus()
-    await expect(reloadButtonSlot).toHaveCSS('opacity', '1')
-    await waitForLocatorRectToStabilize(reloadButton, {
+    await waitForLocatorRectToStabilize(actions, {
       minWidth: 20,
       minHeight: 20,
       stableSamples: 3,
     })
-    await expect(reloadButton).toBeVisible()
-    const reloadButtonScreenshot = await reloadButton.screenshot()
-    expect(reloadButtonScreenshot).toMatchSnapshot(
-      'window-reload-button-atom.png',
-      {
-        maxDiffPixelRatio: 0.08,
-        threshold: 0.2,
-      },
-    )
+    const before = await actions.boundingBox()
+    await windowTitle.hover()
+    await actions.focus()
+    const after = await actions.boundingBox()
+    expect(Math.abs(after.x - before.x)).toBeLessThan(1)
+    expect(Math.abs(after.width - before.width)).toBeLessThan(1)
+    const collapseRect = await collapse.boundingBox()
+    const closeRect = await close.boundingBox()
+    expect(collapseRect.x).toBeLessThan(after.x)
+    expect(after.x).toBeLessThan(closeRect.x)
+
+    await actions.click()
+    const sort = page.getByRole('menuitem', {
+      name: 'Sort tabs in this window',
+      exact: true,
+    })
+    const reload = page.getByRole('menuitem', {
+      name: 'Reload all tabs in this window',
+      exact: true,
+    })
+    await expect(sort).toBeEnabled()
+    await expect(reload).toBeEnabled()
+    await expect(
+      page.getByRole('menuitem', { name: /^Move selected tabs/ }),
+    ).toHaveCount(2)
+    await expect(
+      page.getByRole('menuitem', { name: /^Move selected tabs/ }).first(),
+    ).toBeDisabled()
+    await expect(
+      page.getByRole('menuitem', { name: /^Move selected tabs/ }).last(),
+    ).toBeDisabled()
+    await expect(sort).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(reload).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(sort).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('menu')).toBeHidden()
+    await expect(actions).toBeFocused()
   })
 
   test('render settings control atoms', async () => {
@@ -1352,8 +1372,9 @@ test.describe('The Extension page should', () => {
 
         return {
           windowClose: readLeft(
-            windowTitleNode?.querySelector('button[aria-label="Close"]') ||
-              null,
+            windowTitleNode?.querySelector(
+              'button[aria-label="Close window"]',
+            ) || null,
           ),
           groupMenu: readLeft(
             groupHeaderNode?.querySelector(
