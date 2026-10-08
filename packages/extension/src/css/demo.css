@@ -230,6 +230,8 @@
   min-height: 240px;
 }
 #demo-frame {
+  /* Keep the embedded System theme tied to the OS, not the website theme. */
+  color-scheme: light dark;
   display: block;
   border: 0;
   height: 100%;
