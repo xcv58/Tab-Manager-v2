@@ -16,6 +16,7 @@ const setup = (
     arrangeStore: { sortTabs },
     dragStore: { moveSelectedTabsToWindowEdge, pendingWindowEdgeDrop },
     tabStore: { selection: new Map(selected ? [[1, { id: 1 }]] : []) },
+    focusStore: { focus: jest.fn() },
   } as any
   render(
     <StoreContext.Provider value={store}>
@@ -35,7 +36,7 @@ describe('WindowActionsMenu', () => {
 
       fireEvent.click(
         screen.getByRole('menuitem', {
-          name: `Move selected tabs to ${position} of this window`,
+          name: `Move selected to ${position}`,
         }),
       )
 
@@ -52,7 +53,7 @@ describe('WindowActionsMenu', () => {
   ])('disables moves with selected=%s and canDrop=%s', (selected, canDrop) => {
     const { moveSelectedTabsToWindowEdge } = setup(selected, canDrop)
     const items = screen.getAllByRole('menuitem', {
-      name: /^Move selected tabs/,
+      name: /^Move selected to/,
     })
 
     items.forEach((item) => {
@@ -60,27 +61,25 @@ describe('WindowActionsMenu', () => {
       fireEvent.click(item)
     })
     expect(moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
+    expect(screen.getByRole('menuitem', { name: 'Sort tabs' })).toBeEnabled()
     expect(
-      screen.getByRole('menuitem', { name: 'Sort tabs in this window' }),
-    ).toBeEnabled()
-    expect(
-      screen.getByRole('menuitem', { name: 'Reload all tabs in this window' }),
+      screen.getByRole('menuitem', { name: 'Reload all tabs' }),
     ).toBeEnabled()
   })
 
   it('supports keyboard navigation and Escape without moving tabs', () => {
     const { trigger, moveSelectedTabsToWindowEdge } = setup()
     const sort = screen.getByRole('menuitem', {
-      name: 'Sort tabs in this window',
+      name: 'Sort tabs',
     })
     const reload = screen.getByRole('menuitem', {
-      name: 'Reload all tabs in this window',
+      name: 'Reload all tabs',
     })
     const beginning = screen.getByRole('menuitem', {
-      name: 'Move selected tabs to beginning of this window',
+      name: 'Move selected to beginning',
     })
     const end = screen.getByRole('menuitem', {
-      name: 'Move selected tabs to end of this window',
+      name: 'Move selected to end',
     })
     expect(sort).toHaveFocus()
     fireEvent.keyDown(sort, { key: 'ArrowDown' })
@@ -108,15 +107,15 @@ describe('WindowActionsMenu', () => {
         pending,
       )
       const sort = screen.getByRole('menuitem', {
-        name: 'Sort tabs in this window',
+        name: 'Sort tabs',
       })
       const reload = screen.getByRole('menuitem', {
-        name: 'Reload all tabs in this window',
+        name: 'Reload all tabs',
       })
       expect(sort).toHaveFocus()
       expect(reload).toBeEnabled()
       screen
-        .getAllByRole('menuitem', { name: /^Move selected tabs/ })
+        .getAllByRole('menuitem', { name: /^Move selected to/ })
         .forEach((item) => expect(item).toBeDisabled())
       fireEvent.keyDown(sort, { key: 'ArrowDown' })
       expect(reload).toHaveFocus()
@@ -134,9 +133,7 @@ describe('WindowActionsMenu', () => {
   it('sorts only this window without a selection and restores trigger focus', () => {
     const { trigger, sortTabs, reload, moveSelectedTabsToWindowEdge } =
       setup(false)
-    fireEvent.click(
-      screen.getByRole('menuitem', { name: 'Sort tabs in this window' }),
-    )
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Sort tabs' }))
     expect(sortTabs).toHaveBeenCalledWith(7)
     expect(reload).not.toHaveBeenCalled()
     expect(moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
@@ -150,9 +147,7 @@ describe('WindowActionsMenu', () => {
       false,
       true,
     )
-    fireEvent.click(
-      screen.getByRole('menuitem', { name: 'Reload all tabs in this window' }),
-    )
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Reload all tabs' }))
     expect(reload).toHaveBeenCalledTimes(1)
     expect(sortTabs).not.toHaveBeenCalled()
     expect(moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()

@@ -1696,7 +1696,7 @@ async function recordHundredPlusTabsScale() {
       await demoPause(page, 120)
       await clickLocator(page, actionsButton)
       const sortButton = page.getByRole('menuitem', {
-        name: 'Sort tabs in this window',
+        name: 'Sort tabs',
         exact: true,
       })
       await sortButton.waitFor({ state: 'visible', timeout: 15000 })
@@ -1808,7 +1808,7 @@ async function recordThousandTwentyFourTabsScale() {
         await demoPause(page, 120)
         await clickLocator(page, actionsButton)
         const sortButton = page.getByRole('menuitem', {
-          name: 'Sort tabs in this window',
+          name: 'Sort tabs',
           exact: true,
         })
         await sortButton.waitFor({ state: 'visible', timeout: 15000 })

@@ -62,6 +62,26 @@ export default class FocusStore {
 
   focusedWindowId: number = null
 
+  get focusedTab(): Tab | null {
+    const item = this.focusedItem
+    return item instanceof Tab ? item : null
+  }
+
+  get focusedWindow(): Window | null {
+    const item = this.focusedItem
+    if (item instanceof Window) {
+      return item
+    }
+    if (item instanceof Tab || item instanceof TabGroupRow) {
+      return (
+        this.store.windowStore.windows.find(
+          (win) => win.id === item.windowId,
+        ) || null
+      )
+    }
+    return null
+  }
+
   focusedTabId: number = null
 
   focusedGroupId: number = null

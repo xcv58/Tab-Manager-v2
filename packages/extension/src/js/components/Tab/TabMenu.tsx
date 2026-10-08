@@ -7,6 +7,11 @@ import { useAppTheme } from 'libs/appTheme'
 import { useStore } from 'components/hooks/useStore'
 import ControlIconButton from 'components/ControlIconButton'
 import { TabProps } from 'components/types'
+import MoveShortcut from 'components/Shortcut/MoveShortcut'
+import {
+  getTabMoveAriaShortcut,
+  type TabMovePosition,
+} from 'libs/tabMoveShortcuts'
 
 interface IDivider {
   __typename: 'DIVIDER'
@@ -15,6 +20,7 @@ type Option = {
   __typename: 'OPTION'
 } & {
   disabled?: boolean
+  movePosition?: TabMovePosition
 } & {
   label: string
 } & {
@@ -28,8 +34,13 @@ const OPTION: Option = { __typename: 'OPTION', label: '' }
 export default observer((props: TabProps) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const theme = useAppTheme()
-  const { tabGroupStore } = useStore()
+  const { tabGroupStore, tabStore, dragStore, focusStore } = useStore()
   const handleClick = (event) => {
+    focusStore.focus(props.tab, {
+      origin: 'mouse',
+      reveal: false,
+      moveDomFocus: false,
+    })
     setAnchorEl(event.currentTarget)
   }
 
@@ -64,6 +75,11 @@ export default observer((props: TabProps) => {
   const tabGroup = hasTabGroupsApi
     ? tabGroupStore.getTabGroup(props.tab.groupId)
     : null
+  const moveDisabled =
+    dragStore.pendingWindowEdgeDrop ||
+    !tabStore.selection.size ||
+    tabStore.selection.has(props.tab.id) ||
+    !win.canDrop
 
   const options: (OptionOrDivider | false)[] = [
     {
@@ -81,6 +97,25 @@ export default observer((props: TabProps) => {
       label: 'Close other tabs',
       onClick: closeOtherTabs,
       disabled: (win?.tabs?.length ?? 0) <= 1,
+    },
+    DIVIDER,
+    {
+      ...OPTION,
+      label: 'Move selected before this tab',
+      movePosition: 'before',
+      disabled: moveDisabled,
+      onClick: () => {
+        void dragStore.moveSelectedTabsRelativeToTab(props.tab, true)
+      },
+    },
+    {
+      ...OPTION,
+      label: 'Move selected after this tab',
+      movePosition: 'after',
+      disabled: moveDisabled,
+      onClick: () => {
+        void dragStore.moveSelectedTabsRelativeToTab(props.tab, false)
+      },
     },
   ]
   if (process.env.TARGET_BROWSER === 'firefox') {
@@ -135,15 +170,19 @@ export default observer((props: TabProps) => {
       if (option.__typename === 'DIVIDER') {
         return <MenuDivider key={i} />
       }
-      const { label, onClick, disabled } = option
+      const { label, onClick, disabled, movePosition } = option
       return (
         <MenuItem
           key={label}
           disabled={disabled}
           onClick={getOnClick(onClick)}
           data-testid={getOptionTestId(label)}
+          aria-keyshortcuts={
+            movePosition ? getTabMoveAriaShortcut(movePosition) : undefined
+          }
         >
-          {label}
+          <span>{label}</span>
+          {movePosition && <MoveShortcut position={movePosition} />}
         </MenuItem>
       )
     })

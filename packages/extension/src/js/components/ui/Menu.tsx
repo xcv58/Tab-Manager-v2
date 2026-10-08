@@ -218,6 +218,7 @@ export interface MenuItemProps {
   onClick?: () => void
   disabled?: boolean
   'data-testid'?: string
+  'aria-keyshortcuts'?: string
   className?: string
   style?: React.CSSProperties
 }
@@ -227,6 +228,7 @@ export function MenuItem({
   onClick,
   disabled,
   'data-testid': testId,
+  'aria-keyshortcuts': ariaKeyShortcuts,
   className,
   style,
 }: MenuItemProps) {
@@ -237,6 +239,7 @@ export function MenuItem({
       type="button"
       tabIndex={-1}
       data-testid={testId}
+      aria-keyshortcuts={ariaKeyShortcuts}
       disabled={disabled}
       onClick={onClick}
       className={className}

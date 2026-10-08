@@ -406,6 +406,28 @@ export default class DragStore {
     }
   }
 
+  moveSelectedTabsRelativeToTab = async (tab: Tab, before: boolean) => {
+    if (this.pendingWindowEdgeDrop) {
+      return
+    }
+    if (!this.store.tabStore.selection.size) {
+      return 'Select tabs to move'
+    }
+    if (this.store.tabStore.selection.has(tab.id)) {
+      return 'Choose an unselected destination tab'
+    }
+    if (!tab.win.canDrop) {
+      return 'Cannot move tabs to this window'
+    }
+    // Serialize keyboard and menu moves with header drops.
+    this.pendingWindowEdgeDrop = true
+    try {
+      await this.drop(tab, before)
+    } finally {
+      this.pendingWindowEdgeDrop = false
+    }
+  }
+
   dropAt = async (options: DropAtOptions) => {
     const { moveTabs, getTargetWindow, suspend, resume } =
       this.store.windowStore

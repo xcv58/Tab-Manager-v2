@@ -597,9 +597,7 @@ export const waitForDefaultExtensionView = async (page: Page) => {
 export const sortFirstWindowTabs = async (page: Page) => {
   const title = page.locator('[data-testid^="window-title-"]').first()
   await title.getByRole('button', { name: 'Window actions' }).click()
-  await page
-    .getByRole('menuitem', { name: 'Sort tabs in this window', exact: true })
-    .click()
+  await page.getByRole('menuitem', { name: 'Sort tabs', exact: true }).click()
   await expect(page.getByRole('menu')).toBeHidden()
 }
 

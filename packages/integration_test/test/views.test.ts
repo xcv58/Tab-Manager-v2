@@ -833,23 +833,23 @@ test.describe('The Extension page should', () => {
 
     await actions.click()
     const sort = page.getByRole('menuitem', {
-      name: 'Sort tabs in this window',
+      name: 'Sort tabs',
       exact: true,
     })
     const reload = page.getByRole('menuitem', {
-      name: 'Reload all tabs in this window',
+      name: 'Reload all tabs',
       exact: true,
     })
     await expect(sort).toBeEnabled()
     await expect(reload).toBeEnabled()
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected tabs/ }),
+      page.getByRole('menuitem', { name: /^Move selected to/ }),
     ).toHaveCount(2)
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected tabs/ }).first(),
+      page.getByRole('menuitem', { name: /^Move selected to/ }).first(),
     ).toBeDisabled()
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected tabs/ }).last(),
+      page.getByRole('menuitem', { name: /^Move selected to/ }).last(),
     ).toBeDisabled()
     await expect(sort).toBeFocused()
     await page.keyboard.press('ArrowDown')

@@ -7,6 +7,12 @@ describe('TabMenu', () => {
   beforeEach(() => {
     jest.spyOn(StoreHook, 'useStore').mockReturnValue({
       tabGroupStore: undefined,
+      tabStore: { selection: new Map() },
+      dragStore: {
+        pendingWindowEdgeDrop: false,
+        moveSelectedTabsRelativeToTab: jest.fn(),
+      },
+      focusStore: { focus: jest.fn() },
     } as any)
   })
 
@@ -21,7 +27,7 @@ describe('TabMenu', () => {
     togglePin: jest.fn(),
     remove: jest.fn(),
     closeOtherTabs: jest.fn(),
-    win: { tabs: [{ id: 42 }, { id: 99 }] },
+    win: { canDrop: true, tabs: [{ id: 42 }, { id: 99 }] },
     sameDomainTabs: [{ id: 42 }, { id: 99 }],
     groupTab: jest.fn(),
     duplicatedTabCount: 1,

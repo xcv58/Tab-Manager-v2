@@ -13,6 +13,8 @@ const Hotkeys = ({ keys }: { keys: string | string[] }) => {
         style={{
           display: 'flex',
           flexDirection: 'row-reverse',
+          flexWrap: 'wrap',
+          rowGap: 4,
           justifyContent: 'space-between',
           textTransform: 'capitalize',
         }}

@@ -16,7 +16,9 @@ import Tooltip from 'components/ui/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
-export default observer((props: WinProps & { className: string }) => {
+type Props = WinProps & { className: string; dropOverlay?: boolean }
+
+export default observer((props: Props) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
   const { focusStore, userStore } = useStore()
@@ -28,7 +30,7 @@ export default observer((props: WinProps & { className: string }) => {
     userStore.increaseContrast,
   )
   const isClassicUi = userStore.uiPreset === 'classic'
-  const { className, win } = props
+  const { className, win, dropOverlay = false } = props
   const { tabs, activate, invisibleTabs, hide, toggleHide, isFocused } = win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
@@ -138,8 +140,8 @@ export default observer((props: WinProps & { className: string }) => {
         className,
       )}
       style={{
-        backgroundColor: headerSurface,
-        borderColor: theme.palette.divider,
+        backgroundColor: dropOverlay ? 'transparent' : headerSurface,
+        borderColor: dropOverlay ? 'transparent' : theme.palette.divider,
         borderBottom: isClassicUi ? 'none' : undefined,
         minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
       }}

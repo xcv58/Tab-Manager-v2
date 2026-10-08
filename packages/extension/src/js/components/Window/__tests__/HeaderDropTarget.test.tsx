@@ -27,7 +27,10 @@ describe('window header drop targets', () => {
     'moves to %s and ignores an already-handled drop',
     (position) => {
       const moveSelectedTabsToWindowEdge = jest.fn()
-      const store = { dragStore: { moveSelectedTabsToWindowEdge } } as any
+      const store = {
+        dragStore: { moveSelectedTabsToWindowEdge },
+        userStore: { uiPreset: 'modern', increaseContrast: false },
+      } as any
       const win = { id: 7, canDrop: true } as any
       render(
         <StoreContext.Provider value={store}>
@@ -46,9 +49,12 @@ describe('window header drop targets', () => {
   )
 
   it.each([lightAppTheme, darkAppTheme])(
-    'highlights only the hovered, allowed half in $mode theme',
+    'shows the allowed or blocked hover hint in $mode theme',
     (theme) => {
-      const store = { dragStore: {} } as any
+      const store = {
+        dragStore: {},
+        userStore: { uiPreset: 'modern', increaseContrast: false },
+      } as any
       mockUseDrop.mockReturnValue([{ canDrop: true, isOver: true }, jest.fn()])
       const { rerender } = render(
         <StoreContext.Provider value={store}>
@@ -61,11 +67,10 @@ describe('window header drop targets', () => {
         </StoreContext.Provider>,
       )
 
-      expect(screen.getByTestId('window-header-drop-end-7')).toHaveStyle({
-        backgroundColor: theme.palette.action.selected,
-        boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
-      })
-      expect(screen.getByText('Move to end')).toBeInTheDocument()
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Move to end')
+      expect(screen.getByTestId('window-header-drop-end-7').textContent).toBe(
+        '',
+      )
 
       mockUseDrop.mockReturnValue([{ canDrop: false, isOver: true }, jest.fn()])
       rerender(
@@ -78,16 +83,21 @@ describe('window header drop targets', () => {
           </AppThemeContext.Provider>
         </StoreContext.Provider>,
       )
-      expect(screen.getByText('End')).toBeInTheDocument()
+      expect(screen.getByRole('tooltip')).toHaveTextContent(
+        'Cannot move tabs to this window',
+      )
       expect(screen.getByTestId('window-header-drop-end-7')).toHaveStyle({
         cursor: 'not-allowed',
-        boxShadow: `inset 0 0 0 1px ${theme.palette.divider}`,
+        opacity: '0.5',
       })
     },
   )
 
   it('shows both header halves only during a drag and retains the top insertion strip', () => {
-    const store = { dragStore: observable({ dragging: false }) } as any
+    const store = {
+      dragStore: observable({ dragging: false }),
+      userStore: { uiPreset: 'modern', increaseContrast: false },
+    } as any
     const win = { id: 7, canDrop: true } as any
     render(
       <StoreContext.Provider value={store}>
