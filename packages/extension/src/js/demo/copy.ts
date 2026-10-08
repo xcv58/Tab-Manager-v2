@@ -21,8 +21,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample data only. No extension required.':
       '仅使用示例数据。无需安装扩展。',
     'Choose a workspace': '选择工作区',
-    'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. Start over also resets demo settings. Website theme and language stay saved.':
-      '刷新或切换工作区会恢复示例标签页，并保留此标签页会话中的演示设置。“重新开始”也会重置演示设置。网站主题和语言仍会保存。',
+    'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. The demo theme is independent of the website theme. Start over also resets demo settings. Website theme and language stay saved.':
+      '刷新或切换工作区会恢复示例标签页，并保留此标签页会话中的演示设置。演示主题与网站主题相互独立。“重新开始”也会重置演示设置。网站主题和语言仍会保存。',
     'Starts with': '初始配置',
     'In your workspace': '当前工作区',
     'Add sample tab': '添加示例标签页',
@@ -64,8 +64,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample data only. No extension required.':
       '僅使用範例資料。無需安裝擴充功能。',
     'Choose a workspace': '選擇工作區',
-    'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. Start over also resets demo settings. Website theme and language stay saved.':
-      '重新整理或切換工作區會還原範例分頁，並保留此分頁工作階段中的示範設定。「重新開始」也會重設示範設定。網站主題和語言仍會儲存。',
+    'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. The demo theme is independent of the website theme. Start over also resets demo settings. Website theme and language stay saved.':
+      '重新整理或切換工作區會還原範例分頁，並保留此分頁工作階段中的示範設定。示範主題與網站主題相互獨立。「重新開始」也會重設示範設定。網站主題和語言仍會儲存。',
     'Starts with': '初始配置',
     'In your workspace': '目前工作區',
     'Add sample tab': '新增範例分頁',

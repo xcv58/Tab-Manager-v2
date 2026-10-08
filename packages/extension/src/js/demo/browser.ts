@@ -83,21 +83,14 @@ const localData: Record<string, unknown> = {
   lastFocusedWindowId: currentWindowId,
   tabHistory: clone(tabHistory),
 }
-const initialTheme =
-  typeof window === 'undefined'
-    ? 'system'
-    : new URLSearchParams(window.location.hash.slice(1)).get('theme')
 const syncData: Record<string, unknown> = {
   autoFocusSearch: false,
   searchHistory: true,
+  useSystemTheme: true,
+  darkTheme: false,
+  // Demo theme and configuration are independent of website preferences.
   ...readDemoPreferences(),
-  // The website's theme is authoritative, separate from session configuration.
-  useSystemTheme: initialTheme !== 'dark' && initialTheme !== 'light',
-  darkTheme: initialTheme === 'dark',
 }
-
-export const getDemoTheme = () =>
-  syncData.useSystemTheme ? 'system' : syncData.darkTheme ? 'dark' : 'light'
 
 export const getDemoState = () => ({
   scenario: initialScenario,

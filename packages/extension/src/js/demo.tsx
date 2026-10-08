@@ -3,12 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { reaction } from 'mobx'
 import App from 'components/App'
 import { store } from 'components/hooks/useStore'
-import browser, {
-  addDemoTab,
-  getDemoState,
-  getDemoTheme,
-  subscribeDemo,
-} from './demo/browser'
+import { addDemoTab, getDemoState, subscribeDemo } from './demo/browser'
 import '../css/popup.css'
 import '@pigment-css/react/styles.css'
 import '../css/demo-workspace.css'
@@ -18,19 +13,6 @@ import '../css/demo-workspace.css'
 window.history.replaceState(null, '', `${window.location.pathname}?not_popup=1`)
 
 let failed = false
-let applyingSiteTheme = false
-browser.storage.onChanged.addListener((changes, area) => {
-  if (
-    area !== 'sync' ||
-    applyingSiteTheme ||
-    (!('useSystemTheme' in changes) && !('darkTheme' in changes))
-  )
-    return
-  window.parent.postMessage(
-    { type: 'demo:theme-selection', theme: getDemoTheme() },
-    window.location.origin,
-  )
-})
 const sendState = () => {
   if (failed || store.windowStore.initialLoading || !store.userStore.loaded)
     return
@@ -95,16 +77,6 @@ window.addEventListener('message', (event) => {
     return
   if (event.data?.type === 'demo:add-tab')
     void addDemoTab().catch(sendActionError)
-  if (event.data?.type === 'demo:theme') {
-    const theme = event.data.theme
-    if (!['system', 'light', 'dark'].includes(theme)) return
-    applyingSiteTheme = true
-    try {
-      if (store.userStore.theme !== theme) store.userStore.selectTheme(theme)
-    } finally {
-      applyingSiteTheme = false
-    }
-  }
 })
 
 class DemoBoundary extends React.Component<

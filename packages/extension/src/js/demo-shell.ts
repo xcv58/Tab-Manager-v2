@@ -5,13 +5,10 @@ import { clearDemoPreferences } from './demo/preferences'
 
 type SitePreferences = {
   getLanguage: () => string
-  getTheme: () => string
-  setTheme: (theme: string) => void
 }
 const site = (window as Window & { TabManagerSite?: SitePreferences })
   .TabManagerSite
 const language = () => site?.getLanguage() || 'en'
-const theme = () => site?.getTheme() || 'system'
 const text = (english: string) => demoText(english, language())
 let frame = document.querySelector<HTMLIFrameElement>('#demo-frame')!
 const scenario = document.querySelector<HTMLSelectElement>('#scenario')!
@@ -48,7 +45,6 @@ const requested = new URL(window.location.href).searchParams.get('scenario')
 let selected: DemoScenario =
   demoScenarios.find((item) => item.id === requested) || demoScenarios[0]
 let loadingTimer: ReturnType<typeof setTimeout>
-let awaitingReady = true
 let failed = false
 let loadingCopy = 'Preparing your sample workspace…'
 let activityCopy = 'A fresh sample workspace. All changes stay in this page.'
@@ -126,12 +122,6 @@ const renderCopy = () => {
   fitGuide()
 }
 
-const sendTheme = () =>
-  frame.contentWindow?.postMessage(
-    { type: 'demo:theme', theme: theme() },
-    window.location.origin,
-  )
-
 const loadWorkspace = () => {
   clearTimeout(loadingTimer)
   selected =
@@ -139,7 +129,6 @@ const loadWorkspace = () => {
   const url = new URL(window.location.href)
   url.searchParams.set('scenario', selected.id)
   window.history.replaceState(null, '', url.href)
-  awaitingReady = true
   failed = false
   currentCounts = null
   loading.hidden = false
@@ -151,7 +140,7 @@ const loadWorkspace = () => {
   // discards sample stores while session configuration and website preferences
   // remain available to the fresh frame.
   const nextFrame = frame.cloneNode(false) as HTMLIFrameElement
-  nextFrame.src = `${selected.workspaceUrl}&theme=${theme()}`
+  nextFrame.src = selected.workspaceUrl
   frame.replaceWith(nextFrame)
   frame = nextFrame
   loadingTimer = setTimeout(() => {
@@ -174,18 +163,6 @@ window.addEventListener('message', (event) => {
     counts.textContent = formatCounts(currentCounts!)
     if (event.data.state.activity) activityCopy = event.data.state.activity
     activity.textContent = text(activityCopy)
-    if (awaitingReady) {
-      awaitingReady = false
-      sendTheme()
-    }
-  }
-  if (event.data?.type === 'demo:theme-selection' && !failed) {
-    const nextTheme = event.data.theme
-    if (
-      ['system', 'light', 'dark'].includes(nextTheme) &&
-      site?.getTheme() !== nextTheme
-    )
-      site?.setTheme(nextTheme)
   }
   if (event.data?.type === 'demo:error') {
     failed = true
@@ -228,7 +205,6 @@ addTab.addEventListener('click', () => {
     window.location.origin,
   )
 })
-document.addEventListener('site:theme-change', sendTheme)
 document.addEventListener('site:language-change', renderCopy)
 document
   .querySelector('#workspace')!

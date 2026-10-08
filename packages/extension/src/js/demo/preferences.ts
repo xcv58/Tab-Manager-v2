@@ -18,6 +18,8 @@ const booleanKeys = [
   'autoFocusSearch',
   'ignoreHash',
   'showTabIcon',
+  'useSystemTheme',
+  'darkTheme',
 ] as const
 const enumValues: Record<string, readonly string[]> = {
   uiPreset: ['modern', 'classic'],

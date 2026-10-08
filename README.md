@@ -129,8 +129,8 @@ The demo reuses the real extension UI with an isolated in-memory browser adapter
 Sample tabs, groups, and history stay in memory; refresh, workspace changes, or
 **Start over** restore the sample data. Demo configuration stays in this browser
 tab’s session storage across refresh, navigation, and workspace changes.
-**Start over** also resets demo configuration. Theme controls share the website’s
-saved theme; website theme and language stay in local storage. The grouped workspace picker offers 13 cases:
+**Start over** also resets demo configuration. The demo has its own theme, saved with
+its session settings. Website theme and language stay in local storage. The grouped workspace picker offers 13 cases:
 everyday use, duplicates, mixed tab states, many or uneven windows, many/few/no
 groups, a crowded workspace, a single 240-tab window, one tab, an empty workspace,
 and an opt-in 1,500-tab workspace across 50 windows. This last case exercises the
@@ -156,7 +156,7 @@ assets from `docs/`, with the interactive demo at `/demo/`, the privacy policy
 at `/privacy/`, and help at `/support/`. All pages share the main page's header,
 navigation, styles, theme, and language controller. Website theme
 and language persist when switching pages or resetting a sample workspace;
-the embedded extension follows the website theme and displays its UI in English.
+the embedded extension has its own independent theme and displays its UI in English.
 The shared **Install** link returns to the website's install buttons.
 The content-page HTML templates use a shared-header marker; the site build and
 demo dev server render that marker from the main page's header markup.

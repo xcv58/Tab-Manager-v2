@@ -38,7 +38,7 @@ export type DemoScenario = {
 }
 
 export const demoResetBehavior =
-  'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. Start over also resets demo settings. Website theme and language stay saved.'
+  'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. The demo theme is independent of the website theme. Start over also resets demo settings. Website theme and language stay saved.'
 
 export const demoScenarios: ReadonlyArray<DemoScenario> = [
   {
