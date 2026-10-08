@@ -96,6 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
       Language: '语言',
       'Choose language': '选择语言',
       'Main navigation': '主导航',
+      'Try demo': '试用演示',
+      'Try the interactive demo': '试用交互演示',
+      'No installation needed. Explore with sample tabs.':
+        '无需安装。使用示例标签页体验功能。',
       Privacy: '隐私',
       Support: '支持',
       'Theme Toggle': '主题切换',
@@ -284,6 +288,10 @@ document.addEventListener('DOMContentLoaded', () => {
       Language: '語言',
       'Choose language': '選擇語言',
       'Main navigation': '主導覽',
+      'Try demo': '試用示範',
+      'Try the interactive demo': '試用互動示範',
+      'No installation needed. Explore with sample tabs.':
+        '無需安裝。使用範例分頁體驗功能。',
       Privacy: '隱私',
       Support: '支援',
       'Theme Toggle': '主題切換',

@@ -557,6 +557,36 @@ code {
 
 /* CTA Buttons */
 
+.demo-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-demo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.btn-demo:hover {
+  background: #4338ca;
+}
+
+.demo-cta p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
 .cta-group {
   display: flex;
   flex-wrap: wrap;

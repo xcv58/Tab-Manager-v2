@@ -1,0 +1,8 @@
+/* These viewport overrides apply only to the demo, never the extension build. */
+html:has(.demo-workspace),
+body.demo-workspace {
+  min-height: 0;
+}
+.demo-workspace #popup {
+  min-width: 0;
+}

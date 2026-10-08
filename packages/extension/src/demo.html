@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="Try Tab Manager v2 with an interactive sample workspace. No extension required."
+    />
+    <link rel="icon" href="./img/icon-48-dark.png" />
+    <title>Try Tab Manager v2 · Interactive demo</title>
+  </head>
+  <body>
+    <a class="demo-skip" href="#workspace">Skip to demo workspace</a>
+    <div class="demo-page">
+      <header class="demo-header">
+        <a class="demo-brand" href="../"
+          ><img src="./img/icon-48-dark.png" width="32" height="32" alt="" />Tab
+          Manager v2</a
+        >
+        <span class="demo-badge">Sample workspace</span>
+        <a class="demo-back" href="../"
+          >Back to website <span aria-hidden="true">↗</span></a
+        >
+        <a class="demo-install" href="../#install">Get the extension</a>
+      </header>
+      <main>
+        <section class="demo-intro" aria-labelledby="demo-heading">
+          <div>
+            <p class="demo-eyebrow">Try before you install</p>
+            <h1 id="demo-heading">Make room for what matters.</h1>
+            <p>
+              The real extension interface, with sample tabs you can freely
+              organize. Everything resets when you refresh. Your browser tabs
+              stay untouched.
+            </p>
+          </div>
+          <p class="demo-memory">
+            Sample data only.<br />No extension required.
+          </p>
+        </section>
+        <section class="demo-controls" aria-label="Demo controls">
+          <div class="demo-control-row">
+            <label for="scenario">Workspace</label>
+            <select id="scenario">
+              <option value="workspace">Everyday workspace</option>
+              <option value="duplicates">Duplicate cleanup</option>
+              <option value="large">Crowded workspace</option>
+              <option value="empty">Fresh start</option>
+            </select>
+            <button id="add-tab" type="button">Add sample tab</button>
+            <button id="reset-demo" type="button">Start over</button>
+            <span id="demo-counts" class="demo-counts">Loading workspace…</span>
+          </div>
+          <p id="scenario-hint" class="demo-hint"></p>
+        </section>
+        <div class="demo-frame-wrap" id="workspace" tabindex="-1">
+          <iframe
+            id="demo-frame"
+            title="Interactive Tab Manager v2 sample workspace"
+            allow="clipboard-write"
+          ></iframe>
+          <p id="demo-loading" class="demo-loading" role="status">
+            Preparing your sample workspace…
+          </p>
+        </div>
+      </main>
+      <footer class="demo-footer">
+        <p id="demo-activity" role="status" aria-live="polite">
+          Ready to explore. Click inside the workspace to use keyboard
+          shortcuts.
+        </p>
+        <details>
+          <summary>What can I try?</summary>
+          <p>
+            Search titles, URLs, groups, and sample history. Select, pin, move,
+            sort, reload, or close tabs; rename, recolor, collapse, and ungroup
+            groups; clean duplicates; try the command palette, shortcuts,
+            themes, and settings.
+          </p>
+          <p>
+            Tab activation, loading, window focus, and browser history are
+            simulated. Settings stay in this page’s memory. Firefox containers
+            and browser toolbar badges require the installed extension. Copy
+            actions copy sample URLs to your clipboard. “Start over” restores
+            the selected scenario and preferences.
+          </p>
+        </details>
+      </footer>
+    </div>
+  </body>
+</html>

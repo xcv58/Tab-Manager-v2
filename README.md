@@ -115,6 +115,58 @@ This writes unpacked extension builds to:
 
 Load the appropriate folder as an unpacked extension in your target browser.
 
+### Try the website demo locally
+
+```shell
+pnpm dev:demo
+```
+
+Open <http://127.0.0.1:3002/demo/> for the interactive demo, or
+<http://127.0.0.1:3002/> for the current website. Set `DEMO_PORT` to use a different port.
+For access from other devices on your local network, run
+`DEMO_HOST=0.0.0.0 pnpm dev:demo` and use your computer's LAN IP address.
+The demo reuses the real extension UI with an isolated in-memory browser adapter.
+Tabs, groups, history, and preferences are sample data; refresh or **Start over**
+discards changes. Scenarios cover everyday use, duplicates, a crowded workspace,
+and a fresh start. No extension installation is required.
+
+```shell
+pnpm build:demo
+```
+
+The standalone static output is `packages/extension/build/build_demo/`. It can
+be served at `/demo/` or another subdirectory. Extension builds stay separate.
+
+### Build the main website and demo
+
+```shell
+pnpm build:site
+```
+
+This builds one deployable website in `dist/site/`: the marketing pages and
+assets from `docs/`, with the interactive demo at `/demo/`. The header and hero
+link to the demo; its **Get the extension** link returns to the install buttons.
+Generated bundles stay out of source control. CI builds this folder and uploads
+it as the `website-preview` artifact.
+
+To preview the production build locally:
+
+```shell
+python3 -m http.server 3002 --bind 0.0.0.0 --directory dist/site
+```
+
+Stop `pnpm dev:demo` first if it already uses port 3002, or choose another port.
+The root `vercel.json` sets the site build command and output folder, and
+redirects `/demo` to `/demo/` so relative assets resolve correctly. Vercel's
+**Root Directory must be the repository root**, with framework **Other**;
+a project rooted at `docs/` needs that setting changed before deployment.
+Building locally does not deploy or publish the site.
+
+Browser activation, reloads, focus, and history are simulated. Firefox
+containers and browser toolbar integration require the installed extension.
+Copy actions use the clipboard with sample URLs. See the page’s **What can I
+try?** disclosure for the supported workflows.
+
 ### Run tests
 
 Run the default local test pipeline:

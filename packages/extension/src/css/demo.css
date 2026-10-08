@@ -1,0 +1,255 @@
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #e6e9f3;
+  background: #0d1019;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: #b4bdff;
+}
+button,
+select {
+  font: inherit;
+}
+button,
+select,
+summary {
+  cursor: pointer;
+}
+button,
+select {
+  border: 1px solid #3b435d;
+  border-radius: 8px;
+  background: #202637;
+  color: #e6e9f3;
+  min-height: 36px;
+  padding: 6px 12px;
+}
+button:hover,
+select:hover {
+  border-color: #a2adff;
+  background: #2a3248;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+:focus-visible {
+  outline: 2px solid #a2adff;
+  outline-offset: 4px;
+}
+.demo-skip {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 10;
+  padding: 12px;
+  background: #313957;
+}
+.demo-skip:focus {
+  top: 8px;
+}
+.demo-page {
+  max-width: 1600px;
+  padding: 0 28px 20px;
+  margin: auto;
+}
+.demo-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 72px;
+  border-bottom: 1px solid #262c3f;
+  font-size: 14px;
+}
+.demo-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 650;
+  font-size: 17px;
+}
+.demo-badge {
+  font-size: 11px;
+  color: #bec6ff;
+  padding: 5px 8px;
+  background: #272c4b;
+  border-radius: 5px;
+}
+.demo-back {
+  margin-left: auto;
+  color: #b9c0d5;
+}
+.demo-install {
+  padding: 7px 10px;
+  border: 1px solid #5868a9;
+  border-radius: 8px;
+  background: #353f73;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.demo-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 0 18px;
+}
+.demo-eyebrow {
+  color: #aab5ff;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin: 0 0 6px;
+}
+h1 {
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  margin: 0 0 8px;
+}
+.demo-intro p:not(.demo-eyebrow) {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #b9c0d5;
+  margin: 0;
+}
+.demo-memory {
+  border-left: 2px solid #626fbd;
+  padding-left: 14px;
+  flex-shrink: 0;
+}
+.demo-controls {
+  border: 1px solid #303750;
+  border-radius: 12px 12px 0 0;
+  background: #171c2b;
+  padding: 12px 16px;
+}
+.demo-control-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+}
+.demo-control-row label {
+  color: #c2c9db;
+}
+#reset-demo {
+  background: #353f73;
+  border-color: #5868a9;
+}
+.demo-counts {
+  margin-left: auto;
+  color: #b9c0d5;
+  font-variant-numeric: tabular-nums;
+}
+.demo-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+  color: #b9c0d5;
+}
+.demo-frame-wrap {
+  position: relative;
+  height: max(520px, calc(100dvh - 330px));
+  background: #151a26;
+  border: 1px solid #303750;
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+iframe {
+  display: block;
+  border: 0;
+  height: 100%;
+  width: 100%;
+  background: #151a26;
+}
+.demo-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #151a26;
+  margin: 0;
+  color: #b9c0d5;
+}
+.demo-loading[hidden] {
+  display: none;
+}
+.demo-footer {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  font-size: 12px;
+  color: #b9c0d5;
+  padding-top: 12px;
+  line-height: 1.6;
+}
+.demo-footer > p {
+  margin: 0;
+  flex: 1;
+}
+.demo-footer details {
+  max-width: 560px;
+}
+.demo-footer summary {
+  text-align: right;
+  color: #c6ceff;
+}
+.demo-footer details p {
+  margin: 10px 0 0;
+}
+@media (max-width: 700px) {
+  .demo-page {
+    padding: 0 12px 16px;
+  }
+  .demo-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 62px;
+    padding: 10px 0;
+  }
+  .demo-brand {
+    font-size: 14px;
+  }
+  .demo-back {
+    font-size: 12px;
+  }
+  .demo-badge,
+  .demo-memory {
+    display: none;
+  }
+  .demo-intro {
+    padding: 18px 0;
+  }
+  .demo-controls {
+    padding: 10px;
+  }
+  .demo-counts {
+    margin-left: 0;
+    width: 100%;
+  }
+  .demo-frame-wrap {
+    height: 620px;
+  }
+  .demo-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .demo-footer summary {
+    text-align: left;
+  }
+}

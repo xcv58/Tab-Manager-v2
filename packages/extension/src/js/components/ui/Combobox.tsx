@@ -245,12 +245,22 @@ export function useCombobox<T>({
     role: 'listbox',
     id: listboxId,
     onPointerDownCapture: (event: React.PointerEvent<HTMLElement>) => {
-      if (preservePopupInteraction(event.target)) {
+      // Keep input focus through option clicks. Blurring can exit command
+      // mode and replace the option before its click handler executes.
+      const preserveInteraction = preservePopupInteraction(event.target)
+      if (
+        (event.target as HTMLElement).closest?.('[role="option"]') ||
+        preserveInteraction
+      ) {
         event.preventDefault()
       }
     },
     onMouseDownCapture: (event: React.MouseEvent<HTMLElement>) => {
-      if (preservePopupInteraction(event.target)) {
+      const preserveInteraction = preservePopupInteraction(event.target)
+      if (
+        (event.target as HTMLElement).closest?.('[role="option"]') ||
+        preserveInteraction
+      ) {
         event.preventDefault()
       }
     },
