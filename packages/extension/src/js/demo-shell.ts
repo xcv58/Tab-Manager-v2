@@ -21,6 +21,20 @@ const hints: Record<string, string> = {
 }
 
 let loadingTimer: ReturnType<typeof setTimeout>
+const workspaceUrl = (selectedScenario: string) => {
+  // Keep DOM-controlled text out of iframe URLs, including unexpected values.
+  switch (selectedScenario) {
+    case 'duplicates':
+      return 'workspace.html?not_popup=1#scenario=duplicates'
+    case 'large':
+      return 'workspace.html?not_popup=1#scenario=large'
+    case 'empty':
+      return 'workspace.html?not_popup=1#scenario=empty'
+    default:
+      return 'workspace.html?not_popup=1#scenario=workspace'
+  }
+}
+
 const loadWorkspace = () => {
   clearTimeout(loadingTimer)
   hint.textContent = hints[scenario.value]
@@ -33,7 +47,7 @@ const loadWorkspace = () => {
   // A hash-only navigation keeps the old document and its stores alive. A new
   // browsing context guarantees that reset/scenario changes discard all state.
   const nextFrame = frame.cloneNode(false) as HTMLIFrameElement
-  nextFrame.src = `workspace.html?not_popup=1#scenario=${scenario.value}`
+  nextFrame.src = workspaceUrl(scenario.value)
   frame.replaceWith(nextFrame)
   frame = nextFrame
   loadingTimer = setTimeout(() => {
