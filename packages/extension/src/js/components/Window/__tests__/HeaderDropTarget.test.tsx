@@ -1,5 +1,6 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
+import { observable, runInAction } from 'mobx'
 import { StoreContext } from 'components/hooks/useStore'
 import { AppThemeContext, lightAppTheme, darkAppTheme } from 'libs/appTheme'
 import HeaderDropTarget from '../HeaderDropTarget'
@@ -86,28 +87,33 @@ describe('window header drop targets', () => {
   )
 
   it('shows both header halves only during a drag and retains the top insertion strip', () => {
-    const store = { dragStore: { dragging: false } } as any
+    const store = { dragStore: observable({ dragging: false }) } as any
     const win = { id: 7, canDrop: true } as any
-    const view = () => (
+    render(
       <StoreContext.Provider value={store}>
         <DroppableTitle win={win} />
-      </StoreContext.Provider>
+      </StoreContext.Provider>,
     )
-    const { rerender } = render(view())
     expect(
       screen.queryByTestId('window-header-drop-targets-7'),
     ).not.toBeInTheDocument()
 
-    store.dragStore.dragging = true
-    rerender(view())
+    act(() => {
+      runInAction(() => {
+        store.dragStore.dragging = true
+      })
+    })
     expect(
       screen.getByTestId('window-header-drop-beginning-7'),
     ).toBeInTheDocument()
     expect(screen.getByTestId('window-header-drop-end-7')).toBeInTheDocument()
     expect(screen.getByTestId('top-insertion-strip')).toBeInTheDocument()
 
-    store.dragStore.dragging = false
-    rerender(view())
+    act(() => {
+      runInAction(() => {
+        store.dragStore.dragging = false
+      })
+    })
     expect(
       screen.queryByTestId('window-header-drop-targets-7'),
     ).not.toBeInTheDocument()
