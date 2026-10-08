@@ -31,14 +31,3 @@ for (const entry of ['index.html', 'demo/index.html', 'demo/workspace.html']) {
   }
 }
 process.stdout.write(`Website and demo built to ${await realpath(output)}\n`)
-if (process.env.VERCEL) {
-  process.stdout.write(
-    `Website build directories: ${JSON.stringify({
-      cwd: process.cwd(),
-      root,
-      initCwd: process.env.INIT_CWD,
-      pwd: process.env.PWD,
-      configuredOutput: process.env.VERCEL_PROJECT_SETTINGS_OUTPUT_DIRECTORY,
-    })}\n`,
-  )
-}

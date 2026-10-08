@@ -161,6 +161,8 @@ tools), sets the site build command and output folder, and
 redirects `/demo` to `/demo/` so relative assets resolve correctly. Vercel's
 **Root Directory must be the repository root**, with framework **Other**;
 a project rooted at `docs/` needs that setting changed before deployment.
+pnpm can find the root build script from `docs/`, but Vercel still resolves
+the output folder relative to its configured Root Directory.
 Building locally does not deploy or publish the site.
 
 Browser activation, reloads, focus, and history are simulated. Firefox
