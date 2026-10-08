@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Install Tab Manager v2, learn its shortcuts and browser features, and find help or report an issue."
+    />
+    <link rel="icon" type="image/png" href="../assets/images/logo.png" />
+    <script src="../assets/site-shell.js"></script>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../assets/site-pages.css" />
+    <script src="../assets/site-pages.js" defer></script>
+    <title>Support · Tab Manager v2</title>
+  </head>
+  <body class="site-content-page" data-site-page="support">
+    <a class="skip-link" href="#main-content" data-page-copy="skip"
+      >Skip to main content</a
+    >
+    <div class="container">
+      <!-- site-header -->
+      <div
+        class="sr-only"
+        id="theme-announcement"
+        role="status"
+        aria-live="polite"
+      ></div>
+      <div
+        class="sr-only"
+        id="language-announcement"
+        role="status"
+        aria-live="polite"
+      ></div>
+      <main id="main-content" class="site-page-main">
+        <header class="page-intro">
+          <p class="page-eyebrow">Tab Manager v2</p>
+          <h1 data-page-copy="supportTitle">Support</h1>
+          <p class="page-lead" data-page-copy="supportLead">
+            Get started, find the right browser features, or report a problem.
+          </p>
+        </header>
+        <nav
+          class="page-section-links"
+          aria-label="On this page"
+          data-page-label="contentsNav"
+        >
+          <a href="#install" data-page-copy="installTitle">Install</a>
+          <a href="#quick-start" data-page-copy="quickStartTitle"
+            >Quick start</a
+          >
+          <a href="#browser-features" data-page-copy="browserFeaturesTitle"
+            >Browser features</a
+          >
+          <a href="#demo" data-page-copy="demoTitle">Using the demo</a>
+          <a href="#get-help" data-page-copy="getHelpTitle">Get help</a>
+        </nav>
+        <div class="page-prose">
+          <section id="install" aria-labelledby="install-heading">
+            <h2 id="install-heading" data-page-copy="installTitle">Install</h2>
+            <p data-page-copy="installIntro">
+              Choose the store for your browser. After installation, open Tab
+              Manager v2 from the browser toolbar.
+            </p>
+            <div class="page-actions">
+              <a
+                class="page-button"
+                href="https://chromewebstore.google.com/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
+                >Chrome Web Store</a
+              >
+              <a
+                class="page-button"
+                href="https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2/"
+                >Firefox Add-ons</a
+              >
+              <a
+                class="page-button"
+                href="https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb"
+                >Microsoft Edge Add-ons</a
+              >
+            </div>
+            <p data-page-copy="browserSupport">
+              Chrome, Edge, and Firefox are supported. Feature availability
+              follows the APIs exposed by your browser. Safari is not supported
+              by this project; the limitation is tracked in
+              <a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545"
+                >issue #2545</a
+              >.
+            </p>
+          </section>
+
+          <section id="quick-start" aria-labelledby="quick-start-heading">
+            <h2 id="quick-start-heading" data-page-copy="quickStartTitle">
+              Quick start
+            </h2>
+            <ol>
+              <li data-page-copy="quickStartOpen">
+                Open the extension from the browser toolbar, or open it in its
+                own tab or window for a larger view.
+              </li>
+              <li data-page-copy="quickStartSearch">
+                Press <kbd>/</kbd> to search open tabs across all windows. Press
+                <kbd>&gt;</kbd> for the command palette or <kbd>?</kbd> for
+                shortcut help.
+              </li>
+              <li data-page-copy="quickStartSelect">
+                Select matching tabs, then move, group, or close them in bulk.
+              </li>
+            </ol>
+            <div
+              class="page-table-wrap"
+              tabindex="0"
+              role="region"
+              aria-labelledby="shortcuts-heading"
+            >
+              <table class="page-table">
+                <caption id="shortcuts-heading" data-page-copy="shortcutsTitle">
+                  Useful shortcuts
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" data-page-copy="shortcutAction">Action</th>
+                    <th scope="col" data-page-copy="shortcutKeys">Shortcut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutFocus">
+                      Focus tab search
+                    </th>
+                    <td><kbd>/</kbd></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutCommands">
+                      Open command palette
+                    </th>
+                    <td><kbd>&gt;</kbd></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutSelect">
+                      Select focused tab
+                    </th>
+                    <td><kbd>x</kbd> / <kbd>Space</kbd></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutWindow">
+                      Move selected tabs into a new window
+                    </th>
+                    <td><kbd>Shift</kbd> + <kbd>N</kbd></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutGroup">
+                      Create a group from selected tabs
+                    </th>
+                    <td><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutSettings">
+                      Open settings
+                    </th>
+                    <td><kbd>Ctrl</kbd> + <kbd>,</kbd></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="shortcutHelp">
+                      Show shortcut help
+                    </th>
+                    <td><kbd>?</kbd></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p data-page-copy="shortcutNote">
+              Shortcut behavior can vary by platform and browser. Use the in-app
+              shortcut help for the full list.
+            </p>
+          </section>
+
+          <section
+            id="browser-features"
+            aria-labelledby="browser-features-heading"
+          >
+            <h2
+              id="browser-features-heading"
+              data-page-copy="browserFeaturesTitle"
+            >
+              Browser features
+            </h2>
+            <h3 data-page-copy="groupsTitle">Native tab groups</h3>
+            <p data-page-copy="groupsBody">
+              Where your browser supports native tab groups, you can rename,
+              recolor, collapse, or ungroup them from Tab Manager v2. To create
+              a group, select tabs in the same window. Custom window names are
+              not a feature; use tab groups for named collections of tabs.
+            </p>
+            <h3 data-page-copy="historyTitle">
+              Optional browser history search
+            </h3>
+            <p data-page-copy="historyBody">
+              In settings, enable "Include browser history in results" to
+              include browser history in search. Turn it off to search without
+              history results. This feature uses the browser's
+              <code>history</code> permission. Read the
+              <a href="../privacy/">privacy policy</a> for details about browser
+              access and stored data.
+            </p>
+            <h3 data-page-copy="containersTitle">Firefox containers</h3>
+            <p data-page-copy="containersBody">
+              Container-aware workflows are available in Firefox when the
+              browser exposes the required APIs. They use container identities
+              and related cookie-store information. Firefox containers are
+              separate from native tab groups and require the installed
+              extension.
+            </p>
+            <h3 data-page-copy="settingsTitle">Settings and appearance</h3>
+            <p data-page-copy="settingsBody">
+              Use extension settings to change theme, tab width, font size,
+              toolbar visibility, URL display, and search preferences. Settings
+              use browser sync storage when available, with local storage as a
+              fallback. Website theme and language controls apply to this
+              website; the installed extension has its own settings.
+            </p>
+          </section>
+
+          <section id="demo" aria-labelledby="demo-heading">
+            <h2 id="demo-heading" data-page-copy="demoTitle">Using the demo</h2>
+            <p data-page-copy="demoBody">
+              The <a href="../demo/">interactive demo</a> uses the real
+              extension interface with sample tabs, groups, and history. Changes
+              stay in the demo and do not affect your actual browser tabs.
+            </p>
+            <ul>
+              <li data-page-copy="demoReset">
+                Refresh, change the workspace, or choose "Start over" to discard
+                sample edits and demo preferences. Saved website theme and
+                language stay unchanged.
+              </li>
+              <li data-page-copy="demoSimulation">
+                Tab activation, reloads, window focus, and browser history are
+                simulated. Firefox containers and browser toolbar integration
+                require the installed extension.
+              </li>
+              <li data-page-copy="demoClipboard">
+                Copy actions copy sample URLs to your clipboard and depend on
+                browser clipboard access.
+              </li>
+              <li data-page-copy="demoScale">
+                The optional 1,500-tab workspace explores the interface with
+                simulated data; it is not a native browser memory benchmark.
+              </li>
+              <li data-page-copy="demoLanguage">
+                The embedded extension interface is shown in English. Website
+                text supports English, Simplified Chinese, and Traditional
+                Chinese.
+              </li>
+            </ul>
+          </section>
+
+          <section
+            id="get-help"
+            class="page-help-section"
+            aria-labelledby="get-help-heading"
+          >
+            <h2 id="get-help-heading" data-page-copy="getHelpTitle">
+              Get help
+            </h2>
+            <p data-page-copy="getHelpIntro">
+              Search existing GitHub issues for the behavior you are seeing. If
+              you cannot find a match, open a bug report or feature request.
+            </p>
+            <div class="page-actions">
+              <a
+                class="page-button"
+                href="https://github.com/xcv58/Tab-Manager-v2/issues"
+                data-page-copy="browseIssues"
+                >Browse existing issues</a
+              >
+              <a
+                class="page-button page-button-primary"
+                href="https://github.com/xcv58/Tab-Manager-v2/issues/new/choose"
+                data-page-copy="openIssue"
+                >Open an issue</a
+              >
+            </div>
+            <h3 data-page-copy="reportTitle">
+              Make a report easy to reproduce
+            </h3>
+            <ul>
+              <li data-page-copy="reportVersion">
+                Include your browser name and version, operating system, and Tab
+                Manager v2 version.
+              </li>
+              <li data-page-copy="reportSteps">
+                Describe the steps, what you expected, and what actually
+                happened. Add a screenshot when it helps explain the problem.
+              </li>
+              <li data-page-copy="reportEnvironment">
+                Say whether the problem occurs in the installed extension or the
+                website demo. For demo problems, include the workspace preset
+                and the page URL.
+              </li>
+            </ul>
+            <p data-page-copy="reportSource">
+              The
+              <a href="https://github.com/xcv58/Tab-Manager-v2"
+                >GitHub repository</a
+              >
+              also contains development instructions and the project README.
+            </p>
+          </section>
+        </div>
+      </main>
+      <footer class="site-footer page-footer">
+        <p>&copy; 2026 Jenny Media LLC</p>
+        <nav
+          class="footer-links"
+          aria-label="Footer navigation"
+          data-page-label="footerNav"
+        >
+          <a href="../" data-page-copy="overview">Overview</a>
+          <a href="../demo/" data-page-copy="demo">Try demo</a>
+          <a href="../privacy/" data-page-copy="privacy">Privacy</a>
+          <a href="../support/" aria-current="page" data-page-copy="support"
+            >Support</a
+          >
+        </nav>
+      </footer>
+    </div>
+  </body>
+</html>

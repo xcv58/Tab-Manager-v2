@@ -12,6 +12,7 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample tabs. Your browser stays untouched.':
       '示例标签页，不影响你的浏览器。',
     'About this workspace': '关于此工作区',
+    'Sample workspace': '示例工作区',
     'Add tab': '添加标签页',
     'Try before you install': '安装前先体验',
     'Explore your kind of workspace.': '体验适合你的工作区。',
@@ -56,6 +57,7 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample tabs. Your browser stays untouched.':
       '範例分頁，不影響你的瀏覽器。',
     'About this workspace': '關於此工作區',
+    'Sample workspace': '範例工作區',
     'Add tab': '新增分頁',
     'Try before you install': '安裝前先體驗',
     'Explore your kind of workspace.': '體驗適合你的工作區。',

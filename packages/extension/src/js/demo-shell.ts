@@ -26,6 +26,21 @@ const stress = document.querySelector<HTMLElement>('#scenario-stress')!
 const addTab = document.querySelector<HTMLButtonElement>('#add-tab')!
 const reset = document.querySelector<HTMLButtonElement>('#reset-demo')!
 const about = document.querySelector<HTMLDetailsElement>('#demo-about')!
+const guide = about.querySelector<HTMLElement>('.demo-guide')!
+const fitGuide = () => {
+  if (!about.open) return
+  const trigger = about.querySelector('summary')!.getBoundingClientRect()
+  if (trigger.bottom < 0 || trigger.top > window.innerHeight) {
+    about.open = false
+    return
+  }
+  const below = window.innerHeight - trigger.bottom - 28
+  const above = trigger.top - 28
+  const opensAbove = below < 160 && above > below
+  guide.style.top = opensAbove ? 'auto' : 'calc(100% + 12px)'
+  guide.style.bottom = opensAbove ? 'calc(100% + 12px)' : 'auto'
+  guide.style.maxHeight = `${Math.min(520, Math.max(0, opensAbove ? above : below))}px`
+}
 
 const requested = new URL(window.location.href).searchParams.get('scenario')
 let selected: DemoScenario =
@@ -64,6 +79,7 @@ const renderCopy = () => {
   document.querySelectorAll<HTMLElement>('[data-demo-copy]').forEach((node) => {
     node.textContent = text(node.dataset.demoCopy!)
   })
+  about.querySelector('summary')!.title = text('About this workspace')
   const groups = new Map<string, HTMLOptGroupElement>()
   scenario.replaceChildren()
   ;['Workflow', 'Windows and groups', 'Scale and edge cases'].forEach(
@@ -105,6 +121,7 @@ const renderCopy = () => {
       : site?.getLanguage() === 'zh-Hant'
         ? '試用 Tab Manager v2 · 互動示範'
         : 'Try Tab Manager v2 · Interactive demo'
+  fitGuide()
 }
 
 const sendTheme = () =>
@@ -175,6 +192,9 @@ window.addEventListener('message', (event) => {
 })
 scenario.addEventListener('change', loadWorkspace)
 reset.addEventListener('click', loadWorkspace)
+about.addEventListener('toggle', fitGuide)
+window.addEventListener('resize', fitGuide)
+window.addEventListener('scroll', fitGuide, { passive: true })
 document.addEventListener('click', (event) => {
   if (event.target instanceof Node && !about.contains(event.target))
     about.open = false

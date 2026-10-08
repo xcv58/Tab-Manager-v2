@@ -1,5 +1,5 @@
 const path = require('path')
-const fs = require('fs')
+const { renderHeader } = require('../../scripts/site-pages.js')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { PurgeCSSPlugin } = require('purgecss-webpack-plugin')
@@ -10,19 +10,7 @@ const extensionConfig = require('./webpack.config')
 module.exports = () => {
   const config = extensionConfig()
   const websiteRoot = path.resolve(__dirname, '../../docs')
-  const website = fs.readFileSync(path.join(websiteRoot, 'index.html'), 'utf8')
-  // The marketing page is the single source for the shared header markup.
-  const header = website.match(
-    /<header class="site-header[^"]*"[\s\S]*?<\/header>/,
-  )?.[0]
-  if (!header) throw new Error('The website header could not be found')
-  const siteHeader = header
-    .replace('site-header fade-in', 'site-header')
-    .replace(/ aria-current="page"/g, '')
-    .replace(/href="index.html"/g, 'href="../"')
-    .replace('href="demo/"', 'href="./" aria-current="page"')
-    .replace('href="#install"', 'href="../#install"')
-    .replace('src="assets/images/logo.png"', 'src="./site/logo.png"')
+  const siteHeader = renderHeader('demo', { logo: './site/logo.png' })
   return {
     ...config,
     entry: {
