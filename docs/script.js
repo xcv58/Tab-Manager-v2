@@ -514,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (
             parentElement.closest(
-              '[data-i18n-html], .site-header, #theme-announcement, #language-announcement, code, script, style, svg',
+              '[data-i18n-html], [data-site-appearance], .site-header, #theme-announcement, #language-announcement, code, script, style, svg',
             )
           ) {
             return NodeFilter.FILTER_REJECT
@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .join(',')
 
     document.querySelectorAll(attributeSelector).forEach((element) => {
-      if (element.closest('.site-header')) return
+      if (element.closest('.site-header, [data-site-appearance]')) return
       if (!originalAttributes.has(element)) {
         originalAttributes.set(element, {})
       }

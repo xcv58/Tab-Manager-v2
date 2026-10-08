@@ -14,13 +14,6 @@
       Language: '语言',
       'Choose language': '选择语言',
       'Main navigation': '主导航',
-      'Theme Toggle': '主题切换',
-      'System Theme': '跟随系统主题',
-      'Light Theme': '浅色主题',
-      'Dark Theme': '深色主题',
-      'Match System': '跟随系统',
-      'Light Mode': '浅色模式',
-      'Dark Mode': '深色模式',
       'Tab Manager v2 logo': 'Tab Manager v2 标志',
     },
     'zh-Hant': {
@@ -32,13 +25,6 @@
       Language: '語言',
       'Choose language': '選擇語言',
       'Main navigation': '主導覽',
-      'Theme Toggle': '主題切換',
-      'System Theme': '跟隨系統主題',
-      'Light Theme': '淺色主題',
-      'Dark Theme': '深色主題',
-      'Match System': '跟隨系統',
-      'Light Mode': '淺色模式',
-      'Dark Mode': '深色模式',
       'Tab Manager v2 logo': 'Tab Manager v2 標誌',
     },
   }
@@ -172,16 +158,41 @@
   }
 
   function updateControls() {
-    ;['system', 'light', 'dark'].forEach((value) => {
-      const button = document.getElementById(`btn-${value}`)
-      if (!button) return
-      const active = theme === value
-      button.classList.toggle('active', active)
-      button.setAttribute('aria-pressed', String(active))
-    })
     const selector = document.getElementById('language-selector')
     if (selector) selector.value = language
     localizeHeader()
+    const toggle = document.getElementById('theme-toggle')
+    if (toggle) {
+      const nextAppearance = resolvedTheme === 'dark' ? 'light' : 'dark'
+      const label =
+        nextAppearance === 'dark'
+          ? text(
+              'Switch to dark appearance',
+              '切换为深色外观',
+              '切換為深色外觀',
+            )
+          : text(
+              'Switch to light appearance',
+              '切换为浅色外观',
+              '切換為淺色外觀',
+            )
+      toggle.setAttribute('aria-label', label)
+      toggle.title = label
+      toggle.querySelectorAll('[data-theme-icon]').forEach((icon) => {
+        icon.toggleAttribute(
+          'hidden',
+          icon.dataset.themeIcon !== nextAppearance,
+        )
+      })
+    }
+    document.querySelectorAll('[data-site-appearance]').forEach((button) => {
+      button.textContent = text(
+        'Use system appearance',
+        '使用系统外观',
+        '使用系統外觀',
+      )
+      button.setAttribute('aria-pressed', String(theme === 'system'))
+    })
   }
 
   function announceTheme() {
@@ -252,10 +263,11 @@
 
   function ready() {
     updateControls()
-    ;['system', 'light', 'dark'].forEach((value) => {
-      document.getElementById(`btn-${value}`)?.addEventListener('click', () => {
-        setTheme(value)
-      })
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
+      setTheme(resolveTheme() === 'dark' ? 'light' : 'dark')
+    })
+    document.querySelectorAll('[data-site-appearance]').forEach((button) => {
+      button.addEventListener('click', () => setTheme('system'))
     })
     const selector = document.getElementById('language-selector')
     selector?.addEventListener('change', () => setLanguage(selector.value))

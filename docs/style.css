@@ -23,7 +23,6 @@
   --hero-glow: rgba(99, 102, 241, 0.06);
   --card-hover-shadow: rgba(99, 102, 241, 0.1);
   --tap-target-size: 44px;
-  --theme-toggle-size: 32px;
   --screenshot-shell-light: #e8edf4;
   --screenshot-shell-dark: #1e242b;
   --screenshot-shell-radius: 8px;
@@ -397,27 +396,19 @@ code {
 
 /* Theme Toggle */
 
-.theme-switch {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  padding: 2px;
-  border-radius: 999px;
+.theme-toggle {
   border: 1px solid var(--border);
   background: var(--toggle-bg);
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.theme-btn {
-  border: none;
-  background: transparent;
   color: var(--text-secondary);
-  width: var(--theme-toggle-size);
-  height: var(--theme-toggle-size);
+  width: 40px;
+  height: 40px;
+  flex: none;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
+  box-shadow: 0 2px 8px var(--shadow);
   cursor: pointer;
   transition:
     background-color 0.2s ease,
@@ -425,19 +416,24 @@ code {
     box-shadow 0.2s ease;
 }
 
-.theme-btn svg {
-  width: 14px;
-  height: 14px;
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
 }
 
-.theme-btn.active {
-  background: var(--toggle-active);
-  color: var(--text-primary);
-  box-shadow: 0 1px 3px var(--shadow);
+.theme-toggle [hidden] {
+  display: none;
 }
 
-.theme-btn:hover:not(.active) {
+.theme-toggle:hover {
+  background: var(--surface-hover);
   color: var(--text-primary);
+}
+
+.theme-toggle:focus-visible,
+.system-appearance:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* --- Hero --- */
@@ -1426,7 +1422,8 @@ code {
   gap: 18px;
 }
 
-.footer-links a {
+.footer-links a,
+.system-appearance {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-target-size);
@@ -1435,7 +1432,16 @@ code {
   font-weight: 500;
 }
 
-.footer-links a:hover {
+.system-appearance {
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.footer-links a:hover,
+.system-appearance:hover,
+.system-appearance[aria-pressed='true'] {
   color: var(--accent);
 }
 
@@ -1735,7 +1741,6 @@ code {
     padding: 0 8px;
   }
 
-  .theme-switch,
   .screenshot-theme-switch {
     gap: 2px;
     padding: 2px;
@@ -1746,9 +1751,9 @@ code {
     padding-left: 36px;
   }
 
-  .theme-btn {
-    width: 36px;
-    height: 36px;
+  .theme-toggle {
+    width: var(--tap-target-size);
+    height: var(--tap-target-size);
   }
 
   .screenshot-theme-btn {

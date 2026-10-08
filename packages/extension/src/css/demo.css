@@ -268,12 +268,24 @@
   font-variant-numeric: tabular-nums;
 }
 #demo-activity {
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: right;
   margin: 0;
+}
+.demo-footer .system-appearance {
+  flex: none;
+  min-height: 28px;
+  padding-inline: 4px;
+  font-size: 12px;
+}
+@media (pointer: coarse) {
+  .demo-footer .system-appearance {
+    min-height: var(--tap-target-size);
+  }
 }
 @media (max-width: 1000px) {
   .demo-controls {
@@ -328,6 +340,8 @@
     flex-shrink: 1;
   }
   #demo-activity {
+    order: 1;
+    flex-basis: 100%;
     text-align: left;
   }
 }
