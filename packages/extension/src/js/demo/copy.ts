@@ -21,10 +21,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample data only. No extension required.':
       '仅使用示例数据。无需安装扩展。',
     'Choose a workspace': '选择工作区',
-    'Switching workspaces resets sample edits and demo preferences. Website theme and language stay unchanged.':
-      '切换工作区会重置示例编辑和演示偏好设置。网站主题和语言保持不变。',
-    'Switching workspaces or choosing Start over restores the sample tabs and demo preferences. Website theme and language stay unchanged.':
-      '切换工作区或选择“重新开始”会恢复示例标签页和演示偏好设置。网站主题和语言保持不变。',
+    'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. Start over also resets demo settings. Website theme and language stay saved.':
+      '刷新或切换工作区会恢复示例标签页，并保留此标签页会话中的演示设置。“重新开始”也会重置演示设置。网站主题和语言仍会保存。',
     'Starts with': '初始配置',
     'In your workspace': '当前工作区',
     'Add sample tab': '添加示例标签页',
@@ -44,8 +42,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'What can I try?': '可以体验哪些功能？',
     'Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings.':
       '搜索标题、网址、标签页组和示例历史记录。选择、固定、移动、排序、重新加载或关闭标签页；编辑标签页组；清理重复项；体验命令、快捷键、主题和设置。',
-    'Activation, reloads, focus, and history are simulated. Demo preferences reset with the workspace. Copy actions copy sample URLs. The extension interface is shown in English.':
-      '激活、重新加载、焦点和历史记录均为模拟。演示偏好设置会随工作区重置。复制操作会复制示例网址。扩展界面以英文显示。',
+    'Activation, reloads, focus, and history are simulated. Copy actions copy sample URLs. The extension interface is shown in English.':
+      '激活、重新加载、焦点和历史记录均为模拟。复制操作会复制示例网址。扩展界面以英文显示。',
     'Simulated scale, not a browser memory benchmark.':
       '这是模拟规模演示，不是浏览器内存基准测试。',
     Workflow: '常用流程',
@@ -66,10 +64,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample data only. No extension required.':
       '僅使用範例資料。無需安裝擴充功能。',
     'Choose a workspace': '選擇工作區',
-    'Switching workspaces resets sample edits and demo preferences. Website theme and language stay unchanged.':
-      '切換工作區會重設範例編輯和示範偏好設定。網站主題和語言保持不變。',
-    'Switching workspaces or choosing Start over restores the sample tabs and demo preferences. Website theme and language stay unchanged.':
-      '切換工作區或選擇「重新開始」會還原範例分頁和示範偏好設定。網站主題和語言保持不變。',
+    'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. Start over also resets demo settings. Website theme and language stay saved.':
+      '重新整理或切換工作區會還原範例分頁，並保留此分頁工作階段中的示範設定。「重新開始」也會重設示範設定。網站主題和語言仍會儲存。',
     'Starts with': '初始配置',
     'In your workspace': '目前工作區',
     'Add sample tab': '新增範例分頁',
@@ -89,8 +85,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'What can I try?': '可以體驗哪些功能？',
     'Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings.':
       '搜尋標題、網址、分頁群組和範例歷史紀錄。選取、固定、移動、排序、重新載入或關閉分頁；編輯分頁群組；清理重複項目；體驗指令、快速鍵、主題和設定。',
-    'Activation, reloads, focus, and history are simulated. Demo preferences reset with the workspace. Copy actions copy sample URLs. The extension interface is shown in English.':
-      '啟用、重新載入、焦點和歷史紀錄均為模擬。示範偏好設定會隨工作區重設。複製操作會複製範例網址。擴充功能介面以英文顯示。',
+    'Activation, reloads, focus, and history are simulated. Copy actions copy sample URLs. The extension interface is shown in English.':
+      '啟用、重新載入、焦點和歷史紀錄均為模擬。複製操作會複製範例網址。擴充功能介面以英文顯示。',
     'Simulated scale, not a browser memory benchmark.':
       '這是模擬規模示範，不是瀏覽器記憶體基準測試。',
     Workflow: '常用流程',

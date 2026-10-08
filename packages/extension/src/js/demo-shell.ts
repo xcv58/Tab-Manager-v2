@@ -1,15 +1,17 @@
 import '../css/demo.css'
 import { demoScenarios, type DemoScenario } from './demo/scenarios'
 import { demoText, localizeScenario } from './demo/copy'
+import { clearDemoPreferences } from './demo/preferences'
 
 type SitePreferences = {
   getLanguage: () => string
-  getResolvedTheme: () => string
+  getTheme: () => string
+  setTheme: (theme: string) => void
 }
 const site = (window as Window & { TabManagerSite?: SitePreferences })
   .TabManagerSite
 const language = () => site?.getLanguage() || 'en'
-const theme = () => (site?.getResolvedTheme() === 'dark' ? 'dark' : 'light')
+const theme = () => site?.getTheme() || 'system'
 const text = (english: string) => demoText(english, language())
 let frame = document.querySelector<HTMLIFrameElement>('#demo-frame')!
 const scenario = document.querySelector<HTMLSelectElement>('#scenario')!
@@ -146,7 +148,8 @@ const loadWorkspace = () => {
   addTab.disabled = true
   renderCopy()
   // Fixed catalog URLs keep DOM text out of the iframe URL. Replacing the frame
-  // discards sample stores; only website preferences persist across scenarios.
+  // discards sample stores while session configuration and website preferences
+  // remain available to the fresh frame.
   const nextFrame = frame.cloneNode(false) as HTMLIFrameElement
   nextFrame.src = `${selected.workspaceUrl}&theme=${theme()}`
   frame.replaceWith(nextFrame)
@@ -176,6 +179,14 @@ window.addEventListener('message', (event) => {
       sendTheme()
     }
   }
+  if (event.data?.type === 'demo:theme-selection' && !failed) {
+    const nextTheme = event.data.theme
+    if (
+      ['system', 'light', 'dark'].includes(nextTheme) &&
+      site?.getTheme() !== nextTheme
+    )
+      site?.setTheme(nextTheme)
+  }
   if (event.data?.type === 'demo:error') {
     failed = true
     addTab.disabled = true
@@ -191,7 +202,10 @@ window.addEventListener('message', (event) => {
   }
 })
 scenario.addEventListener('change', loadWorkspace)
-reset.addEventListener('click', loadWorkspace)
+reset.addEventListener('click', () => {
+  clearDemoPreferences()
+  loadWorkspace()
+})
 about.addEventListener('toggle', fitGuide)
 window.addEventListener('resize', fitGuide)
 window.addEventListener('scroll', fitGuide, { passive: true })

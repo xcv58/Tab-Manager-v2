@@ -126,8 +126,11 @@ Open <http://127.0.0.1:3002/demo/> for the interactive demo, or
 For access from other devices on your local network, run
 `DEMO_HOST=0.0.0.0 pnpm dev:demo` and use your computer's LAN IP address.
 The demo reuses the real extension UI with an isolated in-memory browser adapter.
-Tabs, groups, history, and demo preferences are sample data; refresh or
-**Start over** discards changes. The grouped workspace picker offers 13 cases:
+Sample tabs, groups, and history stay in memory; refresh, workspace changes, or
+**Start over** restore the sample data. Demo configuration stays in this browser
+tab’s session storage across refresh, navigation, and workspace changes.
+**Start over** also resets demo configuration. Theme controls share the website’s
+saved theme; website theme and language stay in local storage. The grouped workspace picker offers 13 cases:
 everyday use, duplicates, mixed tab states, many or uneven windows, many/few/no
 groups, a crowded workspace, a single 240-tab window, one tab, an empty workspace,
 and an opt-in 1,500-tab workspace across 50 windows. This last case exercises the

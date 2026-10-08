@@ -11,11 +11,13 @@ import {
   DemoTab,
   DemoWindow,
 } from './fixtures'
+import { readDemoPreferences, saveDemoPreferences } from './preferences'
 
 export { demoScenarios } from './fixtures'
 
 // This module replaces webextension-polyfill only in the dedicated demo build.
-// It never reads window.chrome, real tabs, or any persistent browser storage.
+// It never reads window.chrome or real tabs. Only demo configuration is saved
+// in the website tab's session; sample browser state stays in memory.
 const clone = <T>(value: T): T =>
   value === undefined ? value : JSON.parse(JSON.stringify(value))
 
@@ -81,14 +83,21 @@ const localData: Record<string, unknown> = {
   lastFocusedWindowId: currentWindowId,
   tabHistory: clone(tabHistory),
 }
+const initialTheme =
+  typeof window === 'undefined'
+    ? 'system'
+    : new URLSearchParams(window.location.hash.slice(1)).get('theme')
 const syncData: Record<string, unknown> = {
   autoFocusSearch: false,
   searchHistory: true,
-  useSystemTheme: false,
-  darkTheme:
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.hash.slice(1)).get('theme') === 'dark',
+  ...readDemoPreferences(),
+  // The website's theme is authoritative, separate from session configuration.
+  useSystemTheme: initialTheme !== 'dark' && initialTheme !== 'light',
+  darkTheme: initialTheme === 'dark',
 }
+
+export const getDemoTheme = () =>
+  syncData.useSystemTheme ? 'system' : syncData.darkTheme ? 'dark' : 'light'
 
 export const getDemoState = () => ({
   scenario: initialScenario,
@@ -376,6 +385,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
       data[key] = clone(items[key])
     })
     if (Object.keys(changes).length) {
+      if (area === 'sync') saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
       notify()
     }
@@ -388,6 +398,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
       delete data[key]
     })
     if (Object.keys(changes).length) {
+      if (area === 'sync') saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
       notify()
     }
@@ -403,6 +414,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
       delete data[key]
     })
     if (Object.keys(changes).length) {
+      if (area === 'sync') saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
       notify()
     }

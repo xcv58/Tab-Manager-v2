@@ -183,7 +183,9 @@
   background: var(--bg-color);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 4px 16px var(--shadow);
+  box-shadow:
+    0 2px 6px var(--shadow),
+    0 10px 28px -8px var(--shadow-lg);
   overflow: hidden;
 }
 .demo-browser-bar {
