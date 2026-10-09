@@ -162,21 +162,32 @@ test.describe('Selected tab move regressions', () => {
         ['A', 'B', 'C', 'D'],
         ['TargetA', 'TargetB', 'Tail'],
       ])
-      const destinationWindowId = createdWindowIds[1]
+      const [sourceWindowId, destinationWindowId] = createdWindowIds
       const groupId = await page.evaluate(
-        async ({ source, destination }) => {
+        async ({
+          source,
+          destination,
+          sourceWindowId,
+          destinationWindowId,
+        }) => {
           const groupId = await chrome.tabs.group({
             tabIds: source.slice(1, 3),
+            createProperties: { windowId: sourceWindowId },
           })
           await chrome.tabGroups.update(groupId, {
             title: 'Keep me',
             color: 'blue',
           })
-          await chrome.tabs.group({ tabIds: destination.slice(0, 2) })
+          await chrome.tabs.group({
+            tabIds: destination.slice(0, 2),
+            createProperties: { windowId: destinationWindowId },
+          })
           return groupId
         },
-        { source, destination },
+        { source, destination, sourceWindowId, destinationWindowId },
       )
+      expect(await readWindowOrder(sourceWindowId)).toEqual(source)
+      expect(await readWindowOrder(destinationWindowId)).toEqual(destination)
       await reloadPopup()
       await selectTabs(source.slice(1, 3))
       const target = page.getByTestId(`tab-row-${destination[before ? 1 : 0]}`)
@@ -226,14 +237,25 @@ test.describe('Selected tab move regressions', () => {
       ['A', 'B', 'C', 'D'],
       ['Target', 'Tail'],
     ])
-    const destinationWindowId = createdWindowIds[1]
-    const groupIds = await page.evaluate(async (ids) => {
-      const first = await chrome.tabs.group({ tabIds: ids.slice(0, 2) })
-      const second = await chrome.tabs.group({ tabIds: ids.slice(2, 4) })
-      await chrome.tabGroups.update(first, { title: 'First', color: 'blue' })
-      await chrome.tabGroups.update(second, { title: 'Second', color: 'red' })
-      return [first, second]
-    }, source)
+    const [sourceWindowId, destinationWindowId] = createdWindowIds
+    const groupIds = await page.evaluate(
+      async ({ ids, windowId }) => {
+        const first = await chrome.tabs.group({
+          tabIds: ids.slice(0, 2),
+          createProperties: { windowId },
+        })
+        const second = await chrome.tabs.group({
+          tabIds: ids.slice(2, 4),
+          createProperties: { windowId },
+        })
+        await chrome.tabGroups.update(first, { title: 'First', color: 'blue' })
+        await chrome.tabGroups.update(second, { title: 'Second', color: 'red' })
+        return [first, second]
+      },
+      { ids: source, windowId: sourceWindowId },
+    )
+    expect(await readWindowOrder(sourceWindowId)).toEqual(source)
+    expect(await readWindowOrder(destinationWindowId)).toEqual(destination)
     await reloadPopup()
     await selectTabs(source)
     const target = page.getByTestId(`tab-row-${destination[0]}`)
@@ -272,20 +294,28 @@ test.describe('Selected tab move regressions', () => {
       ['Pin', 'A', 'B', 'Remain'],
       ['Lead', 'TargetA', 'TargetB', 'Tail'],
     ])
-    const destinationWindowId = createdWindowIds[1]
+    const [sourceWindowId, destinationWindowId] = createdWindowIds
     const groupId = await page.evaluate(
-      async ({ source, destination }) => {
+      async ({ source, destination, sourceWindowId, destinationWindowId }) => {
         await chrome.tabs.update(source[0], { pinned: true })
-        const groupId = await chrome.tabs.group({ tabIds: source.slice(1, 3) })
+        const groupId = await chrome.tabs.group({
+          tabIds: source.slice(1, 3),
+          createProperties: { windowId: sourceWindowId },
+        })
         await chrome.tabGroups.update(groupId, {
           title: 'Keep me',
           color: 'blue',
         })
-        await chrome.tabs.group({ tabIds: destination.slice(1, 3) })
+        await chrome.tabs.group({
+          tabIds: destination.slice(1, 3),
+          createProperties: { windowId: destinationWindowId },
+        })
         return groupId
       },
-      { source, destination },
+      { source, destination, sourceWindowId, destinationWindowId },
     )
+    expect(await readWindowOrder(sourceWindowId)).toEqual(source)
+    expect(await readWindowOrder(destinationWindowId)).toEqual(destination)
     await reloadPopup()
     await selectTabs(source.slice(0, 3))
     await page
