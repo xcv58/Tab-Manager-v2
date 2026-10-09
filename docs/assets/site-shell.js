@@ -14,6 +14,8 @@
       Language: '语言',
       'Choose language': '选择语言',
       'Main navigation': '主导航',
+      'Open menu': '打开菜单',
+      'Close menu': '关闭菜单',
       'Tab Manager v2 logo': 'Tab Manager v2 标志',
     },
     'zh-Hant': {
@@ -25,6 +27,8 @@
       Language: '語言',
       'Choose language': '選擇語言',
       'Main navigation': '主導覽',
+      'Open menu': '開啟選單',
+      'Close menu': '關閉選單',
       'Tab Manager v2 logo': 'Tab Manager v2 標誌',
     },
   }
@@ -161,6 +165,15 @@
     const selector = document.getElementById('language-selector')
     if (selector) selector.value = language
     localizeHeader()
+    const menuToggle = document.getElementById('site-menu-toggle')
+    if (menuToggle) {
+      const label =
+        menuToggle.getAttribute('aria-expanded') === 'true'
+          ? text('Close menu', '关闭菜单', '關閉選單')
+          : text('Open menu', '打开菜单', '開啟選單')
+      menuToggle.setAttribute('aria-label', label)
+      menuToggle.title = label
+    }
     const toggle = document.getElementById('theme-toggle')
     if (toggle) {
       const nextAppearance = resolvedTheme === 'dark' ? 'light' : 'dark'
@@ -262,6 +275,68 @@
   applyPreferences()
 
   function ready() {
+    const header = document.querySelector('.site-header')
+    const menuToggle = document.getElementById('site-menu-toggle')
+    const navigation = document.getElementById('site-navigation')
+    if (header && menuToggle && navigation) {
+      const mobile = window.matchMedia('(max-width: 768px)')
+      const setMenuOpen = (open, restoreFocus = false) => {
+        header.setAttribute('data-menu-open', String(open && mobile.matches))
+        menuToggle.setAttribute('aria-expanded', String(open && mobile.matches))
+        updateControls()
+        if (restoreFocus && mobile.matches)
+          menuToggle.focus({ preventScroll: true })
+      }
+      const fitMenu = () => {
+        if (!mobile.matches) return
+        const viewport = window.visualViewport
+        const bottom = viewport
+          ? viewport.offsetTop + viewport.height
+          : window.innerHeight
+        header.style.setProperty(
+          '--site-menu-height',
+          `${Math.max(0, bottom - header.getBoundingClientRect().bottom - 12)}px`,
+        )
+      }
+      header.setAttribute('data-menu-ready', '')
+      menuToggle.addEventListener('click', () => {
+        fitMenu()
+        setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true')
+      })
+      navigation.addEventListener('click', (event) => {
+        if (event.target instanceof Element && event.target.closest('a'))
+          setMenuOpen(false, true)
+      })
+      document.addEventListener('click', (event) => {
+        if (event.target instanceof Node && !header.contains(event.target))
+          setMenuOpen(false)
+      })
+      header.addEventListener('focusout', (event) => {
+        if (event.relatedTarget && !header.contains(event.relatedTarget))
+          setMenuOpen(false)
+      })
+      document.addEventListener('keydown', (event) => {
+        if (
+          event.key === 'Escape' &&
+          menuToggle.getAttribute('aria-expanded') === 'true'
+        ) {
+          setMenuOpen(false, true)
+        }
+      })
+      mobile.addEventListener('change', () => {
+        setMenuOpen(false, navigation.contains(document.activeElement))
+        fitMenu()
+      })
+      window.addEventListener('resize', fitMenu)
+      window.addEventListener('scroll', fitMenu, { passive: true })
+      window.visualViewport?.addEventListener('resize', fitMenu)
+      window.visualViewport?.addEventListener('scroll', fitMenu)
+      window.addEventListener('blur', () => {
+        if (document.activeElement instanceof HTMLIFrameElement)
+          setMenuOpen(false)
+      })
+      fitMenu()
+    }
     updateControls()
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
       setTheme(resolveTheme() === 'dark' ? 'light' : 'dark')

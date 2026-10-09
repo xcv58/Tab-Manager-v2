@@ -26,15 +26,65 @@ const addTab = document.querySelector<HTMLButtonElement>('#add-tab')!
 const reset = document.querySelector<HTMLButtonElement>('#reset-demo')!
 const about = document.querySelector<HTMLDetailsElement>('#demo-about')!
 const guide = about.querySelector<HTMLElement>('.demo-guide')!
+const page = document.querySelector<HTMLElement>('.demo-page')!
+const main = document.querySelector<HTMLElement>('.demo-main')!
+const header = document.querySelector<HTMLElement>('.demo-header')!
+const controls = document.querySelector<HTMLElement>('.demo-controls')!
+const expand = document.querySelector<HTMLButtonElement>('#expand-demo')!
+const exitExpanded =
+  document.querySelector<HTMLButtonElement>('#exit-expanded')!
+const mobile = window.matchMedia('(max-width: 600px)')
+let expanded = false
+let previousScrollY = 0
+
+const fitWorkspace = () => {
+  const viewport = window.visualViewport
+  page.style.setProperty(
+    '--demo-viewport-height',
+    `${viewport?.height || window.innerHeight}px`,
+  )
+  if (expanded) {
+    page.style.top = `${viewport?.offsetTop || 0}px`
+  } else {
+    const gap = parseFloat(window.getComputedStyle(main).rowGap) || 0
+    page.style.setProperty(
+      '--demo-shell-height',
+      `${header.getBoundingClientRect().height + controls.getBoundingClientRect().height + gap + 12}px`,
+    )
+  }
+}
+
+const setExpanded = (value: boolean) => {
+  if (value === expanded) return
+  if (value) previousScrollY = window.scrollY
+  expanded = value
+  page.setAttribute('data-expanded', String(value))
+  document.body.classList.toggle('demo-expanded', value)
+  expand.setAttribute('aria-expanded', String(value))
+  exitExpanded.hidden = !value
+  about.open = false
+  if (!value) page.style.removeProperty('top')
+  fitWorkspace()
+  if (value) {
+    exitExpanded.focus({ preventScroll: true })
+  } else {
+    window.scrollTo({ top: previousScrollY, behavior: 'instant' })
+    about.querySelector('summary')!.focus({ preventScroll: true })
+  }
+}
+
 const fitGuide = () => {
   if (!about.open) return
+  const viewport = window.visualViewport
+  const viewportTop = viewport?.offsetTop || 0
+  const viewportBottom = viewportTop + (viewport?.height || window.innerHeight)
   const trigger = about.querySelector('summary')!.getBoundingClientRect()
-  if (trigger.bottom < 0 || trigger.top > window.innerHeight) {
+  if (trigger.bottom < viewportTop || trigger.top > viewportBottom) {
     about.open = false
     return
   }
-  const below = window.innerHeight - trigger.bottom - 28
-  const above = trigger.top - 28
+  const below = viewportBottom - trigger.bottom - 28
+  const above = trigger.top - viewportTop - 28
   const opensAbove = below < 160 && above > below
   guide.style.top = opensAbove ? 'auto' : 'calc(100% + 12px)'
   guide.style.bottom = opensAbove ? 'calc(100% + 12px)' : 'auto'
@@ -78,6 +128,7 @@ const renderCopy = () => {
     node.textContent = text(node.dataset.demoCopy!)
   })
   about.querySelector('summary')!.title = text('About this workspace')
+  addTab.title = text('Add tab')
   const groups = new Map<string, HTMLOptGroupElement>()
   scenario.replaceChildren()
   ;['Workflow', 'Windows and groups', 'Scale and edge cases'].forEach(
@@ -98,7 +149,10 @@ const renderCopy = () => {
     }
     const option = document.createElement('option')
     option.value = item.id
-    option.textContent = `${localizeScenario(item, language()).label} · ${formatTabs(item.tabCount)}`
+    const label = localizeScenario(item, language()).label
+    option.textContent = mobile.matches
+      ? label
+      : `${label} · ${formatTabs(item.tabCount)}`
     group.append(option)
   })
   scenario.value = selected.id
@@ -180,11 +234,28 @@ window.addEventListener('message', (event) => {
 })
 scenario.addEventListener('change', loadWorkspace)
 reset.addEventListener('click', () => {
+  about.open = false
+  about.querySelector('summary')!.focus({ preventScroll: true })
   clearDemoPreferences()
   loadWorkspace()
 })
+expand.addEventListener('click', () => setExpanded(true))
+exitExpanded.addEventListener('click', () => setExpanded(false))
 about.addEventListener('toggle', fitGuide)
 window.addEventListener('resize', fitGuide)
+window.addEventListener('resize', fitWorkspace)
+window.visualViewport?.addEventListener('resize', () => {
+  fitWorkspace()
+  fitGuide()
+})
+window.visualViewport?.addEventListener('scroll', () => {
+  fitWorkspace()
+  fitGuide()
+})
+const shellObserver = new ResizeObserver(fitWorkspace)
+shellObserver.observe(header)
+shellObserver.observe(controls)
+mobile.addEventListener('change', renderCopy)
 window.addEventListener('scroll', fitGuide, { passive: true })
 document.addEventListener('click', (event) => {
   if (event.target instanceof Node && !about.contains(event.target))
@@ -194,6 +265,8 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && about.open) {
     about.open = false
     about.querySelector('summary')!.focus()
+  } else if (event.key === 'Escape' && expanded) {
+    setExpanded(false)
   }
 })
 window.addEventListener('blur', () => {
@@ -211,3 +284,4 @@ document
   .addEventListener('focus', () => frame.focus())
 renderCopy()
 loadWorkspace()
+fitWorkspace()

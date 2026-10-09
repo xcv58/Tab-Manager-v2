@@ -67,11 +67,21 @@
             </svg>
           </div>
           <div class="demo-actions">
-            <button id="add-tab" type="button" data-demo-copy="Add tab">
-              Add tab
-            </button>
-            <button id="reset-demo" type="button" data-demo-copy="Start over">
-              Start over
+            <button id="add-tab" type="button" title="Add tab">
+              <svg
+                class="demo-add-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              <span class="demo-add-label" data-demo-copy="Add tab"
+                >Add tab</span
+              >
             </button>
           </div>
           <details class="demo-about" id="demo-about">
@@ -100,8 +110,32 @@
               aria-labelledby="scenario-title"
             >
               <h2 id="scenario-title"></h2>
+              <p
+                class="demo-reassurance"
+                data-demo-copy="Sample tabs. Your browser stays untouched."
+              >
+                Sample tabs. Your browser stays untouched.
+              </p>
               <p id="scenario-description"></p>
               <p id="scenario-size" class="demo-start-counts"></p>
+              <div class="demo-guide-actions">
+                <button
+                  id="expand-demo"
+                  type="button"
+                  aria-controls="workspace"
+                  aria-expanded="false"
+                  data-demo-copy="Expand demo"
+                >
+                  Expand demo
+                </button>
+                <button
+                  id="reset-demo"
+                  type="button"
+                  data-demo-copy="Start over"
+                >
+                  Start over
+                </button>
+              </div>
               <p id="scenario-hint" class="demo-hint"></p>
               <p
                 id="scenario-stress"
@@ -150,14 +184,27 @@
           </details>
         </section>
         <div class="demo-frame-wrap" id="workspace" tabindex="-1">
-          <div class="demo-browser-bar" aria-hidden="true">
+          <div class="demo-browser-bar">
             <span class="demo-window-dots" aria-hidden="true"
               ><i></i><i></i><i></i
             ></span>
-            <span class="demo-browser-title">Tab Manager v2</span>
-            <span class="demo-browser-badge" data-demo-copy="Sample workspace"
+            <span class="demo-browser-title" aria-hidden="true"
+              >Tab Manager v2</span
+            >
+            <span
+              class="demo-browser-badge"
+              aria-hidden="true"
+              data-demo-copy="Sample workspace"
               >Sample workspace</span
             >
+            <button
+              id="exit-expanded"
+              type="button"
+              hidden
+              data-demo-copy="Exit expanded view"
+            >
+              Exit expanded view
+            </button>
           </div>
           <div class="demo-viewport">
             <iframe
