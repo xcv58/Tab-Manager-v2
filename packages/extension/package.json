@@ -10,6 +10,8 @@
     "build:chrome": "TARGET_BROWSER=chrome pnpm _build",
     "build:firefox": "TARGET_BROWSER=firefox pnpm _build",
     "start": "run-p start:*",
+    "dev:demo": "TARGET_BROWSER=chrome node utils/demo.js",
+    "build:demo": "TARGET_BROWSER=chrome NODE_ENV=production node utils/demo.js --build",
     "_start": "node utils/webserver.js",
     "start:chrome": "TARGET_BROWSER=chrome pnpm _start",
     "start:firefox": "TARGET_BROWSER=firefox PORT=3001 pnpm _start",

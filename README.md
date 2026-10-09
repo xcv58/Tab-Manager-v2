@@ -115,6 +115,83 @@ This writes unpacked extension builds to:
 
 Load the appropriate folder as an unpacked extension in your target browser.
 
+### Try the website demo locally
+
+```shell
+pnpm dev:demo
+```
+
+Open <http://127.0.0.1:3002/demo/> for the interactive demo, or
+<http://127.0.0.1:3002/> for the current website. Set `DEMO_PORT` to use a different port.
+For access from other devices on your local network, run
+`DEMO_HOST=0.0.0.0 pnpm dev:demo` and use your computer's LAN IP address.
+The demo reuses the real extension UI with an isolated in-memory browser adapter.
+Sample tabs, groups, and history stay in memory; refresh, workspace changes, or
+**Start over** restore the sample data. Demo configuration stays in this browser
+tab’s session storage across refresh, navigation, and workspace changes.
+**Start over** also resets demo configuration. The demo has its own theme, saved with
+its session settings. Website theme and language stay in local storage. The grouped workspace picker offers 13 cases:
+everyday use, duplicates, mixed tab states, many or uneven windows, many/few/no
+groups, a crowded workspace, a single 240-tab window, one tab, an empty workspace,
+and an opt-in 1,500-tab workspace across 50 windows. This last case exercises the
+simulated interface, not native browser memory usage. Preset links use
+`/demo/?scenario=stress` (or another preset ID) and survive refresh. No extension
+installation is required.
+
+Selected tabs can move to a window’s beginning or end through **Window actions**,
+the command palette, or window-header drop targets. Use a destination tab’s menu
+to move before or after it. With focus inside a window card, try
+`Alt/Option + Shift + ↑/↓` for beginning/end or `←/→` for before/after a focused
+tab. Press `?` for all shortcuts, including Vim sequences. Whole selected groups
+keep their names and colors; moving part of a group detaches those tabs.
+
+```shell
+pnpm build:demo
+```
+
+The standalone static output is `packages/extension/build/build_demo/`. It can
+be served at `/demo/` or another subdirectory. Extension builds stay separate.
+
+### Build the main website and demo
+
+```shell
+pnpm build:site
+```
+
+This builds one deployable website in `dist/site/`: the marketing pages and
+assets from `docs/`, with the interactive demo at `/demo/`, the privacy policy
+at `/privacy/`, and help at `/support/`. All pages share the main page's header,
+navigation, styles, theme, and language controller. Website theme
+and language persist when switching pages or resetting a sample workspace;
+the embedded extension has its own independent theme and displays its UI in English.
+The shared **Install** link returns to the website's install buttons.
+The content-page HTML templates use a shared-header marker; the site build and
+demo dev server render that marker from the main page's header markup.
+Generated bundles stay out of source control. CI builds this folder and uploads
+it as the `website-preview` artifact.
+
+To preview the production build locally:
+
+```shell
+python3 -m http.server 3002 --bind 0.0.0.0 --directory dist/site
+```
+
+Stop `pnpm dev:demo` first if it already uses port 3002, or choose another port.
+The root `vercel.json` installs the workspace dependencies (including build
+tools), sets the site build command and output folder, and
+redirects `/demo`, `/privacy`, and `/support` to their trailing-slash routes so
+relative assets resolve correctly. Vercel's
+**Root Directory must be the repository root**, with framework **Other**;
+a project rooted at `docs/` needs that setting changed before deployment.
+pnpm can find the root build script from `docs/`, but Vercel still resolves
+the output folder relative to its configured Root Directory.
+Building locally does not deploy or publish the site.
+
+Browser activation, reloads, focus, and history are simulated. Firefox
+containers and browser toolbar integration require the installed extension.
+Copy actions use the clipboard with sample URLs. See the page’s **What can I
+try?** disclosure for the supported workflows.
+
 ### Run tests
 
 Run the default local test pipeline:

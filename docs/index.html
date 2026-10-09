@@ -5,80 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="assets/images/logo.png" />
 
-    <script>
-      ;(function () {
-        let theme = 'system'
-        try {
-          theme = localStorage.getItem('theme') || 'system'
-        } catch (error) {
-          theme = 'system'
-        }
-        document.documentElement.setAttribute('data-theme', theme)
-      })()
-    </script>
-
-    <script>
-      ;(function () {
-        const fallbackLanguage = 'en'
-        const supportedLanguages = ['en', 'zh-Hans', 'zh-Hant']
-
-        function normalizeLanguage(language) {
-          if (supportedLanguages.includes(language)) {
-            return language
-          }
-
-          const normalized = String(language || '').toLowerCase()
-          if (!normalized) {
-            return fallbackLanguage
-          }
-
-          if (
-            normalized.includes('hant') ||
-            normalized === 'zh-tw' ||
-            normalized === 'zh-hk' ||
-            normalized === 'zh-mo'
-          ) {
-            return 'zh-Hant'
-          }
-
-          if (normalized.startsWith('zh')) {
-            return 'zh-Hans'
-          }
-
-          return fallbackLanguage
-        }
-
-        function getDeviceLanguage() {
-          const languages = Array.isArray(navigator.languages)
-            ? navigator.languages
-            : [navigator.language]
-          for (const language of languages) {
-            const normalized = String(language || '').toLowerCase()
-            if (normalized.startsWith('zh')) {
-              return normalizeLanguage(normalized)
-            }
-            if (normalized.startsWith('en')) {
-              return fallbackLanguage
-            }
-          }
-          return fallbackLanguage
-        }
-
-        let language = ''
-        try {
-          language = localStorage.getItem('site-language') || ''
-        } catch (error) {
-          language = ''
-        }
-
-        const resolvedLanguage = language
-          ? normalizeLanguage(language)
-          : getDeviceLanguage()
-
-        document.documentElement.lang = resolvedLanguage
-        document.documentElement.setAttribute('data-language', resolvedLanguage)
-      })()
-    </script>
+    <script src="assets/site-shell.js"></script>
 
     <title>Tab Manager v2 - See every tab across every window.</title>
     <meta
@@ -180,20 +107,81 @@
           Tab Manager v2
         </a>
 
-        <div class="nav-wrapper">
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          aria-label="Switch to dark appearance"
+          title="Switch to dark appearance"
+        >
+          <svg
+            data-theme-icon="dark"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"></path>
+          </svg>
+          <svg
+            data-theme-icon="light"
+            hidden
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <button
+          id="site-menu-toggle"
+          class="site-menu-toggle"
+          type="button"
+          aria-label="Open menu"
+          title="Open menu"
+          aria-expanded="false"
+          aria-controls="site-navigation"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path
+              class="site-menu-open-icon"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+            <path class="site-menu-close-icon" d="m6 6 12 12M6 18 18 6"></path>
+          </svg>
+        </button>
+
+        <div class="nav-wrapper" id="site-navigation">
           <nav class="nav-links" role="navigation" aria-label="Main navigation">
-            <a
-              href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Privacy</a
+            <a href="index.html" data-site-link="overview" aria-current="page"
+              >Overview</a
             >
-            <a
-              href="https://github.com/xcv58/Tab-Manager-v2/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Support</a
-            >
+            <a href="demo/" data-site-link="demo">Try demo</a>
+            <a href="#install" data-site-link="install">Install</a>
+            <a href="privacy/" data-site-link="privacy">Privacy</a>
+            <a href="support/" data-site-link="support">Support</a>
             <a
               href="https://github.com/xcv58/Tab-Manager-v2"
               target="_blank"
@@ -231,83 +219,6 @@
               <option value="zh-Hant">繁體中文</option>
             </select>
           </div>
-
-          <div class="theme-switch" role="group" aria-label="Theme Toggle">
-            <button
-              id="btn-system"
-              class="theme-btn"
-              type="button"
-              aria-label="System Theme"
-              aria-pressed="false"
-              title="Match System"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
-              </svg>
-            </button>
-
-            <button
-              id="btn-light"
-              class="theme-btn"
-              type="button"
-              aria-label="Light Theme"
-              aria-pressed="false"
-              title="Light Mode"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-            </button>
-
-            <button
-              id="btn-dark"
-              class="theme-btn"
-              type="button"
-              aria-label="Dark Theme"
-              aria-pressed="false"
-              title="Dark Mode"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path
-                  d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"
-                ></path>
-              </svg>
-            </button>
-          </div>
         </div>
       </header>
 
@@ -344,7 +255,11 @@
                 Free, open source, with core functionality running locally in
                 your browser.
               </p>
-              <div class="cta-group">
+              <div class="demo-cta">
+                <a href="demo/" class="btn-demo">Try the interactive demo</a>
+                <p>No installation needed. Explore with sample tabs.</p>
+              </div>
+              <div class="cta-group" id="install">
                 <a
                   href="https://chromewebstore.google.com/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp"
                   class="btn-store"
@@ -1180,18 +1095,16 @@
             rel="noopener noreferrer"
             >GitHub</a
           >
-          <a
-            href="https://github.com/xcv58/Tab-Manager-v2/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Issues</a
+          <a href="support/">Support</a>
+          <a href="privacy/">Privacy Policy</a>
+          <button
+            type="button"
+            class="system-appearance"
+            data-site-appearance
+            aria-pressed="false"
           >
-          <a
-            href="https://github.com/xcv58/Tab-Manager-v2/blob/master/privacy_policy.md"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Privacy Policy</a
-          >
+            Use system appearance
+          </button>
         </div>
       </footer>
     </div>

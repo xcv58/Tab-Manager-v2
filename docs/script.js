@@ -1,15 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const html = document.documentElement
   const body = document.body
-  const prefersDarkMedia = window.matchMedia('(prefers-color-scheme: dark)')
-  const themeAnnouncement = document.getElementById('theme-announcement')
-  const languageAnnouncement = document.getElementById('language-announcement')
-  const languageSelector = document.getElementById('language-selector')
-  const themeButtons = {
-    system: document.getElementById('btn-system'),
-    light: document.getElementById('btn-light'),
-    dark: document.getElementById('btn-dark'),
-  }
+  const site = window.TabManagerSite
   const screenshotThemeButtons = {
     light: document.getElementById('screenshot-btn-light'),
     dark: document.getElementById('screenshot-btn-dark'),
@@ -27,59 +18,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const videoChapterButtons = Array.from(
     document.querySelectorAll('.video-tour-chapter'),
   )
-  const supportedThemes = new Set(Object.keys(themeButtons))
-  const languageStorageKey = 'site-language'
   const fallbackLanguage = 'en'
-  const languageOptions = {
-    en: {
-      htmlLang: 'en',
-      announcement: 'English selected',
-    },
-    'zh-Hans': {
-      htmlLang: 'zh-Hans',
-      announcement: '已切换为简体中文',
-    },
-    'zh-Hant': {
-      htmlLang: 'zh-Hant',
-      announcement: '已切換為繁體中文',
-    },
-  }
   const localizedAnnouncements = {
     en: {
-      theme: {
-        system: 'System theme selected',
-        light: 'Light theme selected',
-        dark: 'Dark theme selected',
-      },
       screenshotTheme: {
         light: 'Light screenshots selected',
         dark: 'Dark screenshots selected',
       },
     },
     'zh-Hans': {
-      theme: {
-        system: '已选择跟随系统主题',
-        light: '已选择浅色主题',
-        dark: '已选择深色主题',
-      },
       screenshotTheme: {
         light: '已选择浅色截图',
         dark: '已选择深色截图',
       },
     },
     'zh-Hant': {
-      theme: {
-        system: '已選擇跟隨系統主題',
-        light: '已選擇淺色主題',
-        dark: '已選擇深色主題',
-      },
       screenshotTheme: {
         light: '已選擇淺色截圖',
         dark: '已選擇深色截圖',
       },
     },
   }
-  const supportedLanguages = new Set(Object.keys(languageOptions))
   const localizedCopy = {
     'zh-Hans': {
       'Tab Manager v2 - See every tab across every window.':
@@ -96,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
       Language: '语言',
       'Choose language': '选择语言',
       'Main navigation': '主导航',
+      'Try demo': '试用演示',
+      'Try the interactive demo': '试用交互演示',
+      'No installation needed. Explore with sample tabs.':
+        '无需安装。使用示例标签页体验功能。',
       Privacy: '隐私',
       Support: '支持',
       'Theme Toggle': '主题切换',
@@ -284,6 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
       Language: '語言',
       'Choose language': '選擇語言',
       'Main navigation': '主導覽',
+      'Try demo': '試用示範',
+      'Try the interactive demo': '試用互動示範',
+      'No installation needed. Explore with sample tabs.':
+        '無需安裝。使用範例分頁體驗功能。',
       Privacy: '隱私',
       Support: '支援',
       'Theme Toggle': '主題切換',
@@ -512,77 +479,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function normalizeTheme(theme) {
-    return supportedThemes.has(theme) ? theme : 'system'
-  }
-
-  function getStoredTheme() {
-    try {
-      return normalizeTheme(localStorage.getItem('theme'))
-    } catch {
-      return 'system'
-    }
-  }
-
-  function normalizeLanguage(language) {
-    if (supportedLanguages.has(language)) {
-      return language
-    }
-
-    const normalizedLanguage = String(language || '').toLowerCase()
-    if (!normalizedLanguage) {
-      return fallbackLanguage
-    }
-
-    if (
-      normalizedLanguage.includes('hant') ||
-      normalizedLanguage === 'zh-tw' ||
-      normalizedLanguage === 'zh-hk' ||
-      normalizedLanguage === 'zh-mo'
-    ) {
-      return 'zh-Hant'
-    }
-
-    if (normalizedLanguage.startsWith('zh')) {
-      return 'zh-Hans'
-    }
-
-    return fallbackLanguage
-  }
-
   function getCurrentLanguage() {
-    return normalizeLanguage(html.getAttribute('data-language'))
+    return site.getLanguage()
   }
 
-  function getDeviceLanguage() {
-    const languages = Array.isArray(navigator.languages)
-      ? navigator.languages
-      : [navigator.language]
-
-    for (const language of languages) {
-      const normalizedLanguage = String(language || '').toLowerCase()
-      if (normalizedLanguage.startsWith('zh')) {
-        return normalizeLanguage(normalizedLanguage)
-      }
-      if (normalizedLanguage.startsWith('en')) {
-        return fallbackLanguage
-      }
-    }
-
-    return fallbackLanguage
-  }
-
-  function getStoredLanguage() {
-    try {
-      const storedLanguage = localStorage.getItem(languageStorageKey)
-      return storedLanguage ? normalizeLanguage(storedLanguage) : ''
-    } catch {
-      return ''
-    }
-  }
-
-  function getInitialLanguage() {
-    return getStoredLanguage() || getDeviceLanguage()
+  function getResolvedTheme() {
+    return site.getResolvedTheme()
   }
 
   function normalizeCopy(value) {
@@ -611,7 +513,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           if (
-            parentElement.closest('[data-i18n-html], code, script, style, svg')
+            parentElement.closest(
+              '[data-i18n-html], [data-site-appearance], .site-header, #theme-announcement, #language-announcement, code, script, style, svg',
+            )
           ) {
             return NodeFilter.FILTER_REJECT
           }
@@ -652,6 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .join(',')
 
     document.querySelectorAll(attributeSelector).forEach((element) => {
+      if (element.closest('.site-header, [data-site-appearance]')) return
       if (!originalAttributes.has(element)) {
         originalAttributes.set(element, {})
       }
@@ -726,69 +631,6 @@ document.addEventListener('DOMContentLoaded', () => {
     )
   }
 
-  function announceLanguage(language) {
-    if (!languageAnnouncement) {
-      return
-    }
-    languageAnnouncement.textContent =
-      languageOptions[language]?.announcement ||
-      languageOptions[fallbackLanguage].announcement
-  }
-
-  function setLanguage(language, options = {}) {
-    const nextLanguage = normalizeLanguage(language)
-    const {
-      persist = false,
-      announce = true,
-      updateScreenshotContent = true,
-    } = options
-
-    html.lang = languageOptions[nextLanguage].htmlLang
-    html.setAttribute('data-language', nextLanguage)
-
-    if (languageSelector) {
-      languageSelector.value = nextLanguage
-    }
-
-    if (persist) {
-      try {
-        localStorage.setItem(languageStorageKey, nextLanguage)
-      } catch {
-        // Ignore storage failures and keep the in-memory selection.
-      }
-    }
-
-    applyTranslations(nextLanguage)
-
-    if (updateScreenshotContent) {
-      syncScreenshotThemeWithPage()
-    }
-
-    if (announce) {
-      announceLanguage(nextLanguage)
-    }
-  }
-
-  function getResolvedTheme(
-    theme = html.getAttribute('data-theme') || 'system',
-  ) {
-    const normalizedTheme = normalizeTheme(theme)
-    if (normalizedTheme === 'light' || normalizedTheme === 'dark') {
-      return normalizedTheme
-    }
-    return prefersDarkMedia.matches ? 'dark' : 'light'
-  }
-
-  function announceTheme(theme) {
-    if (!themeAnnouncement) {
-      return
-    }
-    const language = getCurrentLanguage()
-    themeAnnouncement.textContent =
-      localizedAnnouncements[language]?.theme[theme] ||
-      localizedAnnouncements[fallbackLanguage].theme[theme]
-  }
-
   function announceScreenshotTheme(theme) {
     if (!screenshotThemeAnnouncement) {
       return
@@ -797,17 +639,6 @@ document.addEventListener('DOMContentLoaded', () => {
     screenshotThemeAnnouncement.textContent =
       localizedAnnouncements[language]?.screenshotTheme[theme] ||
       localizedAnnouncements[fallbackLanguage].screenshotTheme[theme]
-  }
-
-  function updateControls(activeTheme) {
-    Object.entries(themeButtons).forEach(([theme, button]) => {
-      if (!button) {
-        return
-      }
-      const isActive = theme === activeTheme
-      button.classList.toggle('active', isActive)
-      button.setAttribute('aria-pressed', String(isActive))
-    })
   }
 
   function updateScreenshotControls(activeTheme) {
@@ -877,40 +708,6 @@ document.addEventListener('DOMContentLoaded', () => {
     syncScreenshotThemeWithPage({ announce })
   }
 
-  function setTheme(theme, shouldAnnounce = true) {
-    const nextTheme = normalizeTheme(theme)
-    html.setAttribute('data-theme', nextTheme)
-    try {
-      localStorage.setItem('theme', nextTheme)
-    } catch {
-      // Ignore storage failures and keep the in-memory selection.
-    }
-    selectedScreenshotTheme = null
-    updateControls(nextTheme)
-    syncScreenshotThemeWithPage()
-    if (shouldAnnounce) {
-      announceTheme(nextTheme)
-    }
-  }
-
-  Object.entries(themeButtons).forEach(([theme, button]) => {
-    if (!button) {
-      return
-    }
-    button.addEventListener('click', () => {
-      setTheme(theme)
-    })
-  })
-
-  if (languageSelector) {
-    languageSelector.addEventListener('change', () => {
-      setLanguage(languageSelector.value, {
-        persist: true,
-        announce: true,
-      })
-    })
-  }
-
   Object.entries(screenshotThemeButtons).forEach(([theme, button]) => {
     if (!button) {
       return
@@ -932,22 +729,6 @@ document.addEventListener('DOMContentLoaded', () => {
       selectScreenshotTheme(theme)
     })
   })
-
-  const handleSystemThemeChange = () => {
-    if (
-      normalizeTheme(html.getAttribute('data-theme')) !== 'system' ||
-      selectedScreenshotTheme
-    ) {
-      return
-    }
-    syncScreenshotThemeWithPage()
-  }
-
-  if (typeof prefersDarkMedia.addEventListener === 'function') {
-    prefersDarkMedia.addEventListener('change', handleSystemThemeChange)
-  } else if (typeof prefersDarkMedia.addListener === 'function') {
-    prefersDarkMedia.addListener(handleSystemThemeChange)
-  }
 
   function getLightboxSkin() {
     return getResolvedTheme()
@@ -975,26 +756,31 @@ document.addEventListener('DOMContentLoaded', () => {
     lightbox = createLightbox()
   }
 
-  setLanguage(getInitialLanguage(), {
-    announce: false,
-    updateScreenshotContent: false,
-  })
-  setTheme(getStoredTheme(), false)
-  refreshLightbox()
+  let currentSiteTheme = site.getTheme()
+  let currentResolvedTheme = site.getResolvedTheme()
 
-  const themeObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'data-theme') {
-        refreshLightbox()
-      }
-    })
+  document.addEventListener('site:language-change', () => {
+    applyTranslations(getCurrentLanguage())
+    syncScreenshotThemeWithPage()
   })
-
-  themeObserver.observe(html, { attributes: true })
-
-  document.addEventListener('screenshots-theme-updated', () => {
-    refreshLightbox()
+  document.addEventListener('site:theme-change', (event) => {
+    const nextTheme = site.getTheme()
+    const nextResolvedTheme = site.getResolvedTheme()
+    if (
+      event.detail.selection ||
+      nextTheme !== currentSiteTheme ||
+      nextResolvedTheme !== currentResolvedTheme
+    ) {
+      selectedScreenshotTheme = null
+    }
+    currentSiteTheme = nextTheme
+    currentResolvedTheme = nextResolvedTheme
+    syncScreenshotThemeWithPage()
   })
+  document.addEventListener('screenshots-theme-updated', refreshLightbox)
+
+  applyTranslations(getCurrentLanguage())
+  syncScreenshotThemeWithPage()
 
   function setActiveVideoChapter(currentTime) {
     if (!videoChapterButtons.length) {

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="Explore Tab Manager v2 with sample workspaces, from one tab to 1,500. No extension required."
+    />
+    <link rel="icon" href="./site/logo.png" />
+    <script src="./site/site-shell.js"></script>
+    <link rel="stylesheet" href="./site/style.css" />
+    <title>Try Tab Manager v2 · Interactive demo</title>
+  </head>
+  <body class="demo-site">
+    <a
+      class="skip-link"
+      href="#workspace"
+      data-demo-copy="Skip to demo workspace"
+      >Skip to demo workspace</a
+    >
+    <div class="demo-page">
+      <div class="container demo-header"><%= siteHeader %></div>
+      <div
+        class="sr-only"
+        id="theme-announcement"
+        role="status"
+        aria-live="polite"
+      ></div>
+      <div
+        class="sr-only"
+        id="language-announcement"
+        role="status"
+        aria-live="polite"
+      ></div>
+      <main class="demo-main">
+        <section class="demo-controls" aria-labelledby="demo-heading">
+          <div class="demo-title">
+            <h1 id="demo-heading" data-demo-copy="Interactive demo">
+              Interactive demo
+            </h1>
+            <p data-demo-copy="Sample tabs. Your browser stays untouched.">
+              Sample tabs. Your browser stays untouched.
+            </p>
+          </div>
+          <div class="demo-picker">
+            <label
+              class="sr-only"
+              for="scenario"
+              id="scenario-label"
+              data-demo-copy="Choose a workspace"
+              >Choose a workspace</label
+            >
+            <select id="scenario" aria-describedby="scenario-reset"></select>
+            <svg
+              class="demo-select-chevron"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6"></path>
+            </svg>
+          </div>
+          <div class="demo-actions">
+            <button id="add-tab" type="button" title="Add tab">
+              <svg
+                class="demo-add-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              <span class="demo-add-label" data-demo-copy="Add tab"
+                >Add tab</span
+              >
+            </button>
+          </div>
+          <details class="demo-about" id="demo-about">
+            <summary title="About this workspace">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 11v6"></path>
+                <path d="M12 7h.01"></path>
+              </svg>
+              <span class="sr-only" data-demo-copy="About this workspace"
+                >About this workspace</span
+              >
+            </summary>
+            <div
+              class="demo-guide"
+              tabindex="0"
+              role="region"
+              aria-labelledby="scenario-title"
+            >
+              <h2 id="scenario-title"></h2>
+              <p
+                class="demo-reassurance"
+                data-demo-copy="Sample tabs. Your browser stays untouched."
+              >
+                Sample tabs. Your browser stays untouched.
+              </p>
+              <p id="scenario-description"></p>
+              <p id="scenario-size" class="demo-start-counts"></p>
+              <div class="demo-guide-actions">
+                <button
+                  id="expand-demo"
+                  type="button"
+                  aria-controls="workspace"
+                  aria-expanded="false"
+                  data-demo-copy="Expand demo"
+                >
+                  Expand demo
+                </button>
+                <button
+                  id="reset-demo"
+                  type="button"
+                  data-demo-copy="Start over"
+                >
+                  Start over
+                </button>
+              </div>
+              <p id="scenario-hint" class="demo-hint"></p>
+              <p
+                id="scenario-stress"
+                class="demo-scale-note"
+                hidden
+                data-demo-copy="Simulated scale, not a browser memory benchmark."
+              >
+                Simulated scale, not a browser memory benchmark.
+              </p>
+              <p
+                id="scenario-reset"
+                class="demo-reset-note"
+                data-demo-copy="Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. The demo theme is independent of the website theme. Start over also resets demo settings. Website theme and language stay saved."
+              >
+                Refreshing or switching workspaces restores sample tabs and
+                keeps demo settings for this tab’s session. The demo theme is
+                independent of the website theme. Start over also resets demo
+                settings. Website theme and language stay saved.
+              </p>
+              <h3 data-demo-copy="What can I try?">What can I try?</h3>
+              <p
+                data-demo-copy="Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings."
+              >
+                Search titles, URLs, groups, and sample history. Select, pin,
+                move, sort, reload, or close tabs; edit groups; clean
+                duplicates; try commands, shortcuts, themes, and settings.
+              </p>
+              <p
+                data-demo-copy="Move selected tabs to a window’s beginning or end with Window actions or header drop targets. Use a destination tab’s menu to move before or after it. Press ? for arrow and Vim shortcuts."
+              >
+                Move selected tabs to a window’s beginning or end with Window
+                actions or header drop targets. Use a destination tab’s menu to
+                move before or after it. Press ? for arrow and Vim shortcuts.
+              </p>
+              <p data-demo-copy="Sample data only. No extension required.">
+                Sample data only. No extension required.
+              </p>
+              <p
+                data-demo-copy="Activation, reloads, focus, and history are simulated. Copy actions copy sample URLs. The extension interface is shown in English."
+              >
+                Activation, reloads, focus, and history are simulated. Copy
+                actions copy sample URLs. The extension interface is shown in
+                English.
+              </p>
+            </div>
+          </details>
+        </section>
+        <div class="demo-frame-wrap" id="workspace" tabindex="-1">
+          <div class="demo-browser-bar">
+            <span class="demo-window-dots" aria-hidden="true"
+              ><i></i><i></i><i></i
+            ></span>
+            <span class="demo-browser-title" aria-hidden="true"
+              >Tab Manager v2</span
+            >
+            <span
+              class="demo-browser-badge"
+              aria-hidden="true"
+              data-demo-copy="Sample workspace"
+              >Sample workspace</span
+            >
+            <button
+              id="exit-expanded"
+              type="button"
+              hidden
+              data-demo-copy="Exit expanded view"
+            >
+              Exit expanded view
+            </button>
+          </div>
+          <div class="demo-viewport">
+            <iframe
+              id="demo-frame"
+              title="Interactive Tab Manager v2 sample workspace"
+              allow="clipboard-write"
+            ></iframe>
+            <p id="demo-loading" class="demo-loading" role="status">
+              Preparing your sample workspace…
+            </p>
+          </div>
+        </div>
+      </main>
+      <footer class="demo-footer">
+        <span class="sr-only" data-demo-copy="In your workspace"
+          >In your workspace</span
+        >
+        <span
+          id="demo-counts"
+          class="demo-counts"
+          role="status"
+          aria-live="polite"
+          >Loading workspace…</span
+        >
+        <p id="demo-activity" role="status" aria-live="polite">
+          A fresh sample workspace. All changes stay in this page.
+        </p>
+        <button
+          type="button"
+          class="system-appearance"
+          data-site-appearance
+          aria-pressed="false"
+        >
+          Use system appearance
+        </button>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -155,4 +155,196 @@ test.describe('Selected tab move regressions', () => {
       source[2],
     ])
   })
+
+  for (const before of [true, false]) {
+    test(`preserves a whole group moved ${before ? 'before' : 'after'} a grouped tab in another window`, async () => {
+      const [source, destination] = await createWindows([
+        ['A', 'B', 'C', 'D'],
+        ['TargetA', 'TargetB', 'Tail'],
+      ])
+      const [sourceWindowId, destinationWindowId] = createdWindowIds
+      const groupId = await page.evaluate(
+        async ({
+          source,
+          destination,
+          sourceWindowId,
+          destinationWindowId,
+        }) => {
+          const groupId = await chrome.tabs.group({
+            tabIds: source.slice(1, 3),
+            createProperties: { windowId: sourceWindowId },
+          })
+          await chrome.tabGroups.update(groupId, {
+            title: 'Keep me',
+            color: 'blue',
+          })
+          await chrome.tabs.group({
+            tabIds: destination.slice(0, 2),
+            createProperties: { windowId: destinationWindowId },
+          })
+          return groupId
+        },
+        { source, destination, sourceWindowId, destinationWindowId },
+      )
+      expect(await readWindowOrder(sourceWindowId)).toEqual(source)
+      expect(await readWindowOrder(destinationWindowId)).toEqual(destination)
+      await reloadPopup()
+      await selectTabs(source.slice(1, 3))
+      const target = page.getByTestId(`tab-row-${destination[before ? 1 : 0]}`)
+      await target.hover()
+      await target.getByRole('button', { name: 'Tab actions' }).click()
+      await page
+        .getByRole('menuitem', {
+          name: `Move selected ${before ? 'before' : 'after'} this tab`,
+        })
+        .click()
+      const expected = before
+        ? [...source.slice(1, 3), ...destination]
+        : [...destination.slice(0, 2), ...source.slice(1, 3), destination[2]]
+      await expect
+        .poll(() => readWindowOrder(destinationWindowId))
+        .toEqual(expected)
+      const group = await page.evaluate(
+        async (id) => chrome.tabGroups.get(id),
+        groupId,
+      )
+      expect(group).toMatchObject({
+        title: 'Keep me',
+        color: 'blue',
+        windowId: destinationWindowId,
+      })
+      expect(
+        await page.evaluate(
+          async (id) =>
+            (await chrome.tabs.query({ groupId: id }))
+              .sort((a, b) => a.index - b.index)
+              .map((tab) => tab.id),
+          groupId,
+        ),
+      ).toEqual(source.slice(1, 3))
+      for (const id of source.slice(1, 3)) {
+        await expect(
+          page
+            .getByTestId(`tab-row-${id}`)
+            .getByRole('checkbox', { name: 'Toggle select' }),
+        ).not.toBeChecked()
+      }
+    })
+  }
+
+  test('preserves multiple whole groups moved after an ungrouped tab across windows', async () => {
+    const [source, destination] = await createWindows([
+      ['A', 'B', 'C', 'D'],
+      ['Target', 'Tail'],
+    ])
+    const [sourceWindowId, destinationWindowId] = createdWindowIds
+    const groupIds = await page.evaluate(
+      async ({ ids, windowId }) => {
+        const first = await chrome.tabs.group({
+          tabIds: ids.slice(0, 2),
+          createProperties: { windowId },
+        })
+        const second = await chrome.tabs.group({
+          tabIds: ids.slice(2, 4),
+          createProperties: { windowId },
+        })
+        await chrome.tabGroups.update(first, { title: 'First', color: 'blue' })
+        await chrome.tabGroups.update(second, { title: 'Second', color: 'red' })
+        return [first, second]
+      },
+      { ids: source, windowId: sourceWindowId },
+    )
+    expect(await readWindowOrder(sourceWindowId)).toEqual(source)
+    expect(await readWindowOrder(destinationWindowId)).toEqual(destination)
+    await reloadPopup()
+    await selectTabs(source)
+    const target = page.getByTestId(`tab-row-${destination[0]}`)
+    await target.getByRole('button', { name: /^Target/ }).focus()
+    await page.keyboard.press('Alt+Shift+ArrowRight')
+    await expect
+      .poll(() => readWindowOrder(destinationWindowId))
+      .toEqual([destination[0], ...source, destination[1]])
+    const groups = await page.evaluate(
+      async (ids) =>
+        Promise.all(
+          ids.map(async (id) => ({
+            group: await chrome.tabGroups.get(id),
+            tabs: (await chrome.tabs.query({ groupId: id }))
+              .sort((a, b) => a.index - b.index)
+              .map((tab) => tab.id),
+          })),
+        ),
+      groupIds,
+    )
+    expect(groups[0]).toMatchObject({
+      group: { title: 'First', color: 'blue', windowId: destinationWindowId },
+      tabs: source.slice(0, 2),
+    })
+    expect(groups[1]).toMatchObject({
+      group: { title: 'Second', color: 'red', windowId: destinationWindowId },
+      tabs: source.slice(2, 4),
+    })
+    await expect(
+      page.getByTestId(`window-title-${createdWindowIds[0]}`),
+    ).toHaveCount(0)
+  })
+
+  test('keeps an unselected leading tab before a mixed pin and group relative move', async () => {
+    const [source, destination] = await createWindows([
+      ['Pin', 'A', 'B', 'Remain'],
+      ['Lead', 'TargetA', 'TargetB', 'Tail'],
+    ])
+    const [sourceWindowId, destinationWindowId] = createdWindowIds
+    const groupId = await page.evaluate(
+      async ({ source, destination, sourceWindowId, destinationWindowId }) => {
+        await chrome.tabs.update(source[0], { pinned: true })
+        const groupId = await chrome.tabs.group({
+          tabIds: source.slice(1, 3),
+          createProperties: { windowId: sourceWindowId },
+        })
+        await chrome.tabGroups.update(groupId, {
+          title: 'Keep me',
+          color: 'blue',
+        })
+        await chrome.tabs.group({
+          tabIds: destination.slice(1, 3),
+          createProperties: { windowId: destinationWindowId },
+        })
+        return groupId
+      },
+      { source, destination, sourceWindowId, destinationWindowId },
+    )
+    expect(await readWindowOrder(sourceWindowId)).toEqual(source)
+    expect(await readWindowOrder(destinationWindowId)).toEqual(destination)
+    await reloadPopup()
+    await selectTabs(source.slice(0, 3))
+    await page
+      .getByTestId(`tab-row-${destination[2]}`)
+      .getByRole('button', { name: /^TargetB/ })
+      .focus()
+    await page.keyboard.press('m')
+    await page.keyboard.press('Shift+P')
+    await expect
+      .poll(() => readWindowOrder(destinationWindowId))
+      .toEqual([
+        source[0],
+        destination[0],
+        source[1],
+        source[2],
+        ...destination.slice(1),
+      ])
+    expect(
+      await page.evaluate(async (id) => chrome.tabGroups.get(id), groupId),
+    ).toMatchObject({
+      title: 'Keep me',
+      color: 'blue',
+      windowId: destinationWindowId,
+    })
+    expect(
+      await page.evaluate(
+        async (id) => (await chrome.tabs.get(id)).pinned,
+        source[0],
+      ),
+    ).toBe(true)
+  })
 })

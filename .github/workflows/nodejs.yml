@@ -60,6 +60,19 @@ jobs:
           pnpm run test:unit
           pnpm build
 
+      - name: Build website with interactive demo
+        if: ${{ matrix.node == 24 }}
+        run: pnpm build:site
+
+      - name: Upload website preview
+        if: ${{ matrix.node == 24 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-preview
+          path: dist/site/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Unloaded tab move regression
         timeout-minutes: 5
         if: ${{ matrix.node == 25 }}

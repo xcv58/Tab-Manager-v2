@@ -42,6 +42,7 @@ export const planTabMove = <T extends MoveTab>(
         ]
       : tabs
   const placedIds = new Set<number>()
+  const insertionAnchor = from >= 0 ? planned[from] : undefined
   let cursor = from
   for (const tab of movingTabs) {
     const position = getTabInsertIndex(planned, tab, cursor)
@@ -49,9 +50,15 @@ export const planTabMove = <T extends MoveTab>(
     placedIds.add(tab.id)
     if (from !== -1) {
       // A later pin may land before an already placed unpinned tab.
+      // Pins inserted before the requested boundary also shift that boundary.
+      // Keep the original unselected anchor instead of following only pins.
+      const boundary = insertionAnchor
+        ? planned.findIndex((item) => item.id === insertionAnchor.id)
+        : planned.length
       cursor = planned.reduce(
-        (next, item, index) => (placedIds.has(item.id) ? index + 1 : next),
-        0,
+        (next, item, index) =>
+          placedIds.has(item.id) ? Math.max(next, index + 1) : next,
+        boundary,
       )
     }
   }

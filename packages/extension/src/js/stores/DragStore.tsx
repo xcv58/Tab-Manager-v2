@@ -9,7 +9,11 @@ import {
   planTabMove,
 } from 'libs/tabMovePlan'
 
-export type DropSource = 'tab-row' | 'group-header' | 'window-zone'
+export type DropSource =
+  | 'tab-row'
+  | 'group-header'
+  | 'window-zone'
+  | 'tab-relative'
 
 export type WindowEdge = 'beginning' | 'end'
 
@@ -499,7 +503,22 @@ export default class DragStore {
     // Serialize keyboard and menu moves with header drops.
     this.pendingWindowEdgeDrop = true
     try {
-      await this.drop(tab, before)
+      const preserveWholeGroups =
+        this.canMoveGroups() &&
+        this.getWholeSelectedGroupIds(this.store.tabStore.sources).size > 0
+      if (preserveWholeGroups) {
+        // Intact groups cannot be nested inside the destination's group.
+        // Move blocks around its boundary, using the group API so transfers
+        // keep IDs and metadata even when the source window becomes empty.
+        await this.dropAt({
+          windowId: tab.windowId,
+          index: this.getTargetIndex(tab.win.tabs, tab, before),
+          forceUngroup: true,
+          source: 'tab-relative',
+        })
+      } else {
+        await this.drop(tab, before)
+      }
     } finally {
       this.pendingWindowEdgeDrop = false
     }
@@ -528,19 +547,22 @@ export default class DragStore {
         sourceGroupId,
         sources,
       )
+      const preserveGroupsAtBoundary =
+        options.source === 'window-zone' || options.source === 'tab-relative'
       const preserveWholeGroupOnBlankSpace =
-        options.source === 'window-zone' && wholeGroupSelection
+        preserveGroupsAtBoundary && wholeGroupSelection
       const wholeSelectedGroupIds = this.getWholeSelectedGroupIds(sources)
       const wholeGroupOnlySelection =
         sources.length > 0 &&
         sources.every((tab) => !this.isNoGroupId(tab.groupId)) &&
         sources.every((tab) => wholeSelectedGroupIds.has(tab.groupId))
       const shouldPreserveWholeGroupsOnBlankSpace =
-        options.source === 'window-zone' && wholeSelectedGroupIds.size > 0
+        preserveGroupsAtBoundary && wholeSelectedGroupIds.size > 0
       const shouldMovePreservedWholeGroupsWithGroupApi =
         shouldPreserveWholeGroupsOnBlankSpace &&
         this.canMoveGroups() &&
-        (options.windowEdge != null ||
+        (options.source === 'tab-relative' ||
+          options.windowEdge != null ||
           (sources.some((tab) => tab.windowId !== options.windowId) &&
             sources.some((tab) => this.isNoGroupId(tab.groupId))))
       const sourceTabIds = sources.map((x) => x.id)
