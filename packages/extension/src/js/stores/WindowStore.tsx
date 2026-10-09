@@ -1388,6 +1388,7 @@ export default class WindowsStore {
         new Window(
           {
             id: windowId,
+            incognito: tab.incognito,
             tabs: [tab],
           },
           this.store,

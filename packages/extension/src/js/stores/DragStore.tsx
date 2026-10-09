@@ -3,7 +3,11 @@ import Store from 'stores'
 import Tab from './Tab'
 import log from 'libs/log'
 import { browser } from 'libs'
-import { getTabInsertIndex, planTabMove } from 'libs/tabMovePlan'
+import {
+  getTabInsertIndex,
+  getTabMoveDestinationHint,
+  planTabMove,
+} from 'libs/tabMovePlan'
 
 export type DropSource = 'tab-row' | 'group-header' | 'window-zone'
 
@@ -240,19 +244,12 @@ export default class DragStore {
     index: number,
   ) => {
     const blocks = this.getBlankSpaceMoveBlocks(sources, wholeSelectedGroupIds)
-    // Browser state stays current while the store is suspended during a move.
-    const sourceWindows = await Promise.all(
-      Array.from(new Set(sources.map((tab) => tab.windowId))).map(
-        this.getWindowTabsFromBrowser,
-      ),
+    // Selection can retain old window IDs after Chrome transfers tabs. Resolve
+    // by stable tab ID so active source tabs still move last in their new window.
+    const browserSources = await Promise.all(
+      sources.map((tab) => this.getTabFromBrowser(tab.id)),
     )
-    const currentTabs = new Map<
-      number,
-      (typeof sourceWindows)[number][number]
-    >()
-    for (const tabs of sourceWindows) {
-      tabs.forEach((tab) => currentTabs.set(tab.id, tab))
-    }
+    const currentTabs = new Map(browserSources.map((tab) => [tab.id, tab]))
     const currentSources = sources.map((tab) => ({
       ...tab,
       ...currentTabs.get(tab.id),
@@ -352,6 +349,8 @@ export default class DragStore {
     const groupSize = bounds.end - bounds.start + 1
     return Math.max(0, Math.min(targetIndex - bounds.start, groupSize))
   }
+
+  getTabFromBrowser = async (tabId: number) => browser.tabs.get(tabId)
 
   getWindowTabsFromBrowser = async (windowId: number) => {
     const tabs = await browser.tabs.query({ windowId })
@@ -457,8 +456,12 @@ export default class DragStore {
       return
     }
     const win = this.store.windowStore.getTargetWindow(windowId)
-    if (!win.canDrop) {
-      return
+    const hint = getTabMoveDestinationHint(
+      win,
+      this.store.tabStore.selection.values(),
+    )
+    if (hint) {
+      return hint
     }
     // HTML5 drag end fires before the asynchronous browser move settles.
     // Keep its selection until dropAt clears it on success or retains it on failure.
@@ -486,8 +489,12 @@ export default class DragStore {
     if (this.store.tabStore.selection.has(tab.id)) {
       return 'Choose an unselected destination tab'
     }
-    if (!tab.win.canDrop) {
-      return 'Cannot move tabs to this window'
+    const hint = getTabMoveDestinationHint(
+      tab.win,
+      this.store.tabStore.selection.values(),
+    )
+    if (hint) {
+      return hint
     }
     // Serialize keyboard and menu moves with header drops.
     this.pendingWindowEdgeDrop = true
@@ -501,12 +508,21 @@ export default class DragStore {
   dropAt = async (options: DropAtOptions) => {
     const { moveTabs, getTargetWindow, suspend, resume } =
       this.store.windowStore
-    suspend()
+    let suspended = false
     try {
       const sources = this.store.tabStore.sources
       if (!sources.length) {
         return
       }
+      const { windowId } = options
+      const win = getTargetWindow(windowId)
+      // Check the entire selection before ungrouping or moving any source tabs.
+      const hint = getTabMoveDestinationHint(win, sources)
+      if (hint) {
+        return hint
+      }
+      suspend()
+      suspended = true
       const sourceGroupId = this.getSingleGroupId(sources)
       const wholeGroupSelection = this.isWholeGroupSelection(
         sourceGroupId,
@@ -537,8 +553,6 @@ export default class DragStore {
       const detachableGroupedSourceTabIds = groupedSourceTabs
         .filter((tab) => !wholeSelectedGroupIds.has(tab.groupId))
         .map((tab) => tab.id)
-      const { windowId } = options
-      const win = getTargetWindow(windowId)
       const targetGroupId = options.targetGroupId ?? this.getNoGroupId()
       const targetTab =
         typeof options.targetTabId === 'number'
@@ -715,10 +729,12 @@ export default class DragStore {
         error,
       })
     } finally {
-      await resume({
-        repackPolicy: 'never',
-        reason: 'drag-drop',
-      })
+      if (suspended) {
+        await resume({
+          repackPolicy: 'never',
+          reason: 'drag-drop',
+        })
+      }
     }
   }
 

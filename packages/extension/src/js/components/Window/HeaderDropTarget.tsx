@@ -7,6 +7,7 @@ import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 import Tooltip from 'components/ui/Tooltip'
 import type { WindowEdge } from 'stores/DragStore'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 
 type Props = WinProps & { position: WindowEdge }
 
@@ -28,10 +29,15 @@ const INSERTION_RIBBON_PATH = [
 
 export default observer(({ win, position }: Props) => {
   const theme = useAppTheme()
-  const { dragStore, userStore } = useStore()
+  const { dragStore, userStore, tabStore } = useStore()
+  const blockedHint = getTabMoveDestinationHint(
+    win,
+    tabStore.selection.values(),
+  )
+  const allowed = !blockedHint
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
-    canDrop: () => win.canDrop,
+    canDrop: () => !getTabMoveDestinationHint(win, tabStore.selection.values()),
     drop: (_, monitor) => {
       if (!monitor.didDrop()) {
         dragStore.moveSelectedTabsToWindowEdge(win.id, position)
@@ -55,7 +61,7 @@ export default observer(({ win, position }: Props) => {
     : dark
       ? '94, 196, 186'
       : '13, 148, 136'
-  const markerColor = win.canDrop
+  const markerColor = allowed
     ? `rgba(${accent}, ${active ? 1 : highContrast ? 0.75 : 0.45})`
     : theme.palette.text.secondary
   const tintOpacity =
@@ -65,9 +71,7 @@ export default observer(({ win, position }: Props) => {
     (highContrast ? 0.24 : dark ? 0.2 : 0.16) * (classic ? 0.75 : 1)
   const gradient = `linear-gradient(to ${beginning ? 'bottom' : 'top'}, rgba(${accent}, ${washStrength}) 0px, rgba(${accent}, ${washStrength / 3}) 7px, rgba(${accent}, 0) 16px)`
   const washMask = `linear-gradient(to ${beginning ? 'right' : 'left'}, black 0%, black 55%, transparent 100%)`
-  const hint = win.canDrop
-    ? `Move to ${position}`
-    : 'Cannot move tabs to this window'
+  const hint = blockedHint || `Move to ${position}`
 
   return (
     <Tooltip title={hint} open={isOver} placement="bottom">
@@ -77,15 +81,15 @@ export default observer(({ win, position }: Props) => {
         aria-label={`Move to ${position}`}
         className="relative min-w-0 flex-1"
         style={{
-          cursor: win.canDrop ? 'move' : 'not-allowed',
-          opacity: win.canDrop ? 1 : 0.5,
+          cursor: allowed ? 'move' : 'not-allowed',
+          opacity: allowed ? 1 : 0.5,
         }}
       >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-10"
           style={{
-            backgroundColor: win.canDrop
+            backgroundColor: allowed
               ? `rgba(${accent}, ${tintOpacity})`
               : theme.palette.action.hover,
             transition: 'background-color 140ms ease',
@@ -95,7 +99,7 @@ export default observer(({ win, position }: Props) => {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-10"
           style={{
-            backgroundImage: win.canDrop ? gradient : undefined,
+            backgroundImage: allowed ? gradient : undefined,
             maskImage: washMask,
             WebkitMaskImage: washMask,
             opacity: active ? 1 : highContrast ? 0.7 : 0.45,

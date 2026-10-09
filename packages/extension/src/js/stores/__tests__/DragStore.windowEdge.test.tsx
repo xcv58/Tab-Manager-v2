@@ -60,7 +60,12 @@ const setup = (sources: any[], targetTabs: any[] = []) => {
       target.splice(position, 0, tab)
     })
   }
-  const destination = { id: 7, canDrop: true, tabs: targetTabs }
+  const destination = {
+    id: 7,
+    canDrop: true,
+    incognito: false,
+    tabs: targetTabs,
+  }
   const windowStore = {
     getTargetWindow: jest.fn(() => destination),
     moveTabs: jest.fn(async (tabs, windowId, index) =>
@@ -96,6 +101,15 @@ const setup = (sources: any[], targetTabs: any[] = []) => {
   store.tabStore = new TabStore(store)
   store.tabStore.selectAll(sources)
   const dragStore = new DragStore(store)
+  dragStore.getTabFromBrowser = jest.fn(async (tabId) => {
+    const current = Array.from(browserWindows.values())
+      .flat()
+      .find((tab) => tab.id === tabId)
+    if (!current) {
+      throw new Error(`No tab with id: ${tabId}`)
+    }
+    return { ...current }
+  })
   dragStore.getWindowTabsFromBrowser = jest.fn(async (windowId) =>
     (browserWindows.get(windowId) || []).map((tab, index) => ({
       ...tab,
@@ -114,6 +128,81 @@ const setup = (sources: any[], targetTabs: any[] = []) => {
 }
 
 describe('DragStore window edge moves', () => {
+  it.each([
+    ['beginning', false, true],
+    ['end', true, false],
+    ['before', false, true],
+    ['after', true, false],
+    ['drop', false, true],
+  ] as const)(
+    'rejects %s across privacy contexts before ungrouping a partial group',
+    async (action, sourceIncognito, destinationIncognito) => {
+      const source = { ...tab(1, 1, 0, 10), incognito: sourceIncognito }
+      const target = { ...tab(9, 7, 0), incognito: destinationIncognito }
+      const { dragStore, tabStore, windowStore, tabGroupStore, destination } =
+        setup([source], [target])
+      destination.incognito = destinationIncognito
+      const selected = tabStore.selection.get(1)
+      tabGroupStore.getTabsForGroup.mockReturnValue([
+        source,
+        { ...tab(2, 1, 1, 10), incognito: sourceIncognito },
+      ])
+
+      const hint =
+        action === 'before' || action === 'after'
+          ? await dragStore.moveSelectedTabsRelativeToTab(
+              { ...target, win: destination } as any,
+              action === 'before',
+            )
+          : action === 'drop'
+            ? await dragStore.dropAt({
+                windowId: 7,
+                index: 0,
+                source: 'window-zone',
+              })
+            : await dragStore.moveSelectedTabsToWindowEdge(7, action)
+
+      expect(hint).toBe('Cannot move tabs between regular and private windows')
+      expect(windowStore.suspend).not.toHaveBeenCalled()
+      expect(windowStore.moveTabs).not.toHaveBeenCalled()
+      expect(tabGroupStore.ungroupTabs).not.toHaveBeenCalled()
+      expect(tabGroupStore.moveGroup).not.toHaveBeenCalled()
+      expect(tabGroupStore.groupTabs).not.toHaveBeenCalled()
+      expect(tabStore.selection.get(1)).toBe(selected)
+      expect(dragStore.pendingWindowEdgeDrop).toBe(false)
+    },
+  )
+
+  it.each([false, true])(
+    'rejects a mixed selection atomically with destination incognito=%s',
+    async (incognito) => {
+      const sources = [
+        { ...tab(1, 1, 0), incognito: false },
+        { ...tab(2, 2, 0), incognito: true },
+      ]
+      const { dragStore, tabStore, windowStore, tabGroupStore, destination } =
+        setup(sources)
+      destination.incognito = incognito
+
+      await dragStore.dropAt({ windowId: 7, index: 0, source: 'window-zone' })
+
+      expect(windowStore.moveTabs).not.toHaveBeenCalled()
+      expect(tabGroupStore.ungroupTabs).not.toHaveBeenCalled()
+      expect(tabStore.selection.size).toBe(2)
+    },
+  )
+
+  it('allows a private selection to move to another private window', async () => {
+    const source = { ...tab(1, 1, 0), incognito: true }
+    const { dragStore, tabStore, windowStore, destination } = setup([source])
+    destination.incognito = true
+
+    await dragStore.moveSelectedTabsToWindowEdge(7, 'end')
+
+    expect(windowStore.moveTabs).toHaveBeenCalledWith([source], 7, -1)
+    expect(tabStore.selection.size).toBe(0)
+  })
+
   it.each([
     ['beginning', 0],
     ['end', -1],
@@ -380,6 +469,40 @@ describe('DragStore window edge moves', () => {
       expect(browserWindows.get(7).find((tab) => tab.id === 9).active).toBe(
         true,
       )
+    },
+  )
+
+  it.each(['beginning', 'end'] as const)(
+    'keeps moved loose tabs unloaded when selection retains a closed source window at %s',
+    async (position) => {
+      const sources = [
+        { ...tab(1, 1, 0), discarded: true },
+        { ...tab(2, 1, 1), active: true },
+        tab(3, 2, 0, 10),
+        tab(4, 2, 1, 10),
+      ]
+      const { dragStore, browserWindows, reloaded, windowStore } = setup(
+        sources,
+        [tab(9, 7, 0)],
+      )
+      browserWindows.set(
+        3,
+        browserWindows.get(1).map((tab) => ({ ...tab, windowId: 3 })),
+      )
+      browserWindows.delete(1)
+
+      await dragStore.moveSelectedTabsToWindowEdge(7, position)
+
+      expect(reloaded).toEqual([])
+      expect(browserWindows.get(7).find((tab) => tab.id === 1).discarded).toBe(
+        true,
+      )
+      expect(browserWindows.get(7).map((tab) => tab.id)).toEqual(
+        position === 'beginning' ? [1, 2, 3, 4, 9] : [9, 1, 2, 3, 4],
+      )
+      expect(
+        windowStore.moveTabs.mock.calls.map(([tabs]) => tabs[0].id),
+      ).toEqual([1, 2])
     },
   )
 

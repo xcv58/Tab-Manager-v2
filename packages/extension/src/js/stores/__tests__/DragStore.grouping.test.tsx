@@ -1011,6 +1011,9 @@ describe('DragStore with tab groups', () => {
     selection.set(looseTab.id, looseTab as any)
 
     const destination = [targetTab]
+    dragStore.getTabFromBrowser = jest.fn(async (tabId) => ({
+      ...selection.get(tabId),
+    }))
     dragStore.getWindowTabsFromBrowser = jest.fn(async (windowId) =>
       (windowId === 1 ? destination : Array.from(selection.values())).map(
         (tab, index) => ({ ...tab, windowId, index }),
@@ -1095,6 +1098,9 @@ describe('DragStore with tab groups', () => {
     selection.set(window2GroupTab2.id, window2GroupTab2 as any)
 
     const destination: any[] = []
+    dragStore.getTabFromBrowser = jest.fn(async (tabId) => ({
+      ...selection.get(tabId),
+    }))
     dragStore.getWindowTabsFromBrowser = jest.fn(async (windowId) =>
       (windowId === 3
         ? destination

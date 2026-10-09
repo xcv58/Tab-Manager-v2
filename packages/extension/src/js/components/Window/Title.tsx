@@ -120,6 +120,9 @@ export default observer((props: Props) => {
     </div>
   )
   const onHeaderFocus = React.useCallback(() => {
+    if (win.isFocused) {
+      return
+    }
     focusStore.focus(win, {
       origin: 'keyboard',
       reveal: false,

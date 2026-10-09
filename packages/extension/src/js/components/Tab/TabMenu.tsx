@@ -8,6 +8,7 @@ import { useStore } from 'components/hooks/useStore'
 import ControlIconButton from 'components/ControlIconButton'
 import { TabProps } from 'components/types'
 import MoveShortcut from 'components/Shortcut/MoveShortcut'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import {
   getTabMoveAriaShortcut,
   type TabMovePosition,
@@ -79,7 +80,7 @@ export default observer((props: TabProps) => {
     dragStore.pendingWindowEdgeDrop ||
     !tabStore.selection.size ||
     tabStore.selection.has(props.tab.id) ||
-    !win.canDrop
+    Boolean(getTabMoveDestinationHint(win, tabStore.selection.values()))
 
   const options: (OptionOrDivider | false)[] = [
     {

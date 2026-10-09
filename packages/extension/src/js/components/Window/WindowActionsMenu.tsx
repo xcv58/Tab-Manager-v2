@@ -9,12 +9,15 @@ import { MoreHorizIcon } from 'icons/materialIcons'
 import type { WindowEdge } from 'stores/DragStore'
 import MoveShortcut from 'components/Shortcut/MoveShortcut'
 import { getTabMoveAriaShortcut } from 'libs/tabMoveShortcuts'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 
 export default observer(({ win }: WinProps) => {
   const { arrangeStore, dragStore, tabStore, focusStore } = useStore()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const disabled =
-    dragStore.pendingWindowEdgeDrop || !win.canDrop || !tabStore.selection.size
+    dragStore.pendingWindowEdgeDrop ||
+    !tabStore.selection.size ||
+    Boolean(getTabMoveDestinationHint(win, tabStore.selection.values()))
   const closeMenu = () => setAnchorEl(null)
   const moveToEdge = (position: WindowEdge) => {
     closeMenu()
@@ -32,22 +35,24 @@ export default observer(({ win }: WinProps) => {
   return (
     <>
       <Tooltip title="Window actions">
-        <ControlIconButton
-          controlSize="compact"
-          aria-label="Window actions"
-          aria-haspopup="menu"
-          aria-expanded={Boolean(anchorEl)}
-          onClick={(event) => {
-            focusStore.focus(win, {
-              origin: 'mouse',
-              reveal: false,
-              moveDomFocus: false,
-            })
-            setAnchorEl(event.currentTarget)
-          }}
-        >
-          <MoreHorizIcon fontSize={16} />
-        </ControlIconButton>
+        <span className="inline-flex">
+          <ControlIconButton
+            controlSize="compact"
+            aria-label="Window actions"
+            aria-haspopup="menu"
+            aria-expanded={Boolean(anchorEl)}
+            onClick={(event) => {
+              focusStore.focus(win, {
+                origin: 'mouse',
+                reveal: false,
+                moveDomFocus: false,
+              })
+              setAnchorEl(event.currentTarget)
+            }}
+          >
+            <MoreHorizIcon fontSize={16} />
+          </ControlIconButton>
+        </span>
       </Tooltip>
       <Menu
         anchorEl={anchorEl}

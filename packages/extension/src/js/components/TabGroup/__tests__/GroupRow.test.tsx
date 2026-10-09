@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import { StoreContext } from 'components/hooks/useStore'
 import GroupRow from '../GroupRow'
@@ -15,9 +15,13 @@ jest.mock('../GroupEditorPopover', () => () => null)
 jest.mock('../GroupDragHandle', () => () => (
   <div data-testid="group-drag-handle" />
 ))
-jest.mock('components/CloseButton', () => () => (
-  <div data-testid="close-button" />
-))
+jest.mock(
+  'components/CloseButton',
+  () =>
+    ({ size: _size, tone: _tone, ...props }) => (
+      <button type="button" data-testid="close-button" {...props} />
+    ),
+)
 jest.mock('components/RowActionRail', () => ({ children }) => (
   <div>{children}</div>
 ))
@@ -128,7 +132,7 @@ const renderGroupRow = (
 
   const dropNode = mockDrop.mock.calls[0][0] as HTMLDivElement
   mockHeaderRect(dropNode)
-  return { groupRow, dropNode, dropAt }
+  return { groupRow, dropNode, dropAt, focus: store.focusStore.focus }
 }
 
 describe('GroupRow', () => {
@@ -240,6 +244,50 @@ describe('GroupRow', () => {
       before: true,
       source: 'group-header',
     })
+  })
+
+  it.each(['Group actions', 'Close group'])(
+    'syncs group focus from %s without moving native button focus',
+    (name) => {
+      const { groupRow, focus } = renderGroupRow('tab-row', jest.fn())
+      const button = screen.getByRole('button', { name })
+
+      act(() => button.focus())
+
+      expect(button).toHaveFocus()
+      expect(focus).toHaveBeenCalledWith(groupRow, {
+        origin: 'keyboard',
+        reveal: false,
+        moveDomFocus: false,
+      })
+    },
+  )
+
+  it('keeps the destination group focused when Escape returns to its actions button', () => {
+    const { groupRow, focus } = renderGroupRow('tab-row', jest.fn())
+    const button = screen.getByRole('button', { name: 'Group actions' })
+    act(() => button.focus())
+    fireEvent.click(button)
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+
+    expect(button).toHaveFocus()
+    expect(focus).toHaveBeenLastCalledWith(groupRow, {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
+  })
+
+  it('preserves the reveal request when logical navigation focuses the group header', () => {
+    const { groupRow, dropNode, focus } = renderGroupRow('tab-row', jest.fn())
+    groupRow.isFocused = true
+    groupRow.shouldRevealOnFocus = true
+
+    fireEvent.focus(dropNode)
+
+    expect(focus).not.toHaveBeenCalled()
+    expect(groupRow.shouldRevealOnFocus).toBe(true)
   })
 
   it('highlights a matching group title with the active search phase', () => {

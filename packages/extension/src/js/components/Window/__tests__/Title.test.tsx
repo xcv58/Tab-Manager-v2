@@ -32,9 +32,13 @@ jest.mock(
 )
 
 describe('Window Title', () => {
-  it.each(['2 tabs', 'Collapse window', 'Window actions', 'Close window'])(
-    'sets the destination without stealing native focus from %s',
-    (label) => {
+  it.each(
+    ['2 tabs', 'Collapse window', 'Window actions', 'Close window'].flatMap(
+      (label) => [[label, false] as const, [label, true] as const],
+    ),
+  )(
+    'syncs %s without overwriting an existing focus request (focused=%s)',
+    (label, isFocused) => {
       const focus = jest.fn()
       const store = {
         focusStore: {
@@ -53,10 +57,10 @@ describe('Window Title', () => {
         reload: jest.fn(),
         hide: false,
         toggleHide: jest.fn(),
-        isFocused: false,
-        focusRequestId: 0,
+        isFocused,
+        focusRequestId: 12,
         shouldMoveDomFocus: true,
-        shouldRevealOnFocus: false,
+        shouldRevealOnFocus: true,
         setNodeRef: jest.fn(),
       } as any
 
@@ -72,11 +76,13 @@ describe('Window Title', () => {
 
       fireEvent.focus(screen.getByRole('button', { name: label }))
 
-      expect(focus).toHaveBeenCalledWith(win, {
-        origin: 'keyboard',
-        reveal: false,
-        moveDomFocus: false,
-      })
+      const expectedCalls = isFocused
+        ? []
+        : [[win, { origin: 'keyboard', reveal: false, moveDomFocus: false }]]
+      expect(focus.mock.calls).toEqual(expectedCalls)
+      expect(win.focusRequestId).toBe(12)
+      expect(win.shouldMoveDomFocus).toBe(true)
+      expect(win.shouldRevealOnFocus).toBe(true)
     },
   )
 

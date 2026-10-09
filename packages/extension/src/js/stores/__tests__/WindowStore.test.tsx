@@ -1,6 +1,7 @@
 import WindowStore from 'stores/WindowStore'
 import Window from 'stores/Window'
 import { browser, getLastFocusedWindowId } from 'libs'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -139,6 +140,49 @@ describe('WindowStore layout policy', () => {
     })
     ;(browser.storage.local.set as jest.Mock).mockResolvedValue(undefined)
   })
+
+  it.each([false, true])(
+    'preserves incognito=%s when tab creation wins an in-flight window lookup',
+    async (incognito) => {
+      const windowStore = createWindowStore()
+      let resolveWindow: (win: any) => void
+      ;(browser.windows.get as jest.Mock).mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveWindow = resolve
+          }),
+      )
+      const tab = {
+        id: 70,
+        windowId: 7,
+        index: 0,
+        groupId: -1,
+        incognito,
+        title: 'New window tab',
+        url: 'https://example.com/new-window',
+      }
+
+      const pendingCreation = windowStore.onWindowsCreated({ id: 7 } as any)
+      windowStore.onCreated(tab as any)
+      const created = windowStore.getTargetWindow(7)
+
+      expect(created.incognito).toBe(incognito)
+      expect(created.tabs[0].incognito).toBe(incognito)
+      expect(
+        getTabMoveDestinationHint(created, [{ incognito }]),
+      ).toBeUndefined()
+      expect(
+        getTabMoveDestinationHint(created, [{ incognito: !incognito }]),
+      ).toBe('Cannot move tabs between regular and private windows')
+
+      resolveWindow({ id: 7, incognito, type: 'normal', tabs: [tab] })
+      await pendingCreation
+
+      expect(windowStore.windows).toHaveLength(1)
+      expect(windowStore.getTargetWindow(7)).toBe(created)
+      expect(created.incognito).toBe(incognito)
+    },
+  )
 
   it('markLayoutDirtyIfNeeded marks only when computed layout differs', () => {
     const windowStore = createWindowStore()

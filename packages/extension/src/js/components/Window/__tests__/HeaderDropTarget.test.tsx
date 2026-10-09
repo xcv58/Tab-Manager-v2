@@ -29,6 +29,7 @@ describe('window header drop targets', () => {
       const moveSelectedTabsToWindowEdge = jest.fn()
       const store = {
         dragStore: { moveSelectedTabsToWindowEdge },
+        tabStore: { selection: new Map() },
         userStore: { uiPreset: 'modern', increaseContrast: false },
       } as any
       const win = { id: 7, canDrop: true } as any
@@ -53,6 +54,7 @@ describe('window header drop targets', () => {
     (theme) => {
       const store = {
         dragStore: {},
+        tabStore: { selection: new Map() },
         userStore: { uiPreset: 'modern', increaseContrast: false },
       } as any
       mockUseDrop.mockReturnValue([{ canDrop: true, isOver: true }, jest.fn()])
@@ -96,6 +98,7 @@ describe('window header drop targets', () => {
   it('shows both header halves only during a drag and retains the top insertion strip', () => {
     const store = {
       dragStore: observable({ dragging: false }),
+      tabStore: { selection: new Map() },
       userStore: { uiPreset: 'modern', increaseContrast: false },
     } as any
     const win = { id: 7, canDrop: true } as any
@@ -129,4 +132,40 @@ describe('window header drop targets', () => {
     ).not.toBeInTheDocument()
     expect(screen.getByTestId('normal-header')).toBeInTheDocument()
   })
+
+  it.each([lightAppTheme, darkAppTheme])(
+    'mutes an incompatible private destination and explains why in $mode theme',
+    (theme) => {
+      const store = {
+        dragStore: {},
+        tabStore: { selection: new Map([[1, { id: 1, incognito: false }]]) },
+        userStore: { uiPreset: 'modern', increaseContrast: false },
+      } as any
+      mockUseDrop.mockImplementation((spec) => {
+        lastDropSpec = spec
+        return [{ canDrop: spec.canDrop(), isOver: true }, jest.fn()]
+      })
+      render(
+        <StoreContext.Provider value={store}>
+          <AppThemeContext.Provider value={theme}>
+            <HeaderDropTarget
+              win={{ id: 7, canDrop: true, incognito: true } as any}
+              position="beginning"
+            />
+          </AppThemeContext.Provider>
+        </StoreContext.Provider>,
+      )
+
+      expect(lastDropSpec.canDrop()).toBe(false)
+      expect(screen.getByRole('tooltip')).toHaveTextContent(
+        'Cannot move tabs between regular and private windows',
+      )
+      expect(screen.getByTestId('window-header-drop-beginning-7')).toHaveStyle({
+        cursor: 'not-allowed',
+        opacity: '0.5',
+      })
+      store.tabStore.selection.set(1, { id: 1, incognito: true })
+      expect(lastDropSpec.canDrop()).toBe(true)
+    },
+  )
 })

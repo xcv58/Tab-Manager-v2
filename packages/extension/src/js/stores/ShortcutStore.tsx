@@ -3,6 +3,7 @@ import Mousetrap from 'mousetrap'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import {
   TAB_MOVE_SHORTCUTS,
   TAB_MOVE_LABELS,
@@ -592,8 +593,9 @@ export default class ShortcutStore {
         this.showMoveHint('Focus a destination window or tab')
         return
       }
-      if (!win.canDrop) {
-        this.showMoveHint('Cannot move tabs to this window')
+      const hint = getTabMoveDestinationHint(win, tabStore.selection.values())
+      if (hint) {
+        this.showMoveHint(hint)
         return
       }
       await dragStore.moveSelectedTabsToWindowEdge(win.id, position)

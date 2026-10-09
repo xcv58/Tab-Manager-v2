@@ -1,5 +1,19 @@
 type MoveTab = { id: number; pinned?: boolean }
 
+export const getTabMoveDestinationHint = (
+  destination: { canDrop?: boolean; incognito?: boolean },
+  sources: Iterable<{ incognito?: boolean }>,
+): string | undefined => {
+  if (destination.canDrop === false) {
+    return 'Cannot move tabs to this window'
+  }
+  for (const tab of sources) {
+    if (Boolean(tab.incognito) !== Boolean(destination.incognito)) {
+      return 'Cannot move tabs between regular and private windows'
+    }
+  }
+}
+
 export const getTabInsertIndex = (
   tabs: Array<{ pinned?: boolean }>,
   tab: { pinned?: boolean },

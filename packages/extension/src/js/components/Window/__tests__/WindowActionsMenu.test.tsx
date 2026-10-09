@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { StoreContext } from 'components/hooks/useStore'
+import { AppThemeContext, lightAppTheme, darkAppTheme } from 'libs/appTheme'
 import WindowActionsMenu from '../WindowActionsMenu'
 
 const setup = (
@@ -8,6 +9,8 @@ const setup = (
   canDrop = true,
   pendingWindowEdgeDrop = false,
   hide = false,
+  sourceIncognito = false,
+  destinationIncognito = false,
 ) => {
   const moveSelectedTabsToWindowEdge = jest.fn()
   const sortTabs = jest.fn().mockResolvedValue(undefined)
@@ -15,12 +18,26 @@ const setup = (
   const store = {
     arrangeStore: { sortTabs },
     dragStore: { moveSelectedTabsToWindowEdge, pendingWindowEdgeDrop },
-    tabStore: { selection: new Map(selected ? [[1, { id: 1 }]] : []) },
+    tabStore: {
+      selection: new Map(
+        selected ? [[1, { id: 1, incognito: sourceIncognito }]] : [],
+      ),
+    },
     focusStore: { focus: jest.fn() },
   } as any
   render(
     <StoreContext.Provider value={store}>
-      <WindowActionsMenu win={{ id: 7, canDrop, hide, reload } as any} />
+      <WindowActionsMenu
+        win={
+          {
+            id: 7,
+            canDrop,
+            hide,
+            reload,
+            incognito: destinationIncognito,
+          } as any
+        }
+      />
     </StoreContext.Provider>,
   )
   const trigger = screen.getByRole('button', { name: 'Window actions' })
@@ -29,6 +46,63 @@ const setup = (
 }
 
 describe('WindowActionsMenu', () => {
+  it.each([
+    [false, true, true],
+    [true, false, true],
+    [true, true, false],
+  ])(
+    'sets move availability for source private=%s and destination private=%s',
+    (sourceIncognito, destinationIncognito, disabled) => {
+      const { moveSelectedTabsToWindowEdge } = setup(
+        true,
+        true,
+        false,
+        false,
+        sourceIncognito,
+        destinationIncognito,
+      )
+      for (const item of screen.getAllByRole('menuitem', {
+        name: /^Move selected to/,
+      })) {
+        expect(item).toHaveProperty('disabled', disabled)
+        if (disabled) {
+          fireEvent.click(item)
+        }
+      }
+      expect(moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each([lightAppTheme, darkAppTheme])(
+    'clears pointer feedback after clicking and leaving in $mode theme',
+    (theme) => {
+      const store = {
+        dragStore: { pendingWindowEdgeDrop: false },
+        tabStore: { selection: new Map() },
+        focusStore: { focus: jest.fn() },
+      } as any
+      render(
+        <StoreContext.Provider value={store}>
+          <AppThemeContext.Provider value={theme}>
+            <WindowActionsMenu win={{ id: 7, canDrop: true } as any} />
+          </AppThemeContext.Provider>
+        </StoreContext.Provider>,
+      )
+      const button = screen.getByRole('button', { name: 'Window actions' })
+      const idleBackground = button.style.backgroundColor
+
+      fireEvent.mouseEnter(button)
+      expect(button.style.backgroundColor).not.toBe(idleBackground)
+      fireEvent.mouseDown(button)
+      fireEvent.mouseUp(button)
+      fireEvent.click(button)
+      fireEvent.mouseLeave(button)
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+
+      expect(button.style.backgroundColor).toBe(idleBackground)
+    },
+  )
+
   it.each(['beginning', 'end'] as const)(
     'moves selected tabs to %s, closes the menu, and returns focus',
     (position) => {

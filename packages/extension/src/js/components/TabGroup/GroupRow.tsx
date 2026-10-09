@@ -84,15 +84,6 @@ export default observer((props: Props) => {
     tabGroupStore.toggleCollapsed(row.groupId)
   }
 
-  const onToggleFocus = useCallback(() => {
-    setIsToggleFocused(true)
-    focusStore.focus(groupRow, {
-      origin: 'keyboard',
-      reveal: false,
-      moveDomFocus: false,
-    })
-  }, [focusStore, groupRow])
-
   const onToggleClick = useCallback(() => {
     focusStore.focus(groupRow, { origin: 'mouse', reveal: false })
     onToggle()
@@ -265,7 +256,16 @@ export default observer((props: Props) => {
         })}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}
-        onFocusCapture={() => setIsHeaderFocusWithin(true)}
+        onFocusCapture={() => {
+          setIsHeaderFocusWithin(true)
+          if (!groupRow.isFocused) {
+            focusStore.focus(groupRow, {
+              origin: 'keyboard',
+              reveal: false,
+              moveDomFocus: false,
+            })
+          }
+        }}
         onBlurCapture={(event) => {
           const nextTarget = event.relatedTarget as Node | null
           if (!event.currentTarget.contains(nextTarget)) {
@@ -286,7 +286,7 @@ export default observer((props: Props) => {
           <button
             className="flex h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
             onClick={onToggleClick}
-            onFocus={onToggleFocus}
+            onFocus={() => setIsToggleFocused(true)}
             onMouseEnter={() => setIsToggleHovered(true)}
             onMouseLeave={() => setIsToggleHovered(false)}
             onBlur={() => setIsToggleFocused(false)}
