@@ -182,39 +182,41 @@ describe('ShortcutStore selected-tab moves', () => {
       tabStore: { selection: new Map([[source.id, source]]) },
       focusStore: { focusedWindow: win, focusedTab: target },
     } as any
+    const mocks = {
+      moveSelectedTabsToWindowEdge: jest.fn().mockResolvedValue(undefined),
+      drop: jest.fn().mockResolvedValue(undefined),
+      showMoveHint: jest.fn(),
+    }
     store.dragStore = new DragStore(store)
-    store.dragStore.moveSelectedTabsToWindowEdge = jest
-      .fn()
-      .mockResolvedValue(undefined)
-    store.dragStore.drop = jest.fn().mockResolvedValue(undefined)
+    // MobX wraps assigned functions; keep the original mocks for assertions.
+    store.dragStore.moveSelectedTabsToWindowEdge =
+      mocks.moveSelectedTabsToWindowEdge
+    store.dragStore.drop = mocks.drop
     const shortcutStore = new ShortcutStore(store)
-    shortcutStore.showMoveHint = jest.fn()
-    return { shortcutStore, store, win, target }
+    shortcutStore.showMoveHint = mocks.showMoveHint
+    return { shortcutStore, store, win, target, mocks }
   }
 
   it.each(['beginning', 'end'] as const)(
     'moves to the focused window %s',
     async (position) => {
-      const { shortcutStore, store } = setup()
+      const { shortcutStore, mocks } = setup()
       await shortcutStore.moveSelectedTabs(position)
-      expect(store.dragStore.moveSelectedTabsToWindowEdge).toHaveBeenCalledWith(
+      expect(mocks.moveSelectedTabsToWindowEdge).toHaveBeenCalledWith(
         7,
         position,
       )
-      expect(shortcutStore.showMoveHint).not.toHaveBeenCalled()
+      expect(mocks.showMoveHint).not.toHaveBeenCalled()
     },
   )
 
   it.each(['before', 'after'] as const)(
     'moves %s the focused unselected tab',
     async (position) => {
-      const { shortcutStore, store, target } = setup()
+      const { shortcutStore, target, mocks } = setup()
       await shortcutStore.moveSelectedTabs(position)
-      expect(store.dragStore.drop).toHaveBeenCalledWith(
-        target,
-        position === 'before',
-      )
-      expect(shortcutStore.showMoveHint).not.toHaveBeenCalled()
+      expect(mocks.drop).toHaveBeenCalledWith(target, position === 'before')
+      expect(mocks.showMoveHint).not.toHaveBeenCalled()
     },
   )
 
@@ -228,7 +230,7 @@ describe('ShortcutStore selected-tab moves', () => {
   ] as const)(
     'explains %s rejection for %s without moving',
     async (position, scenario, hint) => {
-      const { shortcutStore, store, win, target } = setup()
+      const { shortcutStore, store, win, target, mocks } = setup()
       if (scenario === 'empty') store.tabStore.selection.clear()
       if (scenario === 'no-window') store.focusStore.focusedWindow = null
       if (scenario === 'unsupported') win.canDrop = false
@@ -240,21 +242,19 @@ describe('ShortcutStore selected-tab moves', () => {
 
       await shortcutStore.moveSelectedTabs(position)
 
-      expect(shortcutStore.showMoveHint).toHaveBeenCalledWith(hint)
-      expect(
-        store.dragStore.moveSelectedTabsToWindowEdge,
-      ).not.toHaveBeenCalled()
-      expect(store.dragStore.drop).not.toHaveBeenCalled()
+      expect(mocks.showMoveHint).toHaveBeenCalledWith(hint)
+      expect(mocks.moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
+      expect(mocks.drop).not.toHaveBeenCalled()
     },
   )
 
   it('ignores repeats while a move is pending', async () => {
-    const { shortcutStore, store } = setup()
+    const { shortcutStore, store, mocks } = setup()
     store.dragStore.pendingWindowEdgeDrop = true
     await shortcutStore.moveSelectedTabs('end')
     await shortcutStore.moveSelectedTabs('after')
-    expect(store.dragStore.moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
-    expect(store.dragStore.drop).not.toHaveBeenCalled()
-    expect(shortcutStore.showMoveHint).not.toHaveBeenCalled()
+    expect(mocks.moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
+    expect(mocks.drop).not.toHaveBeenCalled()
+    expect(mocks.showMoveHint).not.toHaveBeenCalled()
   })
 })
