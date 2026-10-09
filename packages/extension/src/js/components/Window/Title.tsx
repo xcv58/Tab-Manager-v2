@@ -119,7 +119,7 @@ export default observer((props: Props) => {
       {hiddenText}
     </div>
   )
-  const onTitleFocus = React.useCallback(() => {
+  const onHeaderFocus = React.useCallback(() => {
     focusStore.focus(win, {
       origin: 'keyboard',
       reveal: false,
@@ -133,6 +133,7 @@ export default observer((props: Props) => {
     <div
       tabIndex={-1}
       ref={nodeRef}
+      onFocusCapture={onHeaderFocus}
       data-testid={`window-title-${win.id}`}
       className={classNames(
         'flex min-h-10 items-center justify-between font-bold border-0 border-b',
@@ -154,7 +155,6 @@ export default observer((props: Props) => {
         <button
           ref={titleButtonRef}
           onClick={onTitleClick}
-          onFocus={onTitleFocus}
           className={classNames(
             'flex h-10 flex-auto items-center overflow-hidden pl-1 text-base text-left rounded-sm',
             {

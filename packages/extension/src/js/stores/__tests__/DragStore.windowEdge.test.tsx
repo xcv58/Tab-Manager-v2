@@ -10,10 +10,62 @@ const tab = (id: number, windowId: number, index: number, groupId = -1) => ({
 })
 
 const setup = (sources: any[], targetTabs: any[] = []) => {
+  const browserWindows = new Map<number, any[]>()
+  const seenIds = new Set<number>()
+  for (const source of [...targetTabs, ...sources]) {
+    if (seenIds.has(source.id)) {
+      continue
+    }
+    seenIds.add(source.id)
+    const tabs = browserWindows.get(source.windowId) || []
+    tabs.push({ ...source })
+    browserWindows.set(source.windowId, tabs)
+  }
+  browserWindows.forEach((tabs) => tabs.sort((a, b) => a.index - b.index))
+  const reloaded: number[] = []
+  const moveBlock = (tabs: any[], windowId: number, index: number) => {
+    const ids = new Set(tabs.map((tab) => tab.id))
+    const moving: any[] = []
+    browserWindows.forEach((current, sourceWindowId) => {
+      const selected = current.filter((tab) => ids.has(tab.id))
+      moving.push(...selected)
+      const remaining = current.filter((tab) => !ids.has(tab.id))
+      browserWindows.set(sourceWindowId, remaining)
+      if (
+        sourceWindowId !== windowId &&
+        selected.some((tab) => tab.active) &&
+        remaining.length
+      ) {
+        const successor = remaining[0]
+        successor.active = true
+        if (successor.discarded) {
+          successor.discarded = false
+          reloaded.push(successor.id)
+        }
+      }
+    })
+    const target = browserWindows.get(windowId) || []
+    browserWindows.set(windowId, target)
+    tabs.forEach((source, offset) => {
+      const tab = moving.find((candidate) => candidate.id === source.id)
+      const pinnedCount = target.filter((candidate) => candidate.pinned).length
+      const requested = index === -1 ? target.length : index + offset
+      const position = tab.pinned
+        ? Math.min(requested, pinnedCount)
+        : Math.min(target.length, Math.max(requested, pinnedCount))
+      if (tab.windowId !== windowId) {
+        tab.active = false
+      }
+      tab.windowId = windowId
+      target.splice(position, 0, tab)
+    })
+  }
   const destination = { id: 7, canDrop: true, tabs: targetTabs }
   const windowStore = {
     getTargetWindow: jest.fn(() => destination),
-    moveTabs: jest.fn().mockResolvedValue(undefined),
+    moveTabs: jest.fn(async (tabs, windowId, index) =>
+      moveBlock(tabs, windowId, index),
+    ),
     suspend: jest.fn(),
     resume: jest.fn().mockResolvedValue(undefined),
     markLayoutDirtyIfNeeded: jest.fn(),
@@ -26,7 +78,17 @@ const setup = (sources: any[], targetTabs: any[] = []) => {
     getTabsForGroup: jest.fn((groupId: number) =>
       sources.filter((source) => source.groupId === groupId),
     ),
-    moveGroup: jest.fn().mockResolvedValue(undefined),
+    moveGroup: jest.fn(async (groupId, { windowId, index }) => {
+      const tabs = Array.from(browserWindows.values()).reduce(
+        (all, current) => all.concat(current),
+        [],
+      )
+      moveBlock(
+        tabs.filter((tab) => tab.groupId === groupId),
+        windowId,
+        index,
+      )
+    }),
     ungroupTabs: jest.fn().mockResolvedValue(undefined),
     groupTabs: jest.fn().mockResolvedValue(undefined),
   }
@@ -34,13 +96,20 @@ const setup = (sources: any[], targetTabs: any[] = []) => {
   store.tabStore = new TabStore(store)
   store.tabStore.selectAll(sources)
   const dragStore = new DragStore(store)
-  dragStore.getWindowTabsFromBrowser = jest.fn().mockResolvedValue(targetTabs)
+  dragStore.getWindowTabsFromBrowser = jest.fn(async (windowId) =>
+    (browserWindows.get(windowId) || []).map((tab, index) => ({
+      ...tab,
+      index,
+    })),
+  )
   return {
     dragStore,
     tabStore: store.tabStore as TabStore,
     windowStore,
     tabGroupStore,
     destination,
+    browserWindows,
+    reloaded,
   }
 }
 
@@ -230,11 +299,11 @@ describe('DragStore window edge moves', () => {
     expect(tabGroupStore.groupTabs).not.toHaveBeenCalled()
   })
 
-  it('appends each group and loose-tab block without incrementing the append sentinel', async () => {
+  it('preserves group and loose-tab order at the end', async () => {
     const first = tab(1, 1, 0)
     const group = [tab(2, 1, 1, 10), tab(3, 1, 2, 10)]
     const last = tab(4, 1, 3)
-    const { dragStore, tabGroupStore, windowStore } = setup([
+    const { dragStore, tabGroupStore, browserWindows } = setup([
       first,
       ...group,
       last,
@@ -242,57 +311,100 @@ describe('DragStore window edge moves', () => {
 
     await dragStore.moveSelectedTabsToWindowEdge(7, 'end')
 
-    expect(windowStore.moveTabs).toHaveBeenNthCalledWith(1, [first], 7, -1)
-    expect(tabGroupStore.moveGroup).toHaveBeenCalledWith(10, {
-      windowId: 7,
-      index: -1,
-    })
-    expect(windowStore.moveTabs).toHaveBeenNthCalledWith(2, [last], 7, -1)
-    expect(windowStore.moveTabs.mock.invocationCallOrder[0]).toBeLessThan(
-      tabGroupStore.moveGroup.mock.invocationCallOrder[0],
-    )
-    expect(tabGroupStore.moveGroup.mock.invocationCallOrder[0]).toBeLessThan(
-      windowStore.moveTabs.mock.invocationCallOrder[1],
-    )
+    expect(browserWindows.get(7).map((tab) => tab.id)).toEqual([1, 2, 3, 4])
+    expect(browserWindows.get(7).map((tab) => tab.groupId)).toEqual([
+      -1, 10, 10, -1,
+    ])
+    expect(tabGroupStore.ungroupTabs).not.toHaveBeenCalled()
+    expect(tabGroupStore.groupTabs).not.toHaveBeenCalled()
   })
 
   it('prepends mixed blocks in reverse order around destination pins', async () => {
     const first = tab(1, 1, 0)
     const group = [tab(2, 1, 1, 10), tab(3, 1, 2, 10)]
     const last = tab(4, 1, 3)
-    const { dragStore, tabGroupStore, windowStore } = setup(
+    const { dragStore, browserWindows } = setup(
       [first, ...group, last],
       [{ ...tab(9, 7, 0), pinned: true }],
     )
 
     await dragStore.moveSelectedTabsToWindowEdge(7, 'beginning')
 
-    expect(windowStore.moveTabs).toHaveBeenNthCalledWith(1, [last], 7, 0)
-    expect(tabGroupStore.moveGroup).toHaveBeenCalledWith(10, {
-      windowId: 7,
-      index: 1,
-    })
-    expect(windowStore.moveTabs).toHaveBeenNthCalledWith(2, [first], 7, 0)
+    expect(browserWindows.get(7).map((tab) => tab.id)).toEqual([9, 1, 2, 3, 4])
   })
 
   it('preserves multiple whole groups when reordering within the destination window', async () => {
     const firstGroup = [tab(1, 7, 0, 10), tab(2, 7, 1, 10)]
     const secondGroup = [tab(4, 7, 3, 20), tab(5, 7, 4, 20)]
-    const { dragStore, tabGroupStore, windowStore } = setup(
+    const { dragStore, tabGroupStore, windowStore, browserWindows } = setup(
       [...firstGroup, ...secondGroup],
       [...firstGroup, tab(3, 7, 2), ...secondGroup],
     )
 
     await dragStore.moveSelectedTabsToWindowEdge(7, 'end')
 
-    expect(tabGroupStore.moveGroup).toHaveBeenNthCalledWith(1, 10, {
-      windowId: 7,
-      index: -1,
-    })
-    expect(tabGroupStore.moveGroup).toHaveBeenNthCalledWith(2, 20, {
-      windowId: 7,
-      index: -1,
-    })
+    expect(browserWindows.get(7).map((tab) => tab.id)).toEqual([3, 1, 2, 4, 5])
+    expect(tabGroupStore.moveGroup).toHaveBeenCalledTimes(2)
     expect(windowStore.moveTabs).not.toHaveBeenCalled()
   })
+
+  it.each([
+    { position: 'beginning', activeId: 1 },
+    { position: 'beginning', activeId: 2 },
+    { position: 'end', activeId: 1 },
+    { position: 'end', activeId: 2 },
+  ] as const)(
+    'keeps discarded groups unloaded at $position with active tab $activeId',
+    async ({ position, activeId }) => {
+      // The store can have stale activity flags while moves are suspended.
+      const sources = [tab(1, 1, 0, 10), tab(2, 1, 1, 20)]
+      const { dragStore, browserWindows, reloaded } = setup(sources, [
+        { ...tab(9, 7, 0), pinned: true, active: true },
+        tab(8, 7, 1),
+      ])
+      browserWindows.get(1).forEach((tab) => {
+        tab.active = tab.id === activeId
+        tab.discarded = tab.id !== activeId
+      })
+
+      await dragStore.moveSelectedTabsToWindowEdge(7, position)
+
+      expect(reloaded).toEqual([])
+      expect(browserWindows.get(7).map((tab) => tab.id)).toEqual(
+        position === 'beginning' ? [9, 1, 2, 8] : [9, 8, 1, 2],
+      )
+      expect(
+        browserWindows.get(7).find((tab) => tab.id !== activeId && tab.id < 3)
+          .discarded,
+      ).toBe(true)
+      expect(browserWindows.get(7).find((tab) => tab.id === 9).active).toBe(
+        true,
+      )
+    },
+  )
+
+  it.each(['beginning', 'end'] as const)(
+    'defers an active loose tab behind selected discarded groups and tabs at %s',
+    async (position) => {
+      const sources = [
+        { ...tab(1, 1, 0), active: true },
+        { ...tab(2, 1, 1, 10), discarded: true },
+        { ...tab(3, 1, 2, 10), discarded: true },
+        { ...tab(4, 1, 3), discarded: true },
+      ]
+      const { dragStore, browserWindows, reloaded } = setup(sources, [
+        tab(9, 7, 0),
+      ])
+
+      await dragStore.moveSelectedTabsToWindowEdge(7, position)
+
+      expect(reloaded).toEqual([])
+      expect(browserWindows.get(7).map((tab) => tab.id)).toEqual(
+        position === 'beginning' ? [1, 2, 3, 4, 9] : [9, 1, 2, 3, 4],
+      )
+      expect(browserWindows.get(7).filter((tab) => tab.discarded)).toHaveLength(
+        3,
+      )
+    },
+  )
 })

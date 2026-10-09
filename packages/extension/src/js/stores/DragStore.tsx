@@ -3,6 +3,7 @@ import Store from 'stores'
 import Tab from './Tab'
 import log from 'libs/log'
 import { browser } from 'libs'
+import { getTabInsertIndex, planTabMove } from 'libs/tabMovePlan'
 
 export type DropSource = 'tab-row' | 'group-header' | 'window-zone'
 
@@ -230,6 +231,75 @@ export default class DragStore {
     }
 
     return blocks
+  }
+
+  moveBlankSpaceBlocks = async (
+    sources: Tab[],
+    wholeSelectedGroupIds: Set<number>,
+    windowId: number,
+    index: number,
+  ) => {
+    const blocks = this.getBlankSpaceMoveBlocks(sources, wholeSelectedGroupIds)
+    // Browser state stays current while the store is suspended during a move.
+    const sourceWindows = await Promise.all(
+      Array.from(new Set(sources.map((tab) => tab.windowId))).map(
+        this.getWindowTabsFromBrowser,
+      ),
+    )
+    const currentTabs = new Map<
+      number,
+      (typeof sourceWindows)[number][number]
+    >()
+    for (const tabs of sourceWindows) {
+      tabs.forEach((tab) => currentTabs.set(tab.id, tab))
+    }
+    const currentSources = sources.map((tab) => ({
+      ...tab,
+      ...currentTabs.get(tab.id),
+      pinned: tab.pinned,
+    }))
+    const destination = await this.getWindowTabsFromBrowser(windowId)
+    const planned = planTabMove(currentSources, destination, index)
+    const positions = new Map(planned.map((tab, index) => [tab.id, index]))
+    const reverseBlocks = blocks
+      .slice()
+      .sort((a, b) => positions.get(b.tabs[0].id) - positions.get(a.tabs[0].id))
+    const containsSourceActiveTab = (block: BlankSpaceMoveBlock) =>
+      block.tabs.some((tab) => {
+        const current = currentTabs.get(tab.id)
+        return current?.active && current.windowId !== windowId
+      })
+    const order = [
+      ...reverseBlocks.filter((block) => !containsSourceActiveTab(block)),
+      ...reverseBlocks.filter(containsSourceActiveTab),
+    ]
+    const pendingIds = new Set(sources.map((tab) => tab.id))
+    for (const block of order) {
+      const blockIds = new Set(block.tabs.map((tab) => tab.id))
+      blockIds.forEach((id) => pendingIds.delete(id))
+      const remaining = (await this.getWindowTabsFromBrowser(windowId)).filter(
+        (tab) => !blockIds.has(tab.id),
+      )
+      const remainingIds = new Set(remaining.map((tab) => tab.id))
+      const lastPosition = positions.get(block.tabs[block.tabs.length - 1].id)
+      const next = planned
+        .slice(lastPosition + 1)
+        .find((tab) => !pendingIds.has(tab.id) && remainingIds.has(tab.id))
+      const nextIndex = next
+        ? remaining.findIndex((tab) => tab.id === next.id)
+        : -1
+      if (block.kind === 'group') {
+        await this.store.tabGroupStore.moveGroup(block.groupId, {
+          windowId,
+          index:
+            nextIndex === -1
+              ? -1
+              : getTabInsertIndex(remaining, { pinned: false }, nextIndex),
+        })
+      } else {
+        await this.store.windowStore.moveTabs(block.tabs, windowId, nextIndex)
+      }
+    }
   }
 
   getTargetIndex = (winTabs: Tab[], targetTab: Tab, before: boolean) => {
@@ -601,35 +671,12 @@ export default class DragStore {
           }
         } else {
           if (shouldMovePreservedWholeGroupsWithGroupApi) {
-            const blocks = this.getBlankSpaceMoveBlocks(
+            await this.moveBlankSpaceBlocks(
               sources,
               wholeSelectedGroupIds,
+              windowId,
+              index,
             )
-            // Prepending blocks in reverse keeps their original order, even
-            // when pinned tabs constrain the first unpinned insertion point.
-            if (options.windowEdge === 'beginning') {
-              blocks.reverse()
-            }
-            let currentIndex = index
-            for (const block of blocks) {
-              if (block.kind === 'group') {
-                const groupIndex =
-                  options.windowEdge === 'beginning'
-                    ? (await this.getWindowTabsFromBrowser(windowId)).filter(
-                        (tab) => tab.pinned,
-                      ).length
-                    : currentIndex
-                await this.store.tabGroupStore.moveGroup(block.groupId, {
-                  windowId,
-                  index: groupIndex,
-                })
-              } else {
-                await moveTabs(block.tabs, windowId, currentIndex)
-              }
-              if (currentIndex !== -1 && options.windowEdge !== 'beginning') {
-                currentIndex += block.tabs.length
-              }
-            }
           } else {
             await moveTabs(sources, windowId, index)
             if (hasTabGroupFlow && this.canMutateGroups()) {

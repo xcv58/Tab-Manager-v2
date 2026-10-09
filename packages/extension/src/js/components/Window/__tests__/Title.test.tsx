@@ -7,7 +7,7 @@ import Title from '../Title'
 
 jest.mock('../SelectAll', () => () => <div data-testid="select-all" />)
 jest.mock('../WindowActionsMenu', () => () => (
-  <div data-testid="window-actions" />
+  <button data-testid="window-actions" aria-label="Window actions" />
 ))
 jest.mock(
   'components/CloseButton',
@@ -32,50 +32,53 @@ jest.mock(
 )
 
 describe('Window Title', () => {
-  it('keeps native button focus when the title button receives keyboard focus', () => {
-    const focus = jest.fn()
-    const store = {
-      focusStore: {
-        focus,
-        shouldRevealNode: jest.fn(() => false),
-      },
-      userStore: {
-        uiPreset: 'modern',
-      },
-    } as any
-    const win = {
-      id: 7,
-      tabs: [{ id: 1 }, { id: 2 }],
-      activate: jest.fn(),
-      invisibleTabs: [],
-      reload: jest.fn(),
-      hide: false,
-      toggleHide: jest.fn(),
-      isFocused: false,
-      focusRequestId: 0,
-      shouldMoveDomFocus: true,
-      shouldRevealOnFocus: false,
-      setNodeRef: jest.fn(),
-    } as any
+  it.each(['2 tabs', 'Collapse window', 'Window actions', 'Close window'])(
+    'sets the destination without stealing native focus from %s',
+    (label) => {
+      const focus = jest.fn()
+      const store = {
+        focusStore: {
+          focus,
+          shouldRevealNode: jest.fn(() => false),
+        },
+        userStore: {
+          uiPreset: 'modern',
+        },
+      } as any
+      const win = {
+        id: 7,
+        tabs: [{ id: 1 }, { id: 2 }],
+        activate: jest.fn(),
+        invisibleTabs: [],
+        reload: jest.fn(),
+        hide: false,
+        toggleHide: jest.fn(),
+        isFocused: false,
+        focusRequestId: 0,
+        shouldMoveDomFocus: true,
+        shouldRevealOnFocus: false,
+        setNodeRef: jest.fn(),
+      } as any
 
-    render(
-      <StoreContext.Provider value={store}>
-        <AppThemeContext.Provider value={lightAppTheme}>
-          <ThemeContext.Provider value={false}>
-            <Title className="" win={win} />
-          </ThemeContext.Provider>
-        </AppThemeContext.Provider>
-      </StoreContext.Provider>,
-    )
+      render(
+        <StoreContext.Provider value={store}>
+          <AppThemeContext.Provider value={lightAppTheme}>
+            <ThemeContext.Provider value={false}>
+              <Title className="" win={win} />
+            </ThemeContext.Provider>
+          </AppThemeContext.Provider>
+        </StoreContext.Provider>,
+      )
 
-    fireEvent.focus(screen.getByRole('button', { name: '2 tabs' }))
+      fireEvent.focus(screen.getByRole('button', { name: label }))
 
-    expect(focus).toHaveBeenCalledWith(win, {
-      origin: 'keyboard',
-      reveal: false,
-      moveDomFocus: false,
-    })
-  })
+      expect(focus).toHaveBeenCalledWith(win, {
+        origin: 'keyboard',
+        reveal: false,
+        moveDomFocus: false,
+      })
+    },
+  )
 
   it('keeps collapse and close visible while removing direct sort and reload controls', () => {
     const store = {
@@ -202,8 +205,14 @@ describe('Window Title', () => {
     const expand = screen.getByRole('button', { name: 'Expand window' })
     expect(expand).toBeVisible()
     expect(expand).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.focus(expand)
     fireEvent.click(expand)
     expect(win.toggleHide).toHaveBeenCalledTimes(1)
+    expect(store.focusStore.focus).toHaveBeenCalledWith(win, {
+      origin: 'keyboard',
+      reveal: false,
+      moveDomFocus: false,
+    })
   })
 
   it('keeps the select-all checkbox column flush with tab rows', () => {

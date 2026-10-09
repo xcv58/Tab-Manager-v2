@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill'
 import log from 'libs/log'
+import { getTabInsertIndex, planTabMove } from 'libs/tabMovePlan'
 
 export { browser }
 
@@ -48,13 +49,6 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
     .filter((tab) => tab.windowId === windowId)
     .sort((a, b) => a.index - b.index)
 
-  const insertIndex = (list, tab, index) => {
-    const pinnedCount = list.filter((item) => item.pinned).length
-    const requested = index === -1 ? list.length : Math.max(0, index)
-    return tab.pinned
-      ? Math.min(requested, pinnedCount)
-      : Math.min(list.length, Math.max(requested, pinnedCount))
-  }
   const track = (tab) => {
     if (!tab || tab.windowId !== windowId) {
       return
@@ -65,7 +59,7 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
   const moveOne = async (tab, index) => {
     track(await browser.tabs.update(tab.id, { pinned: tab.pinned }))
     const remaining = destination.filter((item) => item.id !== tab.id)
-    const position = insertIndex(remaining, tab, index)
+    const position = getTabInsertIndex(remaining, tab, index)
     const moveIndex = index === -1 && !tab.pinned ? -1 : position
     const result = await browser.tabs.move(tab.id, {
       windowId,
@@ -100,7 +94,7 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
       .filter((tab) => tab.active && tab.windowId !== windowId)
       .map((tab) => tab.id),
   )
-  if (!deferredIds.size) {
+  if (!deferredIds.size && (from === 0 || from === -1)) {
     let cursor = from
     const movedIds = new Set()
     for (let i = 0; i < movingTabs.length; i++) {
@@ -123,27 +117,7 @@ export const moveTabs = async (tabs, windowId, from = 0) => {
 
   // Preserve caller order while respecting the pinned boundary, without
   // activating discarded successors when the source active tab is removed.
-  let planned = destination.slice()
-  let cursor = from
-  const plannedIds = new Set()
-  movingTabs.forEach((tab) => {
-    planned = planned.filter((item) => item.id !== tab.id)
-    const position = insertIndex(planned, tab, cursor)
-    planned.splice(position, 0, tab)
-    plannedIds.add(tab.id)
-    if (from !== -1) {
-      // A pinned insertion can land before previously planned unpinned tabs.
-      // Continue after the last planned moving tab to preserve caller order.
-      let last = position
-      for (let i = planned.length - 1; i > position; i--) {
-        if (plannedIds.has(planned[i].id)) {
-          last = i
-          break
-        }
-      }
-      cursor = last + 1
-    }
-  })
+  const planned = planTabMove(movingTabs, destination, from)
   const pendingIds = new Set(movingTabs.map((tab) => tab.id))
   const selected = planned.filter((tab) => pendingIds.has(tab.id)).reverse()
   const order = [
