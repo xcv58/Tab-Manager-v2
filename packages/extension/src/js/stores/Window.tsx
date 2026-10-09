@@ -63,6 +63,8 @@ export default class Window extends Focusable {
 
   type = ''
 
+  incognito = false
+
   activate = (options: FocusRequestOptions = {}) => {
     browser.windows.update(this.id, { focused: true })
     this.store.focusStore.focus(this, options)

@@ -114,6 +114,7 @@ class PreviewTabModel {
   win: {
     lastFocused: boolean
     tabs: unknown[]
+    canDrop: boolean
   }
 
   constructor(store: PreviewStore, config: PreviewConfig) {
@@ -126,6 +127,7 @@ class PreviewTabModel {
     this.win = {
       lastFocused: config.lastFocused ?? true,
       tabs: [this, { id: config.id + 1000 }],
+      canDrop: false,
     }
     makeAutoObservable(this, { store: false, win: false }, { autoBind: true })
   }
@@ -213,6 +215,11 @@ class PreviewStore {
 
   dragStore = {
     dragging: false,
+    pendingWindowEdgeDrop: false,
+  }
+
+  tabStore = {
+    selection: new Map<number, PreviewTabModel>(),
   }
 
   searchStore = {

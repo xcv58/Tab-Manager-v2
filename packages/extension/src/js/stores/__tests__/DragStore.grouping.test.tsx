@@ -1010,6 +1010,23 @@ describe('DragStore with tab groups', () => {
     selection.set(wholeGroupTab2.id, wholeGroupTab2 as any)
     selection.set(looseTab.id, looseTab as any)
 
+    const destination = [targetTab]
+    dragStore.getTabFromBrowser = jest.fn(async (tabId) => ({
+      ...selection.get(tabId),
+    }))
+    dragStore.getWindowTabsFromBrowser = jest.fn(async (windowId) =>
+      (windowId === 1 ? destination : Array.from(selection.values())).map(
+        (tab, index) => ({ ...tab, windowId, index }),
+      ),
+    )
+    moveTabs.mockImplementation(async (tabs, _windowId, index) => {
+      destination.splice(index, 0, ...tabs)
+    })
+    moveGroup.mockImplementation(async (_groupId, { index }) => {
+      destination.splice(index, 0, wholeGroupTab1, wholeGroupTab2)
+      return { id: 10 }
+    })
+
     await dragStore.dropAt({
       windowId: 1,
       index: 0,
@@ -1021,10 +1038,7 @@ describe('DragStore with tab groups', () => {
       windowId: 1,
       index: 0,
     })
-    expect(moveTabs).toHaveBeenCalledWith([looseTab], 1, 2)
-    expect(moveGroup.mock.invocationCallOrder[0]).toBeLessThan(
-      moveTabs.mock.invocationCallOrder[0],
-    )
+    expect(destination.map((tab) => tab.id)).toEqual([1, 2, 3, 4])
     expect(groupTabs).not.toHaveBeenCalled()
     expect(ungroupTabs).not.toHaveBeenCalled()
   })
@@ -1083,6 +1097,31 @@ describe('DragStore with tab groups', () => {
     selection.set(window2GroupTab1.id, window2GroupTab1 as any)
     selection.set(window2GroupTab2.id, window2GroupTab2 as any)
 
+    const destination: any[] = []
+    dragStore.getTabFromBrowser = jest.fn(async (tabId) => ({
+      ...selection.get(tabId),
+    }))
+    dragStore.getWindowTabsFromBrowser = jest.fn(async (windowId) =>
+      (windowId === 3
+        ? destination
+        : Array.from(selection.values()).filter(
+            (tab) => tab.windowId === windowId,
+          )
+      ).map((tab, index) => ({ ...tab, windowId, index })),
+    )
+    moveGroup.mockImplementation(async (_groupId, { index }) => {
+      destination.splice(
+        index === -1 ? destination.length : index,
+        0,
+        window2GroupTab1,
+        window2GroupTab2,
+      )
+      return { id: 10 }
+    })
+    moveTabs.mockImplementation(async (tabs, _windowId, index) => {
+      destination.splice(index === -1 ? destination.length : index, 0, ...tabs)
+    })
+
     await dragStore.dropAt({
       windowId: 3,
       index: 0,
@@ -1098,8 +1137,9 @@ describe('DragStore with tab groups', () => {
     )
     expect(moveGroup).toHaveBeenNthCalledWith(1, 10, {
       windowId: 3,
-      index: 1,
+      index: -1,
     })
+    expect(destination.map((tab) => tab.id)).toEqual([1, 2, 3])
     expect(ungroupTabs).not.toHaveBeenCalled()
     expect(groupTabs).not.toHaveBeenCalled()
   })

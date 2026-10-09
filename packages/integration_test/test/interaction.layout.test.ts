@@ -697,7 +697,7 @@ test.describe('The Extension page should', () => {
 
     const titleRow = page.getByTestId(`window-title-${baseWindowId}`)
     const hideToggle = titleRow
-      .locator('button[aria-label="Toggle window hide"]')
+      .locator('button[aria-label="Collapse window"]')
       .first()
     const windowCard = page.getByTestId(`window-card-${baseWindowId}`)
     const sideWindowCard = page.getByTestId(`window-card-${sideWindowId}`)

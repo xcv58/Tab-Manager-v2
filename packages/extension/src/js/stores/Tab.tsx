@@ -93,6 +93,8 @@ export default class Tab extends Focusable {
 
   active = false
 
+  incognito = false
+
   pinned = false
 
   title = ''

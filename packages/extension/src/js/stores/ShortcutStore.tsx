@@ -3,6 +3,14 @@ import Mousetrap from 'mousetrap'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
+import {
+  TAB_MOVE_SHORTCUTS,
+  TAB_MOVE_LABELS,
+  formatTabMoveShortcut,
+  isTabMoveShortcut,
+  type TabMovePosition,
+} from 'libs/tabMoveShortcuts'
 import {
   captureDialogFocusTarget,
   restoreDialogFocusTarget,
@@ -43,6 +51,8 @@ export default class ShortcutStore {
   constructor(store: Store) {
     makeAutoObservable(this, {
       dialogFocusTarget: false,
+      _closeToast: false,
+      _closeMoveHint: false,
     })
 
     this.store = store
@@ -264,6 +274,16 @@ export default class ShortcutStore {
       },
       'Last tab',
     ],
+    ...(
+      ['beginning', 'end', 'before', 'after'] as const
+    ).map<ShortcutDefinition>((position) => [
+      [...TAB_MOVE_SHORTCUTS[position]],
+      (event: Event) => {
+        preventDefault(event)
+        void this.moveSelectedTabs(position)
+      },
+      TAB_MOVE_LABELS[position],
+    ]),
     [
       ['ctrl+g'],
       (event: Event) => {
@@ -502,12 +522,26 @@ export default class ShortcutStore {
     ],
   ].filter((x) => x)
 
-  stopCallback = (e: Event, element: HTMLInputElement, combo: string) => {
+  stopCallback = (
+    e: Event,
+    element: HTMLInputElement,
+    combo: string,
+    sequence?: string,
+  ) => {
     if (this.dialogOpen) {
       return combo !== 'escape'
     }
     if (this.store.userStore?.dialogOpen) {
       return !settingsDialogAllowedCombos.has(combo)
+    }
+    if (
+      isTabMoveShortcut(sequence || combo) &&
+      (!element.closest?.('[data-testid^="window-card-"]') ||
+        element.closest?.(
+          'input:not([type="checkbox"]), textarea, select, [contenteditable]:not([contenteditable="false"]), [role="menu"]',
+        ))
+    ) {
+      return true
     }
     if (this.inputShortcutSet.has(combo)) {
       return false
@@ -535,7 +569,7 @@ export default class ShortcutStore {
   resume = () => {
     this.shortcuts.map(([key, func, description]) =>
       Mousetrap.bind(key, (e, combo) => {
-        this.combo = `${combo}: ${getDescription(description)}`
+        this.combo = `${formatTabMoveShortcut(combo)}: ${getDescription(description)}`
         this.openToast()
         func(e)
       }),
@@ -544,12 +578,62 @@ export default class ShortcutStore {
 
   pause = this.willUnmount
 
+  moveSelectedTabs = async (position: TabMovePosition) => {
+    const { tabStore, focusStore, dragStore } = this.store
+    if (dragStore.pendingWindowEdgeDrop) {
+      return
+    }
+    if (!tabStore.selection.size) {
+      this.showMoveHint('Select tabs to move')
+      return
+    }
+    if (position === 'beginning' || position === 'end') {
+      const win = focusStore.focusedWindow
+      if (!win) {
+        this.showMoveHint('Focus a destination window or tab')
+        return
+      }
+      const hint = getTabMoveDestinationHint(win, tabStore.selection.values())
+      if (hint) {
+        this.showMoveHint(hint)
+        return
+      }
+      await dragStore.moveSelectedTabsToWindowEdge(win.id, position)
+      return
+    }
+    const tab = focusStore.focusedTab
+    if (!tab) {
+      this.showMoveHint('Focus a destination tab')
+      return
+    }
+    const hint = await dragStore.moveSelectedTabsRelativeToTab(
+      tab,
+      position === 'before',
+    )
+    if (hint) {
+      this.showMoveHint(hint)
+    }
+  }
+
+  showMoveHint = (message: string) => {
+    this.combo = message
+    this.toastOpen = true
+    this._closeToast.cancel()
+    this._closeMoveHint()
+  }
+
+  _closeMoveHint = debounce(() => {
+    this.closeToast()
+  }, 2500)
+
   clearCombo = () => {
     this.combo = null
   }
 
   openToast = () => {
+    this._closeMoveHint.cancel()
     if (!this.store.userStore.showShortcutHint) {
+      this.closeToast()
       return
     }
     this.toastOpen = true
@@ -557,8 +641,12 @@ export default class ShortcutStore {
   }
 
   _closeToast = debounce(() => {
-    this.toastOpen = false
+    this.closeToast()
   }, 500)
+
+  closeToast = () => {
+    this.toastOpen = false
+  }
 
   openDialog = () => {
     this.dialogFocusTarget = captureDialogFocusTarget()

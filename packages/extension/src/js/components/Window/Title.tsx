@@ -2,14 +2,13 @@ import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
 import SelectAll from 'components/Window/SelectAll'
-import Sort from 'components/Window/Sort'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
 import RowActionRail from 'components/RowActionRail'
 import { getNoun } from 'libs'
 import classNames from 'classnames'
-import Reload from './Reload'
 import HideToggle from './HideToggle'
+import WindowActionsMenu from './WindowActionsMenu'
 import { WinProps } from 'components/types'
 import { useTheme } from 'components/hooks/useTheme'
 import { useStore } from 'components/hooks/useStore'
@@ -17,7 +16,9 @@ import Tooltip from 'components/ui/Tooltip'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
-export default observer((props: WinProps & { className: string }) => {
+type Props = WinProps & { className: string; dropOverlay?: boolean }
+
+export default observer((props: Props) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
   const { focusStore, userStore } = useStore()
@@ -29,17 +30,14 @@ export default observer((props: WinProps & { className: string }) => {
     userStore.increaseContrast,
   )
   const isClassicUi = userStore.uiPreset === 'classic'
-  const { className, win } = props
-  const { tabs, activate, invisibleTabs, reload, hide, toggleHide, isFocused } =
-    win
+  const { className, win, dropOverlay = false } = props
+  const { tabs, activate, invisibleTabs, hide, toggleHide, isFocused } = win
   const { length } = tabs
   const text = `${length} ${getNoun('tab', length)}`
   const invisibleLength = invisibleTabs.length
   const [titleDisplayMode, setTitleDisplayMode] = useState<
     'full' | 'compact' | 'minimal'
   >('full')
-  const [isHeaderHovered, setIsHeaderHovered] = useState(false)
-  const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
   const hiddenText = useMemo(() => {
     if (hide || invisibleLength <= 0) {
       return ''
@@ -58,8 +56,6 @@ export default observer((props: WinProps & { className: string }) => {
     }
     return `${text} / ${invisibleLength} hidden`
   }, [hide, invisibleLength, text])
-  const emphasizeWindowControls =
-    isClassicUi || isHeaderHovered || isHeaderFocusWithin || isFocused
   const needsTooltip =
     !hide && invisibleLength > 0 && titleDisplayMode !== 'full'
   useEffect(() => {
@@ -123,7 +119,10 @@ export default observer((props: WinProps & { className: string }) => {
       {hiddenText}
     </div>
   )
-  const onTitleFocus = React.useCallback(() => {
+  const onHeaderFocus = React.useCallback(() => {
+    if (win.isFocused) {
+      return
+    }
     focusStore.focus(win, {
       origin: 'keyboard',
       reveal: false,
@@ -137,24 +136,16 @@ export default observer((props: WinProps & { className: string }) => {
     <div
       tabIndex={-1}
       ref={nodeRef}
+      onFocusCapture={onHeaderFocus}
       data-testid={`window-title-${win.id}`}
       className={classNames(
         'flex min-h-10 items-center justify-between font-bold border-0 border-b',
         { 'text-gray-100': isDarkTheme, 'text-gray-900': !isDarkTheme },
         className,
       )}
-      onMouseEnter={() => setIsHeaderHovered(true)}
-      onMouseLeave={() => setIsHeaderHovered(false)}
-      onFocusCapture={() => setIsHeaderFocusWithin(true)}
-      onBlurCapture={(event) => {
-        const nextTarget = event.relatedTarget as Node | null
-        if (!event.currentTarget.contains(nextTarget)) {
-          setIsHeaderFocusWithin(false)
-        }
-      }}
       style={{
-        backgroundColor: headerSurface,
-        borderColor: theme.palette.divider,
+        backgroundColor: dropOverlay ? 'transparent' : headerSurface,
+        borderColor: dropOverlay ? 'transparent' : theme.palette.divider,
         borderBottom: isClassicUi ? 'none' : undefined,
         minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
       }}
@@ -167,7 +158,6 @@ export default observer((props: WinProps & { className: string }) => {
         <button
           ref={titleButtonRef}
           onClick={onTitleClick}
-          onFocus={onTitleFocus}
           className={classNames(
             'flex h-10 flex-auto items-center overflow-hidden pl-1 text-base text-left rounded-sm',
             {
@@ -186,13 +176,7 @@ export default observer((props: WinProps & { className: string }) => {
           )}
         </button>
         <RowActionRail>
-          <RowActionSlot visible={!hide}>
-            {!hide && <Sort {...props} />}
-          </RowActionSlot>
-          <RowActionSlot visible={emphasizeWindowControls && !hide}>
-            {!hide && <Reload {...{ reload }} />}
-          </RowActionSlot>
-          <RowActionSlot visible={emphasizeWindowControls}>
+          <RowActionSlot visible>
             <HideToggle
               {...{
                 hide,
@@ -201,11 +185,19 @@ export default observer((props: WinProps & { className: string }) => {
             />
           </RowActionSlot>
           <RowActionSlot visible>
-            <CloseButton
-              onClick={() => props.win.close()}
-              size="compact"
-              tone="danger"
-            />
+            <WindowActionsMenu win={win} />
+          </RowActionSlot>
+          <RowActionSlot visible>
+            <Tooltip title="Close window">
+              <span className="inline-flex">
+                <CloseButton
+                  onClick={() => props.win.close()}
+                  aria-label="Close window"
+                  size="compact"
+                  tone="danger"
+                />
+              </span>
+            </Tooltip>
           </RowActionSlot>
         </RowActionRail>
       </div>

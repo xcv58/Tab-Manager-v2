@@ -52,32 +52,39 @@ export default observer((props: { search: string }) => {
     )
   }
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr>
-          <th
-            style={{
-              padding: '8px 16px',
-              textAlign: 'left',
-              fontWeight: 600,
-              borderBottom: '2px solid var(--table-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Action
-          </th>
-          <th
-            style={{
-              padding: '8px 16px',
-              textAlign: 'left',
-              fontWeight: 600,
-              borderBottom: '2px solid var(--table-border, rgba(0,0,0,0.12))',
-            }}
-          >
-            Hotkey(s)
-          </th>
-        </tr>
-      </thead>
-      <tbody>{content}</tbody>
-    </table>
+    <>
+      <p className="mb-4 text-sm">
+        To move tabs, select them, focus the destination tab or window, then use
+        a move shortcut. Vim keys are pressed in sequence; uppercase means
+        Shift.
+      </p>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th
+              style={{
+                padding: '8px 16px',
+                textAlign: 'left',
+                fontWeight: 600,
+                borderBottom: '2px solid var(--table-border, rgba(0,0,0,0.12))',
+              }}
+            >
+              Action
+            </th>
+            <th
+              style={{
+                padding: '8px 16px',
+                textAlign: 'left',
+                fontWeight: 600,
+                borderBottom: '2px solid var(--table-border, rgba(0,0,0,0.12))',
+              }}
+            >
+              Hotkey(s)
+            </th>
+          </tr>
+        </thead>
+        <tbody>{content}</tbody>
+      </table>
+    </>
   )
 })

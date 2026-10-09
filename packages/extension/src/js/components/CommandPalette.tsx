@@ -6,6 +6,7 @@ import { LiveHelpOutlinedIcon } from 'icons/materialIcons'
 import IconButton from 'components/ui/IconButton'
 import { useStore } from './hooks/useStore'
 import CommandPaletteHeader from './CommandPaletteHeader'
+import { formatTabMoveShortcut } from 'libs/tabMoveShortcuts'
 
 const trigger = (
   <Tooltip title="Command Palette">
@@ -17,7 +18,7 @@ const trigger = (
 
 const Shortcut = ({ shortcut }) => {
   if (!Array.isArray(shortcut)) {
-    return <kbd className="shortcut">{shortcut}</kbd>
+    return <kbd className="shortcut">{formatTabMoveShortcut(shortcut)}</kbd>
   }
   return (
     <>

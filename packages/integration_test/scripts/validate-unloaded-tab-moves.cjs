@@ -316,6 +316,16 @@ async function chrome() {
   }
 }
 const scenarios = [
+  ...[false, true].flatMap((append) =>
+    [0, 1].map((active) => ({
+      name: `whole-groups-active-${active}-${append ? 'end' : 'beginning'}`,
+      count: 1,
+      active,
+      append,
+      groups: true,
+      destinationPins: 1,
+    })),
+  ),
   { name: 'active-first-200', count: 200, active: 0 },
   { name: 'active-middle', count: 20, active: 10 },
   { name: 'active-last-append', count: 20, active: 20, append: true },
@@ -367,16 +377,18 @@ const scenarios = [
     report.version = runtime.version
     for (const config of scenarios.filter(
       (c) =>
-        !process.env.TM_CASES ||
-        process.env.TM_CASES.split(',').includes(c.name),
+        (kind === 'chrome' || !c.groups) &&
+        (!process.env.TM_CASES ||
+          process.env.TM_CASES.split(',').includes(c.name)),
     )) {
       console.log('START', kind, config.name)
       const fixture = await runtime.run(
         `
-        const [base,c]=args,windows=[],selected=[];
+        const [base,c]=args,windows=[],selected=[],groups=[];
         
         const dest=await browser.windows.create({url:base+'/destination',focused:false});
-        if(c.pins) await browser.tabs.update(dest.tabs[0].id,{pinned:true});
+        if(c.pins||c.destinationPins) await browser.tabs.update(dest.tabs[0].id,{pinned:true});
+        if(c.destinationPins) await browser.tabs.create({windowId:dest.id,url:base+'/destination-tail',active:false});
         for(let w=0;w<(c.windows||1);w++){
           const source=await browser.windows.create({url:base+'/probe/'+c.name+'/'+w+'/0',focused:false}); windows.push(source.id);
           const sourcePins=c.pinsByWindow?.[w]??c.pins??0;
@@ -387,12 +399,17 @@ const scenarios = [
           let ready=false;
           for(let i=0;i<300;i++){if((await browser.tabs.query({windowId:source.id})).every(t=>t.status==='complete')){ready=true;break;}await new Promise(r=>setTimeout(r,100));}
           if(!ready)throw new Error('Initial loads incomplete');
+          if(c.groups)for(const [i,tab] of tabs.entries()){const id=await browser.tabs.group({tabIds:[tab.id],createProperties:{windowId:source.id}});groups.push({...await browser.tabGroups.update(id,{title:'Group-'+i,color:i===0?'blue':'green'}),tabIds:[tab.id]});}
+          // Creating a native group can activate its tab. Set the source's
+          // intended active tab after grouping before discarding the others.
+          if(c.groups)await browser.tabs.update(tabs[c.active].id,{active:true});
           for(const tab of tabs)if(tab.id!==tabs[c.active].id)await browser.tabs.discard(tab.id);
           selected.push(...(await browser.tabs.query({windowId:source.id})).sort((a,b)=>a.index-b.index));
         }
         const destination=await browser.tabs.query({windowId:dest.id});
         
-        return {windows,selected,dest:dest.id,destination};
+        for(const group of groups)group.tabIds=selected.filter(tab=>tab.groupId===group.id).map(tab=>tab.id);
+        return {windows,selected,dest:dest.id,destination,groups};
       `,
         base,
         config,
@@ -424,6 +441,16 @@ const scenarios = [
       await runtime.run(
         `
         const [s,c]=args;
+        if(c.groups){
+          const actions=document.querySelector('[data-testid="window-title-'+s.dest+'"] button[aria-label="Window actions"]');
+          if(!actions)throw new Error('Window actions missing');
+          actions.click();
+          const label='Move selected to '+(c.append?'end':'beginning');
+          let item;
+          for(let i=0;i<200;i++){item=Array.from(document.querySelectorAll('[role="menuitem"]')).find(node=>node.textContent.startsWith(label));if(item)break;await new Promise(r=>setTimeout(r,50));}
+          if(!item)throw new Error('Window edge action missing');
+          item.click();return true;
+        }
         const card=document.querySelector('[data-testid="window-card-'+s.windows[0]+'"]');card?.scrollIntoView({block:'start'});
         for(let ancestor=card?.parentElement;ancestor;ancestor=ancestor.parentElement){if(ancestor.scrollHeight>ancestor.clientHeight)ancestor.scrollTop+=card.getBoundingClientRect().top-ancestor.getBoundingClientRect().top;}
         let row;for(let i=0;i<100;i++){row=document.querySelector('[data-testid="window-card-'+s.windows[0]+'"] [data-testid^="tab-row-"]');if(row)break;await new Promise(r=>setTimeout(r,100));}
@@ -444,7 +471,8 @@ const scenarios = [
         after=await Promise.all(s.selected.map(t=>browser.tabs.get(t.id)));
         const destination=(await browser.tabs.query({windowId:s.dest})).sort((a,b)=>a.index-b.index);
         browser.tabs.onUpdated.removeListener(window.unloadListener);
-        return {after,destination,loadingEvents:window.unloadEvents};
+        const groups=s.groups.length?await browser.tabGroups.query({windowId:s.dest}):[];
+        return {after,destination,groups,loadingEvents:window.unloadEvents};
       `,
         fixture,
       )
@@ -470,6 +498,25 @@ const scenarios = [
         orderCorrect:
           JSON.stringify(result.destination.map((t) => t.id)) ===
           JSON.stringify(expected.map((t) => t.id)),
+        ...(config.groups
+          ? {
+              // Verify each group's membership, title, and color.
+              groupsPreserved:
+                result.groups.length === fixture.groups.length &&
+                fixture.groups.every((before) =>
+                  result.groups.some(
+                    (after) =>
+                      after.title === before.title &&
+                      after.color === before.color &&
+                      JSON.stringify(
+                        result.after
+                          .filter((tab) => tab.groupId === after.id)
+                          .map((tab) => tab.id),
+                      ) === JSON.stringify(before.tabIds),
+                  ),
+                ),
+            }
+          : {}),
         pinningPreserved: result.after.every(
           (t) =>
             t.pinned ===
@@ -498,7 +545,10 @@ const scenarios = [
       assert.deepEqual(entry.loadingEvents, [])
       assert.equal(entry.orderCorrect, true)
       assert.equal(entry.pinningPreserved, true)
-      assert.equal(entry.destinationActivePreserved, true)
+      if (config.groups) assert.equal(entry.groupsPreserved, true)
+      // Native group moves let Chrome choose the destination's active tab.
+      // Loose-tab moves must retain the previously active destination tab.
+      if (!config.groups) assert.equal(entry.destinationActivePreserved, true)
       await runtime.run(
         `for(const id of args[0]){try{await browser.windows.remove(id)}catch{}}`,
         [...fixture.windows, fixture.dest],

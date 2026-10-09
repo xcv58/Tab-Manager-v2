@@ -47,7 +47,7 @@ export const demoScenarios: ReadonlyArray<DemoScenario> = [
     title: 'An everyday workspace',
     description:
       'Three windows with groups, pinned tabs, and a few duplicates.',
-    hint: 'Search “research”, edit a group, or select tabs and move them into a new window. Press ? inside the workspace for shortcuts.',
+    hint: 'Select tabs, then use Window actions to move them to the beginning or end, or drag them onto a window header. Press ? inside the workspace for shortcuts.',
     category: 'Workflow',
     tabCount: 30,
     windowCount: 3,

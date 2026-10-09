@@ -1,0 +1,89 @@
+import React, { useState } from 'react'
+import { observer } from 'mobx-react-lite'
+import ControlIconButton from 'components/ControlIconButton'
+import Menu, { MenuDivider, MenuItem } from 'components/ui/Menu'
+import Tooltip from 'components/ui/Tooltip'
+import { useStore } from 'components/hooks/useStore'
+import { WinProps } from 'components/types'
+import { MoreHorizIcon } from 'icons/materialIcons'
+import type { WindowEdge } from 'stores/DragStore'
+import MoveShortcut from 'components/Shortcut/MoveShortcut'
+import { getTabMoveAriaShortcut } from 'libs/tabMoveShortcuts'
+import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
+
+export default observer(({ win }: WinProps) => {
+  const { arrangeStore, dragStore, tabStore, focusStore } = useStore()
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const disabled =
+    dragStore.pendingWindowEdgeDrop ||
+    !tabStore.selection.size ||
+    Boolean(getTabMoveDestinationHint(win, tabStore.selection.values()))
+  const closeMenu = () => setAnchorEl(null)
+  const moveToEdge = (position: WindowEdge) => {
+    closeMenu()
+    dragStore.moveSelectedTabsToWindowEdge(win.id, position)
+  }
+  const sortTabs = () => {
+    closeMenu()
+    arrangeStore.sortTabs(win.id)
+  }
+  const reloadTabs = () => {
+    closeMenu()
+    win.reload()
+  }
+
+  return (
+    <>
+      <Tooltip title="Window actions">
+        <span className="inline-flex">
+          <ControlIconButton
+            controlSize="compact"
+            aria-label="Window actions"
+            aria-haspopup="menu"
+            aria-expanded={Boolean(anchorEl)}
+            onClick={(event) => {
+              focusStore.focus(win, {
+                origin: 'mouse',
+                reveal: false,
+                moveDomFocus: false,
+              })
+              setAnchorEl(event.currentTarget)
+            }}
+          >
+            <MoreHorizIcon fontSize={16} />
+          </ControlIconButton>
+        </span>
+      </Tooltip>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={closeMenu}
+        data-testid={`window-actions-menu-${win.id}`}
+      >
+        <MenuItem disabled={win.hide} onClick={sortTabs}>
+          Sort tabs
+        </MenuItem>
+        <MenuItem disabled={win.hide} onClick={reloadTabs}>
+          Reload all tabs
+        </MenuItem>
+        <MenuDivider />
+        <MenuItem
+          disabled={disabled}
+          onClick={() => moveToEdge('beginning')}
+          aria-keyshortcuts={getTabMoveAriaShortcut('beginning')}
+        >
+          <span>Move selected to beginning</span>
+          <MoveShortcut position="beginning" />
+        </MenuItem>
+        <MenuItem
+          disabled={disabled}
+          onClick={() => moveToEdge('end')}
+          aria-keyshortcuts={getTabMoveAriaShortcut('end')}
+        >
+          <span>Move selected to end</span>
+          <MoveShortcut position="end" />
+        </MenuItem>
+      </Menu>
+    </>
+  )
+})

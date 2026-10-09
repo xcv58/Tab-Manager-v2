@@ -7,6 +7,12 @@ describe('TabMenu', () => {
   beforeEach(() => {
     jest.spyOn(StoreHook, 'useStore').mockReturnValue({
       tabGroupStore: undefined,
+      tabStore: { selection: new Map() },
+      dragStore: {
+        pendingWindowEdgeDrop: false,
+        moveSelectedTabsRelativeToTab: jest.fn(),
+      },
+      focusStore: { focus: jest.fn() },
     } as any)
   })
 
@@ -21,7 +27,7 @@ describe('TabMenu', () => {
     togglePin: jest.fn(),
     remove: jest.fn(),
     closeOtherTabs: jest.fn(),
-    win: { tabs: [{ id: 42 }, { id: 99 }] },
+    win: { canDrop: true, tabs: [{ id: 42 }, { id: 99 }] },
     sameDomainTabs: [{ id: 42 }, { id: 99 }],
     groupTab: jest.fn(),
     duplicatedTabCount: 1,
@@ -29,6 +35,34 @@ describe('TabMenu', () => {
     isSelected: false,
     ...overrides,
   })
+
+  it.each([false, true])(
+    'allows relative moves only when a private selection matches the destination (%s)',
+    (incognito) => {
+      const store = StoreHook.useStore()
+      store.tabStore.selection.set(1, { id: 1, incognito: true } as any)
+      render(
+        <TabMenu
+          tab={createTab({
+            win: { canDrop: true, incognito, tabs: [{ id: 42 }, { id: 99 }] },
+          })}
+        />,
+      )
+      fireEvent.click(screen.getByRole('button', { name: 'Tab actions' }))
+
+      for (const item of screen.getAllByRole('menuitem', {
+        name: /^Move selected/,
+      })) {
+        expect(item).toHaveProperty('disabled', !incognito)
+        if (!incognito) {
+          fireEvent.click(item)
+        }
+      }
+      expect(
+        store.dragStore.moveSelectedTabsRelativeToTab,
+      ).not.toHaveBeenCalled()
+    },
+  )
 
   it('shows the same-domain move action when multiple ungrouped same-domain tabs exist', () => {
     render(<TabMenu tab={createTab()} />)

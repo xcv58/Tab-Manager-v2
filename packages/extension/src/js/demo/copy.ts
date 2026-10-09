@@ -42,6 +42,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'What can I try?': '可以体验哪些功能？',
     'Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings.':
       '搜索标题、网址、标签页组和示例历史记录。选择、固定、移动、排序、重新加载或关闭标签页；编辑标签页组；清理重复项；体验命令、快捷键、主题和设置。',
+    'Move selected tabs to a window’s beginning or end with Window actions or header drop targets. Use a destination tab’s menu to move before or after it. Press ? for arrow and Vim shortcuts.':
+      '通过 Window actions 或窗口标题栏的拖放目标，将所选标签页移到窗口开头或末尾。使用目标标签页的菜单将其移到该标签页之前或之后。按 ? 查看方向键和 Vim 快捷键。',
     'Activation, reloads, focus, and history are simulated. Copy actions copy sample URLs. The extension interface is shown in English.':
       '激活、重新加载、焦点和历史记录均为模拟。复制操作会复制示例网址。扩展界面以英文显示。',
     'Simulated scale, not a browser memory benchmark.':
@@ -85,6 +87,8 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'What can I try?': '可以體驗哪些功能？',
     'Search titles, URLs, groups, and sample history. Select, pin, move, sort, reload, or close tabs; edit groups; clean duplicates; try commands, shortcuts, themes, and settings.':
       '搜尋標題、網址、分頁群組和範例歷史紀錄。選取、固定、移動、排序、重新載入或關閉分頁；編輯分頁群組；清理重複項目；體驗指令、快速鍵、主題和設定。',
+    'Move selected tabs to a window’s beginning or end with Window actions or header drop targets. Use a destination tab’s menu to move before or after it. Press ? for arrow and Vim shortcuts.':
+      '透過 Window actions 或視窗標題列的拖放目標，將所選分頁移到視窗開頭或結尾。使用目標分頁的選單將其移到該分頁之前或之後。按 ? 查看方向鍵和 Vim 快速鍵。',
     'Activation, reloads, focus, and history are simulated. Copy actions copy sample URLs. The extension interface is shown in English.':
       '啟用、重新載入、焦點和歷史紀錄均為模擬。複製操作會複製範例網址。擴充功能介面以英文顯示。',
     'Simulated scale, not a browser memory benchmark.':
@@ -104,7 +108,7 @@ const scenarioCopy: Record<
       label: '日常工作区',
       title: '日常使用的工作区',
       description: '三个窗口，包含标签页组、固定标签页和少量重复项。',
-      hint: '搜索“research”、编辑标签页组，或选择标签页并移到新窗口。在工作区内按 ? 查看快捷键。',
+      hint: '选择标签页，然后使用 Window actions 将其移到窗口开头或末尾，或拖到窗口标题栏。在工作区内按 ? 查看快捷键。',
     },
     duplicates: {
       label: '清理重复项',
@@ -185,7 +189,7 @@ const scenarioCopy: Record<
       label: '日常工作區',
       title: '日常使用的工作區',
       description: '三個視窗，包含分頁群組、固定分頁和少量重複項目。',
-      hint: '搜尋「research」、編輯分頁群組，或選取分頁並移到新視窗。在工作區內按 ? 查看快速鍵。',
+      hint: '選取分頁，然後使用 Window actions 將其移到視窗開頭或結尾，或拖到視窗標題列。在工作區內按 ? 查看快速鍵。',
     },
     duplicates: {
       label: '清理重複項目',

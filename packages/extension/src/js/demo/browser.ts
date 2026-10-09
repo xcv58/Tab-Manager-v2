@@ -270,7 +270,10 @@ const moveOne = (
   tab: DemoTab,
   destination: DemoWindow,
   requested: number,
-  preserveGroup = false,
+  {
+    preserveGroup = false,
+    deferWindowSettlement = false,
+  }: { preserveGroup?: boolean; deferWindowSettlement?: boolean } = {},
 ) => {
   const source = requireWindow(tab.windowId)
   const oldPosition = source.tabs.indexOf(tab)
@@ -321,9 +324,11 @@ const moveOne = (
       newWindowId: destination.id,
       newPosition: index,
     })
-    ensureActiveTab(source, oldPosition)
-    ensureActiveTab(destination, index)
-    removeEmptyWindow(source)
+    if (!deferWindowSettlement) {
+      ensureActiveTab(source, oldPosition)
+      ensureActiveTab(destination, index)
+      removeEmptyWindow(source)
+    }
   }
   if (!preserveGroup) removeEmptyGroups()
   return tab
@@ -930,12 +935,21 @@ const browser = {
         remaining.splice(index, 0, ...selected)
         reorder(source, remaining)
       } else {
+        const oldPosition = selected[0].index
         let cursor = index
         selected.forEach((tab) => {
-          moveOne(tab, destination, cursor, true)
+          moveOne(tab, destination, cursor, {
+            preserveGroup: true,
+            deferWindowSettlement: true,
+          })
           cursor = tab.index + 1
         })
         group.windowId = destination.id
+        // Settle active tabs once the whole group has moved. Activating each
+        // successive member during transfer would pollute Last active tab.
+        ensureActiveTab(source, oldPosition)
+        ensureActiveTab(destination, index)
+        removeEmptyWindow(source)
       }
       browser.tabGroups.onMoved.emit(group)
       record(

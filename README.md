@@ -138,6 +138,13 @@ simulated interface, not native browser memory usage. Preset links use
 `/demo/?scenario=stress` (or another preset ID) and survive refresh. No extension
 installation is required.
 
+Selected tabs can move to a window’s beginning or end through **Window actions**,
+the command palette, or window-header drop targets. Use a destination tab’s menu
+to move before or after it. With focus inside a window card, try
+`Alt/Option + Shift + ↑/↓` for beginning/end or `←/→` for before/after a focused
+tab. Press `?` for all shortcuts, including Vim sequences. Whole selected groups
+keep their names and colors; moving part of a group detaches those tabs.
+
 ```shell
 pnpm build:demo
 ```
