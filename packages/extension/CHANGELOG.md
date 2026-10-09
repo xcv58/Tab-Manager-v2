@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.3...v2.7.0) (2026-10-09)
+
+
+### Features
+
+* move selected tabs with menus, shortcuts, and header drop targets ([#2659](https://github.com/xcv58/Tab-Manager-v2/issues/2659)) ([95fd567](https://github.com/xcv58/Tab-Manager-v2/commit/95fd567f2742e05aabff5b1229eb91a05e057210))
+* **site:** add integrated demo and support pages ([#2660](https://github.com/xcv58/Tab-Manager-v2/issues/2660)) ([2e4cb73](https://github.com/xcv58/Tab-Manager-v2/commit/2e4cb73546846b9a6ecc6688b1430ff7f21089aa))
+
+
+### Bug Fixes
+
+* **deps:** address dependency security advisories ([e0a8ae4](https://github.com/xcv58/Tab-Manager-v2/commit/e0a8ae44ff8d736edff7bcf43ab104221a7d6c98))
+
 ## [2.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.2...v2.6.3) (2026-09-28)
 
 
