@@ -172,6 +172,110 @@ describe('ItemTypes', () => {
   }
 
   it.each([0, -1])(
+    'moves nonadjacent same-window tabs together at edge %s',
+    async (from) => {
+      const initial = Array.from({ length: 6 }, (_, index) =>
+        makeTab(index + 1, 9, index),
+      )
+      const model = simulateBrowser(initial)
+
+      await moveTabs([initial[1], initial[3]], 9, from)
+
+      expect(model.windows.get(9).map((tab) => tab.id)).toEqual(
+        from === 0 ? [2, 4, 1, 3, 5, 6] : [1, 3, 5, 6, 2, 4],
+      )
+    },
+  )
+
+  it.each([false, true])(
+    'preserves beginning order behind destination pins with mixed pin selection %s',
+    async (mixed) => {
+      const initial = [
+        { ...makeTab(1, 1, 0), pinned: mixed },
+        makeTab(2, 1, 1),
+        makeTab(3, 1, 2),
+        { ...makeTab(9, 9, 0), pinned: true },
+        { ...makeTab(10, 9, 1), pinned: true },
+        makeTab(11, 9, 2),
+      ]
+      const model = simulateBrowser(initial)
+
+      await moveTabs(initial.slice(0, 3), 9, 0)
+
+      expect(model.windows.get(9).map((tab) => tab.id)).toEqual(
+        mixed ? [1, 9, 10, 2, 3, 11] : [9, 10, 1, 2, 3, 11],
+      )
+    },
+  )
+
+  it.each([
+    [1, [1, 2, 4, 3, 5, 6]],
+    [2, [1, 3, 2, 4, 5, 6]],
+    [3, [1, 3, 5, 2, 4, 6]],
+    [4, [1, 3, 5, 6, 2, 4]],
+  ])(
+    'keeps nonadjacent same-window selections together at insertion %s',
+    async (from: number, expected: number[]) => {
+      const initial = Array.from({ length: 6 }, (_, index) =>
+        makeTab(index + 1, 9, index),
+      )
+      const model = simulateBrowser(initial)
+
+      await moveTabs([initial[1], initial[3]], 9, from)
+
+      expect(model.windows.get(9).map((tab) => tab.id)).toEqual(expected)
+    },
+  )
+
+  it('plans relative placement after removing selected destination tabs even with an active source tab', async () => {
+    const initial = [
+      ...Array.from({ length: 6 }, (_, index) => makeTab(index + 1, 9, index)),
+      { ...makeTab(7, 1, 0), active: true },
+      { ...makeTab(8, 1, 1), discarded: true },
+    ]
+    const model = simulateBrowser(initial)
+
+    await moveTabs([initial[1], initial[3], initial[6], initial[7]], 9, 3)
+
+    expect(model.windows.get(9).map((tab) => tab.id)).toEqual([
+      1, 3, 5, 2, 4, 7, 8, 6,
+    ])
+    expect(model.reloaded).toEqual([])
+    expect(model.getTab(8).discarded).toBe(true)
+  })
+
+  it.each([false, true])(
+    'places later-window pins first at beginning with deferred active moves %s',
+    async (deferActive) => {
+      const initial = [
+        { ...makeTab(1, 1, 0), active: deferActive },
+        { ...makeTab(12, 1, 1), active: !deferActive },
+        { ...makeTab(2, 2, 0), pinned: true, active: deferActive },
+        { ...makeTab(3, 2, 1), pinned: true, discarded: true },
+        { ...makeTab(4, 2, 2), discarded: true },
+        { ...makeTab(13, 2, 3), active: !deferActive },
+        { ...makeTab(9, 9, 0), pinned: true, active: true },
+        { ...makeTab(10, 9, 1), pinned: true },
+        makeTab(11, 9, 2),
+      ]
+      const model = simulateBrowser(initial)
+
+      await moveTabs([initial[0], initial[2], initial[3], initial[4]], 9, 0)
+
+      expect(model.windows.get(9).map((tab) => tab.id)).toEqual([
+        2, 3, 9, 10, 1, 4, 11,
+      ])
+      expect(model.reloaded).toEqual([])
+      expect(model.getTab(3).discarded).toBe(true)
+      expect(model.getTab(4).discarded).toBe(true)
+      expect(model.getTab(9).active).toBe(true)
+      const calls = mockTabsMove.mock.calls.map(([id]) => id)
+      expect(calls.indexOf(2) > calls.indexOf(3)).toBe(deferActive)
+      expect(calls.indexOf(2) > calls.indexOf(4)).toBe(deferActive)
+    },
+  )
+
+  it.each([0, -1])(
     'preserves discarded successors and final order when inserting at %s',
     async (from) => {
       const initial = [
