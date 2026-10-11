@@ -6,7 +6,6 @@ on:
       release_tag:
         description: Existing GitHub release tag to submit to Edge
         required: true
-        default: v2.4.1
         type: string
 
 permissions:
@@ -82,3 +81,13 @@ jobs:
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_SUBMISSION_NOTES: Retry GitHub release ${{ inputs.release_tag }}
         run: node ./publish_edge.mjs
+
+      - name: Summarize Edge submission
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          {
+            printf '## Edge submission for %s\n\n' "$RELEASE_TAG"
+            printf 'Submitted the saved, checksummed Chrome package from the GitHub Release to Edge.\n\n'
+            printf 'Store review and public availability still need separate verification.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
