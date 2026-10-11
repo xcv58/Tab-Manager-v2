@@ -9,6 +9,10 @@ import {
   ACTION_TAB_COUNT_MODES,
 } from 'libs/actionTabCount'
 import { type WindowOrder, WINDOW_ORDERS } from 'libs/windowOrder'
+import {
+  TAB_TOOLTIP_URL_LINES,
+  normalizeTabTooltipUrlLines,
+} from 'libs/tabTooltip'
 import Slider from 'components/ui/Slider'
 import IconButton from 'components/ui/IconButton'
 import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
@@ -366,6 +370,7 @@ const DensityControl = ({
 const RowDetailsOption = ({
   title,
   description,
+  details,
   checked,
   onChange,
   preview,
@@ -375,6 +380,7 @@ const RowDetailsOption = ({
 }: {
   title: string
   description?: string
+  details?: React.ReactNode
   checked: boolean
   onChange: () => void
   preview: React.ReactNode
@@ -401,6 +407,7 @@ const RowDetailsOption = ({
         />
       </div>
       {description && <p style={controlDescriptionStyle}>{description}</p>}
+      {details}
     </div>
     <div className="min-w-0 xl:flex-1">
       {preview}
@@ -513,6 +520,8 @@ export default observer(() => {
     toggleIncreaseContrast,
     showTabTooltip,
     toggleShowTabTooltip,
+    tabTooltipUrlLines,
+    selectTabTooltipUrlLines,
     preserveSearch,
     togglePreserveSearch,
     searchHistory,
@@ -551,6 +560,8 @@ export default observer(() => {
     selectTheme,
   } = userStore
   const reduceMotion = useReduceMotion()
+  const tooltipUrlLinesId = React.useId()
+  const tooltipUrlLinesHintId = React.useId()
   const isDarkMode = muiTheme.mode === 'dark'
   const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
@@ -1066,6 +1077,53 @@ export default observer(() => {
                 checked={showTabTooltip}
                 onChange={toggleShowTabTooltip}
                 style={rowDetailOptionStyle}
+                details={
+                  <div className="mt-3">
+                    <label
+                      htmlFor={tooltipUrlLinesId}
+                      style={controlDescriptionStyle}
+                    >
+                      URL length
+                    </label>
+                    <select
+                      id={tooltipUrlLinesId}
+                      aria-describedby={tooltipUrlLinesHintId}
+                      data-testid="tab-tooltip-url-lines"
+                      disabled={!showTabTooltip}
+                      value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
+                      onChange={(event) =>
+                        selectTabTooltipUrlLines(
+                          event.target.value === 'full'
+                            ? 'full'
+                            : Number(event.target.value),
+                        )
+                      }
+                      className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                      style={{
+                        backgroundColor: uiColors.settingsDialogSurface,
+                        color: uiColors.primaryText,
+                        borderColor: rowDetailOptionStyle.borderColor,
+                        outlineColor: uiColors.focusRing,
+                        colorScheme: isDarkMode ? 'dark' : 'light',
+                      }}
+                    >
+                      {TAB_TOOLTIP_URL_LINES.map((lines) => (
+                        <option key={lines} value={lines}>
+                          {lines === 'full'
+                            ? 'Full URL'
+                            : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
+                        </option>
+                      ))}
+                    </select>
+                    <p
+                      id={tooltipUrlLinesHintId}
+                      style={{ ...controlDescriptionStyle, marginTop: 6 }}
+                    >
+                      Long URLs end with an ellipsis. Copying keeps the full
+                      URL.
+                    </p>
+                  </div>
+                }
                 previewHint="Hover preview to open the tooltip."
                 preview={
                   <PreviewSurface
@@ -1076,7 +1134,7 @@ export default observer(() => {
                       config={{
                         id: 9104,
                         title: 'Hover this preview tab for tooltip details',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
                         duplicatedTabCount: 2,
                         uiPreset,
                         increaseContrast,
@@ -1084,6 +1142,7 @@ export default observer(() => {
                         showTabIcon: true,
                         showUrl: false,
                         showTabTooltip,
+                        tabTooltipUrlLines,
                       }}
                     />
                   </PreviewSurface>

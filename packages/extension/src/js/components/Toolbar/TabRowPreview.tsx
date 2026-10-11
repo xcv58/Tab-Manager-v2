@@ -5,6 +5,10 @@ import { StoreContext } from 'components/hooks/useStore'
 import TabRow from 'components/Tab/Tab'
 import settingsPreviewIcon from 'img/chrome/settings.png'
 import type { UiPreset } from 'stores/UserStore'
+import {
+  normalizeTabTooltipUrlLines,
+  type TabTooltipUrlLines,
+} from 'libs/tabTooltip'
 
 type PreviewConfig = {
   id: number
@@ -21,6 +25,7 @@ type PreviewConfig = {
   showTabIcon?: boolean
   showUrl?: boolean
   showTabTooltip?: boolean
+  tabTooltipUrlLines?: TabTooltipUrlLines
 }
 
 class PreviewUserStore {
@@ -29,6 +34,8 @@ class PreviewUserStore {
   uiPreset: UiPreset = 'modern'
 
   showTabTooltip = false
+
+  tabTooltipUrlLines: TabTooltipUrlLines
 
   showUrl = true
 
@@ -42,6 +49,9 @@ class PreviewUserStore {
     this.highlightDuplicatedTab = !!config.showDuplicateMarker
     this.uiPreset = config.uiPreset ?? 'modern'
     this.showTabTooltip = !!config.showTabTooltip
+    this.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
+      config.tabTooltipUrlLines,
+    )
     this.showUrl = config.showUrl ?? true
     this.showTabIcon = config.showTabIcon ?? true
     this.increaseContrast = !!config.increaseContrast
@@ -263,6 +273,7 @@ export default observer(
         config.showDuplicateMarker,
         config.showTabIcon,
         config.showTabTooltip,
+        config.tabTooltipUrlLines,
         config.showUrl,
         config.title,
         config.url,

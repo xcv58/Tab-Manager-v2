@@ -13,6 +13,7 @@ import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 import { getNoun } from 'libs'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
+import { normalizeTabTooltipUrlLines } from 'libs/tabTooltip'
 
 const TabContent = observer(
   (
@@ -36,6 +37,7 @@ const TabContent = observer(
       isDuplicated,
     } = props.tab
     const { userStore } = useStore()
+    const urlLines = normalizeTabTooltipUrlLines(userStore.tabTooltipUrlLines)
     const buttonRef = useRef(null)
     useEffect(() => {
       const button = buttonRef.current
@@ -64,7 +66,22 @@ const TabContent = observer(
     const tooltip = open && (
       <div className="leading-tight break-all whitespace-normal">
         <p>{title}</p>
-        <p style={{ opacity: 0.8 }}>{url}</p>
+        <p
+          data-testid="tab-tooltip-url"
+          style={{
+            opacity: 0.8,
+            ...(urlLines === 'full'
+              ? {}
+              : {
+                  display: '-webkit-box',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: urlLines,
+                  overflow: 'hidden',
+                }),
+          }}
+        >
+          {url}
+        </p>
         {duplicateText ? (
           <p style={{ opacity: 0.72 }}>{duplicateText}</p>
         ) : null}
