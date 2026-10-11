@@ -24,7 +24,9 @@ not belong in `docs/`.
 Default verification should stay lightweight until a human asks for more.
 
 - Do not run tests automatically for coding tasks.
-- After implementing a change, run `pnpm build` by default and stop there.
+- After implementing a change, run `pnpm build` by default. For changes
+  covered by Website Demo Parity below, also run `pnpm build:site`. Stop
+  before running test suites unless a human approves them.
 - Let a human verify the change first before running tests.
 - Only run `pnpm test`, unit tests, integration tests, Linux screenshot /
   snapshot refreshes, or integration-test video capture flows when a human
@@ -51,6 +53,35 @@ Required agent behavior:
   the plan before implementation or before marking the task done.
 - When creating a PR with `gh`, use a conventional PR title and pass
   `--template .github/PULL_REQUEST_TEMPLATE.md`.
+
+## Website Demo Parity
+
+The interactive website demo must reflect changes to the extension's shared
+UI, settings, keyboard shortcuts, and tab-management behavior.
+
+- Keep the demo on the real components and stores through
+  `packages/extension/src/js/demo.tsx` and `webpack.demo.config.js`; do not
+  maintain a separate copy of the extension UI.
+- For each affected behavior, check the demo browser API adapter in
+  `packages/extension/src/js/demo/browser.ts` and its sample fixtures. Update
+  the adapter or fixtures when needed so the action works with sample tabs.
+  Preserve the demo's isolation from real browser tabs and history.
+- For a new persisted setting, check the allowlist and validation in
+  `packages/extension/src/js/demo/preferences.ts`. Ensure the demo can save
+  and restore the setting, and that settings previews receive it.
+- Run `pnpm build:site` in addition to the extension build. It builds the
+  demo and assembles the deployable website in `dist/site`. `pnpm build`
+  alone does not build the website demo. Do not commit generated files in
+  `dist/site` or `packages/extension/build/build_demo`.
+- Check the affected interaction in a local website build or the current
+  PR preview, including restoring a changed preference after reload. This
+  does not authorize test suites or Linux snapshot refreshes; the
+  Verification Approval Policy still applies. Report any demo limitation
+  explicitly instead of silently leaving a feature unsupported.
+- Report demo source/build, PR preview, and public website status
+  separately. Confirm a preview belongs to the current PR commit. The
+  public website may remain on the merged version while a PR is open;
+  demo parity does not authorize a production deployment or PR merge.
 
 ## Release Screenshots
 
