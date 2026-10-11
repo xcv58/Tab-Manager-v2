@@ -5,7 +5,6 @@ import { ItemTypes } from 'libs/react-dnd'
 import { useAppTheme } from 'libs/appTheme'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
-import Tooltip from 'components/ui/Tooltip'
 import type { WindowEdge } from 'stores/DragStore'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 
@@ -38,6 +37,19 @@ export default observer(({ win, position }: Props) => {
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
     canDrop: () => !getTabMoveDestinationHint(win, tabStore.selection.values()),
+    hover: (_, monitor) => {
+      const targetId = monitor.getHandlerId()
+      if (targetId) {
+        dragStore.setDropPreviewTarget({
+          targetId,
+          destination: position,
+          blockedHint: getTabMoveDestinationHint(
+            win,
+            tabStore.selection.values(),
+          ),
+        })
+      }
+    },
     drop: (_, monitor) => {
       if (!monitor.didDrop()) {
         dragStore.moveSelectedTabsToWindowEdge(win.id, position)
@@ -52,7 +64,6 @@ export default observer(({ win, position }: Props) => {
   const active = canDrop && isOver
   const beginning = position === 'beginning'
   const dark = theme.mode === 'dark'
-  const classic = userStore.uiPreset === 'classic'
   const highContrast = userStore.increaseContrast
   const accent = beginning
     ? dark
@@ -62,79 +73,76 @@ export default observer(({ win, position }: Props) => {
       ? '94, 196, 186'
       : '13, 148, 136'
   const markerColor = allowed
-    ? `rgba(${accent}, ${active ? 1 : highContrast ? 0.75 : 0.45})`
+    ? `rgba(${accent}, ${active ? 1 : highContrast ? 0.95 : 0.72})`
     : theme.palette.text.secondary
   const tintOpacity =
-    (active ? (dark ? 0.15 : 0.12) : dark ? 0.07 : 0.05) +
-    (highContrast ? 0.04 : 0)
-  const washStrength =
-    (highContrast ? 0.24 : dark ? 0.2 : 0.16) * (classic ? 0.75 : 1)
+    (active ? (dark ? 0.28 : 0.19) : dark ? 0.12 : 0.08) +
+    (highContrast ? 0.07 : 0)
+  const washStrength = highContrast ? 0.36 : dark ? 0.3 : 0.24
   const gradient = `linear-gradient(to ${beginning ? 'bottom' : 'top'}, rgba(${accent}, ${washStrength}) 0px, rgba(${accent}, ${washStrength / 3}) 7px, rgba(${accent}, 0) 16px)`
   const washMask = `linear-gradient(to ${beginning ? 'right' : 'left'}, black 0%, black 55%, transparent 100%)`
-  const hint = blockedHint || `Move to ${position}`
 
   return (
-    <Tooltip title={hint} open={isOver} placement="bottom">
+    <div
+      ref={drop}
+      data-testid={`window-header-drop-${position}-${win.id}`}
+      aria-label={blockedHint || `Move to ${position}`}
+      className="relative min-w-0 flex-1"
+      style={{
+        cursor: allowed ? 'move' : 'not-allowed',
+        opacity: allowed ? 1 : 0.5,
+      }}
+    >
       <div
-        ref={drop}
-        data-testid={`window-header-drop-${position}-${win.id}`}
-        aria-label={`Move to ${position}`}
-        className="relative min-w-0 flex-1"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10"
         style={{
-          cursor: allowed ? 'move' : 'not-allowed',
-          opacity: allowed ? 1 : 0.5,
+          backgroundColor: allowed
+            ? `rgba(${accent}, ${tintOpacity})`
+            : theme.palette.action.hover,
+          boxShadow: allowed
+            ? `inset 0 0 0 ${active ? 2 : 1}px rgba(${accent}, ${active ? 1 : highContrast ? 0.5 : 0.22})`
+            : undefined,
+          transition: 'background-color 140ms ease, box-shadow 140ms ease',
         }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          backgroundImage: allowed ? gradient : undefined,
+          maskImage: washMask,
+          WebkitMaskImage: washMask,
+          opacity: active ? 1 : highContrast ? 0.9 : 0.7,
+          transition: 'opacity 140ms ease',
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10"
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10"
+        <svg
+          className="absolute left-1/2 -translate-x-1/2"
+          width="48"
+          height="12"
+          viewBox="0 0 48 12"
+          preserveAspectRatio="xMidYMid meet"
+          fill="none"
           style={{
-            backgroundColor: allowed
-              ? `rgba(${accent}, ${tintOpacity})`
-              : theme.palette.action.hover,
-            transition: 'background-color 140ms ease',
+            top: beginning ? 0 : undefined,
+            bottom: beginning ? undefined : 0,
+            maxWidth: '70%',
+            color: markerColor,
+            transition: 'color 140ms ease',
           }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10"
-          style={{
-            backgroundImage: allowed ? gradient : undefined,
-            maskImage: washMask,
-            WebkitMaskImage: washMask,
-            opacity: active ? 1 : highContrast ? 0.7 : 0.45,
-            transition: 'opacity 140ms ease',
-          }}
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10"
         >
-          <svg
-            className="absolute left-1/2 -translate-x-1/2"
-            width="48"
-            height="12"
-            viewBox="0 0 48 12"
-            preserveAspectRatio="xMidYMid meet"
-            fill="none"
-            style={{
-              top: beginning ? 0 : undefined,
-              bottom: beginning ? undefined : 0,
-              maxWidth: '70%',
-              color: markerColor,
-              transition: 'color 140ms ease',
-            }}
-          >
-            <g
-              transform={beginning ? undefined : 'translate(0 12) scale(1 -1)'}
-            >
-              <path d={INSERTION_RIBBON_PATH} fill="currentColor" />
-            </g>
-          </svg>
-        </div>
-        {/* Keep the drop surface above the header controls and decoration. */}
-        <div aria-hidden="true" className="absolute inset-0 z-30" />
+          <g transform={beginning ? undefined : 'translate(0 12) scale(1 -1)'}>
+            <path d={INSERTION_RIBBON_PATH} fill="currentColor" />
+          </g>
+        </svg>
       </div>
-    </Tooltip>
+      {/* Keep the drop surface above the header controls and decoration. */}
+      <div aria-hidden="true" className="absolute inset-0 z-30" />
+    </div>
   )
 })

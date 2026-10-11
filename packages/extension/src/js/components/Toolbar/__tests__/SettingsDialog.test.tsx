@@ -43,6 +43,8 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     toggleIncreaseContrast: jest.fn(),
     showTabTooltip: false,
     toggleShowTabTooltip: jest.fn(),
+    tabTooltipUrlLines: 3,
+    selectTabTooltipUrlLines: jest.fn(),
     preserveSearch: false,
     togglePreserveSearch: jest.fn(),
     searchHistory: false,

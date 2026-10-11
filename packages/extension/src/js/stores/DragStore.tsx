@@ -17,6 +17,12 @@ export type DropSource =
 
 export type WindowEdge = 'beginning' | 'end'
 
+export type DropPreviewTarget = {
+  targetId: string | symbol
+  destination: WindowEdge | 'new-window'
+  blockedHint?: string
+}
+
 export type DropAtOptions = {
   windowId: number
   index: number
@@ -62,11 +68,25 @@ export default class DragStore {
 
   dragSource: DropSource = 'tab-row'
 
+  dropPreviewTarget: DropPreviewTarget | null = null
+
+  setDropPreviewTarget = (target: DropPreviewTarget) => {
+    const previous = this.dropPreviewTarget
+    if (
+      previous?.targetId !== target.targetId ||
+      previous?.destination !== target.destination ||
+      previous?.blockedHint !== target.blockedHint
+    ) {
+      this.dropPreviewTarget = target
+    }
+  }
+
   dragStartTab = (tab: Tab) => {
     if (this.pendingWindowEdgeDrop) {
       return null
     }
     tab.unhover()
+    this.dropPreviewTarget = null
     this.dropped = false
     this.dragging = true
     this.dragOriginWindowId = tab.windowId
@@ -84,6 +104,7 @@ export default class DragStore {
       return null
     }
     this.dropped = false
+    this.dropPreviewTarget = null
     this.dragging = false
     this.dragOriginWindowId = null
     this.dragSource = 'tab-row'
@@ -108,6 +129,7 @@ export default class DragStore {
   dragStart = (tab: Tab) => this.dragStartTab(tab)
 
   dragEnd = () => {
+    this.dropPreviewTarget = null
     this.dragging = false
     this.dragOriginWindowId = null
     this.dragSource = 'tab-row'
@@ -117,6 +139,7 @@ export default class DragStore {
   }
 
   clear = () => {
+    this.dropPreviewTarget = null
     this.clearSelection()
     this.dropped = false
   }

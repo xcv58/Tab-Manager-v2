@@ -311,6 +311,38 @@ describe('UserStore', () => {
     expect(settings.windowOrder).toBe('default')
   })
 
+  it('defaults missing or invalid URL limits to three lines and retains Full URL', () => {
+    expect(stripLegacySettings({}).settings.tabTooltipUrlLines).toBe(3)
+    expect(
+      stripLegacySettings({ tabTooltipUrlLines: 99 }).settings
+        .tabTooltipUrlLines,
+    ).toBe(3)
+    expect(
+      stripLegacySettings({ tabTooltipUrlLines: 'full' }).settings
+        .tabTooltipUrlLines,
+    ).toBe('full')
+  })
+
+  it('persists the URL length preference and restores it when loading settings', async () => {
+    const userStore = new UserStore({ searchStore: { init: jest.fn() } } as any)
+    await flush()
+    const writeSettings = jest
+      .spyOn(userStore, 'writeSettings')
+      .mockResolvedValue()
+    userStore.selectTabTooltipUrlLines('full')
+    expect(writeSettings).toHaveBeenCalledWith({ tabTooltipUrlLines: 'full' })
+
+    userStore.selectTabTooltipUrlLines(1)
+    expect(writeSettings).toHaveBeenLastCalledWith({ tabTooltipUrlLines: 1 })
+    jest
+      .spyOn(userStore, 'readSettings')
+      .mockResolvedValue(
+        stripLegacySettings({ tabTooltipUrlLines: 'full' }).settings,
+      )
+    await userStore.init()
+    expect(userStore.tabTooltipUrlLines).toBe('full')
+  })
+
   it('should remove legacy settings after normalization', async () => {
     const userStore = new UserStore({
       searchStore: {
