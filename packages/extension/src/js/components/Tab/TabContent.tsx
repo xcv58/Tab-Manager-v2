@@ -13,7 +13,17 @@ import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 import { getNoun } from 'libs'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
-import { normalizeTabTooltipUrlLines } from 'libs/tabTooltip'
+import {
+  normalizeTabTooltipUrlLines,
+  type TabTooltipUrlLines,
+} from 'libs/tabTooltip'
+
+const URL_LINE_CLAMP_CLASSES: Record<TabTooltipUrlLines, string> = {
+  1: 'line-clamp-1',
+  3: 'line-clamp-3',
+  5: 'line-clamp-5',
+  full: '',
+}
 
 const TabContent = observer(
   (
@@ -68,17 +78,8 @@ const TabContent = observer(
         <p>{title}</p>
         <p
           data-testid="tab-tooltip-url"
-          style={{
-            opacity: 0.8,
-            ...(urlLines === 'full'
-              ? {}
-              : {
-                  display: '-webkit-box',
-                  WebkitBoxOrient: 'vertical',
-                  WebkitLineClamp: urlLines,
-                  overflow: 'hidden',
-                }),
-          }}
+          className={URL_LINE_CLAMP_CLASSES[urlLines]}
+          style={{ opacity: 0.8 }}
         >
           {url}
         </p>

@@ -325,7 +325,7 @@ describe('UserStore', () => {
 
   it('persists the URL length preference and restores it when loading settings', async () => {
     const userStore = new UserStore({ searchStore: { init: jest.fn() } } as any)
-    await userStore.initPromise
+    await flush()
     const writeSettings = jest
       .spyOn(userStore, 'writeSettings')
       .mockResolvedValue()

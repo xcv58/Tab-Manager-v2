@@ -51,9 +51,7 @@ describe('TabContent', () => {
       </StoreContext.Provider>,
     )
     expect(screen.getByTestId('tab-tooltip-url').textContent).toBe(url)
-    expect(screen.getByTestId('tab-tooltip-url').style.webkitLineClamp).toBe(
-      '3',
-    )
+    expect(screen.getByTestId('tab-tooltip-url')).toHaveClass('line-clamp-3')
     expect(tab.url).toBe(url)
     unmount()
     userStore.tabTooltipUrlLines = 'full'
@@ -63,7 +61,9 @@ describe('TabContent', () => {
       </StoreContext.Provider>,
     )
     expect(screen.getByTestId('tab-tooltip-url').textContent).toBe(url)
-    expect(screen.getByTestId('tab-tooltip-url').style.webkitLineClamp).toBe('')
+    expect(screen.getByTestId('tab-tooltip-url')).not.toHaveClass(
+      'line-clamp-3',
+    )
   })
 
   it('keeps native button focus when the tab content receives keyboard focus', () => {
