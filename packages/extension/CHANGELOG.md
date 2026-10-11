@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.0...v2.7.1) (2026-10-11)
+
+
+### Bug Fixes
+
+* clarify tab drop feedback and URL tooltips for 2.7.1 ([#2663](https://github.com/xcv58/Tab-Manager-v2/issues/2663)) ([6685dc5](https://github.com/xcv58/Tab-Manager-v2/commit/6685dc588dd5c3c138178dce726c433eacec265b))
+
 ## [2.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.3...v2.7.0) (2026-10-09)
 
 
