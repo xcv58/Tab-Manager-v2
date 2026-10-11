@@ -196,6 +196,150 @@ test.describe('The Extension page should', () => {
     await CLOSE_PAGES(browserContext)
   })
 
+  test('keep drag feedback current and inside the viewport', async () => {
+    const sourceUrl = 'data:text/html,drag-feedback-source'
+    await openPages(browserContext, [sourceUrl])
+    const state = await page.evaluate(async (url) => {
+      const source = (await chrome.tabs.query({ currentWindow: true })).find(
+        (tab) => tab.url === url,
+      )
+      const blockedWindow = await chrome.windows.create({
+        type: 'popup',
+        url: 'data:text/html,drag-feedback-blocked',
+        focused: false,
+      })
+      return {
+        sourceId: source?.id ?? -1,
+        windowId: source?.windowId ?? -1,
+        blockedWindowId: blockedWindow.id ?? -1,
+      }
+    }, sourceUrl)
+    expect(state.sourceId).toBeGreaterThan(0)
+    expect(state.blockedWindowId).toBeGreaterThan(0)
+    await page.bringToFront()
+    await page.reload()
+    const sourceTestId = `tab-row-${state.sourceId}`
+    await waitForTestId(page, sourceTestId)
+    await waitForTestId(page, `window-card-${state.blockedWindowId}`)
+
+    const badge = page.getByTestId('drag-action-preview')
+    const originalViewport = page.viewportSize()
+    const dispatchDrag = async (
+      type: 'dragstart' | 'dragover' | 'dragend',
+      testId?: string,
+      atViewportEdge = false,
+    ) => {
+      if (testId) {
+        await expect(page.getByTestId(testId)).toBeAttached()
+      }
+      await page.evaluate(
+        async ({ type, testId, atViewportEdge }) => {
+          const node = testId
+            ? document.querySelector(`[data-testid="${testId}"]`)
+            : document.body
+          if (!node) {
+            throw new Error(`Missing drag target: ${testId}`)
+          }
+          const target =
+            type === 'dragstart' || type === 'dragend'
+              ? node.closest('[draggable="true"]') || node
+              : node
+          const rect = target.getBoundingClientRect()
+          const eventOptions = {
+            bubbles: true,
+            cancelable: true,
+            clientX: atViewportEdge
+              ? window.innerWidth - 1
+              : rect.left + rect.width / 2,
+            clientY: atViewportEdge
+              ? window.innerHeight - 1
+              : rect.top + rect.height / 2,
+            dataTransfer: new DataTransfer(),
+          }
+          if (type === 'dragover') {
+            target.dispatchEvent(new DragEvent('dragenter', eventOptions))
+          }
+          target.dispatchEvent(new DragEvent(type, eventOptions))
+          // The HTML5 backend applies dragover in requestAnimationFrame.
+          await new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          )
+        },
+        { type, testId, atViewportEdge },
+      )
+    }
+    const expectBadgeInsideViewport = async () => {
+      await expect
+        .poll(() =>
+          badge.evaluate((node) => {
+            const rect = node.getBoundingClientRect()
+            return {
+              left: rect.left >= 7,
+              top: rect.top >= 7,
+              right: rect.right <= window.innerWidth - 7,
+              bottom: rect.bottom <= window.innerHeight - 7,
+            }
+          }),
+        )
+        .toEqual({ left: true, top: true, right: true, bottom: true })
+    }
+
+    try {
+      await dispatchDrag('dragstart', sourceTestId)
+      await expect(badge).toHaveText('1 tab')
+      await dispatchDrag(
+        'dragover',
+        `window-header-drop-beginning-${state.windowId}`,
+      )
+      await expect(badge).toHaveText('Move 1 tab to beginning')
+      await dispatchDrag('dragover', `window-header-drop-end-${state.windowId}`)
+      await expect(badge).toHaveText('Move 1 tab to end')
+      await dispatchDrag('dragover', 'new-window-drop-target')
+      await expect(badge).toHaveText('Move 1 tab to new window')
+      await dispatchDrag('dragover', undefined, true)
+      await expect(badge).toHaveText('1 tab')
+      await expectBadgeInsideViewport()
+
+      await page.setViewportSize({ width: 200, height: 260 })
+      await dispatchDrag(
+        'dragover',
+        `window-header-drop-beginning-${state.blockedWindowId}`,
+        true,
+      )
+      await expect(badge).toHaveText('Cannot move tabs to this window')
+      const lineCount = await badge.evaluate((node) => {
+        const range = document.createRange()
+        range.selectNodeContents(node)
+        return range.getClientRects().length
+      })
+      expect(lineCount).toBeGreaterThan(1)
+      await expectBadgeInsideViewport()
+      await dispatchDrag(
+        'dragover',
+        `window-header-drop-beginning-${state.windowId}`,
+        true,
+      )
+      await expect(badge).toHaveText('Move 1 tab to beginning')
+      await expectBadgeInsideViewport()
+      await dispatchDrag('dragover', undefined, true)
+      await expect(badge).toHaveText('1 tab')
+      await expectBadgeInsideViewport()
+      await dispatchDrag('dragend', sourceTestId)
+      await expect(badge).toHaveCount(0)
+      await dispatchDrag('dragstart', sourceTestId)
+      await expect(badge).toHaveText('1 tab')
+    } finally {
+      await dispatchDrag('dragend')
+      if (originalViewport) {
+        await page.setViewportSize(originalViewport)
+      }
+      await page.evaluate(
+        (windowId) => chrome.windows.remove(windowId),
+        state.blockedWindowId,
+      )
+    }
+  })
+
   test('support drag and drop to reorder tabs', async () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
@@ -228,8 +372,9 @@ test.describe('The Extension page should', () => {
     await page.mouse.move(xx + 160, yy + 24, { steps: 12 })
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
-    const droppableTool = page.locator('div.h-12.px-1.text-3xl.z-10').first()
+    const droppableTool = page.getByTestId('new-window-drop-target')
     await expect(droppableTool).toBeVisible()
+    await expect(droppableTool).toHaveText('Drop to create a new window')
     expect(await droppableTool.screenshot()).toMatchSnapshot(
       matchImageSnapshotOptions,
     )

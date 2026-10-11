@@ -822,14 +822,10 @@ test.describe('The Extension page should', () => {
         targetZoneTestId: `window-drop-zone-top-${sourceState.windowId}`,
       },
     )
-    const singlePreviewHead = page
-      .locator('h3')
-      .filter({ hasText: '1 tab' })
-      .first()
-    await expect(singlePreviewHead).toBeVisible()
-    const singlePreview = await singlePreviewHead
-      .locator('xpath=..')
-      .screenshot()
+    const singlePreviewBadge = page.getByTestId('drag-action-preview')
+    await expect(singlePreviewBadge).toBeVisible()
+    await expect(singlePreviewBadge).toHaveText('1 tab')
+    const singlePreview = await singlePreviewBadge.screenshot()
     expect(singlePreview).toMatchSnapshot('drag-preview-single-tab.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
@@ -915,12 +911,10 @@ test.describe('The Extension page should', () => {
         targetZoneTestId: `window-drop-zone-top-${sourceState.windowId}`,
       },
     )
-    const groupPreviewHead = page
-      .locator('h3')
-      .filter({ hasText: '2 tabs' })
-      .first()
-    await expect(groupPreviewHead).toBeVisible()
-    const groupPreview = await groupPreviewHead.locator('xpath=..').screenshot()
+    const groupPreviewBadge = page.getByTestId('drag-action-preview')
+    await expect(groupPreviewBadge).toBeVisible()
+    await expect(groupPreviewBadge).toHaveText('2 tabs')
+    const groupPreview = await groupPreviewBadge.screenshot()
     expect(groupPreview).toMatchSnapshot('drag-preview-group-tabs.png', {
       maxDiffPixelRatio: 0.12,
       threshold: 0.2,
