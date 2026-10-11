@@ -50,14 +50,17 @@ describe('window header drop targets', () => {
   )
 
   it.each([lightAppTheme, darkAppTheme])(
-    'shows the allowed or blocked hover hint in $mode theme',
+    'sends the allowed or blocked destination to the drag badge in $mode theme',
     (theme) => {
       const store = {
-        dragStore: {},
+        dragStore: { setDropPreviewTarget: jest.fn() },
         tabStore: { selection: new Map() },
         userStore: { uiPreset: 'modern', increaseContrast: false },
       } as any
-      mockUseDrop.mockReturnValue([{ canDrop: true, isOver: true }, jest.fn()])
+      mockUseDrop.mockImplementation((spec) => {
+        lastDropSpec = spec
+        return [{ canDrop: spec.canDrop(), isOver: true }, jest.fn()]
+      })
       const { rerender } = render(
         <StoreContext.Provider value={store}>
           <AppThemeContext.Provider value={theme}>
@@ -69,12 +72,17 @@ describe('window header drop targets', () => {
         </StoreContext.Provider>,
       )
 
-      expect(screen.getByRole('tooltip')).toHaveTextContent('Move to end')
+      lastDropSpec.hover({}, { getHandlerId: () => 'header-end' })
+      expect(store.dragStore.setDropPreviewTarget).toHaveBeenLastCalledWith({
+        targetId: 'header-end',
+        destination: 'end',
+        blockedHint: undefined,
+      })
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
       expect(screen.getByTestId('window-header-drop-end-7').textContent).toBe(
         '',
       )
 
-      mockUseDrop.mockReturnValue([{ canDrop: false, isOver: true }, jest.fn()])
       rerender(
         <StoreContext.Provider value={store}>
           <AppThemeContext.Provider value={theme}>
@@ -85,9 +93,12 @@ describe('window header drop targets', () => {
           </AppThemeContext.Provider>
         </StoreContext.Provider>,
       )
-      expect(screen.getByRole('tooltip')).toHaveTextContent(
-        'Cannot move tabs to this window',
-      )
+      lastDropSpec.hover({}, { getHandlerId: () => 'header-end' })
+      expect(store.dragStore.setDropPreviewTarget).toHaveBeenLastCalledWith({
+        targetId: 'header-end',
+        destination: 'end',
+        blockedHint: 'Cannot move tabs to this window',
+      })
       expect(screen.getByTestId('window-header-drop-end-7')).toHaveStyle({
         cursor: 'not-allowed',
         opacity: '0.5',
@@ -137,7 +148,7 @@ describe('window header drop targets', () => {
     'mutes an incompatible private destination and explains why in $mode theme',
     (theme) => {
       const store = {
-        dragStore: {},
+        dragStore: { setDropPreviewTarget: jest.fn() },
         tabStore: { selection: new Map([[1, { id: 1, incognito: false }]]) },
         userStore: { uiPreset: 'modern', increaseContrast: false },
       } as any
@@ -157,9 +168,12 @@ describe('window header drop targets', () => {
       )
 
       expect(lastDropSpec.canDrop()).toBe(false)
-      expect(screen.getByRole('tooltip')).toHaveTextContent(
-        'Cannot move tabs between regular and private windows',
-      )
+      lastDropSpec.hover({}, { getHandlerId: () => 'private-header' })
+      expect(store.dragStore.setDropPreviewTarget).toHaveBeenCalledWith({
+        targetId: 'private-header',
+        destination: 'beginning',
+        blockedHint: 'Cannot move tabs between regular and private windows',
+      })
       expect(screen.getByTestId('window-header-drop-beginning-7')).toHaveStyle({
         cursor: 'not-allowed',
         opacity: '0.5',

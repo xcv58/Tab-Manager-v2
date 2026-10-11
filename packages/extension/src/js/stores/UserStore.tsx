@@ -10,6 +10,11 @@ import {
   normalizeWindowOrder,
   type WindowOrder,
 } from 'libs/windowOrder'
+import {
+  DEFAULT_TAB_TOOLTIP_URL_LINES,
+  normalizeTabTooltipUrlLines,
+  type TabTooltipUrlLines,
+} from 'libs/tabTooltip'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import log from 'libs/log'
@@ -32,6 +37,7 @@ const DEFAULT_SETTINGS = {
   highlightActiveTabsInAllWindows: false,
   increaseContrast: false,
   showTabTooltip: true,
+  tabTooltipUrlLines: DEFAULT_TAB_TOOLTIP_URL_LINES,
   preserveSearch: true,
   searchHistory: true,
   showSearchResultMenu: true,
@@ -66,6 +72,9 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
     nextSettings.actionTabCountMode,
   )
   nextSettings.windowOrder = normalizeWindowOrder(nextSettings.windowOrder)
+  nextSettings.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
+    nextSettings.tabTooltipUrlLines,
+  )
   const legacyKeys: string[] = []
 
   LEGACY_SETTINGS.forEach((key) => {
@@ -103,6 +112,7 @@ export default class UserStore {
       highlightActiveTabsInAllWindows: observable,
       increaseContrast: observable,
       showTabTooltip: observable,
+      tabTooltipUrlLines: observable,
       preserveSearch: observable,
       searchHistory: observable,
       showSearchResultMenu: observable,
@@ -124,6 +134,7 @@ export default class UserStore {
       selectUiPreset: action,
       selectActionTabCountMode: action,
       selectWindowOrder: action,
+      selectTabTooltipUrlLines: action,
       selectNextTheme: action,
       openDialog: action,
       closeDialog: action,
@@ -258,6 +269,7 @@ export default class UserStore {
   highlightActiveTabsInAllWindows = false
   increaseContrast = false
   showTabTooltip = true
+  tabTooltipUrlLines: TabTooltipUrlLines = DEFAULT_TAB_TOOLTIP_URL_LINES
   preserveSearch = true
   searchHistory = true
   showSearchResultMenu = true
@@ -388,6 +400,11 @@ export default class UserStore {
   toggleShowTabTooltip = () => {
     this.showTabTooltip = !this.showTabTooltip
     this.save()
+  }
+
+  selectTabTooltipUrlLines = (value: unknown) => {
+    this.tabTooltipUrlLines = normalizeTabTooltipUrlLines(value)
+    this.writeSettings({ tabTooltipUrlLines: this.tabTooltipUrlLines })
   }
 
   toggleIgnoreHash = () => {

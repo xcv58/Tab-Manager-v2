@@ -21,9 +21,11 @@ const getPreviewStyle = (initialOffset, currentOffset) => {
 
   const { x, y } = currentOffset
 
-  const transform = `translate(${x}px, ${y}px)`
+  const transform = `translate(clamp(8px, ${x + 12}px, calc(100vw - 100% - 8px)), clamp(8px, ${y + 12}px, calc(100vh - 100% - 8px)))`
   return {
     transform,
+    width: 'max-content',
+    maxWidth: 'calc(100vw - 16px)',
   }
 }
 

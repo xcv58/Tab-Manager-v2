@@ -10,14 +10,62 @@ jest.mock(
     ({ text }) =>
       text,
 )
-jest.mock(
-  'components/ui/Tooltip',
-  () =>
-    ({ children }) =>
-      children,
-)
+jest.mock('components/ui/Tooltip', () => ({ children, title }) => (
+  <>
+    {children}
+    {title}
+  </>
+))
 
 describe('TabContent', () => {
+  it('limits URL presentation without changing the URL and restores the full display', () => {
+    const url = `https://example.com/?data=${'long-query-value'.repeat(100)}`
+    const userStore = {
+      showUrl: false,
+      highlightDuplicatedTab: false,
+      uiPreset: 'modern',
+      tabTooltipUrlLines: 3,
+    } as any
+    const store = {
+      userStore,
+      hoverStore: { hovered: true },
+      dragStore: { dragging: false },
+    } as any
+    const tab = {
+      title: 'Long URL tab',
+      url,
+      activate: jest.fn(),
+      focus: jest.fn(),
+      isFocused: false,
+      isHovered: true,
+      duplicatedTabCount: 0,
+      isDuplicated: false,
+      isMatched: true,
+      query: '',
+      removing: false,
+      remove: jest.fn(),
+    } as any
+    const { unmount } = render(
+      <StoreContext.Provider value={store}>
+        <TabContent tab={tab} />
+      </StoreContext.Provider>,
+    )
+    expect(screen.getByTestId('tab-tooltip-url').textContent).toBe(url)
+    expect(screen.getByTestId('tab-tooltip-url')).toHaveClass('line-clamp-3')
+    expect(tab.url).toBe(url)
+    unmount()
+    userStore.tabTooltipUrlLines = 'full'
+    render(
+      <StoreContext.Provider value={store}>
+        <TabContent tab={tab} />
+      </StoreContext.Provider>,
+    )
+    expect(screen.getByTestId('tab-tooltip-url').textContent).toBe(url)
+    expect(screen.getByTestId('tab-tooltip-url')).not.toHaveClass(
+      'line-clamp-3',
+    )
+  })
+
   it('keeps native button focus when the tab content receives keyboard focus', () => {
     const focus = jest.fn()
     const store = {
