@@ -144,7 +144,7 @@ jobs:
   publish-chrome:
     name: Publish Chrome
     needs: [release-please, build-release]
-    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' && vars.CHROME_SKIP_RELEASE_TAG != needs.release-please.outputs.extension_tag_name }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -183,7 +183,7 @@ jobs:
   publish-firefox:
     name: Publish Firefox
     needs: [release-please, build-release]
-    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' && vars.FIREFOX_SKIP_RELEASE_TAG != needs.release-please.outputs.extension_tag_name }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -237,7 +237,7 @@ jobs:
   publish-edge:
     name: Publish Edge
     needs: [release-please, build-release]
-    if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.extension_release_created == 'true' && vars.EDGE_SKIP_RELEASE_TAG != needs.release-please.outputs.extension_tag_name }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -272,3 +272,62 @@ jobs:
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
         run: node ./publish_edge.mjs
+
+  release-summary:
+    name: Release Summary
+    needs:
+      - release-please
+      - build-release
+      - attach-release-assets
+      - publish-chrome
+      - publish-firefox
+      - publish-edge
+    if: ${{ always() && needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Summarize release and store submissions
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.extension_tag_name }}
+          RELEASE_URL: ${{ needs.release-please.outputs.extension_release_url }}
+          BUILD_RESULT: ${{ needs.build-release.result }}
+          ASSETS_RESULT: ${{ needs.attach-release-assets.result }}
+          CHROME_RESULT: ${{ needs.publish-chrome.result }}
+          FIREFOX_RESULT: ${{ needs.publish-firefox.result }}
+          EDGE_RESULT: ${{ needs.publish-edge.result }}
+          CHROME_SKIPPED_FOR_TAG: ${{ vars.CHROME_SKIP_RELEASE_TAG == needs.release-please.outputs.extension_tag_name }}
+          FIREFOX_SKIPPED_FOR_TAG: ${{ vars.FIREFOX_SKIP_RELEASE_TAG == needs.release-please.outputs.extension_tag_name }}
+          EDGE_SKIPPED_FOR_TAG: ${{ vars.EDGE_SKIP_RELEASE_TAG == needs.release-please.outputs.extension_tag_name }}
+        run: |
+          store_row() {
+            local store="$1" result="$2" skip_for_tag="$3" status
+            case "$result" in
+              success) status='Submitted; review and public availability still need verification' ;;
+              skipped)
+                if [[ "$skip_for_tag" == 'true' && "$BUILD_RESULT" == 'success' ]]; then
+                  status='Skipped for this release by repository variable'
+                else
+                  status='Skipped because a prerequisite did not succeed'
+                fi
+                ;;
+              failure) status='Failed; inspect the publisher logs' ;;
+              cancelled) status='Cancelled' ;;
+              *) status="Unknown job result: $result" ;;
+            esac
+            printf '| %s | %s |\n' "$store" "$status"
+          }
+
+          {
+            printf '## Release %s\n\n' "$RELEASE_TAG"
+            printf '[GitHub Release](%s)\n\n' "$RELEASE_URL"
+            printf 'Ubuntu release gate and package build: **%s**\n\n' "$BUILD_RESULT"
+            printf 'Checksummed GitHub release assets: **%s**\n\n' "$ASSETS_RESULT"
+            printf '| Store | Submission status |\n| --- | --- |\n'
+            store_row 'Chrome' "$CHROME_RESULT" "$CHROME_SKIPPED_FOR_TAG"
+            store_row 'Firefox' "$FIREFOX_RESULT" "$FIREFOX_SKIPPED_FOR_TAG"
+            store_row 'Edge' "$EDGE_RESULT" "$EDGE_SKIPPED_FOR_TAG"
+            printf '\nA successful submission does not confirm store approval or public availability.\n'
+            if [[ "$EDGE_RESULT" == 'skipped' && "$EDGE_SKIPPED_FOR_TAG" == 'true' && "$ASSETS_RESULT" == 'success' ]]; then
+              printf '\nTo submit Edge later, run **Retry Edge Release** on the default branch with release tag **%s**. It uses the saved, checksummed package.\n' "$RELEASE_TAG"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

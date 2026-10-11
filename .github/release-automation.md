@@ -13,7 +13,58 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
 4. The same workflow detects that a GitHub Release was created and runs the
    Linux release gate without browser-store credentials.
 5. That job uploads one checksummed artifact, which independent jobs attach to
-   the GitHub Release and submit to Chrome, Firefox, and Edge.
+   the GitHub Release and submit to Chrome, Firefox, and Edge unless a store
+   is explicitly skipped for that release tag.
+6. The workflow summary reports the release gate, asset attachment, and each
+   store's submission result separately. Store approval and public availability
+   still require separate verification.
+
+## Deferring a store for one release
+
+Use repository-level Actions **variables**, not secrets or environment-level
+variables, to skip a store's automatic submission for one exact release tag:
+
+| Repository variable        | Store                  |
+| -------------------------- | ---------------------- |
+| `CHROME_SKIP_RELEASE_TAG`  | Chrome Web Store       |
+| `FIREFOX_SKIP_RELEASE_TAG` | Firefox AMO            |
+| `EDGE_SKIP_RELEASE_TAG`    | Microsoft Edge Add-ons |
+
+An unset variable submits normally. A matching tag skips only that store;
+the Ubuntu release gate, package build, checksummed GitHub Release assets,
+and other stores continue normally. Later release tags submit normally even
+if the old variable is left in place.
+
+For example, to defer Edge for `v2.7.1` while its previous submission is still
+under review:
+
+```sh
+gh variable set EDGE_SKIP_RELEASE_TAG --body v2.7.1 --repo xcv58/Tab-Manager-v2
+```
+
+Set the variable before merging the release PR. The workflow changes that
+implement these controls must also be on `master` before merging that PR.
+The release summary labels the store as skipped; it does not report a
+successful submission or a live store version for that store.
+
+### Submitting a deferred Edge release later
+
+Once the previous Edge review is resolved, explicitly choose the saved release
+tag in **Actions > Retry Edge Release > Run workflow**, using the default
+branch. The equivalent command is:
+
+```sh
+gh workflow run retry-edge-release.yml --ref master \
+  --field release_tag=v2.7.1 --repo xcv58/Tab-Manager-v2
+```
+
+This manual workflow intentionally bypasses `EDGE_SKIP_RELEASE_TAG`, downloads
+the existing GitHub Release package, and verifies its checksum before submitting
+to Edge. It does not rebuild the extension or resubmit Chrome and Firefox.
+Only run it when an Edge submission is intended; it does not check whether a
+previous submission is still under review or whether this version is already
+live. A successful run means submission succeeded, with store review and public
+availability still separate.
 
 ## Keeping changes releasable
 
