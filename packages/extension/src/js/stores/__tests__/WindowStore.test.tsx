@@ -22,6 +22,7 @@ jest.mock('libs', () => ({
       update: jest.fn(),
     },
     tabs: {
+      get: jest.fn(),
       onActivated: {
         addListener: jest.fn(),
         removeListener: jest.fn(),
@@ -113,6 +114,7 @@ const createWindowStore = () => {
       setDefaultFocusedTabWithOptions: jest.fn(() => false),
       revealItem: jest.fn(),
       focusedItem: null,
+      reconcileFocusedItem: jest.fn(),
     },
     searchStore: {
       matchedSet: new Set(),
@@ -566,6 +568,183 @@ describe('WindowStore layout policy', () => {
     windowStore.willUnmount()
   })
 
+  it('keeps selected models current through refreshes and cross-window moves, and removes closed selections', async () => {
+    const windowStore = createWindowStore()
+    const info = {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      groupId: -1,
+      title: 'Original',
+      url: 'about:blank',
+    }
+    const first = new Window(
+      { id: 1, type: 'normal', tabs: [info] },
+      windowStore.store,
+    )
+    windowStore.windows = [first]
+    const selected = first.tabs[0]
+    windowStore.store.tabStore.selection.set(11, selected)
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      { id: 1, type: 'normal', tabs: [{ ...info, title: 'Updated' }] },
+    ])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(windowStore.windows[0]).toBe(first)
+    expect(first.tabs[0]).toBe(selected)
+    expect(selected.title).toBe('Updated')
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      { id: 2, type: 'normal', tabs: [{ ...info, windowId: 2 }] },
+    ])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(windowStore.windows[0].tabs[0]).toBe(selected)
+    expect(selected.win).toBe(windowStore.windows[0])
+    expect(selected.windowId).toBe(2)
+    expect(windowStore.store.tabStore.selection.get(11)).toBe(selected)
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(windowStore.store.tabStore.selection.size).toBe(0)
+  })
+
+  it('preserves selected app-window tabs while the window is filtered and restores their updated models', async () => {
+    const windowStore = createWindowStore()
+    const info = {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      groupId: -1,
+      title: 'Original',
+      url: 'about:blank',
+    }
+    const win = new Window(
+      { id: 1, type: 'app', tabs: [info] },
+      windowStore.store,
+    )
+    windowStore.windows = [win]
+    const selected = win.tabs[0]
+    windowStore.store.tabStore.selection.set(11, selected)
+    windowStore.store.userStore.showAppWindow = false
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValue([
+      {
+        id: 1,
+        type: 'app',
+        tabs: [{ ...info, title: 'Updated while hidden' }],
+      },
+    ])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(windowStore.windows).toHaveLength(0)
+    expect(windowStore.store.tabStore.selection.get(11)).toBe(selected)
+    expect(selected.title).toBe('Updated while hidden')
+    windowStore.store.userStore.showAppWindow = true
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(windowStore.windows[0]).toBe(win)
+    expect(win.tabs[0]).toBe(selected)
+  })
+
+  it('rebinds a stale selected model to the displayed model during a snapshot refresh', async () => {
+    const windowStore = createWindowStore()
+    const info = {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      title: 'Tab',
+      url: 'about:blank',
+    }
+    const previous = new Window({ id: 1, tabs: [info] }, windowStore.store)
+    const current = new Window({ id: 1, tabs: [info] }, windowStore.store)
+    windowStore.windows = [current]
+    windowStore.store.tabStore.selection.set(11, previous.tabs[0])
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tabs: [info] },
+    ])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(windowStore.store.tabStore.selection.get(11)).toBe(current.tabs[0])
+  })
+
+  it('prefers the displayed tab model over a stale selected owner from another window', async () => {
+    const windowStore = createWindowStore()
+    const first = {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      title: 'Current',
+      url: 'about:blank',
+    }
+    const second = { ...first, id: 12, index: 1 }
+    const current = new Window(
+      { id: 1, tabs: [first, second] },
+      windowStore.store,
+    )
+    const stale = new Window(
+      { id: 2, tabs: [{ ...first, windowId: 2 }] },
+      windowStore.store,
+    )
+    const displayed = current.tabs[0]
+    windowStore.windows = [current]
+    // Insert the current owner first to exercise both owner-map orders.
+    windowStore.store.tabStore.selection.set(12, current.tabs[1])
+    windowStore.store.tabStore.selection.set(11, stale.tabs[0])
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tabs: [first, second] },
+    ])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(current.tabs[0]).toBe(displayed)
+    expect(windowStore.store.tabStore.selection.get(11)).toBe(displayed)
+  })
+
+  it('rebinds a selected tab after native detach/attach events without waiting for a full refresh', async () => {
+    const windowStore = createWindowStore()
+    const info = {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      groupId: -1,
+      title: 'Tab',
+      url: 'about:blank',
+    }
+    const source = new Window({ id: 1, tabs: [info] }, windowStore.store)
+    const destination = new Window(
+      { id: 2, tabs: [{ ...info, id: 12, windowId: 2 }] },
+      windowStore.store,
+    )
+    windowStore.windows = [source, destination]
+    windowStore.store.tabStore.selection.set(11, source.tabs[0])
+    ;(browser.tabs.get as jest.Mock).mockResolvedValueOnce({
+      ...info,
+      windowId: 2,
+      index: 1,
+    })
+    windowStore.onDetached(11, { oldWindowId: 1, oldPosition: 0 })
+    await windowStore.onAttached(11, { newWindowId: 2, newPosition: 1 })
+    const attached = windowStore.windows
+      .find((win) => win.id === 2)
+      .getTabById(11)
+    expect(windowStore.store.tabStore.selection.get(11)).toBe(attached)
+    expect(attached.win.id).toBe(2)
+    expect(windowStore.store.focusStore.reconcileFocusedItem).toHaveBeenCalled()
+  })
+
+  it('releases cached group rows when a refreshed window no longer contains the group', async () => {
+    const windowStore = createWindowStore()
+    const info = {
+      id: 11,
+      index: 0,
+      windowId: 1,
+      groupId: 101,
+      title: 'Tab',
+      url: 'about:blank',
+    }
+    const win = new Window({ id: 1, tabs: [info] }, windowStore.store)
+    windowStore.windows = [win]
+    win.groupRowMap.set(101, {
+      nodeRef: { current: document.createElement('div') },
+    } as any)
+    ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
+      { id: 1, tabs: [{ ...info, groupId: -1 }] },
+    ])
+    await windowStore.loadAllWindows({ repackPolicy: 'never' })
+    expect(win.groupRowMap.size).toBe(0)
+  })
+
   it('waits for user settings before the initial mount load', async () => {
     const windowStore = createWindowStore()
     windowStore.height = 1000
@@ -764,7 +943,7 @@ describe('WindowStore layout policy', () => {
     })
   })
 
-  it('keeps all rows mounted only for the drag origin window', () => {
+  it('keeps the drag origin row range virtualized like the destination', () => {
     const windowStore = createWindowStore()
     const makeWindow = (windowId: number) =>
       new Window(
@@ -794,8 +973,8 @@ describe('WindowStore layout policy', () => {
     windowStore.repackLayout('manual')
 
     expect(windowStore.getVisibleRowRange(sourceWindow)).toEqual({
-      start: 0,
-      end: 20,
+      start: 4,
+      end: 18,
     })
     expect(windowStore.getVisibleRowRange(targetWindow)).toEqual({
       start: 4,

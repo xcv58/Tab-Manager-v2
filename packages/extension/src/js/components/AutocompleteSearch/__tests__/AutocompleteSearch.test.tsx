@@ -4,7 +4,7 @@ import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import AutocompleteSearch from '../index'
 import { useOptions } from 'components/hooks/useOptions'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
-import { getSearchMatchMode } from 'libs/searchMatching'
+import { getSearchMatchMode, matchItemsInMode } from 'libs/searchMatching'
 
 jest.mock('components/hooks/useOptions', () => ({
   useOptions: jest.fn(),
@@ -135,6 +135,15 @@ const renderAutocompleteSearch = ({
           getSearchMatchMode(options, nextValue, {
             keys: ['title', 'url'],
           }),
+        tabSearchKeys: ['title', 'url'],
+        get inputMatchedTabs() {
+          return matchItemsInMode(
+            options.filter((option) => typeof option.id === 'number'),
+            query,
+            getSearchMatchMode(options, query, { keys: ['title', 'url'] }),
+            { keys: ['title', 'url'] },
+          )
+        },
         setSearchEl,
         startType,
         stopType,
@@ -283,6 +292,24 @@ describe('AutocompleteSearch', () => {
     expect(options[1]).toHaveTextContent('History')
     expect(options[2]).toHaveTextContent('Daily Science Course')
   })
+
+  it.each([0, undefined])(
+    'keeps history results with visitCount=%s',
+    async (visitCount) => {
+      renderAutocompleteSearch({
+        initialQuery: 'zero history',
+        open: true,
+        options: [
+          { id: 1, title: 'Browser tab', url: '', groupId: -1 },
+          { id: 'history-zero', title: 'Zero history', url: '', visitCount },
+        ],
+      })
+      const options = await screen.findAllByRole('option')
+      expect(options).toHaveLength(2)
+      expect(options[0]).toHaveTextContent('History')
+      expect(options[1]).toHaveTextContent('Zero history')
+    },
+  )
 
   it('clears and dismisses the uncontrolled search field when Escape is pressed', async () => {
     renderAutocompleteSearch({ initialQuery: 'alpha', open: undefined })

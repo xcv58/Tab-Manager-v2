@@ -1,6 +1,5 @@
 import TabHistory from '../TabHistory'
 import { browser, setLastFocusedWindowId, setSelfPopupActive } from 'libs'
-import { setBrowserIcon } from 'libs/verify'
 
 const popupUrl =
   'chrome-extension://ehkonpddnilnaghlnblmghpdobeomohi/popup.html?not_popup=1'
@@ -45,10 +44,6 @@ jest.mock('libs', () => ({
   }),
 }))
 
-jest.mock('libs/verify', () => ({
-  setBrowserIcon: jest.fn(),
-}))
-
 describe('TabHistory.onFocusChanged', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -83,16 +78,40 @@ describe('TabHistory.onFocusChanged', () => {
 
     await tabHistory.onFocusChanged(42)
 
-    expect(setBrowserIcon).toHaveBeenCalled()
     expect(setSelfPopupActive).not.toHaveBeenCalledWith(true)
     expect(setLastFocusedWindowId).toHaveBeenCalledWith(42)
     expect(tabHistory.tabHistory).toEqual([
       expect.objectContaining({
-        id: 7,
         tabId: 7,
         windowId: 42,
-        url: popupUrl,
       }),
     ])
+  })
+
+  it('keeps only navigation IDs when loading legacy history metadata', async () => {
+    ;(browser.storage.local.get as jest.Mock).mockResolvedValue({
+      tabHistory: [
+        {
+          tabId: 7,
+          windowId: 42,
+          title: 'Old title',
+          favIconUrl: 'data:image/png;base64,large',
+        },
+        null,
+      ],
+    })
+    const history = new TabHistory()
+    await history.init()
+    expect(history.tabHistory).toEqual([{ tabId: 7, windowId: 42 }])
+  })
+
+  it('does not create an invalid entry when cycling an empty history', async () => {
+    const history = new TabHistory()
+    await history.init()
+    history.count = 1
+    history.reset()
+    expect(history.tabHistory).toEqual([])
+    history.add({ tabId: 7, windowId: 42 })
+    expect(history.tabHistory).toEqual([{ tabId: 7, windowId: 42 }])
   })
 })

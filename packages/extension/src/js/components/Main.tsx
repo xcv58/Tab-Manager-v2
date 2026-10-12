@@ -1,25 +1,23 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, lazy } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import { useAppTheme } from 'libs/appTheme'
 import WinList from 'components/WinList'
 import Shortcut from 'components/Shortcut'
 import Toolbar from 'components/Toolbar'
-import SettingsDialog from 'components/Toolbar/SettingsDialog'
 import { useStore, useFontSize } from './hooks/useStore'
 import DragLayer from './DragLayer'
 import { useTextClasses } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
-import { useLocation } from 'react-router-dom'
 import { NOT_POPUP } from 'libs'
 import PopupView from './PopupView'
 import { getUiColorTokens } from 'libs/uiColorTokens'
+import DeferredContent from './DeferredContent'
 
-const useQuery = () => new URLSearchParams(useLocation().search)
+const SettingsDialog = lazy(() => import('./Toolbar/SettingsDialog'))
 
 export default observer(() => {
-  const query = useQuery()
-  const isPopup = !query.has(NOT_POPUP)
+  const isPopup = !new URLSearchParams(window.location.search).has(NOT_POPUP)
   const theme = useAppTheme()
   const { windowStore, shortcutStore, tabGroupStore, userStore } = useStore()
   const { toolbarAutoHide, litePopupMode } = userStore
@@ -69,7 +67,9 @@ export default observer(() => {
         </>
       )}
       <Shortcut />
-      <SettingsDialog />
+      <DeferredContent open={userStore.dialogOpen}>
+        <SettingsDialog />
+      </DeferredContent>
     </main>
   )
 })

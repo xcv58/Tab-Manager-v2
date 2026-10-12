@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, observable } from 'mobx'
 import Store from 'stores'
 import log from 'libs/log'
 import Tab from './Tab'
@@ -39,6 +39,7 @@ export default class FocusStore {
   constructor(store: Store) {
     makeAutoObservable(this, {
       focusedItemRef: false,
+      containerRef: observable.ref,
     })
 
     this.store = store
@@ -132,6 +133,24 @@ export default class FocusStore {
     this.focusedGroupId = null
     this.focusedWindowId = null
     this._top = -1
+  }
+
+  reconcileFocusedItem = () => {
+    const current = this.focusedItem
+    const previous = this.focusedItemRef
+    if (current === previous) return
+    if (!current) {
+      this.defocus()
+      return
+    }
+    const origin = previous?.focusOrigin
+    this._setFocusedItem(current)
+    current.setFocusState({
+      focused: true,
+      origin,
+      reveal: false,
+      moveDomFocus: false,
+    })
   }
 
   enter = () => {

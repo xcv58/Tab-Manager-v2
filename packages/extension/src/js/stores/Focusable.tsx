@@ -16,7 +16,9 @@ export default class Focusable {
   constructor(store: Store) {
     makeObservable(this, {
       id: observable,
-      nodeRef: observable,
+      // React owns the mutable ref and clears .current on unmount. Deep
+      // observation copies the ref object and retains the old detached node.
+      nodeRef: observable.ref,
       isFocused: observable,
       focusOrigin: observable,
       shouldRevealOnFocus: observable,
@@ -67,9 +69,7 @@ export default class Focusable {
   }
 
   getBoundingClientRect = () => {
-    if (this.nodeRef) {
-      return this.nodeRef.current.getBoundingClientRect()
-    }
+    return this.nodeRef?.current?.getBoundingClientRect()
   }
 
   activate: () => void

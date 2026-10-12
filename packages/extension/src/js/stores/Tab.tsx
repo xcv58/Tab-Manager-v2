@@ -29,12 +29,13 @@ const CHROME_PREFIX = 'chrome://'
 const CHROME_EXTENSION_PREFIX = 'chrome-extension://'
 
 export default class Tab extends Focusable {
-  win: Window
+  win: Window = null
 
   constructor(tab, store: Store, win: Window) {
     super(store)
 
     makeObservable(this, {
+      win: observable.ref,
       cookieStoreId: observable,
       groupId: observable,
       iconUrl: observable,

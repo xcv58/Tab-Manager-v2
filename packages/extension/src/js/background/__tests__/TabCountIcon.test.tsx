@@ -33,10 +33,16 @@ import { setBrowserIcon } from 'libs/verify'
 
 describe('TabCountIcon', () => {
   beforeEach(() => {
+    jest.useFakeTimers()
     jest.clearAllMocks()
   })
 
-  it('refreshes the browser icon when tab or window events fire', async () => {
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
+  })
+
+  it('coalesces tab and window events into one icon refresh', async () => {
     new TabCountIcon()
 
     const createdListener = addCreatedListener.mock.calls[0][0]
@@ -53,7 +59,9 @@ describe('TabCountIcon', () => {
     await focusListener(2)
     await windowRemovedListener(2)
 
-    expect(setBrowserIcon).toHaveBeenCalledTimes(6)
+    expect(setBrowserIcon).not.toHaveBeenCalled()
+    await jest.advanceTimersByTimeAsync(80)
+    expect(setBrowserIcon).toHaveBeenCalledTimes(1)
   })
 
   it('refreshes the browser icon only for relevant local storage changes', async () => {
@@ -71,6 +79,8 @@ describe('TabCountIcon', () => {
       'local',
     )
 
+    await jest.advanceTimersByTimeAsync(80)
+
     expect(setBrowserIcon).toHaveBeenCalledTimes(1)
 
     await storageListener(
@@ -82,6 +92,8 @@ describe('TabCountIcon', () => {
       },
       'sync',
     )
+
+    await jest.advanceTimersByTimeAsync(80)
 
     expect(setBrowserIcon).toHaveBeenCalledTimes(2)
 

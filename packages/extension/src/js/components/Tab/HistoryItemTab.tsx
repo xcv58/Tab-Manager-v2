@@ -4,7 +4,7 @@ import { HistoryItem } from 'stores/SearchStore'
 import classNames from 'classnames'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import moment from 'moment'
+import { formatRelativeTime } from 'libs/relativeTime'
 import HighlightNode from 'components/HighlightNode'
 import type { SearchMatchMode } from 'libs/searchMatching'
 
@@ -44,7 +44,7 @@ export default observer(function HistoryItemTab(props: Props) {
     <div tabIndex={-1} className="relative flex items-center w-full pl-4 group">
       <Content tab={tab} matchMode={matchMode} />
       <div className="flex-col px-2 text-sm opacity-75 group-hover:opacity-100">
-        <div>{moment(lastVisitTime).fromNow()}</div>
+        <div>{formatRelativeTime(lastVisitTime)}</div>
         <div className="text-right">
           {typedCount} / {visitCount}
         </div>
