@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.1...v2.7.2) (2026-10-12)
+
+
+### Bug Fixes
+
+* simplify drag previews and keep tooltips clear ([#2666](https://github.com/xcv58/Tab-Manager-v2/issues/2666)) ([0ac987d](https://github.com/xcv58/Tab-Manager-v2/commit/0ac987d3e17ffe32affbca9251c7569e25fde80a))
+
 ## [2.7.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.0...v2.7.1) (2026-10-11)
 
 
