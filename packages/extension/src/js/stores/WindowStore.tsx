@@ -1261,7 +1261,25 @@ export default class WindowsStore {
     const { newWindowId } = attachInfo
     const win = await this.getOrCreateWinById(newWindowId)
     await win.onAttched(tabId, attachInfo)
+    this.reconcileAttachedTab(tabId, win)
     this.markLayoutDirtyIfNeeded('tab-browser-event', newWindowId)
+  }
+
+  reconcileAttachedTab = (tabId: number, win: Window) => {
+    const tab = win.getTabById(tabId)
+    const selection = this.store.tabStore?.selection
+    if (tab && selection?.has(tabId)) selection.set(tabId, tab)
+    this.reconcileFocusedModels()
+  }
+
+  reconcileFocusedModels = () => {
+    this.store.focusStore?.reconcileFocusedItem?.()
+    if (
+      this.pendingKeyboardFocusVerification &&
+      !this.pendingKeyboardFocusVerification.isFocused
+    ) {
+      this.pendingKeyboardFocusVerification = null
+    }
   }
 
   // This method will return the window object if it appears in this.windows.
@@ -1320,6 +1338,7 @@ export default class WindowsStore {
     } else {
       const index = this.windows.findIndex((x) => x.id === windowId)
       if (index === -1) {
+        this.reconcileFocusedModels()
         return
       }
       this.windows[index].tabs = []
@@ -1328,6 +1347,7 @@ export default class WindowsStore {
         this.markLayoutDirtyIfNeeded('tab-browser-event', windowId)
       }
     }
+    this.reconcileFocusedModels()
   }
 
   onUpdated = (tabId: number, changeInfo, newTab: Tab) => {
@@ -1345,6 +1365,8 @@ export default class WindowsStore {
       Object.assign(tab, newTab)
       tab.setUrlIcon()
       if (previousGroupId !== tab.groupId) {
+        tab.win.pruneGroupRows()
+        this.reconcileFocusedModels()
         this.refreshLayoutIfNeeded(
           'window-change',
           'tab-browser-event',
@@ -1583,12 +1605,7 @@ export default class WindowsStore {
 
   getVisibleRowRange = (win: Window): VisibleRowRange => {
     const rows = win.rows
-    if (
-      this.dragOriginWindowId === win.id ||
-      win.hide ||
-      rows.length === 0 ||
-      this.height <= 0
-    ) {
+    if (win.hide || rows.length === 0 || this.height <= 0) {
       return {
         start: 0,
         end: rows.length,
@@ -1607,9 +1624,9 @@ export default class WindowsStore {
     const overscanPx = this.rowHeight * 4
     const viewportTop = this.scrollTop - overscanPx
     const viewportBottom = this.scrollTop + this.height + overscanPx
-    const start = Math.max(
-      Math.floor((viewportTop - rowsTop) / this.rowHeight),
-      0,
+    const start = Math.min(
+      rows.length,
+      Math.max(Math.floor((viewportTop - rowsTop) / this.rowHeight), 0),
     )
     const end = Math.min(
       Math.ceil((viewportBottom - rowsTop) / this.rowHeight),
@@ -2130,10 +2147,40 @@ export default class WindowsStore {
       ? new Map(this.windows.map((win, index) => [win.id, index]))
       : new Map<number, number>()
 
-    const nextWindows = windows
-      .filter(notSelfPopup)
-      .filter((win) => this.store.userStore.showAppWindow || win.type !== 'app')
-      .map((win) => new Window(win, this.store))
+    const selection = this.store.tabStore?.selection
+    // A selected app-window tab can remain selected while that window is
+    // hidden by a setting. Keep its owner current without rendering it.
+    const existingWindows = new Map<number, Window>()
+    for (const tab of selection?.values() || []) {
+      if (tab.win) existingWindows.set(tab.win.id, tab.win)
+    }
+    this.windows.forEach((win) => existingWindows.set(win.id, win))
+    const displayedWindowIds = new Set(this.windows.map((win) => win.id))
+    // A stale selected owner may still contain a tab that now belongs to a
+    // displayed window. Prefer the displayed model for each tab ID.
+    const existingTabs = new Map(
+      [
+        ...Array.from(existingWindows.values()).filter(
+          (win) => !displayedWindowIds.has(win.id),
+        ),
+        ...this.windows,
+      ].flatMap((win) => win.tabs.map((tab) => [tab.id, tab] as const)),
+    )
+    const nextWindows: Window[] = []
+    const currentTabs = new Map<number, Tab>()
+    for (const info of windows) {
+      const visible =
+        notSelfPopup(info) &&
+        (this.store.userStore.showAppWindow || info.type !== 'app')
+      const hasSelection = info.tabs?.some((tab) => selection?.has(tab.id))
+      if (!visible && !hasSelection) continue
+      const win =
+        existingWindows.get(info.id) ||
+        new Window({ ...info, tabs: [] }, this.store)
+      win.updateSnapshot(info, existingTabs)
+      if (visible) nextWindows.push(win)
+      win.tabs.forEach((tab) => currentTabs.set(tab.id, tab))
+    }
 
     if (this.isLastUsedWindowOrderEnabled()) {
       const liveWindowIds = new Set(nextWindows.map((win) => win.id))
@@ -2144,7 +2191,22 @@ export default class WindowsStore {
       this.windowLastUsedLayoutDirty = false
     }
 
-    this.windows = this.sortWindowsForDisplay(nextWindows, previousWindowOrder)
+    const sortedWindows = this.sortWindowsForDisplay(
+      nextWindows,
+      previousWindowOrder,
+    )
+    if (
+      sortedWindows.length !== this.windows.length ||
+      sortedWindows.some((win, index) => win !== this.windows[index])
+    ) {
+      this.windows = sortedWindows
+    }
+    for (const tabId of selection?.keys() || []) {
+      const current = currentTabs.get(tabId)
+      if (!current) selection.delete(tabId)
+      else if (selection.get(tabId) !== current) selection.set(tabId, current)
+    }
+    this.reconcileFocusedModels()
 
     const applyWindowLastUsedLayoutIfAvailable = () => {
       if (!shouldApplyWindowLastUsedLayout) {

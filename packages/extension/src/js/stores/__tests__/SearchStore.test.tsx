@@ -1,11 +1,37 @@
 import SearchStore, { matchesSearchText } from 'stores/SearchStore'
 import { browser, NOT_POPUP } from 'libs'
 import log from 'libs/log'
+import { autorun, runInAction } from 'mobx'
 
 describe('SearchStore', () => {
   afterEach(() => {
     jest.restoreAllMocks()
     document.body.innerHTML = ''
+  })
+
+  it('keeps the unfiltered workspace stable while typing, then filters when the workspace query updates', () => {
+    const searchStore = new SearchStore({
+      windowStore: {
+        tabs: [
+          { id: 1, title: 'Alpha', url: '' },
+          { id: 2, title: 'Beta', url: '' },
+        ],
+      },
+      userStore: { showUrl: false, searchHistory: false },
+    } as any)
+    const workspaceResults: number[][] = []
+    const dispose = autorun(() =>
+      workspaceResults.push(searchStore.rawMatchedTabs.map((tab) => tab.id)),
+    )
+    runInAction(() => {
+      searchStore.query = 'Alpha'
+    })
+    expect(workspaceResults).toEqual([[1, 2]])
+    runInAction(() => {
+      searchStore._query = 'Alpha'
+    })
+    expect(workspaceResults).toEqual([[1, 2], [1]])
+    dispose()
   })
 
   it('focuses and blurs a direct input ref used by the local search field', () => {

@@ -7,14 +7,12 @@ import {
 } from 'libs'
 import actions from 'libs/actions'
 import log from 'libs/log'
-import { setBrowserIcon } from 'libs/verify'
 
 const STORAGE_KEY = 'tabHistory'
 
 type HistoryEntry = {
   tabId: number
   windowId: number
-  [key: string]: unknown
 }
 
 export default class TabHistory {
@@ -46,7 +44,17 @@ export default class TabHistory {
     try {
       const data = await browser.storage.local.get({ [STORAGE_KEY]: [] })
       if (this.tabHistory.length === 0) {
-        this.tabHistory = data[STORAGE_KEY] || []
+        const stored = data[STORAGE_KEY]
+        this.tabHistory = Array.isArray(stored)
+          ? stored
+              .filter(
+                (entry) =>
+                  entry &&
+                  Number.isInteger(entry.tabId) &&
+                  Number.isInteger(entry.windowId),
+              )
+              .map(({ tabId, windowId }) => ({ tabId, windowId }))
+          : []
       }
       this.loaded = true
       log.debug('TabHistory loaded from storage:', this.tabHistory)
@@ -79,6 +87,11 @@ export default class TabHistory {
 
   reset = () => {
     const { length } = this.tabHistory
+    if (!length) {
+      this.count = 0
+      this.resetCountHandler = null
+      return
+    }
     const untouchedTabs = this.tabHistory.slice(0, this.nextTabIndex)
     const touchedTabs = this.tabHistory
       .slice(this.nextTabIndex, length - 1)
@@ -90,12 +103,14 @@ export default class TabHistory {
     this.save()
   }
 
-  add = ({ tabId, windowId, ...rest }) => {
+  add = ({ tabId, windowId }) => {
     if (!tabId || windowId === -1) {
       return
     }
     this.remove(tabId, false) // pass false to avoid double save
-    this.tabHistory.push({ tabId, windowId, ...rest })
+    // Cycling needs IDs only. Keep the live history order/capacity intact while
+    // avoiding retained URLs, titles, favicon data and other tab metadata.
+    this.tabHistory.push({ tabId, windowId })
     this.save()
   }
 
@@ -151,7 +166,6 @@ export default class TabHistory {
   }
 
   onFocusChanged = async (windowId) => {
-    setBrowserIcon()
     log.debug('onFocusChanged:', { windowId })
     if (windowId < 0) {
       return setSelfPopupActive(false)

@@ -388,33 +388,61 @@ export const readActionIconSettings = async () => {
   }
 }
 
-export const setBrowserIcon = async () => {
+let requestedIconRevision = 0
+let iconUpdatePromise: Promise<void> | null = null
+
+const updateBrowserIcon = async (revision: number) => {
   const { actionTabCountMode, systemTheme } = await readActionIconSettings()
   const darkTheme = systemTheme === 'dark'
   const iconPath = getBaseIconPath(darkTheme)
+  if (revision !== requestedIconRevision) return
+
+  const actions = [browser.browserAction, browser.action].filter(
+    (action) => action?.setIcon,
+  )
 
   if (actionTabCountMode === 'off') {
-    ;[browser.browserAction, browser.action].forEach((action) => {
-      if (action && action.setIcon) {
-        action.setIcon({ path: iconPath })
-        action.setTitle?.({ title: 'Tab Manager v2' })
-      }
-    })
+    await Promise.all(
+      actions.flatMap((action) => [
+        action.setIcon({ path: iconPath }),
+        action.setTitle?.({ title: 'Tab Manager v2' }),
+      ]),
+    )
     return
   }
 
   const tabCount = await getActionTabCount(actionTabCountMode)
+  if (revision !== requestedIconRevision) return
   const imageData = await getIconImageDataSet(
     iconPath,
     formatActionTabCountLabel(tabCount),
     darkTheme,
   )
-  ;[browser.browserAction, browser.action].forEach((action) => {
-    if (action && action.setIcon) {
-      action.setIcon({ imageData })
+  if (revision !== requestedIconRevision) return
+  await Promise.all(
+    actions.flatMap((action) => [
+      action.setIcon({ imageData }),
       action.setTitle?.({
         title: getActionTabCountTitle(tabCount, actionTabCountMode),
-      })
-    }
-  })
+      }),
+    ]),
+  )
+}
+
+const flushIconUpdates = async () => {
+  try {
+    let appliedRevision: number
+    do {
+      appliedRevision = requestedIconRevision
+      await updateBrowserIcon(appliedRevision)
+    } while (appliedRevision !== requestedIconRevision)
+  } finally {
+    iconUpdatePromise = null
+  }
+}
+
+export const setBrowserIcon = () => {
+  requestedIconRevision += 1
+  if (!iconUpdatePromise) iconUpdatePromise = flushIconUpdates()
+  return iconUpdatePromise
 }

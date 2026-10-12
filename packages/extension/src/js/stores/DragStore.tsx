@@ -66,6 +66,24 @@ export default class DragStore {
 
   dragOriginWindowId: number | null = null
 
+  dragOriginTabId: number | null = null
+
+  dragOriginGroupId: number | null = null
+
+  get dragOriginRowIndex() {
+    if (!this.dragging || this.dragOriginWindowId == null) return -1
+    const win = this.store.windowStore.windows.find(
+      (candidate) => candidate.id === this.dragOriginWindowId,
+    )
+    return (
+      win?.rows.findIndex((row) =>
+        row.kind === 'tab'
+          ? row.tabId === this.dragOriginTabId
+          : row.groupId === this.dragOriginGroupId,
+      ) ?? -1
+    )
+  }
+
   dragSource: DropSource = 'tab-row'
 
   dropPreviewTarget: DropPreviewTarget | null = null
@@ -90,6 +108,8 @@ export default class DragStore {
     this.dropped = false
     this.dragging = true
     this.dragOriginWindowId = tab.windowId
+    this.dragOriginTabId = tab.id
+    this.dragOriginGroupId = null
     this.dragSource = 'tab-row'
     const { selection, unselectAll } = this.store.tabStore
     if (!selection.has(tab.id)) {
@@ -107,6 +127,8 @@ export default class DragStore {
     this.dropPreviewTarget = null
     this.dragging = false
     this.dragOriginWindowId = null
+    this.dragOriginTabId = null
+    this.dragOriginGroupId = null
     this.dragSource = 'tab-row'
     const { selection, unselectAll } = this.store.tabStore
     if (this.isNoGroupId(groupId) || !this.store.tabGroupStore) {
@@ -118,6 +140,7 @@ export default class DragStore {
     }
     this.dragging = true
     this.dragOriginWindowId = groupTabs[0].windowId
+    this.dragOriginGroupId = groupId
     this.dragSource = 'group-header'
     unselectAll()
     groupTabs.forEach((tab) => {
@@ -132,6 +155,8 @@ export default class DragStore {
     this.dropPreviewTarget = null
     this.dragging = false
     this.dragOriginWindowId = null
+    this.dragOriginTabId = null
+    this.dragOriginGroupId = null
     this.dragSource = 'tab-row'
     if (!this.dropped && !this.pendingWindowEdgeDrop) {
       this.clear()

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tab Manager performance profile</title>
+  </head>
+  <body>
+    <div id="app-container"></div>
+    <div id="popup"></div>
+    <aside
+      style="
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        z-index: 3000;
+        background: #fff;
+        color: #111;
+        font: 11px monospace;
+        max-height: 45vh;
+        overflow: auto;
+        border: 1px solid #aaa;
+        padding: 8px;
+      "
+    >
+      <button id="reset-metrics">Reset measurements</button>
+      <button id="inspect-references">Inspect retained references</button>
+      <button id="external-move">Move selected tab externally</button>
+      <button id="external-close">Close selected tab externally</button>
+      <pre id="profile-metrics" aria-label="Profile metrics">
+Loading profile…</pre
+      >
+    </aside>
+  </body>
+</html>

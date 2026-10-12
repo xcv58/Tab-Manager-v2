@@ -1,5 +1,5 @@
 import { MutableRefObject } from 'react'
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, observable } from 'mobx'
 import { browser, NOT_POPUP } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
@@ -59,6 +59,7 @@ export default class SearchStore {
       updateTabQuery: false,
       activeHistorySearch: false,
       refreshHistoryAfterCommand: false,
+      searchEl: observable.ref,
     })
 
     this.store = store
@@ -106,6 +107,10 @@ export default class SearchStore {
     return normalizeSearchQuery(this._tabQuery)
   }
 
+  get inputMatchesWorkspaceQuery() {
+    return this.effectiveInputQuery === this.effectiveQuery
+  }
+
   get inputQueryActive() {
     return !!this.effectiveInputQuery
   }
@@ -148,12 +153,47 @@ export default class SearchStore {
     return [...this.tabSearchDocuments, ...historyTabs]
   }
 
-  getMatchModeForQuery = (query: string) =>
-    getSearchMatchMode(this.searchMatchDocuments, query, {
+  get inputMatchMode() {
+    if (!this.inputQueryActive) return 'none'
+    return getSearchMatchMode(
+      this.searchMatchDocuments,
+      this.effectiveInputQuery,
+      {
+        keys: this.tabSearchKeys,
+      },
+    )
+  }
+
+  getMatchModeForQuery = (query: string) => {
+    const normalizedQuery = normalizeSearchQuery(query)
+    if (normalizedQuery === this.effectiveInputQuery) return this.inputMatchMode
+    if (normalizedQuery === this.effectiveQuery) return this.matchMode
+    return getSearchMatchMode(this.searchMatchDocuments, normalizedQuery, {
       keys: this.tabSearchKeys,
     })
+  }
+
+  get inputMatchedTabDocuments(): TabSearchDocument[] {
+    if (!this.inputQueryActive) return this.tabSearchDocuments
+    return matchItemsInMode(
+      this.tabSearchDocuments,
+      this.effectiveInputQuery,
+      this.inputMatchMode,
+      { keys: this.tabSearchKeys },
+    )
+  }
+
+  get inputMatchedTabs(): Tab[] {
+    return this.inputMatchedTabDocuments.map((document) => document.tab)
+  }
 
   get rawMatchedTabDocuments(): TabSearchDocument[] {
+    // The unfiltered workspace must not depend on the live input. Otherwise
+    // its first keystroke invalidates every row before the debounce fires.
+    if (!this.queryActive) return this.tabSearchDocuments
+    if (this.inputMatchesWorkspaceQuery) {
+      return this.inputMatchedTabDocuments
+    }
     return matchItemsInMode(
       this.tabSearchDocuments,
       this.effectiveQuery,
@@ -163,7 +203,11 @@ export default class SearchStore {
   }
 
   get matchMode() {
-    return this.getMatchModeForQuery(this.effectiveQuery)
+    if (!this.queryActive) return 'none'
+    if (this.inputMatchesWorkspaceQuery) return this.inputMatchMode
+    return getSearchMatchMode(this.searchMatchDocuments, this.effectiveQuery, {
+      keys: this.tabSearchKeys,
+    })
   }
 
   get tabHighlightQuery() {

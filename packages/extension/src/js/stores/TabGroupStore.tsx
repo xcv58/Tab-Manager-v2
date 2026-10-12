@@ -280,6 +280,12 @@ export default class GroupStore {
 
   onRemoved = (tabGroup: TabGroup) => {
     this.tabGroupMap.delete(tabGroup.id)
+    this.store.windowStore?.windows?.forEach((win) =>
+      win.groupRowMap?.delete(tabGroup.id),
+    )
+    if (this.store.focusStore?.focusedGroupId === tabGroup.id) {
+      this.store.focusStore.defocus()
+    }
     this.refreshLayoutForGroupChange(tabGroup.windowId)
   }
 

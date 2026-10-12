@@ -4,14 +4,13 @@ import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
 import { useOptions } from 'components/hooks/useOptions'
 import TabOption from './TabOption'
-import { defaultBaseSortFn } from 'match-sorter'
 import parse from 'autosuggest-highlight/parse'
 import match from 'autosuggest-highlight/match'
 import Shortcuts from 'components/Shortcut/Shortcuts'
 import HistoryItemTab from 'components/Tab/HistoryItemTab'
 import HighlightNode from 'components/HighlightNode'
 import Tab from 'stores/Tab'
-import { HistoryItem, getTabSearchKeys } from 'stores/SearchStore'
+import { HistoryItem } from 'stores/SearchStore'
 import { getNoun, openURL } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { filterCommandOptions, type CommandOption } from './filterOptions'
@@ -27,23 +26,6 @@ const LISTBOX_MARGIN_TOP = 4
 
 const commandFilter = (options, { inputValue }) => {
   return filterCommandOptions(options, inputValue.slice(1).trim())
-}
-
-function sortRankedValues(a, b, baseSort): number {
-  const aFirst = -1
-  const bFirst = 1
-  const { rank: aRank, keyIndex: aKeyIndex } = a
-  const { rank: bRank, keyIndex: bKeyIndex } = b
-  const same = aRank === bRank
-  if (same) {
-    if (aKeyIndex === bKeyIndex) {
-      return baseSort(a, b)
-    } else {
-      return aKeyIndex < bKeyIndex ? aFirst : bFirst
-    }
-  } else {
-    return aRank > bRank ? aFirst : bFirst
-  }
 }
 
 const buildGroupedTabSections = (
@@ -66,7 +48,9 @@ const buildGroupedTabSections = (
     if (!tabGroup) {
       return
     }
-    groupedTabs.set(tab.groupId, [...(groupedTabs.get(tab.groupId) || []), tab])
+    const groupTabs = groupedTabs.get(tab.groupId)
+    if (groupTabs) groupTabs.push(tab)
+    else groupedTabs.set(tab.groupId, [tab])
   })
 
   const qualifyingGroupIds = new Set(
@@ -110,7 +94,6 @@ const buildGroupedTabSections = (
 }
 
 const getFilterOptions = (
-  showUrl,
   isCommand,
   tabGroupStore,
   groupedSectionTabIdsRef,
@@ -126,8 +109,8 @@ const getFilterOptions = (
   }
   return (options, { inputValue }) => {
     groupedSectionTabIdsRef.current = new Set()
-    const tabs = options.filter((option) => !option.visitCount)
-    const history = options.filter((option) => option.visitCount)
+    const tabs = options.filter((option) => !isHistoryItem(option))
+    const history = options.filter(isHistoryItem)
     const trimmedValue = inputValue.trim()
     if (!trimmedValue) {
       searchMatchModeRef.current = 'none'
@@ -150,17 +133,11 @@ const getFilterOptions = (
       }
       return groupedTabs
     }
-    const keys = getTabSearchKeys({
-      showUrl,
-      hasTabGroupsApi: !!tabGroupStore?.hasTabGroupsApi?.(),
-    })
     const searchMatchMode = searchStore.getMatchModeForQuery(trimmedValue)
     searchMatchModeRef.current = searchMatchMode
-    const matchedTabs = matchItemsInMode(tabs, trimmedValue, searchMatchMode, {
-      keys,
-      sorter: (rankedItems) =>
-        rankedItems.sort((a, b) => sortRankedValues(a, b, defaultBaseSortFn)),
-    })
+    // match-sorter's default rank/key/value ordering is the same ordering the
+    // dropdown used previously. Share this work with the debounced workspace.
+    const matchedTabs = searchStore.inputMatchedTabs
     const { items: groupedTabs, sectionTabIds } = buildGroupedTabSections(
       matchedTabs,
       tabGroupStore,
@@ -171,7 +148,7 @@ const getFilterOptions = (
       history,
       trimmedValue,
       searchMatchMode,
-      { keys },
+      { keys: searchStore.tabSearchKeys },
     )
     if (matchedHistory.length) {
       return [
@@ -198,6 +175,14 @@ type DividerOption = {
 }
 
 type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
+
+function isHistoryItem(option: SearchOption): option is HistoryItem {
+  // Browser tab IDs are numeric; history IDs are strings. Visit counts are
+  // optional API metadata, so zero/missing counts cannot identify the type.
+  // Avoid subscribing the search component to every observable tab ID.
+  if (option instanceof Tab) return false
+  return 'id' in option && typeof option.id === 'string'
+}
 
 const renderTabOption = (
   tab: SearchOption,
@@ -253,7 +238,7 @@ const renderTabOption = (
       </div>
     )
   }
-  if (tab.visitCount) {
+  if (isHistoryItem(tab)) {
     return <HistoryItemTab tab={tab} matchMode={matchMode} />
   }
   return (
@@ -361,14 +346,13 @@ const AutocompleteSearch = observer((props: Props) => {
   const filterOptions = useMemo(
     () =>
       getFilterOptions(
-        userStore.showUrl,
         isCommand,
         tabGroupStore,
         groupedSectionTabIdsRef,
         searchMatchModeRef,
         searchStore,
       ),
-    [userStore.showUrl, isCommand, tabGroupStore, searchStore],
+    [isCommand, tabGroupStore, searchStore],
   )
 
   const filteredOptions = useMemo(() => {

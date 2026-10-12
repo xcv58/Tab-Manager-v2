@@ -1,5 +1,6 @@
 import { browser } from 'libs'
 import { setBrowserIcon } from 'libs/verify'
+import log from 'libs/log'
 
 type StorageChangeMap = Record<
   string,
@@ -15,6 +16,8 @@ const RELEVANT_STORAGE_KEYS = {
 }
 
 export default class TabCountIcon {
+  refreshTimer: ReturnType<typeof setTimeout> | null = null
+
   constructor() {
     browser.tabs.onCreated.addListener(this.refreshIcon)
     browser.tabs.onRemoved.addListener(this.refreshIcon)
@@ -25,12 +28,19 @@ export default class TabCountIcon {
     browser.storage.onChanged.addListener(this.onStorageChanged)
   }
 
-  refreshIcon = () => setBrowserIcon()
+  refreshIcon = () => {
+    if (this.refreshTimer != null) return
+    // Coalesce event bursts without postponing updates indefinitely while tabs
+    // continue changing. Direct callers still await setBrowserIcon normally.
+    this.refreshTimer = setTimeout(() => {
+      this.refreshTimer = null
+      void setBrowserIcon().catch((error) =>
+        log.warn('Icon refresh failed', error),
+      )
+    }, 80)
+  }
 
-  onStorageChanged = (
-    changes: StorageChangeMap,
-    areaName: string,
-  ): Promise<void> | undefined => {
+  onStorageChanged = (changes: StorageChangeMap, areaName: string): void => {
     if (areaName !== 'local' && areaName !== 'sync') {
       return
     }
@@ -42,6 +52,6 @@ export default class TabCountIcon {
       return
     }
 
-    return setBrowserIcon()
+    this.refreshIcon()
   }
 }

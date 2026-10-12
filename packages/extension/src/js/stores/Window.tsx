@@ -44,6 +44,8 @@ export default class Window extends Focusable {
       onDetached: action,
       onAttched: action,
       toggleHide: action,
+      updateSnapshot: action,
+      pruneGroupRows: action,
     })
 
     this.store = store
@@ -57,6 +59,43 @@ export default class Window extends Focusable {
   }
 
   tabs: Tab[] = []
+
+  updateSnapshot = (
+    win: chrome.windows.Window,
+    existingTabs: Map<number, Tab>,
+  ) => {
+    const { tabs = [], ...windowInfo } = win
+    Object.assign(this, windowInfo)
+    const nextTabs = tabs
+      .slice()
+      .sort((a, b) => a.index - b.index)
+      .map((info) => {
+        const tab = existingTabs.get(info.id)
+        if (!tab) return new Tab(info, this.store, this)
+        const previousUrl = tab.url
+        const previousIcon = tab.favIconUrl
+        Object.assign(tab, info)
+        tab.win = this
+        if (tab.url !== previousUrl || tab.favIconUrl !== previousIcon) {
+          void tab.setUrlIcon()
+        }
+        return tab
+      })
+    if (
+      nextTabs.length !== this.tabs.length ||
+      nextTabs.some((tab, index) => tab !== this.tabs[index])
+    ) {
+      this.tabs = nextTabs
+    }
+    this.pruneGroupRows()
+  }
+
+  pruneGroupRows = () => {
+    const liveGroups = new Set(this.tabs.map((tab) => tab.groupId))
+    for (const groupId of this.groupRowMap.keys()) {
+      if (!liveGroups.has(groupId)) this.groupRowMap.delete(groupId)
+    }
+  }
 
   // TODO: Remove this when we add concurrent mode
   showTabs = false
@@ -219,6 +258,7 @@ export default class Window extends Focusable {
     const index = this.tabs.findIndex((x) => x.id === tab.id)
     if (index !== -1) {
       this.tabs.splice(index, 1)
+      this.pruneGroupRows()
     } else {
       throw new Error(
         `[Window-Store.remove] get invalid tab: ${JSON.stringify(tab)}!`,
@@ -236,6 +276,7 @@ export default class Window extends Focusable {
         index++
       }
     }
+    this.pruneGroupRows()
   }
 
   reload = () => {
@@ -289,11 +330,13 @@ export default class Window extends Focusable {
     const oldTab = this.getTab(oldPosition)
     if (oldTab && oldTab.id === tabId) {
       this.tabs.splice(oldPosition, 1)
+      this.pruneGroupRows()
       return
     }
     const existingIndex = this.tabs.findIndex((tab) => tab.id === tabId)
     if (existingIndex !== -1) {
       this.tabs.splice(existingIndex, 1)
+      this.pruneGroupRows()
     }
   }
 
