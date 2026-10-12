@@ -1018,7 +1018,22 @@ describe('WindowStore layout policy', () => {
   it('loadAllWindows with repackPolicy never marks dirty but does not repack', async () => {
     const windowStore = createWindowStore()
     windowStore.height = 600
-    setVisibleLengths(windowStore, [10, 10])
+    windowStore.windows = [1, 2].map(
+      (windowId) =>
+        new Window(
+          {
+            id: windowId,
+            tabs: Array.from({ length: 8 }, (_, index) => ({
+              id: windowId * 10 + index + 1,
+              index,
+              windowId,
+              title: String(windowId),
+              url: 'about:blank',
+            })),
+          },
+          windowStore.store,
+        ),
+    )
     windowStore.repackLayout('manual')
     const columnLayoutBefore = windowStore.columnLayout.map((column) =>
       column.slice(),
@@ -1100,11 +1115,25 @@ describe('WindowStore layout policy', () => {
   it('sync keeps existing window order when browser data has same windows', async () => {
     const windowStore = createWindowStore()
     windowStore.initialLoading = false
-    windowStore.windows = [
-      { id: 3, tabs: [{ id: 31 }], hide: false, visibleLength: 3 },
-      { id: 1, tabs: [{ id: 11 }], hide: false, visibleLength: 3 },
-      { id: 2, tabs: [{ id: 21 }], hide: false, visibleLength: 3 },
-    ] as any
+    windowStore.windows = [3, 1, 2].map(
+      (windowId) =>
+        new Window(
+          {
+            id: windowId,
+            tabs: [
+              {
+                id: windowId * 10 + 1,
+                index: 0,
+                windowId,
+                title: String(windowId),
+                url: 'about:blank',
+              },
+            ],
+          },
+          windowStore.store,
+        ),
+    )
+    const windowsBefore = windowStore.windows.slice()
     ;(browser.windows.getAll as jest.Mock).mockResolvedValueOnce([
       {
         id: 1,
@@ -1132,6 +1161,9 @@ describe('WindowStore layout policy', () => {
     })
 
     expect(windowStore.windows.map((win) => win.id)).toEqual([3, 1, 2])
+    windowStore.windows.forEach((win, index) => {
+      expect(win).toBe(windowsBefore[index])
+    })
   })
 
   it('queues focused-item reveal only on the initial load', async () => {

@@ -5,19 +5,19 @@ Working branch: `codex/performance-memory-size`.
 
 ## Completion ledger
 
-| Requirement                            | Evidence needed                                                                                 | State                                                                      |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Representative baseline and comparison | Identical simulated workloads; startup/render/search/drag/heap observations                     | Repeated runtime and GC-controlled heap comparison recorded                |
-| Moment/runtime size                    | Equivalent relative-time behavior and production bundle comparison                              | Implemented; manual/suite checks pending                                   |
-| Router overhead                        | Popup/full-page query behavior without a routing dependency                                     | Implemented; manual checks pending                                         |
-| Optional UI loading                    | Settings/help open, close, focus restoration and chunk inclusion                                | Implemented; local demo checked; native browser checks pending             |
-| Search work                            | Matching/ranking preserved; linear grouped-array construction; shared query work where possible | Implemented; comparison/checks pending                                     |
-| Drag virtualization                    | Bounded mounted rows, source remains mounted, successful tab and group moves                    | Implemented; native sample moves passed; scroll-during-drag checks pending |
-| Background icon updates                | Coalesced bursts, latest state wins, current/all/off modes preserved                            | Implemented; regression checks prepared, not run                           |
-| Model retention                        | Selections/focus reference current models after refresh; deleted groups pruned                  | Implemented; manual retention/refresh comparison recorded                  |
-| Tab history payload                    | Recent-tab cycling preserved with minimal persisted/live metadata                               | Implemented; cycling checks pending                                        |
-| Demo parity                            | Production site build and local interactions; sample API stays isolated                         | Built; four appearance combinations and preference reload checked          |
-| Reviewable PR                          | Before/after report, human verification, approved suites and Linux visuals                      | Pending                                                                    |
+| Requirement                            | Evidence needed                                                                                 | State                                                                   |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Representative baseline and comparison | Identical simulated workloads; startup/render/search/drag/heap observations                     | Repeated runtime and GC-controlled heap comparison recorded             |
+| Moment/runtime size                    | Equivalent relative-time behavior and production bundle comparison                              | Implemented; relative-time unit coverage and artifact comparison pass   |
+| Router overhead                        | Popup/full-page query behavior without a routing dependency                                     | Implemented; URL-mode browser regression passes                         |
+| Optional UI loading                    | Settings/help open, close, focus restoration and chunk inclusion                                | Implemented; local demo and browser settings checks pass                |
+| Search work                            | Matching/ranking preserved; linear grouped-array construction; shared query work where possible | Implemented; unit coverage, runtime comparison, and browser checks pass |
+| Drag virtualization                    | Bounded mounted rows, source remains mounted, successful tab and group moves                    | Native tab/group drags across virtual scroll boundaries pass            |
+| Background icon updates                | Coalesced bursts, latest state wins, current/all/off modes preserved                            | Implemented; approved regression coverage passes                        |
+| Model retention                        | Selections/focus reference current models after refresh; deleted groups pruned                  | Implemented; unit coverage and GC-controlled comparison recorded        |
+| Tab history payload                    | Recent-tab cycling preserved with minimal persisted/live metadata                               | Implemented; approved history regressions pass                          |
+| Demo parity                            | Production site build and local interactions; sample API stays isolated                         | Built; four appearance combinations and preference reload checked       |
+| Reviewable PR                          | Before/after report, human verification, approved suites and Linux visuals                      | Pending                                                                 |
 
 ## Existing measurements
 
@@ -35,9 +35,10 @@ worker lifetime. They cannot be extrapolated to thousands of tabs.
 
 ## Verification boundaries
 
-Builds and profiling are authorized by this goal. Test suites and Linux snapshot
-refreshes require human approval after implementation/manual verification, per
-AGENTS.md. No unit or integration test suites have been run for this goal. Linux visual verification is
+Builds and profiling are authorized by this goal. On October 12, the user
+explicitly skipped reloading the extension in the personal Yihong profile and
+approved unit/browser suites, Linux visual checks, and PR creation. Automated
+browser validation uses disposable profiles. Linux visual verification is
 required before calling snapshot-sensitive work complete. No merge, production
 deployment, release, or store submission is authorized by this goal.
 
@@ -234,7 +235,7 @@ They show an extra complete set of window/tab models in the baseline. The
 whole difference must not be attributed solely to Moment or detached DOM refs,
 and snapshot self-size is not renderer RSS, peak memory, or a leak-free claim.
 
-Local exports remain outside the repository/public site:
+Local exports were saved outside the repository/public site during profiling:
 `baseline-1000-after-scroll.heapsnapshot` (129168007 bytes),
 `current-1000-after-scroll.heapsnapshot` (90573383 bytes),
 `heap-summary.json`, and `heap-model-counts.json`, all under
@@ -249,8 +250,8 @@ ref, and an obsolete focused model; closes also retained the old focus. Current
 moves rebind selection/focus, and closes clear obsolete focus/pending keyboard
 verification. Both current observations had zero detached refs and current focus.
 A stale selected owner from another window now cannot replace the displayed
-model during a snapshot refresh. These scenarios have prepared regressions;
-no test suite has run.
+model during a snapshot refresh. These scenarios have approved passing unit
+regressions.
 
 A zero-visit history record was displayed by the baseline but disappeared with
 shared matching. Classification now uses the history item's string ID rather
@@ -259,9 +260,42 @@ all tab IDs. This follows the [Chrome history API contract](https://developer.ch
 which declares string history IDs and optional visit counts. The fixture now
 renders under History with `an hour ago` and `0 / 0`. Selecting it raised the
 simulated tab count from 112 to 113 while real managed Chrome tabs stayed at
-three. Missing visit counts have prepared regression coverage, pending approval.
+three. Zero and missing visit counts also have approved passing regression
+coverage.
 
 Final review packages are `review-chrome.zip` and `review-firefox.zip` in the
 local artifact directory. Their file lists match the corresponding final build
-exactly, including the optional chunks. Both still embed version 2.7.2. A local implementation commit is being prepared for a stable review candidate.
-No push, PR, production deployment, or release has occurred.
+exactly, including the optional chunks. Both still embed version 2.7.2. The
+implementation was committed as `f0b3806e`; test fixtures and validation notes
+are being finalized for the PR. No production deployment or release has occurred.
+
+## Approved validation on October 12
+
+- Chrome and Firefox-adapter unit suites: 69 suites, 496 passed tests, 2 skipped
+  tests, and all 23 unit snapshots passed in each run.
+- Linux unit suite: the same 69 suites, 496 passed tests, 2 skipped tests, and
+  23 snapshots passed with Node 24.13.0 and pnpm 10.32.1.
+- Both extension builds and the production website/demo build pass.
+- Lint for all 31 changed source files passes without warnings. The two
+  validation test files also pass lint. Repository-wide `pnpm lint` includes
+  generated `dist/site` files and existing release-script lint configuration
+  errors; that broader tooling issue is outside this performance change.
+- Updated two legacy layout fixtures to use real Window models, with an
+  identity-preservation assertion during refresh.
+- Added native tab/group drag tests with 80 tabs. They scroll the source out of
+  view during an active browser drag, assert that the original draggable DOM
+  node stays connected and fewer than 45 tab rows remain mounted, and verify
+  exact tab order and preserved group membership after the drop. They wait for
+  the visible after-tab indicator before releasing the mouse. Both pass.
+- The first Linux browser run passed 131 tests, with two screenshot failures,
+  one skipped test, and five tests omitted by serial failure handling. Both
+  failures reproduce unchanged on released master: a 55-to-52-pixel tooltip
+  width and a 306-to-284-pixel tab-menu width. The official Playwright Noble
+  container was missing DejaVu Sans and used WenQuanYi as its system-ui font.
+  Installing the standard Ubuntu `fonts-dejavu-core` package in the disposable
+  container restores the existing baselines. Both affected screenshot tests
+  pass without any baseline changes. A complete Linux browser rerun is pending.
+- Personal-profile reload/manual acceptance is skipped at the user's request.
+  Firefox runtime testing and a long-running leak investigation remain outside
+  the verified evidence; Firefox production build and adapter unit coverage
+  are confirmed.
