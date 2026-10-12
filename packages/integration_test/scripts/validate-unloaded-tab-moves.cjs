@@ -445,9 +445,9 @@ const scenarios = [
           const actions=document.querySelector('[data-testid="window-title-'+s.dest+'"] button[aria-label="Window actions"]');
           if(!actions)throw new Error('Window actions missing');
           actions.click();
-          const label='Move selected to '+(c.append?'end':'beginning');
+          const suffix=' to '+(c.append?'end':'beginning');
           let item;
-          for(let i=0;i<200;i++){item=Array.from(document.querySelectorAll('[role="menuitem"]')).find(node=>node.textContent.startsWith(label));if(item)break;await new Promise(r=>setTimeout(r,50));}
+          for(let i=0;i<200;i++){item=Array.from(document.querySelectorAll('[role="menuitem"]')).find(node=>{const label=node.getAttribute('aria-label')||'';return label.startsWith('Move ')&&label.endsWith(suffix)});if(item)break;await new Promise(r=>setTimeout(r,50));}
           if(!item)throw new Error('Window edge action missing');
           item.click();return true;
         }
