@@ -1,4 +1,5 @@
 import React from 'react'
+import { observable, runInAction } from 'mobx'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import AutocompleteSearch from '../index'
@@ -113,7 +114,10 @@ const renderAutocompleteSearch = ({
   const setSearchEl = jest.fn()
 
   const Wrapper = () => {
-    const [query, setQuery] = React.useState(initialQuery)
+    const queryState = React.useMemo(
+      () => observable({ query: initialQuery }),
+      [initialQuery],
+    )
     const userStore = React.useMemo(
       () => ({
         autoFocusSearch: false,
@@ -125,18 +129,22 @@ const renderAutocompleteSearch = ({
     const searchStore = React.useMemo(
       () => ({
         get query() {
-          return query
+          return queryState.query
         },
         get isCommand() {
-          return query.startsWith('>')
+          return queryState.query.startsWith('>')
         },
-        search: (nextValue: string) => setQuery(nextValue),
+        search: (nextValue: string) =>
+          runInAction(() => {
+            queryState.query = nextValue
+          }),
         getMatchModeForQuery: (nextValue: string) =>
           getSearchMatchMode(options, nextValue, {
             keys: ['title', 'url'],
           }),
         tabSearchKeys: ['title', 'url'],
         get inputMatchedTabs() {
+          const query = queryState.query
           return matchItemsInMode(
             options.filter((option) => typeof option.id === 'number'),
             query,
@@ -148,7 +156,7 @@ const renderAutocompleteSearch = ({
         startType,
         stopType,
       }),
-      [query],
+      [options, queryState],
     )
 
     mockUseStore.mockImplementation(() => ({
