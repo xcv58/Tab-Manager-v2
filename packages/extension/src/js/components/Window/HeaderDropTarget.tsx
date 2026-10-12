@@ -7,13 +7,11 @@ import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 import type { WindowEdge } from 'stores/DragStore'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
-import useReduceMotion from 'libs/useReduceMotion'
 
 type Props = WinProps & { position: WindowEdge }
 
 export default observer(({ win, position }: Props) => {
   const theme = useAppTheme()
-  const reduceMotion = useReduceMotion()
   const { dragStore, userStore, tabStore } = useStore()
   const blockedHint = getTabMoveDestinationHint(
     win,
@@ -97,9 +95,6 @@ export default observer(({ win, position }: Props) => {
             : beginning
               ? '0.4rem 0 0 0.4rem'
               : '0 0.4rem 0.4rem 0',
-        transition: reduceMotion
-          ? 'none'
-          : 'background-color 140ms ease, color 140ms ease',
       }}
     >
       <div

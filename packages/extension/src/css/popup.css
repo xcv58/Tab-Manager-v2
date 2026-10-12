@@ -52,6 +52,9 @@ body {
 
 .window-header-drop-target {
   flex: 0 0 50%;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
 }
 
 .window-header-drop-label {
@@ -164,6 +167,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .window-header-drop-target,
   .empty-column-relayout,
   .empty-column-relayout-card,
   .empty-column-relayout-arrow {
