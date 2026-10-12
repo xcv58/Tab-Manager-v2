@@ -1157,6 +1157,10 @@ test.describe('The Extension page should', () => {
     })
 
     await page.keyboard.press('Escape')
+    await page.keyboard.press('Escape')
+    await expect(
+      page.locator('input[placeholder*="Search tabs or URLs"]'),
+    ).toHaveValue('')
     await page.waitForTimeout(200)
     const selectButton = pinnedRow
       .locator('[aria-label="Toggle select"]')

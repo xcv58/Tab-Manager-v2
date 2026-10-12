@@ -94,8 +94,9 @@ const createWindowWithUrls = async (page: Page, urls: string[]) =>
     )
     const tabIdsByUrl = tabs.reduce(
       (acc, tab) => {
-        if (tab.url && typeof tab.id === 'number') {
-          acc[tab.url] = tab.id
+        const url = tab.pendingUrl || tab.url
+        if (url && typeof tab.id === 'number') {
+          acc[url] = tab.id
         }
         return acc
       },
@@ -128,7 +129,9 @@ const groupTabsInWindowByUrls = async (
         (a, b) => (a.index ?? 0) - (b.index ?? 0),
       )
       const tabIds = urlsToGroup.map(
-        (url) => tabs.find((tab) => tab.url === url)?.id ?? -1,
+        (url) =>
+          tabs.find((tab) => tab.url === url || tab.pendingUrl === url)?.id ??
+          -1,
       )
       if (tabIds.some((id) => id < 0)) {
         return null
@@ -548,7 +551,9 @@ test.describe('The Extension page should', () => {
         })
       ).sort((a, b) => a.index - b.index)
       const groupedTabIds = groupedUrls.map(
-        (url) => targetTabs.find((tab) => tab.url === url)?.id ?? -1,
+        (url) =>
+          targetTabs.find((tab) => tab.url === url || tab.pendingUrl === url)
+            ?.id ?? -1,
       )
       const groupId = await chrome.tabs.group({
         tabIds: groupedTabIds,

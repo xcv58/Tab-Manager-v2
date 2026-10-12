@@ -925,12 +925,16 @@ test.describe('The Extension page should', () => {
 
     await page.keyboard.press('Space')
     await expect(page.getByRole('menu')).toHaveCount(1)
-    await page.keyboard.press('ArrowDown')
+    await pressTabUntil(
+      page,
+      (state) => state.role === 'menuitem' && state.text === 'Close this tab',
+      { maxSteps: 10 },
+    )
     await expect
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Close',
+        text: 'Close this tab',
       })
 
     await page.keyboard.press('Space')

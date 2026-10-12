@@ -52,7 +52,9 @@ const setupMultiWindowGroups = async (page: Page) => {
     async ({ win1Urls, win2Urls }) => {
       const getTabIdByUrl = async (windowId: number, url: string) => {
         const tabs = await chrome.tabs.query({ windowId })
-        const tab = tabs.find((item) => item.url === url)
+        const tab = tabs.find(
+          (item) => item.url === url || item.pendingUrl === url,
+        )
         return tab?.id ?? -1
       }
 

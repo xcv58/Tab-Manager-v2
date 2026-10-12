@@ -532,12 +532,16 @@ const setupLayoutJumpScenario = async (page: Page) => {
       { length: 8 },
       (_, index) => `about:blank#jump-group-${index}`,
     )
+    const groupTabIds: number[] = []
     for (const url of groupedUrls) {
-      await chrome.tabs.create({
+      const tab = await chrome.tabs.create({
         windowId: baseWindowId,
         url,
         active: false,
       })
+      if (typeof tab.id === 'number') {
+        groupTabIds.push(tab.id)
+      }
     }
 
     const sideWindow = await chrome.windows.create({
@@ -549,11 +553,6 @@ const setupLayoutJumpScenario = async (page: Page) => {
       return null
     }
 
-    const tabs = await chrome.tabs.query({ windowId: baseWindowId })
-    const groupTabIds = tabs
-      .filter((tab) => (tab.url || '').includes('#jump-group-'))
-      .map((tab) => tab.id)
-      .filter((tabId): tabId is number => typeof tabId === 'number')
     if (groupTabIds.length < 6) {
       return null
     }

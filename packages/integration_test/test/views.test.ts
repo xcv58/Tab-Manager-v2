@@ -435,6 +435,13 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
     await waitForTestId(page, `tab-row-${groupedTab.id}`)
     await expect(page.locator('.toolbar').first()).toBeVisible()
+    await expect(page.locator('.toolbar').first()).toHaveAttribute(
+      'data-pinned',
+      'true',
+    )
+    await expect(
+      page.getByRole('button', { name: 'Toggle toolbar' }),
+    ).toHaveCount(0)
 
     const styles = await page.evaluate(
       ({ groupId, tabId, windowId }) => {
@@ -469,12 +476,6 @@ test.describe('The Extension page should', () => {
             ) as HTMLElement | null
             return node ? window.getComputedStyle(node).borderLeftWidth : null
           })(),
-          toolbarToggleBorderLeftWidth: (() => {
-            const node = document.querySelector(
-              '[aria-label="Toggle toolbar"]',
-            ) as HTMLElement | null
-            return node ? window.getComputedStyle(node).borderLeftWidth : null
-          })(),
           windowTitle: readBackground(
             `[data-testid="window-title-${windowId}"]`,
           ),
@@ -501,7 +502,6 @@ test.describe('The Extension page should', () => {
     expect(styles.toolbarBorderTopWidth).toBe('0px')
     expect(styles.toolbarBorderRightWidth).toBe('0px')
     expect(styles.toolbarBorderLeftWidth).toBe('0px')
-    expect(styles.toolbarToggleBorderLeftWidth).toBe('0px')
     expect(styles.tabRow).toBe(styles.main)
   })
 
