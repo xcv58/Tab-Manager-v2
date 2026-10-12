@@ -51,7 +51,7 @@ describe('TabMenu', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Tab actions' }))
 
       for (const item of screen.getAllByRole('menuitem', {
-        name: /^Move selected/,
+        name: /^Move .*selected/,
       })) {
         expect(item).toHaveProperty('disabled', !incognito)
         if (!incognito) {
@@ -71,7 +71,7 @@ describe('TabMenu', () => {
 
     expect(
       screen.getByRole('menuitem', {
-        name: 'Cluster 2 same domain ungrouped tabs to this window',
+        name: 'Bring 2 ungrouped tabs from this site here',
       }),
     ).toBeInTheDocument()
   })
@@ -83,7 +83,7 @@ describe('TabMenu', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tab actions' }))
     fireEvent.click(
       screen.getByRole('menuitem', {
-        name: 'Cluster 2 same domain ungrouped tabs to this window',
+        name: 'Bring 2 ungrouped tabs from this site here',
       }),
     )
 

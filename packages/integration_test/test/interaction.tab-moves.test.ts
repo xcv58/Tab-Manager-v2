@@ -110,7 +110,9 @@ test.describe('Selected tab move regressions', () => {
           await destination.getByRole('button', { name: 'Tab actions' }).click()
           await page
             .getByRole('menuitem', {
-              name: `Move selected ${before ? 'before' : 'after'} this tab`,
+              name: new RegExp(
+                `^Move .* ${before ? 'before' : 'after'} this tab$`,
+              ),
             })
             .click()
         } else {
@@ -195,7 +197,7 @@ test.describe('Selected tab move regressions', () => {
       await target.getByRole('button', { name: 'Tab actions' }).click()
       await page
         .getByRole('menuitem', {
-          name: `Move selected ${before ? 'before' : 'after'} this tab`,
+          name: new RegExp(`^Move .* ${before ? 'before' : 'after'} this tab$`),
         })
         .click()
       const expected = before

@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
+import Dialog, { DialogTitle } from 'components/ui/Dialog'
 import Switch from 'components/ui/Switch'
 import { useStore } from 'components/hooks/useStore'
 import {
@@ -23,6 +23,7 @@ import {
   DesktopWindowsRoundedIcon,
   LightModeRoundedIcon,
   RemoveRoundedIcon,
+  CloseIcon,
 } from 'icons/materialIcons'
 import useReduceMotion from 'libs/useReduceMotion'
 import { getUiColorTokens } from 'libs/uiColorTokens'
@@ -30,6 +31,8 @@ import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
 import TabRowPreview from './TabRowPreview'
+import SettingsNavigation from './SettingsNavigation'
+import SettingsLivePreview from './SettingsLivePreview'
 
 /* -------------------------------------------------------------------------- */
 /*  Inline style helpers (replacing MUI sx / Typography / FormHelperText)       */
@@ -84,17 +87,25 @@ const SettingsPanel = ({
   testId?: string
   className?: string
 }) => (
-  <div
-    className={`rounded-xl border p-4 ${className || ''}`}
+  <section
+    id={`settings-section-${title.toLowerCase().replace(/ /g, '-')}`}
+    aria-labelledby={`settings-heading-${title.toLowerCase().replace(/ /g, '-')}`}
+    className={`settings-section rounded-xl border p-4 ${className || ''}`}
     style={style}
     data-testid={testId}
   >
     <div className="mb-3">
-      <h4 style={panelTitleStyle}>{title}</h4>
+      <h2
+        id={`settings-heading-${title.toLowerCase().replace(/ /g, '-')}`}
+        tabIndex={-1}
+        style={panelTitleStyle}
+      >
+        {title}
+      </h2>
       {description && <p style={panelDescriptionStyle}>{description}</p>}
     </div>
     {children}
-  </div>
+  </section>
 )
 
 const PreviewSurface = ({
@@ -238,7 +249,7 @@ const DensityControl = ({
       <div
         className={
           description
-            ? 'flex flex-col gap-3'
+            ? 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
             : 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
         }
       >
@@ -562,6 +573,7 @@ export default observer(() => {
   const reduceMotion = useReduceMotion()
   const tooltipUrlLinesId = React.useId()
   const tooltipUrlLinesHintId = React.useId()
+  const dialogTitleId = React.useId()
   const isDarkMode = muiTheme.mode === 'dark'
   const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
@@ -637,15 +649,36 @@ export default observer(() => {
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
-      style={{
-        backgroundColor: uiColors.settingsDialogSurface,
-        backgroundImage: 'none',
-        color: muiTheme.palette.text.primary,
-      }}
+      aria-labelledby={dialogTitleId}
+      style={
+        {
+          backgroundColor: uiColors.settingsDialogSurface,
+          backgroundImage: 'none',
+          color: muiTheme.palette.text.primary,
+          height: 'min(900px, calc(100dvh - 64px))',
+          '--settings-border': panelStyle.borderColor,
+          '--settings-focus': uiColors.focusRing,
+          '--settings-hover': muiTheme.palette.action.hover,
+          '--settings-active': muiTheme.palette.action.selected,
+        } as React.CSSProperties
+      }
     >
-      <DialogTitle>Settings</DialogTitle>
-      <DialogContent>
-        <div className="grid gap-3 py-1 lg:grid-cols-2 xl:grid-cols-3">
+      <DialogTitle
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+          borderBottom: `1px solid ${panelStyle.borderColor}`,
+        }}
+      >
+        <span id={dialogTitleId}>Settings</span>
+        <IconButton aria-label="Close Settings" onClick={closeDialog}>
+          <CloseIcon fontSize={20} />
+        </IconButton>
+      </DialogTitle>
+      <SettingsNavigation preview={<SettingsLivePreview />}>
+        <div className="space-y-6">
           <SettingsPanel
             testId="settings-panel-search"
             title="Search"
@@ -703,7 +736,7 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 data-testid="settings-ui-preset-toggle-group"
               >
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="min-w-0">
                     <h5 style={controlTitleStyle}>Interface style</h5>
                     <p style={controlDescriptionStyle}>
@@ -823,7 +856,6 @@ export default observer(() => {
             title="View"
             description="Choose which windows and popup controls stay visible."
             style={panelStyle}
-            className="xl:order-3"
           >
             <div className="space-y-3">
               <SettingsSwitchOption
@@ -955,7 +987,6 @@ export default observer(() => {
             title="Tab display"
             description="Choose which details each tab shows."
             style={panelStyle}
-            className="xl:order-4 xl:col-span-3"
           >
             <div className="space-y-3" data-testid="row-details-options">
               <RowDetailsOption
@@ -1151,19 +1182,22 @@ export default observer(() => {
             </div>
           </SettingsPanel>
         </div>
-        <div
-          className="mt-6 flex items-center justify-between border-t pt-4"
-          style={{ borderColor: panelStyle.borderColor }}
-        >
-          <div className="flex items-center gap-2 opacity-80">
-            <SponsorButton />
-            <FeedbackButton />
-          </div>
-          <div className="text-sm text-right opacity-65">
+      </SettingsNavigation>
+      <div
+        className="settings-footer"
+        style={{ borderColor: panelStyle.borderColor }}
+      >
+        <div className="flex items-center gap-2 opacity-80 min-w-0 flex-wrap">
+          <SponsorButton />
+          <FeedbackButton />
+          <span className="text-xs opacity-65">
             v{browser.runtime.getManifest().version}
-          </div>
+          </span>
         </div>
-      </DialogContent>
+        <button type="button" className="settings-done" onClick={closeDialog}>
+          Done
+        </button>
+      </div>
     </Dialog>
   )
 })

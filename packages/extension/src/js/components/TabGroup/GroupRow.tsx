@@ -415,16 +415,7 @@ export default observer((props: Props) => {
                 setMenuAnchorEl(null)
               }}
             >
-              Rename group
-            </MenuItem>
-            <MenuItem
-              data-testid={`tab-group-menu-recolor-${row.groupId}`}
-              onClick={() => {
-                setEditorAnchorEl(menuAnchorEl)
-                setMenuAnchorEl(null)
-              }}
-            >
-              Change color
+              Edit group…
             </MenuItem>
           </>
         )}

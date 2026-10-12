@@ -324,10 +324,14 @@ test.describe('The Extension page should', () => {
 
     await sortFirstWindowTabs(page)
     await page.waitForTimeout(900)
-    const clusterButton = await page.$(
-      'button[aria-label="Cluster Ungrouped & Sort Tabs"]',
-    )
-    await clusterButton.click()
+    await page.locator('.toolbar').hover()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    await page
+      .getByRole('menuitem', {
+        name: 'Cluster ungrouped & sort tabs',
+        exact: true,
+      })
+      .click()
     await page.waitForTimeout(900)
 
     const afterGroup1 = await getGroupMembers(page, group1Id)
@@ -377,10 +381,14 @@ test.describe('The Extension page should', () => {
 
     await sortFirstWindowTabs(page)
     await page.waitForTimeout(900)
-    const clusterButton = await page.$(
-      'button[aria-label="Cluster Ungrouped & Sort Tabs"]',
-    )
-    await clusterButton.click()
+    await page.locator('.toolbar').hover()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    await page
+      .getByRole('menuitem', {
+        name: 'Cluster ungrouped & sort tabs',
+        exact: true,
+      })
+      .click()
     await page.waitForTimeout(900)
 
     const afterAlpha = await getGroupState(alphaId)

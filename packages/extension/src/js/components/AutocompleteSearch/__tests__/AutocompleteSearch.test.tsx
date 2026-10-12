@@ -311,7 +311,7 @@ describe('AutocompleteSearch', () => {
     },
   )
 
-  it('clears and dismisses the uncontrolled search field when Escape is pressed', async () => {
+  it('dismisses results on the first Escape and clears search on the second', async () => {
     renderAutocompleteSearch({ initialQuery: 'alpha', open: undefined })
 
     const input = screen.getByRole('combobox')
@@ -320,6 +320,14 @@ describe('AutocompleteSearch', () => {
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-expanded', 'true')
     })
+
+    fireEvent.keyDown(input, { key: 'Escape' })
+
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-expanded', 'false')
+    })
+    expect(input).toHaveValue('alpha')
+    expect(input).toHaveFocus()
 
     fireEvent.keyDown(input, { key: 'Escape' })
 

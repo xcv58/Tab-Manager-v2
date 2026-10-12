@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import ControlIconButton from 'components/ControlIconButton'
-import Menu, { MenuDivider, MenuItem } from 'components/ui/Menu'
+import Menu, { MenuDivider, MenuItem, MenuSection } from 'components/ui/Menu'
 import Tooltip from 'components/ui/Tooltip'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
-import { MoreHorizIcon } from 'icons/materialIcons'
+import { MoreHorizIcon, RefreshIcon, SortIcon } from 'icons/materialIcons'
+import { ArrowDownIcon, ArrowUpIcon } from 'icons/actionIcons'
+import { getNoun } from 'libs'
 import type { WindowEdge } from 'stores/DragStore'
 import MoveShortcut from 'components/Shortcut/MoveShortcut'
 import { getTabMoveAriaShortcut } from 'libs/tabMoveShortcuts'
@@ -14,6 +16,10 @@ import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 export default observer(({ win }: WinProps) => {
   const { arrangeStore, dragStore, tabStore, focusStore } = useStore()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const selectedCount = tabStore.selection.size
+  const moveScope = selectedCount
+    ? `${selectedCount} selected ${getNoun('tab', selectedCount)}`
+    : 'selected tabs'
   const disabled =
     dragStore.pendingWindowEdgeDrop ||
     !tabStore.selection.size ||
@@ -60,27 +66,36 @@ export default observer(({ win }: WinProps) => {
         onClose={closeMenu}
         data-testid={`window-actions-menu-${win.id}`}
       >
+        <MenuSection>
+          This window{win.tabs ? ` · ${win.tabs.length} tabs` : ''}
+        </MenuSection>
         <MenuItem disabled={win.hide} onClick={sortTabs}>
-          Sort tabs
+          <SortIcon fontSize={18} /> Sort tabs
         </MenuItem>
         <MenuItem disabled={win.hide} onClick={reloadTabs}>
-          Reload all tabs
+          <RefreshIcon fontSize={18} /> Reload all{' '}
+          {win.tabs ? `${win.tabs.length} ` : ''}tabs
         </MenuItem>
         <MenuDivider />
+        <MenuSection>Move {moveScope} here</MenuSection>
         <MenuItem
           disabled={disabled}
           onClick={() => moveToEdge('beginning')}
           aria-keyshortcuts={getTabMoveAriaShortcut('beginning')}
+          aria-label={`Move ${moveScope} to beginning`}
         >
-          <span>Move selected to beginning</span>
+          <ArrowUpIcon fontSize={18} />
+          <span className="flex-1">Beginning</span>
           <MoveShortcut position="beginning" />
         </MenuItem>
         <MenuItem
           disabled={disabled}
           onClick={() => moveToEdge('end')}
           aria-keyshortcuts={getTabMoveAriaShortcut('end')}
+          aria-label={`Move ${moveScope} to end`}
         >
-          <span>Move selected to end</span>
+          <ArrowDownIcon fontSize={18} />
+          <span className="flex-1">End</span>
           <MoveShortcut position="end" />
         </MenuItem>
       </Menu>

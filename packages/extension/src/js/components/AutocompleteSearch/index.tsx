@@ -18,6 +18,8 @@ import { useCombobox } from 'components/ui/Combobox'
 import { VariableSizeList } from 'react-window'
 import { useAppTheme } from 'libs/appTheme'
 import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
+import ControlIconButton from 'components/ControlIconButton'
+import { CloseIcon } from 'icons/materialIcons'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
@@ -190,6 +192,7 @@ const renderTabOption = (
   groupedSectionTabIds,
   matchMode: SearchMatchMode,
   query: string,
+  onReveal: (tab: Tab) => void,
 ) => {
   if (tab.isDivider) {
     if (tab.dividerType === 'group') {
@@ -246,6 +249,7 @@ const renderTabOption = (
       tab={tab}
       showInlineGroupBadge={!groupedSectionTabIds.has(tab.id)}
       matchMode={matchMode}
+      onReveal={onReveal}
     />
   )
 }
@@ -316,12 +320,14 @@ const AutocompleteSearch = observer((props: Props) => {
   } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const { userStore, searchStore, tabGroupStore } = useStore()
+  const { userStore, searchStore, tabGroupStore, focusStore } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
   const resultMenuEnabled = showResultMenu || isCommand
   const options = useOptions(resultMenuEnabled)
   const tabHeight = useTabHeight()
   const rootRef = useRef<HTMLDivElement>(null)
+  const revealFrameRef = useRef<number | null>(null)
+  const [dismissed, setDismissed] = useState(false)
   const isOpenControlled = propOpen !== undefined
 
   const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(
@@ -331,7 +337,7 @@ const AutocompleteSearch = observer((props: Props) => {
     Number.POSITIVE_INFINITY,
   )
   const requestedOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
-  const isOpen = resultMenuEnabled && (requestedOpen || isCommand)
+  const isOpen = resultMenuEnabled && !dismissed && (requestedOpen || isCommand)
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
       if (!isOpenControlled && (!nextOpen || resultMenuEnabled)) {
@@ -364,6 +370,28 @@ const AutocompleteSearch = observer((props: Props) => {
 
   const itemCount = filteredOptions.length
 
+  useEffect(
+    () => () => {
+      if (revealFrameRef.current !== null)
+        cancelAnimationFrame(revealFrameRef.current)
+    },
+    [],
+  )
+
+  const handleReveal = (tab: Tab) => {
+    setDismissed(true)
+    handleOpenChange(false)
+    tab.win.showTabs = true
+    stopType()
+    searchInputRef.current?.blur()
+    if (revealFrameRef.current !== null)
+      cancelAnimationFrame(revealFrameRef.current)
+    revealFrameRef.current = requestAnimationFrame(() => {
+      revealFrameRef.current = null
+      focusStore.focus(tab, { origin: 'search', reveal: true })
+    })
+  }
+
   const handleSelect = (option: SearchOption) => {
     if (!option || typeof option === 'string') return
     if ('isDivider' in option && option.isDivider) return
@@ -391,7 +419,10 @@ const AutocompleteSearch = observer((props: Props) => {
   } = useCombobox({
     items: filteredOptions,
     inputValue: query,
-    onInputValueChange: search,
+    onInputValueChange: (value) => {
+      setDismissed(false)
+      search(value)
+    },
     onSelect: handleSelect,
     isItemDisabled: useMemo(() => (item) => Boolean(item.isDivider), []),
     isOpen,
@@ -458,6 +489,7 @@ const AutocompleteSearch = observer((props: Props) => {
               groupedSectionTabIdsRef.current,
               searchMatchModeRef.current,
               query,
+              handleReveal,
             )}
       </li>
     )
@@ -470,7 +502,13 @@ const AutocompleteSearch = observer((props: Props) => {
   })
 
   const handleEscape = () => {
+    if (isOpen) {
+      setDismissed(true)
+      handleOpenChange(false)
+      return
+    }
     search('')
+    setDismissed(true)
     handleOpenChange(false)
     searchInputRef.current?.blur()
   }
@@ -520,13 +558,20 @@ const AutocompleteSearch = observer((props: Props) => {
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               event.preventDefault()
+              event.stopPropagation()
               handleEscape()
               return
             }
 
             inputProps.onKeyDown(event)
           }}
+          onKeyUp={(event) => {
+            // Mousetrap handles Escape on keyup; keep search's two-step
+            // dismissal from also triggering the global blur shortcut.
+            if (event.key === 'Escape') event.stopPropagation()
+          }}
           onFocus={() => {
+            setDismissed(false)
             startType()
             inputProps.onFocus()
           }}
@@ -551,6 +596,22 @@ const AutocompleteSearch = observer((props: Props) => {
             outline: 'none',
           }}
         />
+        {query && (
+          <ControlIconButton
+            aria-label="Clear search"
+            controlSize="compact"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              search('')
+              setDismissed(true)
+              handleOpenChange(false)
+              searchInputRef.current?.focus()
+            }}
+            style={{ width: 24, minWidth: 24, height: 24, minHeight: 24 }}
+          >
+            <CloseIcon fontSize={16} />
+          </ControlIconButton>
+        )}
         {!query && (
           <span
             className="pr-2 whitespace-nowrap select-none"
@@ -566,7 +627,7 @@ const AutocompleteSearch = observer((props: Props) => {
       </div>
 
       {/* Dropdown Paper */}
-      {isOpen && itemCount > 0 && (
+      {isOpen && (itemCount > 0 || query.trim()) && (
         <div
           {...listboxProps}
           style={{
@@ -587,18 +648,28 @@ const AutocompleteSearch = observer((props: Props) => {
               '0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12)',
           }}
         >
-          <VariableSizeList
-            ref={listRef}
-            itemData={filteredOptions}
-            height={listHeight}
-            width="100%"
-            innerElementType="ul"
-            itemSize={() => tabHeight}
-            overscanCount={5}
-            itemCount={itemCount}
-          >
-            {Row}
-          </VariableSizeList>
+          {itemCount === 0 ? (
+            <div
+              role="status"
+              className="px-3 py-4 text-sm"
+              style={{ color: theme.palette.text.secondary }}
+            >
+              {isCommand ? 'No matching commands' : 'No matching tabs'}
+            </div>
+          ) : (
+            <VariableSizeList
+              ref={listRef}
+              itemData={filteredOptions}
+              height={listHeight}
+              width="100%"
+              innerElementType="ul"
+              itemSize={() => tabHeight}
+              overscanCount={5}
+              itemCount={itemCount}
+            >
+              {Row}
+            </VariableSizeList>
+          )}
         </div>
       )}
     </div>

@@ -28,6 +28,10 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
 }
 
 const waitForSettingsPanelToSettle = async (page: Page) => {
+  await page
+    .getByRole('navigation', { name: 'Settings sections' })
+    .getByRole('button', { name: 'View', exact: true })
+    .click()
   const panel = page.getByTestId('settings-panel-behavior')
   await expect(panel).toBeVisible()
   await waitForLocatorRectToStabilize(panel, {

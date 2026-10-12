@@ -62,7 +62,7 @@ describe('WindowActionsMenu', () => {
         destinationIncognito,
       )
       for (const item of screen.getAllByRole('menuitem', {
-        name: /^Move selected to/,
+        name: /^Move .*selected .*to/,
       })) {
         expect(item).toHaveProperty('disabled', disabled)
         if (disabled) {
@@ -110,7 +110,7 @@ describe('WindowActionsMenu', () => {
 
       fireEvent.click(
         screen.getByRole('menuitem', {
-          name: `Move selected to ${position}`,
+          name: `Move 1 selected tab to ${position}`,
         }),
       )
 
@@ -127,7 +127,7 @@ describe('WindowActionsMenu', () => {
   ])('disables moves with selected=%s and canDrop=%s', (selected, canDrop) => {
     const { moveSelectedTabsToWindowEdge } = setup(selected, canDrop)
     const items = screen.getAllByRole('menuitem', {
-      name: /^Move selected to/,
+      name: /^Move .*selected .*to/,
     })
 
     items.forEach((item) => {
@@ -150,10 +150,10 @@ describe('WindowActionsMenu', () => {
       name: 'Reload all tabs',
     })
     const beginning = screen.getByRole('menuitem', {
-      name: 'Move selected to beginning',
+      name: 'Move 1 selected tab to beginning',
     })
     const end = screen.getByRole('menuitem', {
-      name: 'Move selected to end',
+      name: 'Move 1 selected tab to end',
     })
     expect(sort).toHaveFocus()
     fireEvent.keyDown(sort, { key: 'ArrowDown' })
@@ -189,7 +189,7 @@ describe('WindowActionsMenu', () => {
       expect(sort).toHaveFocus()
       expect(reload).toBeEnabled()
       screen
-        .getAllByRole('menuitem', { name: /^Move selected to/ })
+        .getAllByRole('menuitem', { name: /^Move .*selected .*to/ })
         .forEach((item) => expect(item).toBeDisabled())
       fireEvent.keyDown(sort, { key: 'ArrowDown' })
       expect(reload).toHaveFocus()

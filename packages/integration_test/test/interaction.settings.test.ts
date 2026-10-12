@@ -29,6 +29,10 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
 }
 
 const waitForSettingsPanelToSettle = async (page: Page) => {
+  await page
+    .getByRole('navigation', { name: 'Settings sections' })
+    .getByRole('button', { name: 'Appearance', exact: true })
+    .click()
   const panel = page.getByTestId('settings-panel-theme-density')
   await expect(panel).toBeVisible()
   await waitForSurfaceToFullyAppear(page, panel)
@@ -240,6 +244,10 @@ test.describe('The Extension page should', () => {
       .getByTestId('switch-track')
       .click()
 
+    await page
+      .getByRole('navigation', { name: 'Settings sections' })
+      .getByRole('button', { name: 'Tab display', exact: true })
+      .click()
     const activeTabsToggle = page.getByRole('checkbox', {
       name: 'Highlight all active tabs',
     })

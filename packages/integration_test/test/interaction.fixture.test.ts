@@ -92,10 +92,14 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(1000)
     expect(await getGroupedTabIds()).toEqual(beforeGroupedTabIds)
 
-    const clusterButton = await page.$(
-      'button[aria-label="Cluster Ungrouped & Sort Tabs"]',
-    )
-    await clusterButton.click()
+    await page.locator('.toolbar').hover()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    await page
+      .getByRole('menuitem', {
+        name: 'Cluster ungrouped & sort tabs',
+        exact: true,
+      })
+      .click()
     await page.waitForTimeout(1000)
     expect(await getGroupedTabIds()).toEqual(beforeGroupedTabIds)
   })

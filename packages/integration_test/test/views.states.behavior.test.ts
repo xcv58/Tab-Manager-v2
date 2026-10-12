@@ -303,9 +303,10 @@ test.describe('The Extension page should', () => {
     await toggleToolbarButton.click()
     await toolbar.hover()
     await page.waitForTimeout(400)
-    const cleanDuplicatedButton = page
-      .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
-      .first()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    const cleanDuplicatedButton = page.getByRole('menuitem', {
+      name: /^Close \d+ duplicate tabs?$/,
+    })
     await expect(cleanDuplicatedButton).toBeVisible()
     await expect(cleanDuplicatedButton).toBeDisabled()
     const disabledCleanShot = await cleanDuplicatedButton.screenshot()

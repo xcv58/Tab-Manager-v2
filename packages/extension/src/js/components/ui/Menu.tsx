@@ -219,6 +219,7 @@ export interface MenuItemProps {
   disabled?: boolean
   'data-testid'?: string
   'aria-keyshortcuts'?: string
+  'aria-label'?: string
   className?: string
   style?: React.CSSProperties
 }
@@ -229,6 +230,7 @@ export function MenuItem({
   disabled,
   'data-testid': testId,
   'aria-keyshortcuts': ariaKeyShortcuts,
+  'aria-label': ariaLabel,
   className,
   style,
 }: MenuItemProps) {
@@ -240,6 +242,7 @@ export function MenuItem({
       tabIndex={-1}
       data-testid={testId}
       aria-keyshortcuts={ariaKeyShortcuts}
+      aria-label={ariaLabel}
       disabled={disabled}
       onClick={onClick}
       className={className}
@@ -288,5 +291,13 @@ export function MenuDivider() {
         borderTop: `1px solid ${theme.palette.divider}`,
       }}
     />
+  )
+}
+
+export function MenuSection({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-4 pt-2 pb-1 text-xs font-semibold opacity-70">
+      {children}
+    </div>
   )
 }

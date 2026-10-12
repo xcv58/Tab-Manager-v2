@@ -14,6 +14,7 @@ type PreviewConfig = {
   id: number
   title: string
   url: string
+  fontSize?: number
   duplicatedTabCount?: number
   pinned?: boolean
   active?: boolean
@@ -29,6 +30,7 @@ type PreviewConfig = {
 }
 
 class PreviewUserStore {
+  fontSize = 14
   highlightDuplicatedTab = false
 
   uiPreset: UiPreset = 'modern'
@@ -46,6 +48,7 @@ class PreviewUserStore {
   highlightActiveTabsInAllWindows = false
 
   constructor(config: PreviewConfig) {
+    this.fontSize = config.fontSize ?? 14
     this.highlightDuplicatedTab = !!config.showDuplicateMarker
     this.uiPreset = config.uiPreset ?? 'modern'
     this.showTabTooltip = !!config.showTabTooltip
@@ -266,6 +269,7 @@ export default observer(
         config.duplicatedTabCount,
         config.highlightActiveTabsInAllWindows,
         config.id,
+        config.fontSize,
         config.increaseContrast,
         config.lastFocused,
         config.pinned,

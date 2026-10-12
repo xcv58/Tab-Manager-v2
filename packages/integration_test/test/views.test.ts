@@ -750,9 +750,11 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const clusterButton = page
-      .locator('button[aria-label="Cluster Ungrouped & Sort Tabs"]')
-      .first()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    const clusterButton = page.getByRole('menuitem', {
+      name: 'Cluster ungrouped & sort tabs',
+      exact: true,
+    })
     await expect(clusterButton).toBeVisible()
     const clusterButtonScreenshot = await clusterButton.screenshot()
     expect(clusterButtonScreenshot).toMatchSnapshot(
@@ -763,9 +765,9 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const cleanDuplicatedButton = page
-      .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
-      .first()
+    const cleanDuplicatedButton = page.getByRole('menuitem', {
+      name: /^Close \d+ duplicate tabs?$/,
+    })
     await expect(cleanDuplicatedButton).toBeVisible()
     const cleanDuplicatedScreenshot = await cleanDuplicatedButton.screenshot()
     expect(cleanDuplicatedScreenshot).toMatchSnapshot(
@@ -776,6 +778,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await page.keyboard.press('Escape')
     const themeToggleButton = page
       .locator('[aria-label="Toggle light/dark theme"]')
       .first()
@@ -837,19 +840,19 @@ test.describe('The Extension page should', () => {
       exact: true,
     })
     const reload = page.getByRole('menuitem', {
-      name: 'Reload all tabs',
+      name: /^Reload all (?:\d+ )?tabs$/,
       exact: true,
     })
     await expect(sort).toBeEnabled()
     await expect(reload).toBeEnabled()
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected to/ }),
+      page.getByRole('menuitem', { name: /^Move .*selected .*to/ }),
     ).toHaveCount(2)
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected to/ }).first(),
+      page.getByRole('menuitem', { name: /^Move .*selected .*to/ }).first(),
     ).toBeDisabled()
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected to/ }).last(),
+      page.getByRole('menuitem', { name: /^Move .*selected .*to/ }).last(),
     ).toBeDisabled()
     await expect(sort).toBeFocused()
     await page.keyboard.press('ArrowDown')
@@ -895,6 +898,10 @@ test.describe('The Extension page should', () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
+    await page
+      .getByRole('navigation', { name: 'Settings sections' })
+      .getByRole('button', { name: 'Appearance', exact: true })
+      .click()
     await page.waitForSelector('[aria-label="Update Font Size"]')
 
     const tabWidthSlider = page
@@ -923,6 +930,10 @@ test.describe('The Extension page should', () => {
     await expect(fontSizeInput).toBeVisible()
     await expect(fontSizeInput).toHaveValue('14')
 
+    await page
+      .getByRole('navigation', { name: 'Settings sections' })
+      .getByRole('button', { name: 'View', exact: true })
+      .click()
     const toolbarToggle = page
       .locator('[aria-labelledby="toggle-always-show-toolbar"]')
       .first()
@@ -943,6 +954,10 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await page
+      .getByRole('navigation', { name: 'Settings sections' })
+      .getByRole('button', { name: 'Appearance', exact: true })
+      .click()
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
     await expect(
@@ -990,6 +1005,10 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
+    await page
+      .getByRole('navigation', { name: 'Settings sections' })
+      .getByRole('button', { name: 'View', exact: true })
+      .click()
     const autoFitColumnsToggle = page.getByRole('checkbox', {
       name: /Auto-fit columns/i,
     })

@@ -19,15 +19,23 @@ import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { matchesSearchText, type SearchMatchMode } from 'libs/searchMatching'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import Tab from 'stores/Tab'
+import ControlIconButton from 'components/ControlIconButton'
+import { RevealInListIcon } from 'icons/actionIcons'
 
 type Props = {
   tab: Tab
   showInlineGroupBadge?: boolean
   matchMode?: SearchMatchMode
+  onReveal?: (tab: Tab) => void
 }
 
 export default observer(function TabOption(props: Props) {
-  const { tab, showInlineGroupBadge = true, matchMode = 'fuzzy' } = props
+  const {
+    tab,
+    showInlineGroupBadge = true,
+    matchMode = 'fuzzy',
+    onReveal,
+  } = props
   const { searchStore, tabGroupStore, userStore } = useStore()
   const { query } = searchStore
   const theme = useAppTheme()
@@ -162,6 +170,22 @@ export default observer(function TabOption(props: Props) {
       )}
       <RowActionRail tail={<DuplicateMarker tab={tab} faked />}>
         <TabTools tab={tab} faked />
+        {onReveal && (
+          <RowActionSlot>
+            <Tooltip title="Reveal in list" enterDelay={TOOLTIP_DELAY}>
+              <ControlIconButton
+                controlSize="compact"
+                aria-label={`Reveal ${tab.title} in list`}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onReveal(tab)
+                }}
+              >
+                <RevealInListIcon fontSize={18} />
+              </ControlIconButton>
+            </Tooltip>
+          </RowActionSlot>
+        )}
         <RowActionSlot>
           <CloseButton
             onClick={onRemove}

@@ -27,6 +27,7 @@ export interface DialogProps {
   transitionDuration?: number | { enter: number; exit: number }
   style?: React.CSSProperties
   'data-testid'?: string
+  'aria-labelledby'?: string
 }
 
 const maxWidthMap: Record<string, number> = {
@@ -51,6 +52,7 @@ export default function Dialog({
   transitionDuration = 225,
   style,
   'data-testid': testId,
+  'aria-labelledby': ariaLabelledBy,
 }: DialogProps) {
   const theme = useAppTheme()
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -225,6 +227,7 @@ export default function Dialog({
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
+          aria-labelledby={ariaLabelledBy}
           tabIndex={-1}
           data-testid={testId}
           style={{
