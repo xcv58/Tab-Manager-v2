@@ -3,7 +3,7 @@
 exports[`Preview render correct components 1`] = `
 <div>
   <div
-    class="opacity-50 bg-blue-300"
+    style="opacity: 0.8; background-color: rgb(255, 255, 255); color: rgb(17, 24, 39);"
   />
 </div>
 `;

@@ -7,6 +7,7 @@ import * as StoreContext from 'components/hooks/useStore'
 const sources = []
 const mockStore = {
   tabStore: { sources },
+  userStore: { uiPreset: 'modern', increaseContrast: false },
 }
 
 describe('Preview', () => {

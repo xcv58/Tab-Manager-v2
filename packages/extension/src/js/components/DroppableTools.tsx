@@ -68,7 +68,6 @@ export default observer(({ showSearchResultMenu }: Props) => {
           {isOver && (
             <Preview
               style={{
-                opacity: 1,
                 maxWidth: '80vw',
                 minWidth: `${userStore.tabWidth}rem`,
               }}
