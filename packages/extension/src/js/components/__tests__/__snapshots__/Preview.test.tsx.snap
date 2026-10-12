@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Preview render correct components 1`] = `
-<div>
-  <div
-    style="opacity: 0.8; background-color: rgb(255, 255, 255); color: rgb(17, 24, 39);"
-  />
-</div>
-`;

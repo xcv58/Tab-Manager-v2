@@ -1,7 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useDrop } from 'react-dnd'
-import Preview from 'components/Preview'
 import { useAppTheme } from 'libs/appTheme'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import { OpenInNewIcon } from 'icons/materialIcons'
@@ -64,16 +63,6 @@ export default observer(({ showSearchResultMenu }: Props) => {
       >
         <OpenInNewIcon style={{ fontSize: 18, color: `rgb(${accent})` }} />
         <span>Drop to create a new window</span>
-        <div className="absolute shadow-2xl" style={{ top: '3rem' }}>
-          {isOver && (
-            <Preview
-              style={{
-                maxWidth: '80vw',
-                minWidth: `${userStore.tabWidth}rem`,
-              }}
-            />
-          )}
-        </div>
       </div>
     )
   }
