@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import AutocompleteSearch from '../index'
 import { useOptions } from 'components/hooks/useOptions'
@@ -315,7 +315,7 @@ describe('AutocompleteSearch', () => {
     renderAutocompleteSearch({ initialQuery: 'alpha', open: undefined })
 
     const input = screen.getByRole('combobox')
-    fireEvent.focus(input)
+    act(() => input.focus())
 
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-expanded', 'true')
