@@ -134,6 +134,8 @@ export default observer((props: Props) => {
   }, [activate])
   return (
     <div
+      {...(dropOverlay ? { inert: '' } : {})}
+      aria-hidden={dropOverlay || undefined}
       tabIndex={-1}
       ref={nodeRef}
       onFocusCapture={onHeaderFocus}
@@ -148,6 +150,9 @@ export default observer((props: Props) => {
         borderColor: dropOverlay ? 'transparent' : theme.palette.divider,
         borderBottom: isClassicUi ? 'none' : undefined,
         minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
+        // Retain the exact normal header geometry while the drag overlay owns
+        // its appearance and interactions, including keyboard focus.
+        opacity: dropOverlay ? 0 : undefined,
       }}
     >
       <div

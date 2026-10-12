@@ -7,27 +7,13 @@ import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
 import type { WindowEdge } from 'stores/DragStore'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
+import useReduceMotion from 'libs/useReduceMotion'
 
 type Props = WinProps & { position: WindowEdge }
 
-// A rounded, open ribbon; the bottom destination mirrors it vertically.
-const INSERTION_RIBBON_PATH = [
-  'M 4 8',
-  'L 22.4 0.8',
-  'Q 24 0 25.6 0.8',
-  'L 44 8',
-  'Q 45.8 8.7 45 10.6',
-  'Q 44.3 12.3 42.6 11.6',
-  'L 24.4 4.6',
-  'Q 24 4.4 23.6 4.6',
-  'L 5.4 11.6',
-  'Q 3.7 12.3 3 10.6',
-  'Q 2.2 8.7 4 8',
-  'Z',
-].join(' ')
-
 export default observer(({ win, position }: Props) => {
   const theme = useAppTheme()
+  const reduceMotion = useReduceMotion()
   const { dragStore, userStore, tabStore } = useStore()
   const blockedHint = getTabMoveDestinationHint(
     win,
@@ -73,76 +59,76 @@ export default observer(({ win, position }: Props) => {
       ? '94, 196, 186'
       : '13, 148, 136'
   const markerColor = allowed
-    ? `rgba(${accent}, ${active ? 1 : highContrast ? 0.95 : 0.72})`
+    ? `rgba(${accent}, ${active || highContrast ? 1 : 0.9})`
+    : theme.palette.text.secondary
+  const labelColor = allowed
+    ? dark
+      ? beginning
+        ? '#bfdbfe'
+        : '#99f6e4'
+      : beginning
+        ? '#1d4ed8'
+        : '#115e59'
     : theme.palette.text.secondary
   const tintOpacity =
     (active ? (dark ? 0.28 : 0.19) : dark ? 0.12 : 0.08) +
     (highContrast ? 0.07 : 0)
-  const washStrength = highContrast ? 0.36 : dark ? 0.3 : 0.24
-  const gradient = `linear-gradient(to ${beginning ? 'bottom' : 'top'}, rgba(${accent}, ${washStrength}) 0px, rgba(${accent}, ${washStrength / 3}) 7px, rgba(${accent}, 0) 16px)`
-  const washMask = `linear-gradient(to ${beginning ? 'right' : 'left'}, black 0%, black 55%, transparent 100%)`
 
   return (
     <div
       ref={drop}
       data-testid={`window-header-drop-${position}-${win.id}`}
       aria-label={blockedHint || `Move to ${position}`}
-      className="relative min-w-0 flex-1"
+      className="window-header-drop-target relative min-w-0 font-semibold"
+      data-position={position}
       style={{
         cursor: allowed ? 'move' : 'not-allowed',
         opacity: allowed ? 1 : 0.5,
+        color: labelColor,
+        backgroundColor: allowed
+          ? `rgba(${accent}, ${tintOpacity})`
+          : theme.palette.action.hover,
+        boxShadow: allowed
+          ? `inset 0 0 0 ${active ? 2 : 1}px rgba(${accent}, ${active ? 1 : highContrast ? 0.5 : 0.22})`
+          : undefined,
+        borderRadius:
+          userStore.uiPreset === 'classic'
+            ? 0
+            : beginning
+              ? '0.4rem 0 0 0.4rem'
+              : '0 0.4rem 0.4rem 0',
+        transition: reduceMotion
+          ? 'none'
+          : 'background-color 140ms ease, color 140ms ease',
       }}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-10"
-        style={{
-          backgroundColor: allowed
-            ? `rgba(${accent}, ${tintOpacity})`
-            : theme.palette.action.hover,
-          boxShadow: allowed
-            ? `inset 0 0 0 ${active ? 2 : 1}px rgba(${accent}, ${active ? 1 : highContrast ? 0.5 : 0.22})`
-            : undefined,
-          transition: 'background-color 140ms ease, box-shadow 140ms ease',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-10"
-        style={{
-          backgroundImage: allowed ? gradient : undefined,
-          maskImage: washMask,
-          WebkitMaskImage: washMask,
-          opacity: active ? 1 : highContrast ? 0.9 : 0.7,
-          transition: 'opacity 140ms ease',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-10"
+        className="window-header-drop-label pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 whitespace-nowrap"
       >
         <svg
-          className="absolute left-1/2 -translate-x-1/2"
-          width="48"
-          height="12"
-          viewBox="0 0 48 12"
-          preserveAspectRatio="xMidYMid meet"
+          className="h-6 w-6 shrink-0"
+          viewBox="0 0 24 24"
           fill="none"
-          style={{
-            top: beginning ? 0 : undefined,
-            bottom: beginning ? undefined : 0,
-            maxWidth: '70%',
-            color: markerColor,
-            transition: 'color 140ms ease',
-          }}
+          stroke="currentColor"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ color: markerColor }}
         >
-          <g transform={beginning ? undefined : 'translate(0 12) scale(1 -1)'}>
-            <path d={INSERTION_RIBBON_PATH} fill="currentColor" />
+          <g transform={beginning ? undefined : 'translate(0 24) scale(1 -1)'}>
+            <path d="M 3 16 L 12 9 L 21 16" />
           </g>
         </svg>
+        {beginning ? (
+          <>
+            <span className="window-header-full-label">Beginning</span>
+            <span className="window-header-compact-label">Start</span>
+          </>
+        ) : (
+          <span>End</span>
+        )}
       </div>
-      {/* Keep the drop surface above the header controls and decoration. */}
-      <div aria-hidden="true" className="absolute inset-0 z-30" />
     </div>
   )
 })

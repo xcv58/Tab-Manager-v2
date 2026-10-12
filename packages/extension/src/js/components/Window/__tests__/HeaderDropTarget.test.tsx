@@ -80,7 +80,7 @@ describe('window header drop targets', () => {
       })
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
       expect(screen.getByTestId('window-header-drop-end-7').textContent).toBe(
-        '',
+        'End',
       )
 
       rerender(
@@ -112,7 +112,7 @@ describe('window header drop targets', () => {
       tabStore: { selection: new Map() },
       userStore: { uiPreset: 'modern', increaseContrast: false },
     } as any
-    const win = { id: 7, canDrop: true } as any
+    const win = { id: 7, canDrop: true, tabs: [] } as any
     render(
       <StoreContext.Provider value={store}>
         <DroppableTitle win={win} />
