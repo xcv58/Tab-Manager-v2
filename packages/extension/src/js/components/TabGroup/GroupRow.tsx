@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import { useDrop } from 'react-dnd'
-import type { DropTargetMonitor } from 'react-dnd'
 import {
   contextMenuHandlers,
   useActionMenu,
@@ -22,8 +20,7 @@ import { WindowRow } from 'stores/TabGroupStore'
 import Window from 'stores/Window'
 import GroupEditorPopover from './GroupEditorPopover'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
-import { ItemTypes } from 'libs/react-dnd'
-import DropIndicator from 'components/DropIndicator'
+import HeaderEdgeDropTarget from 'components/HeaderEdgeDropTarget'
 import GroupDragHandle from './GroupDragHandle'
 import ControlIconButton from 'components/ControlIconButton'
 import HighlightNode from 'components/HighlightNode'
@@ -69,12 +66,7 @@ export default observer((props: Props) => {
   const menuAnchorEl = menu.anchorEl
   const closeMenu = menu.onClose
   const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
-  const headerRef = useRef<HTMLDivElement | null>(null)
   const nodeRef = useRef<HTMLDivElement | null>(null)
-  const [headerDropMode, setHeaderDropMode] = useState<
-    'join-group' | 'before-group'
-  >('join-group')
-
   const groupColorId = (tabGroup?.color ||
     row.color ||
     'grey') as chrome.tabGroups.ColorEnum
@@ -126,94 +118,24 @@ export default observer((props: Props) => {
     return `${row.tabIds.length}`
   }, [row.matchedCount, row.tabIds.length, searchStore.queryActive])
 
-  const getGroupStartIndex = useCallback(() => {
-    const groupTabs = tabGroupStore
-      .getTabsForGroup(row.groupId)
-      .slice()
-      .sort((a, b) => a.index - b.index)
-    return groupTabs[0]?.index ?? 0
-  }, [row.groupId, tabGroupStore])
-
-  const getHeaderDropMode = useCallback((monitor: DropTargetMonitor) => {
-    const clientOffset = monitor.getClientOffset()
-    const node = headerRef.current
-    if (!clientOffset || !node) {
-      return 'join-group' as const
-    }
-    const rect = node.getBoundingClientRect()
-    const topZoneHeight = Math.min(14, Math.max(8, rect.height * 0.25))
-    if (clientOffset.y <= rect.top + topZoneHeight) {
-      return 'before-group' as const
-    }
-    return 'join-group' as const
-  }, [])
-
-  const [dropProps, drop] = useDrop({
-    accept: ItemTypes.TAB,
-    canDrop: () => {
-      const targetWin = windowStore.windows.find(
-        (win) => win.id === row.windowId,
-      )
-      return !!targetWin && targetWin.canDrop
-    },
-    hover: (_, monitor) => {
-      if (!monitor.isOver({ shallow: true })) {
-        return
-      }
-      setHeaderDropMode(getHeaderDropMode(monitor))
-    },
-    drop: (_, monitor) => {
-      if (monitor.didDrop()) {
-        return
-      }
-      const groupStartIndex = getGroupStartIndex()
-      const dropMode = getHeaderDropMode(monitor)
-      if (dropMode === 'before-group') {
-        const fromGroupHeaderDrag = dragStore.dragSource === 'group-header'
-        dragStore.dropAt({
-          windowId: row.windowId,
-          index: groupStartIndex,
-          forceUngroup: !fromGroupHeaderDrag,
-          source: fromGroupHeaderDrag ? 'group-header' : 'window-zone',
-        })
-        return
-      }
-      dragStore.dropAt({
-        windowId: row.windowId,
-        index: groupStartIndex,
-        targetGroupId: row.groupId,
-        before: true,
-        source: 'group-header',
-      })
-    },
-    collect: (monitor) => ({
-      canDrop: monitor.canDrop(),
-      isOver: monitor.isOver({ shallow: true }),
-    }),
-  })
-  const { canDrop, isOver } = dropProps
-  useEffect(() => {
-    if (!isOver) {
-      setHeaderDropMode('join-group')
-    }
-  }, [isOver])
-  const dropIndicator =
-    canDrop && isOver && headerDropMode === 'before-group' ? (
-      <DropIndicator position="before" />
-    ) : null
   const showGroupDragHandle =
     isClassicUi ||
     isHeaderHovered ||
     isHeaderFocusWithin ||
     (dragStore.dragging && dragStore.dragSource === 'group-header')
   const showGroupControls =
-    isClassicUi ||
-    isHeaderHovered ||
-    isHeaderFocusWithin ||
-    Boolean(menuAnchorEl) ||
-    Boolean(editorAnchorEl)
-  const showToggleAffordance = isToggleHovered || isToggleFocused
+    !dragStore.dragging &&
+    (isClassicUi ||
+      isHeaderHovered ||
+      isHeaderFocusWithin ||
+      Boolean(menuAnchorEl) ||
+      Boolean(editorAnchorEl))
+  const showToggleAffordance =
+    !dragStore.dragging && (isToggleHovered || isToggleFocused)
   const isFocused = groupRow.isFocused
+  // Changing the source row during native dragstart cancels WebKit's drag.
+  // It cannot be its own group destination, so keep its original header.
+  const isDragOrigin = dragStore.dragOriginGroupId === row.groupId
 
   useEffect(() => {
     groupRow.setNodeRef(nodeRef)
@@ -244,23 +166,17 @@ export default observer((props: Props) => {
     isFocused,
   ])
 
-  const setDropRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      headerRef.current = node
-      nodeRef.current = node
-      drop(node)
-    },
-    [drop],
-  )
-
   return (
     <>
       <div
-        ref={setDropRef}
+        ref={nodeRef}
         tabIndex={-1}
-        className={classNames('group/tab-group sticky relative border-b', {
-          'z-20': isFocused,
-        })}
+        className={classNames(
+          'group/tab-group group-drop-header sticky relative border-b',
+          {
+            'z-20': isFocused,
+          },
+        )}
         {...contextMenuHandlers(actionStore, `group-${row.groupId}`, groupRow)}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}
@@ -286,14 +202,20 @@ export default observer((props: Props) => {
         }}
         data-testid={`tab-group-header-${row.groupId}`}
       >
-        {dropIndicator}
         <div
           className="flex min-h-10 items-center gap-1"
-          style={{ minHeight: MIN_INTERACTIVE_ROW_HEIGHT }}
+          style={{
+            minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
+            // Keep the native drag source rendered while its overlay is active.
+            opacity: dragStore.dragging && !isDragOrigin ? 0 : undefined,
+            pointerEvents:
+              dragStore.dragging && !isDragOrigin ? 'none' : undefined,
+          }}
         >
           <button
             className="flex h-10 min-w-0 flex-1 items-center rounded-sm text-left focus:outline-none"
             onClick={onToggleClick}
+            disabled={dragStore.dragging}
             onFocus={() => setIsToggleFocused(true)}
             onMouseEnter={() => setIsToggleHovered(true)}
             onMouseLeave={() => setIsToggleHovered(false)}
@@ -386,6 +308,41 @@ export default observer((props: Props) => {
             </RowActionSlot>
           </RowActionRail>
         </div>
+        {dragStore.dragging && !isDragOrigin && (
+          <div
+            className="group-header-drop-targets window-header-drop-targets absolute inset-0 z-30 flex text-sm font-semibold"
+            style={
+              {
+                '--window-header-full-count-width': 'clamp(5rem, 32%, 10rem)',
+                '--window-header-compact-count-width':
+                  'clamp(5rem, 32%, 10rem)',
+              } as React.CSSProperties
+            }
+            data-testid={`group-header-drop-targets-${row.groupId}`}
+          >
+            <HeaderEdgeDropTarget
+              win={win}
+              groupId={row.groupId}
+              position="beginning"
+            />
+            <HeaderEdgeDropTarget
+              win={win}
+              groupId={row.groupId}
+              position="end"
+            />
+            <span
+              className="window-header-drop-count group-header-drop-identity pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-1 rounded px-1.5 py-1"
+              style={{
+                backgroundColor: groupColor.line,
+                color: groupColor.chipText,
+              }}
+              aria-label={`${row.title}, ${row.tabIds.length} tabs`}
+            >
+              <span className="min-w-0 truncate">{row.title}</span>
+              <span className="shrink-0 text-xs">{countLabel}</span>
+            </span>
+          </div>
+        )}
         <div
           className="mx-0 h-px"
           style={{ backgroundColor: groupColor.line }}

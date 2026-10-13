@@ -8,6 +8,7 @@ export interface SliderMark {
 
 export interface SliderProps {
   value: number
+  increaseContrast?: boolean
   min: number
   max: number
   step?: number
@@ -24,6 +25,7 @@ export interface SliderProps {
  */
 export default function Slider({
   value,
+  increaseContrast = false,
   min,
   max,
   step = 1,
@@ -39,10 +41,13 @@ export default function Slider({
   const [isFocused, setIsFocused] = useState(false)
   const pct = ((value - min) / (max - min)) * 100
   const primaryColor = theme.palette.primary.main
-  const railColor = withAlpha(primaryColor, theme.mode === 'dark' ? 0.32 : 0.28)
+  const railColor = withAlpha(
+    primaryColor,
+    increaseContrast ? 0.5 : theme.mode === 'dark' ? 0.32 : 0.28,
+  )
   const focusRingColor = withAlpha(
     primaryColor,
-    theme.mode === 'dark' ? 0.22 : 0.24,
+    increaseContrast ? 0.4 : theme.mode === 'dark' ? 0.22 : 0.24,
   )
 
   const handleChange = useCallback(
@@ -173,7 +178,8 @@ export default function Slider({
                   left: `${markPct}%`,
                   transform: 'translateX(-50%)',
                   fontSize: '0.72rem',
-                  opacity: 0.7,
+                  color: 'var(--settings-muted)',
+                  opacity: increaseContrast ? 1 : 0.85,
                   whiteSpace: 'nowrap',
                 }}
               >

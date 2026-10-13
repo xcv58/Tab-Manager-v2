@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog, { DialogTitle } from 'components/ui/Dialog'
+import Dialog from 'components/ui/Dialog'
 import Switch from 'components/ui/Switch'
 import { useStore } from 'components/hooks/useStore'
 import {
@@ -23,7 +23,6 @@ import {
   DesktopWindowsRoundedIcon,
   LightModeRoundedIcon,
   RemoveRoundedIcon,
-  CloseIcon,
 } from 'icons/materialIcons'
 import useReduceMotion from 'libs/useReduceMotion'
 import { getUiColorTokens } from 'libs/uiColorTokens'
@@ -33,7 +32,8 @@ import FeedbackButton from './FeedbackButton'
 import TabRowPreview from './TabRowPreview'
 import {
   WindowLayoutExample,
-  SearchExample,
+  SearchSettingsPreview,
+  ExtensionIconExample,
   ToolbarExample,
 } from './SettingsExamples'
 import SettingsNavigation, {
@@ -46,7 +46,7 @@ import SettingsNavigation, {
 /* -------------------------------------------------------------------------- */
 
 const panelTitleStyle: React.CSSProperties = {
-  fontSize: '0.92rem',
+  fontSize: '1.25rem',
   fontWeight: 700,
   lineHeight: 1.3,
   margin: 0,
@@ -54,14 +54,14 @@ const panelTitleStyle: React.CSSProperties = {
 
 const panelDescriptionStyle: React.CSSProperties = {
   marginTop: 4,
-  fontSize: '0.8rem',
+  fontSize: '0.875rem',
   lineHeight: 1.45,
-  opacity: 0.7,
+  color: 'var(--settings-muted)',
   margin: 0,
 }
 
 const controlTitleStyle: React.CSSProperties = {
-  fontSize: '0.88rem',
+  fontSize: '0.95rem',
   fontWeight: 600,
   lineHeight: 1.35,
   margin: 0,
@@ -69,9 +69,9 @@ const controlTitleStyle: React.CSSProperties = {
 
 const controlDescriptionStyle: React.CSSProperties = {
   marginTop: 4,
-  fontSize: '0.76rem',
+  fontSize: '0.85rem',
   lineHeight: 1.45,
-  opacity: 0.7,
+  color: 'var(--settings-muted)',
   margin: 0,
 }
 
@@ -99,7 +99,7 @@ const SettingsPanel = ({
   <section
     id={`settings-section-${sectionId}`}
     aria-labelledby={`settings-heading-${sectionId}`}
-    className={`settings-section rounded-xl border ${className || ''}`}
+    className={`settings-section ${className || ''}`}
     data-section-id={sectionId}
     style={style}
     data-testid={testId}
@@ -178,9 +178,9 @@ const actionTabCountOptions: {
   value,
   label:
     value === 'currentWindow'
-      ? 'Window'
+      ? 'This window'
       : value === 'allWindows'
-        ? 'All'
+        ? 'All windows'
         : 'Off',
 }))
 
@@ -225,6 +225,8 @@ const DensityControl = ({
   style: React.CSSProperties
   testId?: string
 }) => {
+  const { userStore } = useStore()
+  const skipBlurCommit = React.useRef(false)
   const [draftValue, setDraftValue] = React.useState(String(value))
 
   React.useEffect(() => {
@@ -240,6 +242,10 @@ const DensityControl = ({
   }
 
   const commitDraftValue = () => {
+    if (skipBlurCommit.current) {
+      skipBlurCommit.current = false
+      return
+    }
     if (!draftValue) {
       setDraftValue(String(value))
       return
@@ -253,11 +259,7 @@ const DensityControl = ({
   }
 
   return (
-    <div
-      className="rounded-lg border px-3 py-3"
-      style={style}
-      data-testid={testId}
-    >
+    <div className="settings-option" style={style} data-testid={testId}>
       <div
         className={
           description
@@ -288,6 +290,7 @@ const DensityControl = ({
           >
             <input
               type="text"
+              className="settings-number-input"
               value={draftValue}
               onChange={(event) => {
                 const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
@@ -312,12 +315,19 @@ const DensityControl = ({
                 if (event.key === 'Enter') {
                   event.preventDefault()
                   commitDraftValue()
+                  skipBlurCommit.current = true
                   ;(event.currentTarget as HTMLInputElement).blur()
                 }
                 if (event.key === 'Escape') {
                   event.preventDefault()
+                  event.stopPropagation()
                   setDraftValue(String(value))
-                  ;(event.currentTarget as HTMLInputElement).blur()
+                }
+              }}
+              onKeyUp={(event) => {
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  event.stopPropagation()
                 }
               }}
               aria-label={inputAriaLabel}
@@ -326,7 +336,7 @@ const DensityControl = ({
                 width: '100%',
                 height: '100%',
                 border: '1px solid',
-                borderColor: 'var(--input-border, rgba(0,0,0,0.23))',
+                borderColor: 'var(--settings-input-border)',
                 borderRadius: 4,
                 padding: '4px 8px',
                 paddingRight: unit ? 32 : 8,
@@ -335,7 +345,6 @@ const DensityControl = ({
                 fontSize: '0.92rem',
                 background: 'transparent',
                 color: 'inherit',
-                outline: 'none',
               }}
             />
             {unit && (
@@ -362,6 +371,7 @@ const DensityControl = ({
         </div>
       </div>
       <Slider
+        increaseContrast={userStore.increaseContrast}
         value={value}
         step={step}
         min={min}
@@ -413,7 +423,7 @@ const RowDetailsOption = ({
 }) => (
   <div
     data-testid={testId}
-    className="flex flex-col gap-3 rounded-lg border px-3 py-3 xl:flex-row xl:items-center xl:gap-4"
+    className="settings-option flex flex-col gap-3 xl:flex-row xl:items-center xl:gap-4"
     style={style}
   >
     <div className="min-w-0 xl:w-64 xl:shrink-0">
@@ -424,6 +434,7 @@ const RowDetailsOption = ({
       >
         <h5 style={controlTitleStyle}>{title}</h5>
         <Switch
+          size="small"
           checked={checked}
           onChange={onChange}
           inputProps={{ 'aria-label': title }}
@@ -459,7 +470,9 @@ const SettingsSwitchOption = ({
   containerAriaLabelledBy,
   containerAriaLabel,
   preview,
+  searchPreview,
 }: {
+  searchPreview?: 'history' | 'results' | 'filtering'
   preview?: React.ReactNode
   title: string
   description?: string
@@ -487,9 +500,8 @@ const SettingsSwitchOption = ({
     <>
       <div
         data-testid={testId}
-        className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
-          description ? 'items-center py-3.5' : 'items-center py-3'
-        }`}
+        data-settings-search-preview={searchPreview}
+        className="settings-option settings-switch-option flex cursor-pointer items-center justify-between gap-3"
         style={{
           ...style,
           minHeight: 36,
@@ -597,7 +609,7 @@ export default observer(() => {
   const isDarkMode = muiTheme.mode === 'dark'
   const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
-    backgroundColor: uiColors.settingsPanelSurface,
+    backgroundColor: uiColors.settingsDialogSurface,
     borderColor: isDarkMode
       ? increaseContrast
         ? 'rgba(238, 241, 245, 0.28)'
@@ -607,7 +619,7 @@ export default observer(() => {
         : 'rgba(148, 163, 184, 0.26)',
   }
   const rowDetailOptionStyle: React.CSSProperties = {
-    backgroundColor: uiColors.settingsRowSurface,
+    backgroundColor: 'transparent',
     borderColor: isDarkMode
       ? increaseContrast
         ? 'rgba(238, 241, 245, 0.24)'
@@ -636,9 +648,11 @@ export default observer(() => {
         ? 'rgba(203, 213, 225, 0.86)'
         : 'rgba(226, 232, 240, 0.7)',
     border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+    borderRadius: uiPreset === 'classic' ? 4 : 999,
   }
 
   const selectedPillStyle: React.CSSProperties = {
+    borderRadius: uiPreset === 'classic' ? 2 : 999,
     color: muiTheme.palette.text.primary,
     backgroundColor: isDarkMode
       ? increaseContrast
@@ -655,6 +669,7 @@ export default observer(() => {
   }
 
   const unselectedPillStyle: React.CSSProperties = {
+    borderRadius: uiPreset === 'classic' ? 2 : 999,
     color: increaseContrast
       ? uiColors.mutedText
       : muiTheme.palette.text.secondary,
@@ -670,6 +685,7 @@ export default observer(() => {
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
       aria-labelledby={dialogTitleId}
+      data-testid="settings-dialog"
       style={
         {
           backgroundColor: uiColors.settingsDialogSurface,
@@ -681,24 +697,20 @@ export default observer(() => {
           '--settings-focus': uiColors.focusRing,
           '--settings-hover': muiTheme.palette.action.hover,
           '--settings-active': muiTheme.palette.action.selected,
+          '--settings-muted': uiColors.mutedText,
+          '--settings-input-border': increaseContrast
+            ? uiColors.mutedText
+            : uiColors.toolbarShellBorderColor,
         } as React.CSSProperties
       }
     >
-      <DialogTitle
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexShrink: 0,
-          borderBottom: `1px solid ${panelStyle.borderColor}`,
-        }}
+      <span id={dialogTitleId} className="sr-only">
+        Settings
+      </span>
+      <SettingsNavigation
+        stateRef={settingsNavigationState}
+        uiPreset={uiPreset}
       >
-        <span id={dialogTitleId}>Settings</span>
-        <IconButton aria-label="Close Settings" onClick={closeDialog}>
-          <CloseIcon fontSize={20} />
-        </IconButton>
-      </DialogTitle>
-      <SettingsNavigation stateRef={settingsNavigationState}>
         <SettingsPanel
           testId="settings-panel-theme-density"
           sectionId="appearance"
@@ -706,9 +718,9 @@ export default observer(() => {
           description="Choose colors, contrast, and reading size. Changes apply immediately."
           style={panelStyle}
         >
-          <div className="space-y-3">
+          <div className="settings-options">
             <div
-              className="rounded-lg border px-3 py-3"
+              className="settings-option"
               style={rowDetailOptionStyle}
               data-testid="settings-ui-preset-toggle-group"
               data-setting-search="Interface style"
@@ -717,8 +729,7 @@ export default observer(() => {
                 <div className="min-w-0">
                   <h5 style={controlTitleStyle}>Interface style</h5>
                   <p style={controlDescriptionStyle}>
-                    Switch between the current UI and the pre-2.0-inspired
-                    Classic mode.
+                    Choose Modern or a compact Classic layout.
                   </p>
                 </div>
                 <ToggleGroup
@@ -751,7 +762,7 @@ export default observer(() => {
               </div>
             </div>
             <div
-              className="rounded-lg border px-3 py-3"
+              className="settings-option"
               style={rowDetailOptionStyle}
               data-testid="settings-theme-toggle-group"
               data-setting-search="Theme"
@@ -783,6 +794,7 @@ export default observer(() => {
                       }}
                     >
                       <option.icon fontSize={16} />
+                      <span>{option.label}</span>
                     </ToggleButton>
                   ))}
                 </ToggleGroup>
@@ -820,7 +832,7 @@ export default observer(() => {
           description="Choose window columns, their order, and which windows appear."
           style={panelStyle}
         >
-          <div className="space-y-3">
+          <div className="settings-options">
             <DensityControl
               testId="settings-tab-width-control"
               title="Minimum tab width"
@@ -845,7 +857,7 @@ export default observer(() => {
               style={rowDetailOptionStyle}
             />
             <div
-              className="rounded-lg border px-3 py-3"
+              className="settings-option"
               style={rowDetailOptionStyle}
               data-testid="settings-window-order-toggle-group"
               data-setting-search="Window order"
@@ -854,8 +866,8 @@ export default observer(() => {
                 <div className="min-w-0">
                   <h5 style={controlTitleStyle}>Window order</h5>
                   <p style={controlDescriptionStyle}>
-                    Choose the default browser order or place recently used
-                    windows first.
+                    Use the browser’s window order, or put recently used windows
+                    first.
                   </p>
                 </div>
                 <ToggleGroup
@@ -894,7 +906,9 @@ export default observer(() => {
               onChange={toggleShowAppWindow}
               style={rowDetailOptionStyle}
             />
-            <WindowLayoutExample />
+            <div data-settings-preview="Minimum tab width|Auto-fit columns|Window order|Show app windows in list">
+              <WindowLayoutExample />
+            </div>
           </div>
         </SettingsPanel>
         <SettingsPanel
@@ -904,7 +918,7 @@ export default observer(() => {
           description="Choose which details each tab shows."
           style={panelStyle}
         >
-          <div className="space-y-3" data-testid="row-details-options">
+          <div className="settings-options" data-testid="row-details-options">
             <RowDetailsOption
               testId="row-details-option-active-tabs"
               title="Highlight all active tabs"
@@ -923,6 +937,7 @@ export default observer(() => {
                       url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
                       active: true,
                       lastFocused: false,
+                      fontSize,
                       uiPreset,
                       increaseContrast,
                       highlightActiveTabsInAllWindows,
@@ -952,6 +967,7 @@ export default observer(() => {
                       title: 'Tab Manager issue tracker',
                       url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
                       duplicatedTabCount: 2,
+                      fontSize,
                       uiPreset,
                       increaseContrast,
                       showDuplicateMarker: highlightDuplicatedTab,
@@ -980,6 +996,7 @@ export default observer(() => {
                       id: 9102,
                       title: 'Tab Manager settings dialog',
                       url: 'https://github.com/xcv58/Tab-Manager-v2',
+                      fontSize,
                       uiPreset,
                       increaseContrast,
                       showDuplicateMarker: false,
@@ -1007,6 +1024,7 @@ export default observer(() => {
                       id: 9103,
                       title: 'Preview URLs inside settings',
                       url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+                      fontSize,
                       uiPreset,
                       increaseContrast,
                       showDuplicateMarker: false,
@@ -1084,6 +1102,7 @@ export default observer(() => {
                       title: 'Hover this preview tab for tooltip details',
                       url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
                       duplicatedTabCount: 2,
+                      fontSize,
                       uiPreset,
                       increaseContrast,
                       showDuplicateMarker: false,
@@ -1106,7 +1125,7 @@ export default observer(() => {
           description="Control how search starts and what stays visible while filtering."
           style={panelStyle}
         >
-          <div className="space-y-3">
+          <SearchSettingsPreview>
             <SettingsSwitchOption
               testId="settings-search-preserve"
               title="Preserve search"
@@ -1125,7 +1144,7 @@ export default observer(() => {
             />
             <SettingsSwitchOption
               testId="settings-search-history"
-              preview={<SearchExample mode="history" />}
+              searchPreview="history"
               title="Include browser history in results"
               checked={searchHistory}
               onChange={toggleSearchHistory}
@@ -1133,7 +1152,7 @@ export default observer(() => {
             />
             <SettingsSwitchOption
               testId="settings-search-result-menu"
-              preview={<SearchExample mode="results" />}
+              searchPreview="results"
               title="Show result menu in full-page view"
               description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
               checked={showSearchResultMenu}
@@ -1141,14 +1160,15 @@ export default observer(() => {
               style={rowDetailOptionStyle}
             />
             <SettingsSwitchOption
-              preview={<SearchExample mode="filtering" />}
+              testId="settings-search-unmatched"
+              searchPreview="filtering"
               title="Keep non-matching tabs visible"
               description="Keep unmatched tabs in view while you search."
               checked={showUnmatchedTab}
               onChange={toggleShowUnmatchedTab}
               style={rowDetailOptionStyle}
             />
-          </div>
+          </SearchSettingsPreview>
         </SettingsPanel>
         <SettingsPanel
           sectionId="popup-controls"
@@ -1157,7 +1177,7 @@ export default observer(() => {
           description="Configure the browser popup and application controls."
           style={panelStyle}
         >
-          <div className="space-y-3">
+          <div className="settings-options">
             <h3 className="settings-subheading">Toolbar</h3>
             <SettingsSwitchOption
               preview={<ToolbarExample />}
@@ -1171,14 +1191,14 @@ export default observer(() => {
             <h3 className="settings-subheading">Browser popup</h3>
             <SettingsSwitchOption
               title="Use lite popup mode"
-              description="Use the lite layout for the browser action popup window only."
+              description="Use a compact layout the next time you open the browser popup."
               checked={litePopupMode}
               onChange={toggleLitePopupMode}
               style={rowDetailOptionStyle}
               testId="settings-lite-popup-mode"
             />
             <div
-              className="rounded-lg border px-3 py-3"
+              className="settings-option"
               style={rowDetailOptionStyle}
               data-testid="settings-action-tab-count-toggle-group"
               data-setting-search="Extension icon count"
@@ -1187,8 +1207,7 @@ export default observer(() => {
                 <div className="min-w-0">
                   <h5 style={controlTitleStyle}>Extension icon count</h5>
                   <p style={controlDescriptionStyle}>
-                    Overlay the toolbar icon with a larger tab count for the
-                    current window or across all windows.
+                    Show a tab count on the browser extension icon.
                   </p>
                 </div>
                 <ToggleGroup
@@ -1219,6 +1238,9 @@ export default observer(() => {
                   ))}
                 </ToggleGroup>
               </div>
+            </div>
+            <div data-settings-preview="Extension icon count">
+              <ExtensionIconExample />
             </div>
             <h3 className="settings-subheading">Keyboard feedback</h3>
             <SettingsSwitchOption

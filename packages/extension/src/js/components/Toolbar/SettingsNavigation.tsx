@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { SearchIcon } from 'icons/actionIcons'
 import { CloseIcon } from 'icons/materialIcons'
+import Menu, { MenuItem } from 'components/ui/Menu'
 
 export const SETTINGS_SECTIONS = [
   { id: 'appearance', title: 'Appearance' },
@@ -50,8 +51,9 @@ const controlText = (nodes: React.ReactNode): string =>
 function filterControls(
   nodes: React.ReactNode,
   query: string,
-): { nodes: React.ReactNode; count: number } {
+): { nodes: React.ReactNode; count: number; titles: Set<string> } {
   let count = 0
+  const titles = new Set<string>()
   const filtered = React.Children.toArray(nodes).map((node) => {
     if (!React.isValidElement<Record<string, unknown>>(node)) return node
     const title = (node.props.title || node.props['data-setting-search']) as
@@ -66,6 +68,7 @@ function filterControls(
       )
         return null
       count++
+      titles.add(title)
       return node
     }
     if (node.type === 'h3' && query) return null
@@ -75,17 +78,28 @@ function filterControls(
         query,
       )
       count += result.count
+      result.titles.forEach((title) => titles.add(title))
       return React.cloneElement(node, {}, result.nodes)
     }
     return node
   })
-  return { nodes: filtered, count }
+  const nodesWithPreviews = filtered.map((node) => {
+    if (!React.isValidElement<Record<string, unknown>>(node)) return node
+    const previewFor = node.props['data-settings-preview'] as string | undefined
+    return previewFor &&
+      !previewFor.split('|').some((title) => titles.has(title))
+      ? null
+      : node
+  })
+  return { nodes: nodesWithPreviews, count, titles }
 }
 
 export default function SettingsNavigation({
   children,
   stateRef,
+  uiPreset,
 }: {
+  uiPreset: 'modern' | 'classic'
   children: React.ReactElement<{
     sectionId: SettingsSectionId
     title: string
@@ -98,6 +112,7 @@ export default function SettingsNavigation({
   const previousQuery = useRef('')
   const savedScroll = useRef(stateRef.current.scrollTop)
   const [query, setQuery] = useState('')
+  const [jumpAnchor, setJumpAnchor] = useState<HTMLElement | null>(null)
   const [active, setActive] = useState<SettingsSectionId>('appearance')
   const normalizedQuery = query.trim()
   let count = 0
@@ -164,8 +179,8 @@ export default function SettingsNavigation({
     if (!normalizedQuery) stateRef.current.scrollTop = container.scrollTop
   }
   return (
-    <div className="settings-layout">
-      <div className="settings-search-bar">
+    <div className="settings-layout" data-ui-preset={uiPreset}>
+      <div className="settings-search-tools">
         <div className="settings-search-input">
           <SearchIcon fontSize={18} aria-hidden="true" />
           <input
@@ -188,40 +203,47 @@ export default function SettingsNavigation({
             </button>
           )}
         </div>
-        <label className="settings-jump">
-          <span>Jump to section</span>
-          <select
-            aria-label="Jump to section"
-            value={
-              panels.some((panel) => panel.props.sectionId === active)
-                ? active
-                : panels[0]?.props.sectionId || ''
-            }
-            onChange={(event) => jump(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Tab' && !event.shiftKey && panels.length) {
-                event.preventDefault()
-                jump(event.currentTarget.value, true)
-              }
-            }}
-            disabled={!panels.length}
-          >
-            {!panels.length && <option value="">No sections</option>}
-            {panels.map((panel) => (
-              <option key={panel.props.sectionId} value={panel.props.sectionId}>
-                {panel.props.title}
-              </option>
-            ))}
-          </select>
-        </label>
+        <button
+          type="button"
+          className="settings-jump-button"
+          aria-label="Jump to section"
+          aria-haspopup="menu"
+          aria-expanded={!!jumpAnchor}
+          disabled={!panels.length}
+          onClick={(event) => setJumpAnchor(event.currentTarget)}
+        >
+          Jump to…
+        </button>
+        <Menu
+          open={!!jumpAnchor}
+          anchorEl={jumpAnchor}
+          restoreFocus={false}
+          onClose={() => {
+            jumpAnchor?.focus()
+            setJumpAnchor(null)
+          }}
+        >
+          {panels.map((panel) => (
+            <MenuItem
+              key={panel.props.sectionId}
+              onClick={() => {
+                setJumpAnchor(null)
+                jump(panel.props.sectionId, true)
+              }}
+            >
+              {panel.props.title}
+              {active === panel.props.sectionId ? ' ✓' : ''}
+            </MenuItem>
+          ))}
+        </Menu>
+        {normalizedQuery && (
+          <p className="settings-search-status" role="status">
+            {count
+              ? `${count} matching ${count === 1 ? 'setting' : 'settings'}`
+              : 'No matching settings'}
+          </p>
+        )}
       </div>
-      {normalizedQuery && (
-        <p className="settings-search-status" role="status">
-          {count
-            ? `${count} matching ${count === 1 ? 'setting' : 'settings'}`
-            : 'No matching settings. Try another word.'}
-        </p>
-      )}
       <div
         ref={scrollRef}
         className="settings-scroll"
@@ -232,7 +254,14 @@ export default function SettingsNavigation({
         tabIndex={0}
         onScroll={updateSection}
       >
-        {panels}
+        {panels.length ? (
+          panels
+        ) : (
+          <div className="settings-empty-results">
+            <h2>Search settings</h2>
+            <p>No matching settings. Try another word.</p>
+          </div>
+        )}
       </div>
     </div>
   )

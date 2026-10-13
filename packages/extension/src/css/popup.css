@@ -393,27 +393,31 @@ body {
 
 /* One continuous scroll surface; section titles push each other away. */
 .settings-layout {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
 }
-.settings-search-bar {
-  display: flex;
+.settings-search-tools {
+  position: absolute;
+  z-index: 4;
+  top: 16px;
+  right: 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--settings-border);
+  gap: 8px;
+  width: min(44%, 390px);
 }
 .settings-search-input {
   display: flex;
-  flex: 1;
   align-items: center;
   gap: 8px;
   min-width: 0;
   padding: 8px 10px;
-  border: 1px solid var(--settings-border);
+  border: 1px solid var(--settings-input-border);
   border-radius: 6px;
 }
 .settings-search-input:focus-within {
@@ -429,34 +433,38 @@ body {
   color: inherit;
   font-size: 0.875rem;
 }
-.settings-search-input button {
+.settings-search-input input::placeholder {
+  color: var(--settings-muted);
+}
+.settings-search-input button,
+.settings-jump-button {
   display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
-  color: inherit;
+  color: var(--settings-muted);
   border: 0;
   border-radius: 4px;
+  cursor: pointer;
 }
-.settings-jump {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.7rem;
-}
-.settings-jump select {
-  max-width: 180px;
-  padding: 4px;
-  border: 1px solid var(--settings-border);
-  border-radius: 4px;
-  background: var(--settings-surface);
-  color: inherit;
+.settings-jump-button {
+  min-height: 36px;
+  padding: 6px 8px;
   font-size: 0.8125rem;
+  white-space: nowrap;
+}
+.settings-jump-button:hover:not(:disabled),
+.settings-search-input button:hover {
+  background: var(--settings-hover);
 }
 .settings-search-status {
-  padding: 8px 20px 0;
+  grid-column: 1 / -1;
   margin: 0;
+  color: var(--settings-muted);
   font-size: 0.8rem;
 }
 .settings-scroll {
+  flex: 1;
   overflow-y: auto;
   min-width: 0;
   padding: 0 20px 16px;
@@ -464,7 +472,7 @@ body {
   overscroll-behavior: contain;
 }
 .settings-section {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 .settings-scroll .settings-section:last-child:not(:first-child) {
   min-height: calc(100% - 16px);
@@ -473,31 +481,79 @@ body {
   position: sticky;
   top: 0;
   z-index: 2;
+  min-height: 96px;
   background: var(--settings-surface);
-  padding: 12px 16px;
+  padding: 16px 49% 16px 16px;
   border-bottom: 1px solid var(--settings-border);
-  border-radius: 10px 10px 0 0;
 }
 .settings-section-content {
-  padding: 16px;
+  padding: 0 16px 16px;
 }
-.settings-section h2:focus {
+.settings-option {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--settings-border);
+}
+.settings-options > .settings-option:last-child {
+  border-bottom: 0;
+}
+.settings-section h2:focus-visible {
   outline: 2px solid var(--settings-focus);
   outline-offset: 3px;
   border-radius: 2px;
 }
 .settings-preview-label {
   padding: 6px 8px;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  opacity: 0.75;
+  color: var(--settings-muted);
   border-bottom: 1px solid var(--settings-border);
 }
+.settings-number-input:focus-visible,
 .settings-done:focus-visible,
-.settings-jump select:focus-visible,
-.settings-search-input button:focus-visible {
+.settings-jump-button:focus-visible,
+.settings-search-input button:focus-visible,
+.settings-option [role='radio']:focus-visible {
+  outline: 2px solid var(--settings-focus);
+  outline-offset: 3px;
+}
+.settings-option [role='radio'] {
+  gap: 5px;
+}
+.settings-option [role='radio']:hover {
+  filter: brightness(0.94);
+  box-shadow: inset 0 0 0 1px var(--settings-input-border);
+}
+.settings-option:has(input[type='checkbox']:focus-visible) {
   outline: 2px solid var(--settings-focus);
   outline-offset: 2px;
+  border-radius: 3px;
+}
+.settings-search-options.has-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
+.settings-context-preview {
+  position: sticky;
+  top: 108px;
+}
+.settings-empty-results {
+  padding: 16px;
+  min-height: 96px;
+}
+.settings-empty-results h2 {
+  margin: 0 0 48px;
+  font-size: 1.25rem;
+}
+.settings-empty-results p {
+  color: var(--settings-muted);
+}
+.settings-layout[data-ui-preset='classic'] .settings-search-input {
+  border-radius: 2px;
+}
+.settings-layout[data-ui-preset='classic'] [data-settings-example] {
+  border-radius: 0;
 }
 .settings-footer {
   display: flex;
@@ -508,7 +564,6 @@ body {
   padding: 12px 24px;
   border-top: 1px solid var(--settings-border);
 }
-
 .settings-done {
   flex-shrink: 0;
   padding: 8px 24px;
@@ -520,26 +575,29 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
-
 @media (max-width: 600px) {
-  .settings-search-bar {
-    padding: 12px;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .settings-search-input {
-    flex-basis: 100%;
-  }
-  .settings-jump {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
+  .settings-search-tools {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: auto;
+    margin: 12px;
   }
   .settings-scroll {
     padding: 0 12px 12px;
   }
-  .settings-section-content {
+  .settings-section-heading {
+    min-height: auto;
     padding: 12px;
+  }
+  .settings-section-content {
+    padding: 0 12px 12px;
+  }
+  .settings-search-options.has-preview {
+    display: block;
+  }
+  .settings-context-preview {
+    position: static;
   }
   .settings-footer {
     padding: 12px;
@@ -599,4 +657,24 @@ body {
   .shortcut-help-table tbody td:first-child {
     grid-column: 1 / -1;
   }
+}
+
+.group-drop-header {
+  container-type: inline-size;
+  container-name: group-drop-header;
+}
+.group-header-drop-identity {
+  max-width: 40%;
+}
+@container group-drop-header (max-width: 21rem) {
+  .group-header-drop-targets .window-header-full-label {
+    display: none;
+  }
+  .group-header-drop-targets .window-header-compact-label {
+    display: inline;
+  }
+}
+
+.settings-switch-option:hover {
+  background: var(--settings-hover) !important;
 }
