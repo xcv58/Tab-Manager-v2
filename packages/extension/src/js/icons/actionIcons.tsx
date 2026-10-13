@@ -71,6 +71,20 @@ export const MoveTabsIcon = (props: BaseSvgIconProps) => (
   </BaseSvgIcon>
 )
 
+export const ExportTabsIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6" />
+    </g>
+  </BaseSvgIcon>
+)
+
 export const TabGroupIcon = (props: BaseSvgIconProps) => (
   <BaseSvgIcon {...props}>
     <g

@@ -98,6 +98,12 @@ export default observer(
           <MenuItem onClick={run(() => actionStore.copyTabUrl(tab))}>
             <CopyTextIcon fontSize={18} /> Copy URL
           </MenuItem>
+          <MenuItem onClick={run(() => actionStore.copyTabTitle(tab))}>
+            <CopyTextIcon fontSize={18} /> Copy title
+          </MenuItem>
+          <MenuItem onClick={run(() => actionStore.copyTabTitleAndUrl(tab))}>
+            <CopyTextIcon fontSize={18} /> Copy title and URL
+          </MenuItem>
           <MenuItem
             disabled={dragStore.pendingWindowEdgeDrop}
             onClick={run(() => actionStore.moveTabToNewWindow(tab))}

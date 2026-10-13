@@ -2,7 +2,8 @@ import { makeAutoObservable, observable, runInAction } from 'mobx'
 import type Store from 'stores'
 import type Focusable from './Focusable'
 import type Tab from './Tab'
-import { getNoun, writeToClipboard } from 'libs'
+import { getNoun } from 'libs'
+import type { TabCopyFormat } from 'libs/tabExport'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { restoreDialogFocusTarget } from 'libs/dialogFocus'
 import TabGroupRow from './TabGroupRow'
@@ -16,6 +17,7 @@ export type ActionMenuAnchor = {
 export type PaletteIconName =
   | 'reload'
   | 'copy'
+  | 'export'
   | 'move'
   | 'new-window'
   | 'window'
@@ -52,6 +54,38 @@ export type PaletteCommand = {
 
 class PaletteMoveError extends Error {}
 
+const copyFormats: Array<{
+  format: TabCopyFormat
+  label: string
+  detail: string
+  aliases: string
+}> = [
+  {
+    format: 'csv',
+    label: 'CSV',
+    detail: 'Table with titles, URLs, windows, groups and pinned state',
+    aliases: 'comma separated values table',
+  },
+  {
+    format: 'tsv',
+    label: 'Spreadsheet (TSV)',
+    detail: 'Tab-separated table for spreadsheet columns',
+    aliases: 'tab separated values excel sheets table',
+  },
+  {
+    format: 'json',
+    label: 'JSON',
+    detail: 'Structured windows, tabs and group metadata',
+    aliases: 'structured data script',
+  },
+  {
+    format: 'markdown',
+    label: 'Markdown links',
+    detail: 'A readable list of titled links for notes',
+    aliases: 'md notes links',
+  },
+]
+
 /** App-local overlays. These shortcuts never enter the browser manifest. */
 export default class ActionStore {
   store: Store
@@ -60,6 +94,8 @@ export default class ActionStore {
   paletteOpen = false
   query = ''
   choosingDestination = false
+  formatAction: 'copy' | 'export' | null = null
+  feedback = ''
   busy = false
   error = ''
   paletteFocusTarget: HTMLElement | null = null
@@ -113,6 +149,8 @@ export default class ActionStore {
     this.store.hoverStore.hideTooltip()
     this.query = query
     this.choosingDestination = false
+    this.formatAction = null
+    this.feedback = ''
     this.error = ''
     this.paletteOpen = true
   }
@@ -122,6 +160,7 @@ export default class ActionStore {
     const wasOpen = this.paletteOpen
     this.paletteOpen = false
     this.choosingDestination = false
+    this.formatAction = null
     if (
       wasOpen &&
       restoreFocus &&
@@ -138,17 +177,36 @@ export default class ActionStore {
 
   setQuery = (query: string) => {
     this.query = query
+    this.feedback = ''
   }
 
   back = () => {
+    if (this.busy) return
     this.choosingDestination = false
+    this.formatAction = null
+    this.feedback = ''
     this.query = ''
     this.error = ''
   }
 
-  copyTabUrl = async (tab: Tab) => {
-    await writeToClipboard(tab.url)
-    this.store.shortcutStore.showMoveHint('Tab URL copied')
+  showFeedback = (message: string) => {
+    if (this.paletteOpen && this.formatAction) this.feedback = message
+    else this.store.shortcutStore.showMoveHint(message)
+  }
+
+  copyTabUrl = (tab: Tab) => this.store.copyTabs([tab], 'url')
+
+  copyTabTitle = (tab: Tab) => this.store.copyTabs([tab], 'title')
+
+  copyTabTitleAndUrl = (tab: Tab) => this.store.copyTabs([tab], 'title-url')
+
+  chooseFormat = (action: 'copy' | 'export') => {
+    const formatQuery =
+      this.query.match(/\b(csv|tsv|json|markdown|spreadsheet)\b/i)?.[0] || ''
+    this.formatAction = action
+    this.choosingDestination = false
+    this.query = formatQuery
+    this.feedback = ''
   }
 
   moveTabToNewWindow = (tab: Tab) =>
@@ -157,6 +215,7 @@ export default class ActionStore {
   execute = async (command: PaletteCommand) => {
     if (this.busy || command.disabledReason) return
     this.error = ''
+    this.feedback = ''
     this.busy = true
     try {
       await command.run()
@@ -193,6 +252,33 @@ export default class ActionStore {
     const moveReason = dragStore.pendingWindowEdgeDrop
       ? 'A tab move is already in progress'
       : selectionReason
+    if (this.formatAction) {
+      const exporting = this.formatAction === 'export'
+      return copyFormats
+        .filter(
+          (option) =>
+            !exporting || option.format === 'csv' || option.format === 'json',
+        )
+        .map((option) => ({
+          id: `${this.formatAction}-${option.format}`,
+          icon: exporting ? 'export' : 'copy',
+          label: option.label,
+          detail: option.detail,
+          aliases: option.aliases,
+          section: `${exporting ? 'Export' : 'Copy'} ${selectedScope}`,
+          disabledReason: selectionReason,
+          keepOpen: true,
+          run: () => {
+            if (
+              exporting &&
+              (option.format === 'csv' || option.format === 'json')
+            ) {
+              return this.store.exportTabs(tabStore.sources, option.format)
+            }
+            return this.store.copyTabs(tabStore.sources, option.format)
+          },
+        }))
+    }
     if (this.choosingDestination) {
       const windowTitle = (win: (typeof windowStore.windows)[number]) =>
         win.tabs.find((tab) => tab.active)?.title ||
@@ -272,7 +358,24 @@ export default class ActionStore {
           section: 'Selected tabs',
           aliases: 'clipboard links',
           shortcut: 'c → c',
-          run: () => this.store.copyTabsInfo(),
+          run: () => this.store.copyTabs(tabStore.sources, 'url'),
+        },
+        {
+          id: 'copy-titles-selection',
+          icon: 'copy',
+          label: `Copy titles of ${selectedScope}`,
+          section: 'Selected tabs',
+          aliases: 'clipboard names',
+          run: () => this.store.copyTabs(tabStore.sources, 'title'),
+        },
+        {
+          id: 'copy-titles-urls-selection',
+          icon: 'copy',
+          label: `Copy titles and URLs of ${selectedScope}`,
+          section: 'Selected tabs',
+          aliases: 'clipboard names links',
+          shortcut: 'c → t',
+          run: () => this.store.copyTabs(tabStore.sources, 'title-url'),
         },
         {
           id: 'new-window-selection',
@@ -302,6 +405,29 @@ export default class ActionStore {
         },
       )
     }
+    commands.push(
+      {
+        id: 'copy-format-selection',
+        icon: 'copy',
+        label: count ? `Copy ${selectedScope} as…` : 'Copy selected tabs as…',
+        section: count ? 'Selected tabs' : 'Selection',
+        aliases:
+          'copy csv copy tsv spreadsheet copy json copy markdown clipboard table',
+        disabledReason: selectionReason,
+        keepOpen: true,
+        run: () => this.chooseFormat('copy'),
+      },
+      {
+        id: 'export-selection',
+        icon: 'export',
+        label: count ? `Export ${selectedScope}…` : 'Export selected tabs…',
+        section: count ? 'Selected tabs' : 'Selection',
+        aliases: 'export csv export json download file save',
+        disabledReason: selectionReason,
+        keepOpen: true,
+        run: () => this.chooseFormat('export'),
+      },
+    )
     commands.push({
       id: 'move-selection',
       icon: 'move',
@@ -332,6 +458,22 @@ export default class ActionStore {
           section: 'Focused tab',
           aliases: 'clipboard link',
           run: () => this.copyTabUrl(tab),
+        },
+        {
+          id: 'copy-title-tab',
+          icon: 'copy',
+          label: 'Copy this tab’s title',
+          section: 'Focused tab',
+          aliases: 'clipboard name',
+          run: () => this.copyTabTitle(tab),
+        },
+        {
+          id: 'copy-title-url-tab',
+          icon: 'copy',
+          label: 'Copy this tab’s title and URL',
+          section: 'Focused tab',
+          aliases: 'clipboard name link',
+          run: () => this.copyTabTitleAndUrl(tab),
         },
         {
           id: 'new-window-tab',

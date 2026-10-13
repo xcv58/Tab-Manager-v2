@@ -4,6 +4,7 @@ import {
   BrowserWindowIcon,
   CopyTextIcon,
   DeselectTabsIcon,
+  ExportTabsIcon,
   KeyboardShortcutsIcon,
   MoveTabsIcon,
   PinTabIcon,
@@ -32,6 +33,7 @@ import type { PaletteIconName } from 'stores/ActionStore'
 const icons: Record<PaletteIconName, React.ComponentType<BaseSvgIconProps>> = {
   reload: RefreshIcon,
   copy: CopyTextIcon,
+  export: ExportTabsIcon,
   move: MoveTabsIcon,
   'new-window': OpenInNewIcon,
   window: BrowserWindowIcon,

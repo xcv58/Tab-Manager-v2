@@ -23,6 +23,25 @@ const PaletteDialog = observer(function PaletteDialog() {
   const contextId = useId()
   const listRef = useRef<HTMLUListElement>(null)
   const commands = actionStore.commands
+  const formatAction = actionStore.formatAction
+  const choosingStep = actionStore.choosingDestination || Boolean(formatAction)
+  const title = actionStore.choosingDestination
+    ? 'Choose a destination'
+    : formatAction === 'copy'
+      ? 'Choose a copy format'
+      : formatAction === 'export'
+        ? 'Choose an export format'
+        : 'Command palette'
+  const searchLabel = actionStore.choosingDestination
+    ? 'Search destinations'
+    : formatAction
+      ? 'Search formats'
+      : 'Search commands'
+  const listLabel = actionStore.choosingDestination
+    ? 'Destinations'
+    : formatAction
+      ? 'Formats'
+      : 'Commands'
   const query = actionStore.query.trim()
   const searchCommands = (items: PaletteCommand[]) =>
     query
@@ -52,7 +71,7 @@ const PaletteDialog = observer(function PaletteDialog() {
       isOpen: actionStore.paletteOpen,
       highlightResetKey: actionStore.choosingDestination
         ? 'destinations'
-        : 'commands',
+        : formatAction || 'commands',
     })
   const inputProps = getInputProps()
   const listboxProps = getListboxProps()
@@ -96,7 +115,7 @@ const PaletteDialog = observer(function PaletteDialog() {
 
   useEffect(() => {
     if (listRef.current) listRef.current.scrollTop = 0
-  }, [actionStore.choosingDestination, query])
+  }, [actionStore.choosingDestination, formatAction, query])
 
   return (
     <Dialog
@@ -126,16 +145,14 @@ const PaletteDialog = observer(function PaletteDialog() {
           if (event.key === 'Escape') {
             event.preventDefault()
             event.stopPropagation()
-            if (actionStore.choosingDestination) actionStore.back()
+            if (choosingStep) actionStore.back()
             else actionStore.closePalette()
           }
         }}
       >
         <div className="flex items-center gap-2 px-4 pt-3 pb-2">
           <h2 id={titleId} className="flex-1 text-sm font-semibold">
-            {actionStore.choosingDestination
-              ? 'Choose a destination'
-              : 'Command palette'}
+            {title}
           </h2>
           <kbd className="text-xs opacity-60">
             {getCommandPaletteShortcutLabel()}
@@ -156,17 +173,15 @@ const PaletteDialog = observer(function PaletteDialog() {
           <SearchIcon fontSize={18} />
           <input
             {...inputProps}
-            aria-label={
-              actionStore.choosingDestination
-                ? 'Search destinations'
-                : 'Search commands'
-            }
+            aria-label={searchLabel}
             aria-describedby={contextId}
             aria-controls={listboxProps.id}
             placeholder={
               actionStore.choosingDestination
                 ? 'Find a window or group…'
-                : 'What would you like to do?'
+                : formatAction
+                  ? 'Find a format…'
+                  : 'What would you like to do?'
             }
             disabled={actionStore.busy}
             onKeyDown={(event) => {
@@ -191,7 +206,7 @@ const PaletteDialog = observer(function PaletteDialog() {
         >
           {context}
         </p>
-        {actionStore.choosingDestination && (
+        {choosingStep && (
           <button
             type="button"
             className="flex items-center px-4 py-2 text-xs text-left"
@@ -204,9 +219,7 @@ const PaletteDialog = observer(function PaletteDialog() {
         <ul
           {...listboxProps}
           ref={listRef}
-          aria-label={
-            actionStore.choosingDestination ? 'Destinations' : 'Commands'
-          }
+          aria-label={listLabel}
           aria-busy={actionStore.busy}
           style={{
             overflowY: 'auto',
@@ -295,10 +308,23 @@ const PaletteDialog = observer(function PaletteDialog() {
               style={{ color: theme.palette.text.secondary }}
             >
               No matching{' '}
-              {actionStore.choosingDestination ? 'destinations' : 'commands'}
+              {actionStore.choosingDestination
+                ? 'destinations'
+                : formatAction
+                  ? 'formats'
+                  : 'commands'}
             </li>
           )}
         </ul>
+        {actionStore.feedback && (
+          <p
+            role="status"
+            className="px-4 py-2 text-xs"
+            style={{ color: theme.palette.text.secondary }}
+          >
+            {actionStore.feedback}
+          </p>
+        )}
         {actionStore.error && (
           <p role="alert" className="px-4 py-2 text-sm">
             {actionStore.error}
@@ -314,7 +340,7 @@ const PaletteDialog = observer(function PaletteDialog() {
           <span>
             {actionStore.busy ? 'Working…' : '↑ ↓ navigate · Enter run'}
           </span>
-          <span>Esc {actionStore.choosingDestination ? 'back' : 'close'}</span>
+          <span>Esc {choosingStep ? 'back' : 'close'}</span>
         </div>
       </div>
     </Dialog>

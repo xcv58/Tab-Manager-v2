@@ -1,5 +1,12 @@
 import { makeAutoObservable } from 'mobx'
-import { togglePinTabs, writeToClipboard } from 'libs'
+import { getNoun, togglePinTabs, writeToClipboard } from 'libs'
+import {
+  createTabExportRecords,
+  downloadTabExport,
+  formatTabExport,
+  TabCopyFormat,
+  TabFileFormat,
+} from 'libs/tabExport'
 import log from 'libs/log'
 import WindowStore from 'stores/WindowStore'
 import SearchStore from 'stores/SearchStore'
@@ -285,20 +292,58 @@ export default class Store {
     return this._isItemAffectedByTabs(this.focusStore.focusedItem, tabs)
   }
 
+  getTabExportRecords = (tabs: Tab[]) =>
+    createTabExportRecords(
+      tabs,
+      this.windowStore.windows.map((win) => ({
+        id: win.id,
+        title:
+          win.tabs.find((tab) => tab.active)?.title ||
+          win.tabs[0]?.title ||
+          'Empty window',
+      })),
+      this.tabGroupStore.tabGroupMap,
+    )
+
+  copyTabs = async (tabs: Tab[], format: TabCopyFormat) => {
+    if (!tabs.length) return
+    const text = formatTabExport(this.getTabExportRecords(tabs), format)
+    await writeToClipboard(text)
+    const scope = `${tabs.length.toLocaleString()} ${getNoun('tab', tabs.length)}`
+    const label =
+      format === 'url'
+        ? getNoun('URL', tabs.length)
+        : format === 'title'
+          ? getNoun('title', tabs.length)
+          : `${getNoun('title', tabs.length)} and ${getNoun('URL', tabs.length)}`
+    this.actionStore.showFeedback(
+      ['url', 'title', 'title-url'].includes(format)
+        ? `Copied ${label} of ${scope}`
+        : `Copied ${scope} as ${format === 'markdown' ? 'Markdown' : format.toUpperCase()}`,
+    )
+  }
+
+  exportTabs = (tabs: Tab[], format: TabFileFormat) => {
+    if (!tabs.length) return
+    const text = formatTabExport(this.getTabExportRecords(tabs), format)
+    downloadTabExport(text, format)
+    this.actionStore.showFeedback(
+      `Exported ${tabs.length.toLocaleString()} ${getNoun('tab', tabs.length)} as ${format.toUpperCase()}`,
+    )
+  }
+
   copyTabsInfo = async ({ includeTitle = false, delimiter = '\n' } = {}) => {
     const tabs = this._getFocusedOrSelectedTab()
-    if (!tabs || !tabs.length) {
-      return
-    }
-    const text = tabs
-      .map((x) => {
-        if (includeTitle) {
-          return `${x.title}\n${x.url}\n`
-        }
-        return x.url
-      })
-      .join(delimiter)
-    await writeToClipboard(text)
-    this.tabStore.unselectAll()
+    if (!tabs.length) return
+    if (delimiter === '\n')
+      return this.copyTabs(tabs, includeTitle ? 'title-url' : 'url')
+    await writeToClipboard(
+      this.getTabExportRecords(tabs)
+        .map((tab) => tab.url)
+        .join(delimiter),
+    )
+    this.actionStore.showFeedback(
+      `Copied URLs of ${tabs.length.toLocaleString()} ${getNoun('tab', tabs.length)}`,
+    )
   }
 }
