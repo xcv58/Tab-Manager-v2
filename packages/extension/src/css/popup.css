@@ -422,7 +422,7 @@ body {
 
 .settings-layout {
   display: grid;
-  grid-template-columns: 176px minmax(0, 1fr);
+  grid-template-columns: min(35%, max(176px, 11rem)) minmax(0, 1fr);
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -447,7 +447,7 @@ body {
   color: inherit;
   font-size: 0.8125rem;
   text-align: left;
-  white-space: nowrap;
+  white-space: normal;
   cursor: pointer;
 }
 
@@ -509,7 +509,7 @@ body {
 
   .settings-navigation {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
     padding: 8px;
     border-right: 0;
     border-bottom: 1px solid var(--settings-border);
