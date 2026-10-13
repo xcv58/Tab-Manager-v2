@@ -180,7 +180,7 @@ export default class ShortcutStore {
       'Toogle pin',
     ],
     [
-      ['/', 'command+k'],
+      '/',
       (event: Event) => {
         preventDefault(event)
         this.store.searchStore.focus()
