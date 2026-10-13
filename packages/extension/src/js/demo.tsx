@@ -8,9 +8,17 @@ import '../css/popup.css'
 import '@pigment-css/react/styles.css'
 import '../css/demo-workspace.css'
 
-// The adapter has already read the scenario hash. Use the normal full-page URL
-// so existing tab activation and popup-closing logic keeps this page open.
-window.history.replaceState(null, '', `${window.location.pathname}?not_popup=1`)
+// The adapter has already read the scenario hash. Full-page mode keeps normal
+// demo activation from closing this page; popup preview explicitly exercises
+// the shared popup UI against the same isolated sample browser adapter.
+const popupPreview = new URLSearchParams(window.location.search).has(
+  'popup_preview',
+)
+window.history.replaceState(
+  null,
+  '',
+  `${window.location.pathname}?${popupPreview ? 'popup_preview=1' : 'not_popup=1'}`,
+)
 
 let failed = false
 const sendState = () => {
