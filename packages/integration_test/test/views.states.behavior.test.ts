@@ -9,6 +9,7 @@ import {
   openPages,
   groupTabsByUrl,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
   waitForTestId,
 } from '../util'
@@ -323,10 +324,10 @@ test.describe('The Extension page should', () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
-    await page.waitForSelector('[aria-label="Update Font Size"]')
+    await selectSettingsSection(page, 'Popup & controls')
 
     const toolbarToggle = page
-      .locator('[aria-labelledby="toggle-always-show-toolbar"]')
+      .locator('[aria-label="Toggle Always Show Toolbar"]')
       .first()
     await expect(toolbarToggle).toBeVisible()
     await waitForLocatorRectToStabilize(toolbarToggle, {
@@ -351,6 +352,7 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
+    await selectSettingsSection(page, 'Appearance')
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
     const themeToggleShot = await themeToggleGroup.screenshot({

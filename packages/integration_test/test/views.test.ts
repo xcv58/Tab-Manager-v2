@@ -12,6 +12,7 @@ import {
   createWindowsWithTabs,
   groupTabsByUrlInWindow,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
   waitForSurfaceToFullyAppear,
   waitForTestId,
@@ -912,18 +913,10 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
     await page
-      .getByRole('navigation', { name: 'Settings sections' })
-      .getByRole('button', { name: 'Appearance', exact: true })
+      .getByRole('tablist', { name: 'Settings sections' })
+      .getByRole('tab', { name: 'Appearance', exact: true })
       .click()
     await page.waitForSelector('[aria-label="Update Font Size"]')
-
-    const tabWidthSlider = page
-      .locator('[aria-label="Update Tab Width"]')
-      .first()
-    await expect(tabWidthSlider).toBeVisible()
-    await expect(tabWidthSlider).toHaveAttribute('aria-valuemin', '15')
-    await expect(tabWidthSlider).toHaveAttribute('aria-valuemax', '50')
-    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '20')
 
     const fontSizeSlider = page
       .locator('[aria-label="Update Font Size"]')
@@ -932,23 +925,30 @@ test.describe('The Extension page should', () => {
     await expect(fontSizeSlider).toHaveAttribute('aria-valuemin', '6')
     await expect(fontSizeSlider).toHaveAttribute('aria-valuemax', '36')
     await expect(fontSizeSlider).toHaveAttribute('aria-valuenow', '14')
+    await expect(
+      page.locator('[aria-label="Font Size Value"]').first(),
+    ).toHaveValue('14')
 
+    await selectSettingsSection(page, 'Windows & layout')
+    const tabWidthSlider = page
+      .locator('[aria-label="Update Tab Width"]')
+      .first()
+    await expect(tabWidthSlider).toBeVisible()
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuemin', '15')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuemax', '50')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '20')
     const tabWidthInput = page
       .locator('[aria-label="Minimum Tab Width Value"]')
       .first()
     await expect(tabWidthInput).toBeVisible()
     await expect(tabWidthInput).toHaveValue('20')
 
-    const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
-    await expect(fontSizeInput).toBeVisible()
-    await expect(fontSizeInput).toHaveValue('14')
-
     await page
-      .getByRole('navigation', { name: 'Settings sections' })
-      .getByRole('button', { name: 'View', exact: true })
+      .getByRole('tablist', { name: 'Settings sections' })
+      .getByRole('tab', { name: 'Popup & controls', exact: true })
       .click()
     const toolbarToggle = page
-      .locator('[aria-labelledby="toggle-always-show-toolbar"]')
+      .locator('[aria-label="Toggle Always Show Toolbar"]')
       .first()
     await expect(toolbarToggle).toBeVisible()
     await page.mouse.move(1, 1)
@@ -969,8 +969,8 @@ test.describe('The Extension page should', () => {
     )
 
     await page
-      .getByRole('navigation', { name: 'Settings sections' })
-      .getByRole('button', { name: 'Appearance', exact: true })
+      .getByRole('tablist', { name: 'Settings sections' })
+      .getByRole('tab', { name: 'Appearance', exact: true })
       .click()
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
@@ -1000,6 +1000,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await selectSettingsSection(page, 'Windows & layout')
     await tabWidthInput.fill('28')
     await expect
       .poll(async () => {
@@ -1014,14 +1015,14 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(200)
   })
 
-  test('render auto-fit columns setting in the view panel', async () => {
+  test('render auto-fit columns setting in the layout panel', async () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
     await page
-      .getByRole('navigation', { name: 'Settings sections' })
-      .getByRole('button', { name: 'View', exact: true })
+      .getByRole('tablist', { name: 'Settings sections' })
+      .getByRole('tab', { name: 'Windows & layout', exact: true })
       .click()
     const autoFitColumnsToggle = page.getByRole('checkbox', {
       name: /Auto-fit columns/i,

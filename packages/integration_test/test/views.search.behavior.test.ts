@@ -422,10 +422,13 @@ test.describe('The Extension page should', () => {
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(titleMatchedOption).not.toContainText('SearchDocs')
-    await titleMatchedOption.hover()
+    await titleMatchedOption.locator('button[aria-haspopup="dialog"]').hover()
     await expect(
-      page.getByRole('tooltip').filter({ hasText: 'Alpha Guide' }),
-    ).toContainText('Group: SearchDocs')
+      page
+        .getByRole('dialog', { name: 'Tab details', exact: true })
+        .locator('dd')
+        .filter({ hasText: 'SearchDocs' }),
+    ).toHaveText('SearchDocs')
 
     await page.evaluate(async () => {
       await chrome.storage.sync.set({
@@ -703,8 +706,13 @@ test.describe('The Extension page should', () => {
       .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await groupedRow.hover()
-    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
+    await groupedRow.locator('button[aria-haspopup="dialog"]').hover()
+    await expect(
+      page
+        .getByRole('dialog', { name: 'Tab details', exact: true })
+        .locator('dd')
+        .filter({ hasText: 'SearchDocs' }),
+    ).toHaveText('SearchDocs')
 
     await expect
       .poll(async () => {

@@ -112,13 +112,28 @@ test('select, expand and copy long tab details without activating the tab', asyn
     await expect(urlText).toHaveClass(/line-clamp-3/)
     await card.getByRole('button', { name: 'Show less title' }).click()
     await card.getByRole('button', { name: 'Show full URL' }).click()
+    await expect(urlText).not.toHaveClass(/line-clamp/)
     const scroll = card.locator('.tab-details-scroller')
-    const metrics = await scroll.evaluate((node) => ({
+    // Each expanded field scrolls independently, keeping the other field and
+    // its copy/expand controls available even for extremely long text.
+    const metrics = await urlText.evaluate((node) => ({
       height: node.clientHeight,
       scroll: node.scrollHeight,
     }))
     expect(metrics.scroll).toBeGreaterThan(metrics.height)
-    expect(metrics.height).toBeLessThan(620)
+    expect(metrics.height).toBeLessThanOrEqual(180)
+    await urlText.hover()
+    await page.mouse.wheel(0, 300)
+    await expect
+      .poll(() => urlText.evaluate((node) => node.scrollTop))
+      .toBeGreaterThan(0)
+    await expect(titleText).toBeVisible()
+    await urlText.evaluate((node) => {
+      node.scrollTop = 0
+    })
+    expect(
+      await scroll.evaluate((node) => node.clientHeight),
+    ).toBeLessThanOrEqual(480)
     await scroll.evaluate((node) => {
       node.scrollTop = 0
     })

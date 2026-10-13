@@ -8,6 +8,7 @@ import {
   matchImageSnapshotOptions,
   waitForTestId,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
 } from '../util'
 
@@ -53,11 +54,7 @@ const clickVisibleRelayoutAction = async (actions: Locator) => {
 }
 
 const waitForSettingsPanelToSettle = async (page: Page) => {
-  await page
-    .getByRole('navigation', { name: 'Settings sections' })
-    .getByRole('button', { name: 'View', exact: true })
-    .click()
-  const panel = page.getByTestId('settings-panel-behavior')
+  const panel = await selectSettingsSection(page, 'Windows & layout')
   await expect(panel).toBeVisible()
   await waitForLocatorRectToStabilize(panel, {
     minWidth: 300,
@@ -1136,12 +1133,15 @@ test.describe('The Extension page should', () => {
         (toolbarRect?.x || 0) + (toolbarRect?.width || 0),
       ) - Math.max(relayoutRect?.x || 0, toolbarRect?.x || 0),
     ).toBeGreaterThan(0)
+    // The dock now sits flush with the viewport and has a reserved bottom strip.
+    // Horizontal alignment must leave both controls accessible, without overlap.
     expect(
-      Math.min(
-        (relayoutRect?.y || 0) + (relayoutRect?.height || 0),
-        (toolbarRect?.y || 0) + (toolbarRect?.height || 0),
-      ) - Math.max(relayoutRect?.y || 0, toolbarRect?.y || 0),
-    ).toBeGreaterThan(0)
+      (relayoutRect?.y || 0) + (relayoutRect?.height || 0),
+    ).toBeLessThanOrEqual(toolbarRect?.y || 0)
+    const viewport = page.viewportSize()
+    const dockRect = await page.locator('.corner-dock').boundingBox()
+    expect(dockRect.x + dockRect.width).toBe(viewport.width)
+    expect(dockRect.y + dockRect.height).toBe(viewport.height)
 
     const topmostButtonName = await toolbarToggle.evaluate((node) => {
       const rect = node.getBoundingClientRect()

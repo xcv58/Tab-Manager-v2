@@ -15,6 +15,27 @@ export const EXTENSION_PATH = join(
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const WINDOW_CARD_QUERY = '[data-testid^="window-card-"]'
 export const INTEGRATION_VIEWPORT = { width: 1280, height: 720 }
+
+export const selectSettingsSection = async (
+  page: Page,
+  name:
+    | 'Appearance'
+    | 'Windows & layout'
+    | 'Tab details'
+    | 'Search'
+    | 'Popup & controls',
+) => {
+  const tab = page
+    .getByRole('tablist', { name: 'Settings sections' })
+    .getByRole('tab', { name, exact: true })
+  await tab.click()
+  await expect(tab).toHaveAttribute('aria-selected', 'true')
+  const panel = page.getByRole('tabpanel', { name, exact: true })
+  await expect(page.getByRole('tabpanel')).toHaveCount(1)
+  await expect(panel).toBeVisible()
+  await waitForSurfaceToFullyAppear(page, panel)
+  return panel
+}
 const TEST_VIDEO_CAPTURE_FPS = Number(
   process.env.TMV2_RECORD_TEST_VIDEO_FPS || '12',
 )

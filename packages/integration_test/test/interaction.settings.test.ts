@@ -8,6 +8,7 @@ import {
   openPages,
   matchImageSnapshotOptions,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
   waitForSurfaceToFullyAppear,
 } from '../util'
@@ -28,15 +29,10 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
   })
 }
 
-const waitForSettingsPanelToSettle = async (page: Page) => {
-  await page
-    .getByRole('navigation', { name: 'Settings sections' })
-    .getByRole('button', { name: 'Appearance', exact: true })
-    .click()
-  const panel = page.getByTestId('settings-panel-theme-density')
-  await expect(panel).toBeVisible()
-  await waitForSurfaceToFullyAppear(page, panel)
-}
+const waitForSettingsPanelToSettle = async (
+  page: Page,
+  name: Parameters<typeof selectSettingsSection>[1] = 'Appearance',
+) => selectSettingsSection(page, name)
 
 const screenshotLocatorTop = async (
   page: Page,
@@ -163,6 +159,7 @@ test.describe('The Extension page should', () => {
     await waitForSettingsPanelToSettle(page)
     await expect(classicButton).toHaveAttribute('aria-checked', 'true')
 
+    await selectSettingsSection(page, 'Tab details')
     const duplicatePreview = page
       .getByTestId('row-details-preview-duplicates')
       .locator('[data-testid^="tab-duplicate-marker-"]')
@@ -189,6 +186,7 @@ test.describe('The Extension page should', () => {
       name: 'Use classic interface style',
     })
     await expect(classicButton).toHaveAttribute('aria-checked', 'true')
+    await selectSettingsSection(page, 'Tab details')
     await expect(
       page
         .getByTestId('row-details-preview-duplicates')
@@ -199,7 +197,7 @@ test.describe('The Extension page should', () => {
 
   test('persist window order mode across reload', async () => {
     await page.locator('button[aria-label="Settings"]').first().click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Windows & layout')
 
     let windowOrderGroup = page.getByTestId(
       'settings-window-order-toggle-group',
@@ -209,7 +207,7 @@ test.describe('The Extension page should', () => {
       name: 'Use last used window order',
     })
     await lastUsedButton.click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Windows & layout')
     await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
 
     expect(
@@ -222,7 +220,7 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await waitForMainSurfaceToSettle(page)
     await page.locator('button[aria-label="Settings"]').first().click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Windows & layout')
 
     windowOrderGroup = page.getByTestId('settings-window-order-toggle-group')
     lastUsedButton = windowOrderGroup.getByRole('radio', {
@@ -245,8 +243,8 @@ test.describe('The Extension page should', () => {
       .click()
 
     await page
-      .getByRole('navigation', { name: 'Settings sections' })
-      .getByRole('button', { name: 'Tab display', exact: true })
+      .getByRole('tablist', { name: 'Settings sections' })
+      .getByRole('tab', { name: 'Tab details', exact: true })
       .click()
     const activeTabsToggle = page.getByRole('checkbox', {
       name: 'Highlight all active tabs',
@@ -289,6 +287,7 @@ test.describe('The Extension page should', () => {
     await expect(
       page.getByRole('checkbox', { name: 'Increase contrast' }),
     ).toBeChecked()
+    await selectSettingsSection(page, 'Tab details')
     await expect(
       page.getByRole('checkbox', {
         name: 'Highlight all active tabs',
@@ -331,28 +330,80 @@ test.describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     await page.locator('button[aria-label="Settings"]').first().click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Popup & controls')
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    let toogleButton = await page.$(
-      '[aria-labelledby="toggle-always-show-toolbar"]',
-    )
+    let toogleButton = await page.$('[aria-label="Toggle Always Show Toolbar"]')
     await toogleButton.click()
 
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Popup & controls')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    toogleButton = await page.$(
-      '[aria-labelledby="toggle-always-show-toolbar"]',
-    )
+    toogleButton = await page.$('[aria-label="Toggle Always Show Toolbar"]')
     await toogleButton.click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Popup & controls')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await page.keyboard.press('Escape')
     await waitForMainSurfaceToSettle(page)
+  })
+
+  test('continue scrolling between single settings sections and remember the last section', async () => {
+    await page.setViewportSize({ width: 1280, height: 600 })
+    await page.locator('button[aria-label="Settings"]').first().click()
+    const panel = await selectSettingsSection(page, 'Appearance')
+    await expect
+      .poll(() =>
+        panel.evaluate((node) => node.scrollHeight - node.clientHeight),
+      )
+      .toBeGreaterThan(0)
+    const box = await panel.boundingBox()
+    await page.mouse.move(box.x + box.width - 12, box.y + box.height / 2)
+    await page.mouse.wheel(0, 10000)
+    await expect
+      .poll(() =>
+        panel.evaluate(
+          (node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+        ),
+      )
+      .toBeLessThanOrEqual(2)
+    await expect(
+      page.getByRole('tab', { name: 'Appearance', exact: true }),
+    ).toHaveAttribute('aria-selected', 'true')
+    // A fresh gesture at the boundary continues to the next section.
+    await page.waitForTimeout(300)
+    await page.mouse.wheel(0, 80)
+    const layout = page.getByRole('tabpanel', {
+      name: 'Windows & layout',
+      exact: true,
+    })
+    await expect(layout).toBeVisible()
+    await expect(page.getByRole('tabpanel')).toHaveCount(1)
+    await expect.poll(() => layout.evaluate((node) => node.scrollTop)).toBe(0)
+    await page.waitForTimeout(300)
+    await page.mouse.wheel(0, -80)
+    await expect(panel).toBeVisible()
+    await expect
+      .poll(() =>
+        panel.evaluate(
+          (node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+        ),
+      )
+      .toBeLessThanOrEqual(2)
+    await selectSettingsSection(page, 'Search')
+    await page.keyboard.press('Escape')
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await expect(
+      page.getByRole('tab', { name: 'Search', exact: true }),
+    ).toHaveAttribute('aria-selected', 'true')
+    await expect(
+      page.getByRole('tabpanel', { name: 'Search', exact: true }),
+    ).toBeVisible()
+    await expect(page.getByRole('tabpanel')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await page.setViewportSize({ width: 1280, height: 720 })
   })
 })
