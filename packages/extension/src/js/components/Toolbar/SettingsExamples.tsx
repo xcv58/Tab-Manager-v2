@@ -11,7 +11,7 @@ import {
   RefreshIcon,
   KeyboardArrowLeftIcon,
 } from 'icons/materialIcons'
-import TabRowPreview from './TabRowPreview'
+import TabRowPreview, { TabRowsPreview } from './TabRowPreview'
 import tabManagerIcon from 'img/icon-128.png'
 import tabManagerDarkIcon from 'img/icon-128-dark.png'
 import { getActionCountLayout } from 'libs/verify'
@@ -36,7 +36,7 @@ function Example({
       className="settings-example mt-3 min-w-0 border overflow-hidden"
       style={{
         borderColor: colors.toolbarShellBorderColor,
-        borderRadius: userStore.uiPreset === 'classic' ? 0 : 6,
+        borderRadius: 6,
         backgroundColor: colors.settingsPreviewSurface,
       }}
     >
@@ -156,11 +156,47 @@ export const WindowLayoutExample = observer(function WindowLayoutExample() {
   )
 })
 
-const SearchExample = observer(function SearchExample({
-  mode,
+// Measure the sticky heading so a large reading size never obscures the preview.
+export function SettingsPreviewLayout({
+  children,
 }: {
-  mode: 'results' | 'history' | 'filtering'
+  children: React.ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [headingHeight, setHeadingHeight] = useState(0)
+  useLayoutEffect(() => {
+    const heading = ref.current
+      ?.closest('.settings-section')
+      ?.querySelector<HTMLElement>('.settings-section-heading')
+    if (!heading) return
+    const measure = () =>
+      setHeadingHeight(heading.getBoundingClientRect().height)
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
+    resizeObserver?.observe(heading)
+    window.addEventListener('resize', measure)
+    measure()
+    return () => {
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
+  return (
+    <div
+      ref={ref}
+      className="settings-preview-layout"
+      style={
+        {
+          '--settings-preview-top': headingHeight + 12 + 'px',
+        } as React.CSSProperties
+      }
+    >
+      {children}
+    </div>
+  )
+}
+
+export const TabDetailsPreview = observer(function TabDetailsPreview() {
   const { userStore } = useStore()
   const theme = useAppTheme()
   const colors = getUiColorTokens(
@@ -168,76 +204,52 @@ const SearchExample = observer(function SearchExample({
     userStore.uiPreset,
     userStore.increaseContrast,
   )
-  const showResults = mode !== 'results' || userStore.showSearchResultMenu
+  const common = {
+    fontSize: userStore.fontSize,
+    uiPreset: userStore.uiPreset,
+    increaseContrast: userStore.increaseContrast,
+    highlightActiveTabsInAllWindows: userStore.highlightActiveTabsInAllWindows,
+    showDuplicateMarker: userStore.highlightDuplicatedTab,
+    showTabIcon: userStore.showTabIcon,
+    showUrl: userStore.showUrl,
+    showTabTooltip: userStore.showTabTooltip,
+    tabTooltipUrlLines: userStore.tabTooltipUrlLines,
+    lastFocused: false,
+  }
   return (
-    <Example
-      label={
-        mode === 'history'
-          ? 'browser history results'
-          : mode === 'results'
-            ? 'full-page search results'
-            : 'matching and non-matching tabs'
-      }
-    >
-      <div
-        className="mx-2 mb-2 rounded border px-2 py-1 text-sm"
-        style={{
-          borderColor: colors.toolbarShellBorderColor,
-          borderRadius: userStore.uiPreset === 'classic' ? 0 : 4,
-        }}
-      >
-        React
-      </div>
-      {showResults && (
+    <div data-testid="tab-details-shared-preview">
+      <Example label="sample tabs">
         <div
-          className="mx-2 mb-2 rounded border overflow-hidden"
-          style={{
-            borderColor: colors.toolbarShellBorderColor,
-            borderRadius: userStore.uiPreset === 'classic' ? 0 : 4,
-          }}
+          className="px-2 py-1 text-xs"
+          style={{ backgroundColor: colors.headerSurface }}
         >
-          <TabRowPreview
-            config={{
-              id: 9260,
-              fontSize: userStore.fontSize,
-              title: 'React documentation',
-              url: 'https://react.dev/learn',
-              uiPreset: userStore.uiPreset,
-              increaseContrast: userStore.increaseContrast,
-              showTabIcon: true,
-              showUrl: true,
-            }}
-          />
-          {mode === 'filtering' && userStore.showUnmatchedTab && (
-            <TabRowPreview
-              className="opacity-40"
-              config={{
-                id: 9261,
-                fontSize: userStore.fontSize,
-                title: 'MDN Web Docs',
-                url: 'https://developer.mozilla.org/',
-                uiPreset: userStore.uiPreset,
-                increaseContrast: userStore.increaseContrast,
-                showTabIcon: true,
-                showUrl: true,
-              }}
-            />
-          )}
-          {mode === 'history' && userStore.searchHistory && (
-            <div
-              className="border-t px-2 py-2 text-sm"
-              style={{
-                borderColor: colors.toolbarShellBorderColor,
-                borderRadius: userStore.uiPreset === 'classic' ? 0 : 4,
-              }}
-            >
-              <div className="text-xs opacity-70">Browser history</div>React
-              guide you visited
-            </div>
-          )}
+          3 tabs · Another window
         </div>
-      )}
-    </Example>
+        <TabRowsPreview
+          configs={[
+            {
+              ...common,
+              id: 9100,
+              title:
+                'Active tab · Planning a workspace with long titles, detailed notes, and reference links across browser windows',
+              url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
+              active: true,
+            },
+            ...[9101, 9102].map((id) => ({
+              ...common,
+              id,
+              title: 'Tab Manager issue tracker',
+              url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+              duplicatedTabCount: 2,
+            })),
+          ]}
+        />
+      </Example>
+      <p className="settings-preview-hint">
+        Try selecting a sample tab. Hover or press Alt+↓ on a tab for its
+        tooltip.
+      </p>
+    </div>
   )
 })
 
@@ -295,46 +307,6 @@ export const ToolbarExample = observer(function ToolbarExample() {
     </Example>
   )
 })
-
-type SearchPreviewMode = 'history' | 'results' | 'filtering'
-
-export function SearchSettingsPreview({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [mode, setMode] = useState<SearchPreviewMode>('history')
-  const available = React.Children.toArray(children).flatMap((node) =>
-    React.isValidElement<{ searchPreview?: SearchPreviewMode }>(node) &&
-    node.props.searchPreview
-      ? [node.props.searchPreview]
-      : [],
-  )
-  const current = available.includes(mode) ? mode : available[0]
-  const inspect = (target: EventTarget) => {
-    if (!(target instanceof Element)) return
-    const preview = target.closest<HTMLElement>(
-      '[data-settings-search-preview]',
-    )?.dataset.settingsSearchPreview
-    if (preview) setMode(preview as SearchPreviewMode)
-  }
-  return (
-    <div className={`settings-search-options ${current ? 'has-preview' : ''}`}>
-      <div
-        className="settings-options"
-        onMouseOver={(event) => inspect(event.target)}
-        onFocusCapture={(event) => inspect(event.target)}
-      >
-        {children}
-      </div>
-      {current && (
-        <div className="settings-context-preview">
-          <SearchExample mode={current} />
-        </div>
-      )}
-    </div>
-  )
-}
 
 export const ExtensionIconExample = observer(function ExtensionIconExample() {
   const { userStore } = useStore()

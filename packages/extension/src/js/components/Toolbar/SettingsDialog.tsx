@@ -29,10 +29,10 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
-import TabRowPreview from './TabRowPreview'
 import {
   WindowLayoutExample,
-  SearchSettingsPreview,
+  SettingsPreviewLayout,
+  TabDetailsPreview,
   ExtensionIconExample,
   ToolbarExample,
 } from './SettingsExamples'
@@ -53,11 +53,10 @@ const panelTitleStyle: React.CSSProperties = {
 }
 
 const panelDescriptionStyle: React.CSSProperties = {
-  marginTop: 4,
   fontSize: '0.875rem',
   lineHeight: 1.45,
   color: 'var(--settings-muted)',
-  margin: 0,
+  margin: '4px 0 0',
 }
 
 const controlTitleStyle: React.CSSProperties = {
@@ -68,11 +67,10 @@ const controlTitleStyle: React.CSSProperties = {
 }
 
 const controlDescriptionStyle: React.CSSProperties = {
-  marginTop: 4,
   fontSize: '0.85rem',
   lineHeight: 1.45,
   color: 'var(--settings-muted)',
-  margin: 0,
+  margin: '4px 0 0',
 }
 
 /* -------------------------------------------------------------------------- */
@@ -116,27 +114,6 @@ const SettingsPanel = ({
     </div>
     <div className="settings-section-content">{children}</div>
   </section>
-)
-
-const PreviewSurface = ({
-  children,
-  style,
-  testId,
-}: {
-  children: React.ReactNode
-  style: React.CSSProperties
-  testId?: string
-  interactive?: boolean
-}) => (
-  <div
-    data-testid={testId}
-    data-settings-example
-    className="w-full min-w-0 overflow-hidden rounded-lg border xl:min-w-72"
-    style={style}
-  >
-    <div className="settings-preview-label">Preview · sample tabs</div>
-    {children}
-  </div>
 )
 
 const clampValue = (value: number, min: number, max: number) =>
@@ -406,8 +383,6 @@ const RowDetailsOption = ({
   details,
   checked,
   onChange,
-  preview,
-  previewHint,
   style,
   testId,
 }: {
@@ -416,49 +391,29 @@ const RowDetailsOption = ({
   details?: React.ReactNode
   checked: boolean
   onChange: () => void
-  preview: React.ReactNode
-  previewHint?: string
   style: React.CSSProperties
   testId?: string
-}) => (
-  <div
-    data-testid={testId}
-    className="settings-option flex flex-col gap-3 xl:flex-row xl:items-center xl:gap-4"
-    style={style}
-  >
-    <div className="min-w-0 xl:w-64 xl:shrink-0">
-      <div
-        className={`flex justify-between gap-3 ${
-          description ? 'items-start' : 'items-center'
-        }`}
-      >
-        <h5 style={controlTitleStyle}>{title}</h5>
+}) => {
+  const switchId = React.useId()
+  return (
+    <div data-testid={testId} className="settings-option" style={style}>
+      <div className="flex items-center justify-between gap-3">
+        <label htmlFor={switchId} className="min-w-0 cursor-pointer">
+          <h5 style={controlTitleStyle}>{title}</h5>
+          {description && <p style={controlDescriptionStyle}>{description}</p>}
+        </label>
         <Switch
           size="small"
           checked={checked}
           onChange={onChange}
-          inputProps={{ 'aria-label': title }}
+          inputProps={{ id: switchId, 'aria-label': title }}
+          style={{ flexShrink: 0 }}
         />
       </div>
-      {description && <p style={controlDescriptionStyle}>{description}</p>}
       {details}
     </div>
-    <div className="min-w-0 xl:flex-1">
-      {preview}
-      {previewHint && (
-        <p
-          style={{
-            ...controlDescriptionStyle,
-            marginTop: 6,
-            fontSize: '0.74rem',
-          }}
-        >
-          {previewHint}
-        </p>
-      )}
-    </div>
-  </div>
-)
+  )
+}
 
 const SettingsSwitchOption = ({
   title,
@@ -470,9 +425,7 @@ const SettingsSwitchOption = ({
   containerAriaLabelledBy,
   containerAriaLabel,
   preview,
-  searchPreview,
 }: {
-  searchPreview?: 'history' | 'results' | 'filtering'
   preview?: React.ReactNode
   title: string
   description?: string
@@ -500,7 +453,6 @@ const SettingsSwitchOption = ({
     <>
       <div
         data-testid={testId}
-        data-settings-search-preview={searchPreview}
         className="settings-option settings-switch-option flex cursor-pointer items-center justify-between gap-3"
         style={{
           ...style,
@@ -532,7 +484,6 @@ const SettingsSwitchOption = ({
           }}
           style={{
             marginTop: 0,
-            marginRight: -4,
             flexShrink: 0,
           }}
         />
@@ -610,14 +561,14 @@ export default observer(() => {
   const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
     backgroundColor: uiColors.settingsDialogSurface,
-    borderColor: isDarkMode
-      ? increaseContrast
-        ? 'rgba(238, 241, 245, 0.28)'
-        : 'rgba(238, 241, 245, 0.14)'
-      : increaseContrast
-        ? 'rgba(100, 116, 139, 0.42)'
-        : 'rgba(148, 163, 184, 0.26)',
   }
+  const settingsBorderColor = isDarkMode
+    ? increaseContrast
+      ? 'rgba(238, 241, 245, 0.28)'
+      : 'rgba(238, 241, 245, 0.14)'
+    : increaseContrast
+      ? 'rgba(100, 116, 139, 0.42)'
+      : 'rgba(148, 163, 184, 0.26)'
   const rowDetailOptionStyle: React.CSSProperties = {
     backgroundColor: 'transparent',
     borderColor: isDarkMode
@@ -628,17 +579,6 @@ export default observer(() => {
         ? 'rgba(100, 116, 139, 0.38)'
         : 'rgba(148, 163, 184, 0.22)',
   }
-  const previewSurfaceStyle: React.CSSProperties = {
-    backgroundColor: uiColors.settingsPreviewSurface,
-    borderColor: isDarkMode
-      ? increaseContrast
-        ? 'rgba(238, 241, 245, 0.26)'
-        : 'rgba(238, 241, 245, 0.12)'
-      : increaseContrast
-        ? 'rgba(100, 116, 139, 0.4)'
-        : 'rgba(148, 163, 184, 0.24)',
-  }
-
   const toggleGroupPillStyle: React.CSSProperties = {
     backgroundColor: isDarkMode
       ? increaseContrast
@@ -648,11 +588,11 @@ export default observer(() => {
         ? 'rgba(203, 213, 225, 0.86)'
         : 'rgba(226, 232, 240, 0.7)',
     border: `1px solid ${rowDetailOptionStyle.borderColor}`,
-    borderRadius: uiPreset === 'classic' ? 4 : 999,
+    borderRadius: 999,
   }
 
   const selectedPillStyle: React.CSSProperties = {
-    borderRadius: uiPreset === 'classic' ? 2 : 999,
+    borderRadius: 999,
     color: muiTheme.palette.text.primary,
     backgroundColor: isDarkMode
       ? increaseContrast
@@ -669,7 +609,7 @@ export default observer(() => {
   }
 
   const unselectedPillStyle: React.CSSProperties = {
-    borderRadius: uiPreset === 'classic' ? 2 : 999,
+    borderRadius: 999,
     color: increaseContrast
       ? uiColors.mutedText
       : muiTheme.palette.text.secondary,
@@ -692,7 +632,9 @@ export default observer(() => {
           backgroundImage: 'none',
           color: muiTheme.palette.text.primary,
           height: 'min(900px, calc(100dvh - 64px))',
-          '--settings-border': panelStyle.borderColor,
+          '--settings-border': settingsBorderColor,
+          '--settings-section-border': uiColors.toolbarShellBorderColor,
+          '--settings-row-border': rowDetailOptionStyle.borderColor,
           '--settings-surface': uiColors.settingsDialogSurface,
           '--settings-focus': uiColors.focusRing,
           '--settings-hover': muiTheme.palette.action.hover,
@@ -918,205 +860,98 @@ export default observer(() => {
           description="Choose which details each tab shows."
           style={panelStyle}
         >
-          <div className="settings-options" data-testid="row-details-options">
-            <RowDetailsOption
-              testId="row-details-option-active-tabs"
-              title="Highlight all active tabs"
-              checked={highlightActiveTabsInAllWindows}
-              onChange={toggleHighlightActiveTabsInAllWindows}
-              style={rowDetailOptionStyle}
-              preview={
-                <PreviewSurface
-                  style={previewSurfaceStyle}
-                  testId="row-details-preview-active-tabs"
-                >
-                  <TabRowPreview
-                    config={{
-                      id: 9100,
-                      title: 'Active tab in inactive window',
-                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
-                      active: true,
-                      lastFocused: false,
-                      fontSize,
-                      uiPreset,
-                      increaseContrast,
-                      highlightActiveTabsInAllWindows,
-                      showDuplicateMarker: false,
-                      showTabIcon: true,
-                      showUrl: true,
-                      showTabTooltip: false,
-                    }}
-                  />
-                </PreviewSurface>
-              }
-            />
-            <RowDetailsOption
-              testId="row-details-option-duplicates"
-              title="Mark duplicate tabs"
-              checked={highlightDuplicatedTab}
-              onChange={toggleHighlightDuplicatedTab}
-              style={rowDetailOptionStyle}
-              preview={
-                <PreviewSurface
-                  style={previewSurfaceStyle}
-                  testId="row-details-preview-duplicates"
-                >
-                  <TabRowPreview
-                    config={{
-                      id: 9101,
-                      title: 'Tab Manager issue tracker',
-                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
-                      duplicatedTabCount: 2,
-                      fontSize,
-                      uiPreset,
-                      increaseContrast,
-                      showDuplicateMarker: highlightDuplicatedTab,
-                      showTabIcon: true,
-                      showUrl: true,
-                      showTabTooltip: false,
-                    }}
-                  />
-                </PreviewSurface>
-              }
-            />
-            <RowDetailsOption
-              testId="row-details-option-icons"
-              title="Show tab icons"
-              checked={showTabIcon}
-              onChange={toggleShowTabIcon}
-              style={rowDetailOptionStyle}
-              previewHint="Hover preview to inspect controls."
-              preview={
-                <PreviewSurface
-                  style={previewSurfaceStyle}
-                  testId="row-details-preview-icons"
-                >
-                  <TabRowPreview
-                    config={{
-                      id: 9102,
-                      title: 'Tab Manager settings dialog',
-                      url: 'https://github.com/xcv58/Tab-Manager-v2',
-                      fontSize,
-                      uiPreset,
-                      increaseContrast,
-                      showDuplicateMarker: false,
-                      showTabIcon,
-                      showUrl: true,
-                      showTabTooltip: false,
-                    }}
-                  />
-                </PreviewSurface>
-              }
-            />
-            <RowDetailsOption
-              testId="row-details-option-urls"
-              title="Show URLs"
-              checked={showUrl}
-              onChange={toggleShowUrl}
-              style={rowDetailOptionStyle}
-              preview={
-                <PreviewSurface
-                  style={previewSurfaceStyle}
-                  testId="row-details-preview-urls"
-                >
-                  <TabRowPreview
-                    config={{
-                      id: 9103,
-                      title: 'Preview URLs inside settings',
-                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
-                      fontSize,
-                      uiPreset,
-                      increaseContrast,
-                      showDuplicateMarker: false,
-                      showTabIcon: true,
-                      showUrl,
-                      showTabTooltip: false,
-                    }}
-                  />
-                </PreviewSurface>
-              }
-            />
-            <RowDetailsOption
-              testId="row-details-option-tooltips"
-              title="Show tab tooltips"
-              checked={showTabTooltip}
-              onChange={toggleShowTabTooltip}
-              style={rowDetailOptionStyle}
-              details={
-                <div className="mt-3">
-                  <label
-                    htmlFor={tooltipUrlLinesId}
-                    style={controlDescriptionStyle}
-                  >
-                    URL preview length
-                  </label>
-                  <select
-                    id={tooltipUrlLinesId}
-                    aria-describedby={tooltipUrlLinesHintId}
-                    data-testid="tab-tooltip-url-lines"
-                    disabled={!showTabTooltip}
-                    value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
-                    onChange={(event) =>
-                      selectTabTooltipUrlLines(
-                        event.target.value === 'full'
-                          ? 'full'
-                          : Number(event.target.value),
-                      )
-                    }
-                    className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                    style={{
-                      backgroundColor: uiColors.settingsDialogSurface,
-                      color: uiColors.primaryText,
-                      borderColor: rowDetailOptionStyle.borderColor,
-                      outlineColor: uiColors.focusRing,
-                      colorScheme: isDarkMode ? 'dark' : 'light',
-                    }}
-                  >
-                    {TAB_TOOLTIP_URL_LINES.map((lines) => (
-                      <option key={lines} value={lines}>
-                        {lines === 'full'
-                          ? 'Full URL'
-                          : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
-                      </option>
-                    ))}
-                  </select>
-                  <p
-                    id={tooltipUrlLinesHintId}
-                    style={{ ...controlDescriptionStyle, marginTop: 6 }}
-                  >
-                    Expand clipped text in the tooltip. Copy always keeps the
-                    complete title or URL.
-                  </p>
-                </div>
-              }
-              previewHint="Hover preview to open the tooltip."
-              preview={
-                <PreviewSurface
-                  style={previewSurfaceStyle}
-                  interactive
-                  testId="row-details-preview-tooltips"
-                >
-                  <TabRowPreview
-                    config={{
-                      id: 9104,
-                      title: 'Hover this preview tab for tooltip details',
-                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
-                      duplicatedTabCount: 2,
-                      fontSize,
-                      uiPreset,
-                      increaseContrast,
-                      showDuplicateMarker: false,
-                      showTabIcon: true,
-                      showUrl: false,
-                      showTabTooltip,
-                      showDetailsButton: true,
-                      tabTooltipUrlLines,
-                    }}
-                  />
-                </PreviewSurface>
-              }
-            />
-          </div>
+          <SettingsPreviewLayout>
+            <div className="settings-options" data-testid="row-details-options">
+              <RowDetailsOption
+                testId="row-details-option-active-tabs"
+                title="Highlight all active tabs"
+                checked={highlightActiveTabsInAllWindows}
+                onChange={toggleHighlightActiveTabsInAllWindows}
+                style={rowDetailOptionStyle}
+              />
+              <RowDetailsOption
+                testId="row-details-option-duplicates"
+                title="Mark duplicate tabs"
+                checked={highlightDuplicatedTab}
+                onChange={toggleHighlightDuplicatedTab}
+                style={rowDetailOptionStyle}
+              />
+              <RowDetailsOption
+                testId="row-details-option-icons"
+                title="Show tab icons"
+                checked={showTabIcon}
+                onChange={toggleShowTabIcon}
+                style={rowDetailOptionStyle}
+              />
+              <RowDetailsOption
+                testId="row-details-option-urls"
+                title="Show URLs"
+                checked={showUrl}
+                onChange={toggleShowUrl}
+                style={rowDetailOptionStyle}
+              />
+              <RowDetailsOption
+                testId="row-details-option-tooltips"
+                title="Show tab tooltips"
+                checked={showTabTooltip}
+                onChange={toggleShowTabTooltip}
+                style={rowDetailOptionStyle}
+                details={
+                  <div className="mt-3">
+                    <label
+                      htmlFor={tooltipUrlLinesId}
+                      style={controlDescriptionStyle}
+                    >
+                      URL preview length
+                    </label>
+                    <select
+                      id={tooltipUrlLinesId}
+                      aria-describedby={tooltipUrlLinesHintId}
+                      data-testid="tab-tooltip-url-lines"
+                      disabled={!showTabTooltip}
+                      value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
+                      onChange={(event) =>
+                        selectTabTooltipUrlLines(
+                          event.target.value === 'full'
+                            ? 'full'
+                            : Number(event.target.value),
+                        )
+                      }
+                      className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                      style={{
+                        backgroundColor: uiColors.settingsDialogSurface,
+                        color: uiColors.primaryText,
+                        borderColor: rowDetailOptionStyle.borderColor,
+                        outlineColor: uiColors.focusRing,
+                        colorScheme: isDarkMode ? 'dark' : 'light',
+                      }}
+                    >
+                      {TAB_TOOLTIP_URL_LINES.map((lines) => (
+                        <option key={lines} value={lines}>
+                          {lines === 'full'
+                            ? 'Full URL'
+                            : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
+                        </option>
+                      ))}
+                    </select>
+                    <p
+                      id={tooltipUrlLinesHintId}
+                      style={{ ...controlDescriptionStyle, marginTop: 6 }}
+                    >
+                      Expand clipped text in the tooltip. Copy always keeps the
+                      complete title or URL.
+                    </p>
+                  </div>
+                }
+              />
+            </div>
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Highlight all active tabs|Mark duplicate tabs|Show tab icons|Show URLs|Show tab tooltips"
+            >
+              <TabDetailsPreview />
+            </div>
+          </SettingsPreviewLayout>
         </SettingsPanel>
         <SettingsPanel
           testId="settings-panel-search"
@@ -1125,7 +960,7 @@ export default observer(() => {
           description="Control how search starts and what stays visible while filtering."
           style={panelStyle}
         >
-          <SearchSettingsPreview>
+          <div className="settings-options">
             <SettingsSwitchOption
               testId="settings-search-preserve"
               title="Preserve search"
@@ -1144,7 +979,6 @@ export default observer(() => {
             />
             <SettingsSwitchOption
               testId="settings-search-history"
-              searchPreview="history"
               title="Include browser history in results"
               checked={searchHistory}
               onChange={toggleSearchHistory}
@@ -1152,7 +986,6 @@ export default observer(() => {
             />
             <SettingsSwitchOption
               testId="settings-search-result-menu"
-              searchPreview="results"
               title="Show result menu in full-page view"
               description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
               checked={showSearchResultMenu}
@@ -1161,14 +994,13 @@ export default observer(() => {
             />
             <SettingsSwitchOption
               testId="settings-search-unmatched"
-              searchPreview="filtering"
               title="Keep non-matching tabs visible"
               description="Keep unmatched tabs in view while you search."
               checked={showUnmatchedTab}
               onChange={toggleShowUnmatchedTab}
               style={rowDetailOptionStyle}
             />
-          </SearchSettingsPreview>
+          </div>
         </SettingsPanel>
         <SettingsPanel
           sectionId="popup-controls"

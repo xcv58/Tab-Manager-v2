@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { SearchIcon } from 'icons/actionIcons'
 import { CloseIcon } from 'icons/materialIcons'
-import Menu, { MenuItem } from 'components/ui/Menu'
 
 export const SETTINGS_SECTIONS = [
   { id: 'appearance', title: 'Appearance' },
@@ -112,8 +111,6 @@ export default function SettingsNavigation({
   const previousQuery = useRef('')
   const savedScroll = useRef(stateRef.current.scrollTop)
   const [query, setQuery] = useState('')
-  const [jumpAnchor, setJumpAnchor] = useState<HTMLElement | null>(null)
-  const [active, setActive] = useState<SettingsSectionId>('appearance')
   const normalizedQuery = query.trim()
   let count = 0
   const panels = children.flatMap((panel) => {
@@ -133,25 +130,15 @@ export default function SettingsNavigation({
         ]
       : []
   })
-  const updateSection = () => {
+  const rememberScroll = () => {
     const container = scrollRef.current
     if (!container) return
-    const top = container.getBoundingClientRect().top + 24
-    const sections = Array.from(
-      container.querySelectorAll<HTMLElement>('.settings-section'),
-    )
-    const current =
-      sections
-        .filter((section) => section.getBoundingClientRect().top <= top)
-        .at(-1) || sections[0]
-    if (current) setActive(current.dataset.sectionId as SettingsSectionId)
     if (!normalizedQuery) stateRef.current.scrollTop = container.scrollTop
   }
   useLayoutEffect(() => {
     const container = scrollRef.current
     if (!container) return
     container.scrollTop = stateRef.current.scrollTop
-    updateSection()
   }, [])
   useLayoutEffect(() => {
     const container = scrollRef.current
@@ -161,23 +148,9 @@ export default function SettingsNavigation({
     if (previousQuery.current !== normalizedQuery) {
       container.scrollTop = normalizedQuery ? 0 : savedScroll.current
       previousQuery.current = normalizedQuery
-      updateSection()
+      rememberScroll()
     }
   }, [normalizedQuery])
-  const jump = (id: string, focusHeading = false) => {
-    const container = scrollRef.current
-    const section = container?.querySelector<HTMLElement>(
-      '#settings-section-' + id,
-    )
-    if (!container || !section) return
-    container.scrollTop +=
-      section.getBoundingClientRect().top -
-      container.getBoundingClientRect().top
-    setActive(id as SettingsSectionId)
-    if (focusHeading)
-      section.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true })
-    if (!normalizedQuery) stateRef.current.scrollTop = container.scrollTop
-  }
   return (
     <div className="settings-layout" data-ui-preset={uiPreset}>
       <div className="settings-search-tools">
@@ -203,39 +176,6 @@ export default function SettingsNavigation({
             </button>
           )}
         </div>
-        <button
-          type="button"
-          className="settings-jump-button"
-          aria-label="Jump to section"
-          aria-haspopup="menu"
-          aria-expanded={!!jumpAnchor}
-          disabled={!panels.length}
-          onClick={(event) => setJumpAnchor(event.currentTarget)}
-        >
-          Jump to…
-        </button>
-        <Menu
-          open={!!jumpAnchor}
-          anchorEl={jumpAnchor}
-          restoreFocus={false}
-          onClose={() => {
-            jumpAnchor?.focus()
-            setJumpAnchor(null)
-          }}
-        >
-          {panels.map((panel) => (
-            <MenuItem
-              key={panel.props.sectionId}
-              onClick={() => {
-                setJumpAnchor(null)
-                jump(panel.props.sectionId, true)
-              }}
-            >
-              {panel.props.title}
-              {active === panel.props.sectionId ? ' ✓' : ''}
-            </MenuItem>
-          ))}
-        </Menu>
         {normalizedQuery && (
           <p className="settings-search-status" role="status">
             {count
@@ -252,7 +192,7 @@ export default function SettingsNavigation({
         role="region"
         aria-label="Settings sections"
         tabIndex={0}
-        onScroll={updateSection}
+        onScroll={rememberScroll}
       >
         {panels.length ? (
           panels
