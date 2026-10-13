@@ -11,6 +11,7 @@ import { SearchIcon } from 'icons/actionIcons'
 import { getCommandPaletteShortcutLabel } from 'libs/commandPaletteShortcut'
 import type { PaletteCommand } from 'stores/ActionStore'
 import TabGroupRow from 'stores/TabGroupRow'
+import CommandPaletteIcon from './CommandPaletteIcon'
 
 const isDisabled = (command: PaletteCommand) => Boolean(command.disabledReason)
 
@@ -234,6 +235,10 @@ const PaletteDialog = observer(function PaletteDialog() {
                       : undefined,
                 }}
               >
+                <CommandPaletteIcon
+                  name={command.icon}
+                  danger={command.danger}
+                />
                 <span className="min-w-0 flex-1 break-words">
                   <span className="line-clamp-2" title={command.label}>
                     {command.label}

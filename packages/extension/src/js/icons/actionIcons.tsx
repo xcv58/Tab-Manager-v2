@@ -111,3 +111,48 @@ export const UngroupTabIcon = (props: BaseSvgIconProps) => (
     </g>
   </BaseSvgIcon>
 )
+
+export const SelectTabsIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="m7 12 3 3 7-7" />
+    </g>
+  </BaseSvgIcon>
+)
+
+export const DeselectTabsIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="2"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    />
+  </BaseSvgIcon>
+)
+
+export const KeyboardShortcutsIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M6 9h.5m3.5 0h.5m3.5 0h.5m3.5 0h.5M6 12h.5m3.5 0h.5m3.5 0h.5m3.5 0h.5M7 15.5h10" />
+    </g>
+  </BaseSvgIcon>
+)

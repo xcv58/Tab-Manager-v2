@@ -13,8 +13,29 @@ export type ActionMenuAnchor = {
   position?: { top: number; left: number }
 }
 
+export type PaletteIconName =
+  | 'reload'
+  | 'copy'
+  | 'move'
+  | 'window'
+  | 'pin'
+  | 'close'
+  | 'ungroup'
+  | 'expand'
+  | 'collapse'
+  | 'sort'
+  | 'select'
+  | 'deselect'
+  | 'clean-duplicates'
+  | 'cluster'
+  | 'sync'
+  | 'settings'
+  | 'keyboard'
+  | 'theme'
+
 export type PaletteCommand = {
   id: string
+  icon: PaletteIconName
   label: string
   section: string
   detail?: string
@@ -167,6 +188,7 @@ export default class ActionStore {
     if (this.choosingWindow) {
       return windowStore.windows.map((win) => ({
         id: `move-window-${win.id}`,
+        icon: 'window',
         label:
           win.tabs.find((tab) => tab.active)?.title ||
           win.tabs[0]?.title ||
@@ -193,6 +215,7 @@ export default class ActionStore {
       commands.push(
         {
           id: 'reload-selection',
+          icon: 'reload',
           label: `Reload ${selectedScope}`,
           section: 'Selected tabs',
           aliases: 'refresh',
@@ -201,6 +224,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-selection',
+          icon: 'copy',
           label: `Copy URLs of ${selectedScope}`,
           section: 'Selected tabs',
           aliases: 'clipboard links',
@@ -209,6 +233,7 @@ export default class ActionStore {
         },
         {
           id: 'new-window-selection',
+          icon: 'move',
           label: `Move ${selectedScope} to a new window`,
           section: 'Selected tabs',
           shortcut: 'Shift N',
@@ -217,6 +242,7 @@ export default class ActionStore {
         },
         {
           id: 'pin-selection',
+          icon: 'pin',
           label: `Toggle pin for ${selectedScope}`,
           section: 'Selected tabs',
           shortcut: 'Ctrl P',
@@ -224,6 +250,7 @@ export default class ActionStore {
         },
         {
           id: 'close-selection',
+          icon: 'close',
           label: `Close ${selectedScope}`,
           section: 'Selected tabs',
           danger: true,
@@ -234,6 +261,7 @@ export default class ActionStore {
     }
     commands.push({
       id: 'move-selection',
+      icon: 'move',
       label: count ? `Move ${selectedScope} to…` : 'Move selected tabs to…',
       section: count ? 'Selected tabs' : 'Selection',
       disabledReason: moveReason,
@@ -248,6 +276,7 @@ export default class ActionStore {
       commands.push(
         {
           id: 'reload-tab',
+          icon: 'reload',
           label: 'Reload this tab',
           section: 'Focused tab',
           aliases: 'refresh',
@@ -255,6 +284,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-tab',
+          icon: 'copy',
           label: 'Copy this tab’s URL',
           section: 'Focused tab',
           aliases: 'clipboard link',
@@ -262,6 +292,7 @@ export default class ActionStore {
         },
         {
           id: 'new-window-tab',
+          icon: 'move',
           label: 'Move this tab to a new window',
           section: 'Focused tab',
           disabledReason: dragStore.pendingWindowEdgeDrop
@@ -271,12 +302,14 @@ export default class ActionStore {
         },
         {
           id: 'pin-tab',
+          icon: 'pin',
           label: tab.pinned ? 'Unpin this tab' : 'Pin this tab',
           section: 'Focused tab',
           run: tab.togglePin,
         },
         {
           id: 'close-tab',
+          icon: 'close',
           label: 'Close this tab',
           section: 'Focused tab',
           danger: true,
@@ -289,6 +322,7 @@ export default class ActionStore {
       ) {
         commands.push({
           id: 'ungroup-tab',
+          icon: 'ungroup',
           label: 'Remove this tab from its group',
           section: 'Focused tab',
           aliases: 'ungroup',
@@ -302,6 +336,7 @@ export default class ActionStore {
         tabGroupStore?.getTabsForGroup(focusedItem.groupId) || []
       commands.push({
         id: 'reload-group',
+        icon: 'reload',
         label: `Reload ${groupTabs.length} tabs in this group`,
         section: 'Focused group',
         aliases: 'refresh',
@@ -311,12 +346,14 @@ export default class ActionStore {
         commands.push(
           {
             id: 'collapse-group',
+            icon: group?.collapsed ? 'expand' : 'collapse',
             label: `${group?.collapsed ? 'Expand' : 'Collapse'} this group`,
             section: 'Focused group',
             run: () => tabGroupStore.toggleCollapsed(focusedItem.groupId),
           },
           {
             id: 'ungroup-group',
+            icon: 'ungroup',
             label: 'Ungroup tabs in this group',
             section: 'Focused group',
             run: () => tabGroupStore.ungroup(focusedItem.groupId),
@@ -328,6 +365,7 @@ export default class ActionStore {
       commands.push(
         {
           id: 'sort-window',
+          icon: 'sort',
           label: `Sort ${win.tabs.length} tabs in this window`,
           section: 'Focused window',
           disabledReason: win.hide ? 'Expand this window first' : undefined,
@@ -335,6 +373,7 @@ export default class ActionStore {
         },
         {
           id: 'reload-window',
+          icon: 'reload',
           label: `Reload ${win.tabs.length} tabs in this window`,
           section: 'Focused window',
           disabledReason: win.hide ? 'Expand this window first' : undefined,
@@ -343,6 +382,7 @@ export default class ActionStore {
         },
         {
           id: 'collapse-window',
+          icon: win.hide ? 'expand' : 'collapse',
           label: `${win.hide ? 'Expand' : 'Collapse'} this window`,
           section: 'Focused window',
           run: win.toggleHide,
@@ -352,12 +392,14 @@ export default class ActionStore {
     commands.push(
       {
         id: 'select-matching',
+        icon: searchStore.allTabSelected ? 'deselect' : 'select',
         label: `${searchStore.allTabSelected ? 'Deselect' : 'Select'} all ${searchStore.matchedTabs.length} ${searchStore.queryActive ? 'matching ' : ''}tabs`,
         section: 'Selection',
         run: () => searchStore.toggleSelectAll(),
       },
       {
         id: 'clear-selection',
+        icon: 'deselect',
         label: 'Clear selection',
         section: 'Selection',
         disabledReason: selectionReason,
@@ -365,6 +407,7 @@ export default class ActionStore {
       },
       {
         id: 'clean-duplicates',
+        icon: 'clean-duplicates',
         label: `Close ${duplicateCount} duplicate ${getNoun('tab', duplicateCount)}`,
         section: 'Across windows',
         aliases: 'clean duplicates deduplicate',
@@ -375,6 +418,7 @@ export default class ActionStore {
       },
       {
         id: 'sort-all',
+        icon: 'sort',
         label: 'Sort tabs across windows',
         section: 'Across windows',
         shortcut: 'Ctrl S',
@@ -382,6 +426,7 @@ export default class ActionStore {
       },
       {
         id: 'cluster-all',
+        icon: 'cluster',
         label: 'Cluster ungrouped tabs by site and sort',
         section: 'Across windows',
         aliases: 'domain organize',
@@ -390,6 +435,7 @@ export default class ActionStore {
       },
       {
         id: 'sync',
+        icon: 'sync',
         label: 'Sync all windows',
         section: 'Application',
         shortcut: 's',
@@ -397,6 +443,7 @@ export default class ActionStore {
       },
       {
         id: 'settings',
+        icon: 'settings',
         label: 'Open Settings',
         section: 'Application',
         aliases: 'preferences appearance',
@@ -405,6 +452,7 @@ export default class ActionStore {
       },
       {
         id: 'help',
+        icon: 'keyboard',
         label: 'Show keyboard shortcuts',
         section: 'Application',
         aliases: 'help hotkeys',
@@ -413,6 +461,7 @@ export default class ActionStore {
       },
       {
         id: 'theme',
+        icon: 'theme',
         label: 'Toggle dark theme',
         section: 'Application',
         aliases: 'light appearance',
