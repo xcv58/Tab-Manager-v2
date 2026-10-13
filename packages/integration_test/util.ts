@@ -255,6 +255,23 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
     ],
   })) as ChromiumBrowserContext
 
+  // These tests inspect tab metadata, not Pinboard's availability. Keep its
+  // public URL/title/favicon while serving a fixed response in isolated tests.
+  await browserContext.route(
+    /^https:\/\/pinboard\.in\/(?:favicon\.ico)?$/,
+    async (route) => {
+      const favicon = new URL(route.request().url()).pathname === '/favicon.ico'
+      await route.fulfill({
+        path: join(
+          __dirname,
+          'assets/fixtures',
+          favicon ? 'pinboard.ico' : 'pinboard.html',
+        ),
+        contentType: favicon ? 'image/x-icon' : 'text/html; charset=utf-8',
+      })
+    },
+  )
+
   const serviceWorker =
     browserContext.serviceWorkers()[0] ||
     (await browserContext.waitForEvent('serviceworker', { timeout: 60000 }))
