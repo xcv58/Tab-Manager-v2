@@ -736,7 +736,7 @@ test.describe('The Extension page should', () => {
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Pin tab',
+        text: 'Reload tab',
       })
 
     await pressTabUntil(
@@ -782,9 +782,14 @@ test.describe('The Extension page should', () => {
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Pin tab',
+        text: 'Reload tab',
       })
 
+    await pressTabUntil(
+      page,
+      (state) => state.role === 'menuitem' && state.text === 'Pin tab',
+      { maxSteps: 12 },
+    )
     await page.keyboard.press('Space')
 
     await expect(page.getByRole('menu')).toHaveCount(0)

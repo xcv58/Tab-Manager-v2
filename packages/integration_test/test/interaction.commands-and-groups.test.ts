@@ -516,94 +516,101 @@ test.describe('The Extension page should', () => {
     }
   })
 
-  test('search input field should clear after selecting a command', async () => {
-    // Set up initial page state
+  test('preserve tab search after executing a command through the > alias', async () => {
     await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
-    await page.waitForTimeout(1000)
+    await page.reload()
+    const searchInput = page.getByRole('combobox', {
+      name: 'Search tabs or URLs',
+    })
+    await searchInput.fill('blank')
+    await searchInput.fill('>sort tabs across windows')
 
-    // Verify initial state
-    const searchInput = await page.$(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    expect(searchInput).toBeTruthy()
+    const palette = page.getByRole('dialog', {
+      name: 'Command palette',
+      exact: true,
+    })
+    await expect(palette).toBeVisible()
+    await palette
+      .getByRole('option', {
+        name: 'Sort tabs across windows Ctrl S',
+        exact: true,
+      })
+      .click()
 
-    // Type a command in the search box
-    await searchInput.click()
-    await searchInput.fill('>clean dup')
-    await page.waitForTimeout(1000)
-
-    // Wait for and select the first command option that appears
-    const commandOption = await page.waitForSelector('[role="option"]')
-    await commandOption.click()
-    await page.waitForTimeout(1000)
-
-    // Verify that the input field is cleared after command selection
-    const inputValue = await searchInput.inputValue()
-    expect(inputValue).toBe('')
+    await expect(palette).toBeHidden()
+    await expect(searchInput).toHaveValue('blank')
+    await expect(searchInput).toBeFocused()
   })
 
-  test('keep command search interactive after selecting a non-navigating command', async () => {
+  test('reopen the dedicated palette after a non-navigating command opens Settings', async () => {
     await page.evaluate(async () => {
-      if (chrome.storage.sync?.set) {
-        await chrome.storage.sync.set({
-          litePopupMode: true,
-        })
-      }
+      await chrome.storage.sync?.set?.({ litePopupMode: true })
     })
     await page.goto(extensionURL.replace('not_popup=1', ''))
     await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.reload()
 
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    await expect(searchInput).toBeVisible()
-    await searchInput.click()
-    await searchInput.fill('>toggle settings')
+    const searchInput = page.getByRole('combobox', {
+      name: 'Search tabs or URLs',
+    })
+    await searchInput.fill('>settings')
+    const palette = page.getByRole('dialog', {
+      name: 'Command palette',
+      exact: true,
+    })
+    await expect(
+      palette.getByRole('option', {
+        name: 'Open Settings Ctrl ,',
+        exact: true,
+      }),
+    ).toBeVisible()
+    await palette
+      .getByRole('combobox', { name: 'Search commands' })
+      .press('Enter')
 
-    const commandOption = page
-      .getByRole('option')
-      .filter({ hasText: 'Toggle Settings' })
-      .first()
-    await expect(commandOption).toBeVisible()
-
-    await searchInput.press('Enter')
-
-    await expect(page.getByRole('dialog')).toHaveCount(1)
+    await expect(palette).toBeHidden()
+    await expect(
+      page.getByRole('dialog', { name: 'Settings', exact: true }),
+    ).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(searchInput).toHaveValue('')
-    await expect(page.getByRole('option').first()).toBeVisible()
+    await searchInput.fill('>settings')
+    await expect(palette).toBeVisible()
+    await expect(
+      palette.getByRole('combobox', { name: 'Search commands' }),
+    ).toBeFocused()
   })
 
-  test('command search should match regardless of word order', async () => {
+  test('command search matches regardless of word order', async () => {
     await page.bringToFront()
     await page.reload()
     await waitForDefaultExtensionView(page)
-
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    await expect(searchInput).toBeVisible()
+    await page
+      .getByRole('combobox', { name: 'Search tabs or URLs' })
+      .fill('>sort windows')
+    const input = page.getByRole('combobox', { name: 'Search commands' })
 
     const getCommandOptions = async (query: string) => {
-      await searchInput.click()
-      await searchInput.fill(query)
-      const options = page.locator('[role="option"]')
+      await input.fill(query)
+      const options = page
+        .getByRole('dialog', { name: 'Command palette', exact: true })
+        .getByRole('option')
       await expect(options.first()).toBeVisible()
       return (await options.allTextContents()).map((text) =>
         text.replace(/\s+/g, ' ').trim(),
       )
     }
 
-    const canonicalOptions = await getCommandOptions('>expand window')
-    const reorderedOptions = await getCommandOptions('>window expand')
-
+    const canonicalOptions = await getCommandOptions('sort windows')
+    const reorderedOptions = await getCommandOptions('windows sort')
     expect(reorderedOptions).toEqual(canonicalOptions)
     expect(
-      reorderedOptions.some((text) => text.includes('Expand all windows')),
+      reorderedOptions.some((text) =>
+        text.includes('Sort tabs across windows'),
+      ),
     ).toBe(true)
   })
 

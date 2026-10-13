@@ -6,8 +6,9 @@ import {
 
 test('select, expand and copy long tab details without activating the tab', async () => {
   test.setTimeout(120000)
-  const { browserContext, page, extensionURL } =
-    await initBrowserWithExtension()
+  const { browserContext, page, extensionURL } = await initBrowserWithExtension(
+    { headless: true },
+  )
   const sourceTitle =
     'Research notes 研究 🔎 — design, keyboard and accessibility. '
       .repeat(100)
@@ -193,6 +194,10 @@ test('select, expand and copy long tab details without activating the tab', asyn
       card.getByRole('button', { name: 'Show full URL' }),
     ).toHaveCount(0)
     await expect(urlText).not.toHaveClass(/line-clamp/)
+    await card.hover()
+    // Headless Chromium has no OS window, so deliver its focus-loss event.
+    await page.evaluate(() => window.dispatchEvent(new Event('blur')))
+    await expect(card).toBeHidden()
   } finally {
     await browserContext.close()
   }

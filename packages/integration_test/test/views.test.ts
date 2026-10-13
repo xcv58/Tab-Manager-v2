@@ -685,7 +685,7 @@ test.describe('The Extension page should', () => {
     })
   })
 
-  test('render command suggestion atom', async () => {
+  test('render dedicated command palette option atom', async () => {
     const searchBar = page.getByTestId('toolbar-search-input')
     const searchInput = searchBar.locator('input')
     await expect(searchInput).toBeVisible()
@@ -706,7 +706,12 @@ test.describe('The Extension page should', () => {
     })
     await searchInput.click()
     await searchInput.fill('>sort')
-    const firstOption = page.locator('[role="option"]').first()
+    const firstOption = page
+      .getByRole('dialog', { name: 'Command palette', exact: true })
+      .getByRole('option', {
+        name: 'Sort tabs across windows Ctrl S',
+        exact: true,
+      })
     await waitForSurfaceToFullyAppear(page, firstOption)
     const commandOptionScreenshot = await firstOption.screenshot({
       animations: 'disabled',

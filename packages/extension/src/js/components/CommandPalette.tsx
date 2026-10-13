@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { matchSorter } from 'match-sorter'
+import { matchCommandItems } from 'libs/commandMatching'
 import Dialog from 'components/ui/Dialog'
 import ControlIconButton from 'components/ControlIconButton'
 import { useCombobox } from 'components/ui/Combobox'
@@ -44,12 +44,7 @@ const PaletteDialog = observer(function PaletteDialog() {
       : 'Commands'
   const query = actionStore.query.trim()
   const searchCommands = (items: PaletteCommand[]) =>
-    query
-      ? matchSorter(items, query, {
-          keys: ['label', 'aliases', 'section'],
-          baseSort: (a, b) => a.index - b.index,
-        })
-      : items
+    matchCommandItems(items, query, ['label', 'aliases', 'section', 'detail'])
   // Keep destination types in distinct sections even when search ranks change.
   const items = actionStore.choosingDestination
     ? [

@@ -256,15 +256,14 @@ describe('WindowActionsMenu', () => {
     )
     const menu = screen.getByRole('menu')
     const expand = screen.getByRole('menuitem', { name: 'Expand this window' })
+    const close = screen.getByRole('menuitem', { name: 'Close this window' })
     expect(expand).toHaveFocus()
-    expect(
-      screen.getByRole('menuitem', { name: 'Close this window' }),
-    ).toBeEnabled()
-    for (const item of screen
+    expect(close).toBeEnabled()
+    const disabled = screen
       .getAllByRole('menuitem')
-      .filter(
-        (item) => item !== expand && item.textContent !== ' Close this window',
-      )) {
+      .filter((item) => item !== expand && item !== close)
+    expect(disabled).toHaveLength(4)
+    for (const item of disabled) {
       expect(item).toBeDisabled()
       fireEvent.click(item)
     }
