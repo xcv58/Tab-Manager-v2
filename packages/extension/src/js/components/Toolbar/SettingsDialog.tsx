@@ -14,7 +14,6 @@ import {
   normalizeTabTooltipUrlLines,
 } from 'libs/tabTooltip'
 import Slider from 'components/ui/Slider'
-import IconButton from 'components/ui/IconButton'
 import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
 import { useAppTheme } from 'libs/appTheme'
 import {
@@ -237,33 +236,26 @@ const DensityControl = ({
 
   return (
     <div className="settings-option" style={style} data-testid={testId}>
-      <div
-        className={
-          description
-            ? 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
-            : 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
-        }
-      >
+      <div className="settings-density-heading">
         <div className="min-w-0">
           <h5 style={controlTitleStyle}>{title}</h5>
           {description && <p style={controlDescriptionStyle}>{description}</p>}
         </div>
-        <div className="flex items-center gap-0.5 self-start md:shrink-0">
-          <IconButton
+        <div className="settings-stepper" role="group" aria-label={title}>
+          <button
+            type="button"
+            className="settings-stepper-button"
+            aria-disabled={value <= min}
             aria-label={decrementAriaLabel}
-            onClick={() => commitValue(value - step)}
-            style={{ width: 30, height: 30, padding: 0 }}
+            onClick={() => {
+              if (value > min) commitValue(value - step)
+            }}
           >
             <RemoveRoundedIcon fontSize={18} />
-          </IconButton>
+          </button>
           <div
-            style={{
-              position: 'relative',
-              display: 'inline-flex',
-              alignItems: 'center',
-              width: 92,
-              height: 36,
-            }}
+            className="settings-stepper-value"
+            style={{ width: unit ? 80 : 64 }}
           >
             <input
               type="text"
@@ -312,12 +304,11 @@ const DensityControl = ({
               style={{
                 width: '100%',
                 height: '100%',
-                border: '1px solid',
-                borderColor: 'var(--settings-input-border)',
-                borderRadius: 4,
+                border: 0,
+                borderRadius: 0,
                 padding: '4px 8px',
                 paddingRight: unit ? 32 : 8,
-                textAlign: 'right',
+                textAlign: unit ? 'right' : 'center',
                 fontVariantNumeric: 'tabular-nums',
                 fontSize: '0.92rem',
                 background: 'transparent',
@@ -338,13 +329,17 @@ const DensityControl = ({
               </span>
             )}
           </div>
-          <IconButton
+          <button
+            type="button"
+            className="settings-stepper-button"
+            aria-disabled={value >= max}
             aria-label={incrementAriaLabel}
-            onClick={() => commitValue(value + step)}
-            style={{ width: 30, height: 30, padding: 0 }}
+            onClick={() => {
+              if (value < max) commitValue(value + step)
+            }}
           >
             <AddRoundedIcon fontSize={18} />
-          </IconButton>
+          </button>
         </div>
       </div>
       <Slider
@@ -355,7 +350,10 @@ const DensityControl = ({
         max={max}
         marks={[
           { value: min, label: unit ? `${min}${unit}` : String(min) },
-          { value: defaultValue, label: 'Default' },
+          {
+            value: defaultValue,
+            label: `Default: ${defaultValue}${unit || ''}`,
+          },
           { value: max, label: unit ? `${max}${unit}` : String(max) },
         ]}
         onChange={(_, nextValue) => {
@@ -366,12 +364,7 @@ const DensityControl = ({
           onChange(nextValue)
         }}
         aria-label={sliderAriaLabel}
-        style={{
-          marginTop: 20,
-          marginLeft: 20,
-          marginRight: 20,
-          marginBottom: 8,
-        }}
+        className="settings-density-slider"
       />
     </div>
   )
@@ -403,7 +396,7 @@ const RowDetailsOption = ({
           {description && <p style={controlDescriptionStyle}>{description}</p>}
         </label>
         <Switch
-          size="small"
+          size="settings"
           checked={checked}
           onChange={onChange}
           inputProps={{ id: switchId, 'aria-label': title }}
@@ -473,7 +466,7 @@ const SettingsSwitchOption = ({
           )}
         </label>
         <Switch
-          size="small"
+          size="settings"
           checked={checked}
           onChange={onChange}
           inputProps={{
@@ -573,20 +566,20 @@ export default observer(() => {
     backgroundColor: 'transparent',
     borderColor: isDarkMode
       ? increaseContrast
-        ? 'rgba(238, 241, 245, 0.24)'
-        : 'rgba(238, 241, 245, 0.1)'
+        ? 'rgba(238, 241, 245, 0.2)'
+        : 'rgba(238, 241, 245, 0.08)'
       : increaseContrast
-        ? 'rgba(100, 116, 139, 0.38)'
-        : 'rgba(148, 163, 184, 0.22)',
+        ? 'rgba(100, 116, 139, 0.3)'
+        : 'rgba(148, 163, 184, 0.18)',
   }
   const toggleGroupPillStyle: React.CSSProperties = {
     backgroundColor: isDarkMode
       ? increaseContrast
-        ? 'rgba(15, 23, 42, 0.66)'
-        : 'rgba(15, 23, 42, 0.44)'
+        ? 'rgba(238, 241, 245, 0.1)'
+        : 'rgba(238, 241, 245, 0.05)'
       : increaseContrast
-        ? 'rgba(203, 213, 225, 0.86)'
-        : 'rgba(226, 232, 240, 0.7)',
+        ? 'rgba(203, 213, 225, 0.6)'
+        : 'rgba(226, 232, 240, 0.4)',
     border: `1px solid ${rowDetailOptionStyle.borderColor}`,
     borderRadius: 999,
   }
@@ -605,7 +598,7 @@ export default observer(() => {
         : 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
       : increaseContrast
         ? '0 1px 2px rgba(15, 23, 42, 0.18), inset 0 0 0 1px rgba(100, 116, 139, 0.28)'
-        : '0 1px 2px rgba(15, 23, 42, 0.14)',
+        : '0 1px 2px rgba(15, 23, 42, 0.08), inset 0 0 0 1px rgba(100, 116, 139, 0.12)',
   }
 
   const unselectedPillStyle: React.CSSProperties = {
@@ -633,7 +626,16 @@ export default observer(() => {
           color: muiTheme.palette.text.primary,
           height: 'min(900px, calc(100dvh - 64px))',
           '--settings-border': settingsBorderColor,
-          '--settings-section-border': uiColors.toolbarShellBorderColor,
+          '--settings-section-border': isDarkMode
+            ? increaseContrast
+              ? 'rgba(238, 241, 245, 0.4)'
+              : 'rgba(238, 241, 245, 0.24)'
+            : increaseContrast
+              ? 'rgba(51, 65, 85, 0.5)'
+              : 'rgba(100, 116, 139, 0.28)',
+          '--settings-overflow-shadow': isDarkMode
+            ? 'rgba(0, 0, 0, 0.24)'
+            : 'rgba(15, 23, 42, 0.12)',
           '--settings-row-border': rowDetailOptionStyle.borderColor,
           '--settings-surface': uiColors.settingsDialogSurface,
           '--settings-focus': uiColors.focusRing,

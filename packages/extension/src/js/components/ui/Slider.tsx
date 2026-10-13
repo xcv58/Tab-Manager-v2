@@ -167,22 +167,21 @@ export default function Slider({
       />
       {/* Marks */}
       {marks && (
-        <div style={{ position: 'relative', marginTop: 4, height: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginTop: 4,
+            minHeight: 20,
+            fontSize: '0.8125rem',
+            color: 'var(--settings-muted)',
+          }}
+        >
           {marks.map((mark) => {
-            const markPct = ((mark.value - min) / (max - min)) * 100
             return (
-              <span
-                key={mark.value}
-                style={{
-                  position: 'absolute',
-                  left: `${markPct}%`,
-                  transform: 'translateX(-50%)',
-                  fontSize: '0.72rem',
-                  color: 'var(--settings-muted)',
-                  opacity: increaseContrast ? 1 : 0.85,
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <span key={mark.value} style={{ whiteSpace: 'nowrap' }}>
                 {mark.label}
               </span>
             )

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { SearchIcon } from 'icons/actionIcons'
 import { CloseIcon } from 'icons/materialIcons'
 
@@ -108,9 +108,11 @@ export default function SettingsNavigation({
 }) {
   const searchRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const previousQuery = useRef('')
   const savedScroll = useRef(stateRef.current.scrollTop)
   const [query, setQuery] = useState('')
+  const [moreBelow, setMoreBelow] = useState(false)
   const normalizedQuery = query.trim()
   let count = 0
   const panels = children.flatMap((panel) => {
@@ -130,16 +132,66 @@ export default function SettingsNavigation({
         ]
       : []
   })
+  const measureViewport = useCallback(() => {
+    const container = scrollRef.current
+    if (!container) return
+    setMoreBelow(
+      container.scrollHeight - container.scrollTop - container.clientHeight > 1,
+    )
+    const heights = Array.from(
+      container.querySelectorAll<HTMLElement>('.settings-section-heading'),
+      (heading) => heading.getBoundingClientRect().height,
+    )
+    container.style.setProperty(
+      '--settings-sticky-height',
+      `${Math.max(0, ...heights) + 8}px`,
+    )
+  }, [])
   const rememberScroll = () => {
     const container = scrollRef.current
     if (!container) return
     if (!normalizedQuery) stateRef.current.scrollTop = container.scrollTop
+    measureViewport()
+  }
+  const keepFocusVisible = (event: React.FocusEvent<HTMLDivElement>) => {
+    const container = scrollRef.current
+    const target = event.target as HTMLElement
+    // Tooltip portals have their own position and focus handling.
+    if (!container?.contains(target) || target === container) return
+    const heading = target
+      .closest('.settings-section')
+      ?.querySelector<HTMLElement>('.settings-section-heading')
+    if (heading?.contains(target)) return
+    const viewport = container.getBoundingClientRect()
+    // A switch's clipped checkbox is not its visible track or row focus ring.
+    const visibleTarget = target.matches('input[type="checkbox"]')
+      ? target.closest<HTMLElement>('.settings-option') ||
+        target.closest<HTMLElement>('label') ||
+        target
+      : target
+    const rect = visibleTarget.getBoundingClientRect()
+    const top = viewport.top + (heading?.offsetHeight || 0) + 8
+    const bottom = viewport.bottom - 16
+    if (rect.top < top) container.scrollTop += rect.top - top
+    else if (rect.bottom > bottom) container.scrollTop += rect.bottom - bottom
   }
   useLayoutEffect(() => {
     const container = scrollRef.current
     if (!container) return
     container.scrollTop = stateRef.current.scrollTop
-  }, [])
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(measureViewport)
+    resizeObserver?.observe(container)
+    if (contentRef.current) resizeObserver?.observe(contentRef.current)
+    window.addEventListener('resize', measureViewport)
+    measureViewport()
+    return () => {
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', measureViewport)
+    }
+  }, [measureViewport, stateRef])
   useLayoutEffect(() => {
     const container = scrollRef.current
     if (!container) return
@@ -148,9 +200,9 @@ export default function SettingsNavigation({
     if (previousQuery.current !== normalizedQuery) {
       container.scrollTop = normalizedQuery ? 0 : savedScroll.current
       previousQuery.current = normalizedQuery
-      rememberScroll()
+      measureViewport()
     }
-  }, [normalizedQuery])
+  }, [normalizedQuery, measureViewport])
   return (
     <div className="settings-layout" data-ui-preset={uiPreset}>
       <div className="settings-search-tools">
@@ -184,24 +236,29 @@ export default function SettingsNavigation({
           </p>
         )}
       </div>
-      <div
-        ref={scrollRef}
-        className="settings-scroll"
-        data-testid="settings-scroll"
-        data-filtered={normalizedQuery ? 'true' : 'false'}
-        role="region"
-        aria-label="Settings sections"
-        tabIndex={0}
-        onScroll={rememberScroll}
-      >
-        {panels.length ? (
-          panels
-        ) : (
-          <div className="settings-empty-results">
-            <h2>Search settings</h2>
-            <p>No matching settings. Try another word.</p>
+      <div className="settings-scroll-viewport" data-more-below={moreBelow}>
+        <div
+          ref={scrollRef}
+          className="settings-scroll"
+          data-testid="settings-scroll"
+          data-filtered={normalizedQuery ? 'true' : 'false'}
+          role="region"
+          aria-label="Settings sections"
+          tabIndex={0}
+          onScroll={rememberScroll}
+          onFocusCapture={keepFocusVisible}
+        >
+          <div ref={contentRef}>
+            {panels.length ? (
+              panels
+            ) : (
+              <div className="settings-empty-results">
+                <h2>Search settings</h2>
+                <p>No matching settings. Try another word.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
