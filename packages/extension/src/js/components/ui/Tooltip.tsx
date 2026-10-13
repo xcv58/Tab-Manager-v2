@@ -18,6 +18,14 @@ export interface TooltipProps {
   enterDelay?: number
   /** If true, the tooltip ignores pointer events. */
   disableInteractive?: boolean
+  onInteractionStart?: () => void
+  onInteractionEnd?: (nextTarget: EventTarget | null) => void
+  onClose?: () => void
+  style?: React.CSSProperties
+  role?: 'tooltip' | 'dialog'
+  'aria-label'?: string
+  'data-testid'?: string
+  id?: string
 }
 
 /**
@@ -31,12 +39,27 @@ export default function Tooltip({
   placement = 'bottom',
   enterDelay = 0,
   disableInteractive = true,
+  onInteractionStart,
+  onInteractionEnd,
+  onClose,
+  style,
+  role = 'tooltip',
+  'aria-label': ariaLabel,
+  'data-testid': testId,
+  id,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
   const anchorRef = useRef<HTMLElement | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
+  const [side, setSide] = useState(placement)
+  const interactionRef = useRef({
+    onInteractionStart,
+    onInteractionEnd,
+    onClose,
+  })
+  interactionRef.current = { onInteractionStart, onInteractionEnd, onClose }
   const isControlled = open !== undefined
   const isVisible = isControlled ? open : visible
   const hideRef = useRef<() => void>(() => {})
@@ -84,11 +107,28 @@ export default function Tooltip({
 
     const rect = anchorRef.current.getBoundingClientRect()
     const tooltipRect = tooltipRef.current.getBoundingClientRect()
+    if (
+      !disableInteractive &&
+      (!anchorRef.current.isConnected ||
+        rect.bottom < 0 ||
+        rect.top > window.innerHeight)
+    ) {
+      interactionRef.current.onClose?.()
+      return
+    }
     const gap = 8
+    const resolvedPlacement =
+      !disableInteractive &&
+      placement === 'bottom' &&
+      rect.bottom + gap + tooltipRect.height > window.innerHeight &&
+      rect.top > window.innerHeight - rect.bottom
+        ? 'top'
+        : placement
+    setSide(resolvedPlacement)
     let top = 0
     let left = 0
 
-    switch (placement) {
+    switch (resolvedPlacement) {
       case 'top':
         top = rect.top - tooltipRect.height - gap
         left = rect.left + rect.width / 2 - tooltipRect.width / 2
@@ -116,7 +156,7 @@ export default function Tooltip({
         margin: 8,
       }),
     )
-  }, [isVisible, placement])
+  }, [isVisible, placement, disableInteractive])
 
   useLayoutEffect(() => {
     updatePosition()
@@ -136,8 +176,51 @@ export default function Tooltip({
     }
   }, [isVisible, updatePosition])
 
+  useEffect(() => {
+    if (!isVisible || disableInteractive) return
+    const node = tooltipRef.current
+    const anchor = anchorRef.current
+    const dismiss = () => {
+      const restoreFocus = node?.contains(document.activeElement)
+      interactionRef.current.onClose?.()
+      if (restoreFocus) anchorRef.current?.focus()
+    }
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      if (event.type === 'keyup') dismiss()
+    }
+    const onOutsidePress = (event: MouseEvent) => {
+      if (
+        !node?.contains(event.target as Node) &&
+        !anchorRef.current?.contains(event.target as Node)
+      )
+        interactionRef.current.onClose?.()
+    }
+    const onWindowBlur = () => interactionRef.current.onClose?.()
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(updatePosition)
+    if (node) observer?.observe(node)
+    document.addEventListener('keydown', onEscape, true)
+    document.addEventListener('keyup', onEscape, true)
+    document.addEventListener('mousedown', onOutsidePress, true)
+    window.addEventListener('blur', onWindowBlur)
+    return () => {
+      observer?.disconnect()
+      document.removeEventListener('keydown', onEscape, true)
+      document.removeEventListener('keyup', onEscape, true)
+      document.removeEventListener('mousedown', onOutsidePress, true)
+      window.removeEventListener('blur', onWindowBlur)
+      if (!anchor?.isConnected) interactionRef.current.onClose?.()
+    }
+  }, [isVisible, disableInteractive, updatePosition])
+
   if (!title) {
-    return children
+    // Keep the anchor in the same React tree when controlled content mounts.
+    return <>{children}</>
   }
 
   // React 18 exposes .ref as a non-public runtime field not in TS types.
@@ -185,7 +268,70 @@ export default function Tooltip({
         createPortal(
           <div
             ref={tooltipRef}
-            role="tooltip"
+            id={id}
+            role={role}
+            aria-label={ariaLabel}
+            data-testid={testId}
+            onMouseEnter={
+              disableInteractive
+                ? undefined
+                : () => interactionRef.current.onInteractionStart?.()
+            }
+            onMouseLeave={
+              disableInteractive
+                ? undefined
+                : (event) => {
+                    if (!tooltipRef.current?.contains(document.activeElement))
+                      interactionRef.current.onInteractionEnd?.(
+                        event.relatedTarget,
+                      )
+                  }
+            }
+            onFocusCapture={
+              disableInteractive
+                ? undefined
+                : () => interactionRef.current.onInteractionStart?.()
+            }
+            onBlurCapture={
+              disableInteractive
+                ? undefined
+                : (event) => {
+                    if (
+                      !event.currentTarget.contains(
+                        event.relatedTarget as Node,
+                      ) &&
+                      !event.currentTarget.matches(':hover')
+                    )
+                      interactionRef.current.onInteractionEnd?.(
+                        event.relatedTarget,
+                      )
+                  }
+            }
+            onKeyDown={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onKeyUp={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onClick={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onMouseDown={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onAuxClick={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
             style={{
               position: 'fixed',
               top: coords.top,
@@ -202,8 +348,21 @@ export default function Tooltip({
               color: '#fff',
               whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',
+              ...style,
             }}
           >
+            {!disableInteractive && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  width: '100%',
+                  height: 8,
+                  ...(side === 'top' ? { top: '100%' } : { bottom: '100%' }),
+                }}
+              />
+            )}
             {title}
           </div>,
           document.body,

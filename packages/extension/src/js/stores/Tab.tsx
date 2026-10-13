@@ -150,7 +150,7 @@ export default class Tab extends Focusable {
     this.store.hoverStore.hover(this.id)
   }
 
-  unhover = () => this.store.hoverStore.unhover()
+  unhover = () => this.store.hoverStore.unhover(this.id)
 
   setHovered = (hovered: boolean) => {
     this.isHovered = hovered

@@ -22,6 +22,7 @@ describe('TabContent', () => {
     const url = `https://example.com/?data=${'long-query-value'.repeat(100)}`
     const userStore = {
       showUrl: false,
+      showTabTooltip: true,
       highlightDuplicatedTab: false,
       uiPreset: 'modern',
       tabTooltipUrlLines: 3,

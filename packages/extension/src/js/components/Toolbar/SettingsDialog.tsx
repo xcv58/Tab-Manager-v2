@@ -1114,7 +1114,7 @@ export default observer(() => {
                       htmlFor={tooltipUrlLinesId}
                       style={controlDescriptionStyle}
                     >
-                      URL length
+                      URL preview length
                     </label>
                     <select
                       id={tooltipUrlLinesId}
@@ -1150,8 +1150,8 @@ export default observer(() => {
                       id={tooltipUrlLinesHintId}
                       style={{ ...controlDescriptionStyle, marginTop: 6 }}
                     >
-                      Long URLs end with an ellipsis. Copying keeps the full
-                      URL.
+                      Expand clipped text in the tooltip. Copy always keeps the
+                      complete title or URL.
                     </p>
                   </div>
                 }

@@ -1,6 +1,33 @@
 import React from 'react'
 import BaseSvgIcon, { BaseSvgIconProps } from './BaseSvgIcon'
 
+export const CopyTextIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    >
+      <path d="M7 16H3V3h13v4" />
+      <rect x="7" y="7" width="14" height="14" rx="2" />
+    </g>
+  </BaseSvgIcon>
+)
+
+export const CopiedIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <path
+      d="m5 12 4 4L19 6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </BaseSvgIcon>
+)
+
 export const SearchIcon = (props: BaseSvgIconProps) => (
   <BaseSvgIcon {...props}>
     <g

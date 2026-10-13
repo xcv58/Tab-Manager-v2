@@ -13,17 +13,9 @@ import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
 import { getNoun } from 'libs'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
-import {
-  normalizeTabTooltipUrlLines,
-  type TabTooltipUrlLines,
-} from 'libs/tabTooltip'
-
-const URL_LINE_CLAMP_CLASSES: Record<TabTooltipUrlLines, string> = {
-  1: 'line-clamp-1',
-  3: 'line-clamp-3',
-  5: 'line-clamp-5',
-  full: '',
-}
+import { normalizeTabTooltipUrlLines } from 'libs/tabTooltip'
+import { useAppTheme } from 'libs/appTheme'
+import TabDetailsTooltip from './TabDetailsTooltip'
 
 const TabContent = observer(
   (
@@ -47,6 +39,8 @@ const TabContent = observer(
       isDuplicated,
     } = props.tab
     const { userStore } = useStore()
+    const theme = useAppTheme()
+    const tooltipId = React.useId()
     const urlLines = normalizeTabTooltipUrlLines(userStore.tabTooltipUrlLines)
     const buttonRef = useRef(null)
     useEffect(() => {
@@ -58,7 +52,13 @@ const TabContent = observer(
 
     const { dragging } = dragStore
     const { hovered } = hoverStore
-    const open = !(faked || dragging || !isHovered || !hovered)
+    const open = !(
+      faked ||
+      dragging ||
+      !userStore.showTabTooltip ||
+      !isHovered ||
+      !hovered
+    )
     const duplicateText =
       userStore.highlightDuplicatedTab && isDuplicated
         ? `${duplicatedTabCount} ${getNoun('tab', duplicatedTabCount)} share this page`
@@ -73,29 +73,76 @@ const TabContent = observer(
         moveDomFocus: false,
       })
     }, [focus])
+    const closeTooltip = () => {
+      hoverStore.hideTooltip(props.tab.id)
+    }
     const tooltip = open && (
-      <div className="leading-tight break-all whitespace-normal">
-        <p>{title}</p>
-        <p
-          data-testid="tab-tooltip-url"
-          className={URL_LINE_CLAMP_CLASSES[urlLines]}
-          style={{ opacity: 0.8 }}
-        >
-          {url}
-        </p>
-        {duplicateText ? (
-          <p style={{ opacity: 0.72 }}>{duplicateText}</p>
-        ) : null}
-      </div>
+      <TabDetailsTooltip
+        title={title}
+        url={url}
+        urlLines={urlLines}
+        duplicateText={duplicateText}
+        onClose={() => {
+          closeTooltip()
+          buttonRef.current?.focus()
+        }}
+        autoFocus={hoverStore.keyboardEntry}
+      />
     )
     return (
-      <Tooltip {...{ open, title: tooltip }}>
+      <Tooltip
+        {...{ open, title: tooltip }}
+        id={tooltipId}
+        role="dialog"
+        aria-label="Tab details"
+        data-testid="tab-details-tooltip"
+        disableInteractive={false}
+        onInteractionStart={() => hoverStore.holdTooltip(props.tab.id)}
+        onInteractionEnd={(nextTarget) => {
+          const row = buttonRef.current?.closest('[data-testid^="tab-row-"]')
+          hoverStore.releaseTooltip(
+            props.tab.id,
+            !!row?.contains(nextTarget as Node),
+          )
+        }}
+        onClose={closeTooltip}
+        style={
+          {
+            width: 'min(380px, calc(100vw - 16px))',
+            maxWidth: 'calc(100vw - 16px)',
+            padding: 0,
+            borderRadius: 12,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: '0 8px 28px rgba(0, 0, 0, 0.2)',
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            whiteSpace: 'normal',
+            '--tab-details-accent': theme.palette.primary.main,
+            '--tab-details-muted': theme.palette.text.secondary,
+            '--tab-details-hover': theme.palette.action.hover,
+          } as React.CSSProperties
+        }
+      >
         <button
           ref={buttonRef}
           tabIndex={-1}
           onClick={onClick}
           onAuxClick={onAuxClick}
           onFocus={onFocus}
+          aria-haspopup="dialog"
+          aria-controls={open ? tooltipId : undefined}
+          aria-keyshortcuts="Alt+ArrowDown"
+          onKeyDown={(event) => {
+            if (
+              event.altKey &&
+              event.key === 'ArrowDown' &&
+              userStore.showTabTooltip
+            ) {
+              event.preventDefault()
+              event.stopPropagation()
+              hoverStore.openTooltip(props.tab.id, true)
+            }
+          }}
           className={buttonClassName}
           style={buttonStyle}
         >

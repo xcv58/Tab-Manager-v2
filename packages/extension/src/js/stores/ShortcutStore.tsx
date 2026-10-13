@@ -92,6 +92,16 @@ export default class ShortcutStore {
 
   shortcuts: ShortcutDefinition[] = [
     [
+      'alt+down',
+      (event: Event) => {
+        const tab = this.store.focusStore.focusedTab
+        if (!tab || !this.store.userStore.showTabTooltip) return
+        preventDefault(event)
+        this.store.hoverStore.openTooltip(tab.id, true)
+      },
+      'Open focused tab details',
+    ],
+    [
       'ctrl+s',
       (event: Event) => {
         preventDefault(event)

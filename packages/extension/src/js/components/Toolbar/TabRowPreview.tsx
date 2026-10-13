@@ -65,25 +65,53 @@ class PreviewUserStore {
 }
 
 class PreviewHoverStore {
+  private hideTimer: ReturnType<typeof setTimeout> | null = null
+  private held = false
   hoveredTabId: number | null = null
 
   hovered = false
+
+  keyboardEntry = false
 
   userStore: PreviewUserStore
 
   constructor(userStore: PreviewUserStore) {
     this.userStore = userStore
-    makeAutoObservable(this, { userStore: false }, { autoBind: true })
+    makeAutoObservable<PreviewHoverStore, 'hideTimer' | 'held'>(
+      this,
+      { userStore: false, hideTimer: false, held: false },
+      { autoBind: true },
+    )
   }
 
   hover(id: number) {
+    if (this.hideTimer) clearTimeout(this.hideTimer)
     this.hoveredTabId = id
     this.hovered = this.userStore.showTabTooltip
   }
 
+  openTooltip(id: number, keyboardEntry = false) {
+    this.hover(id)
+    this.keyboardEntry = keyboardEntry
+  }
+  holdTooltip() {
+    if (this.hideTimer) clearTimeout(this.hideTimer)
+    this.held = true
+  }
+  releaseTooltip(_id: number, returnedToRow = false) {
+    this.held = false
+    if (!returnedToRow) this.unhover()
+  }
   unhover() {
+    if (!this.held) this.hideTimer = setTimeout(() => this.hideTooltip(), 240)
+  }
+  hideTooltip() {
+    if (this.hideTimer) clearTimeout(this.hideTimer)
+    this.hideTimer = null
+    this.held = false
     this.hoveredTabId = null
     this.hovered = false
+    this.keyboardEntry = false
   }
 }
 
