@@ -160,6 +160,12 @@ export function useCombobox<T>({
     if (!element) {
       return false
     }
+    // Portal tab details need real focus and native text selection. Keeping
+    // input focus here would prevent selecting/copying text inside that panel.
+    if (element.closest('[data-tab-details-panel]')) {
+      preserveBlurFocusRef.current = false
+      return false
+    }
 
     preserveBlurFocusRef.current =
       isOpenRef.current && element.closest('[role="option"]') == null

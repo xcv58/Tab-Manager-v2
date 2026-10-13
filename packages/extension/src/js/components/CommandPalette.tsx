@@ -9,6 +9,7 @@ import { useStore } from './hooks/useStore'
 import { CloseIcon, KeyboardArrowLeftIcon } from 'icons/materialIcons'
 import { SearchIcon } from 'icons/actionIcons'
 import { getCommandPaletteShortcutLabel } from 'libs/commandPaletteShortcut'
+import { getWindowLabel } from 'libs/windowLabel'
 import type { PaletteCommand } from 'stores/ActionStore'
 import TabGroupRow from 'stores/TabGroupRow'
 import CommandPaletteIcon from './CommandPaletteIcon'
@@ -86,7 +87,7 @@ const PaletteDialog = observer(function PaletteDialog() {
         : groupTitle
           ? `Focused group: ${groupTitle}`
           : win
-            ? `Focused window: ${win.tabs.find((tab) => tab.active)?.title || win.tabs[0]?.title || 'Empty window'}`
+            ? `Focused window: ${getWindowLabel(win)}`
             : '',
     ]
       .filter(Boolean)

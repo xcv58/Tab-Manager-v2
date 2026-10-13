@@ -27,6 +27,7 @@ export default observer((props: { search: string }) => {
         <td
           style={{
             padding: '8px 16px',
+            verticalAlign: 'top',
             borderBottom: '1px solid var(--table-border, rgba(0,0,0,0.12))',
           }}
         >
@@ -66,6 +67,7 @@ export default observer((props: { search: string }) => {
                 padding: '8px 16px',
                 textAlign: 'left',
                 fontWeight: 600,
+                width: '58%',
                 borderBottom: '2px solid var(--table-border, rgba(0,0,0,0.12))',
               }}
             >

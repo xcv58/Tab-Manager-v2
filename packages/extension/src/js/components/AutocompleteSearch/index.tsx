@@ -20,6 +20,8 @@ import { useAppTheme } from 'libs/appTheme'
 import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
 import ControlIconButton from 'components/ControlIconButton'
 import { CloseIcon } from 'icons/materialIcons'
+import { BrowserWindowIcon } from 'icons/actionIcons'
+import { getWindowLabel } from 'libs/windowLabel'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ focus · > commands'
@@ -65,6 +67,13 @@ const buildGroupedTabSections = (
   }
 
   const emittedGroupIds = new Set()
+  const groupTitleCounts = new Map<string, number>()
+  qualifyingGroupIds.forEach((groupId) => {
+    const title = (
+      tabGroupStore.getTabGroup(groupId)?.title || 'Unnamed group'
+    ).toLowerCase()
+    groupTitleCounts.set(title, (groupTitleCounts.get(title) || 0) + 1)
+  })
   const items = tabs.flatMap((tab) => {
     if (!qualifyingGroupIds.has(tab.groupId)) {
       return [tab]
@@ -85,6 +94,12 @@ const buildGroupedTabSections = (
         dividerType: 'group',
         groupId: tab.groupId,
         title: tabGroup?.title || 'Unnamed group',
+        windowTitle:
+          groupTitleCounts.get(
+            (tabGroup?.title || 'Unnamed group').toLowerCase(),
+          ) > 1
+            ? getWindowLabel(tab.win)
+            : undefined,
         color: tabGroup?.color,
         matchCount: matchedTabs.length,
       },
@@ -174,6 +189,7 @@ type DividerOption = {
   groupId?: number
   color?: chrome.tabGroups.ColorEnum
   matchCount?: number
+  windowTitle?: string
 }
 
 type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
@@ -203,12 +219,15 @@ const renderTabOption = (
           style={{ borderTopColor: theme.palette.divider }}
           data-testid={`search-group-header-${tab.groupId}`}
         >
-          <div className="flex items-center min-w-0 gap-2">
+          <div className="flex items-center min-w-0 gap-2 flex-1">
             <div
-              className="inline-flex min-w-0 max-w-full items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+              className="inline-flex min-w-0 items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+              title={tab.title}
               style={{
                 backgroundColor: groupColor.line,
                 color: groupColor.chipText,
+                maxWidth: tab.windowTitle ? '55%' : '100%',
+                flexShrink: tab.windowTitle ? 0 : undefined,
               }}
               data-testid={`search-group-header-chip-${tab.groupId}`}
             >
@@ -221,6 +240,21 @@ const renderTabOption = (
                 />
               </span>
             </div>
+            {tab.windowTitle && (
+              <span
+                className="inline-flex min-w-0 items-center gap-1 text-xs"
+                style={{ color: theme.palette.text.secondary }}
+                title={`Window: ${tab.windowTitle}`}
+                data-testid={`search-group-window-${tab.groupId}`}
+              >
+                <BrowserWindowIcon
+                  aria-hidden="true"
+                  fontSize={14}
+                  style={{ flexShrink: 0 }}
+                />
+                <span className="truncate">{tab.windowTitle}</span>
+              </span>
+            )}
           </div>
           <div
             className="ml-2 text-xs shrink-0 opacity-70"
@@ -365,8 +399,14 @@ const AutocompleteSearch = observer((props: Props) => {
   } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const { userStore, searchStore, tabGroupStore, focusStore, actionStore } =
-    useStore()
+  const {
+    userStore,
+    searchStore,
+    tabGroupStore,
+    focusStore,
+    actionStore,
+    hoverStore,
+  } = useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
   const resultMenuEnabled = showResultMenu || isCommand
   const options = useOptions(resultMenuEnabled)
@@ -393,12 +433,41 @@ const AutocompleteSearch = observer((props: Props) => {
       // The portal menu receives focus while its search result remains mounted.
       // Closing that result list would also unmount the menu being used.
       if (!nextOpen && actionStore.menu?.key.startsWith('search-tab-')) return
+      if (
+        !nextOpen &&
+        hoverStore.hovered &&
+        hoverStore.hoveredSurface === 'search'
+      )
+        return
       if (!isOpenControlled && (!nextOpen || resultMenuEnabled)) {
         setUncontrolledIsOpen(nextOpen)
       }
     },
-    [actionStore, isOpenControlled, resultMenuEnabled],
+    [actionStore, hoverStore, isOpenControlled, resultMenuEnabled],
   )
+
+  useEffect(() => {
+    hoverStore.hideTooltip(undefined, 'search')
+  }, [query, hoverStore])
+  useEffect(() => {
+    if (!isOpen) hoverStore.hideTooltip(undefined, 'search')
+  }, [isOpen, hoverStore])
+
+  useEffect(() => {
+    if (!isOpen || isOpenControlled) return
+    const dismissOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (
+        rootRef.current?.contains(target) ||
+        target.closest?.('[data-tab-details-panel], [role="menu"]')
+      )
+        return
+      hoverStore.hideTooltip(undefined, 'search')
+      handleOpenChange(false)
+    }
+    document.addEventListener('mousedown', dismissOutside)
+    return () => document.removeEventListener('mousedown', dismissOutside)
+  }, [isOpen, isOpenControlled, hoverStore, handleOpenChange])
 
   const groupedSectionTabIdsRef = useRef(new Set())
   const searchMatchModeRef = useRef<SearchMatchMode>('none')
@@ -577,6 +646,18 @@ const AutocompleteSearch = observer((props: Props) => {
           value={inputProps.value}
           onChange={inputProps.onChange}
           onKeyDown={(event) => {
+            const highlighted = filteredOptions[highlightedIndex]
+            if (
+              event.altKey &&
+              event.key === 'ArrowDown' &&
+              highlighted instanceof Tab &&
+              userStore.showTabTooltip
+            ) {
+              event.preventDefault()
+              event.stopPropagation()
+              hoverStore.openTooltip(highlighted.id, true, 'search')
+              return
+            }
             if (event.key === 'Escape') {
               event.preventDefault()
               event.stopPropagation()

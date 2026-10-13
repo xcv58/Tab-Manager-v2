@@ -46,43 +46,45 @@ function TextField({
     <section className="tab-details-field">
       <div className="tab-details-field-heading">
         <span className="tab-details-label">{label}</span>
-        <button
-          type="button"
-          className="tab-details-action"
-          aria-label={`Copy ${fieldName}`}
-          onClick={onCopy}
-        >
-          {copied ? (
-            <CopiedIcon fontSize={14} />
-          ) : (
-            <CopyTextIcon fontSize={14} />
+        <div className="tab-details-field-actions">
+          {(clipped || expanded) && (
+            <button
+              type="button"
+              className="tab-details-action tab-details-expand"
+              aria-expanded={expanded}
+              aria-controls={fieldId}
+              onClick={() => setExpanded(!expanded)}
+            >
+              <ExpandMoreIcon
+                fontSize={16}
+                style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
+              />
+              {expanded ? `Show less ${fieldName}` : `Show full ${fieldName}`}
+            </button>
           )}
-          {copied ? 'Copied' : 'Copy'}
-        </button>
+          <button
+            type="button"
+            className="tab-details-action"
+            aria-label={`Copy ${fieldName}`}
+            onClick={onCopy}
+          >
+            {copied ? (
+              <CopiedIcon fontSize={14} />
+            ) : (
+              <CopyTextIcon fontSize={14} />
+            )}
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
       </div>
       <p
         id={fieldId}
         ref={textRef}
         data-testid={`tab-tooltip-${label.toLowerCase()}`}
-        className={`tab-details-text ${expanded ? '' : CLAMP_CLASSES[lines]}`}
+        className={`tab-details-text ${expanded || lines === 'full' ? 'tab-details-text-expanded' : CLAMP_CLASSES[lines]}`}
       >
         {value}
       </p>
-      {(clipped || expanded) && (
-        <button
-          type="button"
-          className="tab-details-action tab-details-expand"
-          aria-expanded={expanded}
-          aria-controls={fieldId}
-          onClick={() => setExpanded(!expanded)}
-        >
-          <ExpandMoreIcon
-            fontSize={16}
-            style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
-          />
-          {expanded ? `Show less ${fieldName}` : `Show full ${fieldName}`}
-        </button>
-      )}
     </section>
   )
 }
@@ -94,6 +96,8 @@ export default function TabDetailsTooltip({
   duplicateText,
   onClose,
   autoFocus,
+  groupTitle,
+  windowTitle,
 }: {
   title: string
   url: string
@@ -101,6 +105,8 @@ export default function TabDetailsTooltip({
   duplicateText: string
   onClose: () => void
   autoFocus?: boolean
+  groupTitle?: string
+  windowTitle?: string
 }) {
   const [copied, setCopied] = useState<string | null>(null)
   const [status, setStatus] = useState('')
@@ -152,6 +158,22 @@ export default function TabDetailsTooltip({
         </button>
       </div>
       <div className="tab-details-scroller">
+        {(windowTitle || groupTitle) && (
+          <dl className="tab-details-context">
+            {windowTitle && (
+              <>
+                <dt>Window</dt>
+                <dd title={windowTitle}>{windowTitle}</dd>
+              </>
+            )}
+            {groupTitle && (
+              <>
+                <dt>Group</dt>
+                <dd title={groupTitle}>{groupTitle}</dd>
+              </>
+            )}
+          </dl>
+        )}
         <TextField
           label="Title"
           value={title}

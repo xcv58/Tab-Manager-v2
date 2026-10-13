@@ -7,6 +7,7 @@ import type { TabCopyFormat } from 'libs/tabExport'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { restoreDialogFocusTarget } from 'libs/dialogFocus'
 import TabGroupRow from './TabGroupRow'
+import { getWindowLabel } from 'libs/windowLabel'
 
 export type ActionMenuAnchor = {
   key: string
@@ -297,10 +298,7 @@ export default class ActionStore {
         }))
     }
     if (this.choosingDestination) {
-      const windowTitle = (win: (typeof windowStore.windows)[number]) =>
-        win.tabs.find((tab) => tab.active)?.title ||
-        win.tabs[0]?.title ||
-        'Empty window'
+      const windowTitle = getWindowLabel
       const windows = new Map(windowStore.windows.map((win) => [win.id, win]))
       // Group metadata includes collapsed groups whose tab rows are hidden.
       const groups: PaletteCommand[] = Array.from(
@@ -356,6 +354,7 @@ export default class ActionStore {
     const win = focusStore.focusedWindow
     const focusedItem = focusStore.focusedItem
     const duplicateCount = windowStore.getDuplicateTabsToRemoveCount()
+    const hasTabs = windowStore.windows.some((window) => window.tabs?.length)
     const commands: PaletteCommand[] = []
     if (count) {
       commands.push(
@@ -597,6 +596,11 @@ export default class ActionStore {
         icon: searchStore.allTabSelected ? 'deselect' : 'select',
         label: `${searchStore.allTabSelected ? 'Deselect' : 'Select'} all ${searchStore.matchedTabs.length} ${searchStore.queryActive ? 'matching ' : ''}tabs`,
         section: 'Selection',
+        disabledReason: !searchStore.matchedTabs.length
+          ? searchStore.queryActive
+            ? 'No matching tabs'
+            : 'No tabs to select'
+          : undefined,
         run: () => searchStore.toggleSelectAll(),
       },
       {
@@ -623,6 +627,7 @@ export default class ActionStore {
         icon: 'sort',
         label: 'Sort tabs across windows',
         section: 'Across windows',
+        disabledReason: !hasTabs ? 'No tabs to sort' : undefined,
         shortcut: 'Ctrl S',
         run: () => arrangeStore.sortTabs(),
       },
@@ -631,6 +636,7 @@ export default class ActionStore {
         icon: 'cluster',
         label: 'Cluster ungrouped tabs by site and sort',
         section: 'Across windows',
+        disabledReason: !hasTabs ? 'No tabs to organize' : undefined,
         aliases: 'domain organize',
         shortcut: 'Ctrl Shift S',
         run: () => arrangeStore.groupTabs(),
@@ -672,6 +678,22 @@ export default class ActionStore {
         run: userStore.selectNextTheme,
       },
     )
+    if (!count) {
+      const sectionOrder = hasTabs
+        ? [
+            'Focused tab',
+            'Focused group',
+            'Focused window',
+            'Selection',
+            'Across windows',
+            'Application',
+          ]
+        : ['Application', 'Selection', 'Across windows']
+      commands.sort(
+        (a, b) =>
+          sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section),
+      )
+    }
     return commands
   }
 }

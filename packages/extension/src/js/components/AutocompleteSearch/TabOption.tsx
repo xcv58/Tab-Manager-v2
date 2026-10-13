@@ -21,6 +21,7 @@ import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { matchesSearchText, type SearchMatchMode } from 'libs/searchMatching'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import Tab from 'stores/Tab'
+import TabDetailsAnchor from 'components/Tab/TabDetailsAnchor'
 import ControlIconButton from 'components/ControlIconButton'
 import { RevealInListIcon } from 'icons/actionIcons'
 
@@ -85,14 +86,6 @@ export default observer(function TabOption(props: Props) {
     },
     [matchMode, query],
   )
-
-  const tooltip = showGroupContext ? (
-    <div className="leading-tight break-all whitespace-normal">
-      <p>{tab.title}</p>
-      <p style={{ opacity: 0.8 }}>{tab.url}</p>
-      <p style={{ opacity: 0.72 }}>Group: {groupLabel}</p>
-    </div>
-  ) : null
 
   const rowButton = (
     <button
@@ -169,13 +162,9 @@ export default observer(function TabOption(props: Props) {
       <TabMenu tab={tab} menuKey={`search-tab-${tab.id}`} hideTrigger />
       {pin}
       <Icon tab={tab} faked />
-      {tooltip ? (
-        <Tooltip title={tooltip} enterDelay={TOOLTIP_DELAY}>
-          {rowButton}
-        </Tooltip>
-      ) : (
-        rowButton
-      )}
+      <TabDetailsAnchor tab={tab} surface="search">
+        {rowButton}
+      </TabDetailsAnchor>
       <RowActionRail tail={<DuplicateMarker tab={tab} faked />}>
         <TabTools tab={tab} faked />
         {onReveal && (

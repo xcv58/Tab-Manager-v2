@@ -1,7 +1,7 @@
 import React from 'react'
 import BaseSvgIcon, { BaseSvgIconProps } from './BaseSvgIcon'
 
-// Palette-only symbols share the outline weight of the existing action icons.
+// Shared action symbols match the outline weight of the existing action icons.
 const outlineIcon = (name: string, children: React.ReactNode) => {
   const Icon = (props: BaseSvgIconProps) => (
     <BaseSvgIcon {...props}>

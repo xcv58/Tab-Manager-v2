@@ -167,6 +167,12 @@ const renderAutocompleteSearch = ({
       userStore,
       searchStore,
       actionStore: { paletteOpen: false, menu: null, openPalette },
+      hoverStore: {
+        hovered: false,
+        hoveredSurface: 'list',
+        hideTooltip: jest.fn(),
+        openTooltip: jest.fn(),
+      },
       tabGroupStore: {
         hasTabGroupsApi: () => false,
       },

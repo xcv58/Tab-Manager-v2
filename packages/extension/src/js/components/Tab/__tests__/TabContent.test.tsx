@@ -29,10 +29,16 @@ describe('TabContent', () => {
     } as any
     const store = {
       userStore,
-      hoverStore: { hovered: true },
+      hoverStore: {
+        hovered: true,
+        hoveredTabId: 1,
+        hoveredSurface: 'list',
+        hideTooltip: jest.fn(),
+      },
       dragStore: { dragging: false },
     } as any
     const tab = {
+      id: 1,
       title: 'Long URL tab',
       url,
       activate: jest.fn(),
@@ -72,6 +78,7 @@ describe('TabContent', () => {
     const store = {
       hoverStore: {
         hovered: true,
+        hideTooltip: jest.fn(),
       },
       dragStore: {
         dragging: false,

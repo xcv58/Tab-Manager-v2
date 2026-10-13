@@ -4,6 +4,7 @@ import debounce from 'lodash.debounce'
 import type Tab from './Tab'
 
 const HOVERED_DELAY = 896.4
+export type TabTooltipSurface = 'list' | 'search'
 
 // This store is for individual tab's tooltip.
 export default class HoverStore {
@@ -14,6 +15,7 @@ export default class HoverStore {
       hoveredTabId: observable,
       hovered: observable,
       keyboardEntry: observable,
+      hoveredSurface: observable,
       hover: action,
       unhover: action,
       openTooltip: action,
@@ -29,6 +31,7 @@ export default class HoverStore {
   hovered = false
 
   keyboardEntry = false
+  hoveredSurface: TabTooltipSurface = 'list'
 
   private tooltipHeld = false
 
@@ -45,15 +48,20 @@ export default class HoverStore {
     return null
   }
 
-  hover = (id: number) => {
-    this._closeTooltip.cancel()
-    if (this.hoveredTabId === id) {
+  hover = (id: number, surface: TabTooltipSurface = 'list') => {
+    if (this.hoveredTabId === id && this.hoveredSurface === surface) {
+      this._closeTooltip.cancel()
       return
     }
+    // Resizing an interactive card can expose another row beneath the pointer.
+    // That incidental hover must not replace the card being read or copied.
+    if (this.hovered && this.tooltipHeld) return
+    this._closeTooltip.cancel()
     this.getTabById(this.hoveredTabId)?.setHovered(false)
     this.tooltipHeld = false
     this.keyboardEntry = false
     this.hoveredTabId = id
+    this.hoveredSurface = surface
     this.getTabById(id)?.setHovered(true)
     if (!this.store.userStore.showTabTooltip) {
       return
@@ -62,8 +70,13 @@ export default class HoverStore {
     this._updateHovered()
   }
 
-  unhover = (id = this.hoveredTabId) => {
-    if (id !== this.hoveredTabId || this.tooltipHeld) return
+  unhover = (id = this.hoveredTabId, surface: TabTooltipSurface = 'list') => {
+    if (
+      id !== this.hoveredTabId ||
+      surface !== this.hoveredSurface ||
+      this.tooltipHeld
+    )
+      return
     if (this.hovered) {
       this._closeTooltip()
     } else {
@@ -71,28 +84,43 @@ export default class HoverStore {
     }
   }
 
-  openTooltip = (id: number, keyboardEntry = false) => {
+  openTooltip = (
+    id: number,
+    keyboardEntry = false,
+    surface: TabTooltipSurface = 'list',
+  ) => {
     if (!this.store.userStore.showTabTooltip) return
-    this.hover(id)
+    // Explicit keyboard entry can intentionally move to another tab or surface.
+    if (id !== this.hoveredTabId || surface !== this.hoveredSurface)
+      this.hideTooltip()
+    this.hover(id, surface)
     this._updateHovered.cancel()
     this.keyboardEntry = keyboardEntry
     this.hovered = true
   }
 
-  holdTooltip = (id: number) => {
-    if (id !== this.hoveredTabId) return
+  holdTooltip = (id: number, surface: TabTooltipSurface = 'list') => {
+    if (id !== this.hoveredTabId || surface !== this.hoveredSurface) return
     this._closeTooltip.cancel()
     this.tooltipHeld = true
   }
 
-  releaseTooltip = (id: number, returnedToRow = false) => {
-    if (id !== this.hoveredTabId) return
+  releaseTooltip = (
+    id: number,
+    returnedToRow = false,
+    surface: TabTooltipSurface = 'list',
+  ) => {
+    if (id !== this.hoveredTabId || surface !== this.hoveredSurface) return
     this.tooltipHeld = false
-    if (!returnedToRow) this.unhover(id)
+    if (!returnedToRow) this.unhover(id, surface)
   }
 
-  hideTooltip = (id = this.hoveredTabId) => {
-    if (id !== this.hoveredTabId) return
+  hideTooltip = (id = this.hoveredTabId, surface?: TabTooltipSurface) => {
+    if (
+      id !== this.hoveredTabId ||
+      (surface && surface !== this.hoveredSurface)
+    )
+      return
     this._closeTooltip.cancel()
     this._updateHovered.cancel()
     this.tooltipHeld = false

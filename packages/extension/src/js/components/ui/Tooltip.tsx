@@ -18,6 +18,8 @@ export interface TooltipProps {
   enterDelay?: number
   /** If true, the tooltip ignores pointer events. */
   disableInteractive?: boolean
+  /** Keep an interactive panel in place when only its contents change size. */
+  keepPosition?: boolean
   onInteractionStart?: () => void
   onInteractionEnd?: (nextTarget: EventTarget | null) => void
   onClose?: () => void
@@ -25,6 +27,7 @@ export interface TooltipProps {
   role?: 'tooltip' | 'dialog'
   'aria-label'?: string
   'data-testid'?: string
+  'data-tab-details-panel'?: boolean
   id?: string
 }
 
@@ -39,6 +42,7 @@ export default function Tooltip({
   placement = 'bottom',
   enterDelay = 0,
   disableInteractive = true,
+  keepPosition = false,
   onInteractionStart,
   onInteractionEnd,
   onClose,
@@ -46,6 +50,7 @@ export default function Tooltip({
   role = 'tooltip',
   'aria-label': ariaLabel,
   'data-testid': testId,
+  'data-tab-details-panel': tabDetailsPanel,
   id,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false)
@@ -53,6 +58,11 @@ export default function Tooltip({
   const anchorRef = useRef<HTMLElement | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
+  const positionRef = useRef<{
+    anchor: string
+    top: number
+    left: number
+  } | null>(null)
   const [side, setSide] = useState(placement)
   const interactionRef = useRef({
     onInteractionStart,
@@ -116,6 +126,26 @@ export default function Tooltip({
       interactionRef.current.onClose?.()
       return
     }
+    const anchorKey = [
+      rect.top,
+      rect.left,
+      rect.width,
+      rect.height,
+      window.innerWidth,
+      window.innerHeight,
+    ].join(':')
+    if (keepPosition && positionRef.current?.anchor === anchorKey) {
+      const next = clampOverlayPosition({
+        top: positionRef.current.top,
+        left: positionRef.current.left,
+        width: tooltipRect.width,
+        height: tooltipRect.height,
+        margin: 8,
+      })
+      positionRef.current = { anchor: anchorKey, ...next }
+      setCoords(next)
+      return
+    }
     const gap = 8
     const resolvedPlacement =
       !disableInteractive &&
@@ -147,18 +177,19 @@ export default function Tooltip({
         break
     }
 
-    setCoords(
-      clampOverlayPosition({
-        top,
-        left,
-        width: tooltipRect.width,
-        height: tooltipRect.height,
-        margin: 8,
-      }),
-    )
-  }, [isVisible, placement, disableInteractive])
+    const next = clampOverlayPosition({
+      top,
+      left,
+      width: tooltipRect.width,
+      height: tooltipRect.height,
+      margin: 8,
+    })
+    positionRef.current = { anchor: anchorKey, ...next }
+    setCoords(next)
+  }, [isVisible, placement, disableInteractive, keepPosition])
 
   useLayoutEffect(() => {
+    if (!isVisible) positionRef.current = null
     updatePosition()
   }, [title, updatePosition])
 
@@ -272,6 +303,7 @@ export default function Tooltip({
             role={role}
             aria-label={ariaLabel}
             data-testid={testId}
+            data-tab-details-panel={tabDetailsPanel ? '' : undefined}
             onMouseEnter={
               disableInteractive
                 ? undefined

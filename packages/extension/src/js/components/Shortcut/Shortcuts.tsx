@@ -1,17 +1,17 @@
 import React from 'react'
-import { formatTabMoveShortcut, isTabMoveShortcut } from 'libs/tabMoveShortcuts'
+import { formatShortcutLabel } from 'libs/shortcutLabel'
 
 const Shortcuts = ({ shortcut }: { shortcut: string | string[] }) => {
   if (!Array.isArray(shortcut)) {
     return (
       <kbd
-        className="px-2 py-1 mx-1 text-sm leading-loose tracking-widest text-white bg-blue-500 rounded"
+        className="px-2 py-1 text-sm leading-loose text-white bg-blue-500 rounded"
         style={{
           whiteSpace: 'nowrap',
-          textTransform: isTabMoveShortcut(shortcut) ? 'none' : undefined,
+          textTransform: 'none',
         }}
       >
-        {formatTabMoveShortcut(shortcut)}
+        {formatShortcutLabel(shortcut)}
       </kbd>
     )
   }

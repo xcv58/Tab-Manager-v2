@@ -9,13 +9,18 @@ import {
   RefreshIcon,
 } from 'icons/materialIcons'
 import {
-  CopyTextIcon,
   ArrowDownIcon,
   ArrowUpIcon,
   CloseOtherTabsIcon,
   PinTabIcon,
   UngroupTabIcon,
 } from 'icons/actionIcons'
+import {
+  LinkIcon,
+  TitleIcon,
+  TextDocumentIcon,
+  UnpinIcon,
+} from 'icons/paletteIcons'
 import { getNoun } from 'libs'
 import { useAppTheme } from 'libs/appTheme'
 import { useStore } from 'components/hooks/useStore'
@@ -96,13 +101,13 @@ export default observer(
             <RefreshIcon fontSize={18} /> Reload tab
           </MenuItem>
           <MenuItem onClick={run(() => actionStore.copyTabUrl(tab))}>
-            <CopyTextIcon fontSize={18} /> Copy URL
+            <LinkIcon fontSize={18} /> Copy URL
           </MenuItem>
           <MenuItem onClick={run(() => actionStore.copyTabTitle(tab))}>
-            <CopyTextIcon fontSize={18} /> Copy title
+            <TitleIcon fontSize={18} /> Copy title
           </MenuItem>
           <MenuItem onClick={run(() => actionStore.copyTabTitleAndUrl(tab))}>
-            <CopyTextIcon fontSize={18} /> Copy title and URL
+            <TextDocumentIcon fontSize={18} /> Copy title and URL
           </MenuItem>
           <MenuItem
             disabled={dragStore.pendingWindowEdgeDrop}
@@ -111,7 +116,12 @@ export default observer(
             <OpenInNewIcon fontSize={18} /> Move to a new window
           </MenuItem>
           <MenuItem onClick={run(tab.togglePin)}>
-            <PinTabIcon fontSize={18} /> {pinned ? 'Unpin tab' : 'Pin tab'}
+            {pinned ? (
+              <UnpinIcon fontSize={18} />
+            ) : (
+              <PinTabIcon fontSize={18} />
+            )}{' '}
+            {pinned ? 'Unpin tab' : 'Pin tab'}
           </MenuItem>
           {canMutateTabGroups && tabGroup && (
             <MenuItem
