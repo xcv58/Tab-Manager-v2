@@ -80,10 +80,16 @@ export const WindowLayoutExample = observer(function WindowLayoutExample() {
       url: 'https://www.figma.com/',
       recent: 3,
     },
+    {
+      id: 9252,
+      title: 'Research reading',
+      url: 'https://developer.mozilla.org/',
+      recent: 2,
+    },
     ...(userStore.showAppWindow
       ? [
           {
-            id: 9252,
+            id: 9253,
             title: 'Music · App window',
             url: 'https://music.youtube.com/',
             recent: 2,
