@@ -27,6 +27,31 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
   })
 }
 
+const clickVisibleRelayoutAction = async (actions: Locator) => {
+  const viewport = page.viewportSize()
+  if (!viewport) throw new Error('A viewport is required for this scroll test')
+  for (const action of await actions.all()) {
+    const box = await action.boundingBox()
+    if (!box) continue
+    const left = Math.max(box.x, 0)
+    const right = Math.min(box.x + box.width, viewport.width)
+    const top = Math.max(box.y, 0)
+    const bottom = Math.min(box.y + box.height, viewport.height)
+    if (right > left && bottom > top) {
+      // One action can span several empty columns. Click its visible portion
+      // so automation does not scroll to its offscreen center first.
+      await action.click({
+        position: {
+          x: (left + right) / 2 - box.x,
+          y: (top + bottom) / 2 - box.y,
+        },
+      })
+      return
+    }
+  }
+  throw new Error('No relayout action intersects the current viewport')
+}
+
 const waitForSettingsPanelToSettle = async (page: Page) => {
   await page
     .getByRole('navigation', { name: 'Settings sections' })
@@ -984,7 +1009,9 @@ test.describe('The Extension page should', () => {
       expect(before.left).toBeLessThan(200)
 
       if (action === 'empty column') {
-        await relayoutActions.last().click()
+        // Clicking an offscreen tile would make Playwright scroll first and
+        // invalidate the viewport position this test is meant to preserve.
+        await clickVisibleRelayoutAction(relayoutActions)
       } else {
         await page.getByTestId('layout-repack-button').click()
       }
@@ -1010,7 +1037,7 @@ test.describe('The Extension page should', () => {
     const before = await scrollContainer.evaluate((node) => node.scrollLeft)
     expect(before).toBeGreaterThan(0)
 
-    await relayoutActions.first().click()
+    await clickVisibleRelayoutAction(relayoutActions)
 
     await expect(relayoutActions).toHaveCount(0)
     const after = await scrollContainer.evaluate((node) => ({

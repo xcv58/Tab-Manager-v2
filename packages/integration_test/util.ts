@@ -4,7 +4,7 @@ import { join } from 'path'
 import { Page } from 'playwright'
 import { createServer, Server } from 'http'
 import type { AddressInfo } from 'net'
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { spawnSync } from 'child_process'
 
 export const EXTENSION_PATH = join(
@@ -30,6 +30,14 @@ export const URLS = [
   'http://duckduckgo.com/',
   'https://ops-class.org/',
 ]
+
+const pinboardFixtureIcon = `data:image/x-icon;base64,${readFileSync(
+  join(__dirname, 'assets/fixtures/pinboard.ico'),
+).toString('base64')}`
+const pinboardFixtureHtml = readFileSync(
+  join(__dirname, 'assets/fixtures/pinboard.html'),
+  'utf8',
+).replace('__PINBOARD_FAVICON__', pinboardFixtureIcon)
 
 export type IntegrationFixtureServer = {
   baseUrl: string
@@ -262,11 +270,9 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
     async (route) => {
       const favicon = new URL(route.request().url()).pathname === '/favicon.ico'
       await route.fulfill({
-        path: join(
-          __dirname,
-          'assets/fixtures',
-          favicon ? 'pinboard.ico' : 'pinboard.html',
-        ),
+        ...(favicon
+          ? { path: join(__dirname, 'assets/fixtures/pinboard.ico') }
+          : { body: pinboardFixtureHtml }),
         contentType: favicon ? 'image/x-icon' : 'text/html; charset=utf-8',
       })
     },
