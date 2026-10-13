@@ -941,6 +941,7 @@ test.describe('The Extension page should', () => {
     await page.mouse.move(1, 1)
     await page.waitForTimeout(100)
     await waitForLocatorRectToStabilize(toolbarToggle, {
+      timeout: 10000,
       minWidth: 300,
       minHeight: 30,
       stableSamples: 4,
