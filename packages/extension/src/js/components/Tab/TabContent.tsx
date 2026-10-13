@@ -41,7 +41,7 @@ const TabContent = observer(
       <TabDetailsAnchor tab={props.tab} anchorRef={buttonRef}>
         <button
           ref={buttonRef}
-          tabIndex={-1}
+          tabIndex={props.preview ? 0 : -1}
           onClick={onClick}
           onAuxClick={onAuxClick}
           onFocus={onFocus}

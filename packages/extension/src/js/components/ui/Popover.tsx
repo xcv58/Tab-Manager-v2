@@ -114,6 +114,14 @@ export default function Popover({
     <div
       ref={popoverRef}
       data-testid={testId}
+      onKeyDown={(event) => {
+        event.stopPropagation()
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          onClose()
+        }
+      }}
+      onKeyUp={(event) => event.stopPropagation()}
       className={className}
       style={{
         position: 'fixed',

@@ -3,6 +3,7 @@ import Window from 'stores/Window'
 
 export type TabProps = {
   tab: Tab
+  preview?: boolean
   faked?: boolean
   disableSequentialFocus?: boolean
 }

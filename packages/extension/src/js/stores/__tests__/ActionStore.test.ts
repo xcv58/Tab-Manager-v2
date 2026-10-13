@@ -67,15 +67,18 @@ describe('ActionStore palette', () => {
     },
   )
 
-  it('explains unavailable formats and does not copy without a selection', async () => {
+  it('explains unavailable formats when neither selection nor focus supplies tabs', async () => {
     const { store, actions } = setup()
     store.tabStore.selection.clear()
+    store.focusStore.focusedTab = null
     actions.chooseFormat('copy')
     const command = actions.commands[0]
 
     await actions.execute(command)
 
-    expect(command.disabledReason).toBe('Select tabs first')
+    expect(command.disabledReason).toBe(
+      'Select tabs or focus a tab, group or window',
+    )
     expect(store.copyTabs).not.toHaveBeenCalled()
   })
 
@@ -117,4 +120,66 @@ describe('ActionStore palette', () => {
     store.userStore.theme = 'dark'
     expect(command('theme').detail).toBe('Current: Dark')
   })
+})
+
+test('focused copy formats work without changing selection', async () => {
+  const { store, actions, tab } = setup()
+  store.tabStore.selection.clear()
+  actions.chooseFormat('copy')
+  await actions.execute(
+    actions.commands.find((command) => command.id === 'copy-json')!,
+  )
+  expect(store.copyTabs).toHaveBeenCalledWith([tab], 'json')
+  expect(store.tabStore.selection.size).toBe(0)
+})
+
+test('tab details explains a hidden anchor and uses a mounted search result', () => {
+  const { store, actions, tab } = setup()
+  store.userStore.showTabTooltip = true
+  const details = () =>
+    actions.commands.find((item) => item.id === 'tab-details')!
+  expect(details().disabledReason).toMatch(/Reveal this tab/)
+  const row = document.createElement('div')
+  row.dataset.testid = `search-tab-row-${tab.id}`
+  const anchor = document.createElement('button')
+  anchor.setAttribute('aria-haspopup', 'dialog')
+  anchor.getClientRects = () =>
+    [{ width: 200, height: 40 }] as unknown as DOMRectList
+  row.append(anchor)
+  document.body.append(row)
+  expect(details().disabledReason).toBeUndefined()
+  actions.openPalette()
+  row.remove()
+  expect(details().disabledReason).toBeUndefined()
+  details().run()
+  expect(store.hoverStore.openTooltip).toHaveBeenCalledWith(
+    tab.id,
+    true,
+    'search',
+  )
+  actions.closePalette(false)
+  expect(details().disabledReason).toMatch(/Reveal this tab/)
+})
+
+test('selection toggles describe focus, and group creation rejects invalid source sets', () => {
+  const { store, actions, tab } = setup()
+  store.focusStore.focusedItem = tab
+  store.tabGroupStore = {
+    canMutateGroups: () => true,
+    getTabGroup: () => null,
+    isNoGroupId: () => true,
+    canCreateGroupFromTabs: (tabs) =>
+      tabs.length >= 2 &&
+      tabs.every((item) => item.windowId === tabs[0].windowId),
+  }
+  const command = (id) => actions.commands.find((item) => item.id === id)!
+  expect(command('select-focused').label).toBe('Toggle selection for this tab')
+  expect(command('create-group').disabledReason).toMatch(/at least two/)
+  store.tabStore.sources = [
+    { id: 1, windowId: 7 },
+    { id: 2, windowId: 8 },
+  ]
+  expect(command('create-group').disabledReason).toMatch(/same window/)
+  store.tabStore.sources[1].windowId = 7
+  expect(command('create-group').disabledReason).toBeUndefined()
 })

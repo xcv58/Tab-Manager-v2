@@ -409,7 +409,7 @@ describe('AutocompleteSearch', () => {
     renderAutocompleteSearch()
 
     const input = screen.getByRole('combobox')
-    const hint = screen.getByText('/ focus · > commands')
+    const hint = screen.getByText('/ search · > commands')
 
     expect(input).toHaveStyle('font-size: 0.8125rem')
     expect(hint).toHaveStyle('font-size: 0.8125rem')

@@ -24,7 +24,7 @@ import { BrowserWindowIcon } from 'icons/actionIcons'
 import { getWindowLabel } from 'libs/windowLabel'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
-const SEARCH_HINT = '/ focus · > commands'
+const SEARCH_HINT = '/ search · > commands'
 const SEARCH_FONT_SIZE = '0.8125rem'
 const LISTBOX_MARGIN_TOP = 4
 

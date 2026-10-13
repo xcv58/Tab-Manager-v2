@@ -96,10 +96,14 @@ export default (props: Props) => {
           }}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
+              event.preventDefault()
+              event.stopPropagation()
               commitTitle()
               onClose()
             }
             if (event.key === 'Escape') {
+              event.preventDefault()
+              event.stopPropagation()
               skipBlurCommitRef.current = true
               setTitle(initialTitle)
               onClose()

@@ -1,11 +1,13 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { OverlayContainerContext } from './OverlayContainer'
 import { clampOverlayPosition } from './overlayPosition'
 
 let activeUncontrolledTooltipHide: null | { current: () => void } = null
@@ -53,6 +55,8 @@ export default function Tooltip({
   'data-tab-details-panel': tabDetailsPanel,
   id,
 }: TooltipProps) {
+  const overlayContainer = useContext(OverlayContainerContext)
+  const selectingRef = useRef(false)
   const [visible, setVisible] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
   const anchorRef = useRef<HTMLElement | null>(null)
@@ -62,6 +66,7 @@ export default function Tooltip({
     anchor: string
     top: number
     left: number
+    bottom: number
   } | null>(null)
   const [side, setSide] = useState(placement)
   const interactionRef = useRef({
@@ -136,13 +141,15 @@ export default function Tooltip({
     ].join(':')
     if (keepPosition && positionRef.current?.anchor === anchorKey) {
       const next = clampOverlayPosition({
-        top: positionRef.current.top,
+        top:
+          side === 'top'
+            ? positionRef.current.bottom - tooltipRect.height
+            : positionRef.current.top,
         left: positionRef.current.left,
         width: tooltipRect.width,
         height: tooltipRect.height,
         margin: 8,
       })
-      positionRef.current = { anchor: anchorKey, ...next }
       setCoords(next)
       return
     }
@@ -184,12 +191,20 @@ export default function Tooltip({
       height: tooltipRect.height,
       margin: 8,
     })
-    positionRef.current = { anchor: anchorKey, ...next }
+    positionRef.current = {
+      anchor: anchorKey,
+      top,
+      left,
+      bottom: top + tooltipRect.height,
+    }
     setCoords(next)
-  }, [isVisible, placement, disableInteractive, keepPosition])
+  }, [isVisible, placement, disableInteractive, keepPosition, side])
 
   useLayoutEffect(() => {
-    if (!isVisible) positionRef.current = null
+    if (!isVisible) {
+      positionRef.current = null
+      selectingRef.current = false
+    }
     updatePosition()
   }, [title, updatePosition])
 
@@ -229,6 +244,19 @@ export default function Tooltip({
       )
         interactionRef.current.onClose?.()
     }
+    const onPointerRelease = () => {
+      if (!selectingRef.current) return
+      selectingRef.current = false
+      const selection = window.getSelection()
+      if (
+        selection &&
+        !selection.isCollapsed &&
+        node?.contains(selection.anchorNode)
+      )
+        return
+      if (!node?.contains(document.activeElement) && !node?.matches(':hover'))
+        interactionRef.current.onInteractionEnd?.(null)
+    }
     const onWindowBlur = () => interactionRef.current.onClose?.()
     const observer =
       typeof ResizeObserver === 'undefined'
@@ -238,12 +266,14 @@ export default function Tooltip({
     document.addEventListener('keydown', onEscape, true)
     document.addEventListener('keyup', onEscape, true)
     document.addEventListener('mousedown', onOutsidePress, true)
+    document.addEventListener('mouseup', onPointerRelease, true)
     window.addEventListener('blur', onWindowBlur)
     return () => {
       observer?.disconnect()
       document.removeEventListener('keydown', onEscape, true)
       document.removeEventListener('keyup', onEscape, true)
       document.removeEventListener('mousedown', onOutsidePress, true)
+      document.removeEventListener('mouseup', onPointerRelease, true)
       window.removeEventListener('blur', onWindowBlur)
       if (!anchor?.isConnected) interactionRef.current.onClose?.()
     }
@@ -313,7 +343,10 @@ export default function Tooltip({
               disableInteractive
                 ? undefined
                 : (event) => {
-                    if (!tooltipRef.current?.contains(document.activeElement))
+                    if (
+                      !selectingRef.current &&
+                      !tooltipRef.current?.contains(document.activeElement)
+                    )
                       interactionRef.current.onInteractionEnd?.(
                         event.relatedTarget,
                       )
@@ -342,7 +375,10 @@ export default function Tooltip({
             onKeyDown={
               disableInteractive
                 ? undefined
-                : (event) => event.stopPropagation()
+                : (event) => {
+                    if (event.key !== 'Tab' || !overlayContainer)
+                      event.stopPropagation()
+                  }
             }
             onKeyUp={
               disableInteractive
@@ -357,7 +393,11 @@ export default function Tooltip({
             onMouseDown={
               disableInteractive
                 ? undefined
-                : (event) => event.stopPropagation()
+                : (event) => {
+                    selectingRef.current = true
+                    interactionRef.current.onInteractionStart?.()
+                    event.stopPropagation()
+                  }
             }
             onAuxClick={
               disableInteractive
@@ -397,7 +437,7 @@ export default function Tooltip({
             )}
             {title}
           </div>,
-          document.body,
+          overlayContainer || document.body,
         )}
     </>
   )

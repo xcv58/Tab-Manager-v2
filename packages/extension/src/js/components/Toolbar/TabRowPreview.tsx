@@ -147,9 +147,16 @@ class PreviewTabModel {
     this.focus()
   }
 
-  select() {}
+  selected = false
 
-  bulkSelect() {}
+  select() {
+    this.selected = !this.selected
+    this.focus()
+  }
+
+  bulkSelect() {
+    this.select()
+  }
 
   remove() {}
 
@@ -174,7 +181,7 @@ class PreviewTabModel {
   }
 
   get isSelected() {
-    return false
+    return this.selected
   }
 
   get isMatched() {
@@ -300,11 +307,18 @@ export default observer(
     )
 
     return (
-      <div data-testid={testId} className={className}>
+      <div
+        data-testid={testId}
+        className={className}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node))
+            previewStore.focusStore.defocus()
+        }}
+      >
         <StoreContext.Provider value={previewStore as never}>
           <TabRow
             tab={previewStore.tab as never}
-            disableSequentialFocus
+            preview
             className="w-full min-w-0"
           />
           {config.showDetailsButton && (

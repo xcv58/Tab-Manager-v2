@@ -1,78 +1,92 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import SettingsNavigation, {
-  SETTINGS_SECTIONS,
   type SettingsNavigationState,
-  type SettingsSectionId,
 } from '../SettingsNavigation'
 
-const Panel = ({
-  sectionId,
-  title,
-}: {
-  sectionId: SettingsSectionId
-  title: string
-}) => (
-  <section id={'settings-section-' + sectionId}>
+const Control = ({ title }: { title: string }) => (
+  <label>
+    {title}
+    <input aria-label={title} />
+  </label>
+)
+const Panel = ({ sectionId, title, children }: any) => (
+  <section
+    className="settings-section"
+    data-section-id={sectionId}
+    id={'settings-section-' + sectionId}
+  >
     <h2>{title}</h2>
+    {children}
   </section>
 )
-
-const renderNavigation = () => {
-  const stateRef = {
-    current: { active: 'appearance', scrollTop: {} } as SettingsNavigationState,
-  }
-  render(
+const setup = () => {
+  const stateRef = { current: { scrollTop: 0 } as SettingsNavigationState }
+  const view = render(
     <SettingsNavigation stateRef={stateRef}>
-      {SETTINGS_SECTIONS.map(({ id, title }) => (
-        <Panel key={id} sectionId={id} title={title} />
-      ))}
+      {[
+        <Panel key="appearance" sectionId="appearance" title="Appearance">
+          <Control title="Theme" />
+          <Control title="Font size" />
+        </Panel>,
+        <Panel key="tab-details" sectionId="tab-details" title="Tab details">
+          <Control title="Show tab icons" />
+        </Panel>,
+      ]}
     </SettingsNavigation>,
   )
-  const panel = screen.getByRole('tabpanel')
-  Object.defineProperties(panel, {
-    clientHeight: { configurable: true, value: 300 },
-    scrollHeight: { configurable: true, value: 900 },
-  })
-  return { panel, stateRef }
+  return {
+    ...view,
+    stateRef,
+    scroll: screen.getByRole('region', { name: 'Settings sections' }),
+  }
 }
 
-afterEach(() => jest.restoreAllMocks())
+test('all sections share one ordinary scroll surface', () => {
+  const { scroll, stateRef } = setup()
+  expect(
+    screen.getByRole('heading', { name: 'Appearance' }),
+  ).toBeInTheDocument()
+  expect(
+    screen.getByRole('heading', { name: 'Tab details' }),
+  ).toBeInTheDocument()
+  expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+  scroll.scrollTop = 240
+  fireEvent.scroll(scroll)
+  expect(stateRef.current.scrollTop).toBe(240)
+  const wheel = new WheelEvent('wheel', {
+    deltaY: 120,
+    cancelable: true,
+    bubbles: true,
+  })
+  scroll.dispatchEvent(wheel)
+  expect(wheel.defaultPrevented).toBe(false)
+})
 
-test('one wheel gesture can reach the edge but cannot jump until a fresh gesture', () => {
-  let now = 100
-  jest.spyOn(performance, 'now').mockImplementation(() => now)
-  const { panel } = renderNavigation()
-  fireEvent.wheel(panel, { deltaY: 120 })
-  panel.scrollTop = 600
-  now = 150
-  fireEvent.wheel(panel, { deltaY: 120 })
-  expect(screen.getByRole('tab', { name: 'Appearance' })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  )
-  now = 500
-  fireEvent.wheel(panel, { deltaY: 120 })
-  expect(screen.getByRole('tab', { name: 'Windows & layout' })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  )
+test('search matches aliases, leaves real controls editable and restores scroll', () => {
+  const { scroll } = setup()
+  scroll.scrollTop = 240
+  fireEvent.scroll(scroll)
+  fireEvent.change(screen.getByRole('textbox', { name: 'Search settings' }), {
+    target: { value: 'favicon' },
+  })
   expect(
     screen.queryByRole('heading', { name: 'Appearance' }),
   ).not.toBeInTheDocument()
-})
-
-test('navigation remembers each section scroll position and supports keyboard selection', () => {
-  const { panel, stateRef } = renderNavigation()
-  panel.scrollTop = 240
-  fireEvent.scroll(panel)
-  fireEvent.click(screen.getByRole('tab', { name: 'Search' }))
-  expect(stateRef.current.scrollTop.appearance).toBe(240)
-  fireEvent.click(screen.getByRole('tab', { name: 'Appearance' }))
-  expect(panel.scrollTop).toBe(240)
-  fireEvent.keyDown(screen.getByRole('tab', { name: 'Appearance' }), {
-    key: 'ArrowDown',
+  fireEvent.change(screen.getByRole('textbox', { name: 'Show tab icons' }), {
+    target: { value: 'changed' },
   })
-  expect(screen.getByRole('tab', { name: 'Windows & layout' })).toHaveFocus()
-  expect(screen.getByRole('tabpanel')).toHaveAccessibleName('Windows & layout')
+  expect(screen.getByRole('textbox', { name: 'Show tab icons' })).toHaveValue(
+    'changed',
+  )
+  expect(scroll.scrollTop).toBe(0)
+  fireEvent.click(screen.getByRole('button', { name: 'Clear settings search' }))
+  expect(scroll.scrollTop).toBe(240)
+  fireEvent.change(screen.getByRole('textbox', { name: 'Search settings' }), {
+    target: { value: 'nothingmatches' },
+  })
+  expect(screen.getByRole('status')).toHaveTextContent('No matching settings')
+  expect(
+    screen.getByRole('combobox', { name: 'Jump to section' }),
+  ).toBeDisabled()
 })

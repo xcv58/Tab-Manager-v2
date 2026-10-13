@@ -212,6 +212,31 @@ const PaletteDialog = observer(function PaletteDialog() {
             <KeyboardArrowLeftIcon fontSize={16} /> Back to commands
           </button>
         )}
+        {actionStore.choosingDestination && (
+          <div className="flex items-center gap-2 px-4 pb-2 text-xs">
+            <span>Window position</span>
+            {(['beginning', 'end'] as const).map((edge) => (
+              <button
+                type="button"
+                key={edge}
+                aria-pressed={actionStore.destinationEdge === edge}
+                onClick={() => {
+                  actionStore.setDestinationEdge(edge)
+                }}
+                className="rounded border px-2 py-1"
+                style={{
+                  borderColor: theme.palette.divider,
+                  backgroundColor:
+                    actionStore.destinationEdge === edge
+                      ? theme.palette.action.selected
+                      : 'transparent',
+                }}
+              >
+                {edge === 'beginning' ? 'Beginning' : 'End'}
+              </button>
+            ))}
+          </div>
+        )}
         <ul
           {...listboxProps}
           ref={listRef}

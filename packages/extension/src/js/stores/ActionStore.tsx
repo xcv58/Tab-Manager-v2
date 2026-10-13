@@ -2,7 +2,7 @@ import { makeAutoObservable, observable, runInAction } from 'mobx'
 import type Store from 'stores'
 import type Focusable from './Focusable'
 import type Tab from './Tab'
-import { getNoun } from 'libs'
+import { browser, getNoun, openInNewTab, openOrTogglePopup } from 'libs'
 import type { TabCopyFormat } from 'libs/tabExport'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { restoreDialogFocusTarget } from 'libs/dialogFocus'
@@ -16,6 +16,17 @@ export type ActionMenuAnchor = {
 }
 
 export type PaletteIconName =
+  | 'search'
+  | 'tab'
+  | 'details'
+  | 'close-others'
+  | 'close-window'
+  | 'edit'
+  | 'up'
+  | 'down'
+  | 'left'
+  | 'right'
+  | 'invert'
   | 'reload'
   | 'copy'
   | 'url'
@@ -57,6 +68,7 @@ export type PaletteCommand = {
   shortcut?: string
   disabledReason?: string
   danger?: boolean
+  afterClose?: boolean
   keepOpen?: boolean
   run: () => void | Promise<unknown>
 }
@@ -100,6 +112,16 @@ const copyFormats: Array<{
   },
 ]
 
+const mountedTabDetailsSurface = (tabId: number) =>
+  (['search', 'list'] as const).find((surface) => {
+    const prefix = surface === 'search' ? 'search-tab-row' : 'tab-row'
+    return document
+      .querySelector(
+        `[data-testid="${prefix}-${tabId}"] button[aria-haspopup="dialog"]`,
+      )
+      ?.getClientRects().length
+  })
+
 /** App-local overlays. These shortcuts never enter the browser manifest. */
 export default class ActionStore {
   store: Store
@@ -112,7 +134,11 @@ export default class ActionStore {
   feedback = ''
   busy = false
   error = ''
+  groupEditorId: number | null = null
+  destinationEdge: 'beginning' | 'end' = 'end'
   paletteFocusTarget: HTMLElement | null = null
+  paletteDetailsTarget: { tabId: number; surface: 'search' | 'list' } | null =
+    null
 
   constructor(store: Store) {
     this.store = store
@@ -124,9 +150,20 @@ export default class ActionStore {
     })
   }
 
+  setDestinationEdge = (edge: 'beginning' | 'end') => {
+    this.destinationEdge = edge
+  }
+  editGroup = (id: number) => {
+    this.groupEditorId = id
+  }
+  closeGroupEditor = () => {
+    this.groupEditorId = null
+  }
+
   openMenu = (anchor: ActionMenuAnchor, target?: Focusable) => {
     if (this.store.dragStore.dragging || this.busy) return
     this.closePalette(false)
+    this.closeGroupEditor()
     this.closeMenu()
     this.store.hoverStore.hideTooltip()
     if (target) {
@@ -153,6 +190,12 @@ export default class ActionStore {
     )
       return
     if (!this.paletteOpen) {
+      const tabId = this.store.focusStore.focusedTab?.id
+      const surface =
+        tabId != null ? mountedTabDetailsSurface(tabId) : undefined
+      // Opening the palette temporarily unmounts search results. Remember a
+      // visible owner so its details action remains available after closing.
+      this.paletteDetailsTarget = surface ? { tabId, surface } : null
       this.paletteFocusTarget =
         this.menu?.element ||
         (document.activeElement instanceof HTMLElement
@@ -160,9 +203,11 @@ export default class ActionStore {
           : null)
     }
     this.closeMenu()
+    this.closeGroupEditor()
     this.store.hoverStore.hideTooltip()
     this.query = query
     this.choosingDestination = false
+    this.destinationEdge = 'end'
     this.formatAction = null
     this.feedback = ''
     this.error = ''
@@ -232,6 +277,13 @@ export default class ActionStore {
     this.feedback = ''
     this.busy = true
     try {
+      if (command.afterClose) {
+        this.busy = false
+        this.closePalette()
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve()),
+        )
+      }
       await command.run()
       runInAction(() => {
         this.busy = false
@@ -262,6 +314,22 @@ export default class ActionStore {
     } = this.store
     const count = tabStore.selection.size
     const selectedScope = `${count} selected ${getNoun('tab', count)}`
+    const copySources = count
+      ? tabStore.sources
+      : this.store._getFocusedOrSelectedTab?.() ||
+        (focusStore.focusedTab ? [focusStore.focusedTab] : [])
+    const copyScope = count
+      ? selectedScope
+      : focusStore.focusedTab
+        ? 'this tab'
+        : focusStore.focusedItem instanceof TabGroupRow
+          ? 'this group'
+          : focusStore.focusedWindow
+            ? 'this window'
+            : 'selected tabs'
+    const copyReason = !copySources.length
+      ? 'Select tabs or focus a tab, group or window'
+      : undefined
     const selectionReason = !count ? 'Select tabs first' : undefined
     const moveReason = dragStore.pendingWindowEdgeDrop
       ? 'A tab move is already in progress'
@@ -283,17 +351,17 @@ export default class ActionStore {
               : `Copy as ${option.label}`,
           detail: option.detail,
           aliases: option.aliases,
-          section: `${exporting ? 'Export' : 'Copy'} ${selectedScope}`,
-          disabledReason: selectionReason,
+          section: `${exporting ? 'Export' : 'Copy'} ${copyScope}`,
+          disabledReason: copyReason,
           keepOpen: true,
           run: () => {
             if (
               exporting &&
               (option.format === 'csv' || option.format === 'json')
             ) {
-              return this.store.exportTabs(tabStore.sources, option.format)
+              return this.store.exportTabs(copySources, option.format)
             }
-            return this.store.copyTabs(tabStore.sources, option.format)
+            return this.store.copyTabs(copySources, option.format)
           },
         }))
     }
@@ -330,7 +398,7 @@ export default class ActionStore {
           icon: 'window',
           label: windowTitle(win),
           detail: `${win.tabs.length} ${getNoun('tab', win.tabs.length)}${focusStore.focusedWindow?.id === win.id ? ' · Current window' : ''}`,
-          section: 'Windows · Move to end',
+          section: `Windows · Move to ${this.destinationEdge}`,
           aliases: win.tabs
             .slice(0, 3)
             .map((tab) => tab.url)
@@ -342,7 +410,7 @@ export default class ActionStore {
           run: async () => {
             const hint = await dragStore.moveSelectedTabsToWindowEdge(
               win.id,
-              'end',
+              this.destinationEdge,
             )
             if (hint) throw new PaletteMoveError(hint)
           },
@@ -425,21 +493,21 @@ export default class ActionStore {
       {
         id: 'copy-format-selection',
         icon: 'copy',
-        label: count ? `Copy ${selectedScope} as…` : 'Copy selected tabs as…',
+        label: `Copy ${copyScope} as…`,
         section: count ? 'Selected tabs' : 'Selection',
         aliases:
           'copy csv copy tsv spreadsheet copy json copy markdown clipboard table',
-        disabledReason: selectionReason,
+        disabledReason: copyReason,
         keepOpen: true,
         run: () => this.chooseFormat('copy'),
       },
       {
         id: 'export-selection',
         icon: 'export',
-        label: count ? `Export ${selectedScope}…` : 'Export selected tabs…',
+        label: `Export ${copyScope}…`,
         section: count ? 'Selected tabs' : 'Selection',
         aliases: 'export csv export json download file save',
-        disabledReason: selectionReason,
+        disabledReason: copyReason,
         keepOpen: true,
         run: () => this.chooseFormat('export'),
       },
@@ -532,7 +600,6 @@ export default class ActionStore {
       }
     }
     if (focusedItem instanceof TabGroupRow) {
-      const group = tabGroupStore?.getTabGroup(focusedItem.groupId)
       const groupTabs: Tab[] =
         tabGroupStore?.getTabsForGroup(focusedItem.groupId) || []
       commands.push({
@@ -543,25 +610,8 @@ export default class ActionStore {
         aliases: 'refresh',
         run: () => Promise.all(groupTabs.map((tab) => tab.reload())),
       })
-      if (tabGroupStore?.canMutateGroups?.()) {
-        commands.push(
-          {
-            id: 'collapse-group',
-            icon: group?.collapsed ? 'expand' : 'collapse',
-            label: `${group?.collapsed ? 'Expand' : 'Collapse'} this group`,
-            section: 'Focused group',
-            run: () => tabGroupStore.toggleCollapsed(focusedItem.groupId),
-          },
-          {
-            id: 'ungroup-group',
-            icon: 'ungroup',
-            label: 'Ungroup tabs in this group',
-            section: 'Focused group',
-            run: () => tabGroupStore.ungroup(focusedItem.groupId),
-          },
-        )
-      }
     }
+
     if (win) {
       commands.push(
         {
@@ -651,6 +701,7 @@ export default class ActionStore {
       },
       {
         id: 'settings',
+        afterClose: true,
         icon: 'settings',
         label: 'Open Settings',
         section: 'Application',
@@ -660,6 +711,7 @@ export default class ActionStore {
       },
       {
         id: 'help',
+        afterClose: true,
         icon: 'keyboard',
         label: 'Show keyboard shortcuts',
         section: 'Application',
@@ -678,17 +730,463 @@ export default class ActionStore {
         run: userStore.selectNextTheme,
       },
     )
-    if (!count) {
+    const groupId =
+      focusedItem instanceof TabGroupRow ? focusedItem.groupId : tab?.groupId
+    const focusedGroup = tabGroupStore?.getTabGroup?.(groupId)
+    const focusedGroupTabs = focusedGroup
+      ? tabGroupStore.getTabsForGroup(groupId)
+      : []
+    const groupReason = !tabGroupStore?.canMutateGroups?.()
+      ? 'Tab groups are unavailable in this browser'
+      : !focusedGroup
+        ? 'Focus a grouped tab or group first'
+        : undefined
+    const creationTabs = count ? tabStore.sources : tab ? [tab] : []
+    const createGroupReason = !tabGroupStore?.canMutateGroups?.()
+      ? 'Tab groups are unavailable in this browser'
+      : !tabGroupStore.canCreateGroupFromTabs(creationTabs)
+        ? 'Select at least two tabs in the same window'
+        : undefined
+    const focusedLabel = tab
+      ? 'this tab'
+      : focusedItem instanceof TabGroupRow
+        ? 'this group'
+        : win
+          ? 'this window'
+          : 'the focused item'
+    const containerLabel =
+      focusedItem instanceof TabGroupRow || focusedGroup
+        ? 'this group'
+        : 'this window'
+    commands.push(
+      {
+        id: 'search',
+        icon: 'search',
+        label: 'Search tabs',
+        section: 'Application',
+        shortcut: '/',
+        afterClose: true,
+        run: () => searchStore.focus(),
+      },
+      {
+        id: 'open-app-tab',
+        icon: 'window',
+        label: 'Open Tab Manager in a browser tab',
+        section: 'Application',
+        shortcut: 'Ctrl O',
+        run: openInNewTab,
+      },
+      {
+        id: 'open-full-mode',
+        icon: 'new-window',
+        label: 'Open full feature mode',
+        section: 'Application',
+        run: openOrTogglePopup,
+      },
+      {
+        id: 'invert-selection',
+        icon: 'invert',
+        label: 'Invert selection of matching tabs',
+        section: 'Selection',
+        shortcut: 'Ctrl U',
+        disabledReason: !searchStore.matchedTabs.length
+          ? 'No tabs to select'
+          : undefined,
+        run: () => searchStore.invertSelect(),
+      },
+      {
+        id: 'select-all-matching',
+        icon: 'select',
+        label: 'Select all matching tabs',
+        section: 'Selection',
+        shortcut: 'Ctrl M',
+        disabledReason: !searchStore.matchedTabs.length
+          ? 'No matching tabs'
+          : undefined,
+        run: () => searchStore.selectAll(),
+      },
+      {
+        id: 'select-focused',
+        icon: 'select',
+        label: `Toggle selection for ${focusedLabel}`,
+        section: tab
+          ? 'Focused tab'
+          : focusedGroup
+            ? 'Focused group'
+            : 'Focused window',
+        disabledReason: !focusedItem
+          ? 'Focus a tab, group or window first'
+          : undefined,
+        shortcut: 'Space',
+        run: () => focusStore.select(),
+      },
+      {
+        id: 'select-container',
+        icon: 'select',
+        label: `Toggle selection in ${containerLabel}`,
+        section:
+          focusedItem instanceof TabGroupRow
+            ? 'Focused group'
+            : 'Focused window',
+        disabledReason: !win
+          ? 'Focus a window or one of its tabs first'
+          : undefined,
+        shortcut: 'Shift X',
+        run: () => focusStore.selectWindow(),
+      },
+      {
+        id: 'create-group',
+        icon: 'group',
+        label: count
+          ? `Create a group from ${selectedScope}`
+          : 'Create a group from selected tabs',
+        section: count ? 'Selected tabs' : 'Selection',
+        disabledReason: createGroupReason,
+        shortcut: 'Alt Shift G',
+        run: () => focusStore.createGroupFromFocusedOrSelectedTabs(),
+      },
+      {
+        id: 'collapse-all',
+        icon: 'collapse',
+        label: 'Collapse all windows',
+        section: 'Across windows',
+        shortcut: 'w → c',
+        disabledReason: !windowStore.windows.length
+          ? 'No windows to collapse'
+          : undefined,
+        run: () => this.store.hiddenWindowStore.updateHideForAllWindows(true),
+      },
+      {
+        id: 'expand-all',
+        icon: 'expand',
+        label: 'Expand all windows',
+        section: 'Across windows',
+        shortcut: 'w → e',
+        disabledReason: !windowStore.windows.length
+          ? 'No windows to expand'
+          : undefined,
+        run: () => this.store.hiddenWindowStore.updateHideForAllWindows(false),
+      },
+      {
+        id: 'toggle-all-windows',
+        icon: 'window',
+        label: 'Toggle collapse for all windows',
+        section: 'Across windows',
+        shortcut: 'w → t',
+        disabledReason: !windowStore.windows.length
+          ? 'No windows to toggle'
+          : undefined,
+        run: () => this.store.hiddenWindowStore.toggleHideForAllWindows(),
+      },
+      {
+        id: 'copy-comma',
+        icon: 'url',
+        label: count
+          ? `Copy URLs of ${selectedScope}, comma-separated`
+          : `Copy URLs in ${focusedLabel}, comma-separated`,
+        section: count
+          ? 'Selected tabs'
+          : tab
+            ? 'Focused tab'
+            : focusedGroup
+              ? 'Focused group'
+              : 'Focused window',
+        shortcut: 'c → ,',
+        disabledReason:
+          !count && !focusedItem
+            ? 'Select tabs or focus a tab, group or window'
+            : undefined,
+        run: () => this.store.copyTabsInfo({ delimiter: ', ' }),
+      },
+    )
+    const detailsSurface = tab
+      ? mountedTabDetailsSurface(tab.id) ||
+        (this.paletteOpen && this.paletteDetailsTarget?.tabId === tab.id
+          ? this.paletteDetailsTarget.surface
+          : undefined)
+      : undefined
+    if (tab)
+      commands.push(
+        {
+          id: 'activate-tab',
+          afterClose: true,
+          icon: 'tab',
+          label: 'Go to this tab',
+          section: 'Focused tab',
+          shortcut: 'Enter',
+          run: () => tab.activate(),
+        },
+        {
+          id: 'tab-details',
+          icon: 'details',
+          label: 'Show this tab’s title and URL',
+          section: 'Focused tab',
+          aliases: 'tooltip details inspect',
+          disabledReason: !userStore.showTabTooltip
+            ? 'Enable tab tooltips in Settings first'
+            : !detailsSurface
+              ? 'Reveal this tab in the workspace or search results first'
+              : undefined,
+          shortcut: 'Alt Down',
+          afterClose: true,
+          run: () => {
+            if (detailsSurface)
+              this.store.hoverStore.openTooltip(tab.id, true, detailsSurface)
+          },
+        },
+        {
+          id: 'close-other-tabs',
+          icon: 'close-others',
+          label: `Close ${Math.max(0, (tab.win?.tabs.length || 1) - 1)} other tabs in this window`,
+          section: 'Focused tab',
+          danger: true,
+          disabledReason:
+            (tab.win?.tabs.length || 0) < 2
+              ? 'No other tabs in this window'
+              : undefined,
+          run: () => tab.closeOtherTabs(),
+        },
+        {
+          id: 'close-tab-duplicates',
+          icon: 'clean-duplicates',
+          label: 'Close duplicates of this tab',
+          section: 'Focused tab',
+          danger: true,
+          disabledReason: !tab.isDuplicated
+            ? 'This tab has no duplicates'
+            : undefined,
+          run: () => tab.closeDuplicatedTab(),
+        },
+        {
+          id: 'bring-same-site',
+          icon: 'cluster',
+          label: 'Bring ungrouped tabs from this site here',
+          section: 'Focused tab',
+          shortcut: 'Ctrl G',
+          aliases: 'domain gather cluster',
+          run: () => focusStore.groupTab(),
+        },
+      )
+    if (win)
+      commands.push({
+        id: 'close-window',
+        icon: 'close-window',
+        label: `Close this window · ${win.tabs.length} tabs`,
+        section: 'Focused window',
+        danger: true,
+        shortcut: 'Alt D',
+        run: () => win.close(),
+      })
+    if (focusedGroup) {
+      if (tab)
+        commands.push({
+          id: 'reload-group',
+          icon: 'reload',
+          label: `Reload ${focusedGroupTabs.length} tabs in this group`,
+          section: 'Focused group',
+          run: () => Promise.all(focusedGroupTabs.map((item) => item.reload())),
+        })
+      commands.push(
+        {
+          id: 'edit-group',
+          icon: 'edit',
+          label: `Edit group “${focusedGroup.title || 'Unnamed group'}”`,
+          section: 'Focused group',
+          disabledReason: groupReason,
+          afterClose: true,
+          run: () => {
+            this.editGroup(groupId)
+          },
+        },
+        {
+          id: 'collapse-group',
+          icon: focusedGroup.collapsed ? 'expand' : 'collapse',
+          label: `${focusedGroup.collapsed ? 'Expand' : 'Collapse'} this group`,
+          section: 'Focused group',
+          disabledReason: groupReason,
+          shortcut: 'Alt G',
+          run: () => tabGroupStore.toggleCollapsed(groupId),
+        },
+        {
+          id: 'ungroup-group',
+          icon: 'ungroup',
+          label: 'Ungroup tabs in this group',
+          section: 'Focused group',
+          disabledReason: groupReason,
+          shortcut: 'Alt U',
+          run: () => tabGroupStore.ungroup(groupId),
+        },
+        {
+          id: 'close-group',
+          icon: 'close',
+          label: `Close this group · ${focusedGroupTabs.length} tabs`,
+          section: 'Focused group',
+          danger: true,
+          run: () => {
+            const ids = focusedGroupTabs.map((item) => item.id)
+            const next = this.store.prepareFocusForRemovedTabs(focusedGroupTabs)
+            windowStore.removeTabs(ids)
+            this.store.restoreDomFocusAfterRemoval(next)
+            return browser.tabs.remove(ids)
+          },
+        },
+        {
+          id: 'clean-group-duplicates',
+          icon: 'clean-duplicates',
+          label: 'Close duplicates in this group',
+          section: 'Focused group',
+          danger: true,
+          disabledReason: !windowStore.getDuplicateTabsToRemoveCount(
+            focusedGroupTabs,
+          )
+            ? 'This group has no duplicates'
+            : undefined,
+          run: () => windowStore.cleanDuplicateTabs(focusedGroupTabs),
+        },
+      )
+    }
+    if (!count && (focusedItem instanceof TabGroupRow || (win && !tab))) {
+      const scopeTabs =
+        focusedItem instanceof TabGroupRow ? focusedGroupTabs : win.tabs
+      const section =
+        focusedItem instanceof TabGroupRow ? 'Focused group' : 'Focused window'
+      commands.push(
+        {
+          id: 'copy-scope',
+          icon: 'url',
+          label: `Copy URLs in ${focusedLabel}`,
+          section,
+          run: () => this.store.copyTabs(scopeTabs, 'url'),
+        },
+        {
+          id: 'copy-title-scope',
+          icon: 'title',
+          label: `Copy titles in ${focusedLabel}`,
+          section,
+          run: () => this.store.copyTabs(scopeTabs, 'title'),
+        },
+        {
+          id: 'copy-title-url-scope',
+          icon: 'title-url',
+          label: `Copy titles and URLs in ${focusedLabel}`,
+          section,
+          run: () => this.store.copyTabs(scopeTabs, 'title-url'),
+        },
+        {
+          id: 'pin-scope',
+          icon: 'pin',
+          label: `Toggle pin for ${focusedLabel}`,
+          section,
+          run: () => this.store.togglePin(),
+        },
+      )
+    }
+    for (const position of ['beginning', 'end', 'before', 'after'] as const) {
+      const relative = position === 'before' || position === 'after'
+      const destination = relative ? tab?.win : win
+      const reason =
+        moveReason ||
+        (!destination
+          ? relative
+            ? 'Focus a destination tab'
+            : 'Focus a destination window'
+          : relative && tabStore.selection.has(tab.id)
+            ? 'Choose an unselected destination tab'
+            : getTabMoveDestinationHint(
+                destination,
+                tabStore.selection.values(),
+              ) || undefined)
+      commands.push({
+        id: `move-${position}`,
+        icon: position === 'beginning' || position === 'before' ? 'up' : 'down',
+        label: `Move ${count ? selectedScope : 'selected tabs'} ${relative ? position + ' this tab' : 'to this window’s ' + position}`,
+        section: relative ? 'Focused tab' : 'Focused window',
+        disabledReason: reason,
+        run: async () => {
+          const hint = relative
+            ? await dragStore.moveSelectedTabsRelativeToTab(
+                tab,
+                position === 'before',
+              )
+            : await dragStore.moveSelectedTabsToWindowEdge(win.id, position)
+          if (hint) throw new PaletteMoveError(hint)
+        },
+      })
+    }
+    for (const [id, label, callback, shortcut] of [
+      ['left', 'Focus tab to the left', focusStore.left, 'h'],
+      ['right', 'Focus tab to the right', focusStore.right, 'l'],
+      ['down', 'Focus next tab', focusStore.down, 'j'],
+      ['up', 'Focus previous tab', focusStore.up, 'k'],
+      ['first', 'Focus first tab', focusStore.firstTab, 'g → g'],
+      ['last', 'Focus last tab', focusStore.lastTab, 'Shift G'],
+    ] as const)
+      commands.push({
+        id: 'navigate-' + id,
+        icon:
+          id === 'left' || id === 'right'
+            ? id
+            : id === 'up' || id === 'first'
+              ? 'up'
+              : 'down',
+        label,
+        section: 'Navigation',
+        shortcut,
+        afterClose: true,
+        disabledReason: !hasTabs ? 'No tabs to navigate' : undefined,
+        run: () => callback(),
+      })
+    if (process.env.TARGET_BROWSER === 'firefox')
+      commands.push(
+        {
+          id: 'new-window-container',
+          icon: 'new-window',
+          label: 'Open tabs from this Firefox container in a new window',
+          section: 'Focused tab',
+          disabledReason: !tab ? 'Focus a tab first' : undefined,
+          run: () => tab.openSameContainerTabs(),
+        },
+        {
+          id: 'select-container-tabs',
+          icon: 'select',
+          label: 'Toggle selection for tabs in this Firefox container',
+          section: 'Focused tab',
+          shortcut: 'Alt X',
+          disabledReason: !tab ? 'Focus a tab first' : undefined,
+          run: () => focusStore.selectTabsInSameContainer(),
+        },
+        {
+          id: 'group-containers',
+          icon: 'group',
+          label: 'Group tabs by Firefox container',
+          section: 'Across windows',
+          shortcut: 'Alt C',
+          disabledReason: !hasTabs ? 'No tabs to organize' : undefined,
+          run: () => this.store.containerStore.groupTabsByContainer(),
+        },
+      )
+
+    {
       const sectionOrder = hasTabs
         ? [
+            'Selected tabs',
             'Focused tab',
             'Focused group',
             'Focused window',
             'Selection',
             'Across windows',
             'Application',
+            'Navigation',
           ]
-        : ['Application', 'Selection', 'Across windows']
+        : [
+            'Application',
+            'Selection',
+            'Across windows',
+            'Focused tab',
+            'Focused group',
+            'Focused window',
+            'Navigation',
+          ]
       commands.sort(
         (a, b) =>
           sectionOrder.indexOf(a.section) - sectionOrder.indexOf(b.section),

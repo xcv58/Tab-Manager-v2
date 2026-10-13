@@ -14,6 +14,26 @@ const setViewportSize = (width: number, height: number) => {
 }
 
 describe('Tooltip', () => {
+  it('releases an interrupted text selection before reopening', () => {
+    const release = jest.fn()
+    const view = (open: boolean) => (
+      <Tooltip
+        open={open}
+        disableInteractive={false}
+        title="Selectable text"
+        onInteractionEnd={release}
+      >
+        <button>Anchor</button>
+      </Tooltip>
+    )
+    const { rerender } = render(view(true))
+    fireEvent.mouseDown(screen.getByRole('tooltip'))
+    rerender(view(false))
+    fireEvent.mouseUp(document)
+    rerender(view(true))
+    fireEvent.mouseLeave(screen.getByRole('tooltip'))
+    expect(release).toHaveBeenCalled()
+  })
   it('keeps the same anchor while controlled content mounts and unmounts', () => {
     const { rerender } = render(
       <Tooltip open={false} title={false}>

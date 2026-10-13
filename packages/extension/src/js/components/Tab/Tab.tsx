@@ -149,7 +149,7 @@ export default observer((props: TabProps & { className?: string }) => {
         actionStore,
         `tab-${tab.id}`,
         tab,
-        !isActionable || props.faked,
+        !isActionable || props.faked || props.preview,
       )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -172,20 +172,25 @@ export default observer((props: TabProps & { className?: string }) => {
       <TabContent
         tab={tab}
         disableSequentialFocus={props.disableSequentialFocus}
+        preview={props.preview}
       />
       <RowActionRail tail={<DuplicateMarker tab={tab} />}>
-        <TabTools
-          tab={tab}
-          disableSequentialFocus={props.disableSequentialFocus}
-        />
-        <RowActionSlot>
-          <CloseButton
-            onClick={onRemove}
-            disabled={tab.removing}
-            tabIndex={props.disableSequentialFocus ? -1 : undefined}
-            size="compact"
+        {!props.preview && (
+          <TabTools
+            tab={tab}
+            disableSequentialFocus={props.disableSequentialFocus}
           />
-        </RowActionSlot>
+        )}
+        {!props.preview && (
+          <RowActionSlot>
+            <CloseButton
+              onClick={onRemove}
+              disabled={tab.removing}
+              tabIndex={props.disableSequentialFocus ? -1 : undefined}
+              size="compact"
+            />
+          </RowActionSlot>
+        )}
       </RowActionRail>
       <ContainerOrGroupIndicator
         id={tab.id}

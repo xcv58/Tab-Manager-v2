@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Fade } from 'components/ui/Transition'
+import { OverlayContainerContext } from './OverlayContainer'
 import { useAppTheme } from 'libs/appTheme'
 
 const openDialogStack: HTMLDivElement[] = []
@@ -56,6 +57,13 @@ export default function Dialog({
 }: DialogProps) {
   const theme = useAppTheme()
   const dialogRef = useRef<HTMLDivElement>(null)
+  const [overlayContainer, setOverlayContainer] = useState<HTMLElement | null>(
+    null,
+  )
+  const setDialogRef = useCallback((node: HTMLDivElement | null) => {
+    dialogRef.current = node
+    setOverlayContainer(node)
+  }, [])
   const previousFocusRef = useRef<HTMLElement | null>(null)
   const wasOpenRef = useRef(false)
   const onCloseRef = useRef(onClose)
@@ -86,7 +94,10 @@ export default function Dialog({
     return Array.from(
       dialogNode.querySelectorAll<HTMLElement>(selector),
     ).filter((element) => {
-      if (element.getAttribute('aria-hidden') === 'true') {
+      if (
+        element.tabIndex < 0 ||
+        element.closest('[hidden], [aria-hidden="true"], [inert]')
+      ) {
         return false
       }
       if ('disabled' in element && element.disabled) {
@@ -114,7 +125,7 @@ export default function Dialog({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!isTopmostDialog()) {
+      if (e.defaultPrevented || !isTopmostDialog()) {
         return
       }
 
@@ -224,7 +235,7 @@ export default function Dialog({
         />
         {/* Dialog paper */}
         <div
-          ref={dialogRef}
+          ref={setDialogRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby={ariaLabelledBy}
@@ -253,7 +264,9 @@ export default function Dialog({
             ...style,
           }}
         >
-          {children}
+          <OverlayContainerContext.Provider value={overlayContainer}>
+            {children}
+          </OverlayContainerContext.Provider>
         </div>
       </div>
     </Fade>,

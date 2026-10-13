@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -7,6 +8,7 @@ import React, {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppTheme } from 'libs/appTheme'
+import { OverlayContainerContext } from './OverlayContainer'
 import { clampOverlayPosition } from './overlayPosition'
 
 /* -------------------------------------------------------------------------- */
@@ -35,6 +37,7 @@ export default function Menu({
   'data-testid': testId,
 }: MenuProps) {
   const theme = useAppTheme()
+  const overlayContainer = useContext(OverlayContainerContext)
   const toolbar = anchorEl?.closest<HTMLElement>('.corner-dock')
   const toolbarRadius = toolbar
     ? getComputedStyle(toolbar).borderTopLeftRadius
@@ -165,6 +168,7 @@ export default function Menu({
 
       if (e.key === 'Tab') {
         e.preventDefault()
+        e.stopPropagation()
         moveFocus(e.shiftKey ? -1 : 1)
         return
       }
@@ -240,7 +244,7 @@ export default function Menu({
     >
       {children}
     </div>,
-    document.body,
+    overlayContainer || document.body,
   )
 }
 

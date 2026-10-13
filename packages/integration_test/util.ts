@@ -25,14 +25,18 @@ export const selectSettingsSection = async (
     | 'Search'
     | 'Popup & controls',
 ) => {
-  const tab = page
-    .getByRole('tablist', { name: 'Settings sections' })
-    .getByRole('tab', { name, exact: true })
-  await tab.click()
-  await expect(tab).toHaveAttribute('aria-selected', 'true')
-  const panel = page.getByRole('tabpanel', { name, exact: true })
-  await expect(page.getByRole('tabpanel')).toHaveCount(1)
-  await expect(panel).toBeVisible()
+  const sections = {
+    Appearance: 'appearance',
+    'Windows & layout': 'windows-layout',
+    'Tab details': 'tab-details',
+    Search: 'search',
+    'Popup & controls': 'popup-controls',
+  }
+  await page
+    .getByRole('combobox', { name: 'Jump to section' })
+    .selectOption(sections[name])
+  const panel = page.locator('#settings-section-' + sections[name])
+  await expect(panel.getByRole('heading', { name, exact: true })).toBeVisible()
   await waitForSurfaceToFullyAppear(page, panel)
   return panel
 }
@@ -283,6 +287,14 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
       `--load-extension=${EXTENSION_PATH}`,
     ],
   })) as ChromiumBrowserContext
+  const closeBrowser = browserContext.close.bind(browserContext)
+  browserContext.close = async (...args) => {
+    try {
+      await closeBrowser(...args)
+    } finally {
+      rmSync(userDataDir, { recursive: true, force: true })
+    }
+  }
 
   // These tests inspect tab metadata, not Pinboard's availability. Keep its
   // public URL/title/favicon while serving a fixed response in isolated tests.

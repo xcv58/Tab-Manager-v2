@@ -30,14 +30,13 @@ function Example({
   return (
     <div
       data-settings-example
-      aria-hidden="true"
       className="mt-3 min-w-0 rounded-lg border overflow-hidden"
       style={{
         borderColor: colors.windowCardBorderColor,
         backgroundColor: colors.settingsPreviewSurface,
       }}
     >
-      <div className="px-2 py-1 text-xs opacity-70">{label}</div>
+      <div className="settings-preview-label">Preview · {label}</div>
       {children}
     </div>
   )
@@ -105,7 +104,7 @@ export const WindowLayoutExample = observer(function WindowLayoutExample() {
     : windows.length
   const columnWidth = Math.max(minimum, Math.floor(width / count))
   return (
-    <Example label="Example windows">
+    <Example label="sample windows">
       <div
         ref={ref}
         style={{
@@ -164,7 +163,7 @@ export const SearchExample = observer(function SearchExample({
   )
   const showResults = mode !== 'results' || userStore.showSearchResultMenu
   return (
-    <Example label="Example · searching for React">
+    <Example label="searching for React">
       <div
         className="mx-2 mb-2 rounded border px-2 py-1 text-sm"
         style={{ borderColor: colors.windowCardBorderColor }}
@@ -225,17 +224,22 @@ export const ToolbarExample = observer(function ToolbarExample() {
     userStore.increaseContrast,
   )
   const [hovered, setHovered] = useState(false)
-  const visible = !userStore.toolbarAutoHide || hovered
+  const [focused, setFocused] = useState(false)
+  const visible = !userStore.toolbarAutoHide || hovered || focused
   return (
     <Example
       label={
         userStore.toolbarAutoHide
           ? 'Hover the example to reveal its toolbar'
-          : 'Toolbar stays visible'
+          : 'toolbar stays visible'
       }
     >
       <div
         className="relative h-20"
+        tabIndex={0}
+        aria-label="Toolbar preview"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >

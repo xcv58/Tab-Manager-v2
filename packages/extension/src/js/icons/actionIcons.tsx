@@ -214,3 +214,40 @@ export const KeyboardShortcutsIcon = (props: BaseSvgIconProps) => (
     </g>
   </BaseSvgIcon>
 )
+
+export const CloseWindowIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="3" width="20" height="18" rx="2" />
+      <path d="M2 8h20m6 5 6 6m0-6-6 6" />
+    </g>
+  </BaseSvgIcon>
+)
+export const BrowserTabIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <path
+      d="M3 20V6h6l2 3h10v11H3Z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+  </BaseSvgIcon>
+)
+export const EditActionIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <path
+      d="m14 4 6 6M4 20l5-1L21 7l-4-4L5 15l-1 5Z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+  </BaseSvgIcon>
+)

@@ -2,6 +2,14 @@ import React from 'react'
 import type { BaseSvgIconProps } from 'icons/BaseSvgIcon'
 import {
   BrowserWindowIcon,
+  BrowserTabIcon,
+  EditActionIcon,
+  SearchIcon,
+  RevealInListIcon,
+  CloseOtherTabsIcon,
+  CloseWindowIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
   CopyTextIcon,
   DeselectTabsIcon,
   ExportTabsIcon,
@@ -33,11 +41,27 @@ import {
   UngroupIcon,
   UnpinIcon,
 } from 'icons/paletteIcons'
+import {
+  KeyboardArrowLeftIcon,
+  KeyboardArrowRightIcon,
+  FlipIcon,
+} from 'icons/materialIcons'
 import { useAppTheme } from 'libs/appTheme'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import type { PaletteIconName } from 'stores/ActionStore'
 
 const icons: Record<PaletteIconName, React.ComponentType<BaseSvgIconProps>> = {
+  search: SearchIcon,
+  tab: BrowserTabIcon,
+  details: RevealInListIcon,
+  'close-others': CloseOtherTabsIcon,
+  'close-window': CloseWindowIcon,
+  edit: EditActionIcon,
+  left: KeyboardArrowLeftIcon,
+  right: KeyboardArrowRightIcon,
+  invert: FlipIcon,
+  up: ArrowUpIcon,
+  down: ArrowDownIcon,
   reload: ReloadIcon,
   copy: CopyTextIcon,
   url: LinkIcon,

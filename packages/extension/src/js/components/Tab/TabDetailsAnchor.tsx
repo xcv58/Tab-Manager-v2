@@ -2,9 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from 'components/ui/Tooltip'
 import { useStore } from 'components/hooks/useStore'
-import { useAppTheme } from 'libs/appTheme'
 import { normalizeTabTooltipUrlLines } from 'libs/tabTooltip'
-import { getWindowLabel } from 'libs/windowLabel'
 import { getNoun } from 'libs'
 import type Tab from 'stores/Tab'
 import type { TabTooltipSurface } from 'stores/HoverStore'
@@ -21,15 +19,8 @@ export default observer(function TabDetailsAnchor({
   anchorRef?: React.RefObject<HTMLButtonElement>
   children: React.ReactElement<React.HTMLAttributes<HTMLButtonElement>>
 }) {
-  const {
-    hoverStore,
-    dragStore,
-    userStore,
-    shortcutStore,
-    actionStore,
-    tabGroupStore,
-  } = useStore()
-  const theme = useAppTheme()
+  const { hoverStore, dragStore, userStore, shortcutStore, actionStore } =
+    useStore()
   const localRef = useRef<HTMLButtonElement>(null)
   const buttonRef = anchorRef || localRef
   const tooltipId = React.useId()
@@ -51,9 +42,6 @@ export default observer(function TabDetailsAnchor({
     [hoverStore, tab.id, surface],
   )
   const closeTooltip = () => hoverStore.hideTooltip(tab.id, surface)
-  const group = tabGroupStore?.hasTabGroupsApi?.()
-    ? tabGroupStore.getTabGroup(tab.groupId)
-    : null
   const duplicateText =
     userStore.highlightDuplicatedTab && tab.isDuplicated
       ? `${tab.duplicatedTabCount} ${getNoun('tab', tab.duplicatedTabCount)} share this page`
@@ -94,13 +82,7 @@ export default observer(function TabDetailsAnchor({
             url={tab.url}
             urlLines={normalizeTabTooltipUrlLines(userStore.tabTooltipUrlLines)}
             duplicateText={duplicateText}
-            groupTitle={group ? group.title || 'Unnamed group' : undefined}
-            windowTitle={getWindowLabel(tab.win)}
             autoFocus={hoverStore.keyboardEntry}
-            onClose={() => {
-              closeTooltip()
-              buttonRef.current?.focus()
-            }}
           />
         )
       }
@@ -128,15 +110,15 @@ export default observer(function TabDetailsAnchor({
           width: 'min(380px, calc(100vw - 16px))',
           maxWidth: 'calc(100vw - 16px)',
           padding: 0,
-          borderRadius: 12,
-          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: 6,
+          border: '1px solid rgba(255, 255, 255, 0.12)',
           boxShadow: '0 8px 28px rgba(0, 0, 0, 0.2)',
-          backgroundColor: theme.palette.background.paper,
-          color: theme.palette.text.primary,
+          backgroundColor: 'rgba(33, 33, 33, 0.96)',
+          color: '#fff',
           whiteSpace: 'normal',
-          '--tab-details-accent': theme.palette.primary.main,
-          '--tab-details-muted': theme.palette.text.secondary,
-          '--tab-details-hover': theme.palette.action.hover,
+          '--tab-details-accent': '#a8c7fa',
+          '--tab-details-muted': '#c5c8ce',
+          '--tab-details-hover': 'rgba(255,255,255,0.12)',
         } as React.CSSProperties
       }
     >

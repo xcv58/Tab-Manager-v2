@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { CopyTextIcon, CopiedIcon } from 'icons/actionIcons'
-import { ExpandMoreIcon, CloseIcon } from 'icons/materialIcons'
+import { ExpandMoreIcon } from 'icons/materialIcons'
 import { writeToClipboard } from 'libs'
 import type { TabTooltipUrlLines } from 'libs/tabTooltip'
 
@@ -44,47 +44,50 @@ function TextField({
 
   return (
     <section className="tab-details-field">
-      <div className="tab-details-field-heading">
-        <span className="tab-details-label">{label}</span>
-        <div className="tab-details-field-actions">
-          {(clipped || expanded) && (
-            <button
-              type="button"
-              className="tab-details-action tab-details-expand"
-              aria-expanded={expanded}
-              aria-controls={fieldId}
-              onClick={() => setExpanded(!expanded)}
-            >
-              <ExpandMoreIcon
-                fontSize={16}
-                style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
-              />
-              {expanded ? `Show less ${fieldName}` : `Show full ${fieldName}`}
-            </button>
-          )}
-          <button
-            type="button"
-            className="tab-details-action"
-            aria-label={`Copy ${fieldName}`}
-            onClick={onCopy}
-          >
-            {copied ? (
-              <CopiedIcon fontSize={14} />
-            ) : (
-              <CopyTextIcon fontSize={14} />
-            )}
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-        </div>
-      </div>
       <p
         id={fieldId}
         ref={textRef}
+        aria-label={label}
         data-testid={`tab-tooltip-${label.toLowerCase()}`}
-        className={`tab-details-text ${expanded || lines === 'full' ? 'tab-details-text-expanded' : CLAMP_CLASSES[lines]}`}
+        className={`tab-details-text tab-details-${label.toLowerCase()} ${expanded || lines === 'full' ? 'tab-details-text-expanded' : CLAMP_CLASSES[lines]}`}
       >
         {value}
       </p>
+      <div className="tab-details-field-actions">
+        <button
+          type="button"
+          className="tab-details-action"
+          aria-label={`Copy ${fieldName}`}
+          title={copied ? 'Copied' : `Copy ${fieldName}`}
+          onClick={onCopy}
+        >
+          {copied ? (
+            <CopiedIcon fontSize={14} />
+          ) : (
+            <CopyTextIcon fontSize={14} />
+          )}
+        </button>
+        {(clipped || expanded) && (
+          <button
+            type="button"
+            className="tab-details-action tab-details-expand"
+            aria-label={
+              expanded ? `Show less ${fieldName}` : `Show full ${fieldName}`
+            }
+            title={
+              expanded ? `Show less ${fieldName}` : `Show full ${fieldName}`
+            }
+            aria-expanded={expanded}
+            aria-controls={fieldId}
+            onClick={() => setExpanded(!expanded)}
+          >
+            <ExpandMoreIcon
+              fontSize={16}
+              style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
+            />
+          </button>
+        )}
+      </div>
     </section>
   )
 }
@@ -94,19 +97,13 @@ export default function TabDetailsTooltip({
   url,
   urlLines,
   duplicateText,
-  onClose,
   autoFocus,
-  groupTitle,
-  windowTitle,
 }: {
   title: string
   url: string
   urlLines: TabTooltipUrlLines
   duplicateText: string
-  onClose: () => void
   autoFocus?: boolean
-  groupTitle?: string
-  windowTitle?: string
 }) {
   const [copied, setCopied] = useState<string | null>(null)
   const [status, setStatus] = useState('')
@@ -146,34 +143,7 @@ export default function TabDetailsTooltip({
 
   return (
     <div ref={contentRef}>
-      <div className="tab-details-heading">
-        <span>Tab details</span>
-        <button
-          type="button"
-          className="tab-details-action"
-          aria-label="Close tab details"
-          onClick={onClose}
-        >
-          <CloseIcon fontSize={16} />
-        </button>
-      </div>
       <div className="tab-details-scroller">
-        {(windowTitle || groupTitle) && (
-          <dl className="tab-details-context">
-            {windowTitle && (
-              <>
-                <dt>Window</dt>
-                <dd title={windowTitle}>{windowTitle}</dd>
-              </>
-            )}
-            {groupTitle && (
-              <>
-                <dt>Group</dt>
-                <dd title={groupTitle}>{groupTitle}</dd>
-              </>
-            )}
-          </dl>
-        )}
         <TextField
           label="Title"
           value={title}

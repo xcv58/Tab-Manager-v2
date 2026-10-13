@@ -912,10 +912,7 @@ test.describe('The Extension page should', () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
-    await page
-      .getByRole('tablist', { name: 'Settings sections' })
-      .getByRole('tab', { name: 'Appearance', exact: true })
-      .click()
+    await selectSettingsSection(page, 'Appearance')
     await page.waitForSelector('[aria-label="Update Font Size"]')
 
     const fontSizeSlider = page
@@ -943,10 +940,7 @@ test.describe('The Extension page should', () => {
     await expect(tabWidthInput).toBeVisible()
     await expect(tabWidthInput).toHaveValue('20')
 
-    await page
-      .getByRole('tablist', { name: 'Settings sections' })
-      .getByRole('tab', { name: 'Popup & controls', exact: true })
-      .click()
+    await selectSettingsSection(page, 'Popup & controls')
     const toolbarToggle = page
       .locator('[aria-label="Toggle Always Show Toolbar"]')
       .first()
@@ -968,10 +962,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    await page
-      .getByRole('tablist', { name: 'Settings sections' })
-      .getByRole('tab', { name: 'Appearance', exact: true })
-      .click()
+    await selectSettingsSection(page, 'Appearance')
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
     await expect(
@@ -1020,10 +1011,7 @@ test.describe('The Extension page should', () => {
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
-    await page
-      .getByRole('tablist', { name: 'Settings sections' })
-      .getByRole('tab', { name: 'Windows & layout', exact: true })
-      .click()
+    await selectSettingsSection(page, 'Windows & layout')
     const autoFitColumnsToggle = page.getByRole('checkbox', {
       name: /Auto-fit columns/i,
     })

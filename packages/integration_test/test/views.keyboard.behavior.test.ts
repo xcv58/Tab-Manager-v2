@@ -109,14 +109,18 @@ const selectSettingsSectionByKeyboard = async (
   name: string,
   index: number,
 ) => {
-  await pressTabUntil(page, (state) => state.role === 'tab', { maxSteps: 40 })
+  await pressTabUntil(page, (state) => state.ariaLabel === 'Jump to section', {
+    maxSteps: 40,
+  })
   await page.keyboard.press('Home')
-  for (let step = 0; step < index; step += 1) {
+  for (let step = 0; step < index; step += 1)
     await page.keyboard.press('ArrowDown')
-  }
-  await expect(page.getByRole('tab', { name, exact: true })).toBeFocused()
-  await expect(page.getByRole('tabpanel', { name, exact: true })).toBeVisible()
-  await expect(page.getByRole('tabpanel')).toHaveCount(1)
+  await page.keyboard.press('Enter')
+  await expect(
+    page.getByRole('combobox', { name: 'Jump to section' }),
+  ).toBeFocused()
+  await expect(page.getByRole('heading', { name, exact: true })).toBeVisible()
+  await expect(page.locator('.settings-section')).toHaveCount(5)
 }
 
 test.describe('The Extension page should', () => {
@@ -179,7 +183,7 @@ test.describe('The Extension page should', () => {
         state.ariaLabel === 'Preserve search' &&
         state.tagName === 'INPUT' &&
         state.type === 'checkbox',
-      { maxSteps: 20 },
+      { maxSteps: 80 },
     )
     await page.keyboard.press('Space')
     await expect
@@ -259,12 +263,8 @@ test.describe('The Extension page should', () => {
     const settingsDialog = page.getByRole('dialog').first()
     await expect(settingsDialog).toBeVisible()
 
-    const firstControl = await pressTabUntil(
-      page,
-      (state) => state.role === 'tab' && state.text === 'Appearance',
-      { maxSteps: 20 },
-    )
-    expect(firstControl).toMatchObject({ role: 'tab', text: 'Appearance' })
+    const firstControl = await readActiveElementState(page)
+    expect(firstControl).toMatchObject({ ariaLabel: 'Close Settings' })
 
     await page.keyboard.press('Shift+Tab')
     await page.waitForTimeout(50)
@@ -275,13 +275,13 @@ test.describe('The Extension page should', () => {
     })
 
     let wrappedToFirstControl = false
-    for (let index = 0; index < 40; index += 1) {
+    for (let index = 0; index < 150; index += 1) {
       await page.keyboard.press('Tab')
       await page.waitForTimeout(50)
       await expect.poll(() => isActiveElementInsideDialog(page)).toBe(true)
 
       const state = await readActiveElementState(page)
-      if (state.role === 'tab' && state.text === 'Appearance') {
+      if (state.ariaLabel === 'Close Settings') {
         wrappedToFirstControl = true
         break
       }
@@ -324,7 +324,7 @@ test.describe('The Extension page should', () => {
     ).toBeVisible()
     await help
       .getByRole('button', {
-        name: 'Run: Toggle selection for Runnable Shortcut',
+        name: 'Run: Toggle selection for this tab',
         exact: true,
       })
       .first()
@@ -342,7 +342,7 @@ test.describe('The Extension page should', () => {
     await page.keyboard.press('Escape')
   })
 
-  test('skip tab-row preview controls when tabbing through tab display settings', async () => {
+  test('reach sample preview controls by keyboard inside Settings', async () => {
     await page.bringToFront()
 
     await pressTabUntil(
@@ -370,7 +370,7 @@ test.describe('The Extension page should', () => {
     await expect
       .poll(() => readActiveElementState(page))
       .toMatchObject({
-        ariaLabel: 'Show tab icons',
+        ariaLabel: 'Toggle select',
         tagName: 'INPUT',
         type: 'checkbox',
       })

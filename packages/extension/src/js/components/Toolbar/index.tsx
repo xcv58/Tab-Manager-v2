@@ -8,7 +8,7 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 
 export default observer(() => {
   const theme = useAppTheme()
-  const { userStore, tabStore } = useStore()
+  const { userStore, tabStore, dragStore } = useStore()
   const [menuOpen, setMenuOpen] = useState(false)
   const uiColors = getUiColorTokens(
     theme.mode === 'dark',
@@ -21,6 +21,7 @@ export default observer(() => {
   const pinned =
     tabStore.selection.size > 0 || menuOpen || !userStore.toolbarAutoHide
   const visible = toolbarVisible || pinned
+  if (dragStore.dragging) return null
   return (
     <div
       className="toolbar corner-dock"

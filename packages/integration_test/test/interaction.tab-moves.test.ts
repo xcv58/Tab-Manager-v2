@@ -116,14 +116,22 @@ test.describe('Selected tab move regressions', () => {
             })
             .click()
         } else {
-          await destination.getByRole('button', { name: /^F/ }).focus()
+          const target = destination.getByRole('button', { name: /^F/ })
+          await target.focus()
+          await expect(target).toBeFocused()
           if (method === 'combination') {
             await page.keyboard.press(
               `Alt+Shift+Arrow${before ? 'Left' : 'Right'}`,
             )
           } else {
-            await page.keyboard.press('m')
-            await page.keyboard.press(before ? 'Shift+P' : 'p')
+            if (before) {
+              await page.keyboard.press('m')
+              await page.keyboard.press('Shift+P')
+            } else {
+              // Keep the sequence within Mousetrap's one-second deadline,
+              // rather than allowing a worker scheduling gap before p.
+              await page.keyboard.type('mp')
+            }
           }
         }
         const expected = before

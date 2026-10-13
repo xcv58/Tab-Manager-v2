@@ -630,45 +630,13 @@ export default class ShortcutStore {
         (Array.isArray(candidate) ? candidate[0] : candidate) === primary,
     )
     if (!definition) return null
-    const {
-      actionStore,
-      tabStore,
-      focusStore,
-      searchStore,
-      windowStore,
-      tabGroupStore,
-      dragStore,
-      userStore,
-    } = this.store
+    const { actionStore, tabStore, focusStore, dragStore } = this.store
     const tab = focusStore.focusedTab
-    const win = focusStore.focusedWindow
     const item = focusStore.focusedItem
     const selected = tabStore.selection.size
-    const sources = this.store._getFocusedOrSelectedTab()
-    const scope = selected
-      ? String(selected) + ' selected tabs'
-      : tab
-        ? tab.title
-        : item instanceof TabGroupRow
-          ? (tabGroupStore.getTabGroup(item.groupId)?.title ||
-              'Unnamed group') +
-            ' (' +
-            sources.length +
-            ' tabs)'
-          : win
-            ? getWindowLabel(win) + ' (' + sources.length + ' tabs)'
-            : 'focused item'
-    const scopeReason = sources.length
-      ? undefined
-      : 'Select tabs or focus a tab, group or window'
-    const focusedReason = item
-      ? undefined
-      : 'Focus a tab, group or window first'
-    const tabReason = tab ? undefined : 'Focus a tab first'
-    const windowReason = win
-      ? undefined
-      : 'Focus a window or one of its tabs first'
     const ids: Record<string, string> = {
+      '/': 'search',
+      'ctrl+o': 'open-app-tab',
       'ctrl+s': 'sort-all',
       'shift+ctrl+s': 'cluster-all',
       '* c': 'clean-duplicates',
@@ -677,8 +645,17 @@ export default class ShortcutStore {
       'ctrl+,': 'settings',
       '* n': 'clear-selection',
       '* a': 'select-matching',
+      '* m': 'select-all-matching',
+      '* u': 'invert-selection',
+      x: 'select-focused',
+      space: 'select-focused',
+      'shift+x': 'select-container',
+      'alt+d': 'close-window',
       'shift+n': 'new-window-selection',
       'w w': 'collapse-window',
+      'w t': 'toggle-all-windows',
+      'w c': 'collapse-all',
+      'w e': 'expand-all',
       r: selected
         ? 'reload-selection'
         : tab
@@ -686,14 +663,43 @@ export default class ShortcutStore {
           : item instanceof TabGroupRow
             ? 'reload-group'
             : 'reload-window',
-      p: selected ? 'pin-selection' : 'pin-tab',
-      'd d': selected ? 'close-selection' : 'close-tab',
-      'c c': selected ? 'copy-selection' : 'copy-tab',
-      'c t': selected ? 'copy-titles-urls-selection' : 'copy-title-url-tab',
+      p: selected ? 'pin-selection' : tab ? 'pin-tab' : 'pin-scope',
+      'd d': selected
+        ? 'close-selection'
+        : tab
+          ? 'close-tab'
+          : item instanceof TabGroupRow
+            ? 'close-group'
+            : 'close-window',
+      'c c': selected ? 'copy-selection' : tab ? 'copy-tab' : 'copy-scope',
+      'c t': selected
+        ? 'copy-titles-urls-selection'
+        : tab
+          ? 'copy-title-url-tab'
+          : 'copy-title-url-scope',
+      'c ,': 'copy-comma',
+      'alt+down': 'tab-details',
+      'ctrl+g': 'bring-same-site',
+      'alt+shift+g': 'create-group',
+      'alt+g': 'collapse-group',
+      'alt+u': 'ungroup-group',
       'alt+shift+u': 'ungroup-tab',
+      'alt+x': 'select-container-tabs',
+      'alt+c': 'group-containers',
+      h: 'navigate-left',
+      l: 'navigate-right',
+      j: 'navigate-down',
+      k: 'navigate-up',
+      'g g': 'navigate-first',
+      'shift+g': 'navigate-last',
     }
-    const command = ids[primary]
-      ? actionStore.commands.find((command) => command.id === ids[primary])
+    const position = (['beginning', 'end', 'before', 'after'] as const).find(
+      (position) =>
+        (TAB_MOVE_SHORTCUTS[position] as readonly string[]).includes(primary),
+    )
+    const commandId = position ? 'move-' + position : ids[primary]
+    const command = commandId
+      ? actionStore.commands.find((item) => item.id === commandId)
       : null
     let action: ShortcutHelpAction = command
       ? {
@@ -702,162 +708,29 @@ export default class ShortcutStore {
           danger: command.danger,
           run: command.run,
         }
-      : { label: getDescription(definition[2]), run: () => definition[1]() }
-    // Remaining shortcuts use their existing action, with explicit applicability.
-    switch (primary) {
-      case 'alt+down':
-        action = {
-          ...action,
-          label: 'Open details for ' + (tab?.title || 'focused tab'),
-          disabledReason:
-            tabReason ||
-            (!userStore.showTabTooltip
-              ? 'Enable tab tooltips in Settings first'
-              : undefined),
+      : {
+          label: getDescription(definition[2]),
+          disabledReason: commandId
+            ? 'Focus an applicable tab, group or window first'
+            : undefined,
+          run: () => definition[1](),
         }
-        break
-      case 'enter':
-        action = {
-          ...action,
-          disabledReason: focusedReason,
-          run: focusStore.enter,
-        }
-        break
-      case 'x':
-      case 'space':
-        action = {
-          ...action,
-          label: 'Toggle selection for ' + scope,
-          disabledReason: focusedReason,
-          run: focusStore.select,
-        }
-        break
-      case 'shift+x':
-      case 'alt+d':
-      case 'w w':
-        action = {
-          ...action,
-          label:
-            (primary === 'alt+d'
-              ? 'Close window: '
-              : primary === 'shift+x'
-                ? 'Toggle selection in window: '
-                : 'Collapse/expand window: ') +
-            (win
-              ? getWindowLabel(win) + ' (' + win.tabs.length + ' tabs)'
-              : 'none'),
-          disabledReason: windowReason,
-          danger: primary === 'alt+d',
-        }
-        break
-      case 'r':
-      case 'p':
-      case 'd d':
-      case 'c c':
-      case 'c t':
-      case 'c ,':
-        action = {
-          ...action,
-          label:
-            command?.label || getDescription(definition[2]) + ' · ' + scope,
-          disabledReason: command?.disabledReason || scopeReason,
-          danger: primary === 'd d',
-          run:
-            command?.run ||
-            (primary === 'c c'
-              ? () => this.store.copyTabsInfo()
-              : primary === 'c t'
-                ? () => this.store.copyTabsInfo({ includeTitle: true })
-                : primary === 'c ,'
-                  ? () => this.store.copyTabsInfo({ delimiter: ', ' })
-                  : primary === 'r'
-                    ? this.store.reload
-                    : primary === 'p'
-                      ? this.store.togglePin
-                      : this.store.remove),
-        }
-        break
-      case 'shift+n':
-        action.disabledReason =
-          command?.disabledReason ||
-          (!selected ? 'Select tabs first' : undefined)
-        break
-      case '* m':
-      case '* u':
-      case '* a':
-        action.disabledReason =
-          command?.disabledReason ||
-          (!searchStore.matchedTabs.length ? 'No matching tabs' : undefined)
-        break
-      case '* n':
-        action.disabledReason = !selected ? 'Select tabs first' : undefined
-        break
-      case 'h':
-      case 'l':
-      case 'j':
-      case 'k':
-      case 'g g':
-      case 'shift+g':
-      case 'w t':
-      case 'w c':
-      case 'w e':
-        action.disabledReason = !windowStore.windows.length
-          ? 'No windows to navigate'
-          : undefined
-        break
-      case 'ctrl+g':
-      case 'alt+x':
-        action.disabledReason = tabReason
-        break
-      case 'alt+c':
-        action.disabledReason = !windowStore.windows.length
-          ? 'No tabs to organize'
-          : undefined
-        break
-      case 'alt+shift+g':
-        action.disabledReason = !tabGroupStore?.canMutateGroups?.()
-          ? 'Tab groups are unavailable in this browser'
-          : scopeReason
-        break
-      case 'alt+g':
-      case 'alt+u':
-      case 'alt+shift+u':
-        action.disabledReason = !tabGroupStore?.canMutateGroups?.()
-          ? 'Tab groups are unavailable in this browser'
-          : primary === 'alt+shift+u' && !tab
-            ? tabReason
-            : !tabGroupStore.getTabGroup(
-                  item instanceof TabGroupRow ? item.groupId : tab?.groupId,
-                )
-              ? 'Focus a grouped tab or a group first'
-              : undefined
-        break
-      case '?':
-        action.disabledReason = 'You are already viewing keyboard shortcuts'
-        break
-      case 'escape':
-        action = { label: 'Close keyboard shortcuts', run: () => {} }
-        break
-    }
-    const position = (['beginning', 'end', 'before', 'after'] as const).find(
-      (position) =>
-        (TAB_MOVE_SHORTCUTS[position] as readonly string[]).includes(primary),
-    )
-    if (position) {
+    if (primary === 'enter')
       action = {
-        label: TAB_MOVE_LABELS[position] + ' · ' + scope,
-        disabledReason: dragStore.pendingWindowEdgeDrop
-          ? 'A tab move is already in progress'
-          : !selected
-            ? 'Select tabs first'
-            : position === 'beginning' || position === 'end'
-              ? windowReason ||
-                getTabMoveDestinationHint(win, tabStore.selection.values()) ||
-                undefined
-              : tabReason,
-        run: () => this.moveSelectedTabs(position),
+        label: tab
+          ? 'Go to tab: ' + tab.title
+          : item instanceof TabGroupRow
+            ? 'Toggle this group'
+            : 'Go to this window',
+        disabledReason: !item
+          ? 'Focus a tab, group or window first'
+          : undefined,
+        run: focusStore.enter,
       }
-    }
+    if (primary === '?')
+      action.disabledReason = 'You are already viewing keyboard shortcuts'
+    if (primary === 'escape')
+      action = { label: 'Close keyboard shortcuts', run: () => {} }
     action.disabledReason =
       this.helpRunning || actionStore.busy
         ? 'An action is already in progress'

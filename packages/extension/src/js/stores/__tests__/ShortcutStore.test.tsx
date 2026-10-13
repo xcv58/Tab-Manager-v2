@@ -315,10 +315,11 @@ describe('ShortcutStore help actions', () => {
   })
 
   it('runs Space selection despite focus on a Help button', async () => {
-    const { store, shortcuts } = makeStore({
-      id: 'sort-all',
-      label: 'Sort tabs',
-      run: jest.fn(),
+    const run = jest.fn()
+    const { shortcuts } = makeStore({
+      id: 'select-focused',
+      label: 'Toggle selection for this tab',
+      run,
     })
     const button = document.createElement('button')
     document.body.appendChild(button)
@@ -332,7 +333,7 @@ describe('ShortcutStore help actions', () => {
       })
     await shortcuts.runHelpAction(['space'])
     expect(shortcuts.dialogOpen).toBe(false)
-    expect(store.focusStore.select).toHaveBeenCalledTimes(1)
+    expect(run).toHaveBeenCalledTimes(1)
     button.remove()
     jest.restoreAllMocks()
   })

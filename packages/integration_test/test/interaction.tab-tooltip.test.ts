@@ -217,3 +217,89 @@ test('select, expand and copy long tab details without activating the tab', asyn
     await browserContext.close()
   }
 })
+
+test('keep the tooltip attached after resizing and retain selection dragged outside it', async () => {
+  const { browserContext, page, extensionURL } = await initBrowserWithExtension(
+    { headless: true },
+  )
+  try {
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        showTabTooltip: true,
+        tabTooltipUrlLines: 3,
+        showSearchResultMenu: false,
+      })
+    })
+    const title = 'Long research title 研究 and selectable text '.repeat(100)
+    const url =
+      'https://example.com/resize-tooltip?notes=' + 'reference-'.repeat(1200)
+    await browserContext.route('https://example.com/**', (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body:
+          '<title>' +
+          (route.request().url().includes('resize-tooltip')
+            ? title
+            : 'Short fixture') +
+          '</title>',
+      }),
+    )
+    for (let i = 0; i < 11; i++) {
+      const fixture = await browserContext.newPage()
+      await fixture.goto('https://example.com/short-tooltip-' + i)
+    }
+    const fixture = await browserContext.newPage()
+    await fixture.goto(url)
+    await page.bringToFront()
+    const tab = await page.evaluate(
+      async (url) =>
+        (await chrome.tabs.query({})).find((tab) => tab.url === url),
+      url,
+    )
+    await page.reload()
+    const row = page.getByTestId('tab-row-' + tab.id)
+    await row.scrollIntoViewIfNeeded()
+    const anchor = row.locator('button[aria-haspopup="dialog"]')
+    await anchor.hover()
+    const card = page.getByRole('dialog', { name: 'Tab details', exact: true })
+    await expect(card).toBeVisible()
+    await card.hover()
+    const initial = await card.boundingBox()
+    await card
+      .getByRole('button', { name: 'Show full title', exact: true })
+      .click()
+    await card
+      .getByRole('button', { name: 'Show full URL', exact: true })
+      .click()
+    await card
+      .getByRole('button', { name: 'Show less title', exact: true })
+      .click()
+    await card
+      .getByRole('button', { name: 'Show less URL', exact: true })
+      .click()
+    await expect
+      .poll(async () => Math.abs((await card.boundingBox()).y - initial.y))
+      .toBeLessThanOrEqual(2)
+    await card.hover()
+    await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+    const text = await card.getByTestId('tab-tooltip-title').boundingBox()
+    const bounds = await card.boundingBox()
+    await page.mouse.move(text.x + 4, text.y + 8)
+    await page.mouse.down()
+    await page.mouse.move(text.x + 180, text.y + 8, { steps: 12 })
+    await page.mouse.move(bounds.x - 20, text.y + 28, { steps: 12 })
+    await page.waitForTimeout(500)
+    await expect(card).toBeVisible()
+    await page.mouse.up()
+    await page.waitForTimeout(350)
+    await expect(card).toBeVisible()
+    expect(
+      await page.evaluate(() => window.getSelection()?.toString().length),
+    ).toBeGreaterThan(5)
+    await page.keyboard.press('Escape')
+    await expect(card).toBeHidden()
+  } finally {
+    await browserContext.close()
+  }
+})

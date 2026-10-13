@@ -373,6 +373,7 @@ test.describe('The Extension page should', () => {
     await page.mouse.down()
     // Playwright triggers the drag effect but it wouldn't move the cursor.
     await page.mouse.move(xx + 160, yy + 24, { steps: 12 })
+    await expect(page.locator('.toolbar')).toBeHidden()
     const screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
     const droppableTool = page.getByTestId('new-window-drop-target')
@@ -382,6 +383,7 @@ test.describe('The Extension page should', () => {
       matchImageSnapshotOptions,
     )
     await page.mouse.up()
+    await expect(page.locator('.toolbar')).toBeVisible()
   })
 
   test('drop ungrouped tab into grouped tabs should keep one intact target group', async () => {

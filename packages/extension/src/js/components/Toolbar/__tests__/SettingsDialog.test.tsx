@@ -115,15 +115,12 @@ describe('SettingsDialog', () => {
   it('adds visible focus styling to the search and view switch rows for keyboard users', () => {
     renderSettingsDialog()
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Search' }))
     expect(screen.getByTestId('settings-search-focus')).toHaveClass(
       'focus-within:ring-2',
     )
-    fireEvent.click(screen.getByRole('tab', { name: 'Popup & controls' }))
     expect(screen.getByTestId('settings-lite-popup-mode')).toHaveClass(
       'focus-within:ring-2',
     )
-    fireEvent.click(screen.getByRole('tab', { name: 'Appearance' }))
     expect(screen.getByTestId('settings-increase-contrast')).toHaveClass(
       'focus-within:ring-2',
     )
@@ -140,7 +137,6 @@ describe('SettingsDialog', () => {
   it('keeps described search rows vertically centered with their switches', () => {
     renderSettingsDialog()
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Search' }))
     const describedSwitch = screen.getByRole('checkbox', {
       name: 'Keep non-matching tabs visible',
     })
@@ -153,14 +149,10 @@ describe('SettingsDialog', () => {
   it('toggles settings from their visible controls', () => {
     const { userStore } = renderSettingsDialog()
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Search' }))
     fireEvent.click(screen.getByTestId('settings-search-focus'))
     fireEvent.click(screen.getByTestId('settings-search-result-menu'))
-    fireEvent.click(screen.getByRole('tab', { name: 'Popup & controls' }))
     fireEvent.click(screen.getByTestId('settings-lite-popup-mode'))
-    fireEvent.click(screen.getByRole('tab', { name: 'Appearance' }))
     fireEvent.click(screen.getByTestId('settings-increase-contrast'))
-    fireEvent.click(screen.getByRole('tab', { name: 'Tab details' }))
     fireEvent.click(
       screen.getByRole('checkbox', {
         name: 'Highlight all active tabs',
@@ -178,7 +170,6 @@ describe('SettingsDialog', () => {
 
   it('updates the extension icon count mode from the segmented control', () => {
     const { userStore } = renderSettingsDialog()
-    fireEvent.click(screen.getByRole('tab', { name: 'Popup & controls' }))
 
     fireEvent.click(
       screen.getByRole('radio', {
@@ -193,7 +184,6 @@ describe('SettingsDialog', () => {
 
   it('updates the window order mode from the segmented control', () => {
     const { userStore } = renderSettingsDialog()
-    fireEvent.click(screen.getByRole('tab', { name: 'Windows & layout' }))
 
     fireEvent.click(
       screen.getByRole('radio', {
@@ -204,21 +194,20 @@ describe('SettingsDialog', () => {
     expect(userStore.selectWindowOrder).toHaveBeenCalledWith('lastUsed')
   })
 
-  it('keeps visual examples decorative and the tooltip example interactive', () => {
+  it('labels previews and exposes their intended interactions', () => {
     renderSettingsDialog()
-    fireEvent.click(screen.getByRole('tab', { name: 'Tab details' }))
 
     expect(
       screen.getByTestId('row-details-preview-active-tabs'),
-    ).toHaveAttribute('aria-hidden', 'true')
+    ).not.toHaveAttribute('aria-hidden', 'true')
     expect(
       screen.getByTestId('row-details-preview-duplicates'),
-    ).toHaveAttribute('aria-hidden', 'true')
-    expect(screen.getByTestId('row-details-preview-icons')).toHaveAttribute(
+    ).not.toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByTestId('row-details-preview-icons')).not.toHaveAttribute(
       'aria-hidden',
       'true',
     )
-    expect(screen.getByTestId('row-details-preview-urls')).toHaveAttribute(
+    expect(screen.getByTestId('row-details-preview-urls')).not.toHaveAttribute(
       'aria-hidden',
       'true',
     )

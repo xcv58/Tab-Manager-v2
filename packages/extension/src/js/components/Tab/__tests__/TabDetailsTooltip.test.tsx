@@ -22,7 +22,6 @@ describe('Tab details tooltip', () => {
         url={url}
         urlLines={1}
         duplicateText=""
-        onClose={jest.fn()}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Copy title' }))
@@ -50,7 +49,6 @@ describe('Tab details tooltip', () => {
         url={url}
         urlLines={3}
         duplicateText=""
-        onClose={jest.fn()}
       />,
     )
     const expand = screen.getByRole('button', { name: 'Show full URL' })
@@ -72,7 +70,6 @@ describe('Tab details tooltip', () => {
         url="https://example.com/"
         urlLines={3}
         duplicateText=""
-        onClose={jest.fn()}
       />,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Copy title' }))

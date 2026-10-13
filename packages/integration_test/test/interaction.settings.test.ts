@@ -242,10 +242,7 @@ test.describe('The Extension page should', () => {
       .getByTestId('switch-track')
       .click()
 
-    await page
-      .getByRole('tablist', { name: 'Settings sections' })
-      .getByRole('tab', { name: 'Tab details', exact: true })
-      .click()
+    await selectSettingsSection(page, 'Tab details')
     const activeTabsToggle = page.getByRole('checkbox', {
       name: 'Highlight all active tabs',
     })
@@ -351,58 +348,94 @@ test.describe('The Extension page should', () => {
     await waitForMainSurfaceToSettle(page)
   })
 
-  test('continue scrolling between single settings sections and remember the last section', async () => {
-    await page.setViewportSize({ width: 1280, height: 600 })
+  test('keyboard tooltip preview stays within Settings and closes before the modal', async () => {
     await page.locator('button[aria-label="Settings"]').first().click()
-    const panel = await selectSettingsSection(page, 'Appearance')
-    await expect
-      .poll(() =>
-        panel.evaluate((node) => node.scrollHeight - node.clientHeight),
-      )
-      .toBeGreaterThan(0)
-    const box = await panel.boundingBox()
-    await page.mouse.move(box.x + box.width - 12, box.y + box.height / 2)
-    await page.mouse.wheel(0, 10000)
-    await expect
-      .poll(() =>
-        panel.evaluate(
-          (node) => node.scrollHeight - node.clientHeight - node.scrollTop,
-        ),
-      )
-      .toBeLessThanOrEqual(2)
-    await expect(
-      page.getByRole('tab', { name: 'Appearance', exact: true }),
-    ).toHaveAttribute('aria-selected', 'true')
-    // A fresh gesture at the boundary continues to the next section.
-    await page.waitForTimeout(300)
-    await page.mouse.wheel(0, 80)
-    const layout = page.getByRole('tabpanel', {
-      name: 'Windows & layout',
+    await selectSettingsSection(page, 'Tab details')
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    await settings.getByRole('button', { name: 'Open example details' }).click()
+    const tooltip = page.getByRole('dialog', {
+      name: 'Tab details',
       exact: true,
     })
-    await expect(layout).toBeVisible()
-    await expect(page.getByRole('tabpanel')).toHaveCount(1)
-    await expect.poll(() => layout.evaluate((node) => node.scrollTop)).toBe(0)
-    await page.waitForTimeout(300)
-    await page.mouse.wheel(0, -80)
-    await expect(panel).toBeVisible()
-    await expect
-      .poll(() =>
-        panel.evaluate(
-          (node) => node.scrollHeight - node.clientHeight - node.scrollTop,
+    await expect(
+      tooltip.getByRole('button', { name: 'Copy title' }),
+    ).toBeFocused()
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press('Tab')
+      expect(
+        await page.evaluate(
+          () => !!document.activeElement?.closest('[aria-modal="true"]'),
         ),
-      )
+      ).toBe(true)
+    }
+    await page.keyboard.press('Escape')
+    await expect(tooltip).toBeHidden()
+    await expect(settings).toBeVisible()
+    await page.keyboard.press('Escape')
+  })
+
+  test('scroll continuously with sticky section titles, search settings, and remember position', async () => {
+    await page.setViewportSize({ width: 1280, height: 600 })
+    await page.locator('button[aria-label="Settings"]').first().click()
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    const scroll = page.getByTestId('settings-scroll')
+    await expect(settings.locator('.settings-section')).toHaveCount(5)
+    await expect(settings.getByRole('tablist')).toHaveCount(0)
+    await selectSettingsSection(page, 'Windows & layout')
+    const top = await scroll.evaluate((node) => node.scrollTop)
+    const heading = settings.locator(
+      '#settings-section-windows-layout .settings-section-heading',
+    )
+    const box = await scroll.boundingBox()
+    await page.mouse.move(box.x + box.width - 12, box.y + 100)
+    await page.mouse.wheel(0, 80)
+    await expect
+      .poll(() => scroll.evaluate((node) => node.scrollTop))
+      .toBeGreaterThan(top)
+    await expect
+      .poll(async () => Math.abs((await heading.boundingBox()).y - box.y))
       .toBeLessThanOrEqual(2)
+    const saved = await scroll.evaluate((node) => node.scrollTop)
+    const search = settings.getByRole('textbox', { name: 'Search settings' })
+    await search.fill('favicon')
+    await expect(settings.locator('.settings-section')).toHaveCount(1)
+    await expect(
+      settings.getByRole('checkbox', { name: 'Show tab icons' }),
+    ).toBeVisible()
+    await expect(settings.getByRole('status')).toHaveText('1 matching setting')
+    await expect(settings).toHaveScreenshot('settings-search-favicon.png')
+    await search.fill('tab')
+    await selectSettingsSection(page, 'Popup & controls')
+    const jump = settings.getByRole('combobox', { name: 'Jump to section' })
+    await expect(jump).toHaveValue('popup-controls')
+    await jump.press('Tab')
+    await expect(
+      settings.getByRole('heading', { name: 'Popup & controls', exact: true }),
+    ).toBeFocused()
+    await settings
+      .getByRole('button', { name: 'Clear settings search' })
+      .click()
+    await expect
+      .poll(() => scroll.evaluate((node) => node.scrollTop))
+      .toBeCloseTo(saved, 0)
     await selectSettingsSection(page, 'Search')
+    const searchPosition = await scroll.evaluate((node) => node.scrollTop)
     await page.keyboard.press('Escape')
     await page.locator('button[aria-label="Settings"]').first().click()
+    await expect
+      .poll(() => scroll.evaluate((node) => node.scrollTop))
+      .toBeCloseTo(searchPosition, 0)
     await expect(
-      page.getByRole('tab', { name: 'Search', exact: true }),
-    ).toHaveAttribute('aria-selected', 'true')
-    await expect(
-      page.getByRole('tabpanel', { name: 'Search', exact: true }),
-    ).toBeVisible()
-    await expect(page.getByRole('tabpanel')).toHaveCount(1)
+      settings.getByRole('combobox', { name: 'Jump to section' }),
+    ).toHaveValue('search')
+    await page.keyboard.press('Escape')
+    await page.setViewportSize({ width: 390, height: 720 })
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await selectSettingsSection(page, 'Appearance')
+    await expect(settings).toHaveScreenshot('settings-single-page-narrow.png')
+    expect(
+      await settings.evaluate((node) => node.scrollWidth <= node.clientWidth),
+    ).toBe(true)
     await page.keyboard.press('Escape')
     await page.setViewportSize({ width: 1280, height: 720 })
   })

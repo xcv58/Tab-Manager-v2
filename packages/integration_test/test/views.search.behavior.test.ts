@@ -426,9 +426,8 @@ test.describe('The Extension page should', () => {
     await expect(
       page
         .getByRole('dialog', { name: 'Tab details', exact: true })
-        .locator('dd')
-        .filter({ hasText: 'SearchDocs' }),
-    ).toHaveText('SearchDocs')
+        .getByTestId('tab-tooltip-title'),
+    ).toHaveText('Alpha Guide')
 
     await page.evaluate(async () => {
       await chrome.storage.sync.set({
@@ -710,9 +709,8 @@ test.describe('The Extension page should', () => {
     await expect(
       page
         .getByRole('dialog', { name: 'Tab details', exact: true })
-        .locator('dd')
-        .filter({ hasText: 'SearchDocs' }),
-    ).toHaveText('SearchDocs')
+        .getByTestId('tab-tooltip-title'),
+    ).toHaveText('Alpha Guide')
 
     await expect
       .poll(async () => {

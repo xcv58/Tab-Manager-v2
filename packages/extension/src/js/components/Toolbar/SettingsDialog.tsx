@@ -99,11 +99,12 @@ const SettingsPanel = ({
   <section
     id={`settings-section-${sectionId}`}
     aria-labelledby={`settings-heading-${sectionId}`}
-    className={`settings-section rounded-xl border p-4 ${className || ''}`}
+    className={`settings-section rounded-xl border ${className || ''}`}
+    data-section-id={sectionId}
     style={style}
     data-testid={testId}
   >
-    <div className="mb-3">
+    <div className="settings-section-heading">
       <h2
         id={`settings-heading-${sectionId}`}
         tabIndex={-1}
@@ -113,7 +114,7 @@ const SettingsPanel = ({
       </h2>
       {description && <p style={panelDescriptionStyle}>{description}</p>}
     </div>
-    {children}
+    <div className="settings-section-content">{children}</div>
   </section>
 )
 
@@ -121,7 +122,6 @@ const PreviewSurface = ({
   children,
   style,
   testId,
-  interactive = false,
 }: {
   children: React.ReactNode
   style: React.CSSProperties
@@ -130,11 +130,11 @@ const PreviewSurface = ({
 }) => (
   <div
     data-testid={testId}
-    aria-hidden={interactive ? undefined : true}
     data-settings-example
     className="w-full min-w-0 overflow-hidden rounded-lg border xl:min-w-72"
     style={style}
   >
+    <div className="settings-preview-label">Preview · sample tabs</div>
     {children}
   </div>
 )
@@ -591,8 +591,7 @@ export default observer(() => {
   const tooltipUrlLinesId = React.useId()
   const tooltipUrlLinesHintId = React.useId()
   const settingsNavigationState = React.useRef<SettingsNavigationState>({
-    active: 'appearance',
-    scrollTop: {},
+    scrollTop: 0,
   })
   const dialogTitleId = React.useId()
   const isDarkMode = muiTheme.mode === 'dark'
@@ -678,6 +677,7 @@ export default observer(() => {
           color: muiTheme.palette.text.primary,
           height: 'min(900px, calc(100dvh - 64px))',
           '--settings-border': panelStyle.borderColor,
+          '--settings-surface': uiColors.settingsDialogSurface,
           '--settings-focus': uiColors.focusRing,
           '--settings-hover': muiTheme.palette.action.hover,
           '--settings-active': muiTheme.palette.action.selected,
@@ -711,6 +711,7 @@ export default observer(() => {
               className="rounded-lg border px-3 py-3"
               style={rowDetailOptionStyle}
               data-testid="settings-ui-preset-toggle-group"
+              data-setting-search="Interface style"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
@@ -753,6 +754,7 @@ export default observer(() => {
               className="rounded-lg border px-3 py-3"
               style={rowDetailOptionStyle}
               data-testid="settings-theme-toggle-group"
+              data-setting-search="Theme"
             >
               <div className="flex items-center justify-between gap-3">
                 <h5 style={controlTitleStyle}>Theme</h5>
@@ -835,9 +837,7 @@ export default observer(() => {
               onChange={updateTabWidth}
               style={rowDetailOptionStyle}
             />
-            <WindowLayoutExample />
             <SettingsSwitchOption
-              preview={<WindowLayoutExample />}
               title="Auto-fit columns"
               description="Avoid horizontal scrolling by fitting columns to the window."
               checked={autoFitColumns}
@@ -848,6 +848,7 @@ export default observer(() => {
               className="rounded-lg border px-3 py-3"
               style={rowDetailOptionStyle}
               data-testid="settings-window-order-toggle-group"
+              data-setting-search="Window order"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
@@ -886,15 +887,14 @@ export default observer(() => {
                 </ToggleGroup>
               </div>
             </div>
-            <WindowLayoutExample />
             <SettingsSwitchOption
-              preview={<WindowLayoutExample />}
               title="Show app windows in list"
               description="Include standalone app windows in the main list."
               checked={showAppWindow}
               onChange={toggleShowAppWindow}
               style={rowDetailOptionStyle}
             />
+            <WindowLayoutExample />
           </div>
         </SettingsPanel>
         <SettingsPanel
@@ -1181,6 +1181,7 @@ export default observer(() => {
               className="rounded-lg border px-3 py-3"
               style={rowDetailOptionStyle}
               data-testid="settings-action-tab-count-toggle-group"
+              data-setting-search="Extension icon count"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
