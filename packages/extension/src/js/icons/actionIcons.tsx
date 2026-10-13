@@ -42,6 +42,50 @@ export const SearchIcon = (props: BaseSvgIconProps) => (
   </BaseSvgIcon>
 )
 
+export const BrowserWindowIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="3" width="20" height="18" rx="2" />
+      <path d="M2 8h20M6 5.5h.5m3 0h.5" />
+    </g>
+  </BaseSvgIcon>
+)
+
+export const MoveTabsIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M7 5V3h12v5M14 18v3H2V7h12v4m-6 4h14m-4-4 4 4-4 4" />
+    </g>
+  </BaseSvgIcon>
+)
+
+export const TabGroupIcon = (props: BaseSvgIconProps) => (
+  <BaseSvgIcon {...props}>
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="7" width="18" height="14" rx="2" />
+      <path d="M6 4h12M9 1.5h6M3 12h18" />
+    </g>
+  </BaseSvgIcon>
+)
+
 export const ArrowUpIcon = (props: BaseSvgIconProps) => (
   <BaseSvgIcon {...props}>
     <path d="M11 20V7.83l-5.59 5.58L4 12l8-8 8 8-1.41 1.41L13 7.83V20z" />

@@ -24,12 +24,24 @@ const PaletteDialog = observer(function PaletteDialog() {
   const listRef = useRef<HTMLUListElement>(null)
   const commands = actionStore.commands
   const query = actionStore.query.trim()
-  const items = query
-    ? matchSorter(commands, query, {
-        keys: ['label', 'aliases', 'section'],
-        baseSort: (a, b) => a.index - b.index,
-      })
-    : commands
+  const searchCommands = (items: PaletteCommand[]) =>
+    query
+      ? matchSorter(items, query, {
+          keys: ['label', 'aliases', 'section'],
+          baseSort: (a, b) => a.index - b.index,
+        })
+      : items
+  // Keep destination types in distinct sections even when search ranks change.
+  const items = actionStore.choosingDestination
+    ? [
+        ...searchCommands(
+          commands.filter((command) => command.icon === 'group'),
+        ),
+        ...searchCommands(
+          commands.filter((command) => command.icon === 'window'),
+        ),
+      ]
+    : searchCommands(commands)
   const { highlightedIndex, getInputProps, getListboxProps, getItemProps } =
     useCombobox({
       items,
@@ -38,6 +50,9 @@ const PaletteDialog = observer(function PaletteDialog() {
       onSelect: actionStore.execute,
       isItemDisabled: isDisabled,
       isOpen: actionStore.paletteOpen,
+      highlightResetKey: actionStore.choosingDestination
+        ? 'destinations'
+        : 'commands',
     })
   const inputProps = getInputProps()
   const listboxProps = getListboxProps()
@@ -77,7 +92,11 @@ const PaletteDialog = observer(function PaletteDialog() {
         ?.querySelector('[aria-selected="true"]')
         ?.scrollIntoView({ block: 'nearest' })
     }
-  }, [highlightedIndex, actionStore.choosingWindow, query])
+  }, [highlightedIndex])
+
+  useEffect(() => {
+    if (listRef.current) listRef.current.scrollTop = 0
+  }, [actionStore.choosingDestination, query])
 
   return (
     <Dialog
@@ -107,15 +126,15 @@ const PaletteDialog = observer(function PaletteDialog() {
           if (event.key === 'Escape') {
             event.preventDefault()
             event.stopPropagation()
-            if (actionStore.choosingWindow) actionStore.back()
+            if (actionStore.choosingDestination) actionStore.back()
             else actionStore.closePalette()
           }
         }}
       >
         <div className="flex items-center gap-2 px-4 pt-3 pb-2">
           <h2 id={titleId} className="flex-1 text-sm font-semibold">
-            {actionStore.choosingWindow
-              ? 'Choose a destination window'
+            {actionStore.choosingDestination
+              ? 'Choose a destination'
               : 'Command palette'}
           </h2>
           <kbd className="text-xs opacity-60">
@@ -138,15 +157,15 @@ const PaletteDialog = observer(function PaletteDialog() {
           <input
             {...inputProps}
             aria-label={
-              actionStore.choosingWindow
-                ? 'Search destination windows'
+              actionStore.choosingDestination
+                ? 'Search destinations'
                 : 'Search commands'
             }
             aria-describedby={contextId}
             aria-controls={listboxProps.id}
             placeholder={
-              actionStore.choosingWindow
-                ? 'Find a window by its active tab…'
+              actionStore.choosingDestination
+                ? 'Find a window or group…'
                 : 'What would you like to do?'
             }
             disabled={actionStore.busy}
@@ -172,7 +191,7 @@ const PaletteDialog = observer(function PaletteDialog() {
         >
           {context}
         </p>
-        {actionStore.choosingWindow && (
+        {actionStore.choosingDestination && (
           <button
             type="button"
             className="flex items-center px-4 py-2 text-xs text-left"
@@ -186,7 +205,7 @@ const PaletteDialog = observer(function PaletteDialog() {
           {...listboxProps}
           ref={listRef}
           aria-label={
-            actionStore.choosingWindow ? 'Destination windows' : 'Commands'
+            actionStore.choosingDestination ? 'Destinations' : 'Commands'
           }
           aria-busy={actionStore.busy}
           style={{
@@ -238,6 +257,7 @@ const PaletteDialog = observer(function PaletteDialog() {
                 <CommandPaletteIcon
                   name={command.icon}
                   danger={command.danger}
+                  groupColor={command.groupColor}
                 />
                 <span className="min-w-0 flex-1 break-words">
                   <span className="line-clamp-2" title={command.label}>
@@ -274,7 +294,8 @@ const PaletteDialog = observer(function PaletteDialog() {
               className="px-3 py-6 text-sm"
               style={{ color: theme.palette.text.secondary }}
             >
-              No matching {actionStore.choosingWindow ? 'windows' : 'commands'}
+              No matching{' '}
+              {actionStore.choosingDestination ? 'destinations' : 'commands'}
             </li>
           )}
         </ul>
@@ -293,7 +314,7 @@ const PaletteDialog = observer(function PaletteDialog() {
           <span>
             {actionStore.busy ? 'Working…' : '↑ ↓ navigate · Enter run'}
           </span>
-          <span>Esc {actionStore.choosingWindow ? 'back' : 'close'}</span>
+          <span>Esc {actionStore.choosingDestination ? 'back' : 'close'}</span>
         </div>
       </div>
     </Dialog>

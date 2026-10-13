@@ -17,7 +17,9 @@ export type PaletteIconName =
   | 'reload'
   | 'copy'
   | 'move'
+  | 'new-window'
   | 'window'
+  | 'group'
   | 'pin'
   | 'close'
   | 'ungroup'
@@ -39,6 +41,7 @@ export type PaletteCommand = {
   label: string
   section: string
   detail?: string
+  groupColor?: string
   aliases?: string
   shortcut?: string
   disabledReason?: string
@@ -47,6 +50,8 @@ export type PaletteCommand = {
   run: () => void | Promise<unknown>
 }
 
+class PaletteMoveError extends Error {}
+
 /** App-local overlays. These shortcuts never enter the browser manifest. */
 export default class ActionStore {
   store: Store
@@ -54,7 +59,7 @@ export default class ActionStore {
   menuAnchors = new Map<string, ActionMenuAnchor>()
   paletteOpen = false
   query = ''
-  choosingWindow = false
+  choosingDestination = false
   busy = false
   error = ''
   paletteFocusTarget: HTMLElement | null = null
@@ -107,7 +112,7 @@ export default class ActionStore {
     this.closeMenu()
     this.store.hoverStore.hideTooltip()
     this.query = query
-    this.choosingWindow = false
+    this.choosingDestination = false
     this.error = ''
     this.paletteOpen = true
   }
@@ -116,7 +121,7 @@ export default class ActionStore {
     if (this.busy) return
     const wasOpen = this.paletteOpen
     this.paletteOpen = false
-    this.choosingWindow = false
+    this.choosingDestination = false
     if (
       wasOpen &&
       restoreFocus &&
@@ -136,7 +141,7 @@ export default class ActionStore {
   }
 
   back = () => {
-    this.choosingWindow = false
+    this.choosingDestination = false
     this.query = ''
     this.error = ''
   }
@@ -159,10 +164,13 @@ export default class ActionStore {
         this.busy = false
         if (!command.keepOpen) this.closePalette()
       })
-    } catch {
+    } catch (error) {
       runInAction(() => {
         this.busy = false
-        this.error = 'Could not complete this action. Please try again.'
+        this.error =
+          error instanceof PaletteMoveError
+            ? error.message
+            : 'Could not complete this action. Please try again.'
       })
     }
   }
@@ -185,26 +193,61 @@ export default class ActionStore {
     const moveReason = dragStore.pendingWindowEdgeDrop
       ? 'A tab move is already in progress'
       : selectionReason
-    if (this.choosingWindow) {
-      return windowStore.windows.map((win) => ({
-        id: `move-window-${win.id}`,
-        icon: 'window',
-        label:
-          win.tabs.find((tab) => tab.active)?.title ||
-          win.tabs[0]?.title ||
-          'Empty window',
-        detail: `${win.tabs.length} ${getNoun('tab', win.tabs.length)}${focusStore.focusedWindow?.id === win.id ? ' · Current window' : ''}`,
-        section: `Move ${selectedScope} to window end`,
-        aliases: win.tabs
-          .slice(0, 3)
-          .map((tab) => tab.url)
-          .join(' '),
-        disabledReason:
-          moveReason ||
-          getTabMoveDestinationHint(win, tabStore.selection.values()) ||
-          undefined,
-        run: () => dragStore.moveSelectedTabsToWindowEdge(win.id, 'end'),
-      }))
+    if (this.choosingDestination) {
+      const windowTitle = (win: (typeof windowStore.windows)[number]) =>
+        win.tabs.find((tab) => tab.active)?.title ||
+        win.tabs[0]?.title ||
+        'Empty window'
+      const windows = new Map(windowStore.windows.map((win) => [win.id, win]))
+      // Group metadata includes collapsed groups whose tab rows are hidden.
+      const groups: PaletteCommand[] = Array.from(
+        tabGroupStore.tabGroupMap.values(),
+      )
+        .filter((group) => windows.has(group.windowId))
+        .map((group) => {
+          const parent = windows.get(group.windowId)!
+          const tabs = tabGroupStore.getTabsForGroup(group.id)
+          const parentTitle = windowTitle(parent)
+          return {
+            id: `move-group-${group.id}`,
+            icon: 'group',
+            groupColor: group.color,
+            label: group.title || 'Unnamed group',
+            detail: `${parentTitle} · ${tabs.length} ${getNoun('tab', tabs.length)}${group.collapsed ? ' · Collapsed' : ''}`,
+            section: 'Groups · Add to group',
+            aliases: `${parentTitle} ${group.color}${group.collapsed ? ' collapsed' : ''}`,
+            disabledReason: moveReason || dragStore.getGroupMoveHint(group.id),
+            run: async () => {
+              const hint = await dragStore.moveSelectedTabsToGroup(group.id)
+              if (hint) throw new PaletteMoveError(hint)
+            },
+          }
+        })
+      const windowCommands: PaletteCommand[] = windowStore.windows.map(
+        (win) => ({
+          id: `move-window-${win.id}`,
+          icon: 'window',
+          label: windowTitle(win),
+          detail: `${win.tabs.length} ${getNoun('tab', win.tabs.length)}${focusStore.focusedWindow?.id === win.id ? ' · Current window' : ''}`,
+          section: 'Windows · Move to end',
+          aliases: win.tabs
+            .slice(0, 3)
+            .map((tab) => tab.url)
+            .join(' '),
+          disabledReason:
+            moveReason ||
+            getTabMoveDestinationHint(win, tabStore.selection.values()) ||
+            undefined,
+          run: async () => {
+            const hint = await dragStore.moveSelectedTabsToWindowEdge(
+              win.id,
+              'end',
+            )
+            if (hint) throw new PaletteMoveError(hint)
+          },
+        }),
+      )
+      return [...groups, ...windowCommands]
     }
     const tab = focusStore.focusedTab
     const win = focusStore.focusedWindow
@@ -233,7 +276,7 @@ export default class ActionStore {
         },
         {
           id: 'new-window-selection',
-          icon: 'move',
+          icon: 'new-window',
           label: `Move ${selectedScope} to a new window`,
           section: 'Selected tabs',
           shortcut: 'Shift N',
@@ -266,9 +309,9 @@ export default class ActionStore {
       section: count ? 'Selected tabs' : 'Selection',
       disabledReason: moveReason,
       keepOpen: true,
-      aliases: 'window destination send',
+      aliases: 'window group destination send',
       run: () => {
-        this.choosingWindow = true
+        this.choosingDestination = true
         this.query = ''
       },
     })
@@ -292,7 +335,7 @@ export default class ActionStore {
         },
         {
           id: 'new-window-tab',
-          icon: 'move',
+          icon: 'new-window',
           label: 'Move this tab to a new window',
           section: 'Focused tab',
           disabledReason: dragStore.pendingWindowEdgeDrop

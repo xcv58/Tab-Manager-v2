@@ -1,11 +1,14 @@
 import React from 'react'
 import type { BaseSvgIconProps } from 'icons/BaseSvgIcon'
 import {
+  BrowserWindowIcon,
   CopyTextIcon,
   DeselectTabsIcon,
   KeyboardShortcutsIcon,
+  MoveTabsIcon,
   PinTabIcon,
   SelectTabsIcon,
+  TabGroupIcon,
   UngroupTabIcon,
 } from 'icons/actionIcons'
 import {
@@ -13,7 +16,6 @@ import {
   CloseIcon,
   DarkModeRoundedIcon,
   DeleteSweepIcon,
-  DesktopWindowsRoundedIcon,
   ExpandMoreIcon,
   FilterListIcon,
   LightModeRoundedIcon,
@@ -24,13 +26,16 @@ import {
   SyncIcon,
 } from 'icons/materialIcons'
 import { useAppTheme } from 'libs/appTheme'
+import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import type { PaletteIconName } from 'stores/ActionStore'
 
 const icons: Record<PaletteIconName, React.ComponentType<BaseSvgIconProps>> = {
   reload: RefreshIcon,
   copy: CopyTextIcon,
-  move: OpenInNewIcon,
-  window: DesktopWindowsRoundedIcon,
+  move: MoveTabsIcon,
+  'new-window': OpenInNewIcon,
+  window: BrowserWindowIcon,
+  group: TabGroupIcon,
   pin: PinTabIcon,
   close: CloseIcon,
   ungroup: UngroupTabIcon,
@@ -50,9 +55,11 @@ const icons: Record<PaletteIconName, React.ComponentType<BaseSvgIconProps>> = {
 export default function CommandPaletteIcon({
   name,
   danger,
+  groupColor,
 }: {
   name: PaletteIconName
   danger?: boolean
+  groupColor?: string
 }) {
   const theme = useAppTheme()
   const Icon =
@@ -71,7 +78,13 @@ export default function CommandPaletteIcon({
         flex: '0 0 20px',
         width: 20,
         height: 16,
-        color: danger ? undefined : theme.palette.text.secondary,
+        color: groupColor
+          ? getChromeTabGroupColor(groupColor).line
+          : danger
+            ? undefined
+            : theme.palette.text.secondary,
+        filter:
+          groupColor && theme.mode === 'dark' ? 'brightness(1.5)' : undefined,
       }}
     >
       <Icon fontSize={16} />
