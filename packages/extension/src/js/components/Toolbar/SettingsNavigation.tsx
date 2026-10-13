@@ -135,6 +135,10 @@ export default function SettingsNavigation({
   const measureViewport = useCallback(() => {
     const container = scrollRef.current
     if (!container) return
+    container.style.setProperty(
+      '--settings-viewport-height',
+      `${container.clientHeight}px`,
+    )
     setMoreBelow(
       container.scrollHeight - container.scrollTop - container.clientHeight > 1,
     )

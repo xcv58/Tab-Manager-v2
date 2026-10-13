@@ -14,10 +14,11 @@ import {
   type TabTooltipUrlLines,
 } from 'libs/tabTooltip'
 
-type PreviewConfig = {
+export type PreviewConfig = {
   id: number
   title: string
   url: string
+  iconUrl?: string
   fontSize?: number
   duplicatedTabCount?: number
   pinned?: boolean
@@ -123,6 +124,7 @@ class PreviewTabModel {
     this.id = config.id
     this.title = config.title
     this.url = config.url
+    this.iconUrl = config.iconUrl || settingsPreviewIcon
     this.active = !!config.active
     this.pinned = !!config.pinned
     this.duplicatedTabCount = config.duplicatedTabCount ?? 1
@@ -290,6 +292,7 @@ class PreviewStore {
         if (!tab) return
         tab.title = config.title
         tab.url = config.url
+        tab.iconUrl = config.iconUrl || settingsPreviewIcon
         tab.active = !!config.active
         tab.pinned = !!config.pinned
         tab.duplicatedTabCount = config.duplicatedTabCount ?? 1

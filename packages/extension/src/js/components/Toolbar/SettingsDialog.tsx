@@ -32,9 +32,9 @@ import {
   WindowLayoutExample,
   SettingsPreviewLayout,
   TabDetailsPreview,
-  ExtensionIconExample,
-  ToolbarExample,
+  AppearancePreview,
 } from './SettingsExamples'
+import SettingsPopupPreview from './SettingsPopupPreview'
 import SettingsNavigation, {
   type SettingsNavigationState,
   type SettingsSectionId,
@@ -417,9 +417,7 @@ const SettingsSwitchOption = ({
   testId,
   containerAriaLabelledBy,
   containerAriaLabel,
-  preview,
 }: {
-  preview?: React.ReactNode
   title: string
   description?: string
   checked: boolean
@@ -481,7 +479,6 @@ const SettingsSwitchOption = ({
           }}
         />
       </div>
-      {preview}
     </>
   )
 }
@@ -613,7 +610,7 @@ export default observer(() => {
     <Dialog
       open={dialogOpen}
       fullWidth
-      maxWidth="md"
+      maxWidth="lg"
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
@@ -662,112 +659,120 @@ export default observer(() => {
           description="Choose colors, contrast, and reading size. Changes apply immediately."
           style={panelStyle}
         >
-          <div className="settings-options">
-            <div
-              className="settings-option"
-              style={rowDetailOptionStyle}
-              data-testid="settings-ui-preset-toggle-group"
-              data-setting-search="Interface style"
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="min-w-0">
-                  <h5 style={controlTitleStyle}>Interface style</h5>
-                  <p style={controlDescriptionStyle}>
-                    Choose Modern or a compact Classic layout.
-                  </p>
+          <SettingsPreviewLayout>
+            <div className="settings-options">
+              <div
+                className="settings-option"
+                style={rowDetailOptionStyle}
+                data-testid="settings-ui-preset-toggle-group"
+                data-setting-search="Interface style"
+              >
+                <div className="settings-choice-row">
+                  <div className="min-w-0">
+                    <h5 style={controlTitleStyle}>Interface style</h5>
+                    <p style={controlDescriptionStyle}>
+                      Choose Modern or a compact Classic layout.
+                    </p>
+                  </div>
+                  <ToggleGroup
+                    value={uiPreset}
+                    aria-label="Choose interface style"
+                    onChange={(nextPreset) => {
+                      if (!nextPreset) {
+                        return
+                      }
+                      selectUiPreset(nextPreset as 'modern' | 'classic')
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {uiPresetOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.value} interface style`}
+                        style={{
+                          minWidth: 72,
+                          ...(uiPreset === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
                 </div>
-                <ToggleGroup
-                  value={uiPreset}
-                  aria-label="Choose interface style"
-                  onChange={(nextPreset) => {
-                    if (!nextPreset) {
-                      return
-                    }
-                    selectUiPreset(nextPreset as 'modern' | 'classic')
-                  }}
-                  style={toggleGroupPillStyle}
-                >
-                  {uiPresetOptions.map((option) => (
-                    <ToggleButton
-                      key={option.value}
-                      value={option.value}
-                      aria-label={`Use ${option.value} interface style`}
-                      style={{
-                        minWidth: 72,
-                        ...(uiPreset === option.value
-                          ? selectedPillStyle
-                          : unselectedPillStyle),
-                      }}
-                    >
-                      {option.label}
-                    </ToggleButton>
-                  ))}
-                </ToggleGroup>
               </div>
+              <div
+                className="settings-option"
+                style={rowDetailOptionStyle}
+                data-testid="settings-theme-toggle-group"
+                data-setting-search="Theme"
+              >
+                <div className="settings-choice-row">
+                  <h5 style={controlTitleStyle}>Theme</h5>
+                  <ToggleGroup
+                    value={theme}
+                    aria-label="Choose theme"
+                    onChange={(nextTheme) => {
+                      if (!nextTheme) {
+                        return
+                      }
+                      selectTheme(nextTheme)
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {themeOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.value} theme`}
+                        style={{
+                          paddingLeft: 5,
+                          paddingRight: 5,
+                          ...(theme === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        <option.icon fontSize={16} />
+                        <span>{option.label}</span>
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
+              <SettingsSwitchOption
+                testId="settings-increase-contrast"
+                title="Increase contrast"
+                description="Make toolbars, buttons, controls, and muted details easier to see."
+                checked={increaseContrast}
+                onChange={toggleIncreaseContrast}
+                style={rowDetailOptionStyle}
+              />
+              <DensityControl
+                testId="settings-font-size-control"
+                title="Font size"
+                value={fontSize}
+                min={6}
+                max={36}
+                step={1}
+                defaultValue={14}
+                sliderAriaLabel="Update Font Size"
+                inputAriaLabel="Font Size Value"
+                decrementAriaLabel="Decrease Font Size"
+                incrementAriaLabel="Increase Font Size"
+                onChange={updateFontSize}
+                style={rowDetailOptionStyle}
+              />
             </div>
             <div
-              className="settings-option"
-              style={rowDetailOptionStyle}
-              data-testid="settings-theme-toggle-group"
-              data-setting-search="Theme"
+              className="settings-shared-preview"
+              data-settings-preview="Interface style|Theme|Increase contrast|Font size"
             >
-              <div className="flex items-center justify-between gap-3">
-                <h5 style={controlTitleStyle}>Theme</h5>
-                <ToggleGroup
-                  value={theme}
-                  aria-label="Choose theme"
-                  onChange={(nextTheme) => {
-                    if (!nextTheme) {
-                      return
-                    }
-                    selectTheme(nextTheme)
-                  }}
-                  style={toggleGroupPillStyle}
-                >
-                  {themeOptions.map((option) => (
-                    <ToggleButton
-                      key={option.value}
-                      value={option.value}
-                      aria-label={`Use ${option.value} theme`}
-                      style={{
-                        paddingLeft: 5,
-                        paddingRight: 5,
-                        ...(theme === option.value
-                          ? selectedPillStyle
-                          : unselectedPillStyle),
-                      }}
-                    >
-                      <option.icon fontSize={16} />
-                      <span>{option.label}</span>
-                    </ToggleButton>
-                  ))}
-                </ToggleGroup>
-              </div>
+              <AppearancePreview />
             </div>
-            <SettingsSwitchOption
-              testId="settings-increase-contrast"
-              title="Increase contrast"
-              description="Make toolbars, buttons, controls, and muted details easier to see."
-              checked={increaseContrast}
-              onChange={toggleIncreaseContrast}
-              style={rowDetailOptionStyle}
-            />
-            <DensityControl
-              testId="settings-font-size-control"
-              title="Font size"
-              value={fontSize}
-              min={6}
-              max={36}
-              step={1}
-              defaultValue={14}
-              sliderAriaLabel="Update Font Size"
-              inputAriaLabel="Font Size Value"
-              decrementAriaLabel="Decrease Font Size"
-              incrementAriaLabel="Increase Font Size"
-              onChange={updateFontSize}
-              style={rowDetailOptionStyle}
-            />
-          </div>
+          </SettingsPreviewLayout>
         </SettingsPanel>
         <SettingsPanel
           sectionId="windows-layout"
@@ -776,84 +781,89 @@ export default observer(() => {
           description="Choose window columns, their order, and which windows appear."
           style={panelStyle}
         >
-          <div className="settings-options">
-            <DensityControl
-              testId="settings-tab-width-control"
-              title="Minimum tab width"
-              description="Affects window columns and cards; wider values make titles easier to scan."
-              value={tabWidth}
-              min={15}
-              max={50}
-              step={1}
-              defaultValue={20}
-              sliderAriaLabel="Update Tab Width"
-              inputAriaLabel="Minimum Tab Width Value"
-              decrementAriaLabel="Decrease Minimum Tab Width"
-              incrementAriaLabel="Increase Minimum Tab Width"
-              onChange={updateTabWidth}
-              style={rowDetailOptionStyle}
-            />
-            <SettingsSwitchOption
-              title="Auto-fit columns"
-              description="Avoid horizontal scrolling by fitting columns to the window."
-              checked={autoFitColumns}
-              onChange={toggleAutoFitColumns}
-              style={rowDetailOptionStyle}
-            />
-            <div
-              className="settings-option"
-              style={rowDetailOptionStyle}
-              data-testid="settings-window-order-toggle-group"
-              data-setting-search="Window order"
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="min-w-0">
-                  <h5 style={controlTitleStyle}>Window order</h5>
-                  <p style={controlDescriptionStyle}>
-                    Use the browser’s window order, or put recently used windows
-                    first.
-                  </p>
+          <SettingsPreviewLayout>
+            <div className="settings-options">
+              <DensityControl
+                testId="settings-tab-width-control"
+                title="Minimum tab width"
+                description="Affects window columns and cards; wider values make titles easier to scan."
+                value={tabWidth}
+                min={15}
+                max={50}
+                step={1}
+                defaultValue={20}
+                sliderAriaLabel="Update Tab Width"
+                inputAriaLabel="Minimum Tab Width Value"
+                decrementAriaLabel="Decrease Minimum Tab Width"
+                incrementAriaLabel="Increase Minimum Tab Width"
+                onChange={updateTabWidth}
+                style={rowDetailOptionStyle}
+              />
+              <SettingsSwitchOption
+                title="Auto-fit columns"
+                description="Avoid horizontal scrolling by fitting columns to the window."
+                checked={autoFitColumns}
+                onChange={toggleAutoFitColumns}
+                style={rowDetailOptionStyle}
+              />
+              <div
+                className="settings-option"
+                style={rowDetailOptionStyle}
+                data-testid="settings-window-order-toggle-group"
+                data-setting-search="Window order"
+              >
+                <div className="settings-choice-row">
+                  <div className="min-w-0">
+                    <h5 style={controlTitleStyle}>Window order</h5>
+                    <p style={controlDescriptionStyle}>
+                      Use the browser’s window order, or put recently used
+                      windows first.
+                    </p>
+                  </div>
+                  <ToggleGroup
+                    value={windowOrder}
+                    aria-label="Choose window order"
+                    onChange={(nextWindowOrder) => {
+                      if (!nextWindowOrder) {
+                        return
+                      }
+                      selectWindowOrder(nextWindowOrder as WindowOrder)
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {windowOrderOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Use ${option.label.toLowerCase()} window order`}
+                        style={{
+                          minWidth: 78,
+                          ...(windowOrder === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
                 </div>
-                <ToggleGroup
-                  value={windowOrder}
-                  aria-label="Choose window order"
-                  onChange={(nextWindowOrder) => {
-                    if (!nextWindowOrder) {
-                      return
-                    }
-                    selectWindowOrder(nextWindowOrder as WindowOrder)
-                  }}
-                  style={toggleGroupPillStyle}
-                >
-                  {windowOrderOptions.map((option) => (
-                    <ToggleButton
-                      key={option.value}
-                      value={option.value}
-                      aria-label={`Use ${option.label.toLowerCase()} window order`}
-                      style={{
-                        minWidth: 78,
-                        ...(windowOrder === option.value
-                          ? selectedPillStyle
-                          : unselectedPillStyle),
-                      }}
-                    >
-                      {option.label}
-                    </ToggleButton>
-                  ))}
-                </ToggleGroup>
               </div>
+              <SettingsSwitchOption
+                title="Show app windows in list"
+                description="Include standalone app windows in the main list."
+                checked={showAppWindow}
+                onChange={toggleShowAppWindow}
+                style={rowDetailOptionStyle}
+              />
             </div>
-            <SettingsSwitchOption
-              title="Show app windows in list"
-              description="Include standalone app windows in the main list."
-              checked={showAppWindow}
-              onChange={toggleShowAppWindow}
-              style={rowDetailOptionStyle}
-            />
-            <div data-settings-preview="Minimum tab width|Auto-fit columns|Window order|Show app windows in list">
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Minimum tab width|Auto-fit columns|Window order|Show app windows in list"
+            >
               <WindowLayoutExample />
             </div>
-          </div>
+          </SettingsPreviewLayout>
         </SettingsPanel>
         <SettingsPanel
           testId="settings-panel-tab-display"
@@ -1011,80 +1021,84 @@ export default observer(() => {
           description="Configure the browser popup and application controls."
           style={panelStyle}
         >
-          <div className="settings-options">
-            <h3 className="settings-subheading">Toolbar</h3>
-            <SettingsSwitchOption
-              preview={<ToolbarExample />}
-              title="Keep toolbar visible"
-              description="Always show the bottom-right toolbar."
-              checked={!toolbarAutoHide}
-              onChange={toggleAutoHide}
-              style={rowDetailOptionStyle}
-              containerAriaLabel="Toggle Always Show Toolbar"
-            />
-            <h3 className="settings-subheading">Browser popup</h3>
-            <SettingsSwitchOption
-              title="Use lite popup mode"
-              description="Use a compact layout the next time you open the browser popup."
-              checked={litePopupMode}
-              onChange={toggleLitePopupMode}
-              style={rowDetailOptionStyle}
-              testId="settings-lite-popup-mode"
-            />
-            <div
-              className="settings-option"
-              style={rowDetailOptionStyle}
-              data-testid="settings-action-tab-count-toggle-group"
-              data-setting-search="Extension icon count"
-            >
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="min-w-0">
-                  <h5 style={controlTitleStyle}>Extension icon count</h5>
-                  <p style={controlDescriptionStyle}>
-                    Show a tab count on the browser extension icon.
-                  </p>
+          <SettingsPreviewLayout>
+            <div className="settings-options">
+              <h3 className="settings-subheading">Toolbar</h3>
+              <SettingsSwitchOption
+                title="Keep toolbar visible"
+                description="Always show the bottom-right toolbar."
+                checked={!toolbarAutoHide}
+                onChange={toggleAutoHide}
+                style={rowDetailOptionStyle}
+                containerAriaLabel="Toggle Always Show Toolbar"
+              />
+              <h3 className="settings-subheading">Browser popup</h3>
+              <SettingsSwitchOption
+                title="Use lite popup mode"
+                description="Show search results instead of the window overview the next time you open the browser popup."
+                checked={litePopupMode}
+                onChange={toggleLitePopupMode}
+                style={rowDetailOptionStyle}
+                testId="settings-lite-popup-mode"
+              />
+              <div
+                className="settings-option"
+                style={rowDetailOptionStyle}
+                data-testid="settings-action-tab-count-toggle-group"
+                data-setting-search="Extension icon count"
+              >
+                <div className="settings-choice-row">
+                  <div className="min-w-0">
+                    <h5 style={controlTitleStyle}>Extension icon count</h5>
+                    <p style={controlDescriptionStyle}>
+                      Show a tab count on the browser extension icon.
+                    </p>
+                  </div>
+                  <ToggleGroup
+                    value={actionTabCountMode}
+                    aria-label="Choose extension icon tab count mode"
+                    onChange={(nextMode) => {
+                      if (!nextMode) {
+                        return
+                      }
+                      selectActionTabCountMode(nextMode as ActionTabCountMode)
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {actionTabCountOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
+                        style={{
+                          minWidth: 54,
+                          ...(actionTabCountMode === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
                 </div>
-                <ToggleGroup
-                  value={actionTabCountMode}
-                  aria-label="Choose extension icon tab count mode"
-                  onChange={(nextMode) => {
-                    if (!nextMode) {
-                      return
-                    }
-                    selectActionTabCountMode(nextMode as ActionTabCountMode)
-                  }}
-                  style={toggleGroupPillStyle}
-                >
-                  {actionTabCountOptions.map((option) => (
-                    <ToggleButton
-                      key={option.value}
-                      value={option.value}
-                      aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
-                      style={{
-                        minWidth: 54,
-                        ...(actionTabCountMode === option.value
-                          ? selectedPillStyle
-                          : unselectedPillStyle),
-                      }}
-                    >
-                      {option.label}
-                    </ToggleButton>
-                  ))}
-                </ToggleGroup>
               </div>
+              <h3 className="settings-subheading">Keyboard feedback</h3>
+              <SettingsSwitchOption
+                title="Show shortcut hints"
+                description="Show the shortcut and its action when a shortcut is pressed."
+                checked={showShortcutHint}
+                onChange={toggleShowShortcutHint}
+                style={rowDetailOptionStyle}
+              />
             </div>
-            <div data-settings-preview="Extension icon count">
-              <ExtensionIconExample />
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Keep toolbar visible|Use lite popup mode|Extension icon count|Show shortcut hints"
+            >
+              <SettingsPopupPreview />
             </div>
-            <h3 className="settings-subheading">Keyboard feedback</h3>
-            <SettingsSwitchOption
-              title="Show shortcut hints"
-              description="Show the shortcut and its action when a shortcut is pressed."
-              checked={showShortcutHint}
-              onChange={toggleShowShortcutHint}
-              style={rowDetailOptionStyle}
-            />
-          </div>
+          </SettingsPreviewLayout>
         </SettingsPanel>
       </SettingsNavigation>
       <div
