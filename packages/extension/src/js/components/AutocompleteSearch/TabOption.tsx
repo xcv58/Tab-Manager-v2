@@ -11,6 +11,8 @@ import ContainerOrGroupIndicator from 'components/Tab/ContainerOrGroupIndicator'
 import DuplicateMarker from 'components/Tab/DuplicateMarker'
 import Icon from 'components/Tab/Icon'
 import PIN from 'components/Tab/Pin'
+import TabMenu from 'components/Tab/TabMenu'
+import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import TabTools from 'components/Tab/TabTools'
 import { useStore } from 'components/hooks/useStore'
 import { TOOLTIP_DELAY } from 'libs'
@@ -36,7 +38,7 @@ export default observer(function TabOption(props: Props) {
     matchMode = 'fuzzy',
     onReveal,
   } = props
-  const { searchStore, tabGroupStore, userStore } = useStore()
+  const { searchStore, tabGroupStore, userStore, actionStore } = useStore()
   const { query } = searchStore
   const theme = useAppTheme()
   const uiColors = getUiColorTokens(
@@ -158,7 +160,13 @@ export default observer(function TabOption(props: Props) {
   )
 
   return (
-    <div tabIndex={-1} className="relative flex w-full">
+    <div
+      tabIndex={-1}
+      className="relative flex w-full"
+      data-testid={`search-tab-row-${tab.id}`}
+      {...contextMenuHandlers(actionStore, `search-tab-${tab.id}`, tab)}
+    >
+      <TabMenu tab={tab} menuKey={`search-tab-${tab.id}`} hideTrigger />
       {pin}
       <Icon tab={tab} faked />
       {tooltip ? (

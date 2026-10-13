@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useActionMenu } from './hooks/useActionMenu'
+import { getCommandPaletteShortcutLabel } from 'libs/commandPaletteShortcut'
 import { observer } from 'mobx-react-lite'
 import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
 import { MoreHorizIcon } from 'icons/materialIcons'
@@ -7,11 +9,12 @@ import { getNoun, openInNewTab, openOrTogglePopup } from 'libs'
 import { useStore } from './hooks/useStore'
 
 export default observer(() => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const { arrangeStore, shortcutStore, userStore, windowStore } = useStore()
+  const menu = useActionMenu('popup-actions')
+  const { arrangeStore, shortcutStore, userStore, windowStore, actionStore } =
+    useStore()
 
   const closeMenu = () => {
-    setAnchorEl(null)
+    menu.onClose()
   }
 
   const runAction = (action: () => void | Promise<void>) => () => {
@@ -25,12 +28,14 @@ export default observer(() => {
   return (
     <>
       <ControlIconButton
-        onClick={(event) => setAnchorEl(event.currentTarget)}
+        onClick={menu.onOpen}
+        aria-haspopup="menu"
+        aria-expanded={menu.open}
         aria-label="More actions"
       >
         <MoreHorizIcon fontSize={20} />
       </ControlIconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+      <Menu {...menu} onClose={closeMenu}>
         <MenuItem onClick={runAction(openOrTogglePopup)}>
           Open full feature mode
         </MenuItem>
@@ -51,6 +56,12 @@ export default observer(() => {
             : 'Clean duplicated tabs'}
         </MenuItem>
         <MenuDivider />
+        <MenuItem onClick={runAction(() => actionStore.openPalette())}>
+          <span className="flex-1">Command palette</span>
+          <kbd className="ml-4 text-xs opacity-70">
+            {getCommandPaletteShortcutLabel()}
+          </kbd>
+        </MenuItem>
         <MenuItem onClick={runAction(() => shortcutStore.openDialog())}>
           Keyboard shortcuts
         </MenuItem>

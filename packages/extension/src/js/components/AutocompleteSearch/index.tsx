@@ -311,6 +311,51 @@ export const getAutocompleteListHeight = ({
   return Math.max(minimumHeight, cappedHeight)
 }
 
+// Keep the virtual row component stable when its highlight or overlay changes.
+// Remounting it would destroy an open search-result context menu.
+const SearchResultRow = ({
+  index,
+  style,
+  data,
+}: {
+  index: number
+  style: React.CSSProperties
+  data: any
+}) => {
+  const option = data.options[index]
+  const itemProps = data.getItemProps({ index, item: option })
+  const isHighlighted = data.highlightedIndex === index
+
+  return (
+    <li
+      {...itemProps}
+      style={{
+        ...style,
+        top: Number(style.top) + LISTBOX_PADDING,
+        margin: 0,
+        padding: 0,
+        listStyle: 'none',
+        cursor: option.isDivider ? 'default' : 'pointer',
+        backgroundColor: isHighlighted
+          ? 'var(--dropdown-hover-bg, rgba(0,0,0,0.08))'
+          : 'transparent',
+        opacity: option.isDivider ? 1 : undefined,
+      }}
+    >
+      {data.isCommand
+        ? renderCommand(option, { inputValue: data.query })
+        : renderTabOption(
+            option,
+            data.theme,
+            data.groupedSectionTabIds,
+            data.searchMatchMode,
+            data.query,
+            data.onReveal,
+          )}
+    </li>
+  )
+}
+
 const AutocompleteSearch = observer((props: Props) => {
   const {
     autoFocus,
@@ -320,7 +365,8 @@ const AutocompleteSearch = observer((props: Props) => {
   } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const { userStore, searchStore, tabGroupStore, focusStore } = useStore()
+  const { userStore, searchStore, tabGroupStore, focusStore, actionStore } =
+    useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
   const resultMenuEnabled = showResultMenu || isCommand
   const options = useOptions(resultMenuEnabled)
@@ -337,14 +383,21 @@ const AutocompleteSearch = observer((props: Props) => {
     Number.POSITIVE_INFINITY,
   )
   const requestedOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
-  const isOpen = resultMenuEnabled && !dismissed && (requestedOpen || isCommand)
+  const isOpen =
+    !actionStore.paletteOpen &&
+    resultMenuEnabled &&
+    !dismissed &&
+    (requestedOpen || isCommand)
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
+      // The portal menu receives focus while its search result remains mounted.
+      // Closing that result list would also unmount the menu being used.
+      if (!nextOpen && actionStore.menu?.key.startsWith('search-tab-')) return
       if (!isOpenControlled && (!nextOpen || resultMenuEnabled)) {
         setUncontrolledIsOpen(nextOpen)
       }
     },
-    [isOpenControlled, resultMenuEnabled],
+    [actionStore, isOpenControlled, resultMenuEnabled],
   )
 
   const groupedSectionTabIdsRef = useRef(new Set())
@@ -420,6 +473,10 @@ const AutocompleteSearch = observer((props: Props) => {
     items: filteredOptions,
     inputValue: query,
     onInputValueChange: (value) => {
+      if (value.startsWith('>')) {
+        actionStore.openPalette(value.slice(1).trimStart())
+        return
+      }
       setDismissed(false)
       search(value)
     },
@@ -458,42 +515,6 @@ const AutocompleteSearch = observer((props: Props) => {
       window.removeEventListener('resize', updateAvailableHeight)
     }
   }, [bottomInset, isOpen, itemCount, query])
-
-  // Inner row renderer for the virtualized list
-  const Row = ({ index, style }: any) => {
-    const option = filteredOptions[index]
-    const itemProps = getItemProps({ index, item: option })
-    const isHighlighted = highlightedIndex === index
-
-    return (
-      <li
-        {...itemProps}
-        style={{
-          ...style,
-          top: Number(style.top) + LISTBOX_PADDING,
-          margin: 0,
-          padding: 0,
-          listStyle: 'none',
-          cursor: option.isDivider ? 'default' : 'pointer',
-          backgroundColor: isHighlighted
-            ? 'var(--dropdown-hover-bg, rgba(0,0,0,0.08))'
-            : 'transparent',
-          opacity: option.isDivider ? 1 : undefined,
-        }}
-      >
-        {isCommand
-          ? renderCommand(option, { inputValue: query })
-          : renderTabOption(
-              option,
-              theme,
-              groupedSectionTabIdsRef.current,
-              searchMatchModeRef.current,
-              query,
-              handleReveal,
-            )}
-      </li>
-    )
-  }
 
   const listHeight = getAutocompleteListHeight({
     itemCount,
@@ -659,7 +680,17 @@ const AutocompleteSearch = observer((props: Props) => {
           ) : (
             <VariableSizeList
               ref={listRef}
-              itemData={filteredOptions}
+              itemData={{
+                options: filteredOptions,
+                highlightedIndex,
+                getItemProps,
+                isCommand,
+                query,
+                theme,
+                groupedSectionTabIds: groupedSectionTabIdsRef.current,
+                searchMatchMode: searchMatchModeRef.current,
+                onReveal: handleReveal,
+              }}
               height={listHeight}
               width="100%"
               innerElementType="ul"
@@ -667,7 +698,7 @@ const AutocompleteSearch = observer((props: Props) => {
               overscanCount={5}
               itemCount={itemCount}
             >
-              {Row}
+              {SearchResultRow}
             </VariableSizeList>
           )}
         </div>

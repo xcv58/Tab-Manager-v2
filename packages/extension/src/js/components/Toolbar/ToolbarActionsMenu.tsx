@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
+import { useActionMenu } from 'components/hooks/useActionMenu'
+import { getCommandPaletteShortcutLabel } from 'libs/commandPaletteShortcut'
 import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
 import Menu, { MenuDivider, MenuItem, MenuSection } from 'components/ui/Menu'
@@ -20,7 +22,8 @@ export default observer(function ToolbarActionsMenu({
   showLabel: boolean
   onOpenChange: (open: boolean) => void
 }) {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const menu = useActionMenu('toolbar')
+  useEffect(() => onOpenChange(menu.open), [menu.open, onOpenChange])
   const {
     tabStore,
     searchStore,
@@ -28,12 +31,13 @@ export default observer(function ToolbarActionsMenu({
     windowStore,
     userStore,
     shortcutStore,
+    actionStore,
   } = useStore()
   const theme = useAppTheme()
   const matchCount = searchStore.matchedTabs.length
   const duplicateCount = windowStore.getDuplicateTabsToRemoveCount()
   const closeMenu = () => {
-    setAnchorEl(null)
+    menu.onClose()
     onOpenChange(false)
   }
   const run = (action: () => void | Promise<void>) => () => {
@@ -50,9 +54,9 @@ export default observer(function ToolbarActionsMenu({
       <IconButton
         aria-label="More toolbar actions"
         aria-haspopup="menu"
-        aria-expanded={Boolean(anchorEl)}
+        aria-expanded={menu.open}
         onClick={(event) => {
-          setAnchorEl(event.currentTarget)
+          menu.onOpen(event)
           onOpenChange(true)
         }}
         style={{
@@ -66,7 +70,7 @@ export default observer(function ToolbarActionsMenu({
         <MoreHorizIcon fontSize={20} />
         {showLabel && <span className="toolbar-action-label">More</span>}
       </IconButton>
-      <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={closeMenu}>
+      <Menu {...menu} onClose={closeMenu}>
         <MenuSection>Selection</MenuSection>
         <MenuItem
           disabled={!matchCount}
@@ -110,6 +114,13 @@ export default observer(function ToolbarActionsMenu({
         </MenuItem>
         <MenuDivider />
         <MenuSection>Application</MenuSection>
+        <MenuItem onClick={run(() => actionStore.openPalette())}>
+          {iconSpace}
+          <span className="flex-1">Command palette</span>
+          <kbd className="ml-4 text-xs opacity-70">
+            {getCommandPaletteShortcutLabel()}
+          </kbd>
+        </MenuItem>
         <MenuItem onClick={run(() => userStore.openDialog())}>
           <SettingsSharpIcon fontSize={18} /> Settings
         </MenuItem>

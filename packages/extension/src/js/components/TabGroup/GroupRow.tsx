@@ -3,6 +3,10 @@ import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
+import {
+  contextMenuHandlers,
+  useActionMenu,
+} from 'components/hooks/useActionMenu'
 import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
 import {
   MoreVertIcon,
@@ -44,6 +48,7 @@ export default observer((props: Props) => {
     dragStore,
     focusStore,
     userStore,
+    actionStore,
   } = useStore()
   const theme = useAppTheme()
   const uiColors = getUiColorTokens(
@@ -53,7 +58,6 @@ export default observer((props: Props) => {
   )
   const isDarkMode = theme.mode === 'dark'
   const isClassicUi = userStore.uiPreset === 'classic'
-  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null)
   const [editorAnchorEl, setEditorAnchorEl] = useState<HTMLElement | null>(null)
   const [isHeaderHovered, setIsHeaderHovered] = useState(false)
   const [isHeaderFocusWithin, setIsHeaderFocusWithin] = useState(false)
@@ -61,6 +65,9 @@ export default observer((props: Props) => {
   const [isToggleFocused, setIsToggleFocused] = useState(false)
   const tabGroup = tabGroupStore.getTabGroup(row.groupId)
   const groupRow = win.getGroupRow(row.groupId)
+  const menu = useActionMenu(`group-${row.groupId}`, groupRow)
+  const menuAnchorEl = menu.anchorEl
+  const closeMenu = menu.onClose
   const canMutateGroups = !!tabGroupStore?.canMutateGroups?.()
   const headerRef = useRef<HTMLDivElement | null>(null)
   const nodeRef = useRef<HTMLDivElement | null>(null)
@@ -254,6 +261,7 @@ export default observer((props: Props) => {
         className={classNames('group/tab-group sticky relative border-b', {
           'z-20': isFocused,
         })}
+        {...contextMenuHandlers(actionStore, `group-${row.groupId}`, groupRow)}
         onMouseEnter={() => setIsHeaderHovered(true)}
         onMouseLeave={() => setIsHeaderHovered(false)}
         onFocusCapture={() => {
@@ -351,7 +359,9 @@ export default observer((props: Props) => {
           <RowActionRail>
             <RowActionSlot visible={showGroupControls}>
               <ControlIconButton
-                onClick={(event) => setMenuAnchorEl(event.currentTarget)}
+                onClick={menu.onOpen}
+                aria-haspopup="menu"
+                aria-expanded={menu.open}
                 controlSize="compact"
                 aria-label="Group actions"
                 data-testid={`tab-group-menu-${row.groupId}`}
@@ -392,9 +402,8 @@ export default observer((props: Props) => {
         )}
       </div>
       <Menu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={() => setMenuAnchorEl(null)}
+        {...menu}
+        data-testid={`group-actions-menu-${row.groupId}`}
         style={{ zIndex: theme.zIndex.tooltip + 1 }}
       >
         {canMutateGroups && (
@@ -402,7 +411,7 @@ export default observer((props: Props) => {
             <MenuItem
               data-testid={`tab-group-menu-toggle-${row.groupId}`}
               onClick={() => {
-                setMenuAnchorEl(null)
+                closeMenu()
                 onToggle()
               }}
             >
@@ -412,7 +421,7 @@ export default observer((props: Props) => {
               data-testid={`tab-group-menu-rename-${row.groupId}`}
               onClick={() => {
                 setEditorAnchorEl(menuAnchorEl)
-                setMenuAnchorEl(null)
+                closeMenu()
               }}
             >
               Edit group…
@@ -427,7 +436,7 @@ export default observer((props: Props) => {
                 <MenuItem
                   data-testid={`tab-group-menu-clean-duplicates-${row.groupId}`}
                   onClick={() => {
-                    setMenuAnchorEl(null)
+                    closeMenu()
                     onCleanDuplicatesInGroup()
                   }}
                 >
@@ -440,7 +449,7 @@ export default observer((props: Props) => {
             <MenuItem
               data-testid={`tab-group-menu-ungroup-${row.groupId}`}
               onClick={() => {
-                setMenuAnchorEl(null)
+                closeMenu()
                 onUngroup()
               }}
             >

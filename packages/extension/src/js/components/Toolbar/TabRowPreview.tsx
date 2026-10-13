@@ -3,6 +3,7 @@ import { makeAutoObservable } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { StoreContext } from 'components/hooks/useStore'
 import TabRow from 'components/Tab/Tab'
+import ActionStore from 'stores/ActionStore'
 import settingsPreviewIcon from 'img/chrome/settings.png'
 import type { UiPreset } from 'stores/UserStore'
 import {
@@ -197,6 +198,8 @@ class PreviewTabModel {
 
   remove() {}
 
+  reload() {}
+
   closeOtherTabs() {}
 
   togglePin() {}
@@ -254,6 +257,13 @@ class PreviewStore {
 
   focusStore: PreviewFocusStore
 
+  actionStore: ActionStore
+
+  shortcutStore = { dialogOpen: false, showMoveHint: () => {} }
+
+  // Preview actions remain isolated from real browser tabs.
+  windowStore = { createNewWindow: () => {} }
+
   dragStore = {
     dragging: false,
     pendingWindowEdgeDrop: false,
@@ -281,6 +291,7 @@ class PreviewStore {
     this.userStore = new PreviewUserStore(config)
     this.hoverStore = new PreviewHoverStore(this.userStore)
     this.focusStore = new PreviewFocusStore()
+    this.actionStore = new ActionStore(this as never)
     this.tab = new PreviewTabModel(this, config)
   }
 }

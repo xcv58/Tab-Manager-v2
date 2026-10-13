@@ -7,6 +7,7 @@ import TabStore from 'stores/TabStore'
 import ArrangeStore from 'stores/ArrangeStore'
 import DragStore from 'stores/DragStore'
 import ShortcutStore from 'stores/ShortcutStore'
+import ActionStore from 'stores/ActionStore'
 import UserStore from 'stores/UserStore'
 import HoverStore from 'stores/HoverStore'
 import HiddenWindowStore from 'stores/HiddenWindowStore'
@@ -27,6 +28,8 @@ export default class Store {
   arrangeStore: ArrangeStore
 
   dragStore: DragStore
+
+  actionStore: ActionStore
 
   shortcutStore: ShortcutStore
 
@@ -51,6 +54,7 @@ export default class Store {
     this.tabStore = new TabStore(this)
     this.arrangeStore = new ArrangeStore(this)
     this.dragStore = new DragStore(this)
+    this.actionStore = new ActionStore(this)
     this.shortcutStore = new ShortcutStore(this)
     this.userStore = new UserStore(this)
     this.hoverStore = new HoverStore(this)

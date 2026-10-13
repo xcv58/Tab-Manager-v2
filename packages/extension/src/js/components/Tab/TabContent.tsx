@@ -27,7 +27,7 @@ const TabContent = observer(
     },
   ) => {
     const { faked, buttonClassName, buttonStyle, content, onAuxClick } = props
-    const { hoverStore, dragStore, shortcutStore } = useStore()
+    const { hoverStore, dragStore, shortcutStore, actionStore } = useStore()
     const {
       activate,
       title,
@@ -56,6 +56,7 @@ const TabContent = observer(
       dragging ||
       userStore.dialogOpen ||
       shortcutStore?.dialogOpen ||
+      (isHovered && (actionStore?.paletteOpen || Boolean(actionStore?.menu))) ||
       !userStore.showTabTooltip
     const open = !(faked || blocked || !isHovered || !hovered)
     useEffect(() => {

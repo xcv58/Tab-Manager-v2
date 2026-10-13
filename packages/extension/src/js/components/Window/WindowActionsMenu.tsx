@@ -1,11 +1,19 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react-lite'
 import ControlIconButton from 'components/ControlIconButton'
 import Menu, { MenuDivider, MenuItem, MenuSection } from 'components/ui/Menu'
+import { useActionMenu } from 'components/hooks/useActionMenu'
 import Tooltip from 'components/ui/Tooltip'
 import { useStore } from 'components/hooks/useStore'
 import { WinProps } from 'components/types'
-import { MoreHorizIcon, RefreshIcon, SortIcon } from 'icons/materialIcons'
+import {
+  MoreHorizIcon,
+  RefreshIcon,
+  SortIcon,
+  CloseIcon,
+  ExpandMoreIcon,
+  ChevronRightIcon,
+} from 'icons/materialIcons'
 import { ArrowDownIcon, ArrowUpIcon } from 'icons/actionIcons'
 import { getNoun } from 'libs'
 import type { WindowEdge } from 'stores/DragStore'
@@ -14,8 +22,8 @@ import { getTabMoveAriaShortcut } from 'libs/tabMoveShortcuts'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 
 export default observer(({ win }: WinProps) => {
-  const { arrangeStore, dragStore, tabStore, focusStore } = useStore()
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const { arrangeStore, dragStore, tabStore } = useStore()
+  const menu = useActionMenu(`window-${win.id}`, win)
   const selectedCount = tabStore.selection.size
   const moveScope = selectedCount
     ? `${selectedCount} selected ${getNoun('tab', selectedCount)}`
@@ -24,7 +32,7 @@ export default observer(({ win }: WinProps) => {
     dragStore.pendingWindowEdgeDrop ||
     !tabStore.selection.size ||
     Boolean(getTabMoveDestinationHint(win, tabStore.selection.values()))
-  const closeMenu = () => setAnchorEl(null)
+  const closeMenu = menu.onClose
   const moveToEdge = (position: WindowEdge) => {
     closeMenu()
     dragStore.moveSelectedTabsToWindowEdge(win.id, position)
@@ -46,26 +54,14 @@ export default observer(({ win }: WinProps) => {
             controlSize="compact"
             aria-label="Window actions"
             aria-haspopup="menu"
-            aria-expanded={Boolean(anchorEl)}
-            onClick={(event) => {
-              focusStore.focus(win, {
-                origin: 'mouse',
-                reveal: false,
-                moveDomFocus: false,
-              })
-              setAnchorEl(event.currentTarget)
-            }}
+            aria-expanded={menu.open}
+            onClick={menu.onOpen}
           >
             <MoreHorizIcon fontSize={16} />
           </ControlIconButton>
         </span>
       </Tooltip>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={closeMenu}
-        data-testid={`window-actions-menu-${win.id}`}
-      >
+      <Menu {...menu} data-testid={`window-actions-menu-${win.id}`}>
         <MenuSection>
           This window{win.tabs ? ` · ${win.tabs.length} tabs` : ''}
         </MenuSection>
@@ -75,6 +71,19 @@ export default observer(({ win }: WinProps) => {
         <MenuItem disabled={win.hide} onClick={reloadTabs}>
           <RefreshIcon fontSize={18} /> Reload all{' '}
           {win.tabs ? `${win.tabs.length} ` : ''}tabs
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            closeMenu()
+            win.toggleHide()
+          }}
+        >
+          {win.hide ? (
+            <ChevronRightIcon fontSize={18} />
+          ) : (
+            <ExpandMoreIcon fontSize={18} />
+          )}{' '}
+          {win.hide ? 'Expand' : 'Collapse'} this window
         </MenuItem>
         <MenuDivider />
         <MenuSection>Move {moveScope} here</MenuSection>
@@ -97,6 +106,15 @@ export default observer(({ win }: WinProps) => {
           <ArrowDownIcon fontSize={18} />
           <span className="flex-1">End</span>
           <MoveShortcut position="end" />
+        </MenuItem>
+        <MenuDivider />
+        <MenuItem
+          onClick={() => {
+            closeMenu()
+            win.close()
+          }}
+        >
+          <CloseIcon fontSize={18} /> Close this window
         </MenuItem>
       </Menu>
     </>

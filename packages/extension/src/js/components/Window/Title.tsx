@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
+import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import SelectAll from 'components/Window/SelectAll'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
@@ -21,7 +22,7 @@ type Props = WinProps & { className: string; dropOverlay?: boolean }
 export default observer((props: Props) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
-  const { focusStore, userStore } = useStore()
+  const { focusStore, userStore, actionStore } = useStore()
   const theme = useAppTheme()
   const isDarkTheme = useTheme()
   const uiColors = getUiColorTokens(
@@ -139,6 +140,12 @@ export default observer((props: Props) => {
       tabIndex={-1}
       ref={nodeRef}
       onFocusCapture={onHeaderFocus}
+      {...contextMenuHandlers(
+        actionStore,
+        `window-${win.id}`,
+        win,
+        dropOverlay,
+      )}
       data-testid={`window-title-${win.id}`}
       className={classNames(
         'flex min-h-10 items-center justify-between font-bold border-0 border-b',

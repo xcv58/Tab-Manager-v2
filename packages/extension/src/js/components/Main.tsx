@@ -14,12 +14,15 @@ import PopupView from './PopupView'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import DeferredContent from './DeferredContent'
 
+const CommandPalette = lazy(() => import('./CommandPalette'))
+
 const SettingsDialog = lazy(() => import('./Toolbar/SettingsDialog'))
 
 export default observer(() => {
   const isPopup = !new URLSearchParams(window.location.search).has(NOT_POPUP)
   const theme = useAppTheme()
-  const { windowStore, shortcutStore, tabGroupStore, userStore } = useStore()
+  const { windowStore, shortcutStore, tabGroupStore, userStore, actionStore } =
+    useStore()
   const { toolbarAutoHide, litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   // The preference applies only to the full-page view; popup results stay on.
@@ -67,6 +70,9 @@ export default observer(() => {
         </>
       )}
       <Shortcut />
+      <DeferredContent open={actionStore.paletteOpen}>
+        <CommandPalette />
+      </DeferredContent>
       <DeferredContent open={userStore.dialogOpen}>
         <SettingsDialog />
       </DeferredContent>

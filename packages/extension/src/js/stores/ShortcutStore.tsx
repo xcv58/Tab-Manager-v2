@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 import Mousetrap from 'mousetrap'
+import { getCommandPaletteShortcut } from 'libs/commandPaletteShortcut'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
@@ -67,6 +68,8 @@ export default class ShortcutStore {
 
   inputShortcutSet = new Set([
     'escape',
+    getCommandPaletteShortcut(),
+    'command+shift+p',
     'ctrl+enter',
     'ctrl+h',
     'ctrl+l',
@@ -186,10 +189,10 @@ export default class ShortcutStore {
       true,
     ],
     [
-      ['>', 'command+shift+p'],
+      ['>', 'command+shift+p', getCommandPaletteShortcut()],
       (event: Event) => {
         preventDefault(event)
-        this.store.searchStore.startCommandSearch()
+        this.store.actionStore.openPalette()
       },
       'Command Palette',
       true,
@@ -538,6 +541,9 @@ export default class ShortcutStore {
     combo: string,
     sequence?: string,
   ) => {
+    if (this.store.actionStore?.paletteOpen) {
+      return true
+    }
     if (this.dialogOpen) {
       return combo !== 'escape'
     }

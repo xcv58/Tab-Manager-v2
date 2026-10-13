@@ -16,6 +16,8 @@ import { clampOverlayPosition } from './overlayPosition'
 export interface MenuProps {
   open: boolean
   anchorEl: HTMLElement | null
+  anchorPosition?: { top: number; left: number }
+  restoreFocus?: boolean | (() => boolean)
   onClose: () => void
   children: React.ReactNode
   style?: React.CSSProperties
@@ -25,6 +27,8 @@ export interface MenuProps {
 export default function Menu({
   open,
   anchorEl,
+  anchorPosition,
+  restoreFocus = true,
   onClose,
   children,
   style,
@@ -32,6 +36,7 @@ export default function Menu({
 }: MenuProps) {
   const theme = useAppTheme()
   const menuRef = useRef<HTMLDivElement>(null)
+  const wasOpenRef = useRef(false)
   const lastAnchorRef = useRef<HTMLElement | null>(null)
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const updatePosition = useCallback(() => {
@@ -45,14 +50,14 @@ export default function Menu({
 
     setPosition(
       clampOverlayPosition({
-        top: anchorRect.bottom,
-        left: anchorRect.left,
+        top: anchorPosition?.top ?? anchorRect.bottom,
+        left: anchorPosition?.left ?? anchorRect.left,
         width: menuRect.width,
         height: menuRect.height,
         margin: 16,
       }),
     )
-  }, [anchorEl, open])
+  }, [anchorEl, anchorPosition, open])
 
   useLayoutEffect(() => {
     updatePosition()
@@ -60,10 +65,18 @@ export default function Menu({
 
   useEffect(() => {
     if (!open) {
-      lastAnchorRef.current?.focus()
+      if (
+        wasOpenRef.current &&
+        (typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus) &&
+        lastAnchorRef.current?.isConnected
+      ) {
+        lastAnchorRef.current.focus({ preventScroll: true })
+      }
+      wasOpenRef.current = false
       return
     }
 
+    wasOpenRef.current = true
     const enabledItems = Array.from(
       menuRef.current?.querySelectorAll<HTMLButtonElement>(
         '[role="menuitem"]:not(:disabled)',
@@ -71,7 +84,7 @@ export default function Menu({
     )
     const focusTarget = enabledItems[0] ?? menuRef.current
     focusTarget?.focus()
-  }, [open])
+  }, [open, restoreFocus])
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
@@ -105,7 +118,8 @@ export default function Menu({
 
       if (e.key === 'Escape') {
         e.preventDefault()
-        onClose()
+        e.stopPropagation()
+        // Close on keyup so Mousetrap cannot also clear the tab search.
         return
       }
 
@@ -184,7 +198,15 @@ export default function Menu({
       role="menu"
       tabIndex={-1}
       data-testid={testId}
+      onClick={(event) => event.stopPropagation()}
       onKeyDown={handleKeyDown}
+      onKeyUp={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          event.stopPropagation()
+          onClose()
+        }
+      }}
       style={{
         position: 'fixed',
         top: position.top,
