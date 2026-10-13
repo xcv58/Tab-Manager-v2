@@ -258,3 +258,82 @@ describe('ShortcutStore selected-tab moves', () => {
     expect(mocks.showMoveHint).not.toHaveBeenCalled()
   })
 })
+
+describe('ShortcutStore help actions', () => {
+  const makeStore = (command: {
+    id: string
+    label: string
+    run: () => void
+    disabledReason?: string
+  }) => {
+    const tab = { title: 'Focused sample tab' }
+    const store = {
+      actionStore: { commands: [command], busy: false },
+      tabStore: { selection: new Map() },
+      focusStore: {
+        focusedItem: tab,
+        focusedTab: tab,
+        focusedWindow: null,
+        select: jest.fn(),
+        enter: jest.fn(),
+      },
+      searchStore: { matchedTabs: [tab] },
+      windowStore: { windows: [] },
+      tabGroupStore: { getTabGroup: () => null, canMutateGroups: () => false },
+      dragStore: { dragging: false, pendingWindowEdgeDrop: false },
+      userStore: { showTabTooltip: true },
+      _getFocusedOrSelectedTab: () => [tab],
+    }
+    return { store, shortcuts: new ShortcutStore(store as any) }
+  }
+
+  it('shares a palette command callback and unavailable reason', () => {
+    const run = jest.fn()
+    const { shortcuts } = makeStore({
+      id: 'sort-all',
+      label: 'Sort tabs across windows',
+      disabledReason: 'No tabs to sort',
+      run,
+    })
+    const action = shortcuts.getHelpAction('ctrl+s')
+    expect(action?.run).toBe(run)
+    expect(action?.disabledReason).toBe('No tabs to sort')
+  })
+
+  it('does not close Help or execute unavailable actions', async () => {
+    const run = jest.fn()
+    const { shortcuts } = makeStore({
+      id: 'sort-all',
+      label: 'Sort tabs',
+      disabledReason: 'No tabs to sort',
+      run,
+    })
+    shortcuts.dialogOpen = true
+    await shortcuts.runHelpAction('ctrl+s')
+    expect(shortcuts.dialogOpen).toBe(true)
+    expect(run).not.toHaveBeenCalled()
+  })
+
+  it('runs Space selection despite focus on a Help button', async () => {
+    const { store, shortcuts } = makeStore({
+      id: 'sort-all',
+      label: 'Sort tabs',
+      run: jest.fn(),
+    })
+    const button = document.createElement('button')
+    document.body.appendChild(button)
+    button.focus()
+    shortcuts.dialogOpen = true
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        callback(0)
+        return 0
+      })
+    await shortcuts.runHelpAction(['space'])
+    expect(shortcuts.dialogOpen).toBe(false)
+    expect(store.focusStore.select).toHaveBeenCalledTimes(1)
+    button.remove()
+    jest.restoreAllMocks()
+  })
+})

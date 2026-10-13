@@ -23,7 +23,7 @@ export default observer(() => {
   const theme = useAppTheme()
   const { windowStore, shortcutStore, tabGroupStore, userStore, actionStore } =
     useStore()
-  const { toolbarAutoHide, litePopupMode } = userStore
+  const { litePopupMode } = userStore
   const liteMode = isPopup && litePopupMode
   // The preference applies only to the full-page view; popup results stay on.
   const showSearchResultMenu = isPopup || userStore.showSearchResultMenu
@@ -50,11 +50,11 @@ export default observer(() => {
     <main
       className={classNames(
         'flex flex-col h-screen overflow-hidden',
-        { 'pb-12': !toolbarAutoHide },
         useTextClasses(),
       )}
       data-increase-contrast={userStore.increaseContrast ? 'true' : 'false'}
       style={{
+        paddingBottom: liteMode ? 0 : 44,
         backgroundColor: uiColors.appCanvasSurface,
         color: theme.palette.text.primary,
       }}

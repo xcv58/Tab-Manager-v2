@@ -35,6 +35,10 @@ export default function Menu({
   'data-testid': testId,
 }: MenuProps) {
   const theme = useAppTheme()
+  const toolbar = anchorEl?.closest<HTMLElement>('.corner-dock')
+  const toolbarRadius = toolbar
+    ? getComputedStyle(toolbar).borderTopLeftRadius
+    : '0px'
   const menuRef = useRef<HTMLDivElement>(null)
   const wasOpenRef = useRef(false)
   const lastAnchorRef = useRef<HTMLElement | null>(null)
@@ -48,13 +52,19 @@ export default function Menu({
     const anchorRect = anchorEl.getBoundingClientRect()
     const menuRect = menuRef.current.getBoundingClientRect()
 
+    const dock = anchorEl.closest<HTMLElement>('.corner-dock')
+    const dockRect = dock?.getBoundingClientRect()
     setPosition(
       clampOverlayPosition({
-        top: anchorPosition?.top ?? anchorRect.bottom,
-        left: anchorPosition?.left ?? anchorRect.left,
+        top: dockRect
+          ? dockRect.top - menuRect.height
+          : (anchorPosition?.top ?? anchorRect.bottom),
+        left: dockRect
+          ? window.innerWidth - menuRect.width
+          : (anchorPosition?.left ?? anchorRect.left),
         width: menuRect.width,
         height: menuRect.height,
-        margin: 16,
+        margin: dockRect ? 0 : 16,
       }),
     )
   }, [anchorEl, anchorPosition, open])
@@ -214,13 +224,16 @@ export default function Menu({
         zIndex: theme.zIndex.popover,
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
-        borderRadius: 8,
+        borderRadius: toolbar ? toolbarRadius + ' 0 0 0' : 8,
         boxShadow: '0 8px 24px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)',
         minWidth: 160,
         paddingTop: 8,
         paddingBottom: 8,
         overflow: 'auto',
-        maxHeight: 'calc(100vh - 32px)',
+        maxHeight: toolbar
+          ? 'calc(100vh - ' + toolbar.getBoundingClientRect().height + 'px)'
+          : 'calc(100vh - 32px)',
+        maxWidth: toolbar ? '100vw' : undefined,
         outline: 'none',
         ...style,
       }}

@@ -23,7 +23,7 @@ export default observer(() => {
   const visible = toolbarVisible || pinned
   return (
     <div
-      className="toolbar"
+      className="toolbar corner-dock"
       data-increase-contrast={userStore.increaseContrast ? 'true' : 'false'}
       data-pinned={pinned ? 'true' : 'false'}
       onMouseEnter={showToolbar}
@@ -35,8 +35,8 @@ export default observer(() => {
         display: 'flex',
         width: 'fit-content',
         position: 'fixed',
-        bottom: 12,
-        right: 12,
+        bottom: 0,
+        right: 0,
         zIndex: 20,
         alignItems: 'stretch',
         overflow: 'hidden',
@@ -44,8 +44,13 @@ export default observer(() => {
         border: isClassicUi
           ? 'none'
           : `1px solid ${uiColors.toolbarShellBorderColor}`,
-        borderRadius: uiColors.toolbarShellBorderRadius,
-        maxWidth: 'calc(100vw - 24px)',
+        borderRight: 'none',
+        borderBottom: 'none',
+        borderTopLeftRadius: uiColors.toolbarShellBorderRadius,
+        borderTopRightRadius: 0,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+        maxWidth: '100vw',
       }}
     >
       {visible && <Toolbar visible={visible} onMenuOpenChange={setMenuOpen} />}

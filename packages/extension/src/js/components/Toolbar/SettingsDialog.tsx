@@ -31,8 +31,15 @@ import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
 import TabRowPreview from './TabRowPreview'
-import SettingsNavigation from './SettingsNavigation'
-import SettingsLivePreview from './SettingsLivePreview'
+import {
+  WindowLayoutExample,
+  SearchExample,
+  ToolbarExample,
+} from './SettingsExamples'
+import SettingsNavigation, {
+  type SettingsNavigationState,
+  type SettingsSectionId,
+} from './SettingsNavigation'
 
 /* -------------------------------------------------------------------------- */
 /*  Inline style helpers (replacing MUI sx / Typography / FormHelperText)       */
@@ -74,12 +81,14 @@ const controlDescriptionStyle: React.CSSProperties = {
 
 const SettingsPanel = ({
   title,
+  sectionId,
   description,
   children,
   style,
   testId,
   className,
 }: {
+  sectionId: SettingsSectionId
   title: string
   description?: string
   children: React.ReactNode
@@ -88,15 +97,15 @@ const SettingsPanel = ({
   className?: string
 }) => (
   <section
-    id={`settings-section-${title.toLowerCase().replace(/ /g, '-')}`}
-    aria-labelledby={`settings-heading-${title.toLowerCase().replace(/ /g, '-')}`}
+    id={`settings-section-${sectionId}`}
+    aria-labelledby={`settings-heading-${sectionId}`}
     className={`settings-section rounded-xl border p-4 ${className || ''}`}
     style={style}
     data-testid={testId}
   >
     <div className="mb-3">
       <h2
-        id={`settings-heading-${title.toLowerCase().replace(/ /g, '-')}`}
+        id={`settings-heading-${sectionId}`}
         tabIndex={-1}
         style={panelTitleStyle}
       >
@@ -112,14 +121,17 @@ const PreviewSurface = ({
   children,
   style,
   testId,
+  interactive = false,
 }: {
   children: React.ReactNode
   style: React.CSSProperties
   testId?: string
+  interactive?: boolean
 }) => (
   <div
     data-testid={testId}
-    aria-hidden="true"
+    aria-hidden={interactive ? undefined : true}
+    data-settings-example
     className="w-full min-w-0 overflow-hidden rounded-lg border xl:min-w-72"
     style={style}
   >
@@ -446,7 +458,9 @@ const SettingsSwitchOption = ({
   testId,
   containerAriaLabelledBy,
   containerAriaLabel,
+  preview,
 }: {
+  preview?: React.ReactNode
   title: string
   description?: string
   checked: boolean
@@ -470,46 +484,49 @@ const SettingsSwitchOption = ({
   }
 
   return (
-    <div
-      data-testid={testId}
-      className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
-        description ? 'items-center py-3.5' : 'items-center py-3'
-      }`}
-      style={{
-        ...style,
-        minHeight: 36,
-      }}
-      aria-labelledby={containerAriaLabelledBy}
-      aria-label={containerAriaLabel}
-      onClick={handleContainerClick}
-    >
-      <label htmlFor={switchId} className="min-w-0 pr-3 cursor-pointer">
-        <h5 id={titleId} style={controlTitleStyle}>
-          {title}
-        </h5>
-        {description && (
-          <p id={descriptionId} style={controlDescriptionStyle}>
-            {description}
-          </p>
-        )}
-      </label>
-      <Switch
-        size="small"
-        checked={checked}
-        onChange={onChange}
-        inputProps={{
-          id: switchId,
-          'aria-label': title,
-          'aria-labelledby': titleId,
-          'aria-describedby': description ? descriptionId : undefined,
-        }}
+    <>
+      <div
+        data-testid={testId}
+        className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
+          description ? 'items-center py-3.5' : 'items-center py-3'
+        }`}
         style={{
-          marginTop: 0,
-          marginRight: -4,
-          flexShrink: 0,
+          ...style,
+          minHeight: 36,
         }}
-      />
-    </div>
+        aria-labelledby={containerAriaLabelledBy}
+        aria-label={containerAriaLabel}
+        onClick={handleContainerClick}
+      >
+        <label htmlFor={switchId} className="min-w-0 pr-3 cursor-pointer">
+          <h5 id={titleId} style={controlTitleStyle}>
+            {title}
+          </h5>
+          {description && (
+            <p id={descriptionId} style={controlDescriptionStyle}>
+              {description}
+            </p>
+          )}
+        </label>
+        <Switch
+          size="small"
+          checked={checked}
+          onChange={onChange}
+          inputProps={{
+            id: switchId,
+            'aria-label': title,
+            'aria-labelledby': titleId,
+            'aria-describedby': description ? descriptionId : undefined,
+          }}
+          style={{
+            marginTop: 0,
+            marginRight: -4,
+            flexShrink: 0,
+          }}
+        />
+      </div>
+      {preview}
+    </>
   )
 }
 
@@ -573,6 +590,10 @@ export default observer(() => {
   const reduceMotion = useReduceMotion()
   const tooltipUrlLinesId = React.useId()
   const tooltipUrlLinesHintId = React.useId()
+  const settingsNavigationState = React.useRef<SettingsNavigationState>({
+    active: 'appearance',
+    scrollTop: {},
+  })
   const dialogTitleId = React.useId()
   const isDarkMode = muiTheme.mode === 'dark'
   const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
@@ -645,7 +666,7 @@ export default observer(() => {
     <Dialog
       open={dialogOpen}
       fullWidth
-      maxWidth="lg"
+      maxWidth="md"
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
@@ -677,511 +698,537 @@ export default observer(() => {
           <CloseIcon fontSize={20} />
         </IconButton>
       </DialogTitle>
-      <SettingsNavigation preview={<SettingsLivePreview />}>
-        <div className="space-y-6">
-          <SettingsPanel
-            testId="settings-panel-search"
-            title="Search"
-            description="Control how search starts and what stays visible while filtering."
-            style={panelStyle}
-          >
-            <div className="space-y-3">
-              <SettingsSwitchOption
-                testId="settings-search-preserve"
-                title="Preserve search"
-                checked={preserveSearch}
-                onChange={togglePreserveSearch}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                testId="settings-search-focus"
-                title="Focus search on open"
-                checked={autoFocusSearch}
-                onChange={toggleAutoFocusSearch}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                testId="settings-search-history"
-                title="Include browser history in results"
-                checked={searchHistory}
-                onChange={toggleSearchHistory}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                testId="settings-search-result-menu"
-                title="Show result menu in full-page view"
-                description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
-                checked={showSearchResultMenu}
-                onChange={toggleShowSearchResultMenu}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                title="Keep non-matching tabs visible"
-                description="Keep unmatched tabs in view while you search."
-                checked={showUnmatchedTab}
-                onChange={toggleShowUnmatchedTab}
-                style={rowDetailOptionStyle}
-              />
-            </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-theme-density"
-            title="Appearance"
-            description="Adjust theme, reading size, and layout density."
-            style={panelStyle}
-          >
-            <div className="space-y-3">
-              <div
-                className="rounded-lg border px-3 py-3"
-                style={rowDetailOptionStyle}
-                data-testid="settings-ui-preset-toggle-group"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0">
-                    <h5 style={controlTitleStyle}>Interface style</h5>
-                    <p style={controlDescriptionStyle}>
-                      Switch between the current UI and the pre-2.0-inspired
-                      Classic mode.
-                    </p>
-                  </div>
-                  <ToggleGroup
-                    value={uiPreset}
-                    aria-label="Choose interface style"
-                    onChange={(nextPreset) => {
-                      if (!nextPreset) {
-                        return
-                      }
-                      selectUiPreset(nextPreset as 'modern' | 'classic')
-                    }}
-                    style={toggleGroupPillStyle}
-                  >
-                    {uiPresetOptions.map((option) => (
-                      <ToggleButton
-                        key={option.value}
-                        value={option.value}
-                        aria-label={`Use ${option.value} interface style`}
-                        style={{
-                          minWidth: 72,
-                          ...(uiPreset === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
-                      >
-                        {option.label}
-                      </ToggleButton>
-                    ))}
-                  </ToggleGroup>
+      <SettingsNavigation stateRef={settingsNavigationState}>
+        <SettingsPanel
+          testId="settings-panel-theme-density"
+          sectionId="appearance"
+          title="Appearance"
+          description="Choose colors, contrast, and reading size. Changes apply immediately."
+          style={panelStyle}
+        >
+          <div className="space-y-3">
+            <div
+              className="rounded-lg border px-3 py-3"
+              style={rowDetailOptionStyle}
+              data-testid="settings-ui-preset-toggle-group"
+            >
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <h5 style={controlTitleStyle}>Interface style</h5>
+                  <p style={controlDescriptionStyle}>
+                    Switch between the current UI and the pre-2.0-inspired
+                    Classic mode.
+                  </p>
                 </div>
-              </div>
-              <div
-                className="rounded-lg border px-3 py-3"
-                style={rowDetailOptionStyle}
-                data-testid="settings-theme-toggle-group"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h5 style={controlTitleStyle}>Theme</h5>
-                  <ToggleGroup
-                    value={theme}
-                    aria-label="Choose theme"
-                    onChange={(nextTheme) => {
-                      if (!nextTheme) {
-                        return
-                      }
-                      selectTheme(nextTheme)
-                    }}
-                    style={toggleGroupPillStyle}
-                  >
-                    {themeOptions.map((option) => (
-                      <ToggleButton
-                        key={option.value}
-                        value={option.value}
-                        aria-label={`Use ${option.value} theme`}
-                        style={{
-                          paddingLeft: 5,
-                          paddingRight: 5,
-                          ...(theme === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
-                      >
-                        <option.icon fontSize={16} />
-                      </ToggleButton>
-                    ))}
-                  </ToggleGroup>
-                </div>
-              </div>
-              <SettingsSwitchOption
-                testId="settings-increase-contrast"
-                title="Increase contrast"
-                description="Make toolbars, buttons, controls, and muted details easier to see."
-                checked={increaseContrast}
-                onChange={toggleIncreaseContrast}
-                style={rowDetailOptionStyle}
-              />
-              <DensityControl
-                testId="settings-font-size-control"
-                title="Font size"
-                value={fontSize}
-                min={6}
-                max={36}
-                step={1}
-                defaultValue={14}
-                sliderAriaLabel="Update Font Size"
-                inputAriaLabel="Font Size Value"
-                decrementAriaLabel="Decrease Font Size"
-                incrementAriaLabel="Increase Font Size"
-                onChange={updateFontSize}
-                style={rowDetailOptionStyle}
-              />
-              <DensityControl
-                testId="settings-tab-width-control"
-                title="Minimum tab width"
-                description="Affects window columns and cards; wider values make titles easier to scan."
-                value={tabWidth}
-                min={15}
-                max={50}
-                step={1}
-                defaultValue={20}
-                sliderAriaLabel="Update Tab Width"
-                inputAriaLabel="Minimum Tab Width Value"
-                decrementAriaLabel="Decrease Minimum Tab Width"
-                incrementAriaLabel="Increase Minimum Tab Width"
-                onChange={updateTabWidth}
-                style={rowDetailOptionStyle}
-              />
-            </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-behavior"
-            title="View"
-            description="Choose which windows and popup controls stay visible."
-            style={panelStyle}
-          >
-            <div className="space-y-3">
-              <SettingsSwitchOption
-                title="Show app windows in list"
-                description="Include standalone app windows in the main list."
-                checked={showAppWindow}
-                onChange={toggleShowAppWindow}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                title="Use lite popup mode"
-                description="Use the lite layout for the browser action popup window only."
-                checked={litePopupMode}
-                onChange={toggleLitePopupMode}
-                style={rowDetailOptionStyle}
-                testId="settings-lite-popup-mode"
-              />
-              <div
-                className="rounded-lg border px-3 py-3"
-                style={rowDetailOptionStyle}
-                data-testid="settings-action-tab-count-toggle-group"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0">
-                    <h5 style={controlTitleStyle}>Extension icon count</h5>
-                    <p style={controlDescriptionStyle}>
-                      Overlay the toolbar icon with a larger tab count for the
-                      current window or across all windows.
-                    </p>
-                  </div>
-                  <ToggleGroup
-                    value={actionTabCountMode}
-                    aria-label="Choose extension icon tab count mode"
-                    onChange={(nextMode) => {
-                      if (!nextMode) {
-                        return
-                      }
-                      selectActionTabCountMode(nextMode as ActionTabCountMode)
-                    }}
-                    style={toggleGroupPillStyle}
-                  >
-                    {actionTabCountOptions.map((option) => (
-                      <ToggleButton
-                        key={option.value}
-                        value={option.value}
-                        aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
-                        style={{
-                          minWidth: 54,
-                          ...(actionTabCountMode === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
-                      >
-                        {option.label}
-                      </ToggleButton>
-                    ))}
-                  </ToggleGroup>
-                </div>
-              </div>
-              <SettingsSwitchOption
-                title="Auto-fit columns"
-                description="Avoid horizontal scrolling by fitting columns to the window."
-                checked={autoFitColumns}
-                onChange={toggleAutoFitColumns}
-                style={rowDetailOptionStyle}
-              />
-              <div
-                className="rounded-lg border px-3 py-3"
-                style={rowDetailOptionStyle}
-                data-testid="settings-window-order-toggle-group"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0">
-                    <h5 style={controlTitleStyle}>Window order</h5>
-                    <p style={controlDescriptionStyle}>
-                      Choose the default browser order or place recently used
-                      windows first.
-                    </p>
-                  </div>
-                  <ToggleGroup
-                    value={windowOrder}
-                    aria-label="Choose window order"
-                    onChange={(nextWindowOrder) => {
-                      if (!nextWindowOrder) {
-                        return
-                      }
-                      selectWindowOrder(nextWindowOrder as WindowOrder)
-                    }}
-                    style={toggleGroupPillStyle}
-                  >
-                    {windowOrderOptions.map((option) => (
-                      <ToggleButton
-                        key={option.value}
-                        value={option.value}
-                        aria-label={`Use ${option.label.toLowerCase()} window order`}
-                        style={{
-                          minWidth: 78,
-                          ...(windowOrder === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
-                      >
-                        {option.label}
-                      </ToggleButton>
-                    ))}
-                  </ToggleGroup>
-                </div>
-              </div>
-              <SettingsSwitchOption
-                title="Show shortcut hints"
-                description="Show the shortcut and its action when a shortcut is pressed."
-                checked={showShortcutHint}
-                onChange={toggleShowShortcutHint}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                title="Keep toolbar visible"
-                description="Always show the bottom-right toolbar."
-                checked={!toolbarAutoHide}
-                onChange={toggleAutoHide}
-                style={rowDetailOptionStyle}
-                containerAriaLabelledBy="toggle-always-show-toolbar"
-                containerAriaLabel="Toggle Always Show Toolbar"
-              />
-            </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-tab-display"
-            title="Tab display"
-            description="Choose which details each tab shows."
-            style={panelStyle}
-          >
-            <div className="space-y-3" data-testid="row-details-options">
-              <RowDetailsOption
-                testId="row-details-option-active-tabs"
-                title="Highlight all active tabs"
-                checked={highlightActiveTabsInAllWindows}
-                onChange={toggleHighlightActiveTabsInAllWindows}
-                style={rowDetailOptionStyle}
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-active-tabs"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9100,
-                        title: 'Active tab in inactive window',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
-                        active: true,
-                        lastFocused: false,
-                        uiPreset,
-                        increaseContrast,
-                        highlightActiveTabsInAllWindows,
-                        showDuplicateMarker: false,
-                        showTabIcon: true,
-                        showUrl: true,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
-              />
-              <RowDetailsOption
-                testId="row-details-option-duplicates"
-                title="Mark duplicate tabs"
-                checked={highlightDuplicatedTab}
-                onChange={toggleHighlightDuplicatedTab}
-                style={rowDetailOptionStyle}
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-duplicates"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9101,
-                        title: 'Tab Manager issue tracker',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
-                        duplicatedTabCount: 2,
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: highlightDuplicatedTab,
-                        showTabIcon: true,
-                        showUrl: true,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
-              />
-              <RowDetailsOption
-                testId="row-details-option-icons"
-                title="Show tab icons"
-                checked={showTabIcon}
-                onChange={toggleShowTabIcon}
-                style={rowDetailOptionStyle}
-                previewHint="Hover preview to inspect controls."
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-icons"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9102,
-                        title: 'Tab Manager settings dialog',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2',
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: false,
-                        showTabIcon,
-                        showUrl: true,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
-              />
-              <RowDetailsOption
-                testId="row-details-option-urls"
-                title="Show URLs"
-                checked={showUrl}
-                onChange={toggleShowUrl}
-                style={rowDetailOptionStyle}
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-urls"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9103,
-                        title: 'Preview URLs inside settings',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: false,
-                        showTabIcon: true,
-                        showUrl,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
-              />
-              <RowDetailsOption
-                testId="row-details-option-tooltips"
-                title="Show tab tooltips"
-                checked={showTabTooltip}
-                onChange={toggleShowTabTooltip}
-                style={rowDetailOptionStyle}
-                details={
-                  <div className="mt-3">
-                    <label
-                      htmlFor={tooltipUrlLinesId}
-                      style={controlDescriptionStyle}
-                    >
-                      URL preview length
-                    </label>
-                    <select
-                      id={tooltipUrlLinesId}
-                      aria-describedby={tooltipUrlLinesHintId}
-                      data-testid="tab-tooltip-url-lines"
-                      disabled={!showTabTooltip}
-                      value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
-                      onChange={(event) =>
-                        selectTabTooltipUrlLines(
-                          event.target.value === 'full'
-                            ? 'full'
-                            : Number(event.target.value),
-                        )
-                      }
-                      className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                <ToggleGroup
+                  value={uiPreset}
+                  aria-label="Choose interface style"
+                  onChange={(nextPreset) => {
+                    if (!nextPreset) {
+                      return
+                    }
+                    selectUiPreset(nextPreset as 'modern' | 'classic')
+                  }}
+                  style={toggleGroupPillStyle}
+                >
+                  {uiPresetOptions.map((option) => (
+                    <ToggleButton
+                      key={option.value}
+                      value={option.value}
+                      aria-label={`Use ${option.value} interface style`}
                       style={{
-                        backgroundColor: uiColors.settingsDialogSurface,
-                        color: uiColors.primaryText,
-                        borderColor: rowDetailOptionStyle.borderColor,
-                        outlineColor: uiColors.focusRing,
-                        colorScheme: isDarkMode ? 'dark' : 'light',
+                        minWidth: 72,
+                        ...(uiPreset === option.value
+                          ? selectedPillStyle
+                          : unselectedPillStyle),
                       }}
                     >
-                      {TAB_TOOLTIP_URL_LINES.map((lines) => (
-                        <option key={lines} value={lines}>
-                          {lines === 'full'
-                            ? 'Full URL'
-                            : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
-                        </option>
-                      ))}
-                    </select>
-                    <p
-                      id={tooltipUrlLinesHintId}
-                      style={{ ...controlDescriptionStyle, marginTop: 6 }}
-                    >
-                      Expand clipped text in the tooltip. Copy always keeps the
-                      complete title or URL.
-                    </p>
-                  </div>
-                }
-                previewHint="Hover preview to open the tooltip."
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-tooltips"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9104,
-                        title: 'Hover this preview tab for tooltip details',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
-                        duplicatedTabCount: 2,
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: false,
-                        showTabIcon: true,
-                        showUrl: false,
-                        showTabTooltip,
-                        tabTooltipUrlLines,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
-              />
+                      {option.label}
+                    </ToggleButton>
+                  ))}
+                </ToggleGroup>
+              </div>
             </div>
-          </SettingsPanel>
-        </div>
+            <div
+              className="rounded-lg border px-3 py-3"
+              style={rowDetailOptionStyle}
+              data-testid="settings-theme-toggle-group"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h5 style={controlTitleStyle}>Theme</h5>
+                <ToggleGroup
+                  value={theme}
+                  aria-label="Choose theme"
+                  onChange={(nextTheme) => {
+                    if (!nextTheme) {
+                      return
+                    }
+                    selectTheme(nextTheme)
+                  }}
+                  style={toggleGroupPillStyle}
+                >
+                  {themeOptions.map((option) => (
+                    <ToggleButton
+                      key={option.value}
+                      value={option.value}
+                      aria-label={`Use ${option.value} theme`}
+                      style={{
+                        paddingLeft: 5,
+                        paddingRight: 5,
+                        ...(theme === option.value
+                          ? selectedPillStyle
+                          : unselectedPillStyle),
+                      }}
+                    >
+                      <option.icon fontSize={16} />
+                    </ToggleButton>
+                  ))}
+                </ToggleGroup>
+              </div>
+            </div>
+            <SettingsSwitchOption
+              testId="settings-increase-contrast"
+              title="Increase contrast"
+              description="Make toolbars, buttons, controls, and muted details easier to see."
+              checked={increaseContrast}
+              onChange={toggleIncreaseContrast}
+              style={rowDetailOptionStyle}
+            />
+            <DensityControl
+              testId="settings-font-size-control"
+              title="Font size"
+              value={fontSize}
+              min={6}
+              max={36}
+              step={1}
+              defaultValue={14}
+              sliderAriaLabel="Update Font Size"
+              inputAriaLabel="Font Size Value"
+              decrementAriaLabel="Decrease Font Size"
+              incrementAriaLabel="Increase Font Size"
+              onChange={updateFontSize}
+              style={rowDetailOptionStyle}
+            />
+          </div>
+        </SettingsPanel>
+        <SettingsPanel
+          sectionId="windows-layout"
+          testId="settings-panel-layout"
+          title="Windows & layout"
+          description="Choose window columns, their order, and which windows appear."
+          style={panelStyle}
+        >
+          <div className="space-y-3">
+            <DensityControl
+              testId="settings-tab-width-control"
+              title="Minimum tab width"
+              description="Affects window columns and cards; wider values make titles easier to scan."
+              value={tabWidth}
+              min={15}
+              max={50}
+              step={1}
+              defaultValue={20}
+              sliderAriaLabel="Update Tab Width"
+              inputAriaLabel="Minimum Tab Width Value"
+              decrementAriaLabel="Decrease Minimum Tab Width"
+              incrementAriaLabel="Increase Minimum Tab Width"
+              onChange={updateTabWidth}
+              style={rowDetailOptionStyle}
+            />
+            <WindowLayoutExample />
+            <SettingsSwitchOption
+              preview={<WindowLayoutExample />}
+              title="Auto-fit columns"
+              description="Avoid horizontal scrolling by fitting columns to the window."
+              checked={autoFitColumns}
+              onChange={toggleAutoFitColumns}
+              style={rowDetailOptionStyle}
+            />
+            <div
+              className="rounded-lg border px-3 py-3"
+              style={rowDetailOptionStyle}
+              data-testid="settings-window-order-toggle-group"
+            >
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <h5 style={controlTitleStyle}>Window order</h5>
+                  <p style={controlDescriptionStyle}>
+                    Choose the default browser order or place recently used
+                    windows first.
+                  </p>
+                </div>
+                <ToggleGroup
+                  value={windowOrder}
+                  aria-label="Choose window order"
+                  onChange={(nextWindowOrder) => {
+                    if (!nextWindowOrder) {
+                      return
+                    }
+                    selectWindowOrder(nextWindowOrder as WindowOrder)
+                  }}
+                  style={toggleGroupPillStyle}
+                >
+                  {windowOrderOptions.map((option) => (
+                    <ToggleButton
+                      key={option.value}
+                      value={option.value}
+                      aria-label={`Use ${option.label.toLowerCase()} window order`}
+                      style={{
+                        minWidth: 78,
+                        ...(windowOrder === option.value
+                          ? selectedPillStyle
+                          : unselectedPillStyle),
+                      }}
+                    >
+                      {option.label}
+                    </ToggleButton>
+                  ))}
+                </ToggleGroup>
+              </div>
+            </div>
+            <WindowLayoutExample />
+            <SettingsSwitchOption
+              preview={<WindowLayoutExample />}
+              title="Show app windows in list"
+              description="Include standalone app windows in the main list."
+              checked={showAppWindow}
+              onChange={toggleShowAppWindow}
+              style={rowDetailOptionStyle}
+            />
+          </div>
+        </SettingsPanel>
+        <SettingsPanel
+          testId="settings-panel-tab-display"
+          sectionId="tab-details"
+          title="Tab details"
+          description="Choose which details each tab shows."
+          style={panelStyle}
+        >
+          <div className="space-y-3" data-testid="row-details-options">
+            <RowDetailsOption
+              testId="row-details-option-active-tabs"
+              title="Highlight all active tabs"
+              checked={highlightActiveTabsInAllWindows}
+              onChange={toggleHighlightActiveTabsInAllWindows}
+              style={rowDetailOptionStyle}
+              preview={
+                <PreviewSurface
+                  style={previewSurfaceStyle}
+                  testId="row-details-preview-active-tabs"
+                >
+                  <TabRowPreview
+                    config={{
+                      id: 9100,
+                      title: 'Active tab in inactive window',
+                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
+                      active: true,
+                      lastFocused: false,
+                      uiPreset,
+                      increaseContrast,
+                      highlightActiveTabsInAllWindows,
+                      showDuplicateMarker: false,
+                      showTabIcon: true,
+                      showUrl: true,
+                      showTabTooltip: false,
+                    }}
+                  />
+                </PreviewSurface>
+              }
+            />
+            <RowDetailsOption
+              testId="row-details-option-duplicates"
+              title="Mark duplicate tabs"
+              checked={highlightDuplicatedTab}
+              onChange={toggleHighlightDuplicatedTab}
+              style={rowDetailOptionStyle}
+              preview={
+                <PreviewSurface
+                  style={previewSurfaceStyle}
+                  testId="row-details-preview-duplicates"
+                >
+                  <TabRowPreview
+                    config={{
+                      id: 9101,
+                      title: 'Tab Manager issue tracker',
+                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+                      duplicatedTabCount: 2,
+                      uiPreset,
+                      increaseContrast,
+                      showDuplicateMarker: highlightDuplicatedTab,
+                      showTabIcon: true,
+                      showUrl: true,
+                      showTabTooltip: false,
+                    }}
+                  />
+                </PreviewSurface>
+              }
+            />
+            <RowDetailsOption
+              testId="row-details-option-icons"
+              title="Show tab icons"
+              checked={showTabIcon}
+              onChange={toggleShowTabIcon}
+              style={rowDetailOptionStyle}
+              previewHint="Hover preview to inspect controls."
+              preview={
+                <PreviewSurface
+                  style={previewSurfaceStyle}
+                  testId="row-details-preview-icons"
+                >
+                  <TabRowPreview
+                    config={{
+                      id: 9102,
+                      title: 'Tab Manager settings dialog',
+                      url: 'https://github.com/xcv58/Tab-Manager-v2',
+                      uiPreset,
+                      increaseContrast,
+                      showDuplicateMarker: false,
+                      showTabIcon,
+                      showUrl: true,
+                      showTabTooltip: false,
+                    }}
+                  />
+                </PreviewSurface>
+              }
+            />
+            <RowDetailsOption
+              testId="row-details-option-urls"
+              title="Show URLs"
+              checked={showUrl}
+              onChange={toggleShowUrl}
+              style={rowDetailOptionStyle}
+              preview={
+                <PreviewSurface
+                  style={previewSurfaceStyle}
+                  testId="row-details-preview-urls"
+                >
+                  <TabRowPreview
+                    config={{
+                      id: 9103,
+                      title: 'Preview URLs inside settings',
+                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+                      uiPreset,
+                      increaseContrast,
+                      showDuplicateMarker: false,
+                      showTabIcon: true,
+                      showUrl,
+                      showTabTooltip: false,
+                    }}
+                  />
+                </PreviewSurface>
+              }
+            />
+            <RowDetailsOption
+              testId="row-details-option-tooltips"
+              title="Show tab tooltips"
+              checked={showTabTooltip}
+              onChange={toggleShowTabTooltip}
+              style={rowDetailOptionStyle}
+              details={
+                <div className="mt-3">
+                  <label
+                    htmlFor={tooltipUrlLinesId}
+                    style={controlDescriptionStyle}
+                  >
+                    URL preview length
+                  </label>
+                  <select
+                    id={tooltipUrlLinesId}
+                    aria-describedby={tooltipUrlLinesHintId}
+                    data-testid="tab-tooltip-url-lines"
+                    disabled={!showTabTooltip}
+                    value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
+                    onChange={(event) =>
+                      selectTabTooltipUrlLines(
+                        event.target.value === 'full'
+                          ? 'full'
+                          : Number(event.target.value),
+                      )
+                    }
+                    className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{
+                      backgroundColor: uiColors.settingsDialogSurface,
+                      color: uiColors.primaryText,
+                      borderColor: rowDetailOptionStyle.borderColor,
+                      outlineColor: uiColors.focusRing,
+                      colorScheme: isDarkMode ? 'dark' : 'light',
+                    }}
+                  >
+                    {TAB_TOOLTIP_URL_LINES.map((lines) => (
+                      <option key={lines} value={lines}>
+                        {lines === 'full'
+                          ? 'Full URL'
+                          : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
+                      </option>
+                    ))}
+                  </select>
+                  <p
+                    id={tooltipUrlLinesHintId}
+                    style={{ ...controlDescriptionStyle, marginTop: 6 }}
+                  >
+                    Expand clipped text in the tooltip. Copy always keeps the
+                    complete title or URL.
+                  </p>
+                </div>
+              }
+              previewHint="Hover preview to open the tooltip."
+              preview={
+                <PreviewSurface
+                  style={previewSurfaceStyle}
+                  interactive
+                  testId="row-details-preview-tooltips"
+                >
+                  <TabRowPreview
+                    config={{
+                      id: 9104,
+                      title: 'Hover this preview tab for tooltip details',
+                      url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
+                      duplicatedTabCount: 2,
+                      uiPreset,
+                      increaseContrast,
+                      showDuplicateMarker: false,
+                      showTabIcon: true,
+                      showUrl: false,
+                      showTabTooltip,
+                      showDetailsButton: true,
+                      tabTooltipUrlLines,
+                    }}
+                  />
+                </PreviewSurface>
+              }
+            />
+          </div>
+        </SettingsPanel>
+        <SettingsPanel
+          testId="settings-panel-search"
+          sectionId="search"
+          title="Search"
+          description="Control how search starts and what stays visible while filtering."
+          style={panelStyle}
+        >
+          <div className="space-y-3">
+            <SettingsSwitchOption
+              testId="settings-search-preserve"
+              title="Preserve search"
+              description="Keep your query when you reopen Tab Manager."
+              checked={preserveSearch}
+              onChange={togglePreserveSearch}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-focus"
+              title="Focus search on open"
+              description="Place the cursor in search the next time Tab Manager opens."
+              checked={autoFocusSearch}
+              onChange={toggleAutoFocusSearch}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-history"
+              preview={<SearchExample mode="history" />}
+              title="Include browser history in results"
+              checked={searchHistory}
+              onChange={toggleSearchHistory}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-result-menu"
+              preview={<SearchExample mode="results" />}
+              title="Show result menu in full-page view"
+              description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
+              checked={showSearchResultMenu}
+              onChange={toggleShowSearchResultMenu}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              preview={<SearchExample mode="filtering" />}
+              title="Keep non-matching tabs visible"
+              description="Keep unmatched tabs in view while you search."
+              checked={showUnmatchedTab}
+              onChange={toggleShowUnmatchedTab}
+              style={rowDetailOptionStyle}
+            />
+          </div>
+        </SettingsPanel>
+        <SettingsPanel
+          sectionId="popup-controls"
+          testId="settings-panel-controls"
+          title="Popup & controls"
+          description="Configure the browser popup and application controls."
+          style={panelStyle}
+        >
+          <div className="space-y-3">
+            <h3 className="settings-subheading">Toolbar</h3>
+            <SettingsSwitchOption
+              preview={<ToolbarExample />}
+              title="Keep toolbar visible"
+              description="Always show the bottom-right toolbar."
+              checked={!toolbarAutoHide}
+              onChange={toggleAutoHide}
+              style={rowDetailOptionStyle}
+              containerAriaLabel="Toggle Always Show Toolbar"
+            />
+            <h3 className="settings-subheading">Browser popup</h3>
+            <SettingsSwitchOption
+              title="Use lite popup mode"
+              description="Use the lite layout for the browser action popup window only."
+              checked={litePopupMode}
+              onChange={toggleLitePopupMode}
+              style={rowDetailOptionStyle}
+              testId="settings-lite-popup-mode"
+            />
+            <div
+              className="rounded-lg border px-3 py-3"
+              style={rowDetailOptionStyle}
+              data-testid="settings-action-tab-count-toggle-group"
+            >
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="min-w-0">
+                  <h5 style={controlTitleStyle}>Extension icon count</h5>
+                  <p style={controlDescriptionStyle}>
+                    Overlay the toolbar icon with a larger tab count for the
+                    current window or across all windows.
+                  </p>
+                </div>
+                <ToggleGroup
+                  value={actionTabCountMode}
+                  aria-label="Choose extension icon tab count mode"
+                  onChange={(nextMode) => {
+                    if (!nextMode) {
+                      return
+                    }
+                    selectActionTabCountMode(nextMode as ActionTabCountMode)
+                  }}
+                  style={toggleGroupPillStyle}
+                >
+                  {actionTabCountOptions.map((option) => (
+                    <ToggleButton
+                      key={option.value}
+                      value={option.value}
+                      aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
+                      style={{
+                        minWidth: 54,
+                        ...(actionTabCountMode === option.value
+                          ? selectedPillStyle
+                          : unselectedPillStyle),
+                      }}
+                    >
+                      {option.label}
+                    </ToggleButton>
+                  ))}
+                </ToggleGroup>
+              </div>
+            </div>
+            <h3 className="settings-subheading">Keyboard feedback</h3>
+            <SettingsSwitchOption
+              title="Show shortcut hints"
+              description="Show the shortcut and its action when a shortcut is pressed."
+              checked={showShortcutHint}
+              onChange={toggleShowShortcutHint}
+              style={rowDetailOptionStyle}
+            />
+          </div>
+        </SettingsPanel>
       </SettingsNavigation>
       <div
         className="settings-footer"

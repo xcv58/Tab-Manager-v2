@@ -4,6 +4,9 @@ import { observer } from 'mobx-react-lite'
 import { StoreContext } from 'components/hooks/useStore'
 import TabRow from 'components/Tab/Tab'
 import ActionStore from 'stores/ActionStore'
+import HoverStore from 'stores/HoverStore'
+import { writeToClipboard } from 'libs'
+import type { TabCopyFormat } from 'libs/tabExport'
 import settingsPreviewIcon from 'img/chrome/settings.png'
 import type { UiPreset } from 'stores/UserStore'
 import {
@@ -28,6 +31,7 @@ type PreviewConfig = {
   showUrl?: boolean
   showTabTooltip?: boolean
   tabTooltipUrlLines?: TabTooltipUrlLines
+  showDetailsButton?: boolean
 }
 
 class PreviewUserStore {
@@ -62,57 +66,6 @@ class PreviewUserStore {
     this.highlightActiveTabsInAllWindows =
       !!config.highlightActiveTabsInAllWindows
     makeAutoObservable(this, {}, { autoBind: true })
-  }
-}
-
-class PreviewHoverStore {
-  private hideTimer: ReturnType<typeof setTimeout> | null = null
-  private held = false
-  hoveredTabId: number | null = null
-
-  hovered = false
-
-  keyboardEntry = false
-
-  userStore: PreviewUserStore
-
-  constructor(userStore: PreviewUserStore) {
-    this.userStore = userStore
-    makeAutoObservable<PreviewHoverStore, 'hideTimer' | 'held'>(
-      this,
-      { userStore: false, hideTimer: false, held: false },
-      { autoBind: true },
-    )
-  }
-
-  hover(id: number) {
-    if (this.hideTimer) clearTimeout(this.hideTimer)
-    this.hoveredTabId = id
-    this.hovered = this.userStore.showTabTooltip
-  }
-
-  openTooltip(id: number, keyboardEntry = false) {
-    this.hover(id)
-    this.keyboardEntry = keyboardEntry
-  }
-  holdTooltip() {
-    if (this.hideTimer) clearTimeout(this.hideTimer)
-    this.held = true
-  }
-  releaseTooltip(_id: number, returnedToRow = false) {
-    this.held = false
-    if (!returnedToRow) this.unhover()
-  }
-  unhover() {
-    if (!this.held) this.hideTimer = setTimeout(() => this.hideTooltip(), 240)
-  }
-  hideTooltip() {
-    if (this.hideTimer) clearTimeout(this.hideTimer)
-    this.hideTimer = null
-    this.held = false
-    this.hoveredTabId = null
-    this.hovered = false
-    this.keyboardEntry = false
   }
 }
 
@@ -175,6 +128,8 @@ class PreviewTabModel {
   }
 
   setNodeRef() {}
+
+  setHovered() {}
 
   hover() {
     this.store.hoverStore.hover(this.id)
@@ -253,7 +208,7 @@ class PreviewStore {
 
   userStore: PreviewUserStore
 
-  hoverStore: PreviewHoverStore
+  hoverStore: HoverStore
 
   focusStore: PreviewFocusStore
 
@@ -262,7 +217,12 @@ class PreviewStore {
   shortcutStore = { dialogOpen: false, showMoveHint: () => {} }
 
   // Preview actions remain isolated from real browser tabs.
-  windowStore = { createNewWindow: () => {} }
+  windowStore = {
+    createNewWindow: () => {},
+    windows: [] as Array<{
+      getTabById: (id: number) => PreviewTabModel | null
+    }>,
+  }
 
   dragStore = {
     dragging: false,
@@ -286,13 +246,29 @@ class PreviewStore {
 
   tab: PreviewTabModel
 
+  copyTabs = async (tabs: PreviewTabModel[], format: TabCopyFormat) => {
+    const text = tabs
+      .map((tab) =>
+        format === 'title'
+          ? tab.title
+          : format === 'title-url'
+            ? tab.title + '\n' + tab.url
+            : tab.url,
+      )
+      .join('\n')
+    await writeToClipboard(text)
+  }
+
   constructor(config: PreviewConfig) {
     this.duplicatedTabCount = config.duplicatedTabCount ?? 1
     this.userStore = new PreviewUserStore(config)
-    this.hoverStore = new PreviewHoverStore(this.userStore)
     this.focusStore = new PreviewFocusStore()
     this.actionStore = new ActionStore(this as never)
     this.tab = new PreviewTabModel(this, config)
+    this.windowStore.windows = [
+      { getTabById: (id) => (id === this.tab.id ? this.tab : null) },
+    ]
+    this.hoverStore = new HoverStore(this as never)
   }
 }
 
@@ -331,6 +307,18 @@ export default observer(
             disableSequentialFocus
             className="w-full min-w-0"
           />
+          {config.showDetailsButton && (
+            <button
+              type="button"
+              disabled={!config.showTabTooltip}
+              onClick={() =>
+                previewStore.hoverStore.openTooltip(config.id, true)
+              }
+              className="px-2 py-1 text-xs underline disabled:opacity-50"
+            >
+              Open example details
+            </button>
+          )}
         </StoreContext.Provider>
       </div>
     )

@@ -38,14 +38,20 @@ export default observer(() => {
       >
         <Summary />
         <LayoutRepackIndicator />
-        <AutocompleteSearch autoFocus open bottomInset={64} />
+        <AutocompleteSearch autoFocus open bottomInset={44} />
       </div>
       <div
-        className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full border px-1 py-1"
+        className="corner-dock absolute right-0 bottom-0 flex items-center gap-1 border px-2 py-1"
         style={{
           backgroundColor: uiColors.popupControlsSurface,
           borderColor: uiColors.popupControlsBorderColor,
-          borderRadius: uiColors.popupControlsBorderRadius,
+          minHeight: 40,
+          borderRight: 'none',
+          borderBottom: 'none',
+          borderTopLeftRadius: uiColors.toolbarShellBorderRadius,
+          borderTopRightRadius: 0,
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
         }}
       >
         <ThemeToggle />
