@@ -27,7 +27,7 @@ const TabContent = observer(
     },
   ) => {
     const { faked, buttonClassName, buttonStyle, content, onAuxClick } = props
-    const { hoverStore, dragStore } = useStore()
+    const { hoverStore, dragStore, shortcutStore } = useStore()
     const {
       activate,
       title,
@@ -52,13 +52,15 @@ const TabContent = observer(
 
     const { dragging } = dragStore
     const { hovered } = hoverStore
-    const open = !(
-      faked ||
+    const blocked =
       dragging ||
-      !userStore.showTabTooltip ||
-      !isHovered ||
-      !hovered
-    )
+      userStore.dialogOpen ||
+      shortcutStore?.dialogOpen ||
+      !userStore.showTabTooltip
+    const open = !(faked || blocked || !isHovered || !hovered)
+    useEffect(() => {
+      if (blocked && isHovered && hovered) hoverStore.hideTooltip(props.tab.id)
+    }, [blocked, isHovered, hovered, hoverStore, props.tab.id])
     const duplicateText =
       userStore.highlightDuplicatedTab && isDuplicated
         ? `${duplicatedTabCount} ${getNoun('tab', duplicatedTabCount)} share this page`

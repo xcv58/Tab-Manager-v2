@@ -139,6 +139,15 @@ test('select, expand and copy long tab details without activating the tab', asyn
     await page.keyboard.press('Escape')
     await expect(card).toBeHidden()
     await expect(search).toHaveValue('Research notes')
+    await row.focus()
+    await hoverDetails()
+    await card.hover()
+    await page.keyboard.press('Control+,')
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    await expect(settings).toBeVisible()
+    await expect(card).toBeHidden({ timeout: 2000 })
+    await page.keyboard.press('Escape')
+    await expect(settings).toBeHidden()
     await expect
       .poll(async () =>
         page.evaluate(async () => {
