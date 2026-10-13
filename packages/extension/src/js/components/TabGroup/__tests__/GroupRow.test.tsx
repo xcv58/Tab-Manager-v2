@@ -1,4 +1,5 @@
 import React from 'react'
+import { withActionStore } from '__testutils__/actionStore'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import { StoreContext } from 'components/hooks/useStore'
@@ -58,6 +59,7 @@ const renderGroupRow = (
   dragSource: 'tab-row' | 'group-header',
   dropAt: any,
   searchStoreOverrides = {},
+  dragging = true,
 ) => {
   const groupRow = {
     isFocused: false,
@@ -68,7 +70,7 @@ const renderGroupRow = (
     groupId: 100,
     windowId: 1,
   }
-  const store = {
+  const store = withActionStore({
     tabGroupStore: {
       getTabGroup: jest.fn(() => ({
         id: 100,
@@ -95,7 +97,7 @@ const renderGroupRow = (
       windows: [{ id: 1, canDrop: true }],
     },
     dragStore: {
-      dragging: true,
+      dragging,
       dragSource,
       dropAt,
     },
@@ -106,7 +108,7 @@ const renderGroupRow = (
     userStore: {
       uiPreset: 'modern',
     },
-  } as any
+  } as any)
   const row = {
     kind: 'group' as const,
     groupId: 100,
@@ -157,7 +159,7 @@ describe('GroupRow', () => {
       groupId: 100,
       windowId: 1,
     }
-    const store = {
+    const store = withActionStore({
       tabGroupStore: {
         getTabGroup: jest.fn(() => ({
           id: 100,
@@ -191,7 +193,7 @@ describe('GroupRow', () => {
       userStore: {
         uiPreset: 'modern',
       },
-    } as any
+    } as any)
     const row = {
       kind: 'group' as const,
       groupId: 100,
@@ -264,12 +266,13 @@ describe('GroupRow', () => {
   )
 
   it('keeps the destination group focused when Escape returns to its actions button', () => {
-    const { groupRow, focus } = renderGroupRow('tab-row', jest.fn())
+    const { groupRow, focus } = renderGroupRow('tab-row', jest.fn(), {}, false)
     const button = screen.getByRole('button', { name: 'Group actions' })
     act(() => button.focus())
     fireEvent.click(button)
 
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+    fireEvent.keyUp(screen.getByRole('menu'), { key: 'Escape' })
 
     expect(button).toHaveFocus()
     expect(focus).toHaveBeenLastCalledWith(groupRow, {

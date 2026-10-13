@@ -10,48 +10,63 @@ import {
   PinTabIcon,
   SelectTabsIcon,
   TabGroupIcon,
-  UngroupTabIcon,
 } from 'icons/actionIcons'
 import {
-  ChevronRightIcon,
-  CloseIcon,
-  DarkModeRoundedIcon,
-  DeleteSweepIcon,
-  ExpandMoreIcon,
-  FilterListIcon,
-  LightModeRoundedIcon,
-  OpenInNewIcon,
-  RefreshIcon,
-  SettingsSharpIcon,
-  SortIcon,
-  SyncIcon,
-} from 'icons/materialIcons'
+  AppearanceIcon,
+  CleanDuplicatesIcon,
+  ClosePaletteIcon,
+  ClusterIcon,
+  CollapseIcon,
+  CsvIcon,
+  ExpandIcon,
+  JsonIcon,
+  LinkIcon,
+  MarkdownIcon,
+  NewWindowIcon,
+  ReloadIcon,
+  SettingsPaletteIcon,
+  SortPaletteIcon,
+  SyncPaletteIcon,
+  TextDocumentIcon,
+  TitleIcon,
+  TsvIcon,
+  UngroupIcon,
+  UnpinIcon,
+} from 'icons/paletteIcons'
 import { useAppTheme } from 'libs/appTheme'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import type { PaletteIconName } from 'stores/ActionStore'
 
 const icons: Record<PaletteIconName, React.ComponentType<BaseSvgIconProps>> = {
-  reload: RefreshIcon,
+  reload: ReloadIcon,
   copy: CopyTextIcon,
+  url: LinkIcon,
+  title: TitleIcon,
+  'title-url': TextDocumentIcon,
+  csv: CsvIcon,
+  tsv: TsvIcon,
+  json: JsonIcon,
+  markdown: MarkdownIcon,
   export: ExportTabsIcon,
   move: MoveTabsIcon,
-  'new-window': OpenInNewIcon,
+  'new-window': NewWindowIcon,
   window: BrowserWindowIcon,
   group: TabGroupIcon,
   pin: PinTabIcon,
-  close: CloseIcon,
-  ungroup: UngroupTabIcon,
-  expand: ChevronRightIcon,
-  collapse: ExpandMoreIcon,
-  sort: SortIcon,
+  unpin: UnpinIcon,
+  close: ClosePaletteIcon,
+  ungroup: UngroupIcon,
+  expand: ExpandIcon,
+  collapse: CollapseIcon,
+  sort: SortPaletteIcon,
   select: SelectTabsIcon,
   deselect: DeselectTabsIcon,
-  'clean-duplicates': DeleteSweepIcon,
-  cluster: FilterListIcon,
-  sync: SyncIcon,
-  settings: SettingsSharpIcon,
+  'clean-duplicates': CleanDuplicatesIcon,
+  cluster: ClusterIcon,
+  sync: SyncPaletteIcon,
+  settings: SettingsPaletteIcon,
   keyboard: KeyboardShortcutsIcon,
-  theme: DarkModeRoundedIcon,
+  theme: AppearanceIcon,
 }
 
 export default function CommandPaletteIcon({
@@ -64,10 +79,7 @@ export default function CommandPaletteIcon({
   groupColor?: string
 }) {
   const theme = useAppTheme()
-  const Icon =
-    name === 'theme' && theme.mode === 'dark'
-      ? LightModeRoundedIcon
-      : icons[name]
+  const Icon = icons[name]
 
   return (
     <span

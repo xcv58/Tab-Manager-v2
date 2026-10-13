@@ -17,12 +17,20 @@ export type ActionMenuAnchor = {
 export type PaletteIconName =
   | 'reload'
   | 'copy'
+  | 'url'
+  | 'title'
+  | 'title-url'
+  | 'csv'
+  | 'tsv'
+  | 'json'
+  | 'markdown'
   | 'export'
   | 'move'
   | 'new-window'
   | 'window'
   | 'group'
   | 'pin'
+  | 'unpin'
   | 'close'
   | 'ungroup'
   | 'expand'
@@ -56,30 +64,35 @@ class PaletteMoveError extends Error {}
 
 const copyFormats: Array<{
   format: TabCopyFormat
+  icon: PaletteIconName
   label: string
   detail: string
   aliases: string
 }> = [
   {
     format: 'csv',
+    icon: 'csv',
     label: 'CSV',
     detail: 'Table with titles, URLs, windows, groups and pinned state',
     aliases: 'comma separated values table',
   },
   {
     format: 'tsv',
-    label: 'Spreadsheet (TSV)',
+    icon: 'tsv',
+    label: 'spreadsheets (TSV)',
     detail: 'Tab-separated table for spreadsheet columns',
     aliases: 'tab separated values excel sheets table',
   },
   {
     format: 'json',
+    icon: 'json',
     label: 'JSON',
     detail: 'Structured windows, tabs and group metadata',
     aliases: 'structured data script',
   },
   {
     format: 'markdown',
+    icon: 'markdown',
     label: 'Markdown links',
     detail: 'A readable list of titled links for notes',
     aliases: 'md notes links',
@@ -261,8 +274,12 @@ export default class ActionStore {
         )
         .map((option) => ({
           id: `${this.formatAction}-${option.format}`,
-          icon: exporting ? 'export' : 'copy',
-          label: option.label,
+          icon: option.icon,
+          label: exporting
+            ? `Export ${option.label}`
+            : option.format === 'tsv'
+              ? `Copy for ${option.label}`
+              : `Copy as ${option.label}`,
           detail: option.detail,
           aliases: option.aliases,
           section: `${exporting ? 'Export' : 'Copy'} ${selectedScope}`,
@@ -353,7 +370,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-selection',
-          icon: 'copy',
+          icon: 'url',
           label: `Copy URLs of ${selectedScope}`,
           section: 'Selected tabs',
           aliases: 'clipboard links',
@@ -362,7 +379,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-titles-selection',
-          icon: 'copy',
+          icon: 'title',
           label: `Copy titles of ${selectedScope}`,
           section: 'Selected tabs',
           aliases: 'clipboard names',
@@ -370,7 +387,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-titles-urls-selection',
-          icon: 'copy',
+          icon: 'title-url',
           label: `Copy titles and URLs of ${selectedScope}`,
           section: 'Selected tabs',
           aliases: 'clipboard names links',
@@ -453,7 +470,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-tab',
-          icon: 'copy',
+          icon: 'url',
           label: 'Copy this tab’s URL',
           section: 'Focused tab',
           aliases: 'clipboard link',
@@ -461,7 +478,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-title-tab',
-          icon: 'copy',
+          icon: 'title',
           label: 'Copy this tab’s title',
           section: 'Focused tab',
           aliases: 'clipboard name',
@@ -469,7 +486,7 @@ export default class ActionStore {
         },
         {
           id: 'copy-title-url-tab',
-          icon: 'copy',
+          icon: 'title-url',
           label: 'Copy this tab’s title and URL',
           section: 'Focused tab',
           aliases: 'clipboard name link',
@@ -487,7 +504,7 @@ export default class ActionStore {
         },
         {
           id: 'pin-tab',
-          icon: 'pin',
+          icon: tab.pinned ? 'unpin' : 'pin',
           label: tab.pinned ? 'Unpin this tab' : 'Pin this tab',
           section: 'Focused tab',
           run: tab.togglePin,
@@ -647,9 +664,10 @@ export default class ActionStore {
       {
         id: 'theme',
         icon: 'theme',
-        label: 'Toggle dark theme',
+        label: 'Change appearance',
+        detail: `Current: ${userStore.theme === 'system' ? 'System' : userStore.theme === 'dark' ? 'Dark' : 'Light'}`,
         section: 'Application',
-        aliases: 'light appearance',
+        aliases: 'theme system dark light appearance',
         shortcut: 'Ctrl I',
         run: userStore.selectNextTheme,
       },

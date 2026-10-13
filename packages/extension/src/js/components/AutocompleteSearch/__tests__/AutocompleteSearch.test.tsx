@@ -42,11 +42,13 @@ jest.mock('react-window', () => {
           height,
           innerElementType = 'div',
           itemCount,
+          itemData,
         }: {
           children: (props: any) => React.ReactNode
           height: number
           innerElementType?: keyof JSX.IntrinsicElements
           itemCount: number
+          itemData: any
         },
         ref,
       ) => {
@@ -63,6 +65,7 @@ jest.mock('react-window', () => {
                 <ReactActual.Fragment key={index}>
                   {children({
                     index,
+                    data: itemData,
                     style: { top: index * 40, height: 40 },
                   })}
                 </ReactActual.Fragment>
@@ -112,6 +115,7 @@ const renderAutocompleteSearch = ({
   const startType = jest.fn()
   const stopType = jest.fn()
   const setSearchEl = jest.fn()
+  const openPalette = jest.fn()
 
   const Wrapper = () => {
     const queryState = React.useMemo(
@@ -162,6 +166,7 @@ const renderAutocompleteSearch = ({
     mockUseStore.mockImplementation(() => ({
       userStore,
       searchStore,
+      actionStore: { paletteOpen: false, menu: null, openPalette },
       tabGroupStore: {
         hasTabGroupsApi: () => false,
       },
@@ -181,7 +186,7 @@ const renderAutocompleteSearch = ({
     )
   }
 
-  return render(<Wrapper />)
+  return { ...render(<Wrapper />), openPalette }
 }
 
 describe('AutocompleteSearch', () => {
@@ -379,23 +384,19 @@ describe('AutocompleteSearch', () => {
     expect(screen.queryByRole('option')).toBeNull()
   })
 
-  it('keeps command results available when the result menu is disabled', async () => {
-    renderAutocompleteSearch({
-      initialQuery: '>srt',
+  it('keeps > as an alias for the dedicated palette when search results are disabled', () => {
+    const { openPalette } = renderAutocompleteSearch({
+      initialQuery: 'research',
       showResultMenu: false,
-      options: [
-        {
-          name: 'Sort tabs',
-          command: jest.fn(),
-        },
-      ],
     })
 
-    expect(screen.getByRole('combobox')).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
-    expect(await screen.findByRole('option')).toHaveTextContent('Sort tabs')
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: '>export csv' },
+    })
+
+    expect(openPalette).toHaveBeenCalledWith('export csv')
+    expect(screen.getByRole('combobox')).toHaveValue('research')
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
   })
 
   it('uses the same smaller font size for the input text and the search hint', () => {
