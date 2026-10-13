@@ -863,6 +863,14 @@ test.describe('The Extension page should', () => {
     await page.keyboard.press('ArrowDown')
     await expect(reload).toBeFocused()
     await page.keyboard.press('ArrowDown')
+    await expect(
+      page.getByRole('menuitem', { name: 'Collapse this window' }),
+    ).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(
+      page.getByRole('menuitem', { name: 'Close this window' }),
+    ).toBeFocused()
+    await page.keyboard.press('ArrowDown')
     await expect(sort).toBeFocused()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('menu')).toBeHidden()

@@ -153,15 +153,33 @@ const setupMixedGroupsInCurrentWindow = async (page: Page) => {
     ...MIXED_GROUP_URLS.gamma,
     ...MIXED_GROUP_URLS.free,
   ]
-  await page.evaluate(async (urlsToCreate) => {
-    for (const url of urlsToCreate) {
-      await chrome.tabs.create({
-        url,
-        active: false,
-      })
-    }
-  }, urls)
-  await page.waitForTimeout(600)
+  const windowId = await page.evaluate(
+    async () => (await chrome.windows.getCurrent()).id,
+  )
+  await page.evaluate(
+    async ({ urlsToCreate, windowId }) => {
+      for (const url of urlsToCreate) {
+        await chrome.tabs.create({
+          windowId,
+          url,
+          active: false,
+        })
+      }
+    },
+    { urlsToCreate: urls, windowId },
+  )
+  // Tab creation can return before the URL has committed under CI load.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        async ({ urls, windowId }) => {
+          const tabs = await chrome.tabs.query({ windowId })
+          return urls.every((url) => tabs.some((tab) => tab.url === url))
+        },
+        { urls, windowId },
+      ),
+    )
+    .toBe(true)
 
   const alphaId = await groupTabsByUrl(page, {
     urls: MIXED_GROUP_URLS.alpha,
