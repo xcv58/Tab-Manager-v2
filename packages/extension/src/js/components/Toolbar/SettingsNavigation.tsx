@@ -100,17 +100,6 @@ export default function SettingsNavigation({
       // Examples can contain their own scrollable details; controls must keep
       // their normal wheel behavior, including select menus and numeric inputs.
       if (target.closest('input, select, textarea, [role="slider"]')) return
-      for (
-        let node: HTMLElement | null = target;
-        node && node !== container;
-        node = node.parentElement
-      ) {
-        if (
-          node.scrollHeight > node.clientHeight + 2 &&
-          ['auto', 'scroll'].includes(getComputedStyle(node).overflowY)
-        )
-          return
-      }
       const direction = Math.sign(event.deltaY)
       const now = performance.now()
       const gesture = gestureRef.current
@@ -120,6 +109,23 @@ export default function SettingsNavigation({
       }
       gesture.time = now
       gesture.direction = direction
+      for (
+        let node: HTMLElement | null = target;
+        node && node !== container;
+        node = node.parentElement
+      ) {
+        if (
+          node.scrollHeight > node.clientHeight + 2 &&
+          ['auto', 'scroll'].includes(getComputedStyle(node).overflowY) &&
+          (direction < 0
+            ? node.scrollTop > 2
+            : node.scrollHeight - node.scrollTop - node.clientHeight > 2)
+        ) {
+          gesture.used = true
+          gesture.distance = 0
+          return
+        }
+      }
       const atEdge =
         direction < 0
           ? container.scrollTop <= 2
