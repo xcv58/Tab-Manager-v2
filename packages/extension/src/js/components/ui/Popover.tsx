@@ -87,7 +87,14 @@ export default function Popover({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (
+        e.key === 'Escape' &&
+        !popoverRef.current?.contains(e.target as Node)
+      ) {
+        // Focus can still be on the opener before the editor's focus frame.
+        // Consume Escape before the application's search-clear shortcut.
+        e.preventDefault()
+        e.stopImmediatePropagation()
         onClose()
       }
     },
@@ -97,12 +104,12 @@ export default function Popover({
   useEffect(() => {
     if (!open) return
     document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keydown', handleKeyDown, true)
     window.addEventListener('resize', updatePosition)
     window.addEventListener('scroll', updatePosition, true)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keydown', handleKeyDown, true)
       window.removeEventListener('resize', updatePosition)
       window.removeEventListener('scroll', updatePosition, true)
     }

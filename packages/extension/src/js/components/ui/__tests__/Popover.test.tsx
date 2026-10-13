@@ -34,6 +34,24 @@ const setViewportSize = (width: number, height: number) => {
 }
 
 describe('Popover', () => {
+  it('consumes Escape before focus reaches the popover', () => {
+    const anchorEl = createAnchorEl()
+    anchorEl.focus()
+    const close = jest.fn()
+    const shortcut = jest.fn()
+    document.addEventListener('keydown', shortcut)
+    const { unmount } = render(
+      <Popover open anchorEl={anchorEl} onClose={close}>
+        <input aria-label="Editor" />
+      </Popover>,
+    )
+    fireEvent.keyDown(anchorEl, { key: 'Escape' })
+    expect(close).toHaveBeenCalledTimes(1)
+    expect(shortcut).not.toHaveBeenCalled()
+    unmount()
+    document.removeEventListener('keydown', shortcut)
+    anchorEl.remove()
+  })
   it('uses theme surface and text colors in dark mode', async () => {
     const anchorEl = createAnchorEl()
 

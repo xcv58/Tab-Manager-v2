@@ -668,8 +668,7 @@ const AutocompleteSearch = observer((props: Props) => {
             inputProps.onKeyDown(event)
           }}
           onKeyUp={(event) => {
-            // Mousetrap handles Escape on keyup; keep search's two-step
-            // dismissal from also triggering the global blur shortcut.
+            // Keep the full Escape press within search's two-step dismissal.
             if (event.key === 'Escape') event.stopPropagation()
           }}
           onFocus={() => {

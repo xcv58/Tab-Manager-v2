@@ -90,7 +90,9 @@ test('palette shares context availability, edits groups in lite popup and opens 
     await query.fill('edit group')
     await page.keyboard.press('Enter')
     await expect(editor).toBeVisible()
+    await expect(editor.locator('input')).toBeFocused()
     await page.keyboard.press('Escape')
+    await expect(search).toHaveValue('Palette Alpha')
     await page.keyboard.press('Alt+k')
     await query.fill('show title URL')
     await palette

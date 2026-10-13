@@ -132,7 +132,7 @@ export default function Menu({
       if (e.key === 'Escape') {
         e.preventDefault()
         e.stopPropagation()
-        // Close on keyup so Mousetrap cannot also clear the tab search.
+        // Keep the menu present through key release, consuming the full press.
         return
       }
 
