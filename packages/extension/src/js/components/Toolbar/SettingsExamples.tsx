@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
+import { getNoun } from 'libs'
 import { useAppTheme } from 'libs/appTheme'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import { TabRowsPreview } from './TabRowPreview'
@@ -78,7 +79,8 @@ export const SampleWindowPreview = observer(function SampleWindowPreview({
         }}
       >
         <span>
-          {win.tabs.length} tabs · {win.tabs[0].title}
+          {win.tabs.length} {getNoun('tab', win.tabs.length)} ·{' '}
+          {win.tabs[0].title}
         </span>
       </div>
       <TabRowsPreview

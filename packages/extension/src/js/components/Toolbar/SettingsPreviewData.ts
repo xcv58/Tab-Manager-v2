@@ -89,11 +89,5 @@ export const previewAppWindow: PreviewWindow = {
       url: 'https://music.example.test/',
       iconUrl: previewIcon('M', '#dc2626'),
     },
-    {
-      id: 9331,
-      title: 'Music library',
-      url: 'https://music.example.test/library',
-      iconUrl: previewIcon('M', '#dc2626'),
-    },
   ],
 }
