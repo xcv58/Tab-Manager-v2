@@ -169,17 +169,19 @@ test.describe('The Extension page should', () => {
     ])
     expect(singleWindowId).toBeGreaterThan(-1)
     await page.bringToFront()
-    await page.waitForTimeout(900)
 
-    const singleTabIdHandle = await page.waitForFunction(async (windowId) => {
-      const tabs = await chrome.tabs.query({ windowId })
-      const target = tabs.find((tab) =>
-        (tab.url || '').includes('single-tab-snapshot'),
-      )
-      return target?.id ?? 0
-    }, singleWindowId)
-    const singleTabId = (await singleTabIdHandle.jsonValue()) as number
-    expect(singleTabId).toBeGreaterThan(0)
+    // waitForFunction treats an async predicate's Promise as truthy before
+    // the Chrome query resolves. Poll the resolved tab ID instead.
+    const readSingleTabId = () =>
+      page.evaluate(async (windowId) => {
+        const tabs = await chrome.tabs.query({ windowId })
+        const target = tabs.find((tab) =>
+          (tab.url || '').includes('single-tab-snapshot'),
+        )
+        return target?.id ?? 0
+      }, singleWindowId)
+    await expect.poll(readSingleTabId).toBeGreaterThan(0)
+    const singleTabId = await readSingleTabId()
 
     await page.reload()
     await waitForTestId(page, `window-card-${singleWindowId}`)
