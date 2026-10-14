@@ -102,6 +102,46 @@ describe('palette focus restoration', () => {
 })
 
 describe('ActionStore palette', () => {
+  it('limits lite popup commands to quick tab actions and full-view entry points', async () => {
+    const { store, actions, tab } = setup()
+    store.userStore.litePopupMode = true
+    store.userStore.showTabTooltip = true
+    const ids = actions.commands.map((command) => command.id)
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        'activate-tab',
+        'close-tab',
+        'pin-tab',
+        'copy-tab',
+        'copy-title-tab',
+        'copy-title-url-tab',
+        'tab-details',
+        'open-full-mode',
+        'settings-full',
+        'help-full',
+      ]),
+    )
+    for (const id of [
+      'select-focused',
+      'move-selection',
+      'edit-group',
+      'sort-all',
+      'clean-duplicates',
+      'export-selection',
+      'copy-format-selection',
+    ])
+      expect(ids).not.toContain(id)
+    await actions.execute(
+      actions.commands.find((command) => command.id === 'copy-title-tab')!,
+    )
+    expect(store.copyTabs).toHaveBeenCalledWith([tab], 'title')
+    expect(store.tabStore.selection.get(tab.id)).toBe(tab)
+    store.userStore.litePopupMode = false
+    expect(
+      actions.commands.some((command) => command.id === 'export-selection'),
+    ).toBe(true)
+  })
+
   it.each(['csv', 'tsv', 'json', 'markdown'])(
     'copies %s while retaining the selection and picker',
     async (format) => {

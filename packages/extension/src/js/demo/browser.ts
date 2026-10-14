@@ -556,7 +556,15 @@ const browser = {
       properties: TabCreateProperties = {},
     ): Promise<DemoTab | undefined> => {
       if (properties.url && isDemoURL(properties.url)) {
-        record('The full Tab Manager view is already open in this demo.')
+        const destination = new URL(properties.url)
+        if (
+          !settingsPreview &&
+          (window.location.search.includes('popup_preview') ||
+            destination.searchParams.has('panel'))
+        ) {
+          window.location.assign(destination.href + window.location.hash)
+        }
+        record('Opened the full Tab Manager view in the demo.')
         return undefined
       }
       const parsed = validateURL(properties.url ?? 'https://tab.jenny.media/')

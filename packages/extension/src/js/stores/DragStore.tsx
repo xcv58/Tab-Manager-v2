@@ -660,14 +660,14 @@ export default class DragStore {
         // Intact groups cannot be nested inside the destination's group.
         // Move blocks around its boundary, using the group API so transfers
         // keep IDs and metadata even when the source window becomes empty.
-        await this.dropAt({
+        return await this.dropAt({
           windowId: tab.windowId,
           index: this.getTargetIndex(tab.win.tabs, tab, before),
           forceUngroup: true,
           source: 'tab-relative',
         })
       } else {
-        await this.drop(tab, before)
+        return await this.drop(tab, before)
       }
     } finally {
       this.pendingWindowEdgeDrop = false

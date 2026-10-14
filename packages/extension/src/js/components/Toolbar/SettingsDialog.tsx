@@ -1067,7 +1067,7 @@ export default observer(() => {
               <h3 className="settings-subheading">Browser popup</h3>
               <SettingsSwitchOption
                 title="Use lite popup mode"
-                description="Show search results instead of the window overview the next time you open the browser popup."
+                description="Quick search and tab actions. Organization and Settings open in the full view. Applies the next time you open the browser popup."
                 checked={litePopupMode}
                 onChange={toggleLitePopupMode}
                 style={rowDetailOptionStyle}

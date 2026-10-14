@@ -42,8 +42,8 @@ export default observer(function WorkspaceMenu() {
           disabled={!!command.disabledReason}
           aria-label={command.label}
           onClick={() => {
-            menu.onClose()
             if (command.keepOpen) actionStore.openPalette()
+            else menu.onClose()
             void actionStore.execute(command)
           }}
         >

@@ -796,9 +796,7 @@ test.describe('The Extension page should', () => {
 
     await searchInput.press('Escape')
 
-    await expect(searchInput).toHaveValue('pin')
     await expect(searchInput).toHaveAttribute('aria-expanded', 'false')
-    await searchInput.press('Escape')
 
     await expect(searchInput).toHaveValue('')
     await expect

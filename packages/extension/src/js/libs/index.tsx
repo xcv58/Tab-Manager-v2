@@ -11,7 +11,11 @@ export const NOT_POPUP = 'not_popup'
 export const popupURL = browser.runtime.getURL('popup.html') + `?${NOT_POPUP}=1`
 
 const closeIfCurrentTabIsPopup = () => {
-  if (typeof window !== 'undefined' && window.location.href !== popupURL) {
+  if (
+    typeof window !== 'undefined' &&
+    /^(chrome|moz)-extension:$/.test(window.location.protocol) &&
+    window.location.href !== popupURL
+  ) {
     window.close()
   }
 }
@@ -432,6 +436,13 @@ export const openPopup = async () => {
 
 export const openInNewTab = () => {
   browser.tabs.create({ url: popupURL })
+  closeIfCurrentTabIsPopup()
+}
+
+export const openFullTabManager = async (panel?: 'settings' | 'shortcuts') => {
+  const url = new URL(popupURL)
+  if (panel) url.searchParams.set('panel', panel)
+  await browser.tabs.create({ url: url.href })
   closeIfCurrentTabIsPopup()
 }
 

@@ -14,10 +14,13 @@ import '../css/demo-workspace.css'
 const popupPreview = new URLSearchParams(window.location.search).has(
   'popup_preview',
 )
+const panel = new URLSearchParams(window.location.search).get('panel')
+const panelQuery =
+  panel === 'settings' || panel === 'shortcuts' ? `&panel=${panel}` : ''
 window.history.replaceState(
   null,
   '',
-  `${window.location.pathname}?${popupPreview ? 'popup_preview=1' : 'not_popup=1'}`,
+  `${window.location.pathname}?${popupPreview ? 'popup_preview=1' : 'not_popup=1'}${panelQuery}${window.location.hash}`,
 )
 
 let failed = false

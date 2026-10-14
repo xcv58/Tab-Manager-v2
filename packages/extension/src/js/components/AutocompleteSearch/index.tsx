@@ -413,13 +413,12 @@ const AutocompleteSearch = observer((props: Props) => {
     Number.POSITIVE_INFINITY,
   )
   const requestedOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
-  const isOpen =
-    !actionStore.paletteOpen &&
-    resultMenuEnabled &&
-    !dismissed &&
-    (requestedOpen || isCommand)
+  const isOpen = resultMenuEnabled && !dismissed && (requestedOpen || isCommand)
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
+      // The palette overlays this list. Keep its mounted rows and scroll offset.
+      if (!nextOpen && actionStore.paletteOpen) return
+      if (nextOpen) setDismissed(false)
       // The portal menu receives focus while its search result remains mounted.
       // Closing that result list would also unmount the menu being used.
       if (!nextOpen && actionStore.menu?.key.startsWith('search-tab-')) return
@@ -560,11 +559,6 @@ const AutocompleteSearch = observer((props: Props) => {
   })
 
   const handleEscape = () => {
-    if (isOpen) {
-      setDismissed(true)
-      handleOpenChange(false)
-      return
-    }
     search('')
     setDismissed(true)
     handleOpenChange(false)
@@ -574,6 +568,8 @@ const AutocompleteSearch = observer((props: Props) => {
   return (
     <div
       {...rootProps}
+      {...(actionStore.paletteOpen ? { inert: '' } : {})}
+      aria-hidden={actionStore.paletteOpen || undefined}
       ref={(node) => {
         rootRef.current = node
         if (typeof rootProps.ref === 'function') {

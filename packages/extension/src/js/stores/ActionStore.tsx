@@ -2,7 +2,14 @@ import { makeAutoObservable, observable, runInAction } from 'mobx'
 import type Store from 'stores'
 import type Focusable from './Focusable'
 import type Tab from './Tab'
-import { browser, getNoun, openInNewTab, openOrTogglePopup } from 'libs'
+import {
+  browser,
+  getNoun,
+  openFullTabManager,
+  openInNewTab,
+  openOrTogglePopup,
+} from 'libs'
+import { isLitePopupMode } from 'libs/litePopup'
 import type { TabCopyFormat } from 'libs/tabExport'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { restoreDialogFocusTarget } from 'libs/dialogFocus'
@@ -71,8 +78,14 @@ export type PaletteCommand = {
   danger?: boolean
   afterClose?: boolean
   keepOpen?: boolean
+  moveTarget?: PaletteMoveTarget
   run: () => void | Promise<unknown>
 }
+
+type PaletteMoveTarget =
+  | { kind: 'window'; id: number; edge: 'beginning' | 'end' }
+  | { kind: 'group'; id: number }
+  | { kind: 'tab'; id: number; before: boolean }
 
 class PaletteMoveError extends Error {}
 
@@ -125,6 +138,7 @@ export default class ActionStore {
   feedback = ''
   busy = false
   error = ''
+  failedMove: { target: PaletteMoveTarget; tabIds: number[] } | null = null
   groupEditorId: number | null = null
   destinationEdge: 'beginning' | 'end' = 'end'
   paletteFocusTarget: HTMLElement | null = null
@@ -141,7 +155,130 @@ export default class ActionStore {
       menuAnchors: observable.shallow,
       paletteFocusTarget: false,
       paletteSearchFocusTarget: false,
+      failedMove: observable.ref,
     })
+  }
+
+  get liteMode() {
+    return isLitePopupMode(this.store.userStore.litePopupMode)
+  }
+
+  openFullView = (panel?: 'settings' | 'shortcuts') => openFullTabManager(panel)
+
+  getLiteCommands = (
+    tab = this.store.focusStore.focusedTab,
+  ): PaletteCommand[] => {
+    const commands: PaletteCommand[] = [
+      {
+        id: 'search',
+        icon: 'search',
+        label: 'Search tabs',
+        section: 'Application',
+        afterClose: true,
+        run: this.store.searchStore.focus,
+      },
+      {
+        id: 'open-full-mode',
+        icon: 'window',
+        label: 'Open full Tab Manager',
+        detail: 'Organize, group, move and export tabs in full view',
+        aliases: 'organize group move sort bulk export csv json selection',
+        section: 'Application',
+        run: () => this.openFullView(),
+      },
+      {
+        id: 'settings-full',
+        icon: 'settings',
+        label: 'Settings in full view',
+        section: 'Application',
+        run: () => this.openFullView('settings'),
+      },
+      {
+        id: 'help-full',
+        icon: 'keyboard',
+        label: 'Keyboard shortcuts in full view',
+        section: 'Application',
+        run: () => this.openFullView('shortcuts'),
+      },
+      {
+        id: 'theme',
+        icon: 'theme',
+        label: 'Change appearance',
+        section: 'Application',
+        run: this.store.userStore.selectNextTheme,
+      },
+    ]
+    if (!tab) return commands
+    const surface = getMountedTabDetailsSurface(tab.id, 'search')
+    return [
+      {
+        id: 'activate-tab',
+        icon: 'tab',
+        label: 'Go to this tab',
+        section: 'This tab',
+        afterClose: true,
+        run: () => tab.activate(),
+      },
+      {
+        id: 'reload-tab',
+        icon: 'reload',
+        label: 'Reload this tab',
+        section: 'This tab',
+        run: tab.reload,
+      },
+      {
+        id: 'pin-tab',
+        icon: tab.pinned ? 'unpin' : 'pin',
+        label: tab.pinned ? 'Unpin this tab' : 'Pin this tab',
+        section: 'This tab',
+        run: tab.togglePin,
+      },
+      {
+        id: 'copy-tab',
+        icon: 'url',
+        label: 'Copy this tab’s URL',
+        section: 'This tab',
+        run: () => this.copyTabUrl(tab),
+      },
+      {
+        id: 'copy-title-tab',
+        icon: 'title',
+        label: 'Copy this tab’s title',
+        section: 'This tab',
+        run: () => this.copyTabTitle(tab),
+      },
+      {
+        id: 'copy-title-url-tab',
+        icon: 'title-url',
+        label: 'Copy this tab’s title and URL',
+        section: 'This tab',
+        run: () => this.copyTabTitleAndUrl(tab),
+      },
+      {
+        id: 'tab-details',
+        icon: 'details',
+        label: 'Show this tab’s title and URL',
+        section: 'This tab',
+        afterClose: true,
+        disabledReason: !this.store.userStore.showTabTooltip
+          ? 'Enable tab tooltips in Settings first'
+          : !surface
+            ? 'Find this tab in search first'
+            : undefined,
+        run: () => {
+          if (surface) this.store.hoverStore.openTooltip(tab.id, true, surface)
+        },
+      },
+      {
+        id: 'close-tab',
+        icon: 'close',
+        label: 'Close this tab',
+        section: 'This tab',
+        danger: true,
+        run: tab.remove,
+      },
+      ...commands,
+    ]
   }
 
   setDestinationEdge = (edge: 'beginning' | 'end') => {
@@ -190,8 +327,7 @@ export default class ActionStore {
       const tabId = this.store.focusStore.focusedTab?.id
       const surface =
         tabId != null ? getMountedTabDetailsSurface(tabId) : undefined
-      // Opening the palette temporarily unmounts search results. Remember a
-      // visible owner so its details action remains available after closing.
+      // Remember the caller's visible details surface across overlay actions.
       this.paletteDetailsTarget = surface ? { tabId, surface } : null
       this.paletteFocusTarget =
         this.menu?.element ||
@@ -220,6 +356,7 @@ export default class ActionStore {
     this.formatAction = null
     this.feedback = ''
     this.error = ''
+    this.failedMove = null
     this.paletteOpen = true
   }
 
@@ -229,6 +366,8 @@ export default class ActionStore {
     this.paletteOpen = false
     this.choosingDestination = false
     this.formatAction = null
+    this.failedMove = null
+    this.error = ''
     if (
       wasOpen &&
       restoreFocus &&
@@ -237,8 +376,8 @@ export default class ActionStore {
     ) {
       const target = this.paletteFocusTarget
       const searchTarget = this.paletteSearchFocusTarget
-      // Resolve after React remounts the results, rather than saving their old
-      // DOM identity. Collapsed group members have no main-list row to use.
+      // Resolve after React removes the background's inert state. Use a search
+      // replacement if browser updates removed the original row in the meantime.
       restoreDialogFocusTarget(() => {
         if (
           this.paletteOpen ||
@@ -278,6 +417,113 @@ export default class ActionStore {
     this.feedback = ''
     this.query = ''
     this.error = ''
+    this.failedMove = null
+  }
+
+  get moveDestinationAvailable() {
+    const target = this.failedMove?.target
+    if (!target) return false
+    if (target.kind === 'group')
+      return !!this.store.tabGroupStore.getTabGroup(target.id)
+    if (target.kind === 'window')
+      return this.store.windowStore.windows.some((win) => win.id === target.id)
+    return this.store.windowStore.tabs.some(
+      (tab) => tab.id === target.id && !tab.removing,
+    )
+  }
+
+  runMove = async (target: PaletteMoveTarget) => {
+    const { windowStore, tabGroupStore, dragStore } = this.store
+    if (
+      (target.kind === 'window' &&
+        !windowStore.windows.some((win) => win.id === target.id)) ||
+      (target.kind === 'group' && !tabGroupStore.getTabGroup(target.id))
+    )
+      throw new PaletteMoveError('That destination is no longer available.')
+    const tab =
+      target.kind === 'tab'
+        ? windowStore.tabs.find((tab) => tab.id === target.id && !tab.removing)
+        : null
+    if (target.kind === 'tab' && !tab)
+      throw new PaletteMoveError('That destination is no longer available.')
+    const hint =
+      target.kind === 'window'
+        ? await dragStore.moveSelectedTabsToWindowEdge(target.id, target.edge)
+        : target.kind === 'group'
+          ? await dragStore.moveSelectedTabsToGroup(target.id)
+          : await dragStore.moveSelectedTabsRelativeToTab(tab, target.before)
+    if (hint)
+      throw new PaletteMoveError(
+        hint === 'Could not move tabs. Please try again.'
+          ? 'Couldn’t move these tabs.'
+          : hint,
+      )
+  }
+
+  retryMove = async () => {
+    const failed = this.failedMove
+    if (!failed || this.busy) return
+    this.busy = true
+    try {
+      await this.store.windowStore.syncAllWindows()
+      const ids = new Set(failed.tabIds)
+      const remaining = this.store.windowStore.tabs.filter(
+        (tab) => ids.has(tab.id) && !tab.removing,
+      )
+      runInAction(() => {
+        this.store.tabStore.unselectAll()
+        this.store.tabStore.selectAll(remaining)
+        this.busy = false
+      })
+      if (!remaining.length) {
+        runInAction(() => {
+          this.error = 'These tabs are no longer available.'
+          this.failedMove = null
+        })
+        return
+      }
+      if (!this.moveDestinationAvailable) {
+        runInAction(() => {
+          this.error = 'That destination is no longer available.'
+        })
+        return
+      }
+      await this.execute({
+        id: 'retry-move',
+        icon: 'move',
+        label: 'Retry move',
+        section: 'Selected tabs',
+        moveTarget: failed.target,
+        run: () => this.runMove(failed.target),
+      })
+    } catch {
+      runInAction(() => {
+        this.busy = false
+        this.error = 'Couldn’t refresh your tabs. Please try again.'
+      })
+    }
+  }
+
+  chooseAnotherMoveDestination = () => {
+    if (this.busy) return
+    this.failedMove = null
+    this.error = ''
+    this.choosingDestination = true
+    this.formatAction = null
+    this.query = ''
+  }
+
+  moveToTab = (tab: Tab, before: boolean) => {
+    const target: PaletteMoveTarget = { kind: 'tab', id: tab.id, before }
+    this.openPalette()
+    return this.execute({
+      id: before ? 'move-before' : 'move-after',
+      icon: before ? 'up' : 'down',
+      label: before ? 'Move before this tab' : 'Move after this tab',
+      section: 'Focused tab',
+      moveTarget: target,
+      run: () => this.runMove(target),
+    })
   }
 
   showFeedback = (message: string) => {
@@ -308,6 +554,8 @@ export default class ActionStore {
     this.error = ''
     this.feedback = ''
     this.busy = true
+    const tabIds = Array.from(this.store.tabStore.selection.keys()) as number[]
+    this.failedMove = null
     try {
       if (command.afterClose) {
         this.busy = false
@@ -328,11 +576,15 @@ export default class ActionStore {
           error instanceof PaletteMoveError
             ? error.message
             : 'Could not complete this action. Please try again.'
+        if (command.moveTarget)
+          this.failedMove = { target: command.moveTarget, tabIds }
+        if (!this.paletteOpen) this.store.shortcutStore.showMoveHint(this.error)
       })
     }
   }
 
   get commands(): PaletteCommand[] {
+    if (this.liteMode) return this.getLiteCommands()
     const {
       tabStore,
       focusStore,
@@ -418,10 +670,8 @@ export default class ActionStore {
             section: 'Groups · Add to group',
             aliases: `${parentTitle} ${group.color}${group.collapsed ? ' collapsed' : ''}`,
             disabledReason: moveReason || dragStore.getGroupMoveHint(group.id),
-            run: async () => {
-              const hint = await dragStore.moveSelectedTabsToGroup(group.id)
-              if (hint) throw new PaletteMoveError(hint)
-            },
+            moveTarget: { kind: 'group', id: group.id },
+            run: () => this.runMove({ kind: 'group', id: group.id }),
           }
         })
       const windowCommands: PaletteCommand[] = windowStore.windows.map(
@@ -439,13 +689,17 @@ export default class ActionStore {
             moveReason ||
             getTabMoveDestinationHint(win, tabStore.selection.values()) ||
             undefined,
-          run: async () => {
-            const hint = await dragStore.moveSelectedTabsToWindowEdge(
-              win.id,
-              this.destinationEdge,
-            )
-            if (hint) throw new PaletteMoveError(hint)
+          moveTarget: {
+            kind: 'window',
+            id: win.id,
+            edge: this.destinationEdge,
           },
+          run: () =>
+            this.runMove({
+              kind: 'window',
+              id: win.id,
+              edge: this.destinationEdge,
+            }),
         }),
       )
       return [...groups, ...windowCommands]
@@ -1134,15 +1388,23 @@ export default class ActionStore {
         label: `Move ${count ? selectedScope : 'selected tabs'} ${relative ? position + ' this tab' : 'to this window’s ' + position}`,
         section: relative ? 'Focused tab' : 'Focused window',
         disabledReason: reason,
-        run: async () => {
-          const hint = relative
-            ? await dragStore.moveSelectedTabsRelativeToTab(
-                tab,
-                position === 'before',
-              )
-            : await dragStore.moveSelectedTabsToWindowEdge(win.id, position)
-          if (hint) throw new PaletteMoveError(hint)
-        },
+        moveTarget: relative
+          ? { kind: 'tab', id: tab?.id, before: position === 'before' }
+          : {
+              kind: 'window',
+              id: win?.id,
+              edge: position as 'beginning' | 'end',
+            },
+        run: () =>
+          this.runMove(
+            relative
+              ? { kind: 'tab', id: tab.id, before: position === 'before' }
+              : {
+                  kind: 'window',
+                  id: win.id,
+                  edge: position as 'beginning' | 'end',
+                },
+          ),
       })
     }
     for (const [id, label, callback, shortcut] of [

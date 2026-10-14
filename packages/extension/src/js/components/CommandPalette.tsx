@@ -23,6 +23,7 @@ const PaletteDialog = observer(function PaletteDialog() {
   const titleId = useId()
   const contextId = useId()
   const listRef = useRef<HTMLUListElement>(null)
+  const recoveryRef = useRef<HTMLButtonElement>(null)
   const commands = actionStore.commands
   const formatAction = actionStore.formatAction
   const choosingStep = actionStore.choosingDestination || Boolean(formatAction)
@@ -96,10 +97,13 @@ const PaletteDialog = observer(function PaletteDialog() {
   useEffect(() => {
     if (!actionStore.paletteOpen || actionStore.busy) return
     const frame = requestAnimationFrame(() =>
-      inputProps.ref.current?.focus({ preventScroll: true }),
+      (actionStore.failedMove
+        ? recoveryRef.current
+        : inputProps.ref.current
+      )?.focus({ preventScroll: true }),
     )
     return () => cancelAnimationFrame(frame)
-  }, [actionStore.paletteOpen, actionStore.busy])
+  }, [actionStore.paletteOpen, actionStore.busy, actionStore.failedMove])
 
   useEffect(() => {
     if (highlightedIndex >= 0) {
@@ -141,7 +145,8 @@ const PaletteDialog = observer(function PaletteDialog() {
           if (event.key === 'Escape') {
             event.preventDefault()
             event.stopPropagation()
-            if (choosingStep) actionStore.back()
+            if (actionStore.failedMove) actionStore.closePalette()
+            else if (choosingStep) actionStore.back()
             else actionStore.closePalette()
           }
         }}
@@ -347,9 +352,36 @@ const PaletteDialog = observer(function PaletteDialog() {
           </p>
         )}
         {actionStore.error && (
-          <p role="alert" className="px-4 py-2 text-sm">
-            {actionStore.error}
-          </p>
+          <div className="px-4 py-3 text-sm" data-testid="palette-action-error">
+            <p role="alert">{actionStore.error}</p>
+            <div className="mt-2 flex gap-2">
+              {actionStore.failedMove && (
+                <button
+                  ref={recoveryRef}
+                  type="button"
+                  className="shortcut-run-button"
+                  disabled={actionStore.busy}
+                  onClick={
+                    actionStore.moveDestinationAvailable
+                      ? actionStore.retryMove
+                      : actionStore.chooseAnotherMoveDestination
+                  }
+                >
+                  {actionStore.moveDestinationAvailable
+                    ? 'Retry'
+                    : 'Choose another destination'}
+                </button>
+              )}
+              <button
+                type="button"
+                className="shortcut-run-button"
+                disabled={actionStore.busy}
+                onClick={() => actionStore.closePalette()}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         )}
         <div
           className="flex items-center justify-between gap-2 border-t px-4 py-2 text-xs"
@@ -361,7 +393,14 @@ const PaletteDialog = observer(function PaletteDialog() {
           <span>
             {actionStore.busy ? 'Working…' : '↑ ↓ navigate · Enter run'}
           </span>
-          <span>Esc {choosingStep ? 'back' : 'close'}</span>
+          <span>
+            Esc{' '}
+            {actionStore.failedMove
+              ? 'cancel'
+              : choosingStep
+                ? 'back'
+                : 'close'}
+          </span>
         </div>
       </div>
     </Dialog>

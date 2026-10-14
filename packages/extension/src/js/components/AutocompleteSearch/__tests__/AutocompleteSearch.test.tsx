@@ -116,6 +116,11 @@ const renderAutocompleteSearch = ({
   const stopType = jest.fn()
   const setSearchEl = jest.fn()
   const openPalette = jest.fn()
+  const actionStore = observable({
+    paletteOpen: false,
+    menu: null,
+    openPalette,
+  })
 
   const Wrapper = () => {
     const queryState = React.useMemo(
@@ -166,7 +171,7 @@ const renderAutocompleteSearch = ({
     mockUseStore.mockImplementation(() => ({
       userStore,
       searchStore,
-      actionStore: { paletteOpen: false, menu: null, openPalette },
+      actionStore,
       hoverStore: {
         hovered: false,
         hoveredSurface: 'list',
@@ -192,7 +197,7 @@ const renderAutocompleteSearch = ({
     )
   }
 
-  return { ...render(<Wrapper />), openPalette }
+  return { ...render(<Wrapper />), openPalette, actionStore }
 }
 
 describe('AutocompleteSearch', () => {
@@ -330,7 +335,7 @@ describe('AutocompleteSearch', () => {
     },
   )
 
-  it('dismisses results on the first Escape and clears search on the second', async () => {
+  it('clears search and leaves the input with one Escape', async () => {
     renderAutocompleteSearch({ initialQuery: 'alpha', open: undefined })
 
     const input = screen.getByRole('combobox')
@@ -345,11 +350,6 @@ describe('AutocompleteSearch', () => {
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-expanded', 'false')
     })
-    expect(input).toHaveValue('alpha')
-    expect(input).toHaveFocus()
-
-    fireEvent.keyDown(input, { key: 'Escape' })
-
     await waitFor(() => {
       expect(input).toHaveValue('')
     })
@@ -357,6 +357,28 @@ describe('AutocompleteSearch', () => {
     await waitFor(() => {
       expect(input).not.toHaveFocus()
     })
+  })
+
+  it('keeps the same list mounted while the palette overlays search', async () => {
+    const { actionStore } = renderAutocompleteSearch({ initialQuery: 'alpha' })
+    const input = screen.getByRole('combobox')
+    act(() => input.focus())
+    const list = await screen.findByTestId('virtual-list')
+    list.scrollTop = 100
+    act(() => {
+      actionStore.paletteOpen = true
+    })
+    expect(list.isConnected).toBe(true)
+    expect(list.closest('[inert]')).not.toBeNull()
+    fireEvent.blur(input)
+    await new Promise((resolve) => setTimeout(resolve, 180))
+    expect(list.isConnected).toBe(true)
+    act(() => {
+      actionStore.paletteOpen = false
+    })
+    expect(screen.getByTestId('virtual-list')).toBe(list)
+    expect(list.scrollTop).toBe(100)
+    expect(input).toHaveValue('alpha')
   })
 
   it('keeps the result list open when open is controlled by the parent', async () => {

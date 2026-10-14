@@ -3,6 +3,7 @@ import { getWindowLabel } from 'libs/windowLabel'
 import TabGroupRow from './TabGroupRow'
 import Mousetrap from 'mousetrap'
 import { getCommandPaletteShortcut } from 'libs/commandPaletteShortcut'
+import { isLiteShortcut } from 'libs/litePopup'
 import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
@@ -416,7 +417,9 @@ export default class ShortcutStore {
       ['?', 'ctrl+/'],
       (event: Event) => {
         preventDefault(event)
-        this.openDialog()
+        if (this.store.actionStore.liteMode)
+          void this.store.actionStore.openFullView('shortcuts')
+        else this.openDialog()
       },
       'Open keyboard shortcut help',
     ],
@@ -424,7 +427,9 @@ export default class ShortcutStore {
       'ctrl+,',
       (event: Event) => {
         preventDefault(event)
-        this.store.userStore.toggleDialog()
+        if (this.store.actionStore.liteMode)
+          void this.store.actionStore.openFullView('settings')
+        else this.store.userStore.toggleDialog()
       },
       'Toggle Settings',
     ],
@@ -568,6 +573,8 @@ export default class ShortcutStore {
     if (this.store.userStore?.dialogOpen) {
       return !settingsDialogAllowedCombos.has(combo)
     }
+    if (this.store.actionStore?.liteMode && !isLiteShortcut(sequence || combo))
+      return true
     if (
       isTabMoveShortcut(sequence || combo) &&
       (!element.closest?.('[data-testid^="window-card-"]') ||

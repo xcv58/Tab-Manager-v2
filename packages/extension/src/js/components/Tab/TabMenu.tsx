@@ -30,6 +30,7 @@ import { useActionMenu } from 'components/hooks/useActionMenu'
 import MoveShortcut from 'components/Shortcut/MoveShortcut'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { getTabMoveAriaShortcut } from 'libs/tabMoveShortcuts'
+import CommandPaletteIcon from 'components/CommandPaletteIcon'
 
 export default observer(
   (props: TabProps & { menuKey?: string; hideTrigger?: boolean }) => {
@@ -71,6 +72,38 @@ export default observer(
     const moveScope = selectedCount
       ? `${selectedCount} selected ${getNoun('tab', selectedCount)}`
       : 'selected tabs'
+
+    if (actionStore.liteMode) {
+      return (
+        <Menu
+          {...menu}
+          data-testid={`${props.menuKey || `tab-${tab.id}`}-actions-menu`}
+        >
+          {menu.open &&
+            actionStore
+              .getLiteCommands(tab)
+              .filter(
+                (command) =>
+                  command.section === 'This tab' ||
+                  command.id === 'open-full-mode',
+              )
+              .map((command) => (
+                <MenuItem
+                  key={command.id}
+                  disabled={!!command.disabledReason}
+                  aria-label={command.label}
+                  onClick={() => {
+                    menu.onClose()
+                    void actionStore.execute(command)
+                  }}
+                  style={command.danger ? danger : undefined}
+                >
+                  <CommandPaletteIcon name={command.icon} /> {command.label}
+                </MenuItem>
+              ))}
+        </Menu>
+      )
+    }
 
     return (
       <>
@@ -142,9 +175,7 @@ export default observer(
           <MenuSection>Move {moveScope} here</MenuSection>
           <MenuItem
             disabled={moveDisabled}
-            onClick={run(() =>
-              dragStore.moveSelectedTabsRelativeToTab(tab, true),
-            )}
+            onClick={() => void actionStore.moveToTab(tab, true)}
             aria-label={`Move ${moveScope} before this tab`}
             aria-keyshortcuts={getTabMoveAriaShortcut('before')}
             data-testid={`tab-menu-option-${tab.id}-move-selected-before-this-tab`}
@@ -155,9 +186,7 @@ export default observer(
           </MenuItem>
           <MenuItem
             disabled={moveDisabled}
-            onClick={run(() =>
-              dragStore.moveSelectedTabsRelativeToTab(tab, false),
-            )}
+            onClick={() => void actionStore.moveToTab(tab, false)}
             aria-label={`Move ${moveScope} after this tab`}
             aria-keyshortcuts={getTabMoveAriaShortcut('after')}
             data-testid={`tab-menu-option-${tab.id}-move-selected-after-this-tab`}

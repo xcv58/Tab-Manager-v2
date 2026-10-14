@@ -128,6 +128,27 @@ const setup = (sources: any[], targetTabs: any[] = []) => {
 }
 
 describe('DragStore window edge moves', () => {
+  it.each([-1, 4])(
+    'propagates relative-move failure for group %s and retains selection',
+    async (groupId) => {
+      const sources = [tab(1, 3, 0, groupId), tab(2, 3, 1, groupId)]
+      const target = tab(3, 7, 0)
+      const { dragStore, tabStore, windowStore, destination } = setup(sources, [
+        target,
+      ])
+      windowStore.moveTabs.mockRejectedValue(new Error('Cannot edit tabs now'))
+      dragStore.store.tabGroupStore.moveGroup.mockRejectedValue(
+        new Error('Cannot edit groups now'),
+      )
+      expect(
+        await dragStore.moveSelectedTabsRelativeToTab(
+          { ...target, win: destination } as any,
+          true,
+        ),
+      ).toBe('Could not move tabs. Please try again.')
+      expect(tabStore.selection.size).toBe(2)
+    },
+  )
   it.each([
     ['beginning', false, true],
     ['end', true, false],

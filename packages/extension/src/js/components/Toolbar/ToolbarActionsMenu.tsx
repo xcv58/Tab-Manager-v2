@@ -114,7 +114,7 @@ export default observer(function ToolbarActionsMenu({
         </MenuItem>
         <MenuDivider />
         <MenuSection>Application</MenuSection>
-        <MenuItem onClick={run(() => actionStore.openPalette())}>
+        <MenuItem onClick={() => actionStore.openPalette()}>
           {iconSpace}
           <span className="flex-1">Command palette</span>
           <kbd className="ml-4 text-xs opacity-70">

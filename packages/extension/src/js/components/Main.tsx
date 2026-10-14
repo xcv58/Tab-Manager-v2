@@ -54,11 +54,28 @@ export default observer(() => {
   useEffect(() => {
     document.getElementsByTagName('html')[0].style.fontSize = `${fontSize}px`
   }, [fontSize])
+  useEffect(() => {
+    if (liteMode || !userStore.loaded || windowStore.initialLoading) return
+    const url = new URL(window.location.href)
+    const panel = url.searchParams.get('panel')
+    if (panel !== 'settings' && panel !== 'shortcuts') return
+    url.searchParams.delete('panel')
+    window.history.replaceState(null, '', url.href)
+    if (panel === 'settings') userStore.openDialog()
+    else shortcutStore.openDialog()
+  }, [
+    liteMode,
+    userStore.loaded,
+    windowStore.initialLoading,
+    userStore,
+    shortcutStore,
+  ])
   return (
     <main
       onContextMenu={(event) => {
         const target = event.target as Element
         if (
+          liteMode ||
           !(target instanceof Element) ||
           target.closest(
             'button, a, input, textarea, select, [contenteditable], [role="dialog"], [role="menu"], [data-testid^="tab-row-"], [data-testid^="search-tab-row-"], [data-testid^="tab-group-row-"]',
@@ -95,7 +112,7 @@ export default observer(() => {
           <DragLayer />
         </>
       )}
-      <WorkspaceMenu />
+      {!liteMode && <WorkspaceMenu />}
       <PaletteGroupEditor />
       <Shortcut />
       <DeferredContent open={actionStore.paletteOpen}>
