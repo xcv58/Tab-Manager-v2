@@ -16,8 +16,9 @@ Tab Manager v2 turns crowded browser sessions into a searchable workspace. Find 
 ## Quick Start
 
 - Open Tab Manager v2 from the browser toolbar, or open it in its own tab/window for a larger view.
-- Press `/` to search all open tabs, `>` to open the command palette, and `?` to view shortcut help.
-- Select matching tabs, then move, group, or close them in bulk.
+- Press `/` to search all open tabs, `Command+K` on macOS or `Alt+K` on Windows/Linux for the command palette, and `?` for shortcut help. `>` remains a palette alias. These palette shortcuts work only inside Tab Manager.
+- Right-click a tab, window header, or group for its actions. Select matching tabs in full view to move, group, close, copy, or export them together.
+- Lite popup mode keeps quick search and tab actions. Open full Tab Manager for organization, Settings, and shortcut help.
 
 ## Why People Use It
 
@@ -31,19 +32,29 @@ Tab Manager v2 turns crowded browser sessions into a searchable workspace. Find 
 
 ## Useful Shortcuts
 
-| Action                                    | Shortcut                         |
-| ----------------------------------------- | -------------------------------- |
-| Focus tab search                          | `/`                              |
-| Open command palette                      | `>`                              |
-| Move focus                                | `h`, `j`, `k`, `l` or arrow keys |
-| Select focused tab                        | `x` or `Space`                   |
-| Open selected tabs in a new window        | `Shift+N`                        |
-| Create a new tab group from selected tabs | `Alt+Shift+G`                    |
-| Toggle theme                              | `Ctrl+I`                         |
-| Open settings                             | `Ctrl+,`                         |
-| Show keyboard shortcut help               | `?`                              |
+| Action                                    | Shortcut                                             |
+| ----------------------------------------- | ---------------------------------------------------- |
+| Focus tab search                          | `/`                                                  |
+| Open command palette                      | `Command+K` (macOS), `Alt+K` (Windows/Linux), or `>` |
+| Move focus                                | `h`, `j`, `k`, `l` or arrow keys                     |
+| Select focused tab                        | `x` or `Space`                                       |
+| Open selected tabs in a new window        | `Shift+N`                                            |
+| Create a new tab group from selected tabs | `Alt+Shift+G`                                        |
+| Toggle theme                              | `Ctrl+I`                                             |
+| Open settings                             | `Ctrl+,`                                             |
+| Show keyboard shortcut help               | `?`                                                  |
 
 Shortcut behavior can vary slightly by platform and browser. Use the in-app shortcut help for the full list.
+
+## What's New in 3.0
+
+- A dedicated command palette with contextual actions, searchable window/group destinations, and clear recovery when a move fails.
+- Right-click menus for tabs, windows, groups, and the full-view workspace, plus a compact dock for selected tabs.
+- Beginning/End drop targets on window and group headers, including collapsed groups. Whole-group moves preserve names and colors and stay distinct from merging tabs into another group.
+- Selectable tab details with full-value copying, expandable long titles and URLs, and independent **Title line limit** and **URL line limit** settings.
+- Copy selected titles, URLs, or both; copy CSV, spreadsheet TSV, JSON, or Markdown; and download CSV, TSV, JSON, or Markdown. Selection stays available after copying or exporting.
+- One searchable Settings page with sticky section headers and shared live previews. Choose Modern/Classic, theme, contrast, layout, and tab details in one place.
+- One Escape resets ordinary search. Opening the palette preserves the search list, scroll, and caller focus. Lite mode stays focused on quick actions, with full-view routes for larger tasks.
 
 ## Browser Support
 

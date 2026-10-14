@@ -35,7 +35,7 @@
       TAB MANAGER V2
     </text>
     <text x="78" y="58" fill="#707c97" font-family="Helvetica, Arial, sans-serif" font-size="21" font-weight="600">
-      Browser tab control for crowded workspaces
+      See all your tabs in one place
     </text>
   </g>
 
@@ -49,7 +49,7 @@
   </text>
 
   <text x="126" y="668" fill="#586582" font-family="Helvetica, Arial, sans-serif" font-size="34" font-weight="600">
-    Smooth scrolling and workspace actions at scale.
+    Stay organized, even with lots of tabs.
   </text>
 
   <g transform="rotate(-3 1360 430)">

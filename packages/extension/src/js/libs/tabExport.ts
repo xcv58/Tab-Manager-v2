@@ -6,7 +6,7 @@ export type TabCopyFormat =
   | 'tsv'
   | 'json'
   | 'markdown'
-export type TabFileFormat = 'csv' | 'json'
+export type TabFileFormat = 'csv' | 'tsv' | 'json' | 'markdown'
 
 type ExportTab = {
   id: number
@@ -167,16 +167,21 @@ export const formatTabExport = (
 }
 
 export const downloadTabExport = (text: string, format: TabFileFormat) => {
-  const blob = new Blob([format === 'csv' ? '\uFEFF' : '', text], {
-    type:
-      format === 'csv'
-        ? 'text/csv;charset=utf-8'
-        : 'application/json;charset=utf-8',
+  const mimeTypes: Record<TabFileFormat, string> = {
+    csv: 'text/csv;charset=utf-8',
+    tsv: 'text/tab-separated-values;charset=utf-8',
+    json: 'application/json;charset=utf-8',
+    markdown: 'text/markdown;charset=utf-8',
+  }
+  const spreadsheet = format === 'csv' || format === 'tsv'
+  const blob = new Blob([spreadsheet ? '\uFEFF' : '', text], {
+    type: mimeTypes[format],
   })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `tab-manager-tabs-${new Date().toISOString().replace(/[:.]/g, '-')}.${format}`
+  const extension = format === 'markdown' ? 'md' : format
+  link.download = `tab-manager-tabs-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`
   document.body.appendChild(link)
   try {
     link.click()

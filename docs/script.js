@@ -41,16 +41,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedCopy = {
     'zh-Hans': {
+      'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
+        '跨窗口查找标签页，整理相关页面，关闭重复项，复制或分享标签页。',
+      'Open command palette screenshot': '打开命令面板截图',
+      'Contextual command palette': '按上下文显示命令的面板',
+      'Command palette screenshot in light theme': '浅色主题下的命令面板截图',
+      'Command palette screenshot in dark theme': '深色主题下的命令面板截图',
+      'Type what you want to do.': '输入你想做的事。',
       'Tab Manager v2 - See every tab across every window.':
         'Tab Manager v2 - 一次看清所有窗口里的标签页。',
-      'Turn crowded browser sessions into a searchable workspace. Find tabs fast, move matches in bulk, manage native tab groups where supported by the browser, and clean up duplicates.':
-        '把拥挤的浏览器会话整理成可搜索的工作区。快速找到标签页，批量移动匹配项，在浏览器支持时管理原生标签页组，并清理重复标签页。',
       'tab manager, browser extension, chrome extension, firefox add-on, edge extension, tab groups, duplicate tabs, keyboard shortcuts':
         '标签页管理器, 浏览器扩展, Chrome 扩展, Firefox 附加组件, Edge 扩展, 标签页组, 重复标签页, 快捷键',
-      'See every tab across every window, then search, group, move, and clean up tabs without window hopping, including native tab groups where supported by the browser.':
-        '一次看清所有窗口里的标签页，然后无需来回切换窗口，就能搜索、分组、移动并清理标签页；在浏览器支持时也能管理原生标签页组。',
-      'Turn crowded browser sessions into a searchable workspace with fast search, bulk actions, duplicate cleanup, and native tab groups where supported by the browser.':
-        '把拥挤的浏览器会话变成可搜索的工作区，支持快速搜索、批量操作、重复标签页清理，并可在浏览器支持时管理原生标签页组。',
       'Skip to main content': '跳到主要内容',
       Language: '语言',
       'Choose language': '选择语言',
@@ -71,10 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
       'Too many tabs, handled.': '标签页再多，也能理清。',
       'See every tab across every window in one searchable workspace.':
         '在一个可搜索的工作区里查看所有窗口中的标签页。',
-      'Find tabs fast, move matching tabs in bulk, manage native tab groups where supported by the browser, and clean up duplicates without window hopping.':
-        '快速找到标签页，批量移动匹配结果，在浏览器支持时管理原生标签页组，并清理重复标签页，不用在窗口之间来回切换。',
-      'Free, open source, with core functionality running locally in your browser.':
-        '免费、开源，核心功能都在你的浏览器本地运行。',
+      'Find the page you need, organize tabs together, and clear out duplicates without switching between windows.':
+        '找到需要的页面，一起整理标签页，清理重复项，无需在窗口之间来回切换。',
+      'Free and open source. Runs locally in your browser.':
+        '免费开源，在你的浏览器中运行。',
       'Get Tab Manager v2 for Chrome': '获取 Chrome 版 Tab Manager v2',
       'Get Tab Manager v2 for Firefox': '获取 Firefox 版 Tab Manager v2',
       'Get Tab Manager v2 for Edge': '获取 Edge 版 Tab Manager v2',
@@ -152,12 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
       '1,000+ tabs, still smooth.': '1,000 多个标签页，依然流畅。',
       'Your browser does not support embedded videos. You can download the scale demo video directly instead.':
         '你的浏览器不支持嵌入式视频。你可以改为直接下载规模演示视频。',
-      'Synthetic local-fixture demo focused on UI behavior at scale.':
-        '使用本地模拟数据，重点展示大规模标签页下的界面表现。',
+      'Recorded with 1,024 sample tabs in a local test workspace.':
+        '在本地测试工作区中录制，包含 1,024 个示例标签页。',
       Testing: '测试',
       'Every change, tested end to end.': '每次改动，都经过端到端测试。',
-      'A 10x capture of the Playwright-based extension suite running end to end. It exercises search, grouping, cleanup, keyboard workflows, settings, and snapshot-sensitive UI behavior.':
-        '这是一段以 10 倍速播放的 Playwright 扩展端到端测试录屏，覆盖搜索、分组、清理、键盘流程、设置，以及对界面快照敏感的 UI 行为。',
+      'Watch automated checks of search, grouping, cleanup, shortcuts, and settings, played at 10× speed.':
+        '以 10 倍速观看搜索、分组、清理、快捷键和设置的自动检查。',
       'Your browser does not support embedded videos. You can download the integration test video directly instead.':
         '你的浏览器不支持嵌入式视频。你可以改为直接下载集成测试视频。',
       'Why People Switch': '为什么会换用它',
@@ -195,26 +196,26 @@ document.addEventListener('DOMContentLoaded', () => {
         '把窗口和原生标签页组集中在一个清晰视图中；是否支持取决于浏览器。',
       'Common Workflows': '常用场景',
       'The jobs people open it for.': '大家打开它，通常就是为了这些事。',
-      'Use it when you need to find something fast, clean something up, or reshape a crowded browsing session.':
-        '当你需要快速找到东西、清理杂乱，或重整拥挤的浏览器会话时，就用它。',
-      'Find Tabs Across Windows': '跨窗口查找标签页',
-      'Search open tabs by title or URL, with optional browser history results in the same search box.':
-        '按标题或网址搜索打开的标签页，也可以在同一个搜索框里加入浏览器历史记录结果。',
-      'Stay on the Keyboard': '键盘操作不中断',
-      'Navigate windows, tabs, and actions from the keyboard, with shortcut help and a command palette built in.':
-        '用键盘浏览窗口、标签页和操作，内置快捷键帮助和命令面板。',
-      'Move Matching Tabs in Bulk': '批量移动匹配的标签页',
-      'Select search matches and move them to another window, group them, or open them in a new window in one step.':
-        '选中搜索结果，一步移动到另一个窗口、组成标签页组，或打开到新窗口。',
-      'Clean Up Duplicates': '清理重复标签页',
-      'Highlight duplicate tabs and remove them quickly to reduce clutter and wasted memory.':
-        '高亮重复标签页并快速移除，减少混乱和内存浪费。',
-      'Manage Native Tab Groups': '管理原生标签页组',
-      'Rename, recolor, collapse, and reorganize browser-native groups without leaving the extension where supported by the browser.':
-        '在浏览器支持时，无需离开扩展就能重命名、换颜色、折叠并重新整理原生标签页组。',
-      'Tune the View to Fit You': '把视图调成适合你的样子',
-      'Adjust theme, tab width, font size, toolbar behavior, URL visibility, and related display preferences.':
-        '调整主题、标签页宽度、字号、工具栏行为、网址显示和其他显示偏好。',
+      'Find the page you need, tidy up extra tabs, or organize a busy browser.':
+        '找到需要的页面，清理多余标签页，让浏览器更有条理。',
+      'Find any tab quickly': '快速找到标签页',
+      'Search across all your windows by page title or website address.':
+        '按页面标题或网址搜索所有窗口中的标签页。',
+      'Organize tabs together': '一起整理标签页',
+      'Move several tabs between windows, or keep related pages in named, colored groups. Drag to arrange them or right-click for more actions.':
+        '在窗口之间移动多个标签页，或用名称和颜色分组整理相关页面。拖动调整顺序，右键查看更多操作。',
+      'Clean up duplicates': '清理重复标签页',
+      'Find repeated tabs and close the extras to make your browser easier to manage.':
+        '找出重复标签页并关闭多余的页面，让浏览器更好管理。',
+      'Copy and share tabs': '复制和分享标签页',
+      'Copy page titles and links, or download a list for later. Expand long titles and addresses to read and copy the full text.':
+        '复制页面标题和链接，或下载列表供以后使用。展开长标题和网址，阅读和复制完整内容。',
+      'Find an action quickly': '快速找到操作',
+      'Open the command menu and type what you want to do. Built-in shortcut help makes keyboard actions easy to discover.':
+        '打开命令菜单，输入你想做的事。内置快捷键帮助，让键盘操作更容易上手。',
+      'Make it comfortable': '调成你喜欢的样子',
+      'Adjust colors, text size, and layout. Search settings and see previews as you make changes.':
+        '调整颜色、文字大小和布局。搜索设置，修改时即可查看预览。',
       'Before You Install': '安装前常见问题',
       'Common questions before you add it.': '添加扩展前，先看这些常见问题。',
       'Why is Safari not supported?': '为什么不支持 Safari？',
@@ -233,16 +234,17 @@ document.addEventListener('DOMContentLoaded', () => {
       'Back to Top': '返回顶部',
     },
     'zh-Hant': {
+      'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
+        '跨視窗尋找分頁，整理相關頁面，關閉重複項，複製或分享分頁。',
+      'Open command palette screenshot': '開啟指令面板截圖',
+      'Contextual command palette': '依情境顯示指令的面板',
+      'Command palette screenshot in light theme': '淺色主題下的指令面板截圖',
+      'Command palette screenshot in dark theme': '深色主題下的指令面板截圖',
+      'Type what you want to do.': '輸入你想做的事。',
       'Tab Manager v2 - See every tab across every window.':
         'Tab Manager v2 - 一次看清所有視窗裡的分頁。',
-      'Turn crowded browser sessions into a searchable workspace. Find tabs fast, move matches in bulk, manage native tab groups where supported by the browser, and clean up duplicates.':
-        '把擁擠的瀏覽器工作階段整理成可搜尋的工作區。快速找到分頁，批次移動符合項目，在瀏覽器支援時管理原生分頁群組，並清理重複分頁。',
       'tab manager, browser extension, chrome extension, firefox add-on, edge extension, tab groups, duplicate tabs, keyboard shortcuts':
         '分頁管理器, 瀏覽器擴充功能, Chrome 擴充功能, Firefox 附加元件, Edge 擴充功能, 分頁群組, 重複分頁, 快速鍵',
-      'See every tab across every window, then search, group, move, and clean up tabs without window hopping, including native tab groups where supported by the browser.':
-        '一次看清所有視窗裡的分頁，接著搜尋、分組、移動並清理分頁，不用在視窗之間來回切換；在瀏覽器支援時也能管理原生分頁群組。',
-      'Turn crowded browser sessions into a searchable workspace with fast search, bulk actions, duplicate cleanup, and native tab groups where supported by the browser.':
-        '把擁擠的瀏覽器工作階段變成可搜尋的工作區，支援快速搜尋、批次操作、重複分頁清理，並可在瀏覽器支援時管理原生分頁群組。',
       'Skip to main content': '跳到主要內容',
       Language: '語言',
       'Choose language': '選擇語言',
@@ -263,10 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
       'Too many tabs, handled.': '分頁再多，也能理清。',
       'See every tab across every window in one searchable workspace.':
         '在一個可搜尋的工作區裡查看所有視窗中的分頁。',
-      'Find tabs fast, move matching tabs in bulk, manage native tab groups where supported by the browser, and clean up duplicates without window hopping.':
-        '快速找到分頁，批次移動符合結果，在瀏覽器支援時管理原生分頁群組，並清理重複分頁，不用在視窗之間來回切換。',
-      'Free, open source, with core functionality running locally in your browser.':
-        '免費、開源，核心功能都在你的瀏覽器本機執行。',
+      'Find the page you need, organize tabs together, and clear out duplicates without switching between windows.':
+        '找到需要的頁面，一起整理分頁，清理重複項，無需在視窗之間來回切換。',
+      'Free and open source. Runs locally in your browser.':
+        '免費開源，在你的瀏覽器中執行。',
       'Get Tab Manager v2 for Chrome': '取得 Chrome 版 Tab Manager v2',
       'Get Tab Manager v2 for Firefox': '取得 Firefox 版 Tab Manager v2',
       'Get Tab Manager v2 for Edge': '取得 Edge 版 Tab Manager v2',
@@ -344,12 +346,12 @@ document.addEventListener('DOMContentLoaded', () => {
       '1,000+ tabs, still smooth.': '1,000 多個分頁，依然順暢。',
       'Your browser does not support embedded videos. You can download the scale demo video directly instead.':
         '你的瀏覽器不支援嵌入式影片。你可以改為直接下載規模演示影片。',
-      'Synthetic local-fixture demo focused on UI behavior at scale.':
-        '使用本機模擬資料，重點展示大量分頁下的介面表現。',
+      'Recorded with 1,024 sample tabs in a local test workspace.':
+        '在本機測試工作區中錄製，包含 1,024 個範例分頁。',
       Testing: '測試',
       'Every change, tested end to end.': '每次變更，都經過端對端測試。',
-      'A 10x capture of the Playwright-based extension suite running end to end. It exercises search, grouping, cleanup, keyboard workflows, settings, and snapshot-sensitive UI behavior.':
-        '這是一段以 10 倍速播放的 Playwright 擴充功能端對端測試錄影，涵蓋搜尋、群組、清理、鍵盤流程、設定，以及對畫面快照敏感的 UI 行為。',
+      'Watch automated checks of search, grouping, cleanup, shortcuts, and settings, played at 10× speed.':
+        '以 10 倍速觀看搜尋、分組、清理、快速鍵和設定的自動檢查。',
       'Your browser does not support embedded videos. You can download the integration test video directly instead.':
         '你的瀏覽器不支援嵌入式影片。你可以改為直接下載整合測試影片。',
       'Why People Switch': '為什麼會換用它',
@@ -387,26 +389,26 @@ document.addEventListener('DOMContentLoaded', () => {
         '把視窗和原生分頁群組集中在一個清晰檢視中；是否支援取決於瀏覽器。',
       'Common Workflows': '常用情境',
       'The jobs people open it for.': '大家打開它，通常就是為了這些事。',
-      'Use it when you need to find something fast, clean something up, or reshape a crowded browsing session.':
-        '當你需要快速找到東西、清理雜亂，或重整擁擠的瀏覽器工作階段時，就用它。',
-      'Find Tabs Across Windows': '跨視窗尋找分頁',
-      'Search open tabs by title or URL, with optional browser history results in the same search box.':
-        '按標題或網址搜尋開啟的分頁，也可以在同一個搜尋框裡加入瀏覽器歷史記錄結果。',
-      'Stay on the Keyboard': '鍵盤操作不中斷',
-      'Navigate windows, tabs, and actions from the keyboard, with shortcut help and a command palette built in.':
-        '用鍵盤瀏覽視窗、分頁和操作，內建快速鍵說明和命令面板。',
-      'Move Matching Tabs in Bulk': '批次移動符合的分頁',
-      'Select search matches and move them to another window, group them, or open them in a new window in one step.':
-        '選取搜尋結果，一步移動到另一個視窗、組成分頁群組，或開到新視窗。',
-      'Clean Up Duplicates': '清理重複分頁',
-      'Highlight duplicate tabs and remove them quickly to reduce clutter and wasted memory.':
-        '醒目標示重複分頁並快速移除，減少混亂和記憶體浪費。',
-      'Manage Native Tab Groups': '管理原生分頁群組',
-      'Rename, recolor, collapse, and reorganize browser-native groups without leaving the extension where supported by the browser.':
-        '在瀏覽器支援時，無需離開擴充功能就能重新命名、換顏色、收合並重新整理原生分頁群組。',
-      'Tune the View to Fit You': '把檢視調成適合你的樣子',
-      'Adjust theme, tab width, font size, toolbar behavior, URL visibility, and related display preferences.':
-        '調整主題、分頁寬度、字級、工具列行為、網址顯示和其他顯示偏好。',
+      'Find the page you need, tidy up extra tabs, or organize a busy browser.':
+        '找到需要的頁面，清理多餘分頁，讓瀏覽器更有條理。',
+      'Find any tab quickly': '快速找到分頁',
+      'Search across all your windows by page title or website address.':
+        '依頁面標題或網址搜尋所有視窗中的分頁。',
+      'Organize tabs together': '一起整理分頁',
+      'Move several tabs between windows, or keep related pages in named, colored groups. Drag to arrange them or right-click for more actions.':
+        '在視窗之間移動多個分頁，或用名稱和顏色分組整理相關頁面。拖曳調整順序，按右鍵查看更多操作。',
+      'Clean up duplicates': '清理重複分頁',
+      'Find repeated tabs and close the extras to make your browser easier to manage.':
+        '找出重複分頁並關閉多餘的頁面，讓瀏覽器更好管理。',
+      'Copy and share tabs': '複製和分享分頁',
+      'Copy page titles and links, or download a list for later. Expand long titles and addresses to read and copy the full text.':
+        '複製頁面標題和連結，或下載清單供日後使用。展開長標題和網址，閱讀和複製完整內容。',
+      'Find an action quickly': '快速找到操作',
+      'Open the command menu and type what you want to do. Built-in shortcut help makes keyboard actions easy to discover.':
+        '開啟命令選單，輸入你想做的事。內建快速鍵說明，讓鍵盤操作更容易上手。',
+      'Make it comfortable': '調成你喜歡的樣子',
+      'Adjust colors, text size, and layout. Search settings and see previews as you make changes.':
+        '調整顏色、文字大小和版面。搜尋設定，修改時即可查看預覽。',
       'Before You Install': '安裝前常見問題',
       'Common questions before you add it.':
         '新增擴充功能前，先看這些常見問題。',

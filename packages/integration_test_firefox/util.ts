@@ -10,7 +10,7 @@ export const ADDON_ID = '{dd627932-80c4-43bf-8432-db8f47e918ae}'
 export const ADDON_UUID = '8ac5f9eb-0647-420d-ad26-fabe93273531'
 export const EXTENSION_URL = `moz-extension://${ADDON_UUID}/popup.html?not_popup=1`
 export const SEARCH_INPUT_SELECTOR =
-  'input[placeholder*="Search your tab title or URL"]'
+  'input[role="combobox"][placeholder="Search tabs or URLs"]'
 
 const FIREFOX_EXTENSION_ZIP = join(
   __dirname,
@@ -136,7 +136,11 @@ export const initBrowserWithExtension =
     if (process.env.FIREFOX_E2E_HEADLESS !== 'false') {
       options.addArguments('-headless')
     }
-    const serviceBuilder = new firefox.ServiceBuilder()
+    // geckodriver enables extension-page testing in the temporary profile.
+    // https://firefox-source-docs.mozilla.org/testing/geckodriver/Flags.html
+    const serviceBuilder = new firefox.ServiceBuilder().addArguments(
+      '--allow-system-access',
+    )
     if (FIREFOX_E2E_DEBUG) {
       serviceBuilder.enableVerboseLogging(true)
     }
@@ -151,30 +155,42 @@ export const initBrowserWithExtension =
       60000,
     )
 
-    debugLog('install addon', addonArchivePath)
-    const addonId = await withTimeout(
-      'installAddon',
-      (driver as FirefoxDriverWithAddonApi).installAddon(
+    try {
+      debugLog('install addon', addonArchivePath)
+      const addonId = await withTimeout(
+        'installAddon',
+        (driver as FirefoxDriverWithAddonApi).installAddon(
+          addonArchivePath,
+          true,
+        ),
+        60000,
+      )
+      debugLog('addon installed', addonId)
+
+      await withTimeout('open extension URL', driver.get(EXTENSION_URL), 45000)
+      await withTimeout(
+        'wait search input',
+        waitForCss(driver, SEARCH_INPUT_SELECTOR),
+        45000,
+      )
+
+      return {
+        driver,
+        extensionURL: EXTENSION_URL,
+        extensionOrigin: getExtensionOrigin(EXTENSION_URL),
         addonArchivePath,
-        true,
-      ),
-      60000,
-    )
-    debugLog('addon installed', addonId)
-
-    await withTimeout('open extension URL', driver.get(EXTENSION_URL), 45000)
-    await withTimeout(
-      'wait search input',
-      waitForCss(driver, SEARCH_INPUT_SELECTOR),
-      45000,
-    )
-
-    return {
-      driver,
-      extensionURL: EXTENSION_URL,
-      extensionOrigin: getExtensionOrigin(EXTENSION_URL),
-      addonArchivePath,
-      addonId,
+        addonId,
+      }
+    } catch (error) {
+      if (FIREFOX_E2E_DEBUG) {
+        debugLog(
+          'failed startup',
+          await driver.getCurrentUrl(),
+          await driver.getTitle(),
+        )
+      }
+      await closeBrowserWithExtension({ driver, addonArchivePath })
+      throw error
     }
   }
 

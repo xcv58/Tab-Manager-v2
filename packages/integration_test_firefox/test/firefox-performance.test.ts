@@ -1,4 +1,5 @@
 import { WebDriver } from 'selenium-webdriver'
+import { createServer } from 'node:http'
 import {
   SEARCH_INPUT_SELECTOR,
   FirefoxExtensionSession,
@@ -49,9 +50,11 @@ type SelectedCountState = {
 const describeFirefox =
   process.env.FIREFOX_E2E === '1' ? describe : describe.skip
 
+let fixtureBaseURL = ''
+
 const uniqueUrl = (windowIndex: number, tabIndex: number) => {
   const slug = tabIndex % MATCH_EVERY === 0 ? 'needle-target' : 'baseline'
-  return `https://example.com/?tab-manager-v2-firefox-perf=window-${windowIndex}-tab-${tabIndex}-${slug}`
+  return `${fixtureBaseURL}/?tab-manager-v2-firefox-perf=window-${windowIndex}-tab-${tabIndex}-${slug}`
 }
 
 const buildGroupedWorkloadUrls = () =>
@@ -269,19 +272,43 @@ const setupGroupedWorkspace = async (
 }
 
 describeFirefox('Firefox performance scenarios', () => {
+  // Keep the same real browser windows/tabs/groups without hundreds of WAN
+  // requests competing with the UI operations this suite measures.
+  const fixtureServer = createServer((request, response) => {
+    const title = (
+      new URL(request.url || '/', 'http://fixture.test').searchParams.get(
+        'tab-manager-v2-firefox-perf',
+      ) || 'Firefox performance fixture'
+    ).replace(/[<>&"']/g, '')
+    response.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    })
+    response.end(`<title>${title}</title><p>Firefox performance fixture</p>`)
+  })
   let session: FirefoxExtensionSession
   let driver: WebDriver
   let extensionURL: string
 
   beforeAll(async () => {
+    await new Promise<void>((resolve) =>
+      fixtureServer.listen(0, '127.0.0.1', resolve),
+    )
+    const address = fixtureServer.address()
+    if (!address || typeof address === 'string')
+      throw new Error('Missing fixture port')
+    fixtureBaseURL = `http://127.0.0.1:${address.port}`
     session = await initBrowserWithExtension()
     driver = session.driver
     extensionURL = session.extensionURL
   })
 
   afterAll(async () => {
-    if (session) {
-      await closeBrowserWithExtension(session)
+    try {
+      if (session) await closeBrowserWithExtension(session)
+    } finally {
+      fixtureServer.closeAllConnections()
+      await new Promise<void>((resolve) => fixtureServer.close(() => resolve()))
     }
   })
 

@@ -568,6 +568,17 @@ const AutocompleteSearch = observer((props: Props) => {
   return (
     <div
       {...rootProps}
+      onKeyDown={(event) => {
+        // Menus/details consume their own Escape. Once focus returns to a
+        // result row, reset search exactly as when the input owns focus.
+        if (event.key !== 'Escape') return
+        event.preventDefault()
+        event.stopPropagation()
+        handleEscape()
+      }}
+      onKeyUp={(event) => {
+        if (event.key === 'Escape') event.stopPropagation()
+      }}
       {...(actionStore.paletteOpen ? { inert: '' } : {})}
       aria-hidden={actionStore.paletteOpen || undefined}
       ref={(node) => {
@@ -622,18 +633,7 @@ const AutocompleteSearch = observer((props: Props) => {
               hoverStore.openTooltip(highlighted.id, true, 'search')
               return
             }
-            if (event.key === 'Escape') {
-              event.preventDefault()
-              event.stopPropagation()
-              handleEscape()
-              return
-            }
-
             inputProps.onKeyDown(event)
-          }}
-          onKeyUp={(event) => {
-            // Keep the full Escape press within search's two-step dismissal.
-            if (event.key === 'Escape') event.stopPropagation()
           }}
           onFocus={() => {
             setDismissed(false)

@@ -1,8 +1,127 @@
 import { test, expect } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
 import {
   initBrowserWithExtension,
   closeCurrentWindowTabsExceptActive,
 } from '../util'
+
+for (const lite of [false, true]) {
+  test(`Escape closes a result menu, then resets search in ${lite ? 'lite' : 'full'} view`, async () => {
+    const { browserContext, page, extensionURL } =
+      await initBrowserWithExtension({ headless: true })
+    try {
+      await closeCurrentWindowTabsExceptActive(page, extensionURL)
+      const id = await page.evaluate(async (liteMode) => {
+        await chrome.storage.sync.set({
+          litePopupMode: liteMode,
+          showSearchResultMenu: true,
+        })
+        return (
+          await chrome.tabs.create({
+            url: 'data:text/html,<title>Escape result target</title>',
+            active: false,
+          })
+        ).id
+      }, lite)
+      await page.goto(
+        lite ? extensionURL.replace('?not_popup=1', '') : extensionURL,
+      )
+      const search = page.getByRole('combobox', { name: 'Search tabs or URLs' })
+      await search.fill('Escape result target')
+      const result = page.getByTestId('search-tab-row-' + id)
+      await result.click({ button: 'right' })
+      await expect(page.getByRole('menu')).toBeVisible()
+
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('menu')).toBeHidden()
+      await expect(search).toHaveValue('Escape result target')
+      await expect(result).toBeFocused()
+      await expect(page.getByRole('listbox')).toBeVisible()
+
+      await page.keyboard.press('Escape')
+      await expect(search).toHaveValue('')
+      await expect(search).toHaveAttribute('aria-expanded', 'false')
+      await expect(page.getByRole('listbox')).toHaveCount(0)
+      await search.fill('Escape result target')
+      await expect(result).toBeVisible()
+    } finally {
+      await browserContext.close()
+    }
+  })
+}
+
+test('TSV and Markdown downloads retain the selection and format picker', async () => {
+  const { browserContext, page, extensionURL } = await initBrowserWithExtension(
+    { headless: true },
+  )
+  try {
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    const ids = await page.evaluate(async () => {
+      const result: number[] = []
+      for (const title of ['Export résumé one', 'Export résumé two']) {
+        result.push(
+          (
+            await chrome.tabs.create({
+              url:
+                'data:text/html;charset=utf-8,' +
+                encodeURIComponent(`<title>${title}</title>`),
+              active: false,
+            })
+          ).id,
+        )
+      }
+      return result
+    })
+    await page.reload()
+    for (const id of ids) {
+      const checkbox = page.getByTestId('tab-row-' + id).getByRole('checkbox')
+      await checkbox.focus()
+      await checkbox.check()
+    }
+    await page.keyboard.press(
+      process.platform === 'darwin' ? 'Meta+k' : 'Alt+k',
+    )
+    const palette = page.getByTestId('command-palette')
+    await palette
+      .getByRole('combobox', { name: 'Search commands' })
+      .fill('export')
+    await palette
+      .getByRole('option', { name: 'Export 2 selected tabs…' })
+      .click()
+    await expect(palette.getByRole('option')).toHaveCount(4)
+
+    for (const format of ['TSV', 'Markdown']) {
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        palette
+          .getByRole('option', { name: new RegExp('^Export ' + format + ' ') })
+          .click(),
+      ])
+      expect(download.suggestedFilename()).toMatch(
+        format === 'TSV' ? /\.tsv$/ : /\.md$/,
+      )
+      const contents = await readFile((await download.path())!, 'utf8')
+      expect(contents).toContain('Export résumé one')
+      expect(contents).toContain('Export résumé two')
+      if (format === 'TSV')
+        expect(contents).toContain('title\turl\twindow_id\t')
+      else expect(contents.split('\n')).toHaveLength(2)
+      await expect(palette).toBeVisible()
+      await expect(palette.getByRole('status')).toHaveText(
+        `Exported 2 tabs as ${format}`,
+      )
+      for (const id of ids) {
+        await expect(
+          page
+            .getByTestId('tab-row-' + id)
+            .getByRole('checkbox', { includeHidden: true }),
+        ).toBeChecked()
+      }
+    }
+  } finally {
+    await browserContext.close()
+  }
+})
 
 test('lite popup offers quick actions and routes Settings into the full view', async () => {
   const { browserContext, page, extensionURL } = await initBrowserWithExtension(

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
+/* global URL */
 
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { chromium } from 'playwright'
 
 const ROOT_DIR = fileURLToPath(new URL('../../..', import.meta.url))
-const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOURCE_DIR = join(
   ROOT_DIR,
   'packages',
@@ -35,6 +36,13 @@ const outputs = [
 ]
 
 const tempDir = mkdtempSync(join(tmpdir(), 'tab-manager-docs-posters-'))
+const browser =
+  process.env.DOCS_POSTER_RENDERER === 'browser'
+    ? await chromium.launch({
+        headless: true,
+        executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
+      })
+    : null
 
 try {
   for (const [sourceName, outputName] of outputs) {
@@ -50,9 +58,16 @@ try {
 
     writeFileSync(tempSvgPath, svg)
 
-    execFileSync('rsvg-convert', [tempSvgPath, '-o', tempPngPath], {
-      stdio: 'inherit',
-    })
+    if (browser) {
+      const page = await browser.newPage()
+      await page.setContent(`<style>body { margin: 0; }</style>${svg}`)
+      await page.locator('svg').screenshot({ path: tempPngPath })
+      await page.close()
+    } else {
+      execFileSync('rsvg-convert', [tempSvgPath, '-o', tempPngPath], {
+        stdio: 'inherit',
+      })
+    }
 
     execFileSync(
       'magick',
@@ -67,5 +82,6 @@ try {
     { stdio: 'inherit' },
   )
 } finally {
+  await browser?.close()
   rmSync(tempDir, { force: true, recursive: true })
 }

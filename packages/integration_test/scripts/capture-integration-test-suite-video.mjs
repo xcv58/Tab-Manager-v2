@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+/* global URL, console */
 
 import { spawnSync } from 'node:child_process'
 import {
   existsSync,
   mkdirSync,
+  readFileSync,
   readdirSync,
   rmSync,
   writeFileSync,
@@ -20,6 +22,7 @@ const OUTPUT_DIR = join(ROOT_DIR, '.tmp/video-captures/integration-test-suite')
 const RAW_CLIP_DIR = join(OUTPUT_DIR, 'clips')
 const FAST_CLIP_DIR = join(OUTPUT_DIR, 'sped-up')
 const CONCAT_LIST_PATH = join(OUTPUT_DIR, 'concat.txt')
+const MANIFEST_PATH = join(OUTPUT_DIR, 'recordings.json')
 const FINAL_OUTPUT_DIR = join(ROOT_DIR, '.tmp/video-captures/mp4')
 const FINAL_OUTPUT_PATH = join(
   FINAL_OUTPUT_DIR,
@@ -28,8 +31,8 @@ const FINAL_OUTPUT_PATH = join(
 
 const PLAYBACK_SPEED = Number(process.env.TEST_VIDEO_SPEED || '10')
 const OUTPUT_FPS = 25
-const CONTINUE_ON_FAILURE =
-  process.env.TEST_VIDEO_CONTINUE_ON_FAILURE !== '0'
+const RESUME = process.env.TEST_VIDEO_RESUME === '1'
+const CONTINUE_ON_FAILURE = process.env.TEST_VIDEO_CONTINUE_ON_FAILURE !== '0'
 const REQUESTED_TEST_FILES = new Set(
   String(process.env.TEST_VIDEO_FILES || '')
     .split(',')
@@ -103,6 +106,7 @@ function ffprobeDuration(path) {
 
 function testFiles() {
   return readdirSync(TEST_DIR)
+    .filter((entry) => !entry.startsWith('.'))
     .filter((entry) => entry.endsWith('.test.ts'))
     .filter(
       (entry) =>
@@ -145,7 +149,9 @@ function speedUpClip(sourcePath, outputPath) {
 function concatClips(clips) {
   writeFileSync(
     CONCAT_LIST_PATH,
-    clips.map((clipPath) => `file '${clipPath.replace(/'/g, "'\\''")}'`).join('\n'),
+    clips
+      .map((clipPath) => `file '${clipPath.replace(/'/g, "'\\''")}'`)
+      .join('\n'),
   )
 
   rmSync(FINAL_OUTPUT_PATH, { force: true })
@@ -191,23 +197,55 @@ function main() {
     )
   }
 
-  rmSync(OUTPUT_DIR, { recursive: true, force: true })
+  const previous =
+    RESUME && existsSync(MANIFEST_PATH)
+      ? JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'))
+      : null
+  if (previous && previous.playbackSpeed !== PLAYBACK_SPEED)
+    throw new Error(
+      'Resume requires the same TEST_VIDEO_SPEED as the saved recording',
+    )
+  if (!RESUME) rmSync(OUTPUT_DIR, { recursive: true, force: true })
   ensureDirectory(RAW_CLIP_DIR)
   ensureDirectory(FAST_CLIP_DIR)
   ensureDirectory(FINAL_OUTPUT_DIR)
 
   const spedUpClips = []
   const failedFiles = []
+  const recordings = []
   let totalRawSeconds = 0
   let totalFinalSeconds = 0
 
   for (const [index, file] of files.entries()) {
     const label = clipLabel(index, file)
-    const rawClipPath = join(RAW_CLIP_DIR, `${label}.mp4`)
-    const fastClipPath = join(FAST_CLIP_DIR, `${label}.mp4`)
+    const saved = previous?.recordings.find((entry) => entry.file === file)
+    if (
+      saved?.passed &&
+      saved.clips.every(
+        (clip) =>
+          existsSync(join(RAW_CLIP_DIR, clip)) &&
+          existsSync(join(FAST_CLIP_DIR, clip)),
+      )
+    ) {
+      console.log(`Reusing passed recording for ${file}`)
+      for (const clip of saved.clips) {
+        totalRawSeconds += ffprobeDuration(join(RAW_CLIP_DIR, clip))
+        totalFinalSeconds += ffprobeDuration(join(FAST_CLIP_DIR, clip))
+        spedUpClips.push(join(FAST_CLIP_DIR, clip))
+      }
+      recordings.push(saved)
+      continue
+    }
+
+    // Replace only this file's generated takes when recovering a failed run.
+    for (const clip of readdirSync(RAW_CLIP_DIR).filter(
+      (entry) => entry.startsWith(`${label}-`) && entry.endsWith('.mp4'),
+    )) {
+      rmSync(join(RAW_CLIP_DIR, clip), { force: true })
+      rmSync(join(FAST_CLIP_DIR, clip), { force: true })
+    }
 
     console.log(`\n=== Recording ${file} (${index + 1}/${files.length}) ===`)
-    rmSync(rawClipPath, { force: true })
 
     const passed = runCommand(
       'pnpm',
@@ -218,6 +256,7 @@ function main() {
         join('test', file),
         '--project=chromium',
         '--workers=1',
+        '--retries=0',
         '--reporter=line',
       ],
       `running ${file}`,
@@ -228,22 +267,47 @@ function main() {
       CONTINUE_ON_FAILURE,
     )
 
-    ensureExists(rawClipPath, `recorded clip for ${file}`)
+    const clips = readdirSync(RAW_CLIP_DIR)
+      .filter(
+        (entry) => entry.startsWith(`${label}-`) && entry.endsWith('.mp4'),
+      )
+      .sort()
+    if (clips.length === 0) throw new Error(`No recorded clips for ${file}`)
     if (!passed) {
       failedFiles.push(file)
       console.warn(`Continuing after test failures in ${file}`)
     }
-    totalRawSeconds += ffprobeDuration(rawClipPath)
-
-    console.log(`\n=== Speeding up ${file} ===`)
-    speedUpClip(rawClipPath, fastClipPath)
-    totalFinalSeconds += ffprobeDuration(fastClipPath)
-    spedUpClips.push(fastClipPath)
+    console.log(`\n=== Speeding up ${file} (${clips.length} recordings) ===`)
+    for (const clip of clips) {
+      const rawClipPath = join(RAW_CLIP_DIR, clip)
+      const fastClipPath = join(FAST_CLIP_DIR, clip)
+      totalRawSeconds += ffprobeDuration(rawClipPath)
+      speedUpClip(rawClipPath, fastClipPath)
+      totalFinalSeconds += ffprobeDuration(fastClipPath)
+      spedUpClips.push(fastClipPath)
+    }
+    recordings.push({ file, passed, clips })
+    writeFileSync(
+      MANIFEST_PATH,
+      JSON.stringify(
+        { playbackSpeed: PLAYBACK_SPEED, recordings, failedFiles },
+        null,
+        2,
+      ),
+    )
   }
 
   concatClips(spedUpClips)
 
   const finalDuration = ffprobeDuration(FINAL_OUTPUT_PATH)
+  writeFileSync(
+    MANIFEST_PATH,
+    JSON.stringify(
+      { playbackSpeed: PLAYBACK_SPEED, recordings, failedFiles, finalDuration },
+      null,
+      2,
+    ),
+  )
   console.log(`\nSaved ${FINAL_OUTPUT_PATH}`)
   console.log(
     `Captured ${files.length} files: raw ${formatSeconds(totalRawSeconds)}, sped-up ${formatSeconds(totalFinalSeconds)}, final ${formatSeconds(finalDuration)} at ${PLAYBACK_SPEED}x`,

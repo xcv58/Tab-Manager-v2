@@ -328,7 +328,7 @@ export default class Store {
     const text = formatTabExport(this.getTabExportRecords(tabs), format)
     downloadTabExport(text, format)
     this.actionStore.showFeedback(
-      `Exported ${tabs.length.toLocaleString()} ${getNoun('tab', tabs.length)} as ${format.toUpperCase()}`,
+      `Exported ${tabs.length.toLocaleString()} ${getNoun('tab', tabs.length)} as ${format === 'markdown' ? 'Markdown' : format.toUpperCase()}`,
     )
   }
 
