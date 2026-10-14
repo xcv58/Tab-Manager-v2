@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { observer } from 'mobx-react-lite'
-import { reaction } from 'mobx'
+import { reaction, runInAction } from 'mobx'
 import App from 'components/App'
 import Tools from 'components/Tools'
 import WinList from 'components/WinList'
@@ -65,6 +65,11 @@ const PreviewPopup = observer(function PreviewPopup() {
     userStore.increaseContrast,
   )
   useEffect(() => {
+    // Initial focus is visual only. Loading this illustrative popup must not
+    // move the keyboard out of the enclosing Settings search/control.
+    runInAction(() => {
+      windowStore.hasAppliedInitialDefaultFocus = true
+    })
     tabGroupStore?.didMount?.()
     windowStore.didMount()
     shortcutStore.didMount()
@@ -81,7 +86,13 @@ const PreviewPopup = observer(function PreviewPopup() {
     const dispose = reaction(
       () => !windowStore.initialLoading && userStore.loaded,
       (ready) => {
-        if (ready) sendState()
+        if (ready) {
+          windowStore.focusActiveTabInLastFocusedWindow({
+            moveDomFocus: false,
+            reveal: false,
+          })
+          sendState()
+        }
       },
       { fireImmediately: true },
     )
