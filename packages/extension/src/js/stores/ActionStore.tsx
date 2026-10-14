@@ -8,6 +8,7 @@ import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { restoreDialogFocusTarget } from 'libs/dialogFocus'
 import TabGroupRow from './TabGroupRow'
 import { getWindowLabel } from 'libs/windowLabel'
+import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
 
 export type ActionMenuAnchor = {
   key: string
@@ -112,16 +113,6 @@ const copyFormats: Array<{
   },
 ]
 
-const mountedTabDetailsSurface = (tabId: number) =>
-  (['search', 'list'] as const).find((surface) => {
-    const prefix = surface === 'search' ? 'search-tab-row' : 'tab-row'
-    return document
-      .querySelector(
-        `[data-testid="${prefix}-${tabId}"] button[aria-haspopup="dialog"]`,
-      )
-      ?.getClientRects().length
-  })
-
 /** App-local overlays. These shortcuts never enter the browser manifest. */
 export default class ActionStore {
   store: Store
@@ -195,7 +186,7 @@ export default class ActionStore {
     if (!this.paletteOpen) {
       const tabId = this.store.focusStore.focusedTab?.id
       const surface =
-        tabId != null ? mountedTabDetailsSurface(tabId) : undefined
+        tabId != null ? getMountedTabDetailsSurface(tabId) : undefined
       // Opening the palette temporarily unmounts search results. Remember a
       // visible owner so its details action remains available after closing.
       this.paletteDetailsTarget = surface ? { tabId, surface } : null
@@ -903,7 +894,7 @@ export default class ActionStore {
       },
     )
     const detailsSurface = tab
-      ? mountedTabDetailsSurface(tab.id) ||
+      ? getMountedTabDetailsSurface(tab.id) ||
         (this.paletteOpen && this.paletteDetailsTarget?.tabId === tab.id
           ? this.paletteDetailsTarget.surface
           : undefined)

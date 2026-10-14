@@ -1,6 +1,66 @@
 import ShortcutStore from 'stores/ShortcutStore'
 import DragStore from 'stores/DragStore'
 
+describe('ShortcutStore tab details', () => {
+  afterEach(() => {
+    document.body.replaceChildren()
+  })
+
+  const setup = (surface: 'search' | 'list') => {
+    const openTooltip = jest.fn()
+    const shortcuts = new ShortcutStore({
+      focusStore: { focusedTab: { id: 7 }, focusedSurface: surface },
+      userStore: { showTabTooltip: true },
+      hoverStore: { openTooltip },
+    } as any)
+    const openDetails = shortcuts.shortcuts.find(
+      ([key]) => key === 'alt+down',
+    )[1]
+    return { openTooltip, openDetails }
+  }
+
+  const mountAnchor = (surface: 'search' | 'list') => {
+    const row = document.createElement('div')
+    row.dataset.testid = `${surface === 'search' ? 'search-tab-row' : 'tab-row'}-7`
+    const anchor = document.createElement('button')
+    anchor.setAttribute('aria-haspopup', 'dialog')
+    jest.spyOn(anchor, 'getClientRects').mockReturnValue([{}] as any)
+    row.appendChild(anchor)
+    document.body.appendChild(row)
+  }
+
+  it.each([
+    ['search', 'search'],
+    ['list', 'list'],
+    ['search', 'list'],
+    ['list', 'search'],
+  ] as const)(
+    'opens the mounted %s anchor when focus came from %s',
+    (mounted, focused) => {
+      const { openTooltip, openDetails } = setup(focused)
+      mountAnchor(mounted)
+      const event = new KeyboardEvent('keydown', { cancelable: true })
+      openDetails(event)
+      expect(openTooltip).toHaveBeenCalledWith(7, true, mounted)
+      expect(event.defaultPrevented).toBe(true)
+    },
+  )
+
+  it('prefers the focused surface when both anchors are mounted', () => {
+    const { openTooltip, openDetails } = setup('list')
+    mountAnchor('search')
+    mountAnchor('list')
+    openDetails(new KeyboardEvent('keydown'))
+    expect(openTooltip).toHaveBeenCalledWith(7, true, 'list')
+  })
+
+  it('does not open details when neither anchor is mounted', () => {
+    const { openTooltip, openDetails } = setup('search')
+    openDetails(new KeyboardEvent('keydown'))
+    expect(openTooltip).not.toHaveBeenCalled()
+  })
+})
+
 describe('ShortcutStore.stopCallback', () => {
   it.each(['p', 'r', 'x', 'd d', 'ctrl+r', 'alt+down'])(
     'blocks %s from a tab details control',

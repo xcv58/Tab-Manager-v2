@@ -208,7 +208,6 @@ const renderTabOption = (
   groupedSectionTabIds,
   matchMode: SearchMatchMode,
   query: string,
-  onReveal: (tab: Tab) => void,
 ) => {
   if (tab.isDivider) {
     if (tab.dividerType === 'group') {
@@ -283,7 +282,6 @@ const renderTabOption = (
       tab={tab}
       showInlineGroupBadge={!groupedSectionTabIds.has(tab.id)}
       matchMode={matchMode}
-      onReveal={onReveal}
     />
   )
 }
@@ -384,7 +382,6 @@ const SearchResultRow = ({
             data.groupedSectionTabIds,
             data.searchMatchMode,
             data.query,
-            data.onReveal,
           )}
     </li>
   )
@@ -399,20 +396,13 @@ const AutocompleteSearch = observer((props: Props) => {
   } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const {
-    userStore,
-    searchStore,
-    tabGroupStore,
-    focusStore,
-    actionStore,
-    hoverStore,
-  } = useStore()
+  const { userStore, searchStore, tabGroupStore, actionStore, hoverStore } =
+    useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
   const resultMenuEnabled = showResultMenu || isCommand
   const options = useOptions(resultMenuEnabled)
   const tabHeight = useTabHeight()
   const rootRef = useRef<HTMLDivElement>(null)
-  const revealFrameRef = useRef<number | null>(null)
   const [dismissed, setDismissed] = useState(false)
   const isOpenControlled = propOpen !== undefined
 
@@ -491,28 +481,6 @@ const AutocompleteSearch = observer((props: Props) => {
   }, [options, query, filterOptions, resultMenuEnabled])
 
   const itemCount = filteredOptions.length
-
-  useEffect(
-    () => () => {
-      if (revealFrameRef.current !== null)
-        cancelAnimationFrame(revealFrameRef.current)
-    },
-    [],
-  )
-
-  const handleReveal = (tab: Tab) => {
-    setDismissed(true)
-    handleOpenChange(false)
-    tab.win.showTabs = true
-    stopType()
-    searchInputRef.current?.blur()
-    if (revealFrameRef.current !== null)
-      cancelAnimationFrame(revealFrameRef.current)
-    revealFrameRef.current = requestAnimationFrame(() => {
-      revealFrameRef.current = null
-      focusStore.focus(tab, { origin: 'search', reveal: true })
-    })
-  }
 
   const handleSelect = (option: SearchOption) => {
     if (!option || typeof option === 'string') return
@@ -769,7 +737,6 @@ const AutocompleteSearch = observer((props: Props) => {
                 theme,
                 groupedSectionTabIds: groupedSectionTabIdsRef.current,
                 searchMatchMode: searchMatchModeRef.current,
-                onReveal: handleReveal,
               }}
               height={listHeight}
               width="100%"

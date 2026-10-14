@@ -3,6 +3,7 @@ import { getWindowLabel } from 'libs/windowLabel'
 import TabGroupRow from './TabGroupRow'
 import Mousetrap from 'mousetrap'
 import { getCommandPaletteShortcut } from 'libs/commandPaletteShortcut'
+import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
@@ -108,8 +109,13 @@ export default class ShortcutStore {
       (event: Event) => {
         const tab = this.store.focusStore.focusedTab
         if (!tab || !this.store.userStore.showTabTooltip) return
+        const surface = getMountedTabDetailsSurface(
+          tab.id,
+          this.store.focusStore.focusedSurface,
+        )
+        if (!surface) return
         preventDefault(event)
-        this.store.hoverStore.openTooltip(tab.id, true)
+        this.store.hoverStore.openTooltip(tab.id, true, surface)
       },
       'Open focused tab details',
     ],

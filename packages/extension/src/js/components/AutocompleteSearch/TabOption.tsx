@@ -1,7 +1,6 @@
 import React, { SyntheticEvent, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import Tooltip from 'components/ui/Tooltip'
 import { useAppTheme } from 'libs/appTheme'
 import CloseButton from 'components/CloseButton'
 import HighlightNode from 'components/HighlightNode'
@@ -15,30 +14,21 @@ import TabMenu from 'components/Tab/TabMenu'
 import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import TabTools from 'components/Tab/TabTools'
 import { useStore } from 'components/hooks/useStore'
-import { TOOLTIP_DELAY } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { matchesSearchText, type SearchMatchMode } from 'libs/searchMatching'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import Tab from 'stores/Tab'
 import TabDetailsAnchor from 'components/Tab/TabDetailsAnchor'
-import ControlIconButton from 'components/ControlIconButton'
-import { RevealInListIcon } from 'icons/actionIcons'
 
 type Props = {
   tab: Tab
   showInlineGroupBadge?: boolean
   matchMode?: SearchMatchMode
-  onReveal?: (tab: Tab) => void
 }
 
 export default observer(function TabOption(props: Props) {
-  const {
-    tab,
-    showInlineGroupBadge = true,
-    matchMode = 'fuzzy',
-    onReveal,
-  } = props
+  const { tab, showInlineGroupBadge = true, matchMode = 'fuzzy' } = props
   const { searchStore, tabGroupStore, userStore, actionStore } = useStore()
   const { query } = searchStore
   const theme = useAppTheme()
@@ -167,22 +157,6 @@ export default observer(function TabOption(props: Props) {
       </TabDetailsAnchor>
       <RowActionRail tail={<DuplicateMarker tab={tab} faked />}>
         <TabTools tab={tab} faked />
-        {onReveal && (
-          <RowActionSlot>
-            <Tooltip title="Reveal in list" enterDelay={TOOLTIP_DELAY}>
-              <ControlIconButton
-                controlSize="compact"
-                aria-label={`Reveal ${tab.title} in list`}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onReveal(tab)
-                }}
-              >
-                <RevealInListIcon fontSize={18} />
-              </ControlIconButton>
-            </Tooltip>
-          </RowActionSlot>
-        )}
         <RowActionSlot>
           <CloseButton
             onClick={onRemove}

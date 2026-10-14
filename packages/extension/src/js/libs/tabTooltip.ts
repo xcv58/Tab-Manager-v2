@@ -23,3 +23,21 @@ export const normalizeTabTooltipTitleLines = (
   TAB_TOOLTIP_TITLE_LINES.includes(value as TabTooltipTitleLines)
     ? (value as TabTooltipTitleLines)
     : DEFAULT_TAB_TOOLTIP_TITLE_LINES
+
+export const getMountedTabDetailsSurface = (
+  tabId: number,
+  preferredSurface?: 'list' | 'search',
+) => {
+  const surfaces =
+    preferredSurface === 'list'
+      ? (['list', 'search'] as const)
+      : (['search', 'list'] as const)
+  return surfaces.find((surface) => {
+    const prefix = surface === 'search' ? 'search-tab-row' : 'tab-row'
+    return document
+      .querySelector(
+        `[data-testid="${prefix}-${tabId}"] button[aria-haspopup="dialog"]`,
+      )
+      ?.getClientRects().length
+  })
+}

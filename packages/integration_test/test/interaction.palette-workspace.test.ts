@@ -76,6 +76,7 @@ for (const lite of [false, true]) {
         await chrome.storage.sync.set({
           litePopupMode: lite,
           showSearchResultMenu: true,
+          showTabTooltip: true,
         })
         return { tabId: tab.id, groupId }
       }, lite)
@@ -87,10 +88,28 @@ for (const lite of [false, true]) {
       await search.click()
       const result = page.getByTestId('search-tab-row-' + tabId)
       await expect(result).toBeVisible()
+      await expect(
+        result.getByRole('button', { name: /Reveal .* in list/ }),
+      ).toHaveCount(0)
       await result.click({ button: 'right' })
       await expect(page.getByRole('menu')).toBeVisible()
       await page.keyboard.press('Escape')
       await expect(page.getByRole('menu')).toBeHidden()
+      await expect(result).toBeFocused()
+      await page.keyboard.press('Alt+ArrowDown')
+      const details = page.getByRole('dialog', {
+        name: 'Tab details',
+        exact: true,
+      })
+      await expect(details.getByTestId('tab-tooltip-title')).toHaveText(
+        'Collapsed command target',
+      )
+      await expect(
+        details.getByRole('button', { name: 'Copy title' }),
+      ).toBeFocused()
+      await page.keyboard.press('Escape')
+      await expect(details).toBeHidden()
+      await expect(result).toBeVisible()
       await page.keyboard.press('Alt+k')
       const palette = page.getByTestId('command-palette')
       const query = palette.getByRole('combobox', { name: 'Search commands' })
