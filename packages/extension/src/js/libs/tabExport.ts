@@ -107,11 +107,13 @@ export const formatTabExport = (
     return records
       .map((tab) => {
         const title = (tab.title || tab.url)
-          .replace(/[\\[\]`*_<>]/g, '\\$&')
+          .replace(/[\\[\]`*_<>&]/g, '\\$&')
           .replace(/[\r\n]+/g, ' ')
-        const url = tab.url.replace(/[\s<>\\]/g, (character) =>
-          encodeURIComponent(character),
-        )
+        const url = tab.url
+          .replace(/[\s<>\\]/g, (character) => encodeURIComponent(character))
+          // CommonMark decodes entities in destinations, including <...>.
+          // Escape the Markdown representation while keeping the URL literal.
+          .replace(/&/g, '&amp;')
         return `- [${title}](<${url}>)`
       })
       .join('\n')

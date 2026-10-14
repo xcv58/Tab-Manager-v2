@@ -4,6 +4,83 @@ import {
   initBrowserWithExtension,
 } from '../util'
 
+test('isolate tooltip shortcuts while retaining native copy and normal dismissal', async () => {
+  const { browserContext, page, extensionURL } = await initBrowserWithExtension(
+    { headless: true },
+  )
+  try {
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({
+        showTabTooltip: true,
+        showSearchResultMenu: false,
+      })
+    })
+    const fixture = await browserContext.newPage()
+    await fixture.goto(
+      'data:text/html,<title>Shortcut isolation title</title>fixture',
+    )
+    await page.bringToFront()
+    const tabId = await page.evaluate(
+      async () =>
+        (await chrome.tabs.query({})).find(
+          (tab) => tab.title === 'Shortcut isolation title',
+        ).id,
+    )
+    await page.reload()
+    const row = page.getByTestId('tab-row-' + tabId)
+    const anchor = row.locator('button[aria-haspopup="dialog"]')
+    const panel = page.getByRole('dialog', { name: 'Tab details', exact: true })
+    await anchor.hover()
+    await expect(panel).toBeVisible()
+    await page.mouse.move(1278, 2)
+    await expect(panel).toBeHidden()
+    await anchor.focus()
+    await anchor.press('Alt+ArrowDown')
+    await expect(
+      panel.getByRole('button', { name: 'Copy title' }),
+    ).toBeFocused()
+    const readTabs = () =>
+      page.evaluate(async () =>
+        (await chrome.tabs.query({})).map(({ id, pinned, url }) => ({
+          id,
+          pinned,
+          url,
+        })),
+      )
+    const before = await readTabs()
+    let reloads = 0
+    fixture.on('framenavigated', () => {
+      reloads++
+    })
+    for (const key of ['p', 'r', 'x', 'd', 'd']) await page.keyboard.press(key)
+    await page.waitForTimeout(300)
+    expect(await readTabs()).toEqual(before)
+    expect(reloads).toBe(0)
+    await expect(
+      row.getByRole('checkbox', { name: 'Toggle select' }),
+    ).not.toBeChecked()
+    await expect(panel).toBeVisible()
+    await browserContext.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await panel.getByTestId('tab-tooltip-title').click()
+    await page.evaluate(() => {
+      const text = document.querySelector('[data-testid="tab-tooltip-title"]')
+      const range = document.createRange()
+      range.selectNodeContents(text)
+      window.getSelection().removeAllRanges()
+      window.getSelection().addRange(range)
+    })
+    await page.keyboard.press('Control+c')
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'Shortcut isolation title',
+    )
+    await page.keyboard.press('Escape')
+    await expect(panel).toBeHidden()
+  } finally {
+    await browserContext.close()
+  }
+})
+
 test('select, expand and copy long tab details without activating the tab', async () => {
   test.setTimeout(120000)
   const { browserContext, page, extensionURL } = await initBrowserWithExtension(

@@ -169,6 +169,9 @@ export default class ActionStore {
     if (target) {
       this.store.focusStore.focus(target, {
         origin: 'mouse',
+        surface: anchor.element.closest('[data-testid^="search-tab-row-"]')
+          ? 'search'
+          : 'list',
         reveal: false,
         moveDomFocus: false,
       })

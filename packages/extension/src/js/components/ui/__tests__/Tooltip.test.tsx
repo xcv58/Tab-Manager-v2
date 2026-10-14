@@ -14,6 +14,33 @@ const setViewportSize = (width: number, height: number) => {
 }
 
 describe('Tooltip', () => {
+  it('isolates printable shortcuts without cancelling native keyboard actions', () => {
+    const shortcut = jest.fn()
+    document.addEventListener('keypress', shortcut)
+    render(
+      <Tooltip
+        open
+        disableInteractive={false}
+        role="dialog"
+        title={<button>Copy title</button>}
+      >
+        <button>Tab row</button>
+      </Tooltip>,
+    )
+    const copy = screen.getByRole('button', { name: 'Copy title' })
+    copy.focus()
+    const nativeCopy = new KeyboardEvent('keydown', {
+      key: 'c',
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    })
+    fireEvent(copy, nativeCopy)
+    fireEvent.keyPress(copy, { key: 'r', charCode: 114 })
+    expect(nativeCopy.defaultPrevented).toBe(false)
+    expect(shortcut).not.toHaveBeenCalled()
+    document.removeEventListener('keypress', shortcut)
+  })
   it('releases an interrupted text selection before reopening', () => {
     const release = jest.fn()
     const view = (open: boolean) => (

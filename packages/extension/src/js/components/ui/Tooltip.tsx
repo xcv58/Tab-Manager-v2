@@ -385,6 +385,11 @@ export default function Tooltip({
                 ? undefined
                 : (event) => event.stopPropagation()
             }
+            onKeyPress={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
             onClick={
               disableInteractive
                 ? undefined

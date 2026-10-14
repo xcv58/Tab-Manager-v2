@@ -2,6 +2,23 @@ import ShortcutStore from 'stores/ShortcutStore'
 import DragStore from 'stores/DragStore'
 
 describe('ShortcutStore.stopCallback', () => {
+  it.each(['p', 'r', 'x', 'd d', 'ctrl+r', 'alt+down'])(
+    'blocks %s from a tab details control',
+    (combo) => {
+      const shortcuts = new ShortcutStore({} as any)
+      const panel = document.createElement('div')
+      panel.setAttribute('data-tab-details-panel', '')
+      const copy = document.createElement('button')
+      panel.appendChild(copy)
+      expect(
+        shortcuts.stopCallback(
+          new KeyboardEvent('keypress'),
+          copy as any,
+          combo,
+        ),
+      ).toBe(true)
+    },
+  )
   it.each([
     'alt+shift+up',
     'alt+shift+down',

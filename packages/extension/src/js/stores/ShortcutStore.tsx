@@ -550,6 +550,9 @@ export default class ShortcutStore {
     combo: string,
     sequence?: string,
   ) => {
+    // Details controls keep native text copying and keyboard interaction, but
+    // must never invoke the workspace's printable or modifier shortcuts.
+    if (element.closest?.('[data-tab-details-panel]')) return true
     if (this.store.actionStore?.paletteOpen) {
       return true
     }

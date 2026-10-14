@@ -36,6 +36,8 @@ export default class FocusStore {
 
   focusedItemRef: Focusable | null = null
 
+  focusedSurface: 'list' | 'search' = 'list'
+
   constructor(store: Store) {
     makeAutoObservable(this, {
       focusedItemRef: false,
@@ -48,7 +50,15 @@ export default class FocusStore {
   get focusedItem(): Focusable | null {
     const { windows, tabs } = this.store.windowStore
     if (this.focusedTabId) {
-      return tabs.find((x) => x.id === this.focusedTabId && x.isVisible)
+      // A search result can expose a tab whose main-list group is collapsed.
+      // Retain that explicit target while menus/palettes temporarily hide the
+      // results, and resolve it against current browser data after updates.
+      return tabs.find(
+        (x) =>
+          x.id === this.focusedTabId &&
+          !x.removing &&
+          (x.isVisible || this.focusedSurface === 'search'),
+      )
     } else if (this.focusedGroupId != null) {
       return (
         windows
@@ -99,7 +109,7 @@ export default class FocusStore {
     this._top = Math.max(top, this._top)
   }
 
-  _setFocusedItem = (item: Focusable) => {
+  _setFocusedItem = (item: Focusable, surface: 'list' | 'search' = 'list') => {
     log.debug('_setFocusedItem:', item)
     if (this.focusedItemRef && this.focusedItemRef !== item) {
       this.focusedItemRef.setFocusState({ focused: false })
@@ -124,11 +134,13 @@ export default class FocusStore {
       return
     }
     this.focusedItemRef = item
+    this.focusedSurface = surface
   }
 
   defocus = () => {
     this.focusedItemRef?.setFocusState({ focused: false })
     this.focusedItemRef = null
+    this.focusedSurface = 'list'
     this.focusedTabId = null
     this.focusedGroupId = null
     this.focusedWindowId = null
@@ -144,7 +156,7 @@ export default class FocusStore {
       return
     }
     const origin = previous?.focusOrigin
-    this._setFocusedItem(current)
+    this._setFocusedItem(current, this.focusedSurface)
     current.setFocusState({
       focused: true,
       origin,
@@ -160,7 +172,14 @@ export default class FocusStore {
   }
 
   focus = (item: Focusable, options: FocusRequestOptions = {}) => {
-    this._setFocusedItem(item)
+    // Tab actions such as toggling selection focus the same model again. Keep
+    // its explicit search context when it still has no visible main-list row.
+    const surface =
+      options.surface ??
+      (item === this.focusedItemRef && item instanceof Tab && !item.isVisible
+        ? this.focusedSurface
+        : 'list')
+    this._setFocusedItem(item, surface)
     item.setFocusState({
       focused: true,
       origin: options.origin,

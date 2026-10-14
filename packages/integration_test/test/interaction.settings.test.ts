@@ -522,6 +522,9 @@ test.describe('The Extension page should', () => {
     const app = preview.locator('[data-preview-window="936"]')
     await expect(app).toContainText('1 tab · Music player · App window')
     await expect(app.locator('[data-testid^="tab-row-"]')).toHaveCount(1)
+    await expect(
+      app.locator('[data-testid^="tab-active-indicator-"]'),
+    ).toHaveCount(0)
     await page
       .getByRole('radio', { name: 'Use last used window order' })
       .click()

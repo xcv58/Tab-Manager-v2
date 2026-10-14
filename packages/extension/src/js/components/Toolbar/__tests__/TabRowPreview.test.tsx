@@ -1,6 +1,26 @@
 import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
-import TabRowPreview from '../TabRowPreview'
+import TabRowPreview, { TabRowsPreview } from '../TabRowPreview'
+
+test('active indicators reflect actual preview window membership', () => {
+  const first = {
+    id: 1,
+    title: 'App window',
+    url: 'https://music.example.test',
+    active: true,
+  }
+  const { rerender } = render(<TabRowsPreview configs={[first]} />)
+  expect(screen.queryByTestId('tab-active-indicator-1')).not.toBeInTheDocument()
+  rerender(
+    <TabRowsPreview
+      configs={[
+        first,
+        { id: 2, title: 'Second tab', url: 'https://notes.example.test' },
+      ]}
+    />,
+  )
+  expect(screen.getByTestId('tab-active-indicator-1')).toBeInTheDocument()
+})
 
 test('sample tab selection and focus work without exposing pretend destructive actions', () => {
   render(

@@ -139,7 +139,7 @@ class PreviewTabModel {
     this.duplicatedTabCount = config.duplicatedTabCount ?? 1
     this.win = {
       lastFocused: config.lastFocused ?? true,
-      tabs: [this, { id: config.id + 1000 }],
+      tabs: [],
       canDrop: false,
     }
     makeAutoObservable(
@@ -287,6 +287,9 @@ class PreviewStore {
     this.focusStore = new PreviewFocusStore()
     this.actionStore = new ActionStore(this as never)
     this.tabs = configs.map((config) => new PreviewTabModel(this, config))
+    this.tabs.forEach((tab) => {
+      tab.win = { ...tab.win, tabs: this.tabs }
+    })
     this.windowStore.windows = [
       { getTabById: (id) => this.tabs.find((tab) => tab.id === id) || null },
     ]
