@@ -137,7 +137,10 @@ const groupTabsInWindowByUrls = async (
         return null
       }
 
-      const groupId = await chrome.tabs.group({ tabIds })
+      const groupId = await chrome.tabs.group({
+        tabIds,
+        createProperties: { windowId },
+      })
       await chrome.tabGroups.update(groupId, {
         title,
         color,
@@ -983,7 +986,7 @@ test.describe('The Extension page should', () => {
     expect(state.movedTabGroupId).toBe(state.noGroup)
   })
 
-  test('drop on collapsed group header should insert tab at group start', async () => {
+  test('group Beginning target inserts a tab into a collapsed group without expanding it', async () => {
     const sourceUrl = 'data:text/html,collapsed-header-source'
     const groupedUrls = [
       'data:text/html,collapsed-header-a',
@@ -1041,9 +1044,15 @@ test.describe('The Extension page should', () => {
     expect(result.sourceGroupId).not.toBe(result.noGroup)
     expect(result.sourceIsFirst).toBe(true)
     expect(result.orderedSize).toBe(3)
+    expect(
+      await page.evaluate(
+        async (id) => (await chrome.tabGroups.get(id)).collapsed,
+        groupId,
+      ),
+    ).toBe(true)
   })
 
-  test('drop above group header should move tab before group without joining it', async () => {
+  test('group End target appends a tab to the group', async () => {
     const sourceUrl = 'data:text/html,before-group-header-source'
     const groupedUrls = [
       'data:text/html,before-group-header-a',
@@ -1078,7 +1087,7 @@ test.describe('The Extension page should', () => {
     await dragByTestId(page, {
       sourceTestId: `tab-row-${setup.sourceTabId}`,
       targetTestId: `tab-group-header-${groupId}`,
-      dropPosition: 'top',
+      groupEdge: 'end',
     })
     await page.waitForTimeout(900)
 
@@ -1092,18 +1101,16 @@ test.describe('The Extension page should', () => {
         const groupedTabs = allTabs.filter((tab) => tab.groupId === groupId)
         return {
           sourceGroupId: source?.groupId ?? noGroup,
-          sourceBeforeGroup:
-            (source?.index ?? Number.MAX_SAFE_INTEGER) <
-            (groupedTabs[0]?.index ?? -1),
+          sourceIsLast: groupedTabs[groupedTabs.length - 1]?.id === sourceTabId,
           groupedSize: groupedTabs.length,
           noGroup,
         }
       },
       { sourceTabId: setup.sourceTabId, groupId },
     )
-    expect(result.sourceGroupId).toBe(result.noGroup)
-    expect(result.sourceBeforeGroup).toBe(true)
-    expect(result.groupedSize).toBe(2)
+    expect(result.sourceGroupId).toBe(groupId)
+    expect(result.sourceIsLast).toBe(true)
+    expect(result.groupedSize).toBe(3)
   })
 
   test('manually selected whole group dropped into another window blank space keeps the group', async () => {
@@ -1315,104 +1322,146 @@ test.describe('The Extension page should', () => {
     expect(movedTargetTabs).toHaveLength(3)
   })
 
-  test('group-header center merges the entire mixed selection into the target group', async () => {
-    const sourceUrls = [
-      'data:text/html,merge-source-group-a',
-      'data:text/html,merge-source-group-b',
-      'data:text/html,merge-source-loose',
-    ]
-    const targetUrls = [
-      'data:text/html,merge-target-group-a',
-      'data:text/html,merge-target-group-b',
-    ]
+  for (const edge of ['beginning', 'end'] as const) {
+    test(`group ${edge} target moves a mixed selection beside its destination without merging groups`, async () => {
+      const sourceUrls = [
+        'data:text/html,merge-source-group-a',
+        'data:text/html,merge-source-group-b',
+        'data:text/html,merge-source-loose',
+      ]
+      const targetUrls = [
+        'data:text/html,merge-target-group-a',
+        'data:text/html,merge-target-group-b',
+      ]
 
-    const sourceWindow = await createWindowWithUrls(page, sourceUrls)
-    const targetWindow = await createWindowWithUrls(page, targetUrls)
-    expect(sourceWindow).toBeTruthy()
-    expect(targetWindow).toBeTruthy()
-    if (!sourceWindow || !targetWindow) {
-      return
-    }
+      const sourceWindow = await createWindowWithUrls(page, sourceUrls)
+      const targetWindow = await createWindowWithUrls(page, targetUrls)
+      expect(sourceWindow).toBeTruthy()
+      expect(targetWindow).toBeTruthy()
+      if (!sourceWindow || !targetWindow) {
+        return
+      }
 
-    const sourceGroupId = await groupTabsInWindowByUrls(page, {
-      windowId: sourceWindow.windowId,
-      urls: sourceUrls.slice(0, 2),
-      title: 'Merge Source Group',
-      color: 'purple',
-    })
-    const targetGroupId = await groupTabsInWindowByUrls(page, {
-      windowId: targetWindow.windowId,
-      urls: targetUrls,
-      title: 'Merge Target Group',
-      color: 'cyan',
-    })
-    expect(sourceGroupId).toBeGreaterThan(-1)
-    expect(targetGroupId).toBeGreaterThan(-1)
-    await page.reload()
-    await waitForTestId(page, `tab-group-header-${sourceGroupId}`)
-    await waitForTestId(page, `tab-group-header-${targetGroupId}`)
-    await waitForTestId(
-      page,
-      `tab-row-${sourceWindow.tabIdsByUrl[sourceUrls[2]]}`,
-    )
-
-    await focusByKeyboardUntil(
-      page,
-      (testId) => testId === `tab-group-header-${sourceGroupId}`,
-      60,
-    )
-    await page.keyboard.press('x')
-    await expect.poll(() => readSelectedCountState(page)).toBe(2)
-
-    await focusByKeyboardUntil(
-      page,
-      (testId) =>
-        testId === `tab-row-${sourceWindow.tabIdsByUrl[sourceUrls[2]]}`,
-      60,
-    )
-    await page.keyboard.press('x')
-    await expect.poll(() => readSelectedCountState(page)).toBe(3)
-
-    await dragByTestId(page, {
-      sourceTestId: `tab-row-${sourceWindow.tabIdsByUrl[sourceUrls[2]]}`,
-      targetTestId: `tab-group-header-${targetGroupId}`,
-      dropPosition: 'middle',
-    })
-    await page.waitForTimeout(1000)
-
-    const sourceGroupTabs = await page.evaluate(async (id) => {
-      const tabs = await chrome.tabs.query({ groupId: id })
-      return tabs.map((tab) => ({
-        id: tab.id ?? -1,
-        groupId: tab.groupId,
-        windowId: tab.windowId ?? -1,
-        url: tab.url || '',
-      }))
-    }, sourceGroupId)
-    expect(sourceGroupTabs).toHaveLength(0)
-
-    const targetTabs = await page.evaluate(async (id) => {
-      const tabs = (await chrome.tabs.query({ groupId: id })).sort(
-        (a, b) => (a.index ?? 0) - (b.index ?? 0),
+      const sourceGroupId = await groupTabsInWindowByUrls(page, {
+        windowId: sourceWindow.windowId,
+        urls: sourceUrls.slice(0, 2),
+        title: 'Merge Source Group',
+        color: 'purple',
+      })
+      const targetGroupId = await groupTabsInWindowByUrls(page, {
+        windowId: targetWindow.windowId,
+        urls: targetUrls,
+        title: 'Merge Target Group',
+        color: 'cyan',
+      })
+      expect(sourceGroupId).toBeGreaterThan(-1)
+      expect(targetGroupId).toBeGreaterThan(-1)
+      expect(
+        await page.evaluate(
+          async (id) => (await chrome.tabGroups.get(id)).windowId,
+          sourceGroupId,
+        ),
+      ).toBe(sourceWindow.windowId)
+      expect(
+        await page.evaluate(
+          async (id) => (await chrome.tabGroups.get(id)).windowId,
+          targetGroupId,
+        ),
+      ).toBe(targetWindow.windowId)
+      await page.reload()
+      await waitForTestId(page, `tab-group-header-${sourceGroupId}`)
+      await waitForTestId(page, `tab-group-header-${targetGroupId}`)
+      await waitForTestId(
+        page,
+        `tab-row-${sourceWindow.tabIdsByUrl[sourceUrls[2]]}`,
       )
-      return tabs.map((tab) => ({
-        id: tab.id ?? -1,
-        groupId: tab.groupId,
-        windowId: tab.windowId ?? -1,
-        url: tab.url || '',
-      }))
-    }, targetGroupId)
-    expect(targetTabs).toHaveLength(5)
-    expect(targetTabs.every((tab) => tab.groupId === targetGroupId)).toBe(true)
-    expect(
-      targetTabs
-        .filter((tab) => sourceUrls.includes(tab.url))
-        .map((tab) => tab.url),
-    ).toEqual(sourceUrls)
-    expect(
-      targetTabs
-        .filter((tab) => targetUrls.includes(tab.url))
-        .map((tab) => tab.url),
-    ).toEqual(targetUrls)
-  })
+
+      await focusByKeyboardUntil(
+        page,
+        (testId) => testId === `tab-group-header-${sourceGroupId}`,
+        60,
+      )
+      await page.keyboard.press('x')
+      await expect.poll(() => readSelectedCountState(page)).toBe(2)
+
+      await focusByKeyboardUntil(
+        page,
+        (testId) =>
+          testId === `tab-row-${sourceWindow.tabIdsByUrl[sourceUrls[2]]}`,
+        60,
+      )
+      await page.keyboard.press('x')
+      await expect.poll(() => readSelectedCountState(page)).toBe(3)
+
+      await dragByTestId(page, {
+        sourceTestId: `tab-row-${sourceWindow.tabIdsByUrl[sourceUrls[2]]}`,
+        targetTestId: `tab-group-header-${targetGroupId}`,
+        groupEdge: edge,
+      })
+      await expect
+        .poll(async () =>
+          (await readTabsInWindow(page, targetWindow.windowId))
+            .filter((tab) => sourceUrls.includes(tab.url))
+            .map((tab) => tab.url),
+        )
+        .toEqual(sourceUrls)
+
+      const sourceGroupTabs = await page.evaluate(async (id) => {
+        const tabs = await chrome.tabs.query({ groupId: id })
+        return tabs.map((tab) => ({
+          id: tab.id ?? -1,
+          groupId: tab.groupId,
+          windowId: tab.windowId ?? -1,
+          url: tab.url || '',
+        }))
+      }, sourceGroupId)
+      expect(sourceGroupTabs).toHaveLength(2)
+      expect(
+        sourceGroupTabs.every((tab) => tab.windowId === targetWindow.windowId),
+      ).toBe(true)
+      expect(
+        await page.evaluate(
+          async (id) => chrome.tabGroups.get(id),
+          sourceGroupId,
+        ),
+      ).toMatchObject({
+        title: 'Merge Source Group',
+        color: 'purple',
+        windowId: targetWindow.windowId,
+      })
+
+      const targetTabs = await page.evaluate(async (id) => {
+        const tabs = (await chrome.tabs.query({ groupId: id })).sort(
+          (a, b) => (a.index ?? 0) - (b.index ?? 0),
+        )
+        return tabs.map((tab) => ({
+          id: tab.id ?? -1,
+          groupId: tab.groupId,
+          windowId: tab.windowId ?? -1,
+          url: tab.url || '',
+        }))
+      }, targetGroupId)
+      expect(targetTabs).toHaveLength(2)
+      expect(targetTabs.every((tab) => tab.groupId === targetGroupId)).toBe(
+        true,
+      )
+      expect(
+        targetTabs
+          .filter((tab) => targetUrls.includes(tab.url))
+          .map((tab) => tab.url),
+      ).toEqual(targetUrls)
+      const allTargetTabs = await readTabsInWindow(page, targetWindow.windowId)
+      const orderedUrls = allTargetTabs
+        .filter((tab) => [...sourceUrls, ...targetUrls].includes(tab.url))
+        .map((tab) => tab.url)
+      expect(orderedUrls).toEqual(
+        edge === 'beginning'
+          ? [...sourceUrls, ...targetUrls]
+          : [...targetUrls, ...sourceUrls],
+      )
+      expect(
+        allTargetTabs.find((tab) => tab.url === sourceUrls[2])?.groupId,
+      ).toBe(-1)
+    })
+  }
 })

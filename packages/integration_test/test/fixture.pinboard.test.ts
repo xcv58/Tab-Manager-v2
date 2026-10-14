@@ -1,6 +1,35 @@
 import { test, expect } from '@playwright/test'
 import { initBrowserWithExtension } from '../util'
 
+test('DuckDuckGo fixture retains tab metadata and favicon without network access', async () => {
+  const { browserContext, page } = await initBrowserWithExtension({
+    headless: true,
+  })
+  try {
+    await browserContext.setOffline(true)
+    const fixture = await browserContext.newPage()
+    await fixture.goto('https://duckduckgo.com/')
+    await expect(fixture).toHaveURL('https://duckduckgo.com/')
+    await expect(fixture).toHaveTitle(
+      'DuckDuckGo - Protection. Privacy. Peace of mind.',
+    )
+    await expect
+      .poll(() =>
+        page.evaluate(async () =>
+          (await chrome.tabs.query({})).find(
+            (tab) => tab.url === 'https://duckduckgo.com/',
+          ),
+        ),
+      )
+      .toMatchObject({
+        title: 'DuckDuckGo - Protection. Privacy. Peace of mind.',
+        favIconUrl: expect.stringMatching(/^data:image\/x-icon;base64,/),
+      })
+  } finally {
+    await browserContext.close()
+  }
+})
+
 test('Pinboard fixture retains browser tab metadata without network access', async () => {
   const { browserContext, page } = await initBrowserWithExtension({
     headless: true,

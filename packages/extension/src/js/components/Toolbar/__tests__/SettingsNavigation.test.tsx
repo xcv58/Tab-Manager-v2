@@ -23,7 +23,7 @@ const Panel = ({ sectionId, title, children }: any) => (
 const setup = () => {
   const stateRef = { current: { scrollTop: 0 } as SettingsNavigationState }
   const view = render(
-    <SettingsNavigation stateRef={stateRef}>
+    <SettingsNavigation stateRef={stateRef} uiPreset="modern">
       {[
         <Panel key="appearance" sectionId="appearance" title="Appearance">
           <Control title="Theme" />
@@ -87,6 +87,6 @@ test('search matches aliases, leaves real controls editable and restores scroll'
   })
   expect(screen.getByRole('status')).toHaveTextContent('No matching settings')
   expect(
-    screen.getByRole('combobox', { name: 'Jump to section' }),
-  ).toBeDisabled()
+    screen.queryByRole('combobox', { name: 'Jump to section' }),
+  ).not.toBeInTheDocument()
 })

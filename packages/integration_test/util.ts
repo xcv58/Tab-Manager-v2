@@ -32,10 +32,10 @@ export const selectSettingsSection = async (
     Search: 'search',
     'Popup & controls': 'popup-controls',
   }
-  await page
-    .getByRole('combobox', { name: 'Jump to section' })
-    .selectOption(sections[name])
   const panel = page.locator('#settings-section-' + sections[name])
+  await panel.evaluate((node) =>
+    node.scrollIntoView({ block: 'start', behavior: 'instant' }),
+  )
   await expect(panel.getByRole('heading', { name, exact: true })).toBeVisible()
   await waitForSurfaceToFullyAppear(page, panel)
   return panel
@@ -52,7 +52,7 @@ export const URLS = [
   'http://xcv58.com/',
   'https://nextjs.org/',
   'https://pinboard.in/',
-  'http://duckduckgo.com/',
+  'https://duckduckgo.com/',
   'https://ops-class.org/',
 ]
 
@@ -63,6 +63,11 @@ const pinboardFixtureHtml = readFileSync(
   join(__dirname, 'assets/fixtures/pinboard.html'),
   'utf8',
 ).replace('__PINBOARD_FAVICON__', pinboardFixtureIcon)
+
+// Frozen public favicon from https://duckduckgo.com/favicon.ico, for tests only.
+const duckduckgoFixtureIcon = `data:image/x-icon;base64,${readFileSync(
+  join(__dirname, 'assets/fixtures/duckduckgo.ico'),
+).toString('base64')}`
 
 export type IntegrationFixtureServer = {
   baseUrl: string
@@ -308,6 +313,24 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
           : { body: pinboardFixtureHtml }),
         contentType: favicon ? 'image/x-icon' : 'text/html; charset=utf-8',
       })
+    },
+  )
+
+  await browserContext.route(
+    /^https:\/\/duckduckgo\.com\/(?:favicon\.ico)?$/,
+    async (route) => {
+      const url = new URL(route.request().url())
+      if (url.pathname === '/favicon.ico') {
+        await route.fulfill({
+          path: join(__dirname, 'assets/fixtures/duckduckgo.ico'),
+          contentType: 'image/x-icon',
+        })
+      } else {
+        await route.fulfill({
+          contentType: 'text/html; charset=utf-8',
+          body: `<!doctype html><title>DuckDuckGo - Protection. Privacy. Peace of mind.</title><link rel="icon" href="${duckduckgoFixtureIcon}"><p>Offline tab metadata fixture</p>`,
+        })
+      }
     },
   )
 
@@ -798,14 +821,68 @@ export const dragByTestId = async (
     sourceTestId,
     targetTestId,
     dropPosition = 'middle',
+    groupEdge = 'beginning',
     targetUseParent = false,
   }: {
     sourceTestId: string
     targetTestId: string
     dropPosition?: 'top' | 'middle' | 'bottom'
+    groupEdge?: 'beginning' | 'end'
     targetUseParent?: boolean
   },
 ) => {
+  // Group halves mount after dragstart. Drop on the actual new target instead
+  // of dispatching onto a header that no longer has a drop handler.
+  const groupMatch = /^tab-group-header-(\d+)$/.exec(targetTestId)
+  if (groupMatch && !targetUseParent) {
+    const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
+    try {
+      await page.getByTestId(sourceTestId).evaluate((node, dataTransfer) => {
+        const source = node.closest('[draggable="true"]') || node
+        const rect = source.getBoundingClientRect()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: rect.x + rect.width / 2,
+            clientY: rect.y + rect.height / 2,
+            dataTransfer,
+          }),
+        )
+      }, dataTransfer)
+      const target = page.getByTestId(
+        `group-header-drop-${groupEdge}-${groupMatch[1]}`,
+      )
+      await expect(target).toBeVisible()
+      await target.evaluate((node, dataTransfer) => {
+        const rect = node.getBoundingClientRect()
+        for (const type of ['dragenter', 'dragover', 'drop']) {
+          node.dispatchEvent(
+            new DragEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              clientX: rect.x + rect.width / 2,
+              clientY: rect.y + rect.height / 2,
+              dataTransfer,
+            }),
+          )
+        }
+      }, dataTransfer)
+      await page.getByTestId(sourceTestId).evaluate((node, dataTransfer) => {
+        const source = node.closest('[draggable="true"]') || node
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer,
+          }),
+        )
+      }, dataTransfer)
+    } finally {
+      await dataTransfer.dispose()
+    }
+    return
+  }
   await page.evaluate(
     ({ sourceTestId, targetTestId, dropPosition, targetUseParent }) => {
       const sourceNode = document.querySelector(

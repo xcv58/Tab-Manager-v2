@@ -19,6 +19,7 @@ type ActiveElementState = {
   text: string
   tagName: string
   type: string
+  settingsSectionId: string
   checked: boolean | null
 }
 
@@ -36,6 +37,9 @@ const readActiveElementState = async (
       text: node?.textContent?.replace(/\s+/g, ' ').trim() || '',
       tagName: node?.tagName || '',
       type: node?.getAttribute('type') || '',
+      settingsSectionId:
+        node?.closest('.settings-section')?.getAttribute('data-section-id') ||
+        '',
       checked:
         typeof node?.checked === 'boolean'
           ? Boolean(node.checked)
@@ -104,21 +108,22 @@ const pressTabUntil = async (
   )
 }
 
-const selectSettingsSectionByKeyboard = async (
-  page: Page,
-  name: string,
-  index: number,
-) => {
-  await pressTabUntil(page, (state) => state.ariaLabel === 'Jump to section', {
-    maxSteps: 40,
+const selectSettingsSectionByKeyboard = async (page: Page, name: string) => {
+  const sectionIds: Record<string, string> = {
+    Appearance: 'appearance',
+    Search: 'search',
+    'Tab details': 'tab-details',
+    'Popup & controls': 'popup-controls',
+  }
+  await pressTabUntil(page, (state) => state.ariaLabel === 'Search settings', {
+    maxSteps: 150,
+    reverse: true,
   })
-  await page.keyboard.press('Home')
-  for (let step = 0; step < index; step += 1)
-    await page.keyboard.press('ArrowDown')
-  await page.keyboard.press('Enter')
-  await expect(
-    page.getByRole('combobox', { name: 'Jump to section' }),
-  ).toBeFocused()
+  await pressTabUntil(
+    page,
+    (state) => state.settingsSectionId === sectionIds[name],
+    { maxSteps: 150 },
+  )
   await expect(page.getByRole('heading', { name, exact: true })).toBeVisible()
   await expect(page.locator('.settings-section')).toHaveCount(5)
 }
@@ -176,7 +181,7 @@ test.describe('The Extension page should', () => {
     const settingsDialog = page.getByRole('dialog').first()
     await expect(settingsDialog).toBeVisible()
 
-    await selectSettingsSectionByKeyboard(page, 'Search', 3)
+    await selectSettingsSectionByKeyboard(page, 'Search')
     await pressTabUntil(
       page,
       (state) =>
@@ -195,7 +200,7 @@ test.describe('The Extension page should', () => {
       })
       .toBe(false)
 
-    await selectSettingsSectionByKeyboard(page, 'Appearance', 0)
+    await selectSettingsSectionByKeyboard(page, 'Appearance')
     await pressTabUntil(
       page,
       (state) =>
@@ -264,7 +269,7 @@ test.describe('The Extension page should', () => {
     await expect(settingsDialog).toBeVisible()
 
     const firstControl = await readActiveElementState(page)
-    expect(firstControl).toMatchObject({ ariaLabel: 'Close Settings' })
+    expect(firstControl).toMatchObject({ ariaLabel: 'Search settings' })
 
     await page.keyboard.press('Shift+Tab')
     await page.waitForTimeout(50)
@@ -274,20 +279,13 @@ test.describe('The Extension page should', () => {
       tagName: 'BUTTON',
     })
 
-    let wrappedToFirstControl = false
-    for (let index = 0; index < 150; index += 1) {
-      await page.keyboard.press('Tab')
-      await page.waitForTimeout(50)
-      await expect.poll(() => isActiveElementInsideDialog(page)).toBe(true)
-
-      const state = await readActiveElementState(page)
-      if (state.ariaLabel === 'Close Settings') {
-        wrappedToFirstControl = true
-        break
-      }
-    }
-
-    expect(wrappedToFirstControl).toBe(true)
+    await expect(
+      settingsDialog.getByRole('button', { name: 'Done', exact: true }),
+    ).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(
+      settingsDialog.getByRole('textbox', { name: 'Search settings' }),
+    ).toBeFocused()
 
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog')).toHaveCount(0)
@@ -354,7 +352,7 @@ test.describe('The Extension page should', () => {
 
     await expect(page.getByRole('dialog')).toHaveCount(1)
 
-    await selectSettingsSectionByKeyboard(page, 'Tab details', 2)
+    await selectSettingsSectionByKeyboard(page, 'Tab details')
     await pressTabUntil(
       page,
       (state) =>
@@ -364,8 +362,12 @@ test.describe('The Extension page should', () => {
       { maxSteps: 80 },
     )
 
-    await page.keyboard.press('Tab')
-    await page.waitForTimeout(50)
+    await pressTabUntil(
+      page,
+      (state) =>
+        state.ariaLabel === 'Toggle select' && state.type === 'checkbox',
+      { maxSteps: 30 },
+    )
 
     await expect
       .poll(() => readActiveElementState(page))
@@ -401,7 +403,7 @@ test.describe('The Extension page should', () => {
     await page.keyboard.press('Control+,')
     await expect(page.getByRole('dialog')).toHaveCount(1)
 
-    await selectSettingsSectionByKeyboard(page, 'Popup & controls', 4)
+    await selectSettingsSectionByKeyboard(page, 'Popup & controls')
     await pressTabUntil(
       page,
       (state) =>
@@ -415,7 +417,7 @@ test.describe('The Extension page should', () => {
 
     await expect(
       page.getByRole('radio', {
-        name: 'Show extension icon count for window tabs',
+        name: 'Show extension icon count for this window tabs',
       }),
     ).toHaveAttribute('aria-checked', 'true')
     await expect

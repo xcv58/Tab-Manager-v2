@@ -451,6 +451,7 @@ body {
   font-size: 0.8rem;
 }
 .settings-scroll {
+  overflow-anchor: none;
   height: 100%;
   overflow-y: auto;
   min-width: 0;

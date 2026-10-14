@@ -100,6 +100,10 @@ const renderGroupRow = (
       dragging,
       dragSource,
       dropAt,
+      movingWholeGroups: dragSource === 'group-header',
+      wholeSelectedGroupIds: new Set([200]),
+      getGroupEdgeMoveHint: jest.fn(),
+      moveSelectedTabsToGroupEdge: jest.fn(),
     },
     focusStore: {
       focus: jest.fn(),
@@ -107,6 +111,10 @@ const renderGroupRow = (
     },
     userStore: {
       uiPreset: 'modern',
+    },
+    tabStore: {
+      selection: new Map([[3, { id: 3, groupId: 200 }]]),
+      sources: [{ id: 3, groupId: 200 }],
     },
   } as any)
   const row = {
@@ -132,9 +140,15 @@ const renderGroupRow = (
     </StoreContext.Provider>,
   )
 
-  const dropNode = mockDrop.mock.calls[0][0] as HTMLDivElement
+  const dropNode = screen.getByTestId('tab-group-header-100') as HTMLDivElement
   mockHeaderRect(dropNode)
-  return { groupRow, dropNode, dropAt, focus: store.focusStore.focus }
+  return {
+    groupRow,
+    dropNode,
+    dropAt,
+    focus: store.focusStore.focus,
+    moveToEdge: store.dragStore.moveSelectedTabsToGroupEdge,
+  }
 }
 
 describe('GroupRow', () => {
@@ -226,26 +240,17 @@ describe('GroupRow', () => {
     })
   })
 
-  it('treats centered group-header drops as explicit merge intent', () => {
+  it.each(['beginning', 'end'])('adds tabs at the group %s target', (edge) => {
     const dropAt = jest.fn()
-    renderGroupRow('tab-row', dropAt)
-
-    expect(lastDropSpec).not.toBeNull()
-    lastDropSpec.drop(
-      {},
-      {
-        didDrop: () => false,
-        getClientOffset: () => ({ x: 20, y: 25 }),
-      },
+    const { moveToEdge } = renderGroupRow('tab-row', dropAt)
+    const spec = mockUseDrop.mock.calls[edge === 'beginning' ? 0 : 1][0]
+    expect(screen.getByTestId(`group-header-drop-${edge}-100`)).toHaveAttribute(
+      'aria-label',
+      `Add 1 tab to ${edge} of My group`,
     )
-
-    expect(dropAt).toHaveBeenCalledWith({
-      windowId: 1,
-      index: 0,
-      targetGroupId: 100,
-      before: true,
-      source: 'group-header',
-    })
+    spec.drop({}, { didDrop: () => false })
+    expect(moveToEdge).toHaveBeenCalledWith(100, edge)
+    expect(dropAt).not.toHaveBeenCalled()
   })
 
   it.each(['Group actions', 'Close group'])(
@@ -305,24 +310,18 @@ describe('GroupRow', () => {
     expect(highlight).toHaveTextContent('group')
   })
 
-  it('keeps group-header before-zone drops separate', () => {
+  it('labels whole-group targets Before/After without implying a merge', () => {
     const dropAt = jest.fn()
-    renderGroupRow('group-header', dropAt)
-
-    expect(lastDropSpec).not.toBeNull()
-    lastDropSpec.drop(
-      {},
-      {
-        didDrop: () => false,
-        getClientOffset: () => ({ x: 20, y: 1 }),
-      },
+    const { moveToEdge } = renderGroupRow('group-header', dropAt)
+    expect(
+      screen.getByTestId('group-header-drop-beginning-100'),
+    ).toHaveAttribute('aria-label', 'Move 1 group before My group')
+    expect(screen.getByTestId('group-header-drop-end-100')).toHaveAttribute(
+      'aria-label',
+      'Move 1 group after My group',
     )
-
-    expect(dropAt).toHaveBeenCalledWith({
-      windowId: 1,
-      index: 0,
-      forceUngroup: false,
-      source: 'group-header',
-    })
+    lastDropSpec.drop({}, { didDrop: () => false })
+    expect(moveToEdge).toHaveBeenCalledWith(100, 'end')
+    expect(dropAt).not.toHaveBeenCalled()
   })
 })

@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { AppThemeContext, darkAppTheme, lightAppTheme } from 'libs/appTheme'
 import { browser } from 'libs'
 import SettingsDialog from '../SettingsDialog'
@@ -27,11 +27,17 @@ jest.mock('../FeedbackButton', () => ({
 jest.mock('../TabRowPreview', () => ({
   __esModule: true,
   default: () => <div data-testid="tab-row-preview" />,
+  TabRowsPreview: () => <div data-testid="tab-rows-preview" />,
+}))
+
+jest.mock('../SettingsPopupPreview', () => ({
+  __esModule: true,
+  default: () => <div data-testid="settings-popup-preview" />,
 }))
 
 const mockUseStore = useStore as jest.Mock
 
-const renderSettingsDialog = (theme = lightAppTheme) => {
+const renderSettingsDialog = (theme = lightAppTheme, overrides = {}) => {
   const userStore = {
     dialogOpen: true,
     closeDialog: jest.fn(),
@@ -43,6 +49,8 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     toggleIncreaseContrast: jest.fn(),
     showTabTooltip: false,
     toggleShowTabTooltip: jest.fn(),
+    tabTooltipTitleLines: 3,
+    selectTabTooltipTitleLines: jest.fn(),
     tabTooltipUrlLines: 3,
     selectTabTooltipUrlLines: jest.fn(),
     preserveSearch: false,
@@ -81,6 +89,7 @@ const renderSettingsDialog = (theme = lightAppTheme) => {
     selectUiPreset: jest.fn(),
     theme: 'system',
     selectTheme: jest.fn(),
+    ...overrides,
   }
 
   mockUseStore.mockReturnValue({ userStore })
@@ -112,18 +121,17 @@ describe('SettingsDialog', () => {
     expect(container.querySelector('label label')).toBeNull()
   })
 
-  it('adds visible focus styling to the search and view switch rows for keyboard users', () => {
+  it('exposes keyboard-focusable labelled search and view switches', () => {
     renderSettingsDialog()
-
-    expect(screen.getByTestId('settings-search-focus')).toHaveClass(
-      'focus-within:ring-2',
-    )
-    expect(screen.getByTestId('settings-lite-popup-mode')).toHaveClass(
-      'focus-within:ring-2',
-    )
-    expect(screen.getByTestId('settings-increase-contrast')).toHaveClass(
-      'focus-within:ring-2',
-    )
+    for (const name of [
+      'Focus search on open',
+      'Use lite popup mode',
+      'Increase contrast',
+    ]) {
+      const control = screen.getByRole('checkbox', { name })
+      act(() => control.focus())
+      expect(control).toHaveFocus()
+    }
   })
 
   it('uses themed foreground colors when the dark settings dialog is open', () => {
@@ -173,7 +181,7 @@ describe('SettingsDialog', () => {
 
     fireEvent.click(
       screen.getByRole('radio', {
-        name: 'Show extension icon count for window tabs',
+        name: 'Show extension icon count for this window tabs',
       }),
     )
 
@@ -196,23 +204,43 @@ describe('SettingsDialog', () => {
 
   it('labels previews and exposes their intended interactions', () => {
     renderSettingsDialog()
+    expect(screen.getAllByTestId('tab-details-shared-preview')).toHaveLength(1)
+    expect(
+      screen.getByTestId('tab-details-shared-preview'),
+    ).not.toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByText(/Hover or press Alt/)).toBeInTheDocument()
+    expect(screen.getAllByTestId('settings-popup-preview')).toHaveLength(1)
+    expect(
+      screen.queryByRole('combobox', { name: 'Jump to section' }),
+    ).toBeNull()
+  })
 
-    expect(
-      screen.getByTestId('row-details-preview-active-tabs'),
-    ).not.toHaveAttribute('aria-hidden', 'true')
-    expect(
-      screen.getByTestId('row-details-preview-duplicates'),
-    ).not.toHaveAttribute('aria-hidden', 'true')
-    expect(screen.getByTestId('row-details-preview-icons')).not.toHaveAttribute(
-      'aria-hidden',
-      'true',
+  it('changes title and URL line limits independently', () => {
+    const { userStore } = renderSettingsDialog(lightAppTheme, {
+      showTabTooltip: true,
+    })
+    fireEvent.change(
+      screen.getByRole('combobox', { name: 'Title line limit' }),
+      {
+        target: { value: '5' },
+      },
     )
-    expect(screen.getByTestId('row-details-preview-urls')).not.toHaveAttribute(
-      'aria-hidden',
-      'true',
-    )
+    expect(userStore.selectTabTooltipTitleLines).toHaveBeenCalledWith(5)
+    expect(userStore.selectTabTooltipUrlLines).not.toHaveBeenCalled()
+    fireEvent.change(screen.getByRole('combobox', { name: 'URL line limit' }), {
+      target: { value: 'full' },
+    })
+    expect(userStore.selectTabTooltipUrlLines).toHaveBeenCalledWith('full')
+    expect(userStore.selectTabTooltipTitleLines).toHaveBeenCalledTimes(1)
+  })
+
+  it('disables both line limits when tooltips are off', () => {
+    renderSettingsDialog()
     expect(
-      screen.getByTestId('row-details-preview-tooltips'),
-    ).not.toHaveAttribute('aria-hidden')
+      screen.getByRole('combobox', { name: 'Title line limit' }),
+    ).toBeDisabled()
+    expect(
+      screen.getByRole('combobox', { name: 'URL line limit' }),
+    ).toBeDisabled()
   })
 })

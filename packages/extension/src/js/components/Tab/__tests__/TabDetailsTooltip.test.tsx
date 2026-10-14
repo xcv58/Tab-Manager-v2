@@ -19,6 +19,7 @@ describe('Tab details tooltip', () => {
     render(
       <TabDetailsTooltip
         title={title}
+        titleLines={1}
         url={url}
         urlLines={1}
         duplicateText=""
@@ -79,5 +80,47 @@ describe('Tab details tooltip', () => {
     expect(screen.getByTestId('tab-tooltip-title')).toHaveTextContent(
       'Readable title',
     )
+  })
+
+  it('expands a limited title independently and restores its chosen line limit', () => {
+    jest
+      .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+      .mockReturnValue(300)
+    jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(80)
+    const title = 'A detailed research title 研究 🔎 '.repeat(50)
+    render(
+      <TabDetailsTooltip
+        title={title}
+        titleLines={5}
+        url="https://example.test/"
+        urlLines={1}
+        duplicateText=""
+      />,
+    )
+    const titleText = screen.getByTestId('tab-tooltip-title')
+    expect(titleText).toHaveClass('line-clamp-5')
+    fireEvent.click(screen.getByRole('button', { name: 'Show full title' }))
+    expect(titleText).not.toHaveClass('line-clamp-5')
+    expect(titleText.textContent).toBe(title)
+    expect(screen.getByTestId('tab-tooltip-url')).toHaveClass('line-clamp-1')
+    fireEvent.click(screen.getByRole('button', { name: 'Show less title' }))
+    expect(titleText).toHaveClass('line-clamp-5')
+  })
+
+  it('keeps full-title mode untruncated while the URL retains its own limit', () => {
+    render(
+      <TabDetailsTooltip
+        title={'Long title '.repeat(100)}
+        titleLines="full"
+        url="https://example.test/"
+        urlLines={3}
+        duplicateText=""
+      />,
+    )
+    expect(screen.getByTestId('tab-tooltip-title')).not.toHaveClass(
+      'line-clamp-3',
+    )
+    expect(screen.queryByRole('button', { name: 'Show full title' })).toBeNull()
+    expect(screen.getByTestId('tab-tooltip-url')).toHaveClass('line-clamp-3')
   })
 })
