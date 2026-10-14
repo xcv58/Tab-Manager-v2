@@ -1,4 +1,5 @@
 import { withActionStore } from '__testutils__/actionStore'
+import { matchCommandItems } from 'libs/commandMatching'
 
 const setup = () => {
   const tab = {
@@ -131,6 +132,16 @@ describe('ActionStore palette', () => {
       'copy-format-selection',
     ])
       expect(ids).not.toContain(id)
+    for (const format of ['csv', 'tsv', 'json', 'markdown']) {
+      expect(
+        matchCommandItems(actions.commands, `export ${format}`, [
+          'label',
+          'aliases',
+          'section',
+          'detail',
+        ]).map((command) => command.id),
+      ).toContain('open-full-mode')
+    }
     await actions.execute(
       actions.commands.find((command) => command.id === 'copy-title-tab')!,
     )
@@ -164,13 +175,13 @@ describe('ActionStore palette', () => {
     },
   )
 
-  it.each(['csv', 'json'])(
+  it.each(['csv', 'tsv', 'json', 'markdown'])(
     'exports %s while retaining the selection and picker',
     async (format) => {
       const { store, actions, tab } = setup()
       actions.openPalette()
       actions.chooseFormat('export')
-      expect(actions.commands).toHaveLength(2)
+      expect(actions.commands).toHaveLength(4)
 
       await actions.execute(
         actions.commands.find((item) => item.id === `export-${format}`)!,
@@ -179,6 +190,7 @@ describe('ActionStore palette', () => {
       expect(store.exportTabs).toHaveBeenCalledWith([tab], format)
       expect(store.tabStore.selection.get(tab.id)).toBe(tab)
       expect(actions.paletteOpen).toBe(true)
+      expect(actions.formatAction).toBe('export')
       expect(actions.feedback).toBe('Exported')
     },
   )

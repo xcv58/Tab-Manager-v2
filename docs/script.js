@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
       "Right-click tabs, windows, and groups for their actions. Drop tabs at a window or group's beginning or end, including collapsed groups.":
         '右键点击标签页、窗口和标签页组以查看操作。将标签页拖放到窗口或标签页组的开头或末尾，包括已折叠的组。',
       'Copy and export without losing selection': '复制和导出后保留选择',
-      'Copy titles, URLs, both, CSV, TSV, JSON, or Markdown. Download CSV/JSON, or expand long title and URL details to select and copy text.':
-        '复制标题、网址、两者、CSV、TSV、JSON 或 Markdown。下载 CSV/JSON，或展开长标题和网址详情以选择和复制文字。',
+      'Copy titles, URLs, or both. Copy or download CSV, TSV, JSON, or Markdown, and expand long details to select and copy text.':
+        '复制标题、网址或两者。复制或下载 CSV、TSV、JSON 或 Markdown，并展开长文本以选择和复制内容。',
       'Settings you can see': '看得见的设置效果',
       'Search one Settings page with sticky headings and live previews. Lite mode keeps quick actions nearby and opens full view for larger tasks.':
         '在单页设置中搜索，借助置顶标题和实时预览了解设置效果。精简模式提供快捷操作，较大的任务会在完整视图中打开。',
@@ -272,8 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
       "Right-click tabs, windows, and groups for their actions. Drop tabs at a window or group's beginning or end, including collapsed groups.":
         '在分頁、視窗和分頁群組上按右鍵以查看操作。將分頁拖放到視窗或分頁群組的開頭或結尾，包括已摺疊的群組。',
       'Copy and export without losing selection': '複製和匯出後保留選取',
-      'Copy titles, URLs, both, CSV, TSV, JSON, or Markdown. Download CSV/JSON, or expand long title and URL details to select and copy text.':
-        '複製標題、網址、兩者、CSV、TSV、JSON 或 Markdown。下載 CSV/JSON，或展開長標題和網址詳情以選取和複製文字。',
+      'Copy titles, URLs, or both. Copy or download CSV, TSV, JSON, or Markdown, and expand long details to select and copy text.':
+        '複製標題、網址或兩者。複製或下載 CSV、TSV、JSON 或 Markdown，並展開長文字以選取和複製內容。',
       'Settings you can see': '看得見的設定效果',
       'Search one Settings page with sticky headings and live previews. Lite mode keeps quick actions nearby and opens full view for larger tasks.':
         '在單頁設定中搜尋，藉助置頂標題和即時預覽了解設定效果。精簡模式提供快捷操作，較大的任務會在完整檢視中開啟。',

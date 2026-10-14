@@ -10,7 +10,7 @@ import {
   openOrTogglePopup,
 } from 'libs'
 import { isLitePopupMode } from 'libs/litePopup'
-import type { TabCopyFormat } from 'libs/tabExport'
+import type { TabFileFormat } from 'libs/tabExport'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
 import { restoreDialogFocusTarget } from 'libs/dialogFocus'
 import TabGroupRow from './TabGroupRow'
@@ -90,7 +90,7 @@ type PaletteMoveTarget =
 class PaletteMoveError extends Error {}
 
 const copyFormats: Array<{
-  format: TabCopyFormat
+  format: TabFileFormat
   icon: PaletteIconName
   label: string
   detail: string
@@ -182,7 +182,8 @@ export default class ActionStore {
         icon: 'window',
         label: 'Open full Tab Manager',
         detail: 'Organize, group, move and export tabs in full view',
-        aliases: 'organize group move sort bulk export csv json selection',
+        aliases:
+          'organize group move sort bulk export csv tsv json markdown selection',
         section: 'Application',
         run: () => this.openFullView(),
       },
@@ -620,34 +621,26 @@ export default class ActionStore {
       : selectionReason
     if (this.formatAction) {
       const exporting = this.formatAction === 'export'
-      return copyFormats
-        .filter(
-          (option) =>
-            !exporting || option.format === 'csv' || option.format === 'json',
-        )
-        .map((option) => ({
-          id: `${this.formatAction}-${option.format}`,
-          icon: option.icon,
-          label: exporting
-            ? `Export ${option.label}`
-            : option.format === 'tsv'
-              ? `Copy for ${option.label}`
-              : `Copy as ${option.label}`,
-          detail: option.detail,
-          aliases: option.aliases,
-          section: `${exporting ? 'Export' : 'Copy'} ${copyScope}`,
-          disabledReason: copyReason,
-          keepOpen: true,
-          run: () => {
-            if (
-              exporting &&
-              (option.format === 'csv' || option.format === 'json')
-            ) {
-              return this.store.exportTabs(copySources, option.format)
-            }
-            return this.store.copyTabs(copySources, option.format)
-          },
-        }))
+      return copyFormats.map((option) => ({
+        id: `${this.formatAction}-${option.format}`,
+        icon: option.icon,
+        label: exporting
+          ? `Export ${option.format === 'markdown' ? 'Markdown' : option.format.toUpperCase()}`
+          : option.format === 'tsv'
+            ? `Copy for ${option.label}`
+            : `Copy as ${option.label}`,
+        detail: option.detail,
+        aliases: option.aliases,
+        section: `${exporting ? 'Export' : 'Copy'} ${copyScope}`,
+        disabledReason: copyReason,
+        keepOpen: true,
+        run: () => {
+          if (exporting) {
+            return this.store.exportTabs(copySources, option.format)
+          }
+          return this.store.copyTabs(copySources, option.format)
+        },
+      }))
     }
     if (this.choosingDestination) {
       const windowTitle = getWindowLabel
@@ -792,7 +785,8 @@ export default class ActionStore {
         icon: 'export',
         label: `Export ${copyScope}…`,
         section: count ? 'Selected tabs' : 'Selection',
-        aliases: 'export csv export json download file save',
+        aliases:
+          'export csv export tsv export json export markdown download file save',
         disabledReason: copyReason,
         keepOpen: true,
         run: () => this.chooseFormat('export'),

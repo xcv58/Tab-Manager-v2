@@ -52,7 +52,7 @@ Shortcut behavior can vary slightly by platform and browser. Use the in-app shor
 - Right-click menus for tabs, windows, groups, and the full-view workspace, plus a compact dock for selected tabs.
 - Beginning/End drop targets on window and group headers, including collapsed groups. Whole-group moves preserve names and colors and stay distinct from merging tabs into another group.
 - Selectable tab details with full-value copying, expandable long titles and URLs, and independent **Title line limit** and **URL line limit** settings.
-- Copy selected titles, URLs, or both; copy CSV, spreadsheet TSV, JSON, or Markdown; and download CSV or JSON. Selection stays available after copying or exporting.
+- Copy selected titles, URLs, or both; copy CSV, spreadsheet TSV, JSON, or Markdown; and download CSV, TSV, JSON, or Markdown. Selection stays available after copying or exporting.
 - One searchable Settings page with sticky section headers and shared live previews. Choose Modern/Classic, theme, contrast, layout, and tab details in one place.
 - One Escape resets ordinary search. Opening the palette preserves the search list, scroll, and caller focus. Lite mode stays focused on quick actions, with full-view routes for larger tasks.
 

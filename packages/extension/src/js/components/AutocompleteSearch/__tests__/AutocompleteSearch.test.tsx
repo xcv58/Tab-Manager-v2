@@ -18,7 +18,11 @@ jest.mock('components/hooks/useStore', () => ({
 
 jest.mock('../TabOption', () => ({
   __esModule: true,
-  default: ({ tab }) => <div>{tab.title}</div>,
+  default: ({ tab }) => (
+    <div tabIndex={-1} data-testid={`search-tab-row-${tab.id}`}>
+      {tab.title}
+    </div>
+  ),
 }))
 
 jest.mock('components/Tab/HistoryItemTab', () => ({
@@ -358,6 +362,26 @@ describe('AutocompleteSearch', () => {
       expect(input).not.toHaveFocus()
     })
   })
+
+  it.each([undefined, true])(
+    'clears and dismisses search from a focused result (controlled open: %s)',
+    async (open) => {
+      renderAutocompleteSearch({ initialQuery: 'alpha', open })
+      const input = screen.getByRole('combobox')
+      act(() => input.focus())
+      const result = await screen.findByTestId('search-tab-row-1')
+      act(() => result.focus())
+      expect(result).toHaveFocus()
+
+      fireEvent.keyDown(result, { key: 'Escape' })
+      fireEvent.keyUp(result, { key: 'Escape' })
+
+      expect(input).toHaveValue('')
+      expect(input).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      expect(input).not.toHaveFocus()
+    },
+  )
 
   it('keeps the same list mounted while the palette overlays search', async () => {
     const { actionStore } = renderAutocompleteSearch({ initialQuery: 'alpha' })
