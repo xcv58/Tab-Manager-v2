@@ -343,6 +343,44 @@ describe('UserStore', () => {
     expect(userStore.tabTooltipUrlLines).toBe('full')
   })
 
+  it('defaults missing and invalid title limits while retaining valid limits', () => {
+    for (const value of [undefined, 99, '5', null]) {
+      expect(
+        stripLegacySettings({ tabTooltipTitleLines: value }).settings
+          .tabTooltipTitleLines,
+      ).toBe(3)
+    }
+    for (const value of [1, 3, 5, 'full']) {
+      expect(
+        stripLegacySettings({ tabTooltipTitleLines: value }).settings
+          .tabTooltipTitleLines,
+      ).toBe(value)
+    }
+  })
+
+  it('persists and restores the title limit independently of the URL limit', async () => {
+    const userStore = new UserStore({ searchStore: { init: jest.fn() } } as any)
+    await flush()
+    const writeSettings = jest
+      .spyOn(userStore, 'writeSettings')
+      .mockResolvedValue()
+    userStore.selectTabTooltipTitleLines('full')
+    expect(writeSettings).toHaveBeenCalledWith({ tabTooltipTitleLines: 'full' })
+    userStore.selectTabTooltipTitleLines(1)
+    expect(writeSettings).toHaveBeenLastCalledWith({ tabTooltipTitleLines: 1 })
+    jest
+      .spyOn(userStore, 'readSettings')
+      .mockResolvedValue(
+        stripLegacySettings({
+          tabTooltipTitleLines: 5,
+          tabTooltipUrlLines: 'full',
+        }).settings,
+      )
+    await userStore.init()
+    expect(userStore.tabTooltipTitleLines).toBe(5)
+    expect(userStore.tabTooltipUrlLines).toBe('full')
+  })
+
   it('should remove legacy settings after normalization', async () => {
     const userStore = new UserStore({
       searchStore: {

@@ -267,15 +267,7 @@ export default class SearchStore {
     this.getSearchInputEl()?.focus()
   }
 
-  startCommandSearch = async () => {
-    const { lastCommand } = await browser.storage.local.get({ lastCommand: '' })
-    this.search(`>${lastCommand}`)
-    this.focus()
-    const inputEl = this.getSearchInputEl()
-    if (inputEl) {
-      inputEl.setSelectionRange(1, 1 + lastCommand.length)
-    }
-  }
+  startCommandSearch = () => this.store.actionStore.openPalette()
 
   blur = () => {
     const inputEl = this.getSearchInputEl()

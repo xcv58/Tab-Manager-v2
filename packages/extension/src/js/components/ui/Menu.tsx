@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -7,6 +8,7 @@ import React, {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppTheme } from 'libs/appTheme'
+import { OverlayContainerContext } from './OverlayContainer'
 import { clampOverlayPosition } from './overlayPosition'
 
 /* -------------------------------------------------------------------------- */
@@ -16,6 +18,8 @@ import { clampOverlayPosition } from './overlayPosition'
 export interface MenuProps {
   open: boolean
   anchorEl: HTMLElement | null
+  anchorPosition?: { top: number; left: number }
+  restoreFocus?: boolean | (() => boolean)
   onClose: () => void
   children: React.ReactNode
   style?: React.CSSProperties
@@ -25,13 +29,21 @@ export interface MenuProps {
 export default function Menu({
   open,
   anchorEl,
+  anchorPosition,
+  restoreFocus = true,
   onClose,
   children,
   style,
   'data-testid': testId,
 }: MenuProps) {
   const theme = useAppTheme()
+  const overlayContainer = useContext(OverlayContainerContext)
+  const toolbar = anchorEl?.closest<HTMLElement>('.corner-dock')
+  const toolbarRadius = toolbar
+    ? getComputedStyle(toolbar).borderTopLeftRadius
+    : '0px'
   const menuRef = useRef<HTMLDivElement>(null)
+  const wasOpenRef = useRef(false)
   const lastAnchorRef = useRef<HTMLElement | null>(null)
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const updatePosition = useCallback(() => {
@@ -43,16 +55,22 @@ export default function Menu({
     const anchorRect = anchorEl.getBoundingClientRect()
     const menuRect = menuRef.current.getBoundingClientRect()
 
+    const dock = anchorEl.closest<HTMLElement>('.corner-dock')
+    const dockRect = dock?.getBoundingClientRect()
     setPosition(
       clampOverlayPosition({
-        top: anchorRect.bottom,
-        left: anchorRect.left,
+        top: dockRect
+          ? dockRect.top - menuRect.height
+          : (anchorPosition?.top ?? anchorRect.bottom),
+        left: dockRect
+          ? window.innerWidth - menuRect.width
+          : (anchorPosition?.left ?? anchorRect.left),
         width: menuRect.width,
         height: menuRect.height,
-        margin: 16,
+        margin: dockRect ? 0 : 16,
       }),
     )
-  }, [anchorEl, open])
+  }, [anchorEl, anchorPosition, open])
 
   useLayoutEffect(() => {
     updatePosition()
@@ -60,10 +78,18 @@ export default function Menu({
 
   useEffect(() => {
     if (!open) {
-      lastAnchorRef.current?.focus()
+      if (
+        wasOpenRef.current &&
+        (typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus) &&
+        lastAnchorRef.current?.isConnected
+      ) {
+        lastAnchorRef.current.focus({ preventScroll: true })
+      }
+      wasOpenRef.current = false
       return
     }
 
+    wasOpenRef.current = true
     const enabledItems = Array.from(
       menuRef.current?.querySelectorAll<HTMLButtonElement>(
         '[role="menuitem"]:not(:disabled)',
@@ -71,7 +97,7 @@ export default function Menu({
     )
     const focusTarget = enabledItems[0] ?? menuRef.current
     focusTarget?.focus()
-  }, [open])
+  }, [open, restoreFocus])
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
@@ -105,7 +131,8 @@ export default function Menu({
 
       if (e.key === 'Escape') {
         e.preventDefault()
-        onClose()
+        e.stopPropagation()
+        // Keep the menu present through key release, consuming the full press.
         return
       }
 
@@ -141,6 +168,7 @@ export default function Menu({
 
       if (e.key === 'Tab') {
         e.preventDefault()
+        e.stopPropagation()
         moveFocus(e.shiftKey ? -1 : 1)
         return
       }
@@ -184,7 +212,15 @@ export default function Menu({
       role="menu"
       tabIndex={-1}
       data-testid={testId}
+      onClick={(event) => event.stopPropagation()}
       onKeyDown={handleKeyDown}
+      onKeyUp={(event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          event.stopPropagation()
+          onClose()
+        }
+      }}
       style={{
         position: 'fixed',
         top: position.top,
@@ -192,20 +228,23 @@ export default function Menu({
         zIndex: theme.zIndex.popover,
         backgroundColor: theme.palette.background.paper,
         color: theme.palette.text.primary,
-        borderRadius: 8,
+        borderRadius: toolbar ? toolbarRadius + ' 0 0 0' : 8,
         boxShadow: '0 8px 24px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.1)',
         minWidth: 160,
         paddingTop: 8,
         paddingBottom: 8,
         overflow: 'auto',
-        maxHeight: 'calc(100vh - 32px)',
+        maxHeight: toolbar
+          ? 'calc(100vh - ' + toolbar.getBoundingClientRect().height + 'px)'
+          : 'calc(100vh - 32px)',
+        maxWidth: toolbar ? '100vw' : undefined,
         outline: 'none',
         ...style,
       }}
     >
       {children}
     </div>,
-    document.body,
+    overlayContainer || document.body,
   )
 }
 
@@ -219,6 +258,7 @@ export interface MenuItemProps {
   disabled?: boolean
   'data-testid'?: string
   'aria-keyshortcuts'?: string
+  'aria-label'?: string
   className?: string
   style?: React.CSSProperties
 }
@@ -229,6 +269,7 @@ export function MenuItem({
   disabled,
   'data-testid': testId,
   'aria-keyshortcuts': ariaKeyShortcuts,
+  'aria-label': ariaLabel,
   className,
   style,
 }: MenuItemProps) {
@@ -240,6 +281,7 @@ export function MenuItem({
       tabIndex={-1}
       data-testid={testId}
       aria-keyshortcuts={ariaKeyShortcuts}
+      aria-label={ariaLabel}
       disabled={disabled}
       onClick={onClick}
       className={className}
@@ -288,5 +330,13 @@ export function MenuDivider() {
         borderTop: `1px solid ${theme.palette.divider}`,
       }}
     />
+  )
+}
+
+export function MenuSection({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-4 pt-2 pb-1 text-xs font-semibold opacity-70">
+      {children}
+    </div>
   )
 }

@@ -422,10 +422,12 @@ test.describe('The Extension page should', () => {
       .filter({ hasText: 'Alpha Guide' })
       .first()
     await expect(titleMatchedOption).not.toContainText('SearchDocs')
-    await titleMatchedOption.hover()
+    await titleMatchedOption.locator('button[aria-haspopup="dialog"]').hover()
     await expect(
-      page.getByRole('tooltip').filter({ hasText: 'Alpha Guide' }),
-    ).toContainText('Group: SearchDocs')
+      page
+        .getByRole('dialog', { name: 'Tab details', exact: true })
+        .getByTestId('tab-tooltip-title'),
+    ).toHaveText('Alpha Guide')
 
     await page.evaluate(async () => {
       await chrome.storage.sync.set({
@@ -703,8 +705,12 @@ test.describe('The Extension page should', () => {
       .locator('[role="option"]')
       .filter({ hasText: 'Alpha Guide' })
       .first()
-    await groupedRow.hover()
-    await expect(page.getByRole('tooltip')).toContainText('Group: SearchDocs')
+    await groupedRow.locator('button[aria-haspopup="dialog"]').hover()
+    await expect(
+      page
+        .getByRole('dialog', { name: 'Tab details', exact: true })
+        .getByTestId('tab-tooltip-title'),
+    ).toHaveText('Alpha Guide')
 
     await expect
       .poll(async () => {
@@ -790,6 +796,8 @@ test.describe('The Extension page should', () => {
 
     await searchInput.press('Escape')
 
+    await expect(searchInput).toHaveAttribute('aria-expanded', 'false')
+
     await expect(searchInput).toHaveValue('')
     await expect
       .poll(
@@ -827,7 +835,7 @@ test.describe('The Extension page should', () => {
     })
   })
 
-  test('dismiss command results on blur when ordinary results are disabled', async () => {
+  test('open the dedicated palette when ordinary search results are disabled', async () => {
     await page.evaluate(async () => {
       const settings = { showSearchResultMenu: false }
       await chrome.storage.local.set(settings)
@@ -835,22 +843,29 @@ test.describe('The Extension page should', () => {
     })
     await page.reload()
     await waitForDefaultExtensionView(page)
-
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    await searchInput.click()
+    const searchInput = page.getByRole('combobox', {
+      name: 'Search tabs or URLs',
+    })
+    await searchInput.fill('research')
     await searchInput.fill('>')
 
-    const listbox = page.getByRole('listbox')
-    await expect(searchInput).toHaveAttribute('aria-expanded', 'true')
-    await expect(listbox).toBeVisible()
+    const palette = page.getByRole('dialog', {
+      name: 'Command palette',
+      exact: true,
+    })
+    const commandInput = palette.getByRole('combobox', {
+      name: 'Search commands',
+    })
+    await expect(palette).toBeVisible()
+    await expect(commandInput).toBeFocused()
+    await commandInput.press('Tab')
+    await expect(palette).toBeVisible()
+    await page.keyboard.press('Escape')
 
-    await searchInput.press('Tab')
-
-    await expect(searchInput).toHaveValue('')
+    await expect(palette).toBeHidden()
+    await expect(searchInput).toHaveValue('research')
     await expect(searchInput).toHaveAttribute('aria-expanded', 'false')
-    await expect(listbox).toBeHidden()
+    await expect(searchInput).toBeFocused()
   })
 
   test('keep search open during non-option popup interaction', async () => {

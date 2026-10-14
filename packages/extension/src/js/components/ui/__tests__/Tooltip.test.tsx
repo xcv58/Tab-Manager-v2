@@ -14,6 +14,101 @@ const setViewportSize = (width: number, height: number) => {
 }
 
 describe('Tooltip', () => {
+  it('isolates printable shortcuts without cancelling native keyboard actions', () => {
+    const shortcut = jest.fn()
+    document.addEventListener('keypress', shortcut)
+    render(
+      <Tooltip
+        open
+        disableInteractive={false}
+        role="dialog"
+        title={<button>Copy title</button>}
+      >
+        <button>Tab row</button>
+      </Tooltip>,
+    )
+    const copy = screen.getByRole('button', { name: 'Copy title' })
+    copy.focus()
+    const nativeCopy = new KeyboardEvent('keydown', {
+      key: 'c',
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true,
+    })
+    fireEvent(copy, nativeCopy)
+    fireEvent.keyPress(copy, { key: 'r', charCode: 114 })
+    expect(nativeCopy.defaultPrevented).toBe(false)
+    expect(shortcut).not.toHaveBeenCalled()
+    document.removeEventListener('keypress', shortcut)
+  })
+  it('releases an interrupted text selection before reopening', () => {
+    const release = jest.fn()
+    const view = (open: boolean) => (
+      <Tooltip
+        open={open}
+        disableInteractive={false}
+        title="Selectable text"
+        onInteractionEnd={release}
+      >
+        <button>Anchor</button>
+      </Tooltip>
+    )
+    const { rerender } = render(view(true))
+    fireEvent.mouseDown(screen.getByRole('tooltip'))
+    rerender(view(false))
+    fireEvent.mouseUp(document)
+    rerender(view(true))
+    fireEvent.mouseLeave(screen.getByRole('tooltip'))
+    expect(release).toHaveBeenCalled()
+  })
+  it('keeps the same anchor while controlled content mounts and unmounts', () => {
+    const { rerender } = render(
+      <Tooltip open={false} title={false}>
+        <button type="button">Stable anchor</button>
+      </Tooltip>,
+    )
+    const anchor = screen.getByRole('button', { name: 'Stable anchor' })
+    rerender(
+      <Tooltip open title="Details">
+        <button type="button">Stable anchor</button>
+      </Tooltip>,
+    )
+    expect(screen.getByRole('button', { name: 'Stable anchor' })).toBe(anchor)
+    rerender(
+      <Tooltip open={false} title={false}>
+        <button type="button">Stable anchor</button>
+      </Tooltip>,
+    )
+    expect(screen.getByRole('button', { name: 'Stable anchor' })).toBe(anchor)
+  })
+  it('keeps interactive content reachable and consumes Escape before application shortcuts', () => {
+    const hold = jest.fn()
+    const close = jest.fn()
+    const globalShortcut = jest.fn()
+    document.addEventListener('keyup', globalShortcut)
+    render(
+      <Tooltip
+        open
+        disableInteractive={false}
+        role="dialog"
+        aria-label="Tab details"
+        title={<button type="button">Copy title</button>}
+        onInteractionStart={hold}
+        onClose={close}
+      >
+        <button type="button">Tab row</button>
+      </Tooltip>,
+    )
+    const card = screen.getByRole('dialog', { name: 'Tab details' })
+    expect(card).toHaveStyle('pointer-events: auto')
+    fireEvent.mouseEnter(card)
+    expect(hold).toHaveBeenCalled()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.keyUp(document, { key: 'Escape' })
+    expect(close).toHaveBeenCalledTimes(1)
+    expect(globalShortcut).not.toHaveBeenCalled()
+    document.removeEventListener('keyup', globalShortcut)
+  })
   it('renders when controlled open is true', async () => {
     const { rerender } = render(
       <Tooltip open title="Tab tooltip">

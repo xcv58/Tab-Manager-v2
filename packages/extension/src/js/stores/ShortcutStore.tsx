@@ -1,5 +1,10 @@
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, runInAction } from 'mobx'
+import { getWindowLabel } from 'libs/windowLabel'
+import TabGroupRow from './TabGroupRow'
 import Mousetrap from 'mousetrap'
+import { getCommandPaletteShortcut } from 'libs/commandPaletteShortcut'
+import { isLiteShortcut } from 'libs/litePopup'
+import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
 import { getNoun, openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
@@ -39,6 +44,13 @@ const hasFocusedElement = () => {
 
 const settingsDialogAllowedCombos = new Set(['escape', '?', 'ctrl+/', 'ctrl+,'])
 
+export type ShortcutHelpAction = {
+  label: string
+  disabledReason?: string
+  danger?: boolean
+  run: () => void | Promise<unknown>
+}
+
 type ShortcutDefinition = [
   string | string[],
   (event?: Event) => void,
@@ -67,6 +79,8 @@ export default class ShortcutStore {
 
   inputShortcutSet = new Set([
     'escape',
+    getCommandPaletteShortcut(),
+    'command+shift+p',
     'ctrl+enter',
     'ctrl+h',
     'ctrl+l',
@@ -91,6 +105,21 @@ export default class ShortcutStore {
   ])
 
   shortcuts: ShortcutDefinition[] = [
+    [
+      'alt+down',
+      (event: Event) => {
+        const tab = this.store.focusStore.focusedTab
+        if (!tab || !this.store.userStore.showTabTooltip) return
+        const surface = getMountedTabDetailsSurface(
+          tab.id,
+          this.store.focusStore.focusedSurface,
+        )
+        if (!surface) return
+        preventDefault(event)
+        this.store.hoverStore.openTooltip(tab.id, true, surface)
+      },
+      'Open focused tab details',
+    ],
     [
       'ctrl+s',
       (event: Event) => {
@@ -164,10 +193,10 @@ export default class ShortcutStore {
         preventDefault(event)
         this.store.togglePin()
       },
-      'Toogle pin',
+      'Toggle pin',
     ],
     [
-      ['/', 'command+k'],
+      '/',
       (event: Event) => {
         preventDefault(event)
         this.store.searchStore.focus()
@@ -176,10 +205,10 @@ export default class ShortcutStore {
       true,
     ],
     [
-      ['>', 'command+shift+p'],
+      ['>', 'command+shift+p', getCommandPaletteShortcut()],
       (event: Event) => {
         preventDefault(event)
-        this.store.searchStore.startCommandSearch()
+        this.store.actionStore.openPalette()
       },
       'Command Palette',
       true,
@@ -388,7 +417,9 @@ export default class ShortcutStore {
       ['?', 'ctrl+/'],
       (event: Event) => {
         preventDefault(event)
-        this.openDialog()
+        if (this.store.actionStore.liteMode)
+          void this.store.actionStore.openFullView('shortcuts')
+        else this.openDialog()
       },
       'Open keyboard shortcut help',
     ],
@@ -396,7 +427,9 @@ export default class ShortcutStore {
       'ctrl+,',
       (event: Event) => {
         preventDefault(event)
-        this.store.userStore.toggleDialog()
+        if (this.store.actionStore.liteMode)
+          void this.store.actionStore.openFullView('settings')
+        else this.store.userStore.toggleDialog()
       },
       'Toggle Settings',
     ],
@@ -528,12 +561,20 @@ export default class ShortcutStore {
     combo: string,
     sequence?: string,
   ) => {
+    // Details controls keep native text copying and keyboard interaction, but
+    // must never invoke the workspace's printable or modifier shortcuts.
+    if (element.closest?.('[data-tab-details-panel]')) return true
+    if (this.store.actionStore?.paletteOpen) {
+      return true
+    }
     if (this.dialogOpen) {
       return combo !== 'escape'
     }
     if (this.store.userStore?.dialogOpen) {
       return !settingsDialogAllowedCombos.has(combo)
     }
+    if (this.store.actionStore?.liteMode && !isLiteShortcut(sequence || combo))
+      return true
     if (
       isTabMoveShortcut(sequence || combo) &&
       (!element.closest?.('[data-testid^="window-card-"]') ||
@@ -577,6 +618,163 @@ export default class ShortcutStore {
   }
 
   pause = this.willUnmount
+
+  helpRunning = false
+
+  get helpContext() {
+    const { tabStore, focusStore } = this.store
+    const parts: string[] = []
+    if (tabStore.selection.size)
+      parts.push(String(tabStore.selection.size) + ' selected tabs')
+    if (focusStore.focusedTab)
+      parts.push('Focused tab: ' + focusStore.focusedTab.title)
+    else if (focusStore.focusedItem instanceof TabGroupRow)
+      parts.push(
+        'Focused group: ' +
+          (this.store.tabGroupStore.getTabGroup(focusStore.focusedItem.groupId)
+            ?.title || 'Unnamed group'),
+      )
+    else if (focusStore.focusedWindow)
+      parts.push('Focused window: ' + getWindowLabel(focusStore.focusedWindow))
+    return parts.join(' · ') || 'No tab or window is focused'
+  }
+
+  getHelpAction = (keys: string | string[]): ShortcutHelpAction | null => {
+    const primary = Array.isArray(keys) ? keys[0] : keys
+    const definition = this.shortcuts.find(
+      ([candidate]) =>
+        (Array.isArray(candidate) ? candidate[0] : candidate) === primary,
+    )
+    if (!definition) return null
+    const { actionStore, tabStore, focusStore, dragStore } = this.store
+    const tab = focusStore.focusedTab
+    const item = focusStore.focusedItem
+    const selected = tabStore.selection.size
+    const ids: Record<string, string> = {
+      '/': 'search',
+      'ctrl+o': 'open-app-tab',
+      'ctrl+s': 'sort-all',
+      'shift+ctrl+s': 'cluster-all',
+      '* c': 'clean-duplicates',
+      s: 'sync',
+      'ctrl+i': 'theme',
+      'ctrl+,': 'settings',
+      '* n': 'clear-selection',
+      '* a': 'select-matching',
+      '* m': 'select-all-matching',
+      '* u': 'invert-selection',
+      x: 'select-focused',
+      space: 'select-focused',
+      'shift+x': 'select-container',
+      'alt+d': 'close-window',
+      'shift+n': 'new-window-selection',
+      'w w': 'collapse-window',
+      'w t': 'toggle-all-windows',
+      'w c': 'collapse-all',
+      'w e': 'expand-all',
+      r: selected
+        ? 'reload-selection'
+        : tab
+          ? 'reload-tab'
+          : item instanceof TabGroupRow
+            ? 'reload-group'
+            : 'reload-window',
+      p: selected ? 'pin-selection' : tab ? 'pin-tab' : 'pin-scope',
+      'd d': selected
+        ? 'close-selection'
+        : tab
+          ? 'close-tab'
+          : item instanceof TabGroupRow
+            ? 'close-group'
+            : 'close-window',
+      'c c': selected ? 'copy-selection' : tab ? 'copy-tab' : 'copy-scope',
+      'c t': selected
+        ? 'copy-titles-urls-selection'
+        : tab
+          ? 'copy-title-url-tab'
+          : 'copy-title-url-scope',
+      'c ,': 'copy-comma',
+      'alt+down': 'tab-details',
+      'ctrl+g': 'bring-same-site',
+      'alt+shift+g': 'create-group',
+      'alt+g': 'collapse-group',
+      'alt+u': 'ungroup-group',
+      'alt+shift+u': 'ungroup-tab',
+      'alt+x': 'select-container-tabs',
+      'alt+c': 'group-containers',
+      h: 'navigate-left',
+      l: 'navigate-right',
+      j: 'navigate-down',
+      k: 'navigate-up',
+      'g g': 'navigate-first',
+      'shift+g': 'navigate-last',
+    }
+    const position = (['beginning', 'end', 'before', 'after'] as const).find(
+      (position) =>
+        (TAB_MOVE_SHORTCUTS[position] as readonly string[]).includes(primary),
+    )
+    const commandId = position ? 'move-' + position : ids[primary]
+    const command = commandId
+      ? actionStore.commands.find((item) => item.id === commandId)
+      : null
+    let action: ShortcutHelpAction = command
+      ? {
+          label: command.label,
+          disabledReason: command.disabledReason,
+          danger: command.danger,
+          run: command.run,
+        }
+      : {
+          label: getDescription(definition[2]),
+          disabledReason: commandId
+            ? 'Focus an applicable tab, group or window first'
+            : undefined,
+          run: () => definition[1](),
+        }
+    if (primary === 'enter')
+      action = {
+        label: tab
+          ? 'Go to tab: ' + tab.title
+          : item instanceof TabGroupRow
+            ? 'Toggle this group'
+            : 'Go to this window',
+        disabledReason: !item
+          ? 'Focus a tab, group or window first'
+          : undefined,
+        run: focusStore.enter,
+      }
+    if (primary === '?')
+      action.disabledReason = 'You are already viewing keyboard shortcuts'
+    if (primary === 'escape')
+      action = { label: 'Close keyboard shortcuts', run: () => {} }
+    action.disabledReason =
+      this.helpRunning || actionStore.busy
+        ? 'An action is already in progress'
+        : dragStore.dragging
+          ? 'Finish dragging first'
+          : action.disabledReason
+    return action
+  }
+
+  runHelpAction = async (keys: string | string[]) => {
+    const action = this.getHelpAction(keys)
+    if (!action || action.disabledReason) return
+    this.helpRunning = true
+    this.closeDialog()
+    // Restore workspace focus before actions that open another dialog or palette.
+    await new Promise<void>((resolve) =>
+      window.requestAnimationFrame(() => resolve()),
+    )
+    try {
+      await action.run()
+    } catch {
+      this.showMoveHint('Could not complete this action. Please try again.')
+    } finally {
+      runInAction(() => {
+        this.helpRunning = false
+      })
+    }
+  }
 
   moveSelectedTabs = async (position: TabMovePosition) => {
     const { tabStore, focusStore, dragStore } = this.store

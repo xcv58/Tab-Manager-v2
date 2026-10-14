@@ -274,6 +274,21 @@ const cacheIconImageData = (cacheKey: string, imageData: ImageData) => {
   return imageData
 }
 
+// The browser action and Settings preview draw the same pixels. This helper
+// only paints a supplied local bitmap; it never reads tabs or updates Chrome.
+export const drawActionIcon = (
+  canvas: CanvasSurface,
+  bitmap: CanvasImageSource,
+  size: number,
+  label: string | null,
+  darkTheme: boolean,
+) => {
+  const context = getCanvasContext(canvas)
+  context.clearRect(0, 0, size, size)
+  context.drawImage(bitmap, 0, 0, size, size)
+  if (label !== null) renderCountOverlay(context, size, label, darkTheme)
+}
+
 const getIconImageData = async (
   iconPath: string,
   label: string,
@@ -287,12 +302,9 @@ const getIconImageData = async (
   }
 
   const canvas = createCanvas(size)
-  const context = getCanvasContext(canvas)
   const bitmap = await loadIconBitmap(iconPath)
-  context.clearRect(0, 0, size, size)
-  context.drawImage(bitmap, 0, 0, size, size)
-  renderCountOverlay(context, size, label, darkTheme)
-  const imageData = context.getImageData(0, 0, size, size)
+  drawActionIcon(canvas, bitmap, size, label, darkTheme)
+  const imageData = getCanvasContext(canvas).getImageData(0, 0, size, size)
   return cacheIconImageData(cacheKey, imageData)
 }
 

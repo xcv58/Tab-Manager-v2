@@ -1,4 +1,5 @@
 import React from 'react'
+import { withActionStore } from '__testutils__/actionStore'
 import { render, screen } from '@testing-library/react'
 import { useStore } from 'components/hooks/useStore'
 import TabOption from '../TabOption'
@@ -43,15 +44,17 @@ describe('AutocompleteSearch TabOption', () => {
   })
 
   it('renders ungrouped tabs without an inline group chip', () => {
-    mockUseStore.mockReturnValue({
-      searchStore: { query: '' },
-      userStore: { showUrl: false, uiPreset: 'modern' },
-      tabGroupStore: {
-        hasTabGroupsApi: () => true,
-        isNoGroupId: (groupId: number) => groupId === -1,
-        getTabGroup: () => null,
-      },
-    })
+    mockUseStore.mockReturnValue(
+      withActionStore({
+        searchStore: { query: '' },
+        userStore: { showUrl: false, uiPreset: 'modern' },
+        tabGroupStore: {
+          hasTabGroupsApi: () => true,
+          isNoGroupId: (groupId: number) => groupId === -1,
+          getTabGroup: () => null,
+        },
+      }),
+    )
 
     render(<TabOption tab={createTab()} />)
 
@@ -62,19 +65,21 @@ describe('AutocompleteSearch TabOption', () => {
   })
 
   it('renders the inline group chip for grouped tabs', () => {
-    mockUseStore.mockReturnValue({
-      searchStore: { query: '' },
-      userStore: { showUrl: false, uiPreset: 'modern' },
-      tabGroupStore: {
-        hasTabGroupsApi: () => true,
-        isNoGroupId: (groupId: number) => groupId === -1,
-        getTabGroup: () => ({
-          id: 42,
-          color: 'blue',
-          title: 'Docs group',
-        }),
-      },
-    })
+    mockUseStore.mockReturnValue(
+      withActionStore({
+        searchStore: { query: '' },
+        userStore: { showUrl: false, uiPreset: 'modern' },
+        tabGroupStore: {
+          hasTabGroupsApi: () => true,
+          isNoGroupId: (groupId: number) => groupId === -1,
+          getTabGroup: () => ({
+            id: 42,
+            color: 'blue',
+            title: 'Docs group',
+          }),
+        },
+      }),
+    )
 
     render(
       <TabOption

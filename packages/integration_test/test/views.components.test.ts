@@ -169,17 +169,19 @@ test.describe('The Extension page should', () => {
     ])
     expect(singleWindowId).toBeGreaterThan(-1)
     await page.bringToFront()
-    await page.waitForTimeout(900)
 
-    const singleTabIdHandle = await page.waitForFunction(async (windowId) => {
-      const tabs = await chrome.tabs.query({ windowId })
-      const target = tabs.find((tab) =>
-        (tab.url || '').includes('single-tab-snapshot'),
-      )
-      return target?.id ?? 0
-    }, singleWindowId)
-    const singleTabId = (await singleTabIdHandle.jsonValue()) as number
-    expect(singleTabId).toBeGreaterThan(0)
+    // waitForFunction treats an async predicate's Promise as truthy before
+    // the Chrome query resolves. Poll the resolved tab ID instead.
+    const readSingleTabId = () =>
+      page.evaluate(async (windowId) => {
+        const tabs = await chrome.tabs.query({ windowId })
+        const target = tabs.find((tab) =>
+          (tab.url || '').includes('single-tab-snapshot'),
+        )
+        return target?.id ?? 0
+      }, singleWindowId)
+    await expect.poll(readSingleTabId).toBeGreaterThan(0)
+    const singleTabId = await readSingleTabId()
 
     await page.reload()
     await waitForTestId(page, `window-card-${singleWindowId}`)
@@ -1156,18 +1158,29 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
-    await page.keyboard.press('Escape')
+    // Clear this visual fixture explicitly. Escape's dismissal order depends
+    // on whether search, a result list, or an interactive tooltip has focus;
+    // that keyboard behavior has dedicated interaction coverage.
+    await queryInput.fill('')
+    await queryInput.press('Escape')
+    await expect(queryInput).toHaveAttribute('aria-expanded', 'false')
+    await expect(
+      page.locator('input[placeholder*="Search tabs or URLs"]'),
+    ).toHaveValue('')
     await page.waitForTimeout(200)
-    const selectButton = pinnedRow
-      .locator('[aria-label="Toggle select"]')
-      .first()
-    await selectButton.click({ force: true })
-    const selectedBackground = await pinnedRow.evaluate(
-      (node) => (node as HTMLElement).style.backgroundColor,
-    )
-    expect(selectedBackground).toMatch(
-      /rgba\(26, 115, 232, 0\.14\)|rgba\(181, 199, 230, 0\.2\)/,
-    )
+    const selectCheckbox = pinnedRow.getByRole('checkbox', {
+      name: 'Toggle select',
+    })
+    await selectCheckbox.focus()
+    await selectCheckbox.click()
+    await expect(selectCheckbox).toBeChecked()
+    await expect
+      .poll(() =>
+        pinnedRow.evaluate(
+          (node) => (node as HTMLElement).style.backgroundColor,
+        ),
+      )
+      .toMatch(/rgba\(26, 115, 232, 0\.14\)|rgba\(181, 199, 230, 0\.2\)/)
     const selectedShot = await pinnedRow.screenshot()
     expect(selectedShot).toMatchSnapshot('tab-row-state-selected.png', {
       maxDiffPixelRatio: 0.12,

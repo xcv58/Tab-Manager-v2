@@ -12,6 +12,7 @@ import {
   createWindowsWithTabs,
   groupTabsByUrlInWindow,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
   waitForSurfaceToFullyAppear,
   waitForTestId,
@@ -435,6 +436,13 @@ test.describe('The Extension page should', () => {
     await waitForTestId(page, `tab-group-header-${groupId}`)
     await waitForTestId(page, `tab-row-${groupedTab.id}`)
     await expect(page.locator('.toolbar').first()).toBeVisible()
+    await expect(page.locator('.toolbar').first()).toHaveAttribute(
+      'data-pinned',
+      'true',
+    )
+    await expect(
+      page.getByRole('button', { name: 'Toggle toolbar' }),
+    ).toHaveCount(0)
 
     const styles = await page.evaluate(
       ({ groupId, tabId, windowId }) => {
@@ -469,12 +477,6 @@ test.describe('The Extension page should', () => {
             ) as HTMLElement | null
             return node ? window.getComputedStyle(node).borderLeftWidth : null
           })(),
-          toolbarToggleBorderLeftWidth: (() => {
-            const node = document.querySelector(
-              '[aria-label="Toggle toolbar"]',
-            ) as HTMLElement | null
-            return node ? window.getComputedStyle(node).borderLeftWidth : null
-          })(),
           windowTitle: readBackground(
             `[data-testid="window-title-${windowId}"]`,
           ),
@@ -501,7 +503,6 @@ test.describe('The Extension page should', () => {
     expect(styles.toolbarBorderTopWidth).toBe('0px')
     expect(styles.toolbarBorderRightWidth).toBe('0px')
     expect(styles.toolbarBorderLeftWidth).toBe('0px')
-    expect(styles.toolbarToggleBorderLeftWidth).toBe('0px')
     expect(styles.tabRow).toBe(styles.main)
   })
 
@@ -685,7 +686,7 @@ test.describe('The Extension page should', () => {
     })
   })
 
-  test('render command suggestion atom', async () => {
+  test('render dedicated command palette option atom', async () => {
     const searchBar = page.getByTestId('toolbar-search-input')
     const searchInput = searchBar.locator('input')
     await expect(searchInput).toBeVisible()
@@ -706,7 +707,12 @@ test.describe('The Extension page should', () => {
     })
     await searchInput.click()
     await searchInput.fill('>sort')
-    const firstOption = page.locator('[role="option"]').first()
+    const firstOption = page
+      .getByRole('dialog', { name: 'Command palette', exact: true })
+      .getByRole('option', {
+        name: 'Sort tabs across windows Ctrl S',
+        exact: true,
+      })
     await waitForSurfaceToFullyAppear(page, firstOption)
     const commandOptionScreenshot = await firstOption.screenshot({
       animations: 'disabled',
@@ -750,9 +756,11 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const clusterButton = page
-      .locator('button[aria-label="Cluster Ungrouped & Sort Tabs"]')
-      .first()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    const clusterButton = page.getByRole('menuitem', {
+      name: 'Cluster ungrouped & sort tabs',
+      exact: true,
+    })
     await expect(clusterButton).toBeVisible()
     const clusterButtonScreenshot = await clusterButton.screenshot()
     expect(clusterButtonScreenshot).toMatchSnapshot(
@@ -763,9 +771,9 @@ test.describe('The Extension page should', () => {
       },
     )
 
-    const cleanDuplicatedButton = page
-      .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
-      .first()
+    const cleanDuplicatedButton = page.getByRole('menuitem', {
+      name: /^Close \d+ duplicate tabs?$/,
+    })
     await expect(cleanDuplicatedButton).toBeVisible()
     const cleanDuplicatedScreenshot = await cleanDuplicatedButton.screenshot()
     expect(cleanDuplicatedScreenshot).toMatchSnapshot(
@@ -776,6 +784,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await page.keyboard.press('Escape')
     const themeToggleButton = page
       .locator('[aria-label="Toggle light/dark theme"]')
       .first()
@@ -837,23 +846,31 @@ test.describe('The Extension page should', () => {
       exact: true,
     })
     const reload = page.getByRole('menuitem', {
-      name: 'Reload all tabs',
+      name: /^Reload all (?:\d+ )?tabs$/,
       exact: true,
     })
     await expect(sort).toBeEnabled()
     await expect(reload).toBeEnabled()
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected to/ }),
+      page.getByRole('menuitem', { name: /^Move .*selected .*to/ }),
     ).toHaveCount(2)
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected to/ }).first(),
+      page.getByRole('menuitem', { name: /^Move .*selected .*to/ }).first(),
     ).toBeDisabled()
     await expect(
-      page.getByRole('menuitem', { name: /^Move selected to/ }).last(),
+      page.getByRole('menuitem', { name: /^Move .*selected .*to/ }).last(),
     ).toBeDisabled()
     await expect(sort).toBeFocused()
     await page.keyboard.press('ArrowDown')
     await expect(reload).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(
+      page.getByRole('menuitem', { name: 'Collapse this window' }),
+    ).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(
+      page.getByRole('menuitem', { name: 'Close this window' }),
+    ).toBeFocused()
     await page.keyboard.press('ArrowDown')
     await expect(sort).toBeFocused()
     await page.keyboard.press('Escape')
@@ -895,15 +912,8 @@ test.describe('The Extension page should', () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
+    await selectSettingsSection(page, 'Appearance')
     await page.waitForSelector('[aria-label="Update Font Size"]')
-
-    const tabWidthSlider = page
-      .locator('[aria-label="Update Tab Width"]')
-      .first()
-    await expect(tabWidthSlider).toBeVisible()
-    await expect(tabWidthSlider).toHaveAttribute('aria-valuemin', '15')
-    await expect(tabWidthSlider).toHaveAttribute('aria-valuemax', '50')
-    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '20')
 
     const fontSizeSlider = page
       .locator('[aria-label="Update Font Size"]')
@@ -912,24 +922,33 @@ test.describe('The Extension page should', () => {
     await expect(fontSizeSlider).toHaveAttribute('aria-valuemin', '6')
     await expect(fontSizeSlider).toHaveAttribute('aria-valuemax', '36')
     await expect(fontSizeSlider).toHaveAttribute('aria-valuenow', '14')
+    await expect(
+      page.locator('[aria-label="Font Size Value"]').first(),
+    ).toHaveValue('14')
 
+    await selectSettingsSection(page, 'Windows & layout')
+    const tabWidthSlider = page
+      .locator('[aria-label="Update Tab Width"]')
+      .first()
+    await expect(tabWidthSlider).toBeVisible()
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuemin', '15')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuemax', '50')
+    await expect(tabWidthSlider).toHaveAttribute('aria-valuenow', '20')
     const tabWidthInput = page
       .locator('[aria-label="Minimum Tab Width Value"]')
       .first()
     await expect(tabWidthInput).toBeVisible()
     await expect(tabWidthInput).toHaveValue('20')
 
-    const fontSizeInput = page.locator('[aria-label="Font Size Value"]').first()
-    await expect(fontSizeInput).toBeVisible()
-    await expect(fontSizeInput).toHaveValue('14')
-
+    await selectSettingsSection(page, 'Popup & controls')
     const toolbarToggle = page
-      .locator('[aria-labelledby="toggle-always-show-toolbar"]')
+      .locator('[aria-label="Toggle Always Show Toolbar"]')
       .first()
     await expect(toolbarToggle).toBeVisible()
     await page.mouse.move(1, 1)
     await page.waitForTimeout(100)
     await waitForLocatorRectToStabilize(toolbarToggle, {
+      timeout: 10000,
       minWidth: 300,
       minHeight: 30,
       stableSamples: 4,
@@ -943,6 +962,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await selectSettingsSection(page, 'Appearance')
     const themeToggleGroup = page.getByTestId('settings-theme-toggle-group')
     await expect(themeToggleGroup).toBeVisible()
     await expect(
@@ -971,6 +991,7 @@ test.describe('The Extension page should', () => {
       },
     )
 
+    await selectSettingsSection(page, 'Windows & layout')
     await tabWidthInput.fill('28')
     await expect
       .poll(async () => {
@@ -985,11 +1006,12 @@ test.describe('The Extension page should', () => {
     await page.waitForTimeout(200)
   })
 
-  test('render auto-fit columns setting in the view panel', async () => {
+  test('render auto-fit columns setting in the layout panel', async () => {
     const settingsButton = page.locator('button[aria-label="Settings"]').first()
     await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
+    await selectSettingsSection(page, 'Windows & layout')
     const autoFitColumnsToggle = page.getByRole('checkbox', {
       name: /Auto-fit columns/i,
     })

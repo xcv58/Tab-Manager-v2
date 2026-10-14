@@ -1,4 +1,5 @@
 import React from 'react'
+import { withActionStore } from '__testutils__/actionStore'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { StoreContext } from 'components/hooks/useStore'
 import { AppThemeContext, lightAppTheme, darkAppTheme } from 'libs/appTheme'
@@ -15,7 +16,7 @@ const setup = (
   const moveSelectedTabsToWindowEdge = jest.fn()
   const sortTabs = jest.fn().mockResolvedValue(undefined)
   const reload = jest.fn()
-  const store = {
+  const store = withActionStore({
     arrangeStore: { sortTabs },
     dragStore: { moveSelectedTabsToWindowEdge, pendingWindowEdgeDrop },
     tabStore: {
@@ -24,7 +25,7 @@ const setup = (
       ),
     },
     focusStore: { focus: jest.fn() },
-  } as any
+  } as any)
   render(
     <StoreContext.Provider value={store}>
       <WindowActionsMenu
@@ -34,6 +35,7 @@ const setup = (
             canDrop,
             hide,
             reload,
+            close: jest.fn(),
             incognito: destinationIncognito,
           } as any
         }
@@ -62,7 +64,7 @@ describe('WindowActionsMenu', () => {
         destinationIncognito,
       )
       for (const item of screen.getAllByRole('menuitem', {
-        name: /^Move selected to/,
+        name: /^Move .*selected .*to/,
       })) {
         expect(item).toHaveProperty('disabled', disabled)
         if (disabled) {
@@ -76,11 +78,11 @@ describe('WindowActionsMenu', () => {
   it.each([lightAppTheme, darkAppTheme])(
     'clears pointer feedback after clicking and leaving in $mode theme',
     (theme) => {
-      const store = {
+      const store = withActionStore({
         dragStore: { pendingWindowEdgeDrop: false },
         tabStore: { selection: new Map() },
         focusStore: { focus: jest.fn() },
-      } as any
+      } as any)
       render(
         <StoreContext.Provider value={store}>
           <AppThemeContext.Provider value={theme}>
@@ -98,6 +100,7 @@ describe('WindowActionsMenu', () => {
       fireEvent.click(button)
       fireEvent.mouseLeave(button)
       fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+      fireEvent.keyUp(screen.getByRole('menu'), { key: 'Escape' })
 
       expect(button.style.backgroundColor).toBe(idleBackground)
     },
@@ -110,7 +113,7 @@ describe('WindowActionsMenu', () => {
 
       fireEvent.click(
         screen.getByRole('menuitem', {
-          name: `Move selected to ${position}`,
+          name: `Move 1 selected tab to ${position}`,
         }),
       )
 
@@ -127,7 +130,7 @@ describe('WindowActionsMenu', () => {
   ])('disables moves with selected=%s and canDrop=%s', (selected, canDrop) => {
     const { moveSelectedTabsToWindowEdge } = setup(selected, canDrop)
     const items = screen.getAllByRole('menuitem', {
-      name: /^Move selected to/,
+      name: /^Move .*selected .*to/,
     })
 
     items.forEach((item) => {
@@ -150,19 +153,25 @@ describe('WindowActionsMenu', () => {
       name: 'Reload all tabs',
     })
     const beginning = screen.getByRole('menuitem', {
-      name: 'Move selected to beginning',
+      name: 'Move 1 selected tab to beginning',
     })
     const end = screen.getByRole('menuitem', {
-      name: 'Move selected to end',
+      name: 'Move 1 selected tab to end',
     })
     expect(sort).toHaveFocus()
     fireEvent.keyDown(sort, { key: 'ArrowDown' })
     expect(reload).toHaveFocus()
     fireEvent.keyDown(reload, { key: 'ArrowDown' })
+    const collapse = screen.getByRole('menuitem', {
+      name: 'Collapse this window',
+    })
+    expect(collapse).toHaveFocus()
+    fireEvent.keyDown(collapse, { key: 'ArrowDown' })
     expect(beginning).toHaveFocus()
     fireEvent.keyDown(beginning, { key: 'ArrowDown' })
     expect(end).toHaveFocus()
     fireEvent.keyDown(end, { key: 'Escape' })
+    fireEvent.keyUp(end, { key: 'Escape' })
     expect(trigger).toHaveFocus()
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
@@ -189,14 +198,23 @@ describe('WindowActionsMenu', () => {
       expect(sort).toHaveFocus()
       expect(reload).toBeEnabled()
       screen
-        .getAllByRole('menuitem', { name: /^Move selected to/ })
+        .getAllByRole('menuitem', { name: /^Move .*selected .*to/ })
         .forEach((item) => expect(item).toBeDisabled())
       fireEvent.keyDown(sort, { key: 'ArrowDown' })
       expect(reload).toHaveFocus()
       fireEvent.keyDown(reload, { key: 'ArrowDown' })
+      const collapse = screen.getByRole('menuitem', {
+        name: 'Collapse this window',
+      })
+      expect(collapse).toHaveFocus()
+      fireEvent.keyDown(collapse, { key: 'ArrowDown' })
+      const close = screen.getByRole('menuitem', { name: 'Close this window' })
+      expect(close).toHaveFocus()
+      fireEvent.keyDown(close, { key: 'ArrowDown' })
       expect(sort).toHaveFocus()
 
       fireEvent.keyDown(sort, { key: 'Escape' })
+      fireEvent.keyUp(sort, { key: 'Escape' })
 
       expect(screen.queryByRole('menu')).not.toBeInTheDocument()
       expect(trigger).toHaveFocus()
@@ -237,8 +255,15 @@ describe('WindowActionsMenu', () => {
       true,
     )
     const menu = screen.getByRole('menu')
-    expect(menu).toHaveFocus()
-    for (const item of screen.getAllByRole('menuitem')) {
+    const expand = screen.getByRole('menuitem', { name: 'Expand this window' })
+    const close = screen.getByRole('menuitem', { name: 'Close this window' })
+    expect(expand).toHaveFocus()
+    expect(close).toBeEnabled()
+    const disabled = screen
+      .getAllByRole('menuitem')
+      .filter((item) => item !== expand && item !== close)
+    expect(disabled).toHaveLength(4)
+    for (const item of disabled) {
       expect(item).toBeDisabled()
       fireEvent.click(item)
     }
@@ -246,6 +271,7 @@ describe('WindowActionsMenu', () => {
     expect(reload).not.toHaveBeenCalled()
     expect(moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
     fireEvent.keyDown(menu, { key: 'Escape' })
+    fireEvent.keyUp(menu, { key: 'Escape' })
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(trigger).toHaveFocus()
   })

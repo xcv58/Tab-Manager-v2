@@ -1,19 +1,28 @@
 import React from 'react'
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, runInAction, observable } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { StoreContext } from 'components/hooks/useStore'
 import TabRow from 'components/Tab/Tab'
+import ActionStore from 'stores/ActionStore'
+import HoverStore from 'stores/HoverStore'
+import { writeToClipboard } from 'libs'
+import type { TabCopyFormat } from 'libs/tabExport'
 import settingsPreviewIcon from 'img/chrome/settings.png'
 import type { UiPreset } from 'stores/UserStore'
 import {
+  DEFAULT_TAB_TOOLTIP_TITLE_LINES,
+  normalizeTabTooltipTitleLines,
   normalizeTabTooltipUrlLines,
+  type TabTooltipTitleLines,
   type TabTooltipUrlLines,
 } from 'libs/tabTooltip'
 
-type PreviewConfig = {
+export type PreviewConfig = {
   id: number
   title: string
   url: string
+  iconUrl?: string
+  fontSize?: number
   duplicatedTabCount?: number
   pinned?: boolean
   active?: boolean
@@ -25,17 +34,22 @@ type PreviewConfig = {
   showTabIcon?: boolean
   showUrl?: boolean
   showTabTooltip?: boolean
+  tabTooltipTitleLines?: TabTooltipTitleLines
   tabTooltipUrlLines?: TabTooltipUrlLines
+  showDetailsButton?: boolean
 }
 
 class PreviewUserStore {
+  fontSize = 14
   highlightDuplicatedTab = false
 
   uiPreset: UiPreset = 'modern'
 
   showTabTooltip = false
 
-  tabTooltipUrlLines: TabTooltipUrlLines
+  tabTooltipTitleLines: TabTooltipTitleLines = DEFAULT_TAB_TOOLTIP_TITLE_LINES
+
+  tabTooltipUrlLines: TabTooltipUrlLines = 3
 
   showUrl = true
 
@@ -46,9 +60,18 @@ class PreviewUserStore {
   highlightActiveTabsInAllWindows = false
 
   constructor(config: PreviewConfig) {
+    this.updateConfig(config)
+    makeAutoObservable(this, {}, { autoBind: true })
+  }
+
+  updateConfig(config: PreviewConfig) {
+    this.fontSize = config.fontSize ?? 14
     this.highlightDuplicatedTab = !!config.showDuplicateMarker
     this.uiPreset = config.uiPreset ?? 'modern'
     this.showTabTooltip = !!config.showTabTooltip
+    this.tabTooltipTitleLines = normalizeTabTooltipTitleLines(
+      config.tabTooltipTitleLines,
+    )
     this.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
       config.tabTooltipUrlLines,
     )
@@ -57,30 +80,6 @@ class PreviewUserStore {
     this.increaseContrast = !!config.increaseContrast
     this.highlightActiveTabsInAllWindows =
       !!config.highlightActiveTabsInAllWindows
-    makeAutoObservable(this, {}, { autoBind: true })
-  }
-}
-
-class PreviewHoverStore {
-  hoveredTabId: number | null = null
-
-  hovered = false
-
-  userStore: PreviewUserStore
-
-  constructor(userStore: PreviewUserStore) {
-    this.userStore = userStore
-    makeAutoObservable(this, { userStore: false }, { autoBind: true })
-  }
-
-  hover(id: number) {
-    this.hoveredTabId = id
-    this.hovered = this.userStore.showTabTooltip
-  }
-
-  unhover() {
-    this.hoveredTabId = null
-    this.hovered = false
   }
 }
 
@@ -117,6 +116,8 @@ class PreviewTabModel {
 
   removing = false
 
+  duplicatedTabCount: number
+
   groupId = -1
 
   cookieStoreId = ''
@@ -132,17 +133,25 @@ class PreviewTabModel {
     this.id = config.id
     this.title = config.title
     this.url = config.url
+    this.iconUrl = config.iconUrl || settingsPreviewIcon
     this.active = !!config.active
     this.pinned = !!config.pinned
+    this.duplicatedTabCount = config.duplicatedTabCount ?? 1
     this.win = {
       lastFocused: config.lastFocused ?? true,
-      tabs: [this, { id: config.id + 1000 }],
+      tabs: [],
       canDrop: false,
     }
-    makeAutoObservable(this, { store: false, win: false }, { autoBind: true })
+    makeAutoObservable(
+      this,
+      { store: false, win: observable.ref },
+      { autoBind: true },
+    )
   }
 
   setNodeRef() {}
+
+  setHovered() {}
 
   hover() {
     this.store.hoverStore.hover(this.id)
@@ -160,11 +169,20 @@ class PreviewTabModel {
     this.focus()
   }
 
-  select() {}
+  selected = false
 
-  bulkSelect() {}
+  select() {
+    this.selected = !this.selected
+    this.focus()
+  }
+
+  bulkSelect() {
+    this.select()
+  }
 
   remove() {}
+
+  reload() {}
 
   closeOtherTabs() {}
 
@@ -185,15 +203,11 @@ class PreviewTabModel {
   }
 
   get isSelected() {
-    return false
+    return this.selected
   }
 
   get isMatched() {
     return true
-  }
-
-  get duplicatedTabCount() {
-    return this.store.duplicatedTabCount
   }
 
   get isDuplicated() {
@@ -215,13 +229,23 @@ class PreviewTabModel {
 }
 
 class PreviewStore {
-  duplicatedTabCount: number
-
   userStore: PreviewUserStore
 
-  hoverStore: PreviewHoverStore
+  hoverStore: HoverStore
 
   focusStore: PreviewFocusStore
+
+  actionStore: ActionStore
+
+  shortcutStore = { dialogOpen: false, showMoveHint: () => {} }
+
+  // Preview actions remain isolated from real browser tabs.
+  windowStore = {
+    createNewWindow: () => {},
+    windows: [] as Array<{
+      getTabById: (id: number) => PreviewTabModel | null
+    }>,
+  }
 
   dragStore = {
     dragging: false,
@@ -243,53 +267,138 @@ class PreviewStore {
     getTabGroup: () => null,
   }
 
-  tab: PreviewTabModel
+  tabs: PreviewTabModel[]
 
-  constructor(config: PreviewConfig) {
-    this.duplicatedTabCount = config.duplicatedTabCount ?? 1
-    this.userStore = new PreviewUserStore(config)
-    this.hoverStore = new PreviewHoverStore(this.userStore)
+  copyTabs = async (tabs: PreviewTabModel[], format: TabCopyFormat) => {
+    const text = tabs
+      .map((tab) =>
+        format === 'title'
+          ? tab.title
+          : format === 'title-url'
+            ? tab.title + '\n' + tab.url
+            : tab.url,
+      )
+      .join('\n')
+    await writeToClipboard(text)
+  }
+
+  constructor(configs: PreviewConfig[]) {
+    this.userStore = new PreviewUserStore(configs[0])
     this.focusStore = new PreviewFocusStore()
-    this.tab = new PreviewTabModel(this, config)
+    this.actionStore = new ActionStore(this as never)
+    this.tabs = configs.map((config) => new PreviewTabModel(this, config))
+    this.tabs.forEach((tab) => {
+      tab.win = { ...tab.win, tabs: this.tabs }
+    })
+    this.windowStore.windows = [
+      { getTabById: (id) => this.tabs.find((tab) => tab.id === id) || null },
+    ]
+    this.hoverStore = new HoverStore(this as never)
+  }
+
+  updateConfigs(configs: PreviewConfig[]) {
+    runInAction(() => {
+      this.userStore.updateConfig(configs[0])
+      configs.forEach((config) => {
+        const tab = this.tabs.find((tab) => tab.id === config.id)
+        if (!tab) return
+        tab.title = config.title
+        tab.url = config.url
+        tab.iconUrl = config.iconUrl || settingsPreviewIcon
+        tab.active = !!config.active
+        tab.pinned = !!config.pinned
+        tab.duplicatedTabCount = config.duplicatedTabCount ?? 1
+        const lastFocused = config.lastFocused ?? true
+        if (tab.win.lastFocused !== lastFocused)
+          tab.win = { ...tab.win, lastFocused }
+      })
+    })
   }
 }
 
-const createPreviewStore = (config: PreviewConfig) => new PreviewStore(config)
+function usePreviewStore(configs: PreviewConfig[]) {
+  const ids = configs.map((config) => config.id).join(',')
+  const previewStore = React.useMemo(() => new PreviewStore(configs), [ids])
+  // Keep the same tabs and hover/focus stores as settings change.
+  React.useLayoutEffect(() => {
+    previewStore.updateConfigs(configs)
+  }, [previewStore, configs])
+  return previewStore
+}
 
-export default observer(
-  (props: { config: PreviewConfig; className?: string; testId?: string }) => {
-    const { config, className, testId } = props
-    const previewStore = React.useMemo(
-      () => createPreviewStore(config),
-      [
-        config.active,
-        config.duplicatedTabCount,
-        config.highlightActiveTabsInAllWindows,
-        config.id,
-        config.increaseContrast,
-        config.lastFocused,
-        config.pinned,
-        config.uiPreset,
-        config.showDuplicateMarker,
-        config.showTabIcon,
-        config.showTabTooltip,
-        config.tabTooltipUrlLines,
-        config.showUrl,
-        config.title,
-        config.url,
-      ],
-    )
+const PreviewRow = observer(function PreviewRow({
+  previewStore,
+  tab,
+  config,
+  className,
+  testId,
+}: {
+  previewStore: PreviewStore
+  tab: PreviewTabModel
+  config: PreviewConfig
+  className?: string
+  testId?: string
+}) {
+  return (
+    <div
+      data-testid={testId}
+      className={className}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node))
+          previewStore.focusStore.defocus()
+      }}
+    >
+      <TabRow tab={tab as never} preview className="w-full min-w-0" />
+      {config.showDetailsButton && (
+        <button
+          type="button"
+          disabled={!config.showTabTooltip}
+          onClick={() => previewStore.hoverStore.openTooltip(config.id, true)}
+          className="px-2 py-1 text-xs underline disabled:opacity-50"
+        >
+          Open example details
+        </button>
+      )}
+    </div>
+  )
+})
 
-    return (
-      <div data-testid={testId} className={className}>
-        <StoreContext.Provider value={previewStore as never}>
-          <TabRow
-            tab={previewStore.tab as never}
-            disableSequentialFocus
-            className="w-full min-w-0"
-          />
-        </StoreContext.Provider>
-      </div>
-    )
-  },
-)
+// All sample tabs share one tooltip owner and one focus target.
+export function TabRowsPreview({ configs }: { configs: PreviewConfig[] }) {
+  const previewStore = usePreviewStore(configs)
+  return (
+    <StoreContext.Provider value={previewStore as never}>
+      {configs.map((config, index) => (
+        <PreviewRow
+          key={config.id}
+          config={config}
+          previewStore={previewStore}
+          tab={previewStore.tabs[index]}
+        />
+      ))}
+    </StoreContext.Provider>
+  )
+}
+
+export default function TabRowPreview({
+  config,
+  className,
+  testId,
+}: {
+  config: PreviewConfig
+  className?: string
+  testId?: string
+}) {
+  const previewStore = usePreviewStore([config])
+  return (
+    <StoreContext.Provider value={previewStore as never}>
+      <PreviewRow
+        config={config}
+        className={className}
+        testId={testId}
+        previewStore={previewStore}
+        tab={previewStore.tabs[0]}
+      />
+    </StoreContext.Provider>
+  )
+}

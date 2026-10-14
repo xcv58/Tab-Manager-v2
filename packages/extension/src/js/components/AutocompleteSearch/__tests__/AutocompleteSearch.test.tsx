@@ -1,5 +1,6 @@
 import React from 'react'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { observable, runInAction } from 'mobx'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { AppThemeContext, lightAppTheme } from 'libs/appTheme'
 import AutocompleteSearch from '../index'
 import { useOptions } from 'components/hooks/useOptions'
@@ -41,11 +42,13 @@ jest.mock('react-window', () => {
           height,
           innerElementType = 'div',
           itemCount,
+          itemData,
         }: {
           children: (props: any) => React.ReactNode
           height: number
           innerElementType?: keyof JSX.IntrinsicElements
           itemCount: number
+          itemData: any
         },
         ref,
       ) => {
@@ -62,6 +65,7 @@ jest.mock('react-window', () => {
                 <ReactActual.Fragment key={index}>
                   {children({
                     index,
+                    data: itemData,
                     style: { top: index * 40, height: 40 },
                   })}
                 </ReactActual.Fragment>
@@ -111,9 +115,18 @@ const renderAutocompleteSearch = ({
   const startType = jest.fn()
   const stopType = jest.fn()
   const setSearchEl = jest.fn()
+  const openPalette = jest.fn()
+  const actionStore = observable({
+    paletteOpen: false,
+    menu: null,
+    openPalette,
+  })
 
   const Wrapper = () => {
-    const [query, setQuery] = React.useState(initialQuery)
+    const queryState = React.useMemo(
+      () => observable({ query: initialQuery }),
+      [initialQuery],
+    )
     const userStore = React.useMemo(
       () => ({
         autoFocusSearch: false,
@@ -125,18 +138,22 @@ const renderAutocompleteSearch = ({
     const searchStore = React.useMemo(
       () => ({
         get query() {
-          return query
+          return queryState.query
         },
         get isCommand() {
-          return query.startsWith('>')
+          return queryState.query.startsWith('>')
         },
-        search: (nextValue: string) => setQuery(nextValue),
+        search: (nextValue: string) =>
+          runInAction(() => {
+            queryState.query = nextValue
+          }),
         getMatchModeForQuery: (nextValue: string) =>
           getSearchMatchMode(options, nextValue, {
             keys: ['title', 'url'],
           }),
         tabSearchKeys: ['title', 'url'],
         get inputMatchedTabs() {
+          const query = queryState.query
           return matchItemsInMode(
             options.filter((option) => typeof option.id === 'number'),
             query,
@@ -148,12 +165,19 @@ const renderAutocompleteSearch = ({
         startType,
         stopType,
       }),
-      [query],
+      [options, queryState],
     )
 
     mockUseStore.mockImplementation(() => ({
       userStore,
       searchStore,
+      actionStore,
+      hoverStore: {
+        hovered: false,
+        hoveredSurface: 'list',
+        hideTooltip: jest.fn(),
+        openTooltip: jest.fn(),
+      },
       tabGroupStore: {
         hasTabGroupsApi: () => false,
       },
@@ -173,7 +197,7 @@ const renderAutocompleteSearch = ({
     )
   }
 
-  return render(<Wrapper />)
+  return { ...render(<Wrapper />), openPalette, actionStore }
 }
 
 describe('AutocompleteSearch', () => {
@@ -311,11 +335,11 @@ describe('AutocompleteSearch', () => {
     },
   )
 
-  it('clears and dismisses the uncontrolled search field when Escape is pressed', async () => {
+  it('clears search and leaves the input with one Escape', async () => {
     renderAutocompleteSearch({ initialQuery: 'alpha', open: undefined })
 
     const input = screen.getByRole('combobox')
-    fireEvent.focus(input)
+    act(() => input.focus())
 
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-expanded', 'true')
@@ -324,12 +348,37 @@ describe('AutocompleteSearch', () => {
     fireEvent.keyDown(input, { key: 'Escape' })
 
     await waitFor(() => {
+      expect(input).toHaveAttribute('aria-expanded', 'false')
+    })
+    await waitFor(() => {
       expect(input).toHaveValue('')
     })
 
     await waitFor(() => {
       expect(input).not.toHaveFocus()
     })
+  })
+
+  it('keeps the same list mounted while the palette overlays search', async () => {
+    const { actionStore } = renderAutocompleteSearch({ initialQuery: 'alpha' })
+    const input = screen.getByRole('combobox')
+    act(() => input.focus())
+    const list = await screen.findByTestId('virtual-list')
+    list.scrollTop = 100
+    act(() => {
+      actionStore.paletteOpen = true
+    })
+    expect(list.isConnected).toBe(true)
+    expect(list.closest('[inert]')).not.toBeNull()
+    fireEvent.blur(input)
+    await new Promise((resolve) => setTimeout(resolve, 180))
+    expect(list.isConnected).toBe(true)
+    act(() => {
+      actionStore.paletteOpen = false
+    })
+    expect(screen.getByTestId('virtual-list')).toBe(list)
+    expect(list.scrollTop).toBe(100)
+    expect(input).toHaveValue('alpha')
   })
 
   it('keeps the result list open when open is controlled by the parent', async () => {
@@ -363,30 +412,26 @@ describe('AutocompleteSearch', () => {
     expect(screen.queryByRole('option')).toBeNull()
   })
 
-  it('keeps command results available when the result menu is disabled', async () => {
-    renderAutocompleteSearch({
-      initialQuery: '>srt',
+  it('keeps > as an alias for the dedicated palette when search results are disabled', () => {
+    const { openPalette } = renderAutocompleteSearch({
+      initialQuery: 'research',
       showResultMenu: false,
-      options: [
-        {
-          name: 'Sort tabs',
-          command: jest.fn(),
-        },
-      ],
     })
 
-    expect(screen.getByRole('combobox')).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
-    expect(await screen.findByRole('option')).toHaveTextContent('Sort tabs')
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: '>export csv' },
+    })
+
+    expect(openPalette).toHaveBeenCalledWith('export csv')
+    expect(screen.getByRole('combobox')).toHaveValue('research')
+    expect(screen.queryByRole('option')).not.toBeInTheDocument()
   })
 
   it('uses the same smaller font size for the input text and the search hint', () => {
     renderAutocompleteSearch()
 
     const input = screen.getByRole('combobox')
-    const hint = screen.getByText('/ focus · > commands')
+    const hint = screen.getByText('/ search · > commands')
 
     expect(input).toHaveStyle('font-size: 0.8125rem')
     expect(hint).toHaveStyle('font-size: 0.8125rem')

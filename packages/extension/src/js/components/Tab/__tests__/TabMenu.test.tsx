@@ -1,19 +1,22 @@
 import React from 'react'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { withActionStore } from '__testutils__/actionStore'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import * as StoreHook from 'components/hooks/useStore'
 import TabMenu from '../TabMenu'
 
 describe('TabMenu', () => {
   beforeEach(() => {
-    jest.spyOn(StoreHook, 'useStore').mockReturnValue({
-      tabGroupStore: undefined,
-      tabStore: { selection: new Map() },
-      dragStore: {
-        pendingWindowEdgeDrop: false,
-        moveSelectedTabsRelativeToTab: jest.fn(),
-      },
-      focusStore: { focus: jest.fn() },
-    } as any)
+    jest.spyOn(StoreHook, 'useStore').mockReturnValue(
+      withActionStore({
+        tabGroupStore: undefined,
+        tabStore: { selection: new Map() },
+        dragStore: {
+          pendingWindowEdgeDrop: false,
+          moveSelectedTabsRelativeToTab: jest.fn(),
+        },
+        focusStore: { focus: jest.fn() },
+      } as any),
+    )
   })
 
   afterEach(() => {
@@ -51,7 +54,7 @@ describe('TabMenu', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Tab actions' }))
 
       for (const item of screen.getAllByRole('menuitem', {
-        name: /^Move selected/,
+        name: /^Move .*selected/,
       })) {
         expect(item).toHaveProperty('disabled', !incognito)
         if (!incognito) {
@@ -71,22 +74,22 @@ describe('TabMenu', () => {
 
     expect(
       screen.getByRole('menuitem', {
-        name: 'Cluster 2 same domain ungrouped tabs to this window',
+        name: 'Bring 2 ungrouped tabs from this site here',
       }),
     ).toBeInTheDocument()
   })
 
-  it('uses the existing groupTab action when the same-domain move action is clicked', () => {
+  it('uses the existing groupTab action when the same-domain move action is clicked', async () => {
     const groupTab = jest.fn()
     render(<TabMenu tab={createTab({ groupTab })} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Tab actions' }))
     fireEvent.click(
       screen.getByRole('menuitem', {
-        name: 'Cluster 2 same domain ungrouped tabs to this window',
+        name: 'Bring 2 ungrouped tabs from this site here',
       }),
     )
 
-    expect(groupTab).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(groupTab).toHaveBeenCalledTimes(1))
   })
 })

@@ -1,211 +1,238 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { observer } from 'mobx-react-lite'
-import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
-import { MoreVertIcon } from 'icons/materialIcons'
+import Menu, { MenuItem, MenuDivider, MenuSection } from 'components/ui/Menu'
+import {
+  CloseIcon,
+  DeleteSweepIcon,
+  MoreVertIcon,
+  OpenInNewIcon,
+  RefreshIcon,
+} from 'icons/materialIcons'
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CloseOtherTabsIcon,
+  PinTabIcon,
+  UngroupTabIcon,
+} from 'icons/actionIcons'
+import {
+  LinkIcon,
+  TitleIcon,
+  TextDocumentIcon,
+  UnpinIcon,
+} from 'icons/paletteIcons'
 import { getNoun } from 'libs'
 import { useAppTheme } from 'libs/appTheme'
 import { useStore } from 'components/hooks/useStore'
 import ControlIconButton from 'components/ControlIconButton'
 import { TabProps } from 'components/types'
+import { useActionMenu } from 'components/hooks/useActionMenu'
 import MoveShortcut from 'components/Shortcut/MoveShortcut'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
-import {
-  getTabMoveAriaShortcut,
-  type TabMovePosition,
-} from 'libs/tabMoveShortcuts'
+import { getTabMoveAriaShortcut } from 'libs/tabMoveShortcuts'
+import CommandPaletteIcon from 'components/CommandPaletteIcon'
 
-interface IDivider {
-  __typename: 'DIVIDER'
-}
-type Option = {
-  __typename: 'OPTION'
-} & {
-  disabled?: boolean
-  movePosition?: TabMovePosition
-} & {
-  label: string
-} & {
-  onClick?: () => void
-}
-type OptionOrDivider = IDivider | Option
-
-const DIVIDER: IDivider = { __typename: 'DIVIDER' }
-const OPTION: Option = { __typename: 'OPTION', label: '' }
-
-export default observer((props: TabProps) => {
-  const [anchorEl, setAnchorEl] = useState(null)
-  const theme = useAppTheme()
-  const { tabGroupStore, tabStore, dragStore, focusStore } = useStore()
-  const handleClick = (event) => {
-    focusStore.focus(props.tab, {
-      origin: 'mouse',
-      reveal: false,
-      moveDomFocus: false,
-    })
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
-  const getOnClick = (func) => () => {
-    handleClose()
-    if (func) {
-      func()
+export default observer(
+  (props: TabProps & { menuKey?: string; hideTrigger?: boolean }) => {
+    const theme = useAppTheme()
+    const { tabGroupStore, tabStore, dragStore, actionStore, shortcutStore } =
+      useStore()
+    const { tab } = props
+    const menu = useActionMenu(props.menuKey || `tab-${tab.id}`, tab)
+    const { win, pinned, duplicatedTabCount, sameDomainTabs } = tab
+    const selectedCount = tabStore.selection.size
+    const otherCount = Math.max(0, (win?.tabs?.length ?? 1) - 1)
+    const hasTabGroupsApi = !!tabGroupStore?.hasTabGroupsApi?.()
+    const canMutateTabGroups = !!tabGroupStore?.canMutateGroups?.()
+    const tabGroup = hasTabGroupsApi
+      ? tabGroupStore.getTabGroup(tab.groupId)
+      : null
+    const moveDisabled =
+      dragStore.pendingWindowEdgeDrop ||
+      !selectedCount ||
+      tabStore.selection.has(tab.id) ||
+      Boolean(getTabMoveDestinationHint(win, tabStore.selection.values()))
+    const closeMenu = menu.onClose
+    const run = (action: () => void | Promise<void>) => () => {
+      closeMenu()
+      void Promise.resolve()
+        .then(action)
+        .catch(() =>
+          shortcutStore.showMoveHint(
+            'Could not complete this action. Please try again.',
+          ),
+        )
     }
-  }
-  const getOptionTestId = (label: string) =>
-    `tab-menu-option-${props.tab.id}-${label
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')}`
-  const {
-    closeOtherTabs,
-    win,
-    remove,
-    groupTab,
-    sameDomainTabs,
-    pinned,
-    togglePin,
-    duplicatedTabCount,
-    closeDuplicatedTab,
-  } = props.tab
-  const hasTabGroupsApi = !!tabGroupStore?.hasTabGroupsApi?.()
-  const canMutateTabGroups = !!tabGroupStore?.canMutateGroups?.()
-  const tabGroup = hasTabGroupsApi
-    ? tabGroupStore.getTabGroup(props.tab.groupId)
-    : null
-  const moveDisabled =
-    dragStore.pendingWindowEdgeDrop ||
-    !tabStore.selection.size ||
-    tabStore.selection.has(props.tab.id) ||
-    Boolean(getTabMoveDestinationHint(win, tabStore.selection.values()))
+    const danger = {
+      color:
+        theme.mode === 'dark'
+          ? theme.palette.danger.hoverColor
+          : theme.palette.danger.activeColor,
+    }
+    const moveScope = selectedCount
+      ? `${selectedCount} selected ${getNoun('tab', selectedCount)}`
+      : 'selected tabs'
 
-  const options: (OptionOrDivider | false)[] = [
-    {
-      ...OPTION,
-      label: pinned ? 'Unpin tab' : 'Pin tab',
-      onClick: togglePin,
-    },
-    {
-      ...OPTION,
-      label: 'Close',
-      onClick: remove,
-    },
-    {
-      ...OPTION,
-      label: 'Close other tabs',
-      onClick: closeOtherTabs,
-      disabled: (win?.tabs?.length ?? 0) <= 1,
-    },
-    DIVIDER,
-    {
-      ...OPTION,
-      label: 'Move selected before this tab',
-      movePosition: 'before',
-      disabled: moveDisabled,
-      onClick: () => {
-        void dragStore.moveSelectedTabsRelativeToTab(props.tab, true)
-      },
-    },
-    {
-      ...OPTION,
-      label: 'Move selected after this tab',
-      movePosition: 'after',
-      disabled: moveDisabled,
-      onClick: () => {
-        void dragStore.moveSelectedTabsRelativeToTab(props.tab, false)
-      },
-    },
-  ]
-  if (process.env.TARGET_BROWSER === 'firefox') {
-    options.push(
-      DIVIDER,
-      {
-        ...OPTION,
-        label: `${
-          props.tab.isSelected ? 'Unselect' : 'Select'
-        } tabs in the same container`,
-        onClick: () => {
-          props.tab.selectTabsInSameContainer()
-        },
-      },
-      {
-        ...OPTION,
-        label: 'Open same container tabs in a new window',
-        onClick: () => {
-          props.tab.openSameContainerTabs()
-        },
-      },
-    )
-  }
-  if (canMutateTabGroups && tabGroup) {
-    options.push(DIVIDER, {
-      ...OPTION,
-      label: 'Remove this tab from group',
-      onClick: () => tabGroupStore.ungroupTab(props.tab.id),
-    })
-  }
-  if (sameDomainTabs && sameDomainTabs.length > 1) {
-    options.push(DIVIDER, {
-      ...OPTION,
-      label: `Cluster ${sameDomainTabs.length} same domain ungrouped tabs to this window`,
-      onClick: groupTab,
-    })
-  }
-  if (duplicatedTabCount > 1) {
-    options.push(DIVIDER, {
-      ...OPTION,
-      label: `Close other ${duplicatedTabCount - 1} duplicated ${getNoun(
-        'tab',
-        duplicatedTabCount - 1,
-      )}`,
-      onClick: closeDuplicatedTab,
-    })
-  }
-
-  const content = options
-    .filter((option): option is OptionOrDivider => !!option)
-    .map((option, i) => {
-      if (option.__typename === 'DIVIDER') {
-        return <MenuDivider key={i} />
-      }
-      const { label, onClick, disabled, movePosition } = option
+    if (actionStore.liteMode) {
       return (
-        <MenuItem
-          key={label}
-          disabled={disabled}
-          onClick={getOnClick(onClick)}
-          data-testid={getOptionTestId(label)}
-          aria-keyshortcuts={
-            movePosition ? getTabMoveAriaShortcut(movePosition) : undefined
-          }
+        <Menu
+          {...menu}
+          data-testid={`${props.menuKey || `tab-${tab.id}`}-actions-menu`}
         >
-          <span>{label}</span>
-          {movePosition && <MoveShortcut position={movePosition} />}
-        </MenuItem>
+          {menu.open &&
+            actionStore
+              .getLiteCommands(tab)
+              .filter(
+                (command) =>
+                  command.section === 'This tab' ||
+                  command.id === 'open-full-mode',
+              )
+              .map((command) => (
+                <MenuItem
+                  key={command.id}
+                  disabled={!!command.disabledReason}
+                  aria-label={command.label}
+                  onClick={() => {
+                    menu.onClose()
+                    void actionStore.execute(command)
+                  }}
+                  style={command.danger ? danger : undefined}
+                >
+                  <CommandPaletteIcon name={command.icon} /> {command.label}
+                </MenuItem>
+              ))}
+        </Menu>
       )
-    })
-  return (
-    <>
-      <ControlIconButton
-        onClick={handleClick}
-        tabIndex={props.disableSequentialFocus ? -1 : undefined}
-        controlSize="compact"
-        aria-label="Tab actions"
-        data-testid={`tab-menu-${props.tab.id}`}
-      >
-        <MoreVertIcon fontSize={16} />
-      </ControlIconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        style={{ zIndex: theme.zIndex.tooltip + 1, minWidth: 200 }}
-      >
-        {content}
-      </Menu>
-    </>
-  )
-})
+    }
+
+    return (
+      <>
+        {!props.hideTrigger && (
+          <ControlIconButton
+            onClick={menu.onOpen}
+            tabIndex={props.disableSequentialFocus ? -1 : undefined}
+            controlSize="compact"
+            aria-label="Tab actions"
+            aria-haspopup="menu"
+            aria-expanded={menu.open}
+            data-testid={`tab-menu-${tab.id}`}
+          >
+            <MoreVertIcon fontSize={16} />
+          </ControlIconButton>
+        )}
+        <Menu
+          {...menu}
+          data-testid={`${props.menuKey || `tab-${tab.id}`}-actions-menu`}
+          style={{
+            zIndex: theme.zIndex.tooltip + 1,
+            minWidth: 260,
+            maxWidth: 'calc(100vw - 32px)',
+          }}
+        >
+          <MenuSection>This tab</MenuSection>
+          <MenuItem onClick={run(tab.reload)}>
+            <RefreshIcon fontSize={18} /> Reload tab
+          </MenuItem>
+          <MenuItem onClick={run(() => actionStore.copyTabUrl(tab))}>
+            <LinkIcon fontSize={18} /> Copy URL
+          </MenuItem>
+          <MenuItem onClick={run(() => actionStore.copyTabTitle(tab))}>
+            <TitleIcon fontSize={18} /> Copy title
+          </MenuItem>
+          <MenuItem onClick={run(() => actionStore.copyTabTitleAndUrl(tab))}>
+            <TextDocumentIcon fontSize={18} /> Copy title and URL
+          </MenuItem>
+          <MenuItem
+            disabled={dragStore.pendingWindowEdgeDrop}
+            onClick={run(() => actionStore.moveTabToNewWindow(tab))}
+          >
+            <OpenInNewIcon fontSize={18} /> Move to a new window
+          </MenuItem>
+          <MenuItem onClick={run(tab.togglePin)}>
+            {pinned ? (
+              <UnpinIcon fontSize={18} />
+            ) : (
+              <PinTabIcon fontSize={18} />
+            )}{' '}
+            {pinned ? 'Unpin tab' : 'Pin tab'}
+          </MenuItem>
+          {canMutateTabGroups && tabGroup && (
+            <MenuItem
+              data-testid={`tab-menu-option-${tab.id}-remove-this-tab-from-group`}
+              onClick={run(() => tabGroupStore.ungroupTab(tab.id))}
+            >
+              <UngroupTabIcon fontSize={18} /> Remove from{' '}
+              {tabGroup.title || 'group'}
+            </MenuItem>
+          )}
+          {sameDomainTabs?.length > 1 && (
+            <MenuItem onClick={run(tab.groupTab)}>
+              <OpenInNewIcon fontSize={18} /> Bring {sameDomainTabs.length}{' '}
+              ungrouped tabs from this site here
+            </MenuItem>
+          )}
+          <MenuDivider />
+          <MenuSection>Move {moveScope} here</MenuSection>
+          <MenuItem
+            disabled={moveDisabled}
+            onClick={() => void actionStore.moveToTab(tab, true)}
+            aria-label={`Move ${moveScope} before this tab`}
+            aria-keyshortcuts={getTabMoveAriaShortcut('before')}
+            data-testid={`tab-menu-option-${tab.id}-move-selected-before-this-tab`}
+          >
+            <ArrowUpIcon fontSize={18} />{' '}
+            <span className="flex-1">Before this tab</span>
+            <MoveShortcut position="before" />
+          </MenuItem>
+          <MenuItem
+            disabled={moveDisabled}
+            onClick={() => void actionStore.moveToTab(tab, false)}
+            aria-label={`Move ${moveScope} after this tab`}
+            aria-keyshortcuts={getTabMoveAriaShortcut('after')}
+            data-testid={`tab-menu-option-${tab.id}-move-selected-after-this-tab`}
+          >
+            <ArrowDownIcon fontSize={18} />{' '}
+            <span className="flex-1">After this tab</span>
+            <MoveShortcut position="after" />
+          </MenuItem>
+          {process.env.TARGET_BROWSER === 'firefox' && (
+            <>
+              <MenuDivider />
+              <MenuSection>This container</MenuSection>
+              <MenuItem onClick={run(tab.selectTabsInSameContainer)}>
+                {tab.isSelected ? 'Unselect' : 'Select'} tabs in the same
+                container
+              </MenuItem>
+              <MenuItem onClick={run(tab.openSameContainerTabs)}>
+                Open same container tabs in a new window
+              </MenuItem>
+            </>
+          )}
+          <MenuDivider />
+          <MenuItem
+            style={danger}
+            onClick={run(tab.remove)}
+            data-testid={`tab-menu-option-${tab.id}-close`}
+          >
+            <CloseIcon fontSize={18} /> Close this tab
+          </MenuItem>
+          <MenuItem
+            style={danger}
+            disabled={!otherCount}
+            onClick={run(tab.closeOtherTabs)}
+            data-testid={`tab-menu-option-${tab.id}-close-other-tabs`}
+          >
+            <CloseOtherTabsIcon fontSize={18} /> Close other {otherCount}{' '}
+            {getNoun('tab', otherCount)} in this window
+          </MenuItem>
+          {duplicatedTabCount > 1 && (
+            <MenuItem style={danger} onClick={run(tab.closeDuplicatedTab)}>
+              <DeleteSweepIcon fontSize={18} /> Close {duplicatedTabCount - 1}{' '}
+              {getNoun('duplicate', duplicatedTabCount - 1)} of this tab
+            </MenuItem>
+          )}
+        </Menu>
+      </>
+    )
+  },
+)

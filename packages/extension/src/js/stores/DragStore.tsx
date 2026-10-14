@@ -12,6 +12,8 @@ import {
 export type DropSource =
   | 'tab-row'
   | 'group-header'
+  | 'group-destination'
+  | 'group-edge'
   | 'window-zone'
   | 'tab-relative'
 
@@ -21,6 +23,7 @@ export type DropPreviewTarget = {
   targetId: string | symbol
   destination: WindowEdge | 'new-window'
   blockedHint?: string
+  label?: string
 }
 
 export type DropAtOptions = {
@@ -32,6 +35,7 @@ export type DropAtOptions = {
   forceUngroup?: boolean
   source?: DropSource
   windowEdge?: WindowEdge
+  groupEdge?: WindowEdge
 }
 
 type GroupBoundTab = {
@@ -93,7 +97,8 @@ export default class DragStore {
     if (
       previous?.targetId !== target.targetId ||
       previous?.destination !== target.destination ||
-      previous?.blockedHint !== target.blockedHint
+      previous?.blockedHint !== target.blockedHint ||
+      previous?.label !== target.label
     ) {
       this.dropPreviewTarget = target
     }
@@ -374,13 +379,13 @@ export default class DragStore {
   getResolvedTargetIndex = (winTabs: Tab[], options: DropAtOptions) => {
     const { source, targetGroupId, index } = options
     if (
-      source === 'group-header' &&
+      (source === 'group-header' || source === 'group-edge') &&
       targetGroupId != null &&
       !this.isNoGroupId(targetGroupId)
     ) {
       const bounds = this.getGroupBounds(winTabs, targetGroupId)
       if (bounds) {
-        return bounds.start
+        return options.groupEdge === 'end' ? bounds.end + 1 : bounds.start
       }
     }
     return index
@@ -519,12 +524,109 @@ export default class DragStore {
     // Keep its selection until dropAt clears it on success or retains it on failure.
     this.pendingWindowEdgeDrop = true
     try {
-      await this.dropAt({
+      return await this.dropAt({
         windowId,
         index: position === 'beginning' ? 0 : win.tabs.length,
         windowEdge: position,
         forceUngroup: this.dragSource !== 'group-header',
         source: 'window-zone',
+      })
+    } finally {
+      this.pendingWindowEdgeDrop = false
+    }
+  }
+
+  getGroupMoveHint = (
+    groupId: number,
+    allowReorder = false,
+  ): string | undefined => {
+    const { tabGroupStore, tabStore, windowStore } = this.store
+    if (!tabStore.selection.size) return 'Select tabs first'
+    if (!tabGroupStore.canMutateGroups()) {
+      return 'Group editing is unavailable in this browser'
+    }
+    const group = tabGroupStore.getTabGroup(groupId)
+    const win =
+      group && windowStore.windows.find((win) => win.id === group.windowId)
+    if (!group || !win || !tabGroupStore.getTabsForGroup(groupId).length) {
+      return 'This group is no longer available'
+    }
+    const sources = tabStore.sources
+    const hint = getTabMoveDestinationHint(win, sources)
+    if (hint) return hint
+    if (sources.some((tab) => tab.pinned)) {
+      return 'Unpin selected tabs before adding them to a group'
+    }
+    if (!allowReorder && sources.every((tab) => tab.groupId === groupId)) {
+      return 'Selected tabs are already in this group'
+    }
+  }
+
+  get wholeSelectedGroupIds() {
+    return this.getWholeSelectedGroupIds(this.store.tabStore.sources)
+  }
+
+  get movingWholeGroups() {
+    return this.wholeSelectedGroupIds.size > 0
+  }
+
+  getGroupEdgeMoveHint = (groupId: number): string | undefined => {
+    if (this.pendingWindowEdgeDrop) return 'A tab move is already in progress'
+    const hint = this.getGroupMoveHint(groupId, true)
+    if (hint) return hint
+    if (this.movingWholeGroups) {
+      if (!this.canMoveGroups())
+        return 'Moving groups is unavailable in this browser'
+      if (this.store.tabStore.sources.some((tab) => tab.groupId === groupId))
+        return 'Choose another group to move beside'
+    }
+  }
+
+  moveSelectedTabsToGroupEdge = async (
+    groupId: number,
+    position: WindowEdge,
+  ) => {
+    const hint = this.getGroupEdgeMoveHint(groupId)
+    if (hint) return hint
+    const group = this.store.tabGroupStore.getTabGroup(groupId)
+    const win = this.store.windowStore.getTargetWindow(group.windowId)
+    const bounds = this.getGroupBounds(win.tabs, groupId)
+    if (!bounds) return 'This group is no longer available'
+    // Capture the intent before HTML5 drag end resets the drag source.
+    const moveGroups = this.movingWholeGroups
+    this.pendingWindowEdgeDrop = true
+    try {
+      return await this.dropAt({
+        windowId: win.id,
+        index: position === 'beginning' ? bounds.start : bounds.end + 1,
+        ...(moveGroups
+          ? { source: 'tab-relative' as const }
+          : {
+              source: 'group-edge' as const,
+              targetGroupId: groupId,
+              groupEdge: position,
+            }),
+      })
+    } finally {
+      this.pendingWindowEdgeDrop = false
+    }
+  }
+
+  moveSelectedTabsToGroup = async (groupId: number) => {
+    if (this.pendingWindowEdgeDrop) return 'A tab move is already in progress'
+    const hint = this.getGroupMoveHint(groupId)
+    if (hint) return hint
+    const group = this.store.tabGroupStore.getTabGroup(groupId)
+    const win = this.store.windowStore.getTargetWindow(group.windowId)
+    const bounds = this.getGroupBounds(win.tabs, groupId)
+    if (!bounds) return 'This group is no longer available'
+    this.pendingWindowEdgeDrop = true
+    try {
+      return await this.dropAt({
+        windowId: win.id,
+        index: bounds.end + 1,
+        targetGroupId: groupId,
+        source: 'group-destination',
       })
     } finally {
       this.pendingWindowEdgeDrop = false
@@ -558,14 +660,14 @@ export default class DragStore {
         // Intact groups cannot be nested inside the destination's group.
         // Move blocks around its boundary, using the group API so transfers
         // keep IDs and metadata even when the source window becomes empty.
-        await this.dropAt({
+        return await this.dropAt({
           windowId: tab.windowId,
           index: this.getTargetIndex(tab.win.tabs, tab, before),
           forceUngroup: true,
           source: 'tab-relative',
         })
       } else {
-        await this.drop(tab, before)
+        return await this.drop(tab, before)
       }
     } finally {
       this.pendingWindowEdgeDrop = false
@@ -587,6 +689,16 @@ export default class DragStore {
       const hint = getTabMoveDestinationHint(win, sources)
       if (hint) {
         return hint
+      }
+      if (
+        options.source === 'group-destination' ||
+        options.source === 'group-edge'
+      ) {
+        const groupHint = this.getGroupMoveHint(
+          options.targetGroupId,
+          options.source === 'group-edge',
+        )
+        if (groupHint) return groupHint
       }
       suspend()
       suspended = true
@@ -666,8 +778,11 @@ export default class DragStore {
         hasTabGroupFlow &&
         this.canMutateGroups() &&
         hasTargetGroup &&
-        sourceGroupId !== targetGroupId &&
-        (options.source === 'group-header' || !wholeGroupOnlySelection) &&
+        (sourceGroupId !== targetGroupId || options.source === 'group-edge') &&
+        (options.source === 'group-header' ||
+          options.source === 'group-edge' ||
+          options.source === 'group-destination' ||
+          !wholeGroupOnlySelection) &&
         !options.forceUngroup
       const shouldPreserveWholeGroupsOnTargetGroup =
         hasTabGroupFlow &&
@@ -752,6 +867,25 @@ export default class DragStore {
               orderedTabIds,
               targetGroupId,
             )
+            if (
+              options.source === 'group-destination' ||
+              options.source === 'group-edge'
+            ) {
+              // Grouping changes membership, but does not promise the order
+              // of tabIds. Place the selection at the requested group edge.
+              const groupedTabs = await this.getWindowTabsFromBrowser(windowId)
+              const bounds = this.getGroupBounds(groupedTabs, targetGroupId)
+              if (!bounds) return 'This group is no longer available'
+              const appendIndex = groupedTabs
+                .slice(
+                  0,
+                  options.groupEdge === 'beginning'
+                    ? bounds.start
+                    : bounds.end + 1,
+                )
+                .filter((tab) => !sourceTabIdSet.has(tab.id)).length
+              await moveTabs(sources, windowId, appendIndex)
+            }
           }
         } else {
           if (shouldMovePreservedWholeGroupsWithGroupApi) {
@@ -798,6 +932,7 @@ export default class DragStore {
       log.error('DragStore.drop failed', {
         error,
       })
+      return 'Could not move tabs. Please try again.'
     } finally {
       if (suspended) {
         await resume({

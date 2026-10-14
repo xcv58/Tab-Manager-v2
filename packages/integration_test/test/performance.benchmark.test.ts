@@ -758,14 +758,16 @@ test.describe('Performance benchmark scenarios', () => {
       color: 'blue',
     })
 
-    const targetTabId = await page.evaluate(
-      async ({ targetWindowId, targetUrl }) => {
-        const tabs = await chrome.tabs.query({ windowId: targetWindowId })
-        return tabs.find((tab) => tab.url === targetUrl)?.id ?? -1
-      },
-      { targetWindowId, targetUrl },
-    )
-    expect(targetTabId).toBeGreaterThan(-1)
+    const readTargetTabId = () =>
+      page.evaluate(
+        async ({ targetWindowId, targetUrl }) => {
+          const tabs = await chrome.tabs.query({ windowId: targetWindowId })
+          return tabs.find((tab) => tab.url === targetUrl)?.id ?? -1
+        },
+        { targetWindowId, targetUrl },
+      )
+    await expect.poll(readTargetTabId).toBeGreaterThan(-1)
+    const targetTabId = await readTargetTabId()
 
     await page.goto(extensionURL)
     await waitForTestId(page, `tab-group-header-${sourceGroupId}`)

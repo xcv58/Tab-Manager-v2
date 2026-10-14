@@ -6,6 +6,7 @@ export type FocusOrigin = 'keyboard' | 'mouse' | 'search' | 'programmatic'
 
 export type FocusRequestOptions = {
   origin?: FocusOrigin
+  surface?: 'list' | 'search'
   reveal?: boolean
   moveDomFocus?: boolean
 }

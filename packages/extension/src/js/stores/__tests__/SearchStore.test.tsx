@@ -63,38 +63,17 @@ describe('SearchStore', () => {
     expect(document.activeElement).not.toBe(input)
   })
 
-  it('restores command search text selection when the search ref points directly at the input', async () => {
-    jest
-      .spyOn(browser.storage.local, 'get')
-      .mockResolvedValue({ lastCommand: 'group' } as any)
-
+  it('opens the dedicated palette without changing the tab search query', () => {
+    const openPalette = jest.fn()
     const searchStore = new SearchStore({
-      windowStore: {
-        tabs: [],
-      },
-      focusStore: {
-        focusedTabId: null,
-        defocus: jest.fn(),
-      },
-      tabStore: {
-        isTabSelected: () => false,
-      },
-      userStore: {
-        showUrl: false,
-        searchHistory: false,
-      },
+      actionStore: { openPalette },
     } as any)
+    searchStore.query = 'research'
 
-    const input = document.createElement('input')
-    document.body.appendChild(input)
-    searchStore.searchEl = { current: input } as any
-    const setSelectionRangeSpy = jest.spyOn(input, 'setSelectionRange')
+    searchStore.startCommandSearch()
 
-    await searchStore.startCommandSearch()
-
-    expect(searchStore.query).toBe('>group')
-    expect(document.activeElement).toBe(input)
-    expect(setSelectionRangeSpy).toHaveBeenCalledWith(1, 6)
+    expect(openPalette).toHaveBeenCalledTimes(1)
+    expect(searchStore.query).toBe('research')
   })
 
   it('should repack layout after updating the active search query', async () => {

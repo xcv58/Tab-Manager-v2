@@ -103,6 +103,7 @@ const EmptyColumnRelayout = ({
 export default observer(() => {
   const { windowStore, userStore, dragStore, searchStore, focusStore } =
     useStore()
+  const theme = useAppTheme()
   const { setContainerRef } = focusStore
   const scrollbarRef = useRef<HTMLDivElement | null>(null)
   const focusedEmptyColumnRunRef = useRef<{
@@ -375,6 +376,59 @@ export default observer(() => {
         className="flex items-center justify-center flex-auto overflow-hidden"
       >
         <Loading />
+        {resizeDetector}
+      </div>
+    )
+  }
+  if (!visibleWindows.length) {
+    const filtering = searchStore.inputQueryActive || searchStore.queryActive
+    return (
+      <div
+        ref={scrollbarRef}
+        className="flex flex-auto items-center justify-center overflow-hidden px-6"
+      >
+        <div className="max-w-sm text-center" data-testid="empty-workspace">
+          <h2 className="text-base font-semibold" role="status">
+            {filtering ? 'No matching tabs' : 'No windows to display'}
+          </h2>
+          <p
+            className="mt-2 text-sm"
+            style={{ color: theme.palette.text.secondary }}
+          >
+            {filtering
+              ? 'Try a different search or clear it to see your tabs.'
+              : 'Sync your browser windows or check your view settings.'}
+          </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <button
+              type="button"
+              className="rounded-md border px-3 py-2 text-sm"
+              style={{
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.divider,
+                backgroundColor: theme.palette.action.hover,
+              }}
+              onClick={() => {
+                if (filtering) searchStore.search('')
+                else void windowStore.syncAllWindows()
+              }}
+            >
+              {filtering ? 'Clear search' : 'Sync windows'}
+            </button>
+            <button
+              type="button"
+              className="rounded-md border px-3 py-2 text-sm"
+              style={{
+                color: theme.palette.text.primary,
+                borderColor: theme.palette.divider,
+                backgroundColor: theme.palette.background.paper,
+              }}
+              onClick={userStore.openDialog}
+            >
+              Settings
+            </button>
+          </div>
+        </div>
         {resizeDetector}
       </div>
     )

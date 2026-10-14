@@ -12,5 +12,7 @@ export const getDragPreviewLabel = (
   }
   const destination =
     target.destination === 'new-window' ? 'new window' : target.destination
-  return target.blockedHint || `Move ${countText} to ${destination}`
+  return (
+    target.blockedHint || target.label || `Move ${countText} to ${destination}`
+  )
 }

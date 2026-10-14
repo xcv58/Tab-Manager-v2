@@ -5,7 +5,7 @@ import { useStore } from 'components/hooks/useStore'
 export interface SwitchProps {
   checked: boolean
   onChange: (event?: React.ChangeEvent<HTMLInputElement>) => void
-  size?: 'small' | 'medium'
+  size?: 'small' | 'medium' | 'settings'
   color?: string
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>
   style?: React.CSSProperties
@@ -28,7 +28,7 @@ export default function Switch({
   const { userStore } = useStore()
   const [focused, setFocused] = React.useState(false)
   const isSmall = size === 'small'
-  const trackW = isSmall ? 34 : 42
+  const trackW = isSmall ? 34 : size === 'settings' ? 40 : 42
   const trackH = isSmall ? 18 : 22
   const thumbSize = isSmall ? 14 : 18
   const thumbOffset = 2
@@ -58,6 +58,7 @@ export default function Switch({
         position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
+        minHeight: size === 'settings' ? 32 : undefined,
         cursor: 'pointer',
         verticalAlign: 'middle',
         ...style,

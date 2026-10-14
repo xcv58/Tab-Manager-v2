@@ -1,0 +1,5 @@
+/* The iframe uses the real popup's viewport, with no surrounding Settings UI. */
+html,
+body {
+  min-height: 0;
+}

@@ -1,17 +1,18 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useActionMenu } from './hooks/useActionMenu'
+import { getCommandPaletteShortcutLabel } from 'libs/commandPaletteShortcut'
 import { observer } from 'mobx-react-lite'
 import Menu, { MenuItem, MenuDivider } from 'components/ui/Menu'
 import { MoreHorizIcon } from 'icons/materialIcons'
 import ControlIconButton from 'components/ControlIconButton'
-import { getNoun, openInNewTab, openOrTogglePopup } from 'libs'
 import { useStore } from './hooks/useStore'
 
 export default observer(() => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const { arrangeStore, shortcutStore, userStore, windowStore } = useStore()
+  const menu = useActionMenu('popup-actions')
+  const { actionStore } = useStore()
 
   const closeMenu = () => {
-    setAnchorEl(null)
+    menu.onClose()
   }
 
   const runAction = (action: () => void | Promise<void>) => () => {
@@ -19,43 +20,36 @@ export default observer(() => {
     action()
   }
 
-  const duplicatedTabsToRemoveCount =
-    windowStore.getDuplicateTabsToRemoveCount()
-
   return (
     <>
       <ControlIconButton
-        onClick={(event) => setAnchorEl(event.currentTarget)}
+        onClick={menu.onOpen}
+        aria-haspopup="menu"
+        aria-expanded={menu.open}
         aria-label="More actions"
       >
         <MoreHorizIcon fontSize={20} />
       </ControlIconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
-        <MenuItem onClick={runAction(openOrTogglePopup)}>
-          Open full feature mode
+      <Menu {...menu} onClose={closeMenu}>
+        <MenuItem onClick={runAction(() => actionStore.openFullView())}>
+          Open full Tab Manager
         </MenuItem>
-        <MenuItem onClick={runAction(openInNewTab)}>Open in new tab</MenuItem>
         <MenuDivider />
-        <MenuItem onClick={runAction(() => arrangeStore.groupTabs())}>
-          Cluster ungrouped & sort tabs
+        <MenuItem onClick={() => actionStore.openPalette()}>
+          <span className="flex-1">Command palette</span>
+          <kbd className="ml-4 text-xs opacity-70">
+            {getCommandPaletteShortcutLabel()}
+          </kbd>
         </MenuItem>
         <MenuItem
-          disabled={duplicatedTabsToRemoveCount === 0}
-          onClick={runAction(() => windowStore.cleanDuplicatedTabs())}
+          onClick={runAction(() => actionStore.openFullView('shortcuts'))}
         >
-          {duplicatedTabsToRemoveCount
-            ? `Clean ${duplicatedTabsToRemoveCount} duplicate ${getNoun(
-                'tab',
-                duplicatedTabsToRemoveCount,
-              )}`
-            : 'Clean duplicated tabs'}
+          Keyboard shortcuts in full view
         </MenuItem>
-        <MenuDivider />
-        <MenuItem onClick={runAction(() => shortcutStore.openDialog())}>
-          Keyboard shortcuts
-        </MenuItem>
-        <MenuItem onClick={runAction(() => userStore.openDialog())}>
-          Settings
+        <MenuItem
+          onClick={runAction(() => actionStore.openFullView('settings'))}
+        >
+          Settings in full view
         </MenuItem>
       </Menu>
     </>

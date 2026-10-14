@@ -352,7 +352,9 @@ const applyMixedTabStates = (
       break
     case 8:
       tab.title =
-        'Research notebook • 工作笔记 • 調査メモ • خطة البحث — comparing documentation, project discussions, reference material, and saved reading across a long browser session'
+        'Research notebook • 工作笔记 • 調査メモ • خطة البحث — comparing documentation, project discussions, reference material, and saved reading across a long browser session. '.repeat(
+          24,
+        )
       break
     case 9:
       tab.title = `Résumé and accessibility notes • ${tab.title}`
@@ -361,9 +363,10 @@ const applyMixedTabStates = (
       tab.title = `设计评审与产品笔记 • ${tab.title}`
       break
     case 11:
-      tab.title = `Project notes with a long URL • ${tab.title}`
+      tab.title = `Project notes with a long URL • ${tab.title}. `.repeat(24)
       tab.url +=
-        '&topic=layout-and-keyboard-navigation&source=sample-workspace&view=detailed-reference'
+        '&topic=layout-and-keyboard-navigation&source=sample-workspace&view=detailed-reference&notes=' +
+        'layout-keyboard-reference-'.repeat(480)
       break
     default:
       break

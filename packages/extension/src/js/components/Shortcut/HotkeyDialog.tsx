@@ -50,9 +50,9 @@ export default observer(() => {
       }}
     >
       <DialogTitle>
-        <div className="flex items-end">
+        <div className="flex items-end flex-wrap gap-x-6 gap-y-3 pr-8">
           <h2>Keyboard Shortcuts</h2>
-          <div className="flex-1 mx-6">
+          <div className="flex-1" style={{ minWidth: 160 }}>
             <input
               type="search"
               placeholder="Search"

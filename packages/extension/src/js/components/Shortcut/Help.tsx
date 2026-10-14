@@ -3,16 +3,12 @@ import { observer } from 'mobx-react-lite'
 import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
 import { useStore } from 'components/hooks/useStore'
-
-const keysSearch = (keys: string | string[], search: string) => {
-  if (typeof keys === 'string') {
-    return keys.includes(search)
-  }
-  return keys.join('').includes(search)
-}
+import { useAppTheme } from 'libs/appTheme'
+import { matchesShortcutSearch } from 'libs/shortcutLabel'
 
 export default observer((props: { search: string }) => {
   const { search } = props
+  const theme = useAppTheme()
   const { shortcutStore } = useStore()
   const { shortcuts } = shortcutStore
 
@@ -20,21 +16,55 @@ export default observer((props: { search: string }) => {
     .filter(
       ([keys, _, description]) =>
         getDescription(description).toLowerCase().includes(search) ||
-        keysSearch(keys, search),
+        matchesShortcutSearch(keys, search),
     )
-    .map(([keys, _, description], i) => (
-      <tr key={i}>
-        <td
-          style={{
-            padding: '8px 16px',
-            borderBottom: '1px solid var(--table-border, rgba(0,0,0,0.12))',
-          }}
-        >
-          {getDescription(description)}
-        </td>
-        <Hotkeys keys={keys} />
-      </tr>
-    ))
+    .map(([keys, _, description], i) => {
+      const action = shortcutStore.getHelpAction?.(keys)
+      const label = getDescription(description)
+      return (
+        <tr key={i}>
+          <td
+            style={{
+              padding: '8px 16px',
+              verticalAlign: 'top',
+              borderBottom: '1px solid var(--table-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            {label}
+            {action && (
+              <div className="mt-1 text-xs opacity-70">
+                {action.disabledReason || action.label}
+              </div>
+            )}
+          </td>
+          <Hotkeys keys={keys} />
+          <td className="shortcut-run-cell">
+            {action && (
+              <button
+                type="button"
+                disabled={!!action.disabledReason}
+                aria-label={'Run: ' + action.label}
+                title={action.disabledReason || action.label}
+                className="shortcut-run-button"
+                style={
+                  action.danger
+                    ? {
+                        color:
+                          theme.mode === 'dark'
+                            ? theme.palette.danger.hoverColor
+                            : theme.palette.danger.activeColor,
+                      }
+                    : undefined
+                }
+                onClick={() => void shortcutStore.runHelpAction(keys)}
+              >
+                Run
+              </button>
+            )}
+          </td>
+        </tr>
+      )
+    })
   if (!content.length) {
     return (
       <div
@@ -53,12 +83,20 @@ export default observer((props: { search: string }) => {
   }
   return (
     <>
+      {shortcutStore.helpContext && (
+        <p className="mb-3 text-sm" data-testid="shortcut-help-context">
+          {shortcutStore.helpContext}
+        </p>
+      )}
       <p className="mb-4 text-sm">
         To move tabs, select them, focus the destination tab or window, then use
         a move shortcut. Vim keys are pressed in sequence; uppercase means
         Shift.
       </p>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <table
+        className="shortcut-help-table"
+        style={{ width: '100%', borderCollapse: 'collapse' }}
+      >
         <thead>
           <tr>
             <th
@@ -66,6 +104,7 @@ export default observer((props: { search: string }) => {
                 padding: '8px 16px',
                 textAlign: 'left',
                 fontWeight: 600,
+                width: '48%',
                 borderBottom: '2px solid var(--table-border, rgba(0,0,0,0.12))',
               }}
             >
@@ -81,6 +120,7 @@ export default observer((props: { search: string }) => {
             >
               Hotkey(s)
             </th>
+            <th className="shortcut-run-cell">Run action</th>
           </tr>
         </thead>
         <tbody>{content}</tbody>

@@ -8,6 +8,7 @@ import {
   openPages,
   matchImageSnapshotOptions,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
   waitForSurfaceToFullyAppear,
 } from '../util'
@@ -28,11 +29,10 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
   })
 }
 
-const waitForSettingsPanelToSettle = async (page: Page) => {
-  const panel = page.getByTestId('settings-panel-theme-density')
-  await expect(panel).toBeVisible()
-  await waitForSurfaceToFullyAppear(page, panel)
-}
+const waitForSettingsPanelToSettle = async (
+  page: Page,
+  name: Parameters<typeof selectSettingsSection>[1] = 'Appearance',
+) => selectSettingsSection(page, name)
 
 const screenshotLocatorTop = async (
   page: Page,
@@ -159,8 +159,9 @@ test.describe('The Extension page should', () => {
     await waitForSettingsPanelToSettle(page)
     await expect(classicButton).toHaveAttribute('aria-checked', 'true')
 
+    await selectSettingsSection(page, 'Tab details')
     const duplicatePreview = page
-      .getByTestId('row-details-preview-duplicates')
+      .getByTestId('tab-details-shared-preview')
       .locator('[data-testid^="tab-duplicate-marker-"]')
       .first()
     await expect(duplicatePreview).toHaveCSS('opacity', '0')
@@ -185,9 +186,10 @@ test.describe('The Extension page should', () => {
       name: 'Use classic interface style',
     })
     await expect(classicButton).toHaveAttribute('aria-checked', 'true')
+    await selectSettingsSection(page, 'Tab details')
     await expect(
       page
-        .getByTestId('row-details-preview-duplicates')
+        .getByTestId('tab-details-shared-preview')
         .locator('[data-testid^="tab-duplicate-marker-"]')
         .first(),
     ).toHaveCSS('opacity', '0')
@@ -195,7 +197,7 @@ test.describe('The Extension page should', () => {
 
   test('persist window order mode across reload', async () => {
     await page.locator('button[aria-label="Settings"]').first().click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Windows & layout')
 
     let windowOrderGroup = page.getByTestId(
       'settings-window-order-toggle-group',
@@ -205,7 +207,7 @@ test.describe('The Extension page should', () => {
       name: 'Use last used window order',
     })
     await lastUsedButton.click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Windows & layout')
     await expect(lastUsedButton).toHaveAttribute('aria-checked', 'true')
 
     expect(
@@ -218,7 +220,7 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await waitForMainSurfaceToSettle(page)
     await page.locator('button[aria-label="Settings"]').first().click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Windows & layout')
 
     windowOrderGroup = page.getByTestId('settings-window-order-toggle-group')
     lastUsedButton = windowOrderGroup.getByRole('radio', {
@@ -240,6 +242,7 @@ test.describe('The Extension page should', () => {
       .getByTestId('switch-track')
       .click()
 
+    await selectSettingsSection(page, 'Tab details')
     const activeTabsToggle = page.getByRole('checkbox', {
       name: 'Highlight all active tabs',
     })
@@ -281,6 +284,7 @@ test.describe('The Extension page should', () => {
     await expect(
       page.getByRole('checkbox', { name: 'Increase contrast' }),
     ).toBeChecked()
+    await selectSettingsSection(page, 'Tab details')
     await expect(
       page.getByRole('checkbox', {
         name: 'Highlight all active tabs',
@@ -323,28 +327,281 @@ test.describe('The Extension page should', () => {
     await openPages(browserContext, URLS)
     await page.bringToFront()
     await page.locator('button[aria-label="Settings"]').first().click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Popup & controls')
     let screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    let toogleButton = await page.$(
-      '[aria-labelledby="toggle-always-show-toolbar"]',
-    )
+    let toogleButton = await page.$('[aria-label="Toggle Always Show Toolbar"]')
     await toogleButton.click()
 
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Popup & controls')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
-    toogleButton = await page.$(
-      '[aria-labelledby="toggle-always-show-toolbar"]',
-    )
+    toogleButton = await page.$('[aria-label="Toggle Always Show Toolbar"]')
     await toogleButton.click()
-    await waitForSettingsPanelToSettle(page)
+    await waitForSettingsPanelToSettle(page, 'Popup & controls')
     screenshot = await page.screenshot()
     expect(screenshot).toMatchSnapshot(matchImageSnapshotOptions)
 
     await page.keyboard.press('Escape')
     await waitForMainSurfaceToSettle(page)
+  })
+
+  test('keyboard tooltip preview stays within Settings and closes before the modal', async () => {
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await selectSettingsSection(page, 'Tab details')
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    await settings
+      .getByTestId('tab-details-shared-preview')
+      .locator('button[aria-haspopup="dialog"]')
+      .first()
+      .press('Alt+ArrowDown')
+    const tooltip = page.getByRole('dialog', {
+      name: 'Tab details',
+      exact: true,
+    })
+    await expect(
+      tooltip.getByRole('button', { name: 'Copy title' }),
+    ).toBeFocused()
+    const tooltipControlCount = await tooltip.getByRole('button').count()
+    for (let i = 0; i < tooltipControlCount - 1; i++) {
+      await page.keyboard.press('Tab')
+      expect(
+        await page.evaluate(
+          () => !!document.activeElement?.closest('[aria-modal="true"]'),
+        ),
+      ).toBe(true)
+      await expect(tooltip).toBeVisible()
+    }
+    await page.keyboard.press('Escape')
+    await expect(tooltip).toBeHidden()
+    await expect(settings).toBeVisible()
+    await page.keyboard.press('Escape')
+  })
+
+  test('persist independent title and URL limits and exercise the long-title sample', async () => {
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await selectSettingsSection(page, 'Tab details')
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    const titleLimit = settings.getByRole('combobox', {
+      name: 'Title line limit',
+    })
+    const urlLimit = settings.getByRole('combobox', { name: 'URL line limit' })
+    await expect(titleLimit).toHaveValue('3')
+    await expect(urlLimit).toHaveValue('3')
+    await titleLimit.selectOption('1')
+    await urlLimit.selectOption('5')
+    await expect(settings).toHaveScreenshot(
+      'settings-title-url-line-limits.png',
+    )
+    const sample = settings
+      .getByTestId('tab-details-shared-preview')
+      .locator('button[aria-haspopup="dialog"]')
+      .first()
+    const tooltip = page.getByRole('dialog', {
+      name: 'Tab details',
+      exact: true,
+    })
+    const title = tooltip.getByTestId('tab-tooltip-title')
+    const url = tooltip.getByTestId('tab-tooltip-url')
+    for (const limit of ['1', '3', '5', 'full']) {
+      await titleLimit.selectOption(limit)
+      await sample.press('Alt+ArrowDown')
+      await expect(tooltip).toBeVisible()
+      expect((await title.textContent()).length).toBeGreaterThan(500)
+      await expect(url).toHaveClass(/line-clamp-5/)
+      if (limit === 'full') {
+        await expect(title).not.toHaveClass(/line-clamp/)
+        await expect(
+          tooltip.getByRole('button', { name: 'Show full title' }),
+        ).toHaveCount(0)
+      } else {
+        await expect(title).toHaveClass(new RegExp(`line-clamp-${limit}`))
+        await expect(
+          tooltip.getByRole('button', { name: 'Show full title' }),
+        ).toBeVisible()
+        if (limit === '1')
+          await expect(tooltip).toHaveScreenshot(
+            'settings-tooltip-title-one-line.png',
+          )
+        const completeTitle = await title.textContent()
+        await tooltip.getByRole('button', { name: 'Show full title' }).click()
+        await expect(title).not.toHaveClass(/line-clamp/)
+        await expect(title).toHaveText(completeTitle, { useInnerText: false })
+        await tooltip.getByRole('button', { name: 'Show less title' }).click()
+        await expect(title).toHaveClass(new RegExp(`line-clamp-${limit}`))
+      }
+      await page.keyboard.press('Escape')
+      await expect(tooltip).toBeHidden()
+    }
+    await titleLimit.selectOption('5')
+    await urlLimit.selectOption('full')
+    await expect
+      .poll(() =>
+        page.evaluate(async () =>
+          chrome.storage.sync.get([
+            'tabTooltipTitleLines',
+            'tabTooltipUrlLines',
+          ]),
+        ),
+      )
+      .toEqual({ tabTooltipTitleLines: 5, tabTooltipUrlLines: 'full' })
+    await page.reload()
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await selectSettingsSection(page, 'Tab details')
+    await expect(titleLimit).toHaveValue('5')
+    await expect(urlLimit).toHaveValue('full')
+    await settings
+      .getByRole('checkbox', { name: 'Show tab tooltips' })
+      .press('Space')
+    await expect(titleLimit).toBeDisabled()
+    await expect(urlLimit).toBeDisabled()
+  })
+
+  test('render one real popup toolbar and isolate sample actions from browser tabs', async () => {
+    const browserTabIds = await page.evaluate(async () =>
+      (await chrome.tabs.query({})).map((tab) => tab.id).sort(),
+    )
+    await page.locator('button[aria-label="Settings"]').first().click()
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    await expect(
+      settings.getByRole('textbox', { name: 'Search settings' }),
+    ).toBeFocused()
+    await selectSettingsSection(page, 'Popup & controls')
+    await expect(
+      settings.getByRole('textbox', { name: 'Search settings' }),
+    ).toBeFocused()
+    await settings
+      .getByRole('textbox', { name: 'Search settings' })
+      .fill('popup controls')
+    await settings
+      .getByRole('radio', {
+        name: 'Show extension icon count for all windows tabs',
+      })
+      .click()
+    const preview = settings.getByTestId('settings-popup-preview')
+    const icon = preview.getByTestId('settings-preview-icon-count')
+    await expect(icon).toHaveAttribute('data-count', '23')
+    const frame = page.frameLocator('iframe[title="Sample Tab Manager popup"]')
+    const sampleRow = frame.getByTestId('tab-row-9300')
+    await expect(sampleRow).toBeVisible()
+    await expect(
+      frame.getByRole('button', { name: 'Settings', exact: true }),
+    ).toHaveCount(1)
+    await expect(settings).toHaveScreenshot('settings-popup-controls.png')
+    await sampleRow.hover()
+    await sampleRow.getByRole('button', { name: 'Close', exact: true }).click()
+    await expect(icon).toHaveAttribute('data-count', '22')
+    expect(
+      await page.evaluate(async () =>
+        (await chrome.tabs.query({})).map((tab) => tab.id).sort(),
+      ),
+    ).toEqual(browserTabIds)
+    await frame
+      .getByRole('combobox', { name: 'Search tabs or URLs' })
+      .fill('Design review')
+    await expect(frame.getByTestId('tab-row-9304')).toBeVisible()
+    await frame.getByRole('combobox', { name: 'Search tabs or URLs' }).fill('')
+    // Search dismisses its own result list first; a toolbar control supplies
+    // an unhandled Escape to the enclosing Settings dialog.
+    await frame
+      .getByRole('button', { name: 'Sync All Windows' })
+      .press('Escape')
+    await expect(settings).toBeHidden()
+  })
+
+  test('show one-tab app windows in the real workspace layout sample', async () => {
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await selectSettingsSection(page, 'Windows & layout')
+    await page
+      .getByRole('checkbox', { name: 'Show app windows in list' })
+      .press('Space')
+    const preview = page.getByTestId('settings-window-layout-preview')
+    await expect(preview).toContainText('7 windows · 24 tabs')
+    const app = preview.locator('[data-preview-window="936"]')
+    await expect(app).toContainText('1 tab · Music player · App window')
+    await expect(app.locator('[data-testid^="tab-row-"]')).toHaveCount(1)
+    await expect(
+      app.locator('[data-testid^="tab-active-indicator-"]'),
+    ).toHaveCount(0)
+    await page
+      .getByRole('radio', { name: 'Use last used window order' })
+      .click()
+    await page
+      .getByRole('checkbox', { name: 'Auto-fit columns' })
+      .press('Space')
+    const viewport = preview.locator('.settings-workspace-preview')
+    await expect
+      .poll(() =>
+        viewport.evaluate((node) => node.scrollWidth <= node.clientWidth),
+      )
+      .toBe(true)
+  })
+
+  test('scroll continuously with sticky section titles, search settings, and remember position', async () => {
+    await page.setViewportSize({ width: 1280, height: 600 })
+    await page.locator('button[aria-label="Settings"]').first().click()
+    const settings = page.getByRole('dialog', { name: 'Settings', exact: true })
+    const scroll = page.getByTestId('settings-scroll')
+    await expect(settings.locator('.settings-section')).toHaveCount(5)
+    await expect(settings.getByRole('tablist')).toHaveCount(0)
+    await selectSettingsSection(page, 'Windows & layout')
+    const top = await scroll.evaluate((node) => node.scrollTop)
+    const heading = settings.locator(
+      '#settings-section-windows-layout .settings-section-heading',
+    )
+    const box = await scroll.boundingBox()
+    await page.mouse.move(box.x + box.width - 12, box.y + 100)
+    await page.mouse.wheel(0, 80)
+    await expect
+      .poll(() => scroll.evaluate((node) => node.scrollTop))
+      .toBeGreaterThan(top)
+    await expect
+      .poll(async () => Math.abs((await heading.boundingBox()).y - box.y))
+      .toBeLessThanOrEqual(2)
+    const saved = await scroll.evaluate((node) => node.scrollTop)
+    const search = settings.getByRole('textbox', { name: 'Search settings' })
+    await search.fill('favicon')
+    await expect(settings.locator('.settings-section')).toHaveCount(1)
+    await expect(
+      settings.getByRole('checkbox', { name: 'Show tab icons' }),
+    ).toBeVisible()
+    await expect(settings.getByRole('status')).toHaveText('1 matching setting')
+    await expect(settings).toHaveScreenshot('settings-search-favicon.png')
+    await search.fill('tab')
+    await selectSettingsSection(page, 'Popup & controls')
+    await expect(
+      settings.getByRole('combobox', { name: 'Jump to section' }),
+    ).toHaveCount(0)
+    await expect(
+      settings.getByRole('heading', { name: 'Popup & controls', exact: true }),
+    ).toBeVisible()
+    await settings
+      .getByRole('button', { name: 'Clear settings search' })
+      .click()
+    await expect
+      .poll(() => scroll.evaluate((node) => node.scrollTop))
+      .toBeCloseTo(saved, 0)
+    await selectSettingsSection(page, 'Search')
+    const searchPosition = await scroll.evaluate((node) => node.scrollTop)
+    await page.keyboard.press('Escape')
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await expect
+      .poll(() => scroll.evaluate((node) => node.scrollTop))
+      .toBeCloseTo(searchPosition, 0)
+    await expect(
+      settings.getByRole('combobox', { name: 'Jump to section' }),
+    ).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await page.setViewportSize({ width: 390, height: 720 })
+    await page.locator('button[aria-label="Settings"]').first().click()
+    await selectSettingsSection(page, 'Appearance')
+    await expect(settings).toHaveScreenshot('settings-single-page-narrow.png')
+    expect(
+      await settings.evaluate((node) => node.scrollWidth <= node.clientWidth),
+    ).toBe(true)
+    await page.keyboard.press('Escape')
+    await page.setViewportSize({ width: 1280, height: 720 })
   })
 })

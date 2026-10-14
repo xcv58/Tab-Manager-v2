@@ -8,6 +8,7 @@ export interface SliderMark {
 
 export interface SliderProps {
   value: number
+  increaseContrast?: boolean
   min: number
   max: number
   step?: number
@@ -24,6 +25,7 @@ export interface SliderProps {
  */
 export default function Slider({
   value,
+  increaseContrast = false,
   min,
   max,
   step = 1,
@@ -39,10 +41,13 @@ export default function Slider({
   const [isFocused, setIsFocused] = useState(false)
   const pct = ((value - min) / (max - min)) * 100
   const primaryColor = theme.palette.primary.main
-  const railColor = withAlpha(primaryColor, theme.mode === 'dark' ? 0.32 : 0.28)
+  const railColor = withAlpha(
+    primaryColor,
+    increaseContrast ? 0.5 : theme.mode === 'dark' ? 0.32 : 0.28,
+  )
   const focusRingColor = withAlpha(
     primaryColor,
-    theme.mode === 'dark' ? 0.22 : 0.24,
+    increaseContrast ? 0.4 : theme.mode === 'dark' ? 0.22 : 0.24,
   )
 
   const handleChange = useCallback(
@@ -162,21 +167,21 @@ export default function Slider({
       />
       {/* Marks */}
       {marks && (
-        <div style={{ position: 'relative', marginTop: 4, height: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginTop: 4,
+            minHeight: 20,
+            fontSize: '0.8125rem',
+            color: 'var(--settings-muted)',
+          }}
+        >
           {marks.map((mark) => {
-            const markPct = ((mark.value - min) / (max - min)) * 100
             return (
-              <span
-                key={mark.value}
-                style={{
-                  position: 'absolute',
-                  left: `${markPct}%`,
-                  transform: 'translateX(-50%)',
-                  fontSize: '0.72rem',
-                  opacity: 0.7,
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <span key={mark.value} style={{ whiteSpace: 'nowrap' }}>
                 {mark.label}
               </span>
             )

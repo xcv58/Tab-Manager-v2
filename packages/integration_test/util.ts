@@ -4,7 +4,7 @@ import { join } from 'path'
 import { Page } from 'playwright'
 import { createServer, Server } from 'http'
 import type { AddressInfo } from 'net'
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { spawnSync } from 'child_process'
 
 export const EXTENSION_PATH = join(
@@ -15,6 +15,31 @@ export const EXTENSION_PATH = join(
 export const TAB_QUERY = 'div[draggable="true"] div[tabindex="-1"]'
 export const WINDOW_CARD_QUERY = '[data-testid^="window-card-"]'
 export const INTEGRATION_VIEWPORT = { width: 1280, height: 720 }
+
+export const selectSettingsSection = async (
+  page: Page,
+  name:
+    | 'Appearance'
+    | 'Windows & layout'
+    | 'Tab details'
+    | 'Search'
+    | 'Popup & controls',
+) => {
+  const sections = {
+    Appearance: 'appearance',
+    'Windows & layout': 'windows-layout',
+    'Tab details': 'tab-details',
+    Search: 'search',
+    'Popup & controls': 'popup-controls',
+  }
+  const panel = page.locator('#settings-section-' + sections[name])
+  await panel.evaluate((node) =>
+    node.scrollIntoView({ block: 'start', behavior: 'instant' }),
+  )
+  await expect(panel.getByRole('heading', { name, exact: true })).toBeVisible()
+  await waitForSurfaceToFullyAppear(page, panel)
+  return panel
+}
 const TEST_VIDEO_CAPTURE_FPS = Number(
   process.env.TMV2_RECORD_TEST_VIDEO_FPS || '12',
 )
@@ -27,9 +52,22 @@ export const URLS = [
   'http://xcv58.com/',
   'https://nextjs.org/',
   'https://pinboard.in/',
-  'http://duckduckgo.com/',
+  'https://duckduckgo.com/',
   'https://ops-class.org/',
 ]
+
+const pinboardFixtureIcon = `data:image/x-icon;base64,${readFileSync(
+  join(__dirname, 'assets/fixtures/pinboard.ico'),
+).toString('base64')}`
+const pinboardFixtureHtml = readFileSync(
+  join(__dirname, 'assets/fixtures/pinboard.html'),
+  'utf8',
+).replace('__PINBOARD_FAVICON__', pinboardFixtureIcon)
+
+// Frozen public favicon from https://duckduckgo.com/favicon.ico, for tests only.
+const duckduckgoFixtureIcon = `data:image/x-icon;base64,${readFileSync(
+  join(__dirname, 'assets/fixtures/duckduckgo.ico'),
+).toString('base64')}`
 
 export type IntegrationFixtureServer = {
   baseUrl: string
@@ -235,12 +273,15 @@ const startTestVideoCapture = async (
   }
 }
 
-export const initBrowserWithExtension = async () => {
+export const initBrowserWithExtension = async ({ headless = false } = {}) => {
   const userDataDir = `/tmp/test-user-data-${Math.random()}`
   const captureDir = process.env.TMV2_RECORD_TEST_VIDEO_DIR
   const captureLabel = process.env.TMV2_RECORD_TEST_VIDEO_LABEL
   const browserContext = (await chromium.launchPersistentContext(userDataDir, {
-    headless: false,
+    headless,
+    // The Chromium channel supports extensions in the full headless browser.
+    // Opting in avoids desktop focus contention between parallel hover tests.
+    channel: headless ? 'chromium' : undefined,
     screen: INTEGRATION_VIEWPORT,
     viewport: INTEGRATION_VIEWPORT,
     args: [
@@ -251,6 +292,47 @@ export const initBrowserWithExtension = async () => {
       `--load-extension=${EXTENSION_PATH}`,
     ],
   })) as ChromiumBrowserContext
+  const closeBrowser = browserContext.close.bind(browserContext)
+  browserContext.close = async (...args) => {
+    try {
+      await closeBrowser(...args)
+    } finally {
+      rmSync(userDataDir, { recursive: true, force: true })
+    }
+  }
+
+  // These tests inspect tab metadata, not Pinboard's availability. Keep its
+  // public URL/title/favicon while serving a fixed response in isolated tests.
+  await browserContext.route(
+    /^https:\/\/pinboard\.in\/(?:favicon\.ico)?$/,
+    async (route) => {
+      const favicon = new URL(route.request().url()).pathname === '/favicon.ico'
+      await route.fulfill({
+        ...(favicon
+          ? { path: join(__dirname, 'assets/fixtures/pinboard.ico') }
+          : { body: pinboardFixtureHtml }),
+        contentType: favicon ? 'image/x-icon' : 'text/html; charset=utf-8',
+      })
+    },
+  )
+
+  await browserContext.route(
+    /^https:\/\/duckduckgo\.com\/(?:favicon\.ico)?$/,
+    async (route) => {
+      const url = new URL(route.request().url())
+      if (url.pathname === '/favicon.ico') {
+        await route.fulfill({
+          path: join(__dirname, 'assets/fixtures/duckduckgo.ico'),
+          contentType: 'image/x-icon',
+        })
+      } else {
+        await route.fulfill({
+          contentType: 'text/html; charset=utf-8',
+          body: `<!doctype html><title>DuckDuckGo - Protection. Privacy. Peace of mind.</title><link rel="icon" href="${duckduckgoFixtureIcon}"><p>Offline tab metadata fixture</p>`,
+        })
+      }
+    },
+  )
 
   const serviceWorker =
     browserContext.serviceWorkers()[0] ||
@@ -739,14 +821,68 @@ export const dragByTestId = async (
     sourceTestId,
     targetTestId,
     dropPosition = 'middle',
+    groupEdge = 'beginning',
     targetUseParent = false,
   }: {
     sourceTestId: string
     targetTestId: string
     dropPosition?: 'top' | 'middle' | 'bottom'
+    groupEdge?: 'beginning' | 'end'
     targetUseParent?: boolean
   },
 ) => {
+  // Group halves mount after dragstart. Drop on the actual new target instead
+  // of dispatching onto a header that no longer has a drop handler.
+  const groupMatch = /^tab-group-header-(\d+)$/.exec(targetTestId)
+  if (groupMatch && !targetUseParent) {
+    const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
+    try {
+      await page.getByTestId(sourceTestId).evaluate((node, dataTransfer) => {
+        const source = node.closest('[draggable="true"]') || node
+        const rect = source.getBoundingClientRect()
+        source.dispatchEvent(
+          new DragEvent('dragstart', {
+            bubbles: true,
+            cancelable: true,
+            clientX: rect.x + rect.width / 2,
+            clientY: rect.y + rect.height / 2,
+            dataTransfer,
+          }),
+        )
+      }, dataTransfer)
+      const target = page.getByTestId(
+        `group-header-drop-${groupEdge}-${groupMatch[1]}`,
+      )
+      await expect(target).toBeVisible()
+      await target.evaluate((node, dataTransfer) => {
+        const rect = node.getBoundingClientRect()
+        for (const type of ['dragenter', 'dragover', 'drop']) {
+          node.dispatchEvent(
+            new DragEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              clientX: rect.x + rect.width / 2,
+              clientY: rect.y + rect.height / 2,
+              dataTransfer,
+            }),
+          )
+        }
+      }, dataTransfer)
+      await page.getByTestId(sourceTestId).evaluate((node, dataTransfer) => {
+        const source = node.closest('[draggable="true"]') || node
+        source.dispatchEvent(
+          new DragEvent('dragend', {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer,
+          }),
+        )
+      }, dataTransfer)
+    } finally {
+      await dataTransfer.dispose()
+    }
+    return
+  }
   await page.evaluate(
     ({ sourceTestId, targetTestId, dropPosition, targetUseParent }) => {
       const sourceNode = document.querySelector(

@@ -11,8 +11,11 @@ import {
   type WindowOrder,
 } from 'libs/windowOrder'
 import {
+  DEFAULT_TAB_TOOLTIP_TITLE_LINES,
   DEFAULT_TAB_TOOLTIP_URL_LINES,
+  normalizeTabTooltipTitleLines,
   normalizeTabTooltipUrlLines,
+  type TabTooltipTitleLines,
   type TabTooltipUrlLines,
 } from 'libs/tabTooltip'
 import Store from 'stores'
@@ -37,6 +40,7 @@ const DEFAULT_SETTINGS = {
   highlightActiveTabsInAllWindows: false,
   increaseContrast: false,
   showTabTooltip: true,
+  tabTooltipTitleLines: DEFAULT_TAB_TOOLTIP_TITLE_LINES,
   tabTooltipUrlLines: DEFAULT_TAB_TOOLTIP_URL_LINES,
   preserveSearch: true,
   searchHistory: true,
@@ -72,6 +76,9 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
     nextSettings.actionTabCountMode,
   )
   nextSettings.windowOrder = normalizeWindowOrder(nextSettings.windowOrder)
+  nextSettings.tabTooltipTitleLines = normalizeTabTooltipTitleLines(
+    nextSettings.tabTooltipTitleLines,
+  )
   nextSettings.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
     nextSettings.tabTooltipUrlLines,
   )
@@ -112,6 +119,7 @@ export default class UserStore {
       highlightActiveTabsInAllWindows: observable,
       increaseContrast: observable,
       showTabTooltip: observable,
+      tabTooltipTitleLines: observable,
       tabTooltipUrlLines: observable,
       preserveSearch: observable,
       searchHistory: observable,
@@ -134,6 +142,7 @@ export default class UserStore {
       selectUiPreset: action,
       selectActionTabCountMode: action,
       selectWindowOrder: action,
+      selectTabTooltipTitleLines: action,
       selectTabTooltipUrlLines: action,
       selectNextTheme: action,
       openDialog: action,
@@ -269,6 +278,7 @@ export default class UserStore {
   highlightActiveTabsInAllWindows = false
   increaseContrast = false
   showTabTooltip = true
+  tabTooltipTitleLines: TabTooltipTitleLines = DEFAULT_TAB_TOOLTIP_TITLE_LINES
   tabTooltipUrlLines: TabTooltipUrlLines = DEFAULT_TAB_TOOLTIP_URL_LINES
   preserveSearch = true
   searchHistory = true
@@ -400,6 +410,11 @@ export default class UserStore {
   toggleShowTabTooltip = () => {
     this.showTabTooltip = !this.showTabTooltip
     this.save()
+  }
+
+  selectTabTooltipTitleLines = (value: unknown) => {
+    this.tabTooltipTitleLines = normalizeTabTooltipTitleLines(value)
+    this.writeSettings({ tabTooltipTitleLines: this.tabTooltipTitleLines })
   }
 
   selectTabTooltipUrlLines = (value: unknown) => {

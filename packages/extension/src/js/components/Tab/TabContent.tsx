@@ -8,22 +8,10 @@ import React, {
 import { observer } from 'mobx-react-lite'
 import Url from 'components/Tab/Url'
 import { useStore } from 'components/hooks/useStore'
-import Tooltip from 'components/ui/Tooltip'
 import { TabProps } from 'components/types'
 import HighlightNode from 'components/HighlightNode'
-import { getNoun } from 'libs'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
-import {
-  normalizeTabTooltipUrlLines,
-  type TabTooltipUrlLines,
-} from 'libs/tabTooltip'
-
-const URL_LINE_CLAMP_CLASSES: Record<TabTooltipUrlLines, string> = {
-  1: 'line-clamp-1',
-  3: 'line-clamp-3',
-  5: 'line-clamp-5',
-  full: '',
-}
+import TabDetailsAnchor from './TabDetailsAnchor'
 
 const TabContent = observer(
   (
@@ -34,65 +22,26 @@ const TabContent = observer(
       onAuxClick: (e: SyntheticEvent) => void
     },
   ) => {
-    const { faked, buttonClassName, buttonStyle, content, onAuxClick } = props
-    const { hoverStore, dragStore } = useStore()
-    const {
-      activate,
-      title,
-      url,
-      focus,
-      isFocused,
-      isHovered,
-      duplicatedTabCount,
-      isDuplicated,
-    } = props.tab
-    const { userStore } = useStore()
-    const urlLines = normalizeTabTooltipUrlLines(userStore.tabTooltipUrlLines)
-    const buttonRef = useRef(null)
+    const { buttonClassName, buttonStyle, content, onAuxClick } = props
+    const { activate, focus, isFocused } = props.tab
+    const buttonRef = useRef<HTMLButtonElement>(null)
     useEffect(() => {
-      const button = buttonRef.current
-      if (!isFocused && document.activeElement === button) {
-        button.blur()
-      }
+      if (!isFocused && document.activeElement === buttonRef.current)
+        buttonRef.current?.blur()
     }, [isFocused])
-
-    const { dragging } = dragStore
-    const { hovered } = hoverStore
-    const open = !(faked || dragging || !isHovered || !hovered)
-    const duplicateText =
-      userStore.highlightDuplicatedTab && isDuplicated
-        ? `${duplicatedTabCount} ${getNoun('tab', duplicatedTabCount)} share this page`
-        : ''
-    const onClick = useCallback(() => {
-      activate({ origin: 'mouse', reveal: false })
-    }, [activate])
-    const onFocus = useCallback(() => {
-      focus({
-        origin: 'keyboard',
-        reveal: false,
-        moveDomFocus: false,
-      })
-    }, [focus])
-    const tooltip = open && (
-      <div className="leading-tight break-all whitespace-normal">
-        <p>{title}</p>
-        <p
-          data-testid="tab-tooltip-url"
-          className={URL_LINE_CLAMP_CLASSES[urlLines]}
-          style={{ opacity: 0.8 }}
-        >
-          {url}
-        </p>
-        {duplicateText ? (
-          <p style={{ opacity: 0.72 }}>{duplicateText}</p>
-        ) : null}
-      </div>
+    const onClick = useCallback(
+      () => activate({ origin: 'mouse', reveal: false }),
+      [activate],
+    )
+    const onFocus = useCallback(
+      () => focus({ origin: 'keyboard', reveal: false, moveDomFocus: false }),
+      [focus],
     )
     return (
-      <Tooltip {...{ open, title: tooltip }}>
+      <TabDetailsAnchor tab={props.tab} anchorRef={buttonRef}>
         <button
           ref={buttonRef}
-          tabIndex={-1}
+          tabIndex={props.preview ? 0 : -1}
           onClick={onClick}
           onAuxClick={onAuxClick}
           onFocus={onFocus}
@@ -101,7 +50,7 @@ const TabContent = observer(
         >
           {content}
         </button>
-      </Tooltip>
+      </TabDetailsAnchor>
     )
   },
 )

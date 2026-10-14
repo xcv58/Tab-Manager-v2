@@ -12,6 +12,7 @@ import {
   DemoWindow,
 } from './fixtures'
 import { readDemoPreferences, saveDemoPreferences } from './preferences'
+import { previewWindows } from 'components/Toolbar/SettingsPreviewData'
 
 export { demoScenarios } from './fixtures'
 
@@ -62,7 +63,32 @@ const initialScenario = (() => {
     : 'workspace'
 })()
 
-const fixture = createDemoFixture(initialScenario)
+// The packaged Settings frame uses the same in-memory adapter as the website
+// demo, with fictional tabs and no reads/writes of the demo's saved preferences.
+const settingsPreview =
+  typeof window !== 'undefined' &&
+  window.location.pathname.endsWith('/settings-preview.html')
+const fixture = settingsPreview
+  ? {
+      windows: previewWindows.map((win, windowIndex) => ({
+        ...createDemoWindow(
+          win.id,
+          win.tabs.map((tab, index) => ({
+            ...createSampleTab(tab.id, win.id, index),
+            title: tab.title,
+            url: tab.url,
+            favIconUrl: tab.iconUrl,
+          })),
+        ),
+        focused: windowIndex === 0,
+      })),
+      groups: [] as DemoGroup[],
+      history: [] as DemoHistoryItem[],
+      nextTabId: 9400,
+      nextWindowId: 940,
+      nextGroupId: 101,
+    }
+  : createDemoFixture(initialScenario)
 const windows = fixture.windows
 const groups = new Map(fixture.groups.map((group) => [group.id, group]))
 const history = fixture.history
@@ -89,7 +115,7 @@ const syncData: Record<string, unknown> = {
   useSystemTheme: true,
   darkTheme: false,
   // Demo theme and configuration are independent of website preferences.
-  ...readDemoPreferences(),
+  ...(settingsPreview ? {} : readDemoPreferences()),
 }
 
 export const getDemoState = () => ({
@@ -383,7 +409,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
       data[key] = clone(items[key])
     })
     if (Object.keys(changes).length) {
-      if (area === 'sync') saveDemoPreferences(data)
+      if (area === 'sync' && !settingsPreview) saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
       notify()
     }
@@ -396,7 +422,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
       delete data[key]
     })
     if (Object.keys(changes).length) {
-      if (area === 'sync') saveDemoPreferences(data)
+      if (area === 'sync' && !settingsPreview) saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
       notify()
     }
@@ -412,7 +438,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
       delete data[key]
     })
     if (Object.keys(changes).length) {
-      if (area === 'sync') saveDemoPreferences(data)
+      if (area === 'sync' && !settingsPreview) saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
       notify()
     }
@@ -530,7 +556,15 @@ const browser = {
       properties: TabCreateProperties = {},
     ): Promise<DemoTab | undefined> => {
       if (properties.url && isDemoURL(properties.url)) {
-        record('The full Tab Manager view is already open in this demo.')
+        const destination = new URL(properties.url)
+        if (
+          !settingsPreview &&
+          (window.location.search.includes('popup_preview') ||
+            destination.searchParams.has('panel'))
+        ) {
+          window.location.assign(destination.href + window.location.hash)
+        }
+        record('Opened the full Tab Manager view in the demo.')
         return undefined
       }
       const parsed = validateURL(properties.url ?? 'https://tab.jenny.media/')

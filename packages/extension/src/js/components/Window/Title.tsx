@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
+import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import SelectAll from 'components/Window/SelectAll'
 import CloseButton from 'components/CloseButton'
 import RowActionSlot from 'components/RowActionSlot'
@@ -21,7 +22,7 @@ type Props = WinProps & { className: string; dropOverlay?: boolean }
 export default observer((props: Props) => {
   const nodeRef = useRef(null)
   const titleButtonRef = useRef<HTMLButtonElement | null>(null)
-  const { focusStore, userStore } = useStore()
+  const { focusStore, userStore, actionStore } = useStore()
   const theme = useAppTheme()
   const isDarkTheme = useTheme()
   const uiColors = getUiColorTokens(
@@ -134,9 +135,17 @@ export default observer((props: Props) => {
   }, [activate])
   return (
     <div
+      {...(dropOverlay ? { inert: '' } : {})}
+      aria-hidden={dropOverlay || undefined}
       tabIndex={-1}
       ref={nodeRef}
       onFocusCapture={onHeaderFocus}
+      {...contextMenuHandlers(
+        actionStore,
+        `window-${win.id}`,
+        win,
+        dropOverlay,
+      )}
       data-testid={`window-title-${win.id}`}
       className={classNames(
         'flex min-h-10 items-center justify-between font-bold border-0 border-b',
@@ -148,6 +157,9 @@ export default observer((props: Props) => {
         borderColor: dropOverlay ? 'transparent' : theme.palette.divider,
         borderBottom: isClassicUi ? 'none' : undefined,
         minHeight: MIN_INTERACTIVE_ROW_HEIGHT,
+        // Retain the exact normal header geometry while the drag overlay owns
+        // its appearance and interactions, including keyboard focus.
+        opacity: dropOverlay ? 0 : undefined,
       }}
     >
       <div

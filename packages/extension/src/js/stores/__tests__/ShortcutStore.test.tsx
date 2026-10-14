@@ -1,7 +1,84 @@
 import ShortcutStore from 'stores/ShortcutStore'
 import DragStore from 'stores/DragStore'
 
+describe('ShortcutStore tab details', () => {
+  afterEach(() => {
+    document.body.replaceChildren()
+  })
+
+  const setup = (surface: 'search' | 'list') => {
+    const openTooltip = jest.fn()
+    const shortcuts = new ShortcutStore({
+      focusStore: { focusedTab: { id: 7 }, focusedSurface: surface },
+      userStore: { showTabTooltip: true },
+      hoverStore: { openTooltip },
+    } as any)
+    const openDetails = shortcuts.shortcuts.find(
+      ([key]) => key === 'alt+down',
+    )[1]
+    return { openTooltip, openDetails }
+  }
+
+  const mountAnchor = (surface: 'search' | 'list') => {
+    const row = document.createElement('div')
+    row.dataset.testid = `${surface === 'search' ? 'search-tab-row' : 'tab-row'}-7`
+    const anchor = document.createElement('button')
+    anchor.setAttribute('aria-haspopup', 'dialog')
+    jest.spyOn(anchor, 'getClientRects').mockReturnValue([{}] as any)
+    row.appendChild(anchor)
+    document.body.appendChild(row)
+  }
+
+  it.each([
+    ['search', 'search'],
+    ['list', 'list'],
+    ['search', 'list'],
+    ['list', 'search'],
+  ] as const)(
+    'opens the mounted %s anchor when focus came from %s',
+    (mounted, focused) => {
+      const { openTooltip, openDetails } = setup(focused)
+      mountAnchor(mounted)
+      const event = new KeyboardEvent('keydown', { cancelable: true })
+      openDetails(event)
+      expect(openTooltip).toHaveBeenCalledWith(7, true, mounted)
+      expect(event.defaultPrevented).toBe(true)
+    },
+  )
+
+  it('prefers the focused surface when both anchors are mounted', () => {
+    const { openTooltip, openDetails } = setup('list')
+    mountAnchor('search')
+    mountAnchor('list')
+    openDetails(new KeyboardEvent('keydown'))
+    expect(openTooltip).toHaveBeenCalledWith(7, true, 'list')
+  })
+
+  it('does not open details when neither anchor is mounted', () => {
+    const { openTooltip, openDetails } = setup('search')
+    openDetails(new KeyboardEvent('keydown'))
+    expect(openTooltip).not.toHaveBeenCalled()
+  })
+})
+
 describe('ShortcutStore.stopCallback', () => {
+  it.each(['p', 'r', 'x', 'd d', 'ctrl+r', 'alt+down'])(
+    'blocks %s from a tab details control',
+    (combo) => {
+      const shortcuts = new ShortcutStore({} as any)
+      const panel = document.createElement('div')
+      panel.setAttribute('data-tab-details-panel', '')
+      const copy = document.createElement('button')
+      panel.appendChild(copy)
+      expect(
+        shortcuts.stopCallback(
+          new KeyboardEvent('keypress'),
+          copy as any,
+          combo,
+        ),
+      ).toBe(true)
+    },
+  )
   it.each([
     'alt+shift+up',
     'alt+shift+down',
@@ -256,5 +333,85 @@ describe('ShortcutStore selected-tab moves', () => {
     expect(mocks.moveSelectedTabsToWindowEdge).not.toHaveBeenCalled()
     expect(mocks.drop).not.toHaveBeenCalled()
     expect(mocks.showMoveHint).not.toHaveBeenCalled()
+  })
+})
+
+describe('ShortcutStore help actions', () => {
+  const makeStore = (command: {
+    id: string
+    label: string
+    run: () => void
+    disabledReason?: string
+  }) => {
+    const tab = { title: 'Focused sample tab' }
+    const store = {
+      actionStore: { commands: [command], busy: false },
+      tabStore: { selection: new Map() },
+      focusStore: {
+        focusedItem: tab,
+        focusedTab: tab,
+        focusedWindow: null,
+        select: jest.fn(),
+        enter: jest.fn(),
+      },
+      searchStore: { matchedTabs: [tab] },
+      windowStore: { windows: [] },
+      tabGroupStore: { getTabGroup: () => null, canMutateGroups: () => false },
+      dragStore: { dragging: false, pendingWindowEdgeDrop: false },
+      userStore: { showTabTooltip: true },
+      _getFocusedOrSelectedTab: () => [tab],
+    }
+    return { store, shortcuts: new ShortcutStore(store as any) }
+  }
+
+  it('shares a palette command callback and unavailable reason', () => {
+    const run = jest.fn()
+    const { shortcuts } = makeStore({
+      id: 'sort-all',
+      label: 'Sort tabs across windows',
+      disabledReason: 'No tabs to sort',
+      run,
+    })
+    const action = shortcuts.getHelpAction('ctrl+s')
+    expect(action?.run).toBe(run)
+    expect(action?.disabledReason).toBe('No tabs to sort')
+  })
+
+  it('does not close Help or execute unavailable actions', async () => {
+    const run = jest.fn()
+    const { shortcuts } = makeStore({
+      id: 'sort-all',
+      label: 'Sort tabs',
+      disabledReason: 'No tabs to sort',
+      run,
+    })
+    shortcuts.dialogOpen = true
+    await shortcuts.runHelpAction('ctrl+s')
+    expect(shortcuts.dialogOpen).toBe(true)
+    expect(run).not.toHaveBeenCalled()
+  })
+
+  it('runs Space selection despite focus on a Help button', async () => {
+    const run = jest.fn()
+    const { shortcuts } = makeStore({
+      id: 'select-focused',
+      label: 'Toggle selection for this tab',
+      run,
+    })
+    const button = document.createElement('button')
+    document.body.appendChild(button)
+    button.focus()
+    shortcuts.dialogOpen = true
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        callback(0)
+        return 0
+      })
+    await shortcuts.runHelpAction(['space'])
+    expect(shortcuts.dialogOpen).toBe(false)
+    expect(run).toHaveBeenCalledTimes(1)
+    button.remove()
+    jest.restoreAllMocks()
   })
 })

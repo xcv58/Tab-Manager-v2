@@ -1,7 +1,6 @@
 import React, { SyntheticEvent, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import Tooltip from 'components/ui/Tooltip'
 import { useAppTheme } from 'libs/appTheme'
 import CloseButton from 'components/CloseButton'
 import HighlightNode from 'components/HighlightNode'
@@ -11,14 +10,16 @@ import ContainerOrGroupIndicator from 'components/Tab/ContainerOrGroupIndicator'
 import DuplicateMarker from 'components/Tab/DuplicateMarker'
 import Icon from 'components/Tab/Icon'
 import PIN from 'components/Tab/Pin'
+import TabMenu from 'components/Tab/TabMenu'
+import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import TabTools from 'components/Tab/TabTools'
 import { useStore } from 'components/hooks/useStore'
-import { TOOLTIP_DELAY } from 'libs'
 import { getChromeTabGroupColor } from 'libs/chromeTabGroupColors'
 import { MIN_INTERACTIVE_ROW_HEIGHT } from 'libs/layoutMetrics'
 import { matchesSearchText, type SearchMatchMode } from 'libs/searchMatching'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import Tab from 'stores/Tab'
+import TabDetailsAnchor from 'components/Tab/TabDetailsAnchor'
 
 type Props = {
   tab: Tab
@@ -28,7 +29,7 @@ type Props = {
 
 export default observer(function TabOption(props: Props) {
   const { tab, showInlineGroupBadge = true, matchMode = 'fuzzy' } = props
-  const { searchStore, tabGroupStore, userStore } = useStore()
+  const { searchStore, tabGroupStore, userStore, actionStore } = useStore()
   const { query } = searchStore
   const theme = useAppTheme()
   const uiColors = getUiColorTokens(
@@ -75,14 +76,6 @@ export default observer(function TabOption(props: Props) {
     },
     [matchMode, query],
   )
-
-  const tooltip = showGroupContext ? (
-    <div className="leading-tight break-all whitespace-normal">
-      <p>{tab.title}</p>
-      <p style={{ opacity: 0.8 }}>{tab.url}</p>
-      <p style={{ opacity: 0.72 }}>Group: {groupLabel}</p>
-    </div>
-  ) : null
 
   const rowButton = (
     <button
@@ -150,16 +143,18 @@ export default observer(function TabOption(props: Props) {
   )
 
   return (
-    <div tabIndex={-1} className="relative flex w-full">
+    <div
+      tabIndex={-1}
+      className="relative flex w-full"
+      data-testid={`search-tab-row-${tab.id}`}
+      {...contextMenuHandlers(actionStore, `search-tab-${tab.id}`, tab)}
+    >
+      <TabMenu tab={tab} menuKey={`search-tab-${tab.id}`} hideTrigger />
       {pin}
       <Icon tab={tab} faked />
-      {tooltip ? (
-        <Tooltip title={tooltip} enterDelay={TOOLTIP_DELAY}>
-          {rowButton}
-        </Tooltip>
-      ) : (
-        rowButton
-      )}
+      <TabDetailsAnchor tab={tab} surface="search">
+        {rowButton}
+      </TabDetailsAnchor>
       <RowActionRail tail={<DuplicateMarker tab={tab} faked />}>
         <TabTools tab={tab} faked />
         <RowActionSlot>

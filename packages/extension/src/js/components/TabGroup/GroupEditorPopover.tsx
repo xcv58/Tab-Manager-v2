@@ -96,16 +96,21 @@ export default (props: Props) => {
           }}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
+              event.preventDefault()
+              event.stopPropagation()
               commitTitle()
               onClose()
             }
             if (event.key === 'Escape') {
+              event.preventDefault()
+              event.stopPropagation()
               skipBlurCommitRef.current = true
               setTitle(initialTitle)
               onClose()
             }
           }}
           data-testid={`tab-group-editor-title-${groupId}`}
+          aria-label="Group name"
         />
         <div
           className="mt-4 flex items-center justify-between"
@@ -117,7 +122,14 @@ export default (props: Props) => {
             return (
               <button
                 key={color}
-                className="relative h-9 w-9 rounded-full focus:outline-none"
+                className="group-color-option relative h-9 w-9 rounded-full"
+                aria-label={color}
+                aria-pressed={selected}
+                style={
+                  {
+                    '--group-color-focus': theme.palette.text.primary,
+                  } as React.CSSProperties
+                }
                 onClick={() => onRecolor(color)}
                 data-testid={`tab-group-editor-color-${groupId}-${color}`}
                 title={color}

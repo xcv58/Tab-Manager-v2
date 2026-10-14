@@ -1,11 +1,13 @@
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { OverlayContainerContext } from './OverlayContainer'
 import { clampOverlayPosition } from './overlayPosition'
 
 let activeUncontrolledTooltipHide: null | { current: () => void } = null
@@ -18,6 +20,17 @@ export interface TooltipProps {
   enterDelay?: number
   /** If true, the tooltip ignores pointer events. */
   disableInteractive?: boolean
+  /** Keep an interactive panel in place when only its contents change size. */
+  keepPosition?: boolean
+  onInteractionStart?: () => void
+  onInteractionEnd?: (nextTarget: EventTarget | null) => void
+  onClose?: () => void
+  style?: React.CSSProperties
+  role?: 'tooltip' | 'dialog'
+  'aria-label'?: string
+  'data-testid'?: string
+  'data-tab-details-panel'?: boolean
+  id?: string
 }
 
 /**
@@ -31,12 +44,37 @@ export default function Tooltip({
   placement = 'bottom',
   enterDelay = 0,
   disableInteractive = true,
+  keepPosition = false,
+  onInteractionStart,
+  onInteractionEnd,
+  onClose,
+  style,
+  role = 'tooltip',
+  'aria-label': ariaLabel,
+  'data-testid': testId,
+  'data-tab-details-panel': tabDetailsPanel,
+  id,
 }: TooltipProps) {
+  const overlayContainer = useContext(OverlayContainerContext)
+  const selectingRef = useRef(false)
   const [visible, setVisible] = useState(false)
   const [coords, setCoords] = useState({ top: 0, left: 0 })
   const anchorRef = useRef<HTMLElement | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
+  const positionRef = useRef<{
+    anchor: string
+    top: number
+    left: number
+    bottom: number
+  } | null>(null)
+  const [side, setSide] = useState(placement)
+  const interactionRef = useRef({
+    onInteractionStart,
+    onInteractionEnd,
+    onClose,
+  })
+  interactionRef.current = { onInteractionStart, onInteractionEnd, onClose }
   const isControlled = open !== undefined
   const isVisible = isControlled ? open : visible
   const hideRef = useRef<() => void>(() => {})
@@ -84,11 +122,50 @@ export default function Tooltip({
 
     const rect = anchorRef.current.getBoundingClientRect()
     const tooltipRect = tooltipRef.current.getBoundingClientRect()
+    if (
+      !disableInteractive &&
+      (!anchorRef.current.isConnected ||
+        rect.bottom < 0 ||
+        rect.top > window.innerHeight)
+    ) {
+      interactionRef.current.onClose?.()
+      return
+    }
+    const anchorKey = [
+      rect.top,
+      rect.left,
+      rect.width,
+      rect.height,
+      window.innerWidth,
+      window.innerHeight,
+    ].join(':')
+    if (keepPosition && positionRef.current?.anchor === anchorKey) {
+      const next = clampOverlayPosition({
+        top:
+          side === 'top'
+            ? positionRef.current.bottom - tooltipRect.height
+            : positionRef.current.top,
+        left: positionRef.current.left,
+        width: tooltipRect.width,
+        height: tooltipRect.height,
+        margin: 8,
+      })
+      setCoords(next)
+      return
+    }
     const gap = 8
+    const resolvedPlacement =
+      !disableInteractive &&
+      placement === 'bottom' &&
+      rect.bottom + gap + tooltipRect.height > window.innerHeight &&
+      rect.top > window.innerHeight - rect.bottom
+        ? 'top'
+        : placement
+    setSide(resolvedPlacement)
     let top = 0
     let left = 0
 
-    switch (placement) {
+    switch (resolvedPlacement) {
       case 'top':
         top = rect.top - tooltipRect.height - gap
         left = rect.left + rect.width / 2 - tooltipRect.width / 2
@@ -107,18 +184,27 @@ export default function Tooltip({
         break
     }
 
-    setCoords(
-      clampOverlayPosition({
-        top,
-        left,
-        width: tooltipRect.width,
-        height: tooltipRect.height,
-        margin: 8,
-      }),
-    )
-  }, [isVisible, placement])
+    const next = clampOverlayPosition({
+      top,
+      left,
+      width: tooltipRect.width,
+      height: tooltipRect.height,
+      margin: 8,
+    })
+    positionRef.current = {
+      anchor: anchorKey,
+      top,
+      left,
+      bottom: top + tooltipRect.height,
+    }
+    setCoords(next)
+  }, [isVisible, placement, disableInteractive, keepPosition, side])
 
   useLayoutEffect(() => {
+    if (!isVisible) {
+      positionRef.current = null
+      selectingRef.current = false
+    }
     updatePosition()
   }, [title, updatePosition])
 
@@ -136,8 +222,66 @@ export default function Tooltip({
     }
   }, [isVisible, updatePosition])
 
+  useEffect(() => {
+    if (!isVisible || disableInteractive) return
+    const node = tooltipRef.current
+    const anchor = anchorRef.current
+    const dismiss = () => {
+      const restoreFocus = node?.contains(document.activeElement)
+      interactionRef.current.onClose?.()
+      if (restoreFocus) anchorRef.current?.focus()
+    }
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      if (event.type === 'keyup') dismiss()
+    }
+    const onOutsidePress = (event: MouseEvent) => {
+      if (
+        !node?.contains(event.target as Node) &&
+        !anchorRef.current?.contains(event.target as Node)
+      )
+        interactionRef.current.onClose?.()
+    }
+    const onPointerRelease = () => {
+      if (!selectingRef.current) return
+      selectingRef.current = false
+      const selection = window.getSelection()
+      if (
+        selection &&
+        !selection.isCollapsed &&
+        node?.contains(selection.anchorNode)
+      )
+        return
+      if (!node?.contains(document.activeElement) && !node?.matches(':hover'))
+        interactionRef.current.onInteractionEnd?.(null)
+    }
+    const onWindowBlur = () => interactionRef.current.onClose?.()
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(updatePosition)
+    if (node) observer?.observe(node)
+    document.addEventListener('keydown', onEscape, true)
+    document.addEventListener('keyup', onEscape, true)
+    document.addEventListener('mousedown', onOutsidePress, true)
+    document.addEventListener('mouseup', onPointerRelease, true)
+    window.addEventListener('blur', onWindowBlur)
+    return () => {
+      observer?.disconnect()
+      document.removeEventListener('keydown', onEscape, true)
+      document.removeEventListener('keyup', onEscape, true)
+      document.removeEventListener('mousedown', onOutsidePress, true)
+      document.removeEventListener('mouseup', onPointerRelease, true)
+      window.removeEventListener('blur', onWindowBlur)
+      if (!anchor?.isConnected) interactionRef.current.onClose?.()
+    }
+  }, [isVisible, disableInteractive, updatePosition])
+
   if (!title) {
-    return children
+    // Keep the anchor in the same React tree when controlled content mounts.
+    return <>{children}</>
   }
 
   // React 18 exposes .ref as a non-public runtime field not in TS types.
@@ -185,7 +329,86 @@ export default function Tooltip({
         createPortal(
           <div
             ref={tooltipRef}
-            role="tooltip"
+            id={id}
+            role={role}
+            aria-label={ariaLabel}
+            data-testid={testId}
+            data-tab-details-panel={tabDetailsPanel ? '' : undefined}
+            onMouseEnter={
+              disableInteractive
+                ? undefined
+                : () => interactionRef.current.onInteractionStart?.()
+            }
+            onMouseLeave={
+              disableInteractive
+                ? undefined
+                : (event) => {
+                    if (
+                      !selectingRef.current &&
+                      !tooltipRef.current?.contains(document.activeElement)
+                    )
+                      interactionRef.current.onInteractionEnd?.(
+                        event.relatedTarget,
+                      )
+                  }
+            }
+            onFocusCapture={
+              disableInteractive
+                ? undefined
+                : () => interactionRef.current.onInteractionStart?.()
+            }
+            onBlurCapture={
+              disableInteractive
+                ? undefined
+                : (event) => {
+                    if (
+                      !event.currentTarget.contains(
+                        event.relatedTarget as Node,
+                      ) &&
+                      !event.currentTarget.matches(':hover')
+                    )
+                      interactionRef.current.onInteractionEnd?.(
+                        event.relatedTarget,
+                      )
+                  }
+            }
+            onKeyDown={
+              disableInteractive
+                ? undefined
+                : (event) => {
+                    if (event.key !== 'Tab' || !overlayContainer)
+                      event.stopPropagation()
+                  }
+            }
+            onKeyUp={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onKeyPress={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onClick={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
+            onMouseDown={
+              disableInteractive
+                ? undefined
+                : (event) => {
+                    selectingRef.current = true
+                    interactionRef.current.onInteractionStart?.()
+                    event.stopPropagation()
+                  }
+            }
+            onAuxClick={
+              disableInteractive
+                ? undefined
+                : (event) => event.stopPropagation()
+            }
             style={{
               position: 'fixed',
               top: coords.top,
@@ -202,11 +425,24 @@ export default function Tooltip({
               color: '#fff',
               whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',
+              ...style,
             }}
           >
+            {!disableInteractive && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  width: '100%',
+                  height: 8,
+                  ...(side === 'top' ? { top: '100%' } : { bottom: '100%' }),
+                }}
+              />
+            )}
             {title}
           </div>,
-          document.body,
+          overlayContainer || document.body,
         )}
     </>
   )

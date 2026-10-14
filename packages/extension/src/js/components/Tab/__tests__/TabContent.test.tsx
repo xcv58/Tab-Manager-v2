@@ -22,16 +22,23 @@ describe('TabContent', () => {
     const url = `https://example.com/?data=${'long-query-value'.repeat(100)}`
     const userStore = {
       showUrl: false,
+      showTabTooltip: true,
       highlightDuplicatedTab: false,
       uiPreset: 'modern',
       tabTooltipUrlLines: 3,
     } as any
     const store = {
       userStore,
-      hoverStore: { hovered: true },
+      hoverStore: {
+        hovered: true,
+        hoveredTabId: 1,
+        hoveredSurface: 'list',
+        hideTooltip: jest.fn(),
+      },
       dragStore: { dragging: false },
     } as any
     const tab = {
+      id: 1,
       title: 'Long URL tab',
       url,
       activate: jest.fn(),
@@ -71,6 +78,7 @@ describe('TabContent', () => {
     const store = {
       hoverStore: {
         hovered: true,
+        hideTooltip: jest.fn(),
       },
       dragStore: {
         dragging: false,

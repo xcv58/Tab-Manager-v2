@@ -4,6 +4,36 @@ import TabGroupRow from 'stores/TabGroupRow'
 import Window from 'stores/Window'
 
 describe('FocusStore', () => {
+  it('retains an explicit search-result target without expanding its collapsed group', () => {
+    const store = createStore(true)
+    const win = new Window(
+      { id: 1, tabs: [{ id: 1, windowId: 1, groupId: 100 }] },
+      store,
+    )
+    store.windowStore.windows = [win]
+    store.windowStore.tabs = win.tabs
+    const tab = win.tabs[0]
+    expect(tab.isVisible).toBe(false)
+
+    store.focusStore.focus(tab, {
+      surface: 'search',
+      reveal: false,
+      moveDomFocus: false,
+    })
+    store.focusStore.reconcileFocusedItem()
+    expect(store.focusStore.focusedTab).toBe(tab)
+    expect(store.focusStore.focusedWindow).toBe(win)
+    expect(store.tabGroupStore.getTabGroup(100).collapsed).toBe(true)
+
+    store.focusStore.focus(tab, { moveDomFocus: false })
+    expect(store.focusStore.focusedTab).toBe(tab)
+    store.focusStore.focus(tab, { surface: 'list', moveDomFocus: false })
+    expect(store.focusStore.focusedTab).toBeNull()
+    store.focusStore.focus(tab, { surface: 'search', moveDomFocus: false })
+    tab.removing = true
+    store.focusStore.reconcileFocusedItem()
+    expect(store.focusStore.focusedTabId).toBeNull()
+  })
   const createStore = (collapsed = true) => {
     const store: any = {
       arrangeStore: {

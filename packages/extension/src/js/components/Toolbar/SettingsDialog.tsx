@@ -1,7 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
-import Dialog, { DialogTitle, DialogContent } from 'components/ui/Dialog'
+import Dialog from 'components/ui/Dialog'
 import Switch from 'components/ui/Switch'
 import { useStore } from 'components/hooks/useStore'
 import {
@@ -10,11 +10,12 @@ import {
 } from 'libs/actionTabCount'
 import { type WindowOrder, WINDOW_ORDERS } from 'libs/windowOrder'
 import {
+  TAB_TOOLTIP_TITLE_LINES,
   TAB_TOOLTIP_URL_LINES,
+  normalizeTabTooltipTitleLines,
   normalizeTabTooltipUrlLines,
 } from 'libs/tabTooltip'
 import Slider from 'components/ui/Slider'
-import IconButton from 'components/ui/IconButton'
 import { ToggleGroup, ToggleButton } from 'components/ui/ToggleGroup'
 import { useAppTheme } from 'libs/appTheme'
 import {
@@ -29,40 +30,48 @@ import { getUiColorTokens } from 'libs/uiColorTokens'
 import { defaultTransitionDuration } from 'libs/transition'
 import SponsorButton from './SponsorButton'
 import FeedbackButton from './FeedbackButton'
-import TabRowPreview from './TabRowPreview'
+import {
+  WindowLayoutExample,
+  SettingsPreviewLayout,
+  TabDetailsPreview,
+  AppearancePreview,
+} from './SettingsExamples'
+import SettingsPopupPreview from './SettingsPopupPreview'
+import SettingsNavigation, {
+  type SettingsNavigationState,
+  type SettingsSectionId,
+} from './SettingsNavigation'
 
 /* -------------------------------------------------------------------------- */
 /*  Inline style helpers (replacing MUI sx / Typography / FormHelperText)       */
 /* -------------------------------------------------------------------------- */
 
 const panelTitleStyle: React.CSSProperties = {
-  fontSize: '0.92rem',
+  fontSize: '1.25rem',
   fontWeight: 700,
   lineHeight: 1.3,
   margin: 0,
 }
 
 const panelDescriptionStyle: React.CSSProperties = {
-  marginTop: 4,
-  fontSize: '0.8rem',
+  fontSize: '0.875rem',
   lineHeight: 1.45,
-  opacity: 0.7,
-  margin: 0,
+  color: 'var(--settings-muted)',
+  margin: '4px 0 0',
 }
 
 const controlTitleStyle: React.CSSProperties = {
-  fontSize: '0.88rem',
+  fontSize: '0.95rem',
   fontWeight: 600,
   lineHeight: 1.35,
   margin: 0,
 }
 
 const controlDescriptionStyle: React.CSSProperties = {
-  marginTop: 4,
-  fontSize: '0.76rem',
+  fontSize: '0.85rem',
   lineHeight: 1.45,
-  opacity: 0.7,
-  margin: 0,
+  color: 'var(--settings-muted)',
+  margin: '4px 0 0',
 }
 
 /* -------------------------------------------------------------------------- */
@@ -71,12 +80,14 @@ const controlDescriptionStyle: React.CSSProperties = {
 
 const SettingsPanel = ({
   title,
+  sectionId,
   description,
   children,
   style,
   testId,
   className,
 }: {
+  sectionId: SettingsSectionId
   title: string
   description?: string
   children: React.ReactNode
@@ -84,36 +95,26 @@ const SettingsPanel = ({
   testId?: string
   className?: string
 }) => (
-  <div
-    className={`rounded-xl border p-4 ${className || ''}`}
+  <section
+    id={`settings-section-${sectionId}`}
+    aria-labelledby={`settings-heading-${sectionId}`}
+    className={`settings-section ${className || ''}`}
+    data-section-id={sectionId}
     style={style}
     data-testid={testId}
   >
-    <div className="mb-3">
-      <h4 style={panelTitleStyle}>{title}</h4>
+    <div className="settings-section-heading">
+      <h2
+        id={`settings-heading-${sectionId}`}
+        tabIndex={-1}
+        style={panelTitleStyle}
+      >
+        {title}
+      </h2>
       {description && <p style={panelDescriptionStyle}>{description}</p>}
     </div>
-    {children}
-  </div>
-)
-
-const PreviewSurface = ({
-  children,
-  style,
-  testId,
-}: {
-  children: React.ReactNode
-  style: React.CSSProperties
-  testId?: string
-}) => (
-  <div
-    data-testid={testId}
-    aria-hidden="true"
-    className="w-full min-w-0 overflow-hidden rounded-lg border xl:min-w-72"
-    style={style}
-  >
-    {children}
-  </div>
+    <div className="settings-section-content">{children}</div>
+  </section>
 )
 
 const clampValue = (value: number, min: number, max: number) =>
@@ -155,9 +156,9 @@ const actionTabCountOptions: {
   value,
   label:
     value === 'currentWindow'
-      ? 'Window'
+      ? 'This window'
       : value === 'allWindows'
-        ? 'All'
+        ? 'All windows'
         : 'Off',
 }))
 
@@ -202,6 +203,8 @@ const DensityControl = ({
   style: React.CSSProperties
   testId?: string
 }) => {
+  const { userStore } = useStore()
+  const skipBlurCommit = React.useRef(false)
   const [draftValue, setDraftValue] = React.useState(String(value))
 
   React.useEffect(() => {
@@ -217,6 +220,10 @@ const DensityControl = ({
   }
 
   const commitDraftValue = () => {
+    if (skipBlurCommit.current) {
+      skipBlurCommit.current = false
+      return
+    }
     if (!draftValue) {
       setDraftValue(String(value))
       return
@@ -230,41 +237,31 @@ const DensityControl = ({
   }
 
   return (
-    <div
-      className="rounded-lg border px-3 py-3"
-      style={style}
-      data-testid={testId}
-    >
-      <div
-        className={
-          description
-            ? 'flex flex-col gap-3'
-            : 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between'
-        }
-      >
+    <div className="settings-option" style={style} data-testid={testId}>
+      <div className="settings-density-heading">
         <div className="min-w-0">
           <h5 style={controlTitleStyle}>{title}</h5>
           {description && <p style={controlDescriptionStyle}>{description}</p>}
         </div>
-        <div className="flex items-center gap-0.5 self-start md:shrink-0">
-          <IconButton
+        <div className="settings-stepper" role="group" aria-label={title}>
+          <button
+            type="button"
+            className="settings-stepper-button"
+            aria-disabled={value <= min}
             aria-label={decrementAriaLabel}
-            onClick={() => commitValue(value - step)}
-            style={{ width: 30, height: 30, padding: 0 }}
+            onClick={() => {
+              if (value > min) commitValue(value - step)
+            }}
           >
             <RemoveRoundedIcon fontSize={18} />
-          </IconButton>
+          </button>
           <div
-            style={{
-              position: 'relative',
-              display: 'inline-flex',
-              alignItems: 'center',
-              width: 92,
-              height: 36,
-            }}
+            className="settings-stepper-value"
+            style={{ width: unit ? 80 : 64 }}
           >
             <input
               type="text"
+              className="settings-number-input"
               value={draftValue}
               onChange={(event) => {
                 const sanitizedValue = event.target.value.replace(/[^\d]/g, '')
@@ -289,12 +286,19 @@ const DensityControl = ({
                 if (event.key === 'Enter') {
                   event.preventDefault()
                   commitDraftValue()
+                  skipBlurCommit.current = true
                   ;(event.currentTarget as HTMLInputElement).blur()
                 }
                 if (event.key === 'Escape') {
                   event.preventDefault()
+                  event.stopPropagation()
                   setDraftValue(String(value))
-                  ;(event.currentTarget as HTMLInputElement).blur()
+                }
+              }}
+              onKeyUp={(event) => {
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  event.stopPropagation()
                 }
               }}
               aria-label={inputAriaLabel}
@@ -302,17 +306,15 @@ const DensityControl = ({
               style={{
                 width: '100%',
                 height: '100%',
-                border: '1px solid',
-                borderColor: 'var(--input-border, rgba(0,0,0,0.23))',
-                borderRadius: 4,
+                border: 0,
+                borderRadius: 0,
                 padding: '4px 8px',
                 paddingRight: unit ? 32 : 8,
-                textAlign: 'right',
+                textAlign: unit ? 'right' : 'center',
                 fontVariantNumeric: 'tabular-nums',
                 fontSize: '0.92rem',
                 background: 'transparent',
                 color: 'inherit',
-                outline: 'none',
               }}
             />
             {unit && (
@@ -329,23 +331,31 @@ const DensityControl = ({
               </span>
             )}
           </div>
-          <IconButton
+          <button
+            type="button"
+            className="settings-stepper-button"
+            aria-disabled={value >= max}
             aria-label={incrementAriaLabel}
-            onClick={() => commitValue(value + step)}
-            style={{ width: 30, height: 30, padding: 0 }}
+            onClick={() => {
+              if (value < max) commitValue(value + step)
+            }}
           >
             <AddRoundedIcon fontSize={18} />
-          </IconButton>
+          </button>
         </div>
       </div>
       <Slider
+        increaseContrast={userStore.increaseContrast}
         value={value}
         step={step}
         min={min}
         max={max}
         marks={[
           { value: min, label: unit ? `${min}${unit}` : String(min) },
-          { value: defaultValue, label: 'Default' },
+          {
+            value: defaultValue,
+            label: `Default: ${defaultValue}${unit || ''}`,
+          },
           { value: max, label: unit ? `${max}${unit}` : String(max) },
         ]}
         onChange={(_, nextValue) => {
@@ -356,12 +366,7 @@ const DensityControl = ({
           onChange(nextValue)
         }}
         aria-label={sliderAriaLabel}
-        style={{
-          marginTop: 20,
-          marginLeft: 20,
-          marginRight: 20,
-          marginBottom: 8,
-        }}
+        className="settings-density-slider"
       />
     </div>
   )
@@ -373,8 +378,6 @@ const RowDetailsOption = ({
   details,
   checked,
   onChange,
-  preview,
-  previewHint,
   style,
   testId,
 }: {
@@ -383,48 +386,29 @@ const RowDetailsOption = ({
   details?: React.ReactNode
   checked: boolean
   onChange: () => void
-  preview: React.ReactNode
-  previewHint?: string
   style: React.CSSProperties
   testId?: string
-}) => (
-  <div
-    data-testid={testId}
-    className="flex flex-col gap-3 rounded-lg border px-3 py-3 xl:flex-row xl:items-center xl:gap-4"
-    style={style}
-  >
-    <div className="min-w-0 xl:w-64 xl:shrink-0">
-      <div
-        className={`flex justify-between gap-3 ${
-          description ? 'items-start' : 'items-center'
-        }`}
-      >
-        <h5 style={controlTitleStyle}>{title}</h5>
+}) => {
+  const switchId = React.useId()
+  return (
+    <div data-testid={testId} className="settings-option" style={style}>
+      <div className="flex items-center justify-between gap-3">
+        <label htmlFor={switchId} className="min-w-0 cursor-pointer">
+          <h5 style={controlTitleStyle}>{title}</h5>
+          {description && <p style={controlDescriptionStyle}>{description}</p>}
+        </label>
         <Switch
+          size="settings"
           checked={checked}
           onChange={onChange}
-          inputProps={{ 'aria-label': title }}
+          inputProps={{ id: switchId, 'aria-label': title }}
+          style={{ flexShrink: 0 }}
         />
       </div>
-      {description && <p style={controlDescriptionStyle}>{description}</p>}
       {details}
     </div>
-    <div className="min-w-0 xl:flex-1">
-      {preview}
-      {previewHint && (
-        <p
-          style={{
-            ...controlDescriptionStyle,
-            marginTop: 6,
-            fontSize: '0.74rem',
-          }}
-        >
-          {previewHint}
-        </p>
-      )}
-    </div>
-  </div>
-)
+  )
+}
 
 const SettingsSwitchOption = ({
   title,
@@ -459,46 +443,45 @@ const SettingsSwitchOption = ({
   }
 
   return (
-    <div
-      data-testid={testId}
-      className={`flex cursor-pointer justify-between gap-3 rounded-lg border px-3 transition-shadow focus-within:ring-2 focus-within:ring-sky-500/35 ${
-        description ? 'items-center py-3.5' : 'items-center py-3'
-      }`}
-      style={{
-        ...style,
-        minHeight: 36,
-      }}
-      aria-labelledby={containerAriaLabelledBy}
-      aria-label={containerAriaLabel}
-      onClick={handleContainerClick}
-    >
-      <label htmlFor={switchId} className="min-w-0 pr-3 cursor-pointer">
-        <h5 id={titleId} style={controlTitleStyle}>
-          {title}
-        </h5>
-        {description && (
-          <p id={descriptionId} style={controlDescriptionStyle}>
-            {description}
-          </p>
-        )}
-      </label>
-      <Switch
-        size="small"
-        checked={checked}
-        onChange={onChange}
-        inputProps={{
-          id: switchId,
-          'aria-label': title,
-          'aria-labelledby': titleId,
-          'aria-describedby': description ? descriptionId : undefined,
-        }}
+    <>
+      <div
+        data-testid={testId}
+        className="settings-option settings-switch-option flex cursor-pointer items-center justify-between gap-3"
         style={{
-          marginTop: 0,
-          marginRight: -4,
-          flexShrink: 0,
+          ...style,
+          minHeight: 36,
         }}
-      />
-    </div>
+        aria-labelledby={containerAriaLabelledBy}
+        aria-label={containerAriaLabel}
+        onClick={handleContainerClick}
+      >
+        <label htmlFor={switchId} className="min-w-0 pr-3 cursor-pointer">
+          <h5 id={titleId} style={controlTitleStyle}>
+            {title}
+          </h5>
+          {description && (
+            <p id={descriptionId} style={controlDescriptionStyle}>
+              {description}
+            </p>
+          )}
+        </label>
+        <Switch
+          size="settings"
+          checked={checked}
+          onChange={onChange}
+          inputProps={{
+            id: switchId,
+            'aria-label': title,
+            'aria-labelledby': titleId,
+            'aria-describedby': description ? descriptionId : undefined,
+          }}
+          style={{
+            marginTop: 0,
+            flexShrink: 0,
+          }}
+        />
+      </div>
+    </>
   )
 }
 
@@ -520,6 +503,8 @@ export default observer(() => {
     toggleIncreaseContrast,
     showTabTooltip,
     toggleShowTabTooltip,
+    tabTooltipTitleLines,
+    selectTabTooltipTitleLines,
     tabTooltipUrlLines,
     selectTabTooltipUrlLines,
     preserveSearch,
@@ -560,53 +545,49 @@ export default observer(() => {
     selectTheme,
   } = userStore
   const reduceMotion = useReduceMotion()
+  const tooltipTitleLinesId = React.useId()
   const tooltipUrlLinesId = React.useId()
-  const tooltipUrlLinesHintId = React.useId()
+  const tooltipLinesHintId = React.useId()
+  const settingsNavigationState = React.useRef<SettingsNavigationState>({
+    scrollTop: 0,
+  })
+  const dialogTitleId = React.useId()
   const isDarkMode = muiTheme.mode === 'dark'
   const uiColors = getUiColorTokens(isDarkMode, uiPreset, increaseContrast)
   const panelStyle: React.CSSProperties = {
-    backgroundColor: uiColors.settingsPanelSurface,
-    borderColor: isDarkMode
-      ? increaseContrast
-        ? 'rgba(238, 241, 245, 0.28)'
-        : 'rgba(238, 241, 245, 0.14)'
-      : increaseContrast
-        ? 'rgba(100, 116, 139, 0.42)'
-        : 'rgba(148, 163, 184, 0.26)',
+    backgroundColor: uiColors.settingsDialogSurface,
   }
+  const settingsBorderColor = isDarkMode
+    ? increaseContrast
+      ? 'rgba(238, 241, 245, 0.28)'
+      : 'rgba(238, 241, 245, 0.14)'
+    : increaseContrast
+      ? 'rgba(100, 116, 139, 0.42)'
+      : 'rgba(148, 163, 184, 0.26)'
   const rowDetailOptionStyle: React.CSSProperties = {
-    backgroundColor: uiColors.settingsRowSurface,
+    backgroundColor: 'transparent',
     borderColor: isDarkMode
       ? increaseContrast
-        ? 'rgba(238, 241, 245, 0.24)'
-        : 'rgba(238, 241, 245, 0.1)'
+        ? 'rgba(238, 241, 245, 0.2)'
+        : 'rgba(238, 241, 245, 0.08)'
       : increaseContrast
-        ? 'rgba(100, 116, 139, 0.38)'
-        : 'rgba(148, 163, 184, 0.22)',
+        ? 'rgba(100, 116, 139, 0.3)'
+        : 'rgba(148, 163, 184, 0.18)',
   }
-  const previewSurfaceStyle: React.CSSProperties = {
-    backgroundColor: uiColors.settingsPreviewSurface,
-    borderColor: isDarkMode
-      ? increaseContrast
-        ? 'rgba(238, 241, 245, 0.26)'
-        : 'rgba(238, 241, 245, 0.12)'
-      : increaseContrast
-        ? 'rgba(100, 116, 139, 0.4)'
-        : 'rgba(148, 163, 184, 0.24)',
-  }
-
   const toggleGroupPillStyle: React.CSSProperties = {
     backgroundColor: isDarkMode
       ? increaseContrast
-        ? 'rgba(15, 23, 42, 0.66)'
-        : 'rgba(15, 23, 42, 0.44)'
+        ? 'rgba(238, 241, 245, 0.1)'
+        : 'rgba(238, 241, 245, 0.05)'
       : increaseContrast
-        ? 'rgba(203, 213, 225, 0.86)'
-        : 'rgba(226, 232, 240, 0.7)',
+        ? 'rgba(203, 213, 225, 0.6)'
+        : 'rgba(226, 232, 240, 0.4)',
     border: `1px solid ${rowDetailOptionStyle.borderColor}`,
+    borderRadius: 999,
   }
 
   const selectedPillStyle: React.CSSProperties = {
+    borderRadius: 999,
     color: muiTheme.palette.text.primary,
     backgroundColor: isDarkMode
       ? increaseContrast
@@ -619,10 +600,11 @@ export default observer(() => {
         : 'inset 0 0 0 1px rgba(238, 241, 245, 0.08)'
       : increaseContrast
         ? '0 1px 2px rgba(15, 23, 42, 0.18), inset 0 0 0 1px rgba(100, 116, 139, 0.28)'
-        : '0 1px 2px rgba(15, 23, 42, 0.14)',
+        : '0 1px 2px rgba(15, 23, 42, 0.08), inset 0 0 0 1px rgba(100, 116, 139, 0.12)',
   }
 
   const unselectedPillStyle: React.CSSProperties = {
+    borderRadius: 999,
     color: increaseContrast
       ? uiColors.mutedText
       : muiTheme.palette.text.secondary,
@@ -637,78 +619,64 @@ export default observer(() => {
       disableRestoreFocus
       transitionDuration={reduceMotion ? 1 : defaultTransitionDuration}
       onClose={closeDialog}
-      style={{
-        backgroundColor: uiColors.settingsDialogSurface,
-        backgroundImage: 'none',
-        color: muiTheme.palette.text.primary,
-      }}
+      aria-labelledby={dialogTitleId}
+      data-testid="settings-dialog"
+      style={
+        {
+          backgroundColor: uiColors.settingsDialogSurface,
+          backgroundImage: 'none',
+          color: muiTheme.palette.text.primary,
+          height: 'min(900px, calc(100dvh - 64px))',
+          '--settings-border': settingsBorderColor,
+          '--settings-section-border': isDarkMode
+            ? increaseContrast
+              ? 'rgba(238, 241, 245, 0.4)'
+              : 'rgba(238, 241, 245, 0.24)'
+            : increaseContrast
+              ? 'rgba(51, 65, 85, 0.5)'
+              : 'rgba(100, 116, 139, 0.28)',
+          '--settings-overflow-shadow': isDarkMode
+            ? 'rgba(0, 0, 0, 0.24)'
+            : 'rgba(15, 23, 42, 0.12)',
+          '--settings-row-border': rowDetailOptionStyle.borderColor,
+          '--settings-surface': uiColors.settingsDialogSurface,
+          '--settings-focus': uiColors.focusRing,
+          '--settings-hover': muiTheme.palette.action.hover,
+          '--settings-active': muiTheme.palette.action.selected,
+          '--settings-muted': uiColors.mutedText,
+          '--settings-input-border': increaseContrast
+            ? uiColors.mutedText
+            : uiColors.toolbarShellBorderColor,
+        } as React.CSSProperties
+      }
     >
-      <DialogTitle>Settings</DialogTitle>
-      <DialogContent>
-        <div className="grid gap-3 py-1 lg:grid-cols-2 xl:grid-cols-3">
-          <SettingsPanel
-            testId="settings-panel-search"
-            title="Search"
-            description="Control how search starts and what stays visible while filtering."
-            style={panelStyle}
-          >
-            <div className="space-y-3">
-              <SettingsSwitchOption
-                testId="settings-search-preserve"
-                title="Preserve search"
-                checked={preserveSearch}
-                onChange={togglePreserveSearch}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                testId="settings-search-focus"
-                title="Focus search on open"
-                checked={autoFocusSearch}
-                onChange={toggleAutoFocusSearch}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                testId="settings-search-history"
-                title="Include browser history in results"
-                checked={searchHistory}
-                onChange={toggleSearchHistory}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                testId="settings-search-result-menu"
-                title="Show result menu in full-page view"
-                description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
-                checked={showSearchResultMenu}
-                onChange={toggleShowSearchResultMenu}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                title="Keep non-matching tabs visible"
-                description="Keep unmatched tabs in view while you search."
-                checked={showUnmatchedTab}
-                onChange={toggleShowUnmatchedTab}
-                style={rowDetailOptionStyle}
-              />
-            </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-theme-density"
-            title="Appearance"
-            description="Adjust theme, reading size, and layout density."
-            style={panelStyle}
-          >
-            <div className="space-y-3">
+      <span id={dialogTitleId} className="sr-only">
+        Settings
+      </span>
+      <SettingsNavigation
+        stateRef={settingsNavigationState}
+        uiPreset={uiPreset}
+      >
+        <SettingsPanel
+          testId="settings-panel-theme-density"
+          sectionId="appearance"
+          title="Appearance"
+          description="Choose colors, contrast, and reading size. Changes apply immediately."
+          style={panelStyle}
+        >
+          <SettingsPreviewLayout>
+            <div className="settings-options">
               <div
-                className="rounded-lg border px-3 py-3"
+                className="settings-option"
                 style={rowDetailOptionStyle}
                 data-testid="settings-ui-preset-toggle-group"
+                data-setting-search="Interface style"
               >
-                <div className="flex flex-col gap-3">
+                <div className="settings-choice-row">
                   <div className="min-w-0">
                     <h5 style={controlTitleStyle}>Interface style</h5>
                     <p style={controlDescriptionStyle}>
-                      Switch between the current UI and the pre-2.0-inspired
-                      Classic mode.
+                      Choose Modern or a compact Classic layout.
                     </p>
                   </div>
                   <ToggleGroup
@@ -741,11 +709,12 @@ export default observer(() => {
                 </div>
               </div>
               <div
-                className="rounded-lg border px-3 py-3"
+                className="settings-option"
                 style={rowDetailOptionStyle}
                 data-testid="settings-theme-toggle-group"
+                data-setting-search="Theme"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="settings-choice-row">
                   <h5 style={controlTitleStyle}>Theme</h5>
                   <ToggleGroup
                     value={theme}
@@ -772,6 +741,7 @@ export default observer(() => {
                         }}
                       >
                         <option.icon fontSize={16} />
+                        <span>{option.label}</span>
                       </ToggleButton>
                     ))}
                   </ToggleGroup>
@@ -800,6 +770,24 @@ export default observer(() => {
                 onChange={updateFontSize}
                 style={rowDetailOptionStyle}
               />
+            </div>
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Interface style|Theme|Increase contrast|Font size"
+            >
+              <AppearancePreview />
+            </div>
+          </SettingsPreviewLayout>
+        </SettingsPanel>
+        <SettingsPanel
+          sectionId="windows-layout"
+          testId="settings-panel-layout"
+          title="Windows & layout"
+          description="Choose window columns, their order, and which windows appear."
+          style={panelStyle}
+        >
+          <SettingsPreviewLayout>
+            <div className="settings-options">
               <DensityControl
                 testId="settings-tab-width-control"
                 title="Minimum tab width"
@@ -816,73 +804,6 @@ export default observer(() => {
                 onChange={updateTabWidth}
                 style={rowDetailOptionStyle}
               />
-            </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-behavior"
-            title="View"
-            description="Choose which windows and popup controls stay visible."
-            style={panelStyle}
-            className="xl:order-3"
-          >
-            <div className="space-y-3">
-              <SettingsSwitchOption
-                title="Show app windows in list"
-                description="Include standalone app windows in the main list."
-                checked={showAppWindow}
-                onChange={toggleShowAppWindow}
-                style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                title="Use lite popup mode"
-                description="Use the lite layout for the browser action popup window only."
-                checked={litePopupMode}
-                onChange={toggleLitePopupMode}
-                style={rowDetailOptionStyle}
-                testId="settings-lite-popup-mode"
-              />
-              <div
-                className="rounded-lg border px-3 py-3"
-                style={rowDetailOptionStyle}
-                data-testid="settings-action-tab-count-toggle-group"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0">
-                    <h5 style={controlTitleStyle}>Extension icon count</h5>
-                    <p style={controlDescriptionStyle}>
-                      Overlay the toolbar icon with a larger tab count for the
-                      current window or across all windows.
-                    </p>
-                  </div>
-                  <ToggleGroup
-                    value={actionTabCountMode}
-                    aria-label="Choose extension icon tab count mode"
-                    onChange={(nextMode) => {
-                      if (!nextMode) {
-                        return
-                      }
-                      selectActionTabCountMode(nextMode as ActionTabCountMode)
-                    }}
-                    style={toggleGroupPillStyle}
-                  >
-                    {actionTabCountOptions.map((option) => (
-                      <ToggleButton
-                        key={option.value}
-                        value={option.value}
-                        aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
-                        style={{
-                          minWidth: 54,
-                          ...(actionTabCountMode === option.value
-                            ? selectedPillStyle
-                            : unselectedPillStyle),
-                        }}
-                      >
-                        {option.label}
-                      </ToggleButton>
-                    ))}
-                  </ToggleGroup>
-                </div>
-              </div>
               <SettingsSwitchOption
                 title="Auto-fit columns"
                 description="Avoid horizontal scrolling by fitting columns to the window."
@@ -891,15 +812,16 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
               />
               <div
-                className="rounded-lg border px-3 py-3"
+                className="settings-option"
                 style={rowDetailOptionStyle}
                 data-testid="settings-window-order-toggle-group"
+                data-setting-search="Window order"
               >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="settings-choice-row">
                   <div className="min-w-0">
                     <h5 style={controlTitleStyle}>Window order</h5>
                     <p style={controlDescriptionStyle}>
-                      Choose the default browser order or place recently used
+                      Use the browser’s window order, or put recently used
                       windows first.
                     </p>
                   </div>
@@ -933,60 +855,36 @@ export default observer(() => {
                 </div>
               </div>
               <SettingsSwitchOption
-                title="Show shortcut hints"
-                description="Show the shortcut and its action when a shortcut is pressed."
-                checked={showShortcutHint}
-                onChange={toggleShowShortcutHint}
+                title="Show app windows in list"
+                description="Include standalone app windows in the main list."
+                checked={showAppWindow}
+                onChange={toggleShowAppWindow}
                 style={rowDetailOptionStyle}
-              />
-              <SettingsSwitchOption
-                title="Keep toolbar visible"
-                description="Always show the bottom-right toolbar."
-                checked={!toolbarAutoHide}
-                onChange={toggleAutoHide}
-                style={rowDetailOptionStyle}
-                containerAriaLabelledBy="toggle-always-show-toolbar"
-                containerAriaLabel="Toggle Always Show Toolbar"
               />
             </div>
-          </SettingsPanel>
-          <SettingsPanel
-            testId="settings-panel-tab-display"
-            title="Tab display"
-            description="Choose which details each tab shows."
-            style={panelStyle}
-            className="xl:order-4 xl:col-span-3"
-          >
-            <div className="space-y-3" data-testid="row-details-options">
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Minimum tab width|Auto-fit columns|Window order|Show app windows in list"
+            >
+              <WindowLayoutExample />
+            </div>
+          </SettingsPreviewLayout>
+        </SettingsPanel>
+        <SettingsPanel
+          testId="settings-panel-tab-display"
+          sectionId="tab-details"
+          title="Tab details"
+          description="Choose which details each tab shows."
+          style={panelStyle}
+        >
+          <SettingsPreviewLayout>
+            <div className="settings-options" data-testid="row-details-options">
               <RowDetailsOption
                 testId="row-details-option-active-tabs"
                 title="Highlight all active tabs"
                 checked={highlightActiveTabsInAllWindows}
                 onChange={toggleHighlightActiveTabsInAllWindows}
                 style={rowDetailOptionStyle}
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-active-tabs"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9100,
-                        title: 'Active tab in inactive window',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2635',
-                        active: true,
-                        lastFocused: false,
-                        uiPreset,
-                        increaseContrast,
-                        highlightActiveTabsInAllWindows,
-                        showDuplicateMarker: false,
-                        showTabIcon: true,
-                        showUrl: true,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
               />
               <RowDetailsOption
                 testId="row-details-option-duplicates"
@@ -994,27 +892,6 @@ export default observer(() => {
                 checked={highlightDuplicatedTab}
                 onChange={toggleHighlightDuplicatedTab}
                 style={rowDetailOptionStyle}
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-duplicates"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9101,
-                        title: 'Tab Manager issue tracker',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
-                        duplicatedTabCount: 2,
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: highlightDuplicatedTab,
-                        showTabIcon: true,
-                        showUrl: true,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
               />
               <RowDetailsOption
                 testId="row-details-option-icons"
@@ -1022,27 +899,6 @@ export default observer(() => {
                 checked={showTabIcon}
                 onChange={toggleShowTabIcon}
                 style={rowDetailOptionStyle}
-                previewHint="Hover preview to inspect controls."
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-icons"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9102,
-                        title: 'Tab Manager settings dialog',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2',
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: false,
-                        showTabIcon,
-                        showUrl: true,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
               />
               <RowDetailsOption
                 testId="row-details-option-urls"
@@ -1050,26 +906,6 @@ export default observer(() => {
                 checked={showUrl}
                 onChange={toggleShowUrl}
                 style={rowDetailOptionStyle}
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-urls"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9103,
-                        title: 'Preview URLs inside settings',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: false,
-                        showTabIcon: true,
-                        showUrl,
-                        showTabTooltip: false,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
               />
               <RowDetailsOption
                 testId="row-details-option-tooltips"
@@ -1079,91 +915,239 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 details={
                   <div className="mt-3">
-                    <label
-                      htmlFor={tooltipUrlLinesId}
-                      style={controlDescriptionStyle}
-                    >
-                      URL length
-                    </label>
-                    <select
-                      id={tooltipUrlLinesId}
-                      aria-describedby={tooltipUrlLinesHintId}
-                      data-testid="tab-tooltip-url-lines"
-                      disabled={!showTabTooltip}
-                      value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
-                      onChange={(event) =>
-                        selectTabTooltipUrlLines(
-                          event.target.value === 'full'
-                            ? 'full'
-                            : Number(event.target.value),
-                        )
-                      }
-                      className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                      style={{
-                        backgroundColor: uiColors.settingsDialogSurface,
-                        color: uiColors.primaryText,
-                        borderColor: rowDetailOptionStyle.borderColor,
-                        outlineColor: uiColors.focusRing,
-                        colorScheme: isDarkMode ? 'dark' : 'light',
-                      }}
-                    >
-                      {TAB_TOOLTIP_URL_LINES.map((lines) => (
-                        <option key={lines} value={lines}>
-                          {lines === 'full'
-                            ? 'Full URL'
-                            : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
-                        </option>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {[
+                        {
+                          field: 'title',
+                          label: 'Title line limit',
+                          id: tooltipTitleLinesId,
+                          value:
+                            normalizeTabTooltipTitleLines(tabTooltipTitleLines),
+                          options: TAB_TOOLTIP_TITLE_LINES,
+                          fullLabel: 'Full title',
+                          onChange: selectTabTooltipTitleLines,
+                        },
+                        {
+                          field: 'url',
+                          label: 'URL line limit',
+                          id: tooltipUrlLinesId,
+                          value:
+                            normalizeTabTooltipUrlLines(tabTooltipUrlLines),
+                          options: TAB_TOOLTIP_URL_LINES,
+                          fullLabel: 'Full URL',
+                          onChange: selectTabTooltipUrlLines,
+                        },
+                      ].map((option) => (
+                        <div key={option.field}>
+                          <label
+                            htmlFor={option.id}
+                            style={controlDescriptionStyle}
+                          >
+                            {option.label}
+                          </label>
+                          <select
+                            id={option.id}
+                            aria-describedby={tooltipLinesHintId}
+                            data-testid={`tab-tooltip-${option.field}-lines`}
+                            disabled={!showTabTooltip}
+                            value={option.value}
+                            onChange={(event) =>
+                              option.onChange(
+                                event.target.value === 'full'
+                                  ? 'full'
+                                  : Number(event.target.value),
+                              )
+                            }
+                            className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                            style={{
+                              backgroundColor: uiColors.settingsDialogSurface,
+                              color: uiColors.primaryText,
+                              borderColor: rowDetailOptionStyle.borderColor,
+                              outlineColor: uiColors.focusRing,
+                              colorScheme: isDarkMode ? 'dark' : 'light',
+                            }}
+                          >
+                            {option.options.map((lines) => (
+                              <option key={lines} value={lines}>
+                                {lines === 'full'
+                                  ? option.fullLabel
+                                  : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       ))}
-                    </select>
+                    </div>
                     <p
-                      id={tooltipUrlLinesHintId}
+                      id={tooltipLinesHintId}
                       style={{ ...controlDescriptionStyle, marginTop: 6 }}
                     >
-                      Long URLs end with an ellipsis. Copying keeps the full
-                      URL.
+                      Expand clipped text in the tooltip. Copy always keeps the
+                      complete title or URL.
                     </p>
                   </div>
                 }
-                previewHint="Hover preview to open the tooltip."
-                preview={
-                  <PreviewSurface
-                    style={previewSurfaceStyle}
-                    testId="row-details-preview-tooltips"
-                  >
-                    <TabRowPreview
-                      config={{
-                        id: 9104,
-                        title: 'Hover this preview tab for tooltip details',
-                        url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
-                        duplicatedTabCount: 2,
-                        uiPreset,
-                        increaseContrast,
-                        showDuplicateMarker: false,
-                        showTabIcon: true,
-                        showUrl: false,
-                        showTabTooltip,
-                        tabTooltipUrlLines,
-                      }}
-                    />
-                  </PreviewSurface>
-                }
               />
             </div>
-          </SettingsPanel>
-        </div>
-        <div
-          className="mt-6 flex items-center justify-between border-t pt-4"
-          style={{ borderColor: panelStyle.borderColor }}
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Highlight all active tabs|Mark duplicate tabs|Show tab icons|Show URLs|Show tab tooltips"
+            >
+              <TabDetailsPreview />
+            </div>
+          </SettingsPreviewLayout>
+        </SettingsPanel>
+        <SettingsPanel
+          testId="settings-panel-search"
+          sectionId="search"
+          title="Search"
+          description="Control how search starts and what stays visible while filtering."
+          style={panelStyle}
         >
-          <div className="flex items-center gap-2 opacity-80">
-            <SponsorButton />
-            <FeedbackButton />
+          <div className="settings-options">
+            <SettingsSwitchOption
+              testId="settings-search-preserve"
+              title="Preserve search"
+              description="Keep your query when you reopen Tab Manager."
+              checked={preserveSearch}
+              onChange={togglePreserveSearch}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-focus"
+              title="Focus search on open"
+              description="Place the cursor in search the next time Tab Manager opens."
+              checked={autoFocusSearch}
+              onChange={toggleAutoFocusSearch}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-history"
+              title="Include browser history in results"
+              checked={searchHistory}
+              onChange={toggleSearchHistory}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-result-menu"
+              title="Show result menu in full-page view"
+              description="Show matching tabs below search when Tab Manager is open in its own browser tab. Commands always remain available."
+              checked={showSearchResultMenu}
+              onChange={toggleShowSearchResultMenu}
+              style={rowDetailOptionStyle}
+            />
+            <SettingsSwitchOption
+              testId="settings-search-unmatched"
+              title="Keep non-matching tabs visible"
+              description="Keep unmatched tabs in view while you search."
+              checked={showUnmatchedTab}
+              onChange={toggleShowUnmatchedTab}
+              style={rowDetailOptionStyle}
+            />
           </div>
-          <div className="text-sm text-right opacity-65">
+        </SettingsPanel>
+        <SettingsPanel
+          sectionId="popup-controls"
+          testId="settings-panel-controls"
+          title="Popup & controls"
+          description="Configure the browser popup and application controls."
+          style={panelStyle}
+        >
+          <SettingsPreviewLayout>
+            <div className="settings-options">
+              <h3 className="settings-subheading">Toolbar</h3>
+              <SettingsSwitchOption
+                title="Keep toolbar visible"
+                description="Always show the bottom-right toolbar."
+                checked={!toolbarAutoHide}
+                onChange={toggleAutoHide}
+                style={rowDetailOptionStyle}
+                containerAriaLabel="Toggle Always Show Toolbar"
+              />
+              <h3 className="settings-subheading">Browser popup</h3>
+              <SettingsSwitchOption
+                title="Use lite popup mode"
+                description="Quick search and tab actions. Organization and Settings open in the full view. Applies the next time you open the browser popup."
+                checked={litePopupMode}
+                onChange={toggleLitePopupMode}
+                style={rowDetailOptionStyle}
+                testId="settings-lite-popup-mode"
+              />
+              <div
+                className="settings-option"
+                style={rowDetailOptionStyle}
+                data-testid="settings-action-tab-count-toggle-group"
+                data-setting-search="Extension icon count"
+              >
+                <div className="settings-choice-row">
+                  <div className="min-w-0">
+                    <h5 style={controlTitleStyle}>Extension icon count</h5>
+                    <p style={controlDescriptionStyle}>
+                      Show a tab count on the browser extension icon.
+                    </p>
+                  </div>
+                  <ToggleGroup
+                    value={actionTabCountMode}
+                    aria-label="Choose extension icon tab count mode"
+                    onChange={(nextMode) => {
+                      if (!nextMode) {
+                        return
+                      }
+                      selectActionTabCountMode(nextMode as ActionTabCountMode)
+                    }}
+                    style={toggleGroupPillStyle}
+                  >
+                    {actionTabCountOptions.map((option) => (
+                      <ToggleButton
+                        key={option.value}
+                        value={option.value}
+                        aria-label={`Show extension icon count for ${option.label.toLowerCase()} tabs`}
+                        style={{
+                          minWidth: 54,
+                          ...(actionTabCountMode === option.value
+                            ? selectedPillStyle
+                            : unselectedPillStyle),
+                        }}
+                      >
+                        {option.label}
+                      </ToggleButton>
+                    ))}
+                  </ToggleGroup>
+                </div>
+              </div>
+              <h3 className="settings-subheading">Keyboard feedback</h3>
+              <SettingsSwitchOption
+                title="Show shortcut hints"
+                description="Show the shortcut and its action when a shortcut is pressed."
+                checked={showShortcutHint}
+                onChange={toggleShowShortcutHint}
+                style={rowDetailOptionStyle}
+              />
+            </div>
+            <div
+              className="settings-shared-preview"
+              data-settings-preview="Keep toolbar visible|Use lite popup mode|Extension icon count|Show shortcut hints"
+            >
+              <SettingsPopupPreview onClose={closeDialog} />
+            </div>
+          </SettingsPreviewLayout>
+        </SettingsPanel>
+      </SettingsNavigation>
+      <div
+        className="settings-footer"
+        style={{ borderColor: panelStyle.borderColor }}
+      >
+        <div className="flex items-center gap-2 opacity-80 min-w-0 flex-wrap">
+          <SponsorButton />
+          <FeedbackButton />
+          <span className="text-xs opacity-65">
             v{browser.runtime.getManifest().version}
-          </div>
+          </span>
         </div>
-      </DialogContent>
+        <button type="button" className="settings-done" onClick={closeDialog}>
+          Done
+        </button>
+      </div>
     </Dialog>
   )
 })

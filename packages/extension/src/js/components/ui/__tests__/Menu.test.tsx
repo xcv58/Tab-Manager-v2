@@ -78,6 +78,7 @@ describe('Menu', () => {
     expect(items[0]).toHaveFocus()
 
     fireEvent.keyDown(menu, { key: 'Escape' })
+    fireEvent.keyUp(menu, { key: 'Escape' })
     await waitFor(() => {
       expect(anchorEl).toHaveFocus()
     })

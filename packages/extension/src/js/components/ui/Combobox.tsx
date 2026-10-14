@@ -14,6 +14,8 @@ export interface UseComboboxProps<T> {
   isOpen: boolean
   onOpenChange?: (isOpen: boolean) => void
   autoHighlight?: boolean
+  /** Reset keyboard navigation when switching to a different list scope. */
+  highlightResetKey?: string
 }
 
 export function useCombobox<T>({
@@ -25,6 +27,7 @@ export function useCombobox<T>({
   isOpen,
   onOpenChange,
   autoHighlight = true,
+  highlightResetKey,
 }: UseComboboxProps<T>) {
   const comboboxId = useId()
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1)
@@ -34,6 +37,7 @@ export function useCombobox<T>({
   const isOpenRef = useRef(isOpen)
   const previousInputValueRef = useRef(inputValue)
   const previousIsOpenRef = useRef(isOpen)
+  const previousHighlightResetKeyRef = useRef(highlightResetKey)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const preserveBlurFocusRef = useRef(false)
   const getItemId = useCallback(
@@ -59,11 +63,14 @@ export function useCombobox<T>({
       setHighlightedIndex(-1)
       previousInputValueRef.current = inputValue
       previousIsOpenRef.current = isOpen
+      previousHighlightResetKeyRef.current = highlightResetKey
       return
     }
 
     const inputValueChanged = previousInputValueRef.current !== inputValue
     const justOpened = !previousIsOpenRef.current && isOpen
+    const scopeChanged =
+      previousHighlightResetKeyRef.current !== highlightResetKey
 
     if (autoHighlight) {
       const firstValidIndex = firstEnabledIndex()
@@ -76,6 +83,7 @@ export function useCombobox<T>({
         const shouldResetHighlight =
           inputValueChanged ||
           justOpened ||
+          scopeChanged ||
           currentItem == null ||
           isItemDisabled(currentItem)
 
@@ -91,6 +99,7 @@ export function useCombobox<T>({
 
     previousInputValueRef.current = inputValue
     previousIsOpenRef.current = isOpen
+    previousHighlightResetKeyRef.current = highlightResetKey
   }, [
     items,
     inputValue,
@@ -98,6 +107,7 @@ export function useCombobox<T>({
     autoHighlight,
     firstEnabledIndex,
     isItemDisabled,
+    highlightResetKey,
   ])
 
   useEffect(() => {
@@ -148,6 +158,12 @@ export function useCombobox<T>({
   const preservePopupInteraction = useCallback((target: EventTarget | null) => {
     const element = target as HTMLElement | null
     if (!element) {
+      return false
+    }
+    // Portal tab details need real focus and native text selection. Keeping
+    // input focus here would prevent selecting/copying text inside that panel.
+    if (element.closest('[data-tab-details-panel]')) {
+      preserveBlurFocusRef.current = false
       return false
     }
 

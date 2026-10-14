@@ -18,9 +18,13 @@ import { useCombobox } from 'components/ui/Combobox'
 import { VariableSizeList } from 'react-window'
 import { useAppTheme } from 'libs/appTheme'
 import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
+import ControlIconButton from 'components/ControlIconButton'
+import { CloseIcon } from 'icons/materialIcons'
+import { BrowserWindowIcon } from 'icons/actionIcons'
+import { getWindowLabel } from 'libs/windowLabel'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
-const SEARCH_HINT = '/ focus · > commands'
+const SEARCH_HINT = '/ search · > commands'
 const SEARCH_FONT_SIZE = '0.8125rem'
 const LISTBOX_MARGIN_TOP = 4
 
@@ -63,6 +67,13 @@ const buildGroupedTabSections = (
   }
 
   const emittedGroupIds = new Set()
+  const groupTitleCounts = new Map<string, number>()
+  qualifyingGroupIds.forEach((groupId) => {
+    const title = (
+      tabGroupStore.getTabGroup(groupId)?.title || 'Unnamed group'
+    ).toLowerCase()
+    groupTitleCounts.set(title, (groupTitleCounts.get(title) || 0) + 1)
+  })
   const items = tabs.flatMap((tab) => {
     if (!qualifyingGroupIds.has(tab.groupId)) {
       return [tab]
@@ -83,6 +94,12 @@ const buildGroupedTabSections = (
         dividerType: 'group',
         groupId: tab.groupId,
         title: tabGroup?.title || 'Unnamed group',
+        windowTitle:
+          groupTitleCounts.get(
+            (tabGroup?.title || 'Unnamed group').toLowerCase(),
+          ) > 1
+            ? getWindowLabel(tab.win)
+            : undefined,
         color: tabGroup?.color,
         matchCount: matchedTabs.length,
       },
@@ -172,6 +189,7 @@ type DividerOption = {
   groupId?: number
   color?: chrome.tabGroups.ColorEnum
   matchCount?: number
+  windowTitle?: string
 }
 
 type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
@@ -200,12 +218,15 @@ const renderTabOption = (
           style={{ borderTopColor: theme.palette.divider }}
           data-testid={`search-group-header-${tab.groupId}`}
         >
-          <div className="flex items-center min-w-0 gap-2">
+          <div className="flex items-center min-w-0 gap-2 flex-1">
             <div
-              className="inline-flex min-w-0 max-w-full items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+              className="inline-flex min-w-0 items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+              title={tab.title}
               style={{
                 backgroundColor: groupColor.line,
                 color: groupColor.chipText,
+                maxWidth: tab.windowTitle ? '55%' : '100%',
+                flexShrink: tab.windowTitle ? 0 : undefined,
               }}
               data-testid={`search-group-header-chip-${tab.groupId}`}
             >
@@ -218,6 +239,21 @@ const renderTabOption = (
                 />
               </span>
             </div>
+            {tab.windowTitle && (
+              <span
+                className="inline-flex min-w-0 items-center gap-1 text-xs"
+                style={{ color: theme.palette.text.secondary }}
+                title={`Window: ${tab.windowTitle}`}
+                data-testid={`search-group-window-${tab.groupId}`}
+              >
+                <BrowserWindowIcon
+                  aria-hidden="true"
+                  fontSize={14}
+                  style={{ flexShrink: 0 }}
+                />
+                <span className="truncate">{tab.windowTitle}</span>
+              </span>
+            )}
           </div>
           <div
             className="ml-2 text-xs shrink-0 opacity-70"
@@ -307,6 +343,50 @@ export const getAutocompleteListHeight = ({
   return Math.max(minimumHeight, cappedHeight)
 }
 
+// Keep the virtual row component stable when its highlight or overlay changes.
+// Remounting it would destroy an open search-result context menu.
+const SearchResultRow = ({
+  index,
+  style,
+  data,
+}: {
+  index: number
+  style: React.CSSProperties
+  data: any
+}) => {
+  const option = data.options[index]
+  const itemProps = data.getItemProps({ index, item: option })
+  const isHighlighted = data.highlightedIndex === index
+
+  return (
+    <li
+      {...itemProps}
+      style={{
+        ...style,
+        top: Number(style.top) + LISTBOX_PADDING,
+        margin: 0,
+        padding: 0,
+        listStyle: 'none',
+        cursor: option.isDivider ? 'default' : 'pointer',
+        backgroundColor: isHighlighted
+          ? 'var(--dropdown-hover-bg, rgba(0,0,0,0.08))'
+          : 'transparent',
+        opacity: option.isDivider ? 1 : undefined,
+      }}
+    >
+      {data.isCommand
+        ? renderCommand(option, { inputValue: data.query })
+        : renderTabOption(
+            option,
+            data.theme,
+            data.groupedSectionTabIds,
+            data.searchMatchMode,
+            data.query,
+          )}
+    </li>
+  )
+}
+
 const AutocompleteSearch = observer((props: Props) => {
   const {
     autoFocus,
@@ -316,12 +396,14 @@ const AutocompleteSearch = observer((props: Props) => {
   } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const { userStore, searchStore, tabGroupStore } = useStore()
+  const { userStore, searchStore, tabGroupStore, actionStore, hoverStore } =
+    useStore()
   const { search, query, startType, stopType, isCommand } = searchStore
   const resultMenuEnabled = showResultMenu || isCommand
   const options = useOptions(resultMenuEnabled)
   const tabHeight = useTabHeight()
   const rootRef = useRef<HTMLDivElement>(null)
+  const [dismissed, setDismissed] = useState(false)
   const isOpenControlled = propOpen !== undefined
 
   const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(
@@ -331,15 +413,50 @@ const AutocompleteSearch = observer((props: Props) => {
     Number.POSITIVE_INFINITY,
   )
   const requestedOpen = isOpenControlled ? propOpen : uncontrolledIsOpen
-  const isOpen = resultMenuEnabled && (requestedOpen || isCommand)
+  const isOpen = resultMenuEnabled && !dismissed && (requestedOpen || isCommand)
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
+      // The palette overlays this list. Keep its mounted rows and scroll offset.
+      if (!nextOpen && actionStore.paletteOpen) return
+      if (nextOpen) setDismissed(false)
+      // The portal menu receives focus while its search result remains mounted.
+      // Closing that result list would also unmount the menu being used.
+      if (!nextOpen && actionStore.menu?.key.startsWith('search-tab-')) return
+      if (
+        !nextOpen &&
+        hoverStore.hovered &&
+        hoverStore.hoveredSurface === 'search'
+      )
+        return
       if (!isOpenControlled && (!nextOpen || resultMenuEnabled)) {
         setUncontrolledIsOpen(nextOpen)
       }
     },
-    [isOpenControlled, resultMenuEnabled],
+    [actionStore, hoverStore, isOpenControlled, resultMenuEnabled],
   )
+
+  useEffect(() => {
+    hoverStore.hideTooltip(undefined, 'search')
+  }, [query, hoverStore])
+  useEffect(() => {
+    if (!isOpen) hoverStore.hideTooltip(undefined, 'search')
+  }, [isOpen, hoverStore])
+
+  useEffect(() => {
+    if (!isOpen || isOpenControlled) return
+    const dismissOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (
+        rootRef.current?.contains(target) ||
+        target.closest?.('[data-tab-details-panel], [role="menu"]')
+      )
+        return
+      hoverStore.hideTooltip(undefined, 'search')
+      handleOpenChange(false)
+    }
+    document.addEventListener('mousedown', dismissOutside)
+    return () => document.removeEventListener('mousedown', dismissOutside)
+  }, [isOpen, isOpenControlled, hoverStore, handleOpenChange])
 
   const groupedSectionTabIdsRef = useRef(new Set())
   const searchMatchModeRef = useRef<SearchMatchMode>('none')
@@ -391,7 +508,14 @@ const AutocompleteSearch = observer((props: Props) => {
   } = useCombobox({
     items: filteredOptions,
     inputValue: query,
-    onInputValueChange: search,
+    onInputValueChange: (value) => {
+      if (value.startsWith('>')) {
+        actionStore.openPalette(value.slice(1).trimStart())
+        return
+      }
+      setDismissed(false)
+      search(value)
+    },
     onSelect: handleSelect,
     isItemDisabled: useMemo(() => (item) => Boolean(item.isDivider), []),
     isOpen,
@@ -428,41 +552,6 @@ const AutocompleteSearch = observer((props: Props) => {
     }
   }, [bottomInset, isOpen, itemCount, query])
 
-  // Inner row renderer for the virtualized list
-  const Row = ({ index, style }: any) => {
-    const option = filteredOptions[index]
-    const itemProps = getItemProps({ index, item: option })
-    const isHighlighted = highlightedIndex === index
-
-    return (
-      <li
-        {...itemProps}
-        style={{
-          ...style,
-          top: Number(style.top) + LISTBOX_PADDING,
-          margin: 0,
-          padding: 0,
-          listStyle: 'none',
-          cursor: option.isDivider ? 'default' : 'pointer',
-          backgroundColor: isHighlighted
-            ? 'var(--dropdown-hover-bg, rgba(0,0,0,0.08))'
-            : 'transparent',
-          opacity: option.isDivider ? 1 : undefined,
-        }}
-      >
-        {isCommand
-          ? renderCommand(option, { inputValue: query })
-          : renderTabOption(
-              option,
-              theme,
-              groupedSectionTabIdsRef.current,
-              searchMatchModeRef.current,
-              query,
-            )}
-      </li>
-    )
-  }
-
   const listHeight = getAutocompleteListHeight({
     itemCount,
     tabHeight,
@@ -471,6 +560,7 @@ const AutocompleteSearch = observer((props: Props) => {
 
   const handleEscape = () => {
     search('')
+    setDismissed(true)
     handleOpenChange(false)
     searchInputRef.current?.blur()
   }
@@ -478,6 +568,8 @@ const AutocompleteSearch = observer((props: Props) => {
   return (
     <div
       {...rootProps}
+      {...(actionStore.paletteOpen ? { inert: '' } : {})}
+      aria-hidden={actionStore.paletteOpen || undefined}
       ref={(node) => {
         rootRef.current = node
         if (typeof rootProps.ref === 'function') {
@@ -518,15 +610,33 @@ const AutocompleteSearch = observer((props: Props) => {
           value={inputProps.value}
           onChange={inputProps.onChange}
           onKeyDown={(event) => {
+            const highlighted = filteredOptions[highlightedIndex]
+            if (
+              event.altKey &&
+              event.key === 'ArrowDown' &&
+              highlighted instanceof Tab &&
+              userStore.showTabTooltip
+            ) {
+              event.preventDefault()
+              event.stopPropagation()
+              hoverStore.openTooltip(highlighted.id, true, 'search')
+              return
+            }
             if (event.key === 'Escape') {
               event.preventDefault()
+              event.stopPropagation()
               handleEscape()
               return
             }
 
             inputProps.onKeyDown(event)
           }}
+          onKeyUp={(event) => {
+            // Keep the full Escape press within search's two-step dismissal.
+            if (event.key === 'Escape') event.stopPropagation()
+          }}
           onFocus={() => {
+            setDismissed(false)
             startType()
             inputProps.onFocus()
           }}
@@ -551,6 +661,22 @@ const AutocompleteSearch = observer((props: Props) => {
             outline: 'none',
           }}
         />
+        {query && (
+          <ControlIconButton
+            aria-label="Clear search"
+            controlSize="compact"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              search('')
+              setDismissed(true)
+              handleOpenChange(false)
+              searchInputRef.current?.focus()
+            }}
+            style={{ width: 24, minWidth: 24, height: 24, minHeight: 24 }}
+          >
+            <CloseIcon fontSize={16} />
+          </ControlIconButton>
+        )}
         {!query && (
           <span
             className="pr-2 whitespace-nowrap select-none"
@@ -566,7 +692,7 @@ const AutocompleteSearch = observer((props: Props) => {
       </div>
 
       {/* Dropdown Paper */}
-      {isOpen && itemCount > 0 && (
+      {isOpen && (itemCount > 0 || query.trim()) && (
         <div
           {...listboxProps}
           style={{
@@ -587,18 +713,37 @@ const AutocompleteSearch = observer((props: Props) => {
               '0 5px 5px -3px rgba(0,0,0,0.2), 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12)',
           }}
         >
-          <VariableSizeList
-            ref={listRef}
-            itemData={filteredOptions}
-            height={listHeight}
-            width="100%"
-            innerElementType="ul"
-            itemSize={() => tabHeight}
-            overscanCount={5}
-            itemCount={itemCount}
-          >
-            {Row}
-          </VariableSizeList>
+          {itemCount === 0 ? (
+            <div
+              role="status"
+              className="px-3 py-4 text-sm"
+              style={{ color: theme.palette.text.secondary }}
+            >
+              {isCommand ? 'No matching commands' : 'No matching tabs'}
+            </div>
+          ) : (
+            <VariableSizeList
+              ref={listRef}
+              itemData={{
+                options: filteredOptions,
+                highlightedIndex,
+                getItemProps,
+                isCommand,
+                query,
+                theme,
+                groupedSectionTabIds: groupedSectionTabIdsRef.current,
+                searchMatchMode: searchMatchModeRef.current,
+              }}
+              height={listHeight}
+              width="100%"
+              innerElementType="ul"
+              itemSize={() => tabHeight}
+              overscanCount={5}
+              itemCount={itemCount}
+            >
+              {SearchResultRow}
+            </VariableSizeList>
+          )}
         </div>
       )}
     </div>

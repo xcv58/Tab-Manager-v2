@@ -736,15 +736,19 @@ test.describe('The Extension page should', () => {
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Pin tab',
+        text: 'Reload tab',
       })
 
-    await page.keyboard.press('ArrowDown')
+    await pressTabUntil(
+      page,
+      (state) => state.role === 'menuitem' && state.text === 'Close this tab',
+      { maxSteps: 12 },
+    )
     await expect
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Close',
+        text: 'Close this tab',
       })
 
     await page.keyboard.press('Tab')
@@ -752,7 +756,7 @@ test.describe('The Extension page should', () => {
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Close other tabs',
+        text: expect.stringMatching(/^Close other \d+ tabs? in this window$/),
       })
 
     await page.keyboard.press('Shift+Tab')
@@ -760,7 +764,7 @@ test.describe('The Extension page should', () => {
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Close',
+        text: 'Close this tab',
       })
 
     await page.keyboard.press('Escape')
@@ -778,9 +782,14 @@ test.describe('The Extension page should', () => {
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Pin tab',
+        text: 'Reload tab',
       })
 
+    await pressTabUntil(
+      page,
+      (state) => state.role === 'menuitem' && state.text === 'Pin tab',
+      { maxSteps: 12 },
+    )
     await page.keyboard.press('Space')
 
     await expect(page.getByRole('menu')).toHaveCount(0)
@@ -850,7 +859,7 @@ test.describe('The Extension page should', () => {
     await targetMenuButton.click({ force: true })
 
     const sameDomainAction = page.getByRole('menuitem', {
-      name: 'Cluster 2 same domain ungrouped tabs to this window',
+      name: 'Bring 2 ungrouped tabs from this site here',
     })
     await expect(sameDomainAction).toBeVisible()
     await sameDomainAction.click()
@@ -921,12 +930,16 @@ test.describe('The Extension page should', () => {
 
     await page.keyboard.press('Space')
     await expect(page.getByRole('menu')).toHaveCount(1)
-    await page.keyboard.press('ArrowDown')
+    await pressTabUntil(
+      page,
+      (state) => state.role === 'menuitem' && state.text === 'Close this tab',
+      { maxSteps: 10 },
+    )
     await expect
       .poll(() => readActiveElementState(page))
       .toMatchObject({
         role: 'menuitem',
-        text: 'Close',
+        text: 'Close this tab',
       })
 
     await page.keyboard.press('Space')

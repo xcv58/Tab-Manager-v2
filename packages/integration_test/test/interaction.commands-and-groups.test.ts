@@ -52,7 +52,9 @@ const setupMultiWindowGroups = async (page: Page) => {
     async ({ win1Urls, win2Urls }) => {
       const getTabIdByUrl = async (windowId: number, url: string) => {
         const tabs = await chrome.tabs.query({ windowId })
-        const tab = tabs.find((item) => item.url === url)
+        const tab = tabs.find(
+          (item) => item.url === url || item.pendingUrl === url,
+        )
         return tab?.id ?? -1
       }
 
@@ -151,15 +153,33 @@ const setupMixedGroupsInCurrentWindow = async (page: Page) => {
     ...MIXED_GROUP_URLS.gamma,
     ...MIXED_GROUP_URLS.free,
   ]
-  await page.evaluate(async (urlsToCreate) => {
-    for (const url of urlsToCreate) {
-      await chrome.tabs.create({
-        url,
-        active: false,
-      })
-    }
-  }, urls)
-  await page.waitForTimeout(600)
+  const windowId = await page.evaluate(
+    async () => (await chrome.windows.getCurrent()).id,
+  )
+  await page.evaluate(
+    async ({ urlsToCreate, windowId }) => {
+      for (const url of urlsToCreate) {
+        await chrome.tabs.create({
+          windowId,
+          url,
+          active: false,
+        })
+      }
+    },
+    { urlsToCreate: urls, windowId },
+  )
+  // Tab creation can return before the URL has committed under CI load.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        async ({ urls, windowId }) => {
+          const tabs = await chrome.tabs.query({ windowId })
+          return urls.every((url) => tabs.some((tab) => tab.url === url))
+        },
+        { urls, windowId },
+      ),
+    )
+    .toBe(true)
 
   const alphaId = await groupTabsByUrl(page, {
     urls: MIXED_GROUP_URLS.alpha,
@@ -324,10 +344,14 @@ test.describe('The Extension page should', () => {
 
     await sortFirstWindowTabs(page)
     await page.waitForTimeout(900)
-    const clusterButton = await page.$(
-      'button[aria-label="Cluster Ungrouped & Sort Tabs"]',
-    )
-    await clusterButton.click()
+    await page.locator('.toolbar').hover()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    await page
+      .getByRole('menuitem', {
+        name: 'Cluster ungrouped & sort tabs',
+        exact: true,
+      })
+      .click()
     await page.waitForTimeout(900)
 
     const afterGroup1 = await getGroupMembers(page, group1Id)
@@ -377,10 +401,14 @@ test.describe('The Extension page should', () => {
 
     await sortFirstWindowTabs(page)
     await page.waitForTimeout(900)
-    const clusterButton = await page.$(
-      'button[aria-label="Cluster Ungrouped & Sort Tabs"]',
-    )
-    await clusterButton.click()
+    await page.locator('.toolbar').hover()
+    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    await page
+      .getByRole('menuitem', {
+        name: 'Cluster ungrouped & sort tabs',
+        exact: true,
+      })
+      .click()
     await page.waitForTimeout(900)
 
     const afterAlpha = await getGroupState(alphaId)
@@ -506,94 +534,97 @@ test.describe('The Extension page should', () => {
     }
   })
 
-  test('search input field should clear after selecting a command', async () => {
-    // Set up initial page state
+  test('preserve tab search after executing a command through the > alias', async () => {
     await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
-    await page.waitForTimeout(1000)
+    await page.reload()
+    const searchInput = page.getByRole('combobox', {
+      name: 'Search tabs or URLs',
+    })
+    await searchInput.fill('blank')
+    await searchInput.fill('>sort tabs across windows')
 
-    // Verify initial state
-    const searchInput = await page.$(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    expect(searchInput).toBeTruthy()
+    const palette = page.getByRole('dialog', {
+      name: 'Command palette',
+      exact: true,
+    })
+    await expect(palette).toBeVisible()
+    await palette
+      .getByRole('option', {
+        name: 'Sort tabs across windows Ctrl S',
+        exact: true,
+      })
+      .click()
 
-    // Type a command in the search box
-    await searchInput.click()
-    await searchInput.fill('>clean dup')
-    await page.waitForTimeout(1000)
-
-    // Wait for and select the first command option that appears
-    const commandOption = await page.waitForSelector('[role="option"]')
-    await commandOption.click()
-    await page.waitForTimeout(1000)
-
-    // Verify that the input field is cleared after command selection
-    const inputValue = await searchInput.inputValue()
-    expect(inputValue).toBe('')
+    await expect(palette).toBeHidden()
+    await expect(searchInput).toHaveValue('blank')
+    await expect(searchInput).toBeFocused()
   })
 
-  test('keep command search interactive after selecting a non-navigating command', async () => {
-    await page.evaluate(async () => {
-      if (chrome.storage.sync?.set) {
-        await chrome.storage.sync.set({
-          litePopupMode: true,
-        })
-      }
-    })
-    await page.goto(extensionURL.replace('not_popup=1', ''))
+  test('reopen the dedicated palette after Settings in the full view', async () => {
     await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.reload()
 
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    await expect(searchInput).toBeVisible()
-    await searchInput.click()
-    await searchInput.fill('>toggle settings')
+    const searchInput = page.getByRole('combobox', {
+      name: 'Search tabs or URLs',
+    })
+    await searchInput.fill('>settings')
+    const palette = page.getByRole('dialog', {
+      name: 'Command palette',
+      exact: true,
+    })
+    await expect(
+      palette.getByRole('option', {
+        name: 'Open Settings Ctrl ,',
+        exact: true,
+      }),
+    ).toBeVisible()
+    await palette
+      .getByRole('combobox', { name: 'Search commands' })
+      .press('Enter')
 
-    const commandOption = page
-      .getByRole('option')
-      .filter({ hasText: 'Toggle Settings' })
-      .first()
-    await expect(commandOption).toBeVisible()
-
-    await searchInput.press('Enter')
-
-    await expect(page.getByRole('dialog')).toHaveCount(1)
+    await expect(palette).toBeHidden()
+    await expect(
+      page.getByRole('dialog', { name: 'Settings', exact: true }),
+    ).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(searchInput).toHaveValue('')
-    await expect(page.getByRole('option').first()).toBeVisible()
+    await searchInput.fill('>settings')
+    await expect(palette).toBeVisible()
+    await expect(
+      palette.getByRole('combobox', { name: 'Search commands' }),
+    ).toBeFocused()
   })
 
-  test('command search should match regardless of word order', async () => {
+  test('command search matches regardless of word order', async () => {
     await page.bringToFront()
     await page.reload()
     await waitForDefaultExtensionView(page)
-
-    const searchInput = page.locator(
-      'input[placeholder*="Search tabs or URLs"]',
-    )
-    await expect(searchInput).toBeVisible()
+    await page
+      .getByRole('combobox', { name: 'Search tabs or URLs' })
+      .fill('>sort windows')
+    const input = page.getByRole('combobox', { name: 'Search commands' })
 
     const getCommandOptions = async (query: string) => {
-      await searchInput.click()
-      await searchInput.fill(query)
-      const options = page.locator('[role="option"]')
+      await input.fill(query)
+      const options = page
+        .getByRole('dialog', { name: 'Command palette', exact: true })
+        .getByRole('option')
       await expect(options.first()).toBeVisible()
       return (await options.allTextContents()).map((text) =>
         text.replace(/\s+/g, ' ').trim(),
       )
     }
 
-    const canonicalOptions = await getCommandOptions('>expand window')
-    const reorderedOptions = await getCommandOptions('>window expand')
-
+    const canonicalOptions = await getCommandOptions('sort windows')
+    const reorderedOptions = await getCommandOptions('windows sort')
     expect(reorderedOptions).toEqual(canonicalOptions)
     expect(
-      reorderedOptions.some((text) => text.includes('Expand all windows')),
+      reorderedOptions.some((text) =>
+        text.includes('Sort tabs across windows'),
+      ),
     ).toBe(true)
   })
 

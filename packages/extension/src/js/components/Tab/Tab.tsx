@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react'
 import { reaction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import Icon from 'components/Tab/Icon'
+import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import TabTools from 'components/Tab/TabTools'
 import TabContent from 'components/Tab/TabContent'
 import CloseButton from 'components/CloseButton'
@@ -18,7 +19,8 @@ import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
-  const { dragStore, searchStore, focusStore, userStore } = useStore()
+  const { dragStore, searchStore, focusStore, userStore, actionStore } =
+    useStore()
   const isDarkTheme = useTheme()
   const increaseContrast = userStore.increaseContrast
   const colorTokens = getTabRowColorTokens(
@@ -26,7 +28,6 @@ export default observer((props: TabProps & { className?: string }) => {
     userStore.uiPreset,
     increaseContrast,
   )
-  const isClassicUi = userStore.uiPreset === 'classic'
   const { tab, className } = props
   const {
     setNodeRef,
@@ -144,6 +145,12 @@ export default observer((props: TabProps & { className?: string }) => {
         },
       )}
       style={rowStyle}
+      {...contextMenuHandlers(
+        actionStore,
+        `tab-${tab.id}`,
+        tab,
+        !isActionable || props.faked || props.preview,
+      )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -165,20 +172,25 @@ export default observer((props: TabProps & { className?: string }) => {
       <TabContent
         tab={tab}
         disableSequentialFocus={props.disableSequentialFocus}
+        preview={props.preview}
       />
       <RowActionRail tail={<DuplicateMarker tab={tab} />}>
-        <TabTools
-          tab={tab}
-          disableSequentialFocus={props.disableSequentialFocus}
-        />
-        <RowActionSlot>
-          <CloseButton
-            onClick={onRemove}
-            disabled={tab.removing}
-            tabIndex={props.disableSequentialFocus ? -1 : undefined}
-            size="compact"
+        {!props.preview && (
+          <TabTools
+            tab={tab}
+            disableSequentialFocus={props.disableSequentialFocus}
           />
-        </RowActionSlot>
+        )}
+        {!props.preview && (
+          <RowActionSlot>
+            <CloseButton
+              onClick={onRemove}
+              disabled={tab.removing}
+              tabIndex={props.disableSequentialFocus ? -1 : undefined}
+              size="compact"
+            />
+          </RowActionSlot>
+        )}
       </RowActionRail>
       <ContainerOrGroupIndicator
         id={tab.id}

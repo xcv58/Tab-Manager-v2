@@ -8,6 +8,7 @@ import {
   matchImageSnapshotOptions,
   waitForTestId,
   waitForDefaultExtensionView,
+  selectSettingsSection,
   waitForLocatorRectToStabilize,
 } from '../util'
 
@@ -27,8 +28,33 @@ const waitForMainSurfaceToSettle = async (page: Page) => {
   })
 }
 
+const clickVisibleRelayoutAction = async (actions: Locator) => {
+  const viewport = page.viewportSize()
+  if (!viewport) throw new Error('A viewport is required for this scroll test')
+  for (const action of await actions.all()) {
+    const box = await action.boundingBox()
+    if (!box) continue
+    const left = Math.max(box.x, 0)
+    const right = Math.min(box.x + box.width, viewport.width)
+    const top = Math.max(box.y, 0)
+    const bottom = Math.min(box.y + box.height, viewport.height)
+    if (right > left && bottom > top) {
+      // One action can span several empty columns. Click its visible portion
+      // so automation does not scroll to its offscreen center first.
+      await action.click({
+        position: {
+          x: (left + right) / 2 - box.x,
+          y: (top + bottom) / 2 - box.y,
+        },
+      })
+      return
+    }
+  }
+  throw new Error('No relayout action intersects the current viewport')
+}
+
 const waitForSettingsPanelToSettle = async (page: Page) => {
-  const panel = page.getByTestId('settings-panel-behavior')
+  const panel = await selectSettingsSection(page, 'Windows & layout')
   await expect(panel).toBeVisible()
   await waitForLocatorRectToStabilize(panel, {
     minWidth: 300,
@@ -413,6 +439,10 @@ const setupLeftmostEmptyColumnVisualScenario = async () => {
     LEFTMOST_EMPTY_COLUMN_WINDOW_URLS,
   )
   const targetWindowId = createdWindowIds[0]
+  // Configure this visual fixture before reload so that creating an empty
+  // column does not depend on a live Settings transition. The separate
+  // window-order tests exercise the Settings control itself.
+  await writeExtensionSettings(page, { windowOrder: 'lastUsed' })
   await page.evaluate(
     async ({ targetWindowId, timestamp }) => {
       await chrome.storage.local.set({
@@ -430,8 +460,6 @@ const setupLeftmostEmptyColumnVisualScenario = async () => {
   await page.reload()
   await page.waitForLoadState('domcontentloaded')
   await waitForTestId(page, `window-card-${targetWindowId}`)
-  await waitForMainSurfaceToSettle(page)
-  await enableLastUsedWindowOrderThroughSettings(page)
   await waitForMainSurfaceToSettle(page)
 
   const firstColumn = page.getByTestId('window-column-0')
@@ -528,12 +556,16 @@ const setupLayoutJumpScenario = async (page: Page) => {
       { length: 8 },
       (_, index) => `about:blank#jump-group-${index}`,
     )
+    const groupTabIds: number[] = []
     for (const url of groupedUrls) {
-      await chrome.tabs.create({
+      const tab = await chrome.tabs.create({
         windowId: baseWindowId,
         url,
         active: false,
       })
+      if (typeof tab.id === 'number') {
+        groupTabIds.push(tab.id)
+      }
     }
 
     const sideWindow = await chrome.windows.create({
@@ -545,11 +577,6 @@ const setupLayoutJumpScenario = async (page: Page) => {
       return null
     }
 
-    const tabs = await chrome.tabs.query({ windowId: baseWindowId })
-    const groupTabIds = tabs
-      .filter((tab) => (tab.url || '').includes('#jump-group-'))
-      .map((tab) => tab.id)
-      .filter((tabId): tabId is number => typeof tabId === 'number')
     if (groupTabIds.length < 6) {
       return null
     }
@@ -981,7 +1008,9 @@ test.describe('The Extension page should', () => {
       expect(before.left).toBeLessThan(200)
 
       if (action === 'empty column') {
-        await relayoutActions.last().click()
+        // Clicking an offscreen tile would make Playwright scroll first and
+        // invalidate the viewport position this test is meant to preserve.
+        await clickVisibleRelayoutAction(relayoutActions)
       } else {
         await page.getByTestId('layout-repack-button').click()
       }
@@ -1007,7 +1036,7 @@ test.describe('The Extension page should', () => {
     const before = await scrollContainer.evaluate((node) => node.scrollLeft)
     expect(before).toBeGreaterThan(0)
 
-    await relayoutActions.first().click()
+    await clickVisibleRelayoutAction(relayoutActions)
 
     await expect(relayoutActions).toHaveCount(0)
     const after = await scrollContainer.evaluate((node) => ({
@@ -1106,12 +1135,15 @@ test.describe('The Extension page should', () => {
         (toolbarRect?.x || 0) + (toolbarRect?.width || 0),
       ) - Math.max(relayoutRect?.x || 0, toolbarRect?.x || 0),
     ).toBeGreaterThan(0)
+    // The dock now sits flush with the viewport and has a reserved bottom strip.
+    // Horizontal alignment must leave both controls accessible, without overlap.
     expect(
-      Math.min(
-        (relayoutRect?.y || 0) + (relayoutRect?.height || 0),
-        (toolbarRect?.y || 0) + (toolbarRect?.height || 0),
-      ) - Math.max(relayoutRect?.y || 0, toolbarRect?.y || 0),
-    ).toBeGreaterThan(0)
+      (relayoutRect?.y || 0) + (relayoutRect?.height || 0),
+    ).toBeLessThanOrEqual(toolbarRect?.y || 0)
+    const viewport = page.viewportSize()
+    const dockRect = await page.locator('.corner-dock').boundingBox()
+    expect(dockRect.x + dockRect.width).toBe(viewport.width)
+    expect(dockRect.y + dockRect.height).toBe(viewport.height)
 
     const topmostButtonName = await toolbarToggle.evaluate((node) => {
       const rect = node.getBoundingClientRect()

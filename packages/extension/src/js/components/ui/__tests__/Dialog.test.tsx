@@ -156,3 +156,61 @@ describe('Dialog', () => {
     )
   })
 })
+
+test('interactive tooltip belongs to its modal and Tab wraps within that modal', async () => {
+  const Tooltip = (await import('../Tooltip')).default
+  render(
+    <Dialog open onClose={jest.fn()}>
+      <button>First modal action</button>
+      <Tooltip
+        open
+        disableInteractive={false}
+        role="dialog"
+        aria-label="Example tooltip"
+        title={<button>Copy example</button>}
+      >
+        <button>Example anchor</button>
+      </Tooltip>
+    </Dialog>,
+  )
+  const copy = screen.getByRole('button', { name: 'Copy example' })
+  await waitFor(() =>
+    expect(copy.closest('[aria-modal="true"]')).not.toBeNull(),
+  )
+  copy.focus()
+  fireEvent.keyDown(copy, { key: 'Tab' })
+  expect(
+    screen.getByRole('button', { name: 'First modal action' }),
+  ).toHaveFocus()
+})
+
+test('a menu handles Tab once inside its owning modal', async () => {
+  const { default: Menu, MenuItem } = await import('../Menu')
+  const Example = () => {
+    const [anchor, setAnchor] = React.useState<HTMLElement | null>(null)
+    return (
+      <Dialog open onClose={jest.fn()}>
+        <button onClick={(event) => setAnchor(event.currentTarget)}>
+          Open scoped menu
+        </button>
+        <Menu open={!!anchor} anchorEl={anchor} onClose={jest.fn()}>
+          <MenuItem>First scoped item</MenuItem>
+          <MenuItem>Second scoped item</MenuItem>
+        </Menu>
+      </Dialog>
+    )
+  }
+  render(<Example />)
+  const opener = screen.getByRole('button', { name: 'Open scoped menu' })
+  await waitFor(() => expect(opener).toHaveFocus())
+  fireEvent.click(opener)
+  const first = await screen.findByRole('menuitem', {
+    name: 'First scoped item',
+  })
+  await waitFor(() => expect(first).toHaveFocus())
+  expect(first.closest('[aria-modal="true"]')).not.toBeNull()
+  fireEvent.keyDown(first, { key: 'Tab' })
+  expect(
+    screen.getByRole('menuitem', { name: 'Second scoped item' }),
+  ).toHaveFocus()
+})
