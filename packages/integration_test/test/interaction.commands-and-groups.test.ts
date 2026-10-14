@@ -561,11 +561,7 @@ test.describe('The Extension page should', () => {
     await expect(searchInput).toBeFocused()
   })
 
-  test('reopen the dedicated palette after a non-navigating command opens Settings', async () => {
-    await page.evaluate(async () => {
-      await chrome.storage.sync?.set?.({ litePopupMode: true })
-    })
-    await page.goto(extensionURL.replace('not_popup=1', ''))
+  test('reopen the dedicated palette after Settings in the full view', async () => {
     await openPages(browserContext, LIGHTWEIGHT_URLS)
     await page.bringToFront()
     await page.reload()
