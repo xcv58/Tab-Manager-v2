@@ -919,7 +919,7 @@ export default observer(() => {
                       {[
                         {
                           field: 'title',
-                          label: 'Title preview length',
+                          label: 'Title line limit',
                           id: tooltipTitleLinesId,
                           value:
                             normalizeTabTooltipTitleLines(tabTooltipTitleLines),
@@ -929,7 +929,7 @@ export default observer(() => {
                         },
                         {
                           field: 'url',
-                          label: 'URL preview length',
+                          label: 'URL line limit',
                           id: tooltipUrlLinesId,
                           value:
                             normalizeTabTooltipUrlLines(tabTooltipUrlLines),
