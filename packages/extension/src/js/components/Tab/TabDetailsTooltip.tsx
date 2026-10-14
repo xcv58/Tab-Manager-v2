@@ -2,7 +2,11 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { CopyTextIcon, CopiedIcon } from 'icons/actionIcons'
 import { ExpandMoreIcon } from 'icons/materialIcons'
 import { writeToClipboard } from 'libs'
-import type { TabTooltipUrlLines } from 'libs/tabTooltip'
+import {
+  DEFAULT_TAB_TOOLTIP_TITLE_LINES,
+  type TabTooltipTitleLines,
+  type TabTooltipUrlLines,
+} from 'libs/tabTooltip'
 
 const CLAMP_CLASSES = {
   1: 'line-clamp-1',
@@ -94,12 +98,14 @@ function TextField({
 
 export default function TabDetailsTooltip({
   title,
+  titleLines = DEFAULT_TAB_TOOLTIP_TITLE_LINES,
   url,
   urlLines,
   duplicateText,
   autoFocus,
 }: {
   title: string
+  titleLines?: TabTooltipTitleLines
   url: string
   urlLines: TabTooltipUrlLines
   duplicateText: string
@@ -147,7 +153,7 @@ export default function TabDetailsTooltip({
         <TextField
           label="Title"
           value={title}
-          lines={3}
+          lines={titleLines}
           onCopy={() => void copy('Title', title)}
           copied={copied === 'Title'}
         />

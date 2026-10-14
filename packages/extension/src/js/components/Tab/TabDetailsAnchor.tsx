@@ -2,7 +2,10 @@ import React, { useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from 'components/ui/Tooltip'
 import { useStore } from 'components/hooks/useStore'
-import { normalizeTabTooltipUrlLines } from 'libs/tabTooltip'
+import {
+  normalizeTabTooltipTitleLines,
+  normalizeTabTooltipUrlLines,
+} from 'libs/tabTooltip'
 import { getNoun } from 'libs'
 import type Tab from 'stores/Tab'
 import type { TabTooltipSurface } from 'stores/HoverStore'
@@ -79,6 +82,9 @@ export default observer(function TabDetailsAnchor({
         open && (
           <TabDetailsTooltip
             title={tab.title}
+            titleLines={normalizeTabTooltipTitleLines(
+              userStore.tabTooltipTitleLines,
+            )}
             url={tab.url}
             urlLines={normalizeTabTooltipUrlLines(userStore.tabTooltipUrlLines)}
             duplicateText={duplicateText}

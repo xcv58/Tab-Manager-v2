@@ -10,7 +10,9 @@ import {
 } from 'libs/actionTabCount'
 import { type WindowOrder, WINDOW_ORDERS } from 'libs/windowOrder'
 import {
+  TAB_TOOLTIP_TITLE_LINES,
   TAB_TOOLTIP_URL_LINES,
+  normalizeTabTooltipTitleLines,
   normalizeTabTooltipUrlLines,
 } from 'libs/tabTooltip'
 import Slider from 'components/ui/Slider'
@@ -501,6 +503,8 @@ export default observer(() => {
     toggleIncreaseContrast,
     showTabTooltip,
     toggleShowTabTooltip,
+    tabTooltipTitleLines,
+    selectTabTooltipTitleLines,
     tabTooltipUrlLines,
     selectTabTooltipUrlLines,
     preserveSearch,
@@ -541,8 +545,9 @@ export default observer(() => {
     selectTheme,
   } = userStore
   const reduceMotion = useReduceMotion()
+  const tooltipTitleLinesId = React.useId()
   const tooltipUrlLinesId = React.useId()
-  const tooltipUrlLinesHintId = React.useId()
+  const tooltipLinesHintId = React.useId()
   const settingsNavigationState = React.useRef<SettingsNavigationState>({
     scrollTop: 0,
   })
@@ -910,44 +915,71 @@ export default observer(() => {
                 style={rowDetailOptionStyle}
                 details={
                   <div className="mt-3">
-                    <label
-                      htmlFor={tooltipUrlLinesId}
-                      style={controlDescriptionStyle}
-                    >
-                      URL preview length
-                    </label>
-                    <select
-                      id={tooltipUrlLinesId}
-                      aria-describedby={tooltipUrlLinesHintId}
-                      data-testid="tab-tooltip-url-lines"
-                      disabled={!showTabTooltip}
-                      value={normalizeTabTooltipUrlLines(tabTooltipUrlLines)}
-                      onChange={(event) =>
-                        selectTabTooltipUrlLines(
-                          event.target.value === 'full'
-                            ? 'full'
-                            : Number(event.target.value),
-                        )
-                      }
-                      className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                      style={{
-                        backgroundColor: uiColors.settingsDialogSurface,
-                        color: uiColors.primaryText,
-                        borderColor: rowDetailOptionStyle.borderColor,
-                        outlineColor: uiColors.focusRing,
-                        colorScheme: isDarkMode ? 'dark' : 'light',
-                      }}
-                    >
-                      {TAB_TOOLTIP_URL_LINES.map((lines) => (
-                        <option key={lines} value={lines}>
-                          {lines === 'full'
-                            ? 'Full URL'
-                            : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
-                        </option>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {[
+                        {
+                          field: 'title',
+                          label: 'Title preview length',
+                          id: tooltipTitleLinesId,
+                          value:
+                            normalizeTabTooltipTitleLines(tabTooltipTitleLines),
+                          options: TAB_TOOLTIP_TITLE_LINES,
+                          fullLabel: 'Full title',
+                          onChange: selectTabTooltipTitleLines,
+                        },
+                        {
+                          field: 'url',
+                          label: 'URL preview length',
+                          id: tooltipUrlLinesId,
+                          value:
+                            normalizeTabTooltipUrlLines(tabTooltipUrlLines),
+                          options: TAB_TOOLTIP_URL_LINES,
+                          fullLabel: 'Full URL',
+                          onChange: selectTabTooltipUrlLines,
+                        },
+                      ].map((option) => (
+                        <div key={option.field}>
+                          <label
+                            htmlFor={option.id}
+                            style={controlDescriptionStyle}
+                          >
+                            {option.label}
+                          </label>
+                          <select
+                            id={option.id}
+                            aria-describedby={tooltipLinesHintId}
+                            data-testid={`tab-tooltip-${option.field}-lines`}
+                            disabled={!showTabTooltip}
+                            value={option.value}
+                            onChange={(event) =>
+                              option.onChange(
+                                event.target.value === 'full'
+                                  ? 'full'
+                                  : Number(event.target.value),
+                              )
+                            }
+                            className="mt-1 block w-full rounded-md border px-2 py-2 text-sm disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                            style={{
+                              backgroundColor: uiColors.settingsDialogSurface,
+                              color: uiColors.primaryText,
+                              borderColor: rowDetailOptionStyle.borderColor,
+                              outlineColor: uiColors.focusRing,
+                              colorScheme: isDarkMode ? 'dark' : 'light',
+                            }}
+                          >
+                            {option.options.map((lines) => (
+                              <option key={lines} value={lines}>
+                                {lines === 'full'
+                                  ? option.fullLabel
+                                  : `${lines} ${lines === 1 ? 'line' : 'lines'}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       ))}
-                    </select>
+                    </div>
                     <p
-                      id={tooltipUrlLinesHintId}
+                      id={tooltipLinesHintId}
                       style={{ ...controlDescriptionStyle, marginTop: 6 }}
                     >
                       Expand clipped text in the tooltip. Copy always keeps the

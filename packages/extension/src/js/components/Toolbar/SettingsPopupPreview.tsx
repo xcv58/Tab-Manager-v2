@@ -46,6 +46,7 @@ export default observer(function SettingsPopupPreview({
     showUrl: userStore.showUrl,
     showTabIcon: userStore.showTabIcon,
     showTabTooltip: userStore.showTabTooltip,
+    tabTooltipTitleLines: userStore.tabTooltipTitleLines,
     tabTooltipUrlLines: userStore.tabTooltipUrlLines,
     highlightDuplicatedTab: userStore.highlightDuplicatedTab,
     highlightActiveTabsInAllWindows: userStore.highlightActiveTabsInAllWindows,

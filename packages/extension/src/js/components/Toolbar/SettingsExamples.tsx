@@ -303,6 +303,7 @@ export const TabDetailsPreview = observer(function TabDetailsPreview() {
     showTabIcon: userStore.showTabIcon,
     showUrl: userStore.showUrl,
     showTabTooltip: userStore.showTabTooltip,
+    tabTooltipTitleLines: userStore.tabTooltipTitleLines,
     tabTooltipUrlLines: userStore.tabTooltipUrlLines,
     lastFocused: false,
   }
@@ -322,7 +323,7 @@ export const TabDetailsPreview = observer(function TabDetailsPreview() {
               id: 9100,
               iconUrl: previewIcon('N', '#0891b2'),
               title:
-                'Active tab · Planning a workspace with long titles, detailed notes, and reference links across browser windows',
+                'Active tab · Planning a workspace with long titles, detailed notes, and reference links across browser windows — a complete guide to organizing project research, comparing design ideas, collecting meeting notes, and keeping every reference easy to find. Includes the team roadmap, release checklist, accessibility review, testing strategy, draft documentation, and follow-up questions for the next planning session, plus an archive of earlier decisions and useful background reading for new collaborators joining the project.',
               url: 'https://notes.example.test/project/research?view=reference-library&topic=planning-a-workspace&sort=recently-updated&include=long-titles-and-detailed-notes&source=sample-preview',
               active: true,
             },

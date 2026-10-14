@@ -10,7 +10,10 @@ import type { TabCopyFormat } from 'libs/tabExport'
 import settingsPreviewIcon from 'img/chrome/settings.png'
 import type { UiPreset } from 'stores/UserStore'
 import {
+  DEFAULT_TAB_TOOLTIP_TITLE_LINES,
+  normalizeTabTooltipTitleLines,
   normalizeTabTooltipUrlLines,
+  type TabTooltipTitleLines,
   type TabTooltipUrlLines,
 } from 'libs/tabTooltip'
 
@@ -31,6 +34,7 @@ export type PreviewConfig = {
   showTabIcon?: boolean
   showUrl?: boolean
   showTabTooltip?: boolean
+  tabTooltipTitleLines?: TabTooltipTitleLines
   tabTooltipUrlLines?: TabTooltipUrlLines
   showDetailsButton?: boolean
 }
@@ -42,6 +46,8 @@ class PreviewUserStore {
   uiPreset: UiPreset = 'modern'
 
   showTabTooltip = false
+
+  tabTooltipTitleLines: TabTooltipTitleLines = DEFAULT_TAB_TOOLTIP_TITLE_LINES
 
   tabTooltipUrlLines: TabTooltipUrlLines = 3
 
@@ -63,6 +69,9 @@ class PreviewUserStore {
     this.highlightDuplicatedTab = !!config.showDuplicateMarker
     this.uiPreset = config.uiPreset ?? 'modern'
     this.showTabTooltip = !!config.showTabTooltip
+    this.tabTooltipTitleLines = normalizeTabTooltipTitleLines(
+      config.tabTooltipTitleLines,
+    )
     this.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
       config.tabTooltipUrlLines,
     )

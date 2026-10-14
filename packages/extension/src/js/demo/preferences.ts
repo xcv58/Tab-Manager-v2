@@ -1,5 +1,10 @@
 // Demo-only configuration. Sample browser state never enters web storage.
-import { TAB_TOOLTIP_URL_LINES, type TabTooltipUrlLines } from 'libs/tabTooltip'
+import {
+  TAB_TOOLTIP_TITLE_LINES,
+  TAB_TOOLTIP_URL_LINES,
+  type TabTooltipTitleLines,
+  type TabTooltipUrlLines,
+} from 'libs/tabTooltip'
 
 const storageKey = 'tab-manager-v2:demo-preferences:v1'
 const booleanKeys = [
@@ -40,6 +45,13 @@ export const sanitizePreferences = (
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
   const source = value as Record<string, unknown>
   const settings: Record<string, unknown> = {}
+  if (
+    TAB_TOOLTIP_TITLE_LINES.includes(
+      source.tabTooltipTitleLines as TabTooltipTitleLines,
+    )
+  ) {
+    settings.tabTooltipTitleLines = source.tabTooltipTitleLines
+  }
   if (
     TAB_TOOLTIP_URL_LINES.includes(
       source.tabTooltipUrlLines as TabTooltipUrlLines,
