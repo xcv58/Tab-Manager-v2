@@ -7,6 +7,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
@@ -1114,6 +1115,17 @@ async function startScreencast(page, clipName) {
   mkdirSync(clipWorkDir, { recursive: true })
 
   const client = await page.context().newCDPSession(page)
+  // The macOS screencast surface can include blank native-window margins
+  // beyond the emulated page. These metrics use the same physical pixels as
+  // the unscaled screencast, so preserve only the actual page viewport.
+  const { layoutViewport } = await client.send('Page.getLayoutMetrics')
+  writeFileSync(
+    join(clipWorkDir, 'viewport.json'),
+    JSON.stringify({
+      width: layoutViewport.clientWidth,
+      height: layoutViewport.clientHeight,
+    }),
+  )
   let frameIndex = 0
   const frames = []
   const startedAt = Date.now() / 1000
@@ -1168,6 +1180,9 @@ async function startScreencast(page, clipName) {
 
 function encodeClip(clipName, clipWorkDir) {
   mkdirSync(MP4_DIR, { recursive: true })
+  const viewport = JSON.parse(
+    readFileSync(join(clipWorkDir, 'viewport.json'), 'utf8'),
+  )
 
   const outputPath = join(MP4_DIR, `${clipName}.mp4`)
   rmSync(outputPath, { force: true })
@@ -1183,7 +1198,7 @@ function encodeClip(clipName, clipWorkDir) {
       '-i',
       join(clipWorkDir, 'frames.txt'),
       '-vf',
-      `fps=${CAPTURE_FPS}`,
+      `crop=${viewport.width}:${viewport.height}:0:0,setsar=1,fps=${CAPTURE_FPS}`,
       '-c:v',
       'libx264',
       '-pix_fmt',

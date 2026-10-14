@@ -131,6 +131,28 @@ function durationForVideo(path) {
   )
 }
 
+function displayHeightForVideo(path) {
+  const { streams } = JSON.parse(
+    runFfprobe(
+      [
+        '-v',
+        'error',
+        '-select_streams',
+        'v:0',
+        '-show_entries',
+        'stream=width,height',
+        '-of',
+        'json',
+        path,
+      ],
+      `reading dimensions for ${path}`,
+    ),
+  )
+  const { width, height } = streams[0]
+  // Match ffmpeg's scale=-2 rounding so the frame follows the actual footage.
+  return Math.round((CLIP_WIDTH * height) / width / 2) * 2
+}
+
 function clipOutputPath(id) {
   return join(VIDEO_DIR, `${id}.mp4`)
 }
@@ -147,7 +169,7 @@ function fileDataUrl(path, mimeType) {
   return `data:${mimeType};base64,${readFileSync(path).toString('base64')}`
 }
 
-function cssShared({ transparent }) {
+function cssShared({ transparent, clipHeight = 0 }) {
   return `
     :root {
       color-scheme: dark;
@@ -306,7 +328,7 @@ function cssShared({ transparent }) {
       left: ${CLIP_X - 18}px;
       top: ${CLIP_Y - 18}px;
       width: ${CLIP_WIDTH + 36}px;
-      height: calc(${Math.round((CLIP_WIDTH * 1678) / 2564)}px + 36px);
+      height: ${clipHeight + 36}px;
       border-radius: 30px;
       border: 1px solid var(--frame-border);
       box-shadow:
@@ -407,7 +429,7 @@ function segmentOverlayHtml(segment, iconUrl) {
   <html>
     <head>
       <meta charset="utf-8" />
-      <style>${cssShared({ transparent: true })}
+      <style>${cssShared({ transparent: true, clipHeight: displayHeightForVideo(clipOutputPath(segment.id)) })}
         .chapter {
           background: var(--accent-soft);
           border-color: var(--accent-border);
