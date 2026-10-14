@@ -43,3 +43,16 @@ export const formatShortcutLabel = (shortcut: string) => {
         .join(' → ')
     : chord(shortcut)
 }
+
+export const matchesShortcutSearch = (
+  shortcuts: string | string[],
+  search: string,
+) => {
+  const normalize = (value: string) => value.toLowerCase().replace(/\s+/g, '')
+  const query = normalize(search)
+  return (Array.isArray(shortcuts) ? shortcuts : [shortcuts]).some(
+    (shortcut) =>
+      normalize(shortcut).includes(query) ||
+      normalize(formatShortcutLabel(shortcut)).includes(query),
+  )
+}

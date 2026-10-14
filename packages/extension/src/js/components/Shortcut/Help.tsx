@@ -4,13 +4,7 @@ import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
 import { useStore } from 'components/hooks/useStore'
 import { useAppTheme } from 'libs/appTheme'
-
-const keysSearch = (keys: string | string[], search: string) => {
-  if (typeof keys === 'string') {
-    return keys.includes(search)
-  }
-  return keys.join('').includes(search)
-}
+import { matchesShortcutSearch } from 'libs/shortcutLabel'
 
 export default observer((props: { search: string }) => {
   const { search } = props
@@ -22,7 +16,7 @@ export default observer((props: { search: string }) => {
     .filter(
       ([keys, _, description]) =>
         getDescription(description).toLowerCase().includes(search) ||
-        keysSearch(keys, search),
+        matchesShortcutSearch(keys, search),
     )
     .map(([keys, _, description], i) => {
       const action = shortcutStore.getHelpAction?.(keys)

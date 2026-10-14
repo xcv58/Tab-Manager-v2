@@ -25,6 +25,82 @@ const setup = () => {
   return { store, actions, tab }
 }
 
+describe('palette focus restoration', () => {
+  let nextFrame: FrameRequestCallback
+  beforeEach(() => {
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        nextFrame = callback
+        return 1
+      })
+  })
+  afterEach(() => {
+    jest.restoreAllMocks()
+    document.body.innerHTML = ''
+  })
+
+  const makeRow = (tabId: number) => {
+    const row = document.createElement('div')
+    row.dataset.testid = `search-tab-row-${tabId}`
+    row.tabIndex = -1
+    const button = document.createElement('button')
+    button.setAttribute('aria-haspopup', 'dialog')
+    row.append(button)
+    document.body.append(row)
+    return { row, button }
+  }
+
+  it.each(['menu', 'row', 'button'])(
+    'returns to a recreated collapsed-group result opened from its %s',
+    (opener) => {
+      const { store, actions, tab } = setup()
+      store.focusStore.focusedItem = { nodeRef: { current: null } }
+      const original = makeRow(tab.id)
+      if (opener === 'menu')
+        actions.openMenu({ key: `search-tab-${tab.id}`, element: original.row })
+      else (opener === 'button' ? original.button : original.row).focus()
+      actions.openPalette()
+      original.row.remove()
+      actions.closePalette()
+      // React creates a new row after closing, before the next animation frame.
+      const replacement = makeRow(tab.id)
+      nextFrame(0)
+      expect(document.activeElement).toBe(
+        opener === 'button' ? replacement.button : replacement.row,
+      )
+      expect(store.tabStore.selection.get(tab.id)).toBe(tab)
+    },
+  )
+
+  it('falls back to search when the old result no longer exists', () => {
+    const { store, actions, tab } = setup()
+    const search = document.createElement('input')
+    document.body.append(search)
+    store.searchStore.searchEl = { current: search }
+    const { row } = makeRow(tab.id)
+    row.focus()
+    actions.openPalette()
+    row.remove()
+    actions.closePalette()
+    nextFrame(0)
+    expect(document.activeElement).toBe(search)
+  })
+
+  it('does not steal focus if another overlay opens before restoration', () => {
+    const { store, actions, tab } = setup()
+    const { row } = makeRow(tab.id)
+    row.focus()
+    actions.openPalette()
+    row.remove()
+    actions.closePalette()
+    makeRow(tab.id)
+    store.userStore.dialogOpen = true
+    nextFrame(0)
+    expect(document.activeElement).toBe(document.body)
+  })
+})
+
 describe('ActionStore palette', () => {
   it.each(['csv', 'tsv', 'json', 'markdown'])(
     'copies %s while retaining the selection and picker',

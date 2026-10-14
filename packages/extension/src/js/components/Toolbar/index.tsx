@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
 import Toolbar from './Toolbar'
@@ -10,6 +10,8 @@ export default observer(() => {
   const theme = useAppTheme()
   const { userStore, tabStore, dragStore } = useStore()
   const [menuOpen, setMenuOpen] = useState(false)
+  const toolbarRef = useRef<HTMLDivElement>(null)
+  const pointerInside = useRef(false)
   const uiColors = getUiColorTokens(
     theme.mode === 'dark',
     userStore.uiPreset,
@@ -21,17 +23,43 @@ export default observer(() => {
   const pinned =
     tabStore.selection.size > 0 || menuOpen || !userStore.toolbarAutoHide
   const visible = toolbarVisible || pinned
-  if (dragStore.dragging) return null
+  const dragging = dragStore.dragging
+  useEffect(() => {
+    if (dragging) pointerInside.current = false
+    // A menu or selection can end after the pointer has already left the dock.
+    if (
+      !pinned &&
+      !dragging &&
+      !pointerInside.current &&
+      !toolbarRef.current?.contains(document.activeElement)
+    )
+      lazyHideToolbar()
+  }, [pinned, dragging, lazyHideToolbar])
+  if (dragging) return null
   return (
     <div
       className="toolbar corner-dock"
+      ref={toolbarRef}
       data-increase-contrast={userStore.increaseContrast ? 'true' : 'false'}
       data-pinned={pinned ? 'true' : 'false'}
-      onMouseEnter={showToolbar}
+      onMouseEnter={() => {
+        pointerInside.current = true
+        showToolbar()
+      }}
       onMouseLeave={() => {
-        if (!pinned) lazyHideToolbar()
+        pointerInside.current = false
+        if (!pinned && !toolbarRef.current?.contains(document.activeElement))
+          lazyHideToolbar()
       }}
       onFocus={showToolbar}
+      onBlur={(event) => {
+        if (
+          !pinned &&
+          !pointerInside.current &&
+          !event.currentTarget.contains(event.relatedTarget as Node | null)
+        )
+          lazyHideToolbar()
+      }}
       style={{
         display: 'flex',
         width: 'fit-content',

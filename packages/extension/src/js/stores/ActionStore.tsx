@@ -128,6 +128,8 @@ export default class ActionStore {
   groupEditorId: number | null = null
   destinationEdge: 'beginning' | 'end' = 'end'
   paletteFocusTarget: HTMLElement | null = null
+  paletteSearchFocusTarget: { rowId: string; detailsAnchor: boolean } | null =
+    null
   paletteDetailsTarget: { tabId: number; surface: 'search' | 'list' } | null =
     null
 
@@ -138,6 +140,7 @@ export default class ActionStore {
       menu: observable.ref,
       menuAnchors: observable.shallow,
       paletteFocusTarget: false,
+      paletteSearchFocusTarget: false,
     })
   }
 
@@ -195,6 +198,18 @@ export default class ActionStore {
         (document.activeElement instanceof HTMLElement
           ? document.activeElement
           : null)
+      const searchRow = this.paletteFocusTarget?.closest<HTMLElement>(
+        '[data-testid^="search-tab-row-"]',
+      )
+      this.paletteSearchFocusTarget = searchRow
+        ? {
+            rowId: searchRow.dataset.testid!,
+            detailsAnchor:
+              this.paletteFocusTarget?.matches(
+                'button[aria-haspopup="dialog"]',
+              ) || false,
+          }
+        : null
     }
     this.closeMenu()
     this.closeGroupEditor()
@@ -220,11 +235,34 @@ export default class ActionStore {
       !this.store.userStore.dialogOpen &&
       !this.store.shortcutStore.dialogOpen
     ) {
-      restoreDialogFocusTarget(
-        this.paletteFocusTarget?.isConnected
-          ? this.paletteFocusTarget
-          : this.store.focusStore.focusedItem?.nodeRef?.current,
-      )
+      const target = this.paletteFocusTarget
+      const searchTarget = this.paletteSearchFocusTarget
+      // Resolve after React remounts the results, rather than saving their old
+      // DOM identity. Collapsed group members have no main-list row to use.
+      restoreDialogFocusTarget(() => {
+        if (
+          this.paletteOpen ||
+          this.store.userStore.dialogOpen ||
+          this.store.shortcutStore.dialogOpen
+        )
+          return null
+        if (target?.isConnected) return target
+        if (searchTarget) {
+          const row = document.querySelector<HTMLElement>(
+            `[data-testid="${searchTarget.rowId}"]`,
+          )
+          return (
+            (searchTarget.detailsAnchor
+              ? row?.querySelector<HTMLElement>(
+                  'button[aria-haspopup="dialog"]',
+                )
+              : row) ||
+            this.store.searchStore.searchEl?.current ||
+            null
+          )
+        }
+        return this.store.focusStore.focusedItem?.nodeRef?.current || null
+      })
     }
   }
 

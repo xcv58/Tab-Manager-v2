@@ -43,4 +43,18 @@ describe('dialogFocus', () => {
     expect(document.activeElement).toBe(document.body)
     jest.restoreAllMocks()
   })
+
+  it('resolves a replacement element after it mounts on the next frame', () => {
+    let nextFrame: FrameRequestCallback
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      nextFrame = cb
+      return 0
+    })
+    document.body.innerHTML = ''
+    restoreDialogFocusTarget(() => document.getElementById('replacement'))
+    document.body.innerHTML = '<button id="replacement">Result</button>'
+    nextFrame(0)
+    expect(document.activeElement).toBe(document.getElementById('replacement'))
+    jest.restoreAllMocks()
+  })
 })

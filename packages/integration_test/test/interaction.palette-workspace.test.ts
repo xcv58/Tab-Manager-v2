@@ -96,6 +96,12 @@ for (const lite of [false, true]) {
       await page.keyboard.press('Escape')
       await expect(page.getByRole('menu')).toBeHidden()
       await expect(result).toBeFocused()
+      await page.keyboard.press('Alt+k')
+      await expect(page.getByTestId('command-palette')).toBeVisible()
+      await expect(result).toHaveCount(0)
+      await page.keyboard.press('Escape')
+      await expect(page.getByTestId('command-palette')).toBeHidden()
+      await expect(result).toBeFocused()
       await page.keyboard.press('Alt+ArrowDown')
       const details = page.getByRole('dialog', {
         name: 'Tab details',
