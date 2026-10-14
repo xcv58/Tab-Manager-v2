@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global URL, console */
 
 import { spawnSync } from 'node:child_process'
 import {
@@ -6,6 +7,7 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
@@ -37,43 +39,49 @@ const CLIPS = [
   {
     id: '01-find-tab-fast',
     chapter: '01 / 06',
-    title: 'Find The Right Tab Fast',
-    subtitle: 'Search across windows and grouped tabs in seconds.',
+    title: 'Find Any Tab Quickly',
+    caption: 'Find tabs across windows fast.',
+    subtitle: 'Search all your windows in one place.',
     accent: BRAND_ACCENT,
   },
   {
     id: '03-clean-up-duplicates',
     chapter: '02 / 06',
-    title: 'Clean Up Duplicate Tabs',
+    title: 'Close Extra Copies',
+    caption: 'Clear duplicates before they pile up.',
     subtitle: 'Remove repeated pages before they pile up.',
     accent: BRAND_ACCENT,
   },
   {
     id: '02-organize-groups',
     chapter: '03 / 06',
-    title: 'Rename And Organize Groups',
-    subtitle: 'Turn scattered tabs into clear workspaces.',
+    title: 'Keep Related Tabs Together',
+    caption: 'Rename and organize groups.',
+    subtitle: 'Give each group a name that makes sense to you.',
     accent: BRAND_ACCENT,
   },
   {
     id: '04-see-large-workspaces-clearly',
     chapter: '04 / 06',
-    title: 'Stay Oriented At Scale',
-    subtitle: 'Keep large browser sessions readable at a glance.',
+    title: 'See All Your Windows',
+    caption: 'Stay oriented in large workspaces.',
+    subtitle: 'Expand the groups you need and fold away the rest.',
     accent: BRAND_ACCENT,
   },
   {
     id: '05-keyboard-workflow',
     chapter: '05 / 06',
-    title: 'Move Faster With Shortcuts',
-    subtitle: 'Jump into actions without slowing down.',
+    title: 'Find An Action Quickly',
+    caption: 'Move faster with shortcuts.',
+    subtitle: 'Open the command menu and type what you want to do.',
     accent: BRAND_ACCENT,
   },
   {
     id: '06-customize-the-view',
     chapter: '06 / 06',
-    title: 'Make The View Your Own',
-    subtitle: 'Tune theme and density for your workflow.',
+    title: 'Make It Comfortable',
+    caption: 'Customize the view.',
+    subtitle: 'Adjust colors and text size, with a preview as you go.',
     accent: BRAND_ACCENT,
   },
 ]
@@ -184,8 +192,12 @@ function cssShared({ transparent }) {
       background:
         radial-gradient(circle at 14% 18%, var(--accent-glow-strong) 0%, transparent 28%),
         radial-gradient(circle at 82% 76%, var(--accent-glow-soft) 0%, transparent 26%)
-        ${transparent ? '' : `,
-        linear-gradient(180deg, #232936 0%, #181d25 100%)`};
+        ${
+          transparent
+            ? ''
+            : `,
+        linear-gradient(180deg, #232936 0%, #181d25 100%)`
+        };
     }
     .top-rule {
       position: absolute;
@@ -294,7 +306,7 @@ function cssShared({ transparent }) {
       left: ${CLIP_X - 18}px;
       top: ${CLIP_Y - 18}px;
       width: ${CLIP_WIDTH + 36}px;
-      height: calc(${Math.round(CLIP_WIDTH * 1678 / 2564)}px + 36px);
+      height: calc(${Math.round((CLIP_WIDTH * 1678) / 2564)}px + 36px);
       border-radius: 30px;
       border: 1px solid var(--frame-border);
       box-shadow:
@@ -457,9 +469,9 @@ function introCardHtml(iconUrl) {
           <div class="eyebrow">Tab Manager v2</div>
           <div class="hero">Organize Every Tab, Fast</div>
           <div class="deck">
-            Search, clean up, group, and customize without leaving the browser.
+            Search, tidy up, and organize tabs across all your windows.
           </div>
-          <div class="intro-meta">Six feature stories</div>
+          <div class="intro-meta">See how it works</div>
         </div>
       </div>
     </body>
@@ -488,7 +500,7 @@ function outroCardHtml(iconUrl) {
           <img class="card-icon" src="${iconUrl}" alt="" />
           <div class="hero small">Tab Manager v2</div>
           <div class="deck small">Search. Clean Up. Organize.</div>
-          <div class="deck small">Chrome extension for crowded browser workflows.</div>
+          <div class="deck small">Free for Chrome, Edge, and Firefox.</div>
         </div>
       </div>
     </body>
@@ -511,6 +523,7 @@ async function renderHtmlPng(page, { html, outputPath, transparent }) {
 
 async function buildOverlayAssets() {
   const browser = await chromium.launch({
+    executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
     headless: true,
   })
   const page = await browser.newPage()
@@ -674,6 +687,40 @@ function xfadeSegments(paths) {
   runFfmpeg(args, 'crossfading promo segments')
 }
 
+function writeChapters() {
+  let start = 2.4 - SCENE_TRANSITION_SECONDS
+  const chapters = CLIPS.map((clip) => {
+    const end =
+      start +
+      durationForVideo(clipOutputPath(clip.id)) -
+      SCENE_TRANSITION_SECONDS
+    const chapter = { id: clip.id, start, end, caption: clip.caption }
+    start = end
+    return chapter
+  })
+  const timestamp = (seconds) => {
+    const milliseconds = Math.round(seconds * 1000)
+    const hours = Math.floor(milliseconds / 3600000)
+    const minutes = Math.floor((milliseconds % 3600000) / 60000)
+    const remainder = milliseconds % 60000
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(Math.floor(remainder / 1000)).padStart(2, '0')}.${String(remainder % 1000).padStart(3, '0')}`
+  }
+  writeFileSync(
+    join(PROMO_DIR, 'chapters.json'),
+    JSON.stringify(chapters, null, 2),
+  )
+  writeFileSync(
+    join(PROMO_DIR, 'captions.vtt'),
+    'WEBVTT\n\n' +
+      chapters
+        .map(
+          (chapter) =>
+            `${timestamp(chapter.start)} --> ${timestamp(chapter.end)}\n${chapter.caption}\n`,
+        )
+        .join('\n'),
+  )
+}
+
 async function main() {
   ensureExists(VIDEO_DIR, 'captured feature clip directory')
   ensureExists(ICON_PATH, 'extension icon')
@@ -706,6 +753,7 @@ async function main() {
   )
 
   xfadeSegments(segmentPaths)
+  writeChapters()
   console.log(OUTPUT_PATH)
 }
 

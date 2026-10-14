@@ -217,8 +217,11 @@ const startTestVideoCapture = async (
   captureDir: string,
   captureLabel: string,
 ) => {
-  const frameDir = join(captureDir, '.frames', captureLabel)
-  const outputPath = join(captureDir, `${captureLabel}.mp4`)
+  // Some test files create a fresh browser for every case. Keep each recording
+  // instead of overwriting the previous case with the same file-level label.
+  const captureId = `${captureLabel}-${Date.now()}-${process.pid}`
+  const frameDir = join(captureDir, '.frames', captureId)
+  const outputPath = join(captureDir, `${captureId}.mp4`)
 
   rmSync(frameDir, { recursive: true, force: true })
   rmSync(outputPath, { force: true })
@@ -241,7 +244,11 @@ const startTestVideoCapture = async (
       `frame-${String(frameIndex).padStart(6, '0')}.jpg`,
     )
     writeFileSync(framePath, Buffer.from(data, 'base64'))
-    await client.send('Page.screencastFrameAck', { sessionId })
+    // A case can intentionally close the popup while its final frame is in
+    // flight. A late acknowledgement must not fail the application test.
+    await client
+      .send('Page.screencastFrameAck', { sessionId })
+      .catch(() => undefined)
   }
 
   client.on('Page.screencastFrame', onFrame)
@@ -254,8 +261,14 @@ const startTestVideoCapture = async (
   return {
     async stop() {
       try {
-        await page.waitForTimeout(200)
-        await client.send('Page.stopScreencast')
+        if (!page.isClosed()) {
+          try {
+            await page.waitForTimeout(200)
+            await client.send('Page.stopScreencast')
+          } catch (error) {
+            if (!page.isClosed()) throw error
+          }
+        }
       } finally {
         client.off('Page.screencastFrame', onFrame)
         await client.detach().catch(() => undefined)

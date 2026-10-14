@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global URL, console, setTimeout, chrome, document, window, HTMLElement */
 
 import { spawnSync } from 'node:child_process'
 import { createServer } from 'node:http'
@@ -693,6 +694,7 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
 async function initControlContext() {
   const userDataDir = mkdtempSync(join(tmpdir(), 'tmv2-video-'))
   const context = await chromium.launchPersistentContext(userDataDir, {
+    executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
     headless: false,
     screen: VIEWPORT,
     viewport: VIEWPORT,
@@ -912,13 +914,7 @@ async function installDemoCursor(page) {
   })
 }
 
-async function moveCursor(
-  page,
-  from,
-  to,
-  durationMs,
-  steps = Math.max(10, Math.round(durationMs / 16)),
-) {
+async function moveCursor(page, from, to, durationMs) {
   const pacedDurationMs = paceMove(durationMs)
   const pacedSteps = Math.max(10, Math.round(pacedDurationMs / 16))
   for (let index = 1; index <= pacedSteps; index += 1) {
@@ -1119,14 +1115,20 @@ async function startScreencast(page, clipName) {
 
   const client = await page.context().newCDPSession(page)
   let frameIndex = 0
+  const frames = []
+  const startedAt = Date.now() / 1000
 
-  const onFrame = async ({ data, sessionId }) => {
+  const onFrame = async ({ data, metadata, sessionId }) => {
     frameIndex += 1
     const framePath = join(
       clipWorkDir,
       `frame-${String(frameIndex).padStart(5, '0')}.jpg`,
     )
     writeFileSync(framePath, Buffer.from(data, 'base64'))
+    frames.push({
+      path: `frame-${String(frameIndex).padStart(5, '0')}.jpg`,
+      timestamp: metadata.timestamp,
+    })
     await client.send('Page.screencastFrameAck', { sessionId })
   }
 
@@ -1140,9 +1142,22 @@ async function startScreencast(page, clipName) {
   return {
     async stop() {
       await page.waitForTimeout(200)
+      const stoppedAt = Date.now() / 1000
       await client.send('Page.stopScreencast')
       await page.waitForTimeout(350)
       client.off('Page.screencastFrame', onFrame)
+      await client.detach()
+      if (!frames.length) throw new Error(`No frames captured for ${clipName}`)
+      // Screencast frames arrive only when the UI changes. Preserve their real
+      // timing, including reading pauses, instead of accelerating sparse frames.
+      const timeline = frames.map((frame, index) => {
+        const next = frames[index + 1]?.timestamp || stoppedAt
+        const current =
+          index === 0 ? Math.min(startedAt, frame.timestamp) : frame.timestamp
+        return `file '${frame.path}'\nduration ${Math.max(0.001, next - current).toFixed(6)}`
+      })
+      timeline.push(`file '${frames[frames.length - 1].path}'`)
+      writeFileSync(join(clipWorkDir, 'frames.txt'), timeline.join('\n'))
       return {
         clipWorkDir,
         frameCount: frameIndex,
@@ -1161,10 +1176,14 @@ function encodeClip(clipName, clipWorkDir) {
     'ffmpeg',
     [
       '-y',
-      '-framerate',
-      String(CAPTURE_FPS),
+      '-f',
+      'concat',
+      '-safe',
+      '0',
       '-i',
-      join(clipWorkDir, 'frame-%05d.jpg'),
+      join(clipWorkDir, 'frames.txt'),
+      '-vf',
+      `fps=${CAPTURE_FPS}`,
       '-c:v',
       'libx264',
       '-pix_fmt',
@@ -1227,6 +1246,7 @@ async function withScenario(
     console.log(`saved ${outputPath}`)
     return outputPath
   } finally {
+    await context.close().catch(() => undefined)
     rmSync(userDataDir, {
       recursive: true,
       force: true,
@@ -1312,7 +1332,7 @@ async function recordOrganizeGroups() {
   return withScenario(
     clipName,
     windows,
-    { useSystemTheme: false, darkTheme: false },
+    { useSystemTheme: false, darkTheme: false, showTabTooltip: false },
     async (page, startPoint, createdWindows) => {
       const groupId = createdWindows[0].groups[0].groupId
       await demoHold(page, 700)
@@ -1410,12 +1430,19 @@ async function recordCleanUpDuplicates() {
     },
     async (page, startPoint) => {
       await demoHold(page, 1100)
-      const cleanButton = page
-        .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
-        .first()
+      const moreButton = page.getByRole('button', {
+        name: 'More toolbar actions',
+        exact: true,
+      })
+      const moreCenter = await getCenter(moreButton)
+      await moveCursor(page, startPoint, moreCenter, 800)
+      await clickLocator(page, moreButton)
+      const cleanButton = page.getByRole('menuitem', {
+        name: /^Close \d+ duplicate tabs?$/,
+      })
       await cleanButton.waitFor({ state: 'visible', timeout: 15000 })
       const buttonCenter = await getCenter(cleanButton)
-      await moveCursor(page, startPoint, buttonCenter, 950)
+      await moveCursor(page, moreCenter, buttonCenter, 500)
       await demoPause(page, 220)
       await clickCurrent(page)
       await demoHold(page, 2400)
@@ -1566,26 +1593,30 @@ async function recordKeyboardWorkflow() {
     clipName,
     windows,
     { useSystemTheme: false, darkTheme: false },
-    async (page, startPoint) => {
+    async (page, startPoint, createdWindows) => {
       await demoHold(page, 850)
 
-      const helpButton = page
-        .locator('button[aria-label="Show shortcut hints"]')
-        .first()
-      const helpCenter = await getCenter(helpButton)
-      await moveCursor(page, startPoint, helpCenter, 850)
-      await demoPause(page, 180)
-      await clickCurrent(page)
+      const tab = page.getByTestId(`tab-row-${createdWindows[0].tabIds[0]}`)
+      const tabCenter = await getCenter(tab)
+      await moveCursor(page, startPoint, tabCenter, 700)
+      await tab.click({ button: 'right' })
+      await page.getByRole('menu').waitFor({ state: 'visible' })
+      await demoHold(page, 700)
+      await page.keyboard.press('Escape')
 
-      const searchBox = page.getByRole('searchbox', { name: 'Search' })
+      await page.keyboard.press(
+        process.platform === 'darwin' ? 'Meta+k' : 'Alt+k',
+      )
+      const palette = page.getByRole('dialog', { name: 'Command palette' })
+      const searchBox = palette.getByRole('combobox')
       await searchBox.waitFor({ state: 'visible', timeout: 15000 })
       await demoPause(page, 350)
       const searchCenter = await getCenter(searchBox)
-      await moveCursor(page, helpCenter, searchCenter, 700)
+      await moveCursor(page, tabCenter, searchCenter, 700)
       await demoPause(page, 120)
       await clickCurrent(page)
       await demoPause(page, 180)
-      await searchBox.type('group', { delay: paceType(150) })
+      await searchBox.type('copy', { delay: paceType(150) })
       await demoHold(page, 1900)
     },
   )
@@ -1635,7 +1666,7 @@ async function recordCustomizeView() {
       await panel.waitFor({ state: 'visible', timeout: 15000 })
       await demoPause(page, 450)
 
-      const darkThemeButton = panel.getByRole('button', {
+      const darkThemeButton = panel.getByRole('radio', {
         name: 'Use dark theme',
       })
       const darkCenter = await getCenter(darkThemeButton)
@@ -2012,6 +2043,7 @@ async function main() {
     if (!shouldCaptureClip(clip.id)) {
       continue
     }
+    console.log(`Capturing ${clip.id}`)
     outputs.push(await clip.capture())
   }
 
