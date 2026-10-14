@@ -41,6 +41,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedCopy = {
     'zh-Hans': {
+      'Open command palette screenshot': '打开命令面板截图',
+      'Contextual command palette': '按上下文显示命令的面板',
+      'Command palette screenshot in light theme': '浅色主题下的命令面板截图',
+      'Command palette screenshot in dark theme': '深色主题下的命令面板截图',
+      'Find actions for your focused and selected tabs.':
+        '查找聚焦和所选标签页的操作。',
+      'Coming in 3.0': '即将推出 3.0',
+      'Organize and share your tabs.': '整理并分享你的标签页。',
+      'Try the new workflows in the demo while the browser-store release is being prepared.':
+        '浏览器商店版本正在准备中，你可以先在演示中试用新流程。',
+      'A dedicated command palette': '独立的命令面板',
+      'Press Command+K on macOS or Alt+K on Windows/Linux inside Tab Manager. Find actions and window or group destinations; keep your search position when you return.':
+        '在 Tab Manager 内，在 macOS 上按 Command+K，或在 Windows/Linux 上按 Alt+K。查找操作和目标窗口或标签页组；返回时保留搜索位置。',
+      'Organize directly': '直接整理',
+      "Right-click tabs, windows, and groups for their actions. Drop tabs at a window or group's beginning or end, including collapsed groups.":
+        '右键点击标签页、窗口和标签页组以查看操作。将标签页拖放到窗口或标签页组的开头或末尾，包括已折叠的组。',
+      'Copy and export without losing selection': '复制和导出后保留选择',
+      'Copy titles, URLs, both, CSV, TSV, JSON, or Markdown. Download CSV/JSON, or expand long title and URL details to select and copy text.':
+        '复制标题、网址、两者、CSV、TSV、JSON 或 Markdown。下载 CSV/JSON，或展开长标题和网址详情以选择和复制文字。',
+      'Settings you can see': '看得见的设置效果',
+      'Search one Settings page with sticky headings and live previews. Lite mode keeps quick actions nearby and opens full view for larger tasks.':
+        '在单页设置中搜索，借助置顶标题和实时预览了解设置效果。精简模式提供快捷操作，较大的任务会在完整视图中打开。',
       'Tab Manager v2 - See every tab across every window.':
         'Tab Manager v2 - 一次看清所有窗口里的标签页。',
       'Turn crowded browser sessions into a searchable workspace. Find tabs fast, move matches in bulk, manage native tab groups where supported by the browser, and clean up duplicates.':
@@ -233,6 +255,28 @@ document.addEventListener('DOMContentLoaded', () => {
       'Back to Top': '返回顶部',
     },
     'zh-Hant': {
+      'Open command palette screenshot': '開啟指令面板截圖',
+      'Contextual command palette': '依情境顯示指令的面板',
+      'Command palette screenshot in light theme': '淺色主題下的指令面板截圖',
+      'Command palette screenshot in dark theme': '深色主題下的指令面板截圖',
+      'Find actions for your focused and selected tabs.':
+        '尋找聚焦和所選分頁的操作。',
+      'Coming in 3.0': '即將推出 3.0',
+      'Organize and share your tabs.': '整理並分享你的分頁。',
+      'Try the new workflows in the demo while the browser-store release is being prepared.':
+        '瀏覽器商店版本正在準備中，你可以先在示範中試用新流程。',
+      'A dedicated command palette': '獨立的指令面板',
+      'Press Command+K on macOS or Alt+K on Windows/Linux inside Tab Manager. Find actions and window or group destinations; keep your search position when you return.':
+        '在 Tab Manager 內，在 macOS 上按 Command+K，或在 Windows/Linux 上按 Alt+K。尋找操作和目標視窗或分頁群組；返回時保留搜尋位置。',
+      'Organize directly': '直接整理',
+      "Right-click tabs, windows, and groups for their actions. Drop tabs at a window or group's beginning or end, including collapsed groups.":
+        '在分頁、視窗和分頁群組上按右鍵以查看操作。將分頁拖放到視窗或分頁群組的開頭或結尾，包括已摺疊的群組。',
+      'Copy and export without losing selection': '複製和匯出後保留選取',
+      'Copy titles, URLs, both, CSV, TSV, JSON, or Markdown. Download CSV/JSON, or expand long title and URL details to select and copy text.':
+        '複製標題、網址、兩者、CSV、TSV、JSON 或 Markdown。下載 CSV/JSON，或展開長標題和網址詳情以選取和複製文字。',
+      'Settings you can see': '看得見的設定效果',
+      'Search one Settings page with sticky headings and live previews. Lite mode keeps quick actions nearby and opens full view for larger tasks.':
+        '在單頁設定中搜尋，藉助置頂標題和即時預覽了解設定效果。精簡模式提供快捷操作，較大的任務會在完整檢視中開啟。',
       'Tab Manager v2 - See every tab across every window.':
         'Tab Manager v2 - 一次看清所有視窗裡的分頁。',
       'Turn crowded browser sessions into a searchable workspace. Find tabs fast, move matches in bulk, manage native tab groups where supported by the browser, and clean up duplicates.':

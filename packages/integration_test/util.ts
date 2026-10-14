@@ -278,6 +278,7 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
   const captureDir = process.env.TMV2_RECORD_TEST_VIDEO_DIR
   const captureLabel = process.env.TMV2_RECORD_TEST_VIDEO_LABEL
   const browserContext = (await chromium.launchPersistentContext(userDataDir, {
+    executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
     headless,
     // The Chromium channel supports extensions in the full headless browser.
     // Opting in avoids desktop focus contention between parallel hover tests.

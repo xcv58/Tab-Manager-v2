@@ -259,6 +259,11 @@ describeFirefox('Firefox extension grouped tabs integration', () => {
     const members = await getGroupMembers(driver, groupId)
     expect(members.tabIds).toHaveLength(2)
 
+    const header = await waitForCss(
+      driver,
+      `[data-testid="tab-group-header-${groupId}"]`,
+    )
+    await driver.actions({ async: true }).move({ origin: header }).perform()
     await clickByTestId(driver, `tab-group-menu-${groupId}`)
     await clickByTestId(driver, `tab-group-menu-ungroup-${groupId}`)
 

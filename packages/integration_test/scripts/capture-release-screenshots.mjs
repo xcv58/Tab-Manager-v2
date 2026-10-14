@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global URL, chrome, console, document, HTMLElement, HTMLInputElement, location, NodeFilter, requestAnimationFrame, setTimeout, window */
 
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
@@ -135,11 +136,11 @@ const REQUIRED_TAB_TITLE_RULES = [
   ['https://www.langchain.com/', ['langchain']],
   ['https://www.linkedin.com/', ['linkedin'], { allowAuthTitle: true }],
   ['https://www.loom.com/', ['loom']],
-  ['https://www.mongodb.com/', ['mongodb']],
+  ['https://www.mongodb.com/', ['mongodb'], { allowStableLoading: true }],
   ['https://www.netlify.com/', ['netlify']],
   ['https://www.notion.so/', ['notion']],
   ['https://www.npr.org/', ['npr'], { allowStableLoading: true }],
-  ['https://www.postman.com/', ['postman']],
+  ['https://www.postman.com/', ['postman', 'api engineering for your agents']],
   ['https://www.python.org/', ['python']],
   [
     'https://www.reddit.com/r/chrome_extensions/',
@@ -617,16 +618,6 @@ function realUrl(key) {
   return url
 }
 
-function resolveWindows(definitions) {
-  return definitions.map((definition) => ({
-    tabs: definition.tabs.map(realUrl),
-    groups: (definition.groups || []).map((group) => ({
-      ...group,
-      urls: group.urls.map(realUrl),
-    })),
-  }))
-}
-
 function screenshotName(baseName, themeName) {
   return `${baseName}-${themeName}`
 }
@@ -662,6 +653,7 @@ function ensureMagickExists() {
 async function initExtensionPage() {
   const userDataDir = mkdtempSync(join(tmpdir(), 'tmv2-release-'))
   const context = await chromium.launchPersistentContext(userDataDir, {
+    executablePath: process.env.RELEASE_SCREENSHOT_BROWSER_PATH || undefined,
     headless: false,
     ignoreDefaultArgs: ['--enable-automation'],
     screen: VIEWPORT,
@@ -1841,7 +1833,11 @@ async function assertFinalCaptureState(page, name, browserState) {
       for (const tabRow of document.querySelectorAll(
         '[data-testid^="tab-row-"]',
       )) {
-        if (tabRow.closest('[data-testid^="row-details-preview-"]') !== null) {
+        if (
+          tabRow.closest(
+            '.settings-shared-preview, [data-testid^="row-details-preview-"]',
+          ) !== null
+        ) {
           continue
         }
         const tabId = Number(tabRow.getAttribute('data-testid')?.slice(8))
@@ -1929,7 +1925,9 @@ async function assertFinalCaptureState(page, name, browserState) {
               .trim(),
             source:
               expectedUrlByTabId.get(tabId) ||
-              (tabRow.closest('[data-testid^="row-details-preview-"]')
+              (tabRow.closest(
+                '.settings-shared-preview, [data-testid^="row-details-preview-"]',
+              )
                 ? '(settings-preview)'
                 : '(unexpected)'),
           }
@@ -2164,6 +2162,7 @@ async function waitForExpectedTabStates(page, browserState) {
         return {
           settled:
             !!tab &&
+            !tab.discarded &&
             title.length > 0 &&
             titleRuleSatisfied &&
             statusSettled &&
@@ -2280,6 +2279,8 @@ async function waitForExpectedTabStates(page, browserState) {
 
       await assertExpectedGlobalState()
       try {
+        // Wake discarded/unloaded sources within this existing restore boundary;
+        // Memory Saver can unload them between light and dark captures.
         await Promise.all(
           [...expectationsByWindowId.values()].map(async (expectations) => {
             for (const expectation of expectations) {
@@ -2417,6 +2418,7 @@ async function waitForRenderedTabContent(page, browserState) {
       const visibleTabRows = Array.from(
         document.querySelectorAll('[data-testid^="tab-row-"]'),
       ).filter((tabRow) => {
+        if (tabRow.closest('.settings-shared-preview')) return false
         const rect = tabRow.getBoundingClientRect()
         return (
           rect.bottom > 0 &&
@@ -2591,6 +2593,13 @@ async function waitForRenderedTabContent(page, browserState) {
             !blockedTitleSnippets.some((snippet) => title.includes(snippet))
           )
         }
+        for (const expectation of expectedWindows) {
+          if (typeof expectation.activeTabId !== 'number') {
+            throw new Error(
+              `Missing expected active tab for window ${expectation.windowId}`,
+            )
+          }
+        }
         try {
           for (const tabId of tabIds) {
             try {
@@ -2618,11 +2627,6 @@ async function waitForRenderedTabContent(page, browserState) {
           }
         } finally {
           for (const expectation of expectedWindows) {
-            if (typeof expectation.activeTabId !== 'number') {
-              throw new Error(
-                `Missing expected active tab for window ${expectation.windowId}`,
-              )
-            }
             await chrome.tabs.update(expectation.activeTabId, { active: true })
           }
           for (const group of expectedGroups) {
@@ -2703,6 +2707,7 @@ async function waitForRenderedTabContent(page, browserState) {
         const tabRows = Array.from(
           document.querySelectorAll('[data-testid^="tab-row-"]'),
         ).filter((tabRow) => {
+          if (tabRow.closest('.settings-shared-preview')) return false
           const rect = tabRow.getBoundingClientRect()
           return (
             rect.bottom > 0 &&
@@ -3088,9 +3093,10 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   console.log('    waiting for duplicate cleanup scenario counts')
   await waitForScenarioReady(page, scenarioCounts(windows))
-  await page.waitForSelector(
-    'button[aria-label^="Clean "][aria-label*="duplicate"]',
-  )
+  await page.getByRole('button', { name: 'More toolbar actions' }).click()
+  await page
+    .getByRole('menuitem', { name: /^Close \d+ duplicate tabs?$/ })
+    .waitFor()
   return saveScreenshot(
     page,
     screenshotName('04-duplicate-cleanup', theme.name),
@@ -3210,6 +3216,9 @@ async function captureSettings(page, fullPageUrl, theme, controller) {
   await reloadPopup(page)
   await waitForScenarioReady(page, scenarioCounts(windows))
   await page.locator('button[aria-label="Settings"]').first().click()
+  await page
+    .getByRole('textbox', { name: 'Search settings' })
+    .fill('appearance')
   await page.getByTestId('settings-panel-theme-density').waitFor()
   return saveScreenshot(
     page,
@@ -3226,7 +3235,7 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
         realUrl('launch/release-roadmap'),
         realUrl('launch/store-copy'),
         realUrl('reading/accessibility-audit'),
-        realUrl('reading/changelog-draft'),
+        realUrl('launch/qa-signoff'),
         realUrl('brand/jenny-youtube'),
       ],
       groups: [
@@ -3244,9 +3253,16 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
   const createdWindows = await createDemoWindows(page, windows)
   await reloadPopup(page)
   await waitForScenarioReady(page, scenarioCounts(windows))
-  const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
-  await searchInput.fill('>sort')
-  await page.waitForSelector('[role="option"]')
+  const targets = createdWindows[0].tabIds.slice(0, 2)
+  for (const tabId of targets) {
+    const checkbox = page.getByTestId(`tab-row-${tabId}`).getByRole('checkbox')
+    await checkbox.focus()
+    await checkbox.check()
+  }
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Alt+k')
+  await page
+    .getByRole('dialog', { name: 'Command palette', exact: true })
+    .waitFor()
   return saveScreenshot(
     page,
     screenshotName('08-command-palette', theme.name),

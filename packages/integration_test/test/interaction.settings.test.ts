@@ -394,6 +394,8 @@ test.describe('The Extension page should', () => {
     await urlLimit.selectOption('5')
     await expect(settings).toHaveScreenshot(
       'settings-title-url-line-limits.png',
+      // Release versions change independently of this settings layout.
+      { mask: [settings.getByText(/^v\d+\.\d+\.\d+$/)] },
     )
     const sample = settings
       .getByTestId('tab-details-shared-preview')
