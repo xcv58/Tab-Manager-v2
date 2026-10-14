@@ -439,6 +439,10 @@ const setupLeftmostEmptyColumnVisualScenario = async () => {
     LEFTMOST_EMPTY_COLUMN_WINDOW_URLS,
   )
   const targetWindowId = createdWindowIds[0]
+  // Configure this visual fixture before reload so that creating an empty
+  // column does not depend on a live Settings transition. The separate
+  // window-order tests exercise the Settings control itself.
+  await writeExtensionSettings(page, { windowOrder: 'lastUsed' })
   await page.evaluate(
     async ({ targetWindowId, timestamp }) => {
       await chrome.storage.local.set({
@@ -456,8 +460,6 @@ const setupLeftmostEmptyColumnVisualScenario = async () => {
   await page.reload()
   await page.waitForLoadState('domcontentloaded')
   await waitForTestId(page, `window-card-${targetWindowId}`)
-  await waitForMainSurfaceToSettle(page)
-  await enableLastUsedWindowOrderThroughSettings(page)
   await waitForMainSurfaceToSettle(page)
 
   const firstColumn = page.getByTestId('window-column-0')

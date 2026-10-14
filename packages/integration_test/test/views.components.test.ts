@@ -1156,22 +1156,29 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
-    await page.keyboard.press('Escape')
-    await page.keyboard.press('Escape')
+    // Clear this visual fixture explicitly. Escape's dismissal order depends
+    // on whether search, a result list, or an interactive tooltip has focus;
+    // that keyboard behavior has dedicated interaction coverage.
+    await queryInput.fill('')
+    await queryInput.press('Escape')
+    await expect(queryInput).toHaveAttribute('aria-expanded', 'false')
     await expect(
       page.locator('input[placeholder*="Search tabs or URLs"]'),
     ).toHaveValue('')
     await page.waitForTimeout(200)
-    const selectButton = pinnedRow
-      .locator('[aria-label="Toggle select"]')
-      .first()
-    await selectButton.click({ force: true })
-    const selectedBackground = await pinnedRow.evaluate(
-      (node) => (node as HTMLElement).style.backgroundColor,
-    )
-    expect(selectedBackground).toMatch(
-      /rgba\(26, 115, 232, 0\.14\)|rgba\(181, 199, 230, 0\.2\)/,
-    )
+    const selectCheckbox = pinnedRow.getByRole('checkbox', {
+      name: 'Toggle select',
+    })
+    await selectCheckbox.focus()
+    await selectCheckbox.click()
+    await expect(selectCheckbox).toBeChecked()
+    await expect
+      .poll(() =>
+        pinnedRow.evaluate(
+          (node) => (node as HTMLElement).style.backgroundColor,
+        ),
+      )
+      .toMatch(/rgba\(26, 115, 232, 0\.14\)|rgba\(181, 199, 230, 0\.2\)/)
     const selectedShot = await pinnedRow.screenshot()
     expect(selectedShot).toMatchSnapshot('tab-row-state-selected.png', {
       maxDiffPixelRatio: 0.12,
