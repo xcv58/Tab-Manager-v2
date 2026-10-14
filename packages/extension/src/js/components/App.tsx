@@ -10,7 +10,7 @@ import { browser } from 'libs'
 import Main from './Main'
 import { ReduceMotionProvider } from 'libs/useReduceMotion'
 
-export default observer(() => {
+export default observer(({ children }: { children?: React.ReactNode }) => {
   const { userStore } = useStore()
   const systemTheme = useSystemTheme()
   const isDarkTheme =
@@ -38,7 +38,7 @@ export default observer(() => {
           <DndProvider context={window} backend={HTML5Backend}>
             <ThemeContext.Provider value={isDarkTheme}>
               <ReduceMotionProvider>
-                <Main />
+                {children ?? <Main />}
               </ReduceMotionProvider>
             </ThemeContext.Provider>
           </DndProvider>

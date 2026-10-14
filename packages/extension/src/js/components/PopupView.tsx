@@ -10,7 +10,7 @@ import LayoutRepackIndicator from './LayoutRepackIndicator'
 import PopupActionsMenu from './PopupActionsMenu'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
-export default observer(() => {
+export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
   const theme = useAppTheme()
   const { userStore } = useStore()
   const uiColors = getUiColorTokens(
@@ -38,7 +38,7 @@ export default observer(() => {
       >
         <Summary />
         <LayoutRepackIndicator />
-        <AutocompleteSearch autoFocus open bottomInset={44} />
+        <AutocompleteSearch autoFocus={autoFocus} open bottomInset={44} />
       </div>
       <div
         className="corner-dock absolute right-0 bottom-0 flex items-center gap-1 border px-2 py-1"

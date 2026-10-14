@@ -25,7 +25,16 @@ for (const entryName in config.entry) {
 
 delete config.chromeExtensionBoilerplate
 
-const compiler = webpack({ ...config, mode: 'development' })
+const previewConfig = require('../webpack.settings-preview.config')()
+previewConfig.entry['settings-preview'] = [
+  'webpack-dev-server/client?http://localhost:' + env.PORT,
+  'webpack/hot/dev-server',
+].concat(previewConfig.entry['settings-preview'])
+previewConfig.plugins.push(new webpack.HotModuleReplacementPlugin())
+const compiler = webpack([
+  { ...config, name: 'extension', mode: 'development' },
+  { ...previewConfig, mode: 'development' },
+])
 
 const server = new WebpackDevServer(
   {

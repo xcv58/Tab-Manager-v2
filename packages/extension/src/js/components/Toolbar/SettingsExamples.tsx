@@ -318,19 +318,19 @@ export const TabDetailsPreview = observer(function TabDetailsPreview() {
             {
               ...common,
               id: 9100,
-              iconUrl: previewIcon('R', '#0891b2'),
+              iconUrl: previewIcon('N', '#0891b2'),
               title:
                 'Active tab · Planning a workspace with long titles, detailed notes, and reference links across browser windows',
-              url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2658?preview=tooltip-url-length&theme=dark&style=classic&contrast=increased&show=long-query-parameters&source=settings-preview',
+              url: 'https://notes.example.test/project/research?view=reference-library&topic=planning-a-workspace&sort=recently-updated&include=long-titles-and-detailed-notes&source=sample-preview',
               active: true,
             },
             ...[9101, 9102].map((id) => ({
               ...common,
               id,
-              title: 'Tab Manager issue tracker',
-              url: 'https://github.com/xcv58/Tab-Manager-v2/issues/2580',
+              title: 'Project issue tracker',
+              url: 'https://issues.example.test/project/42',
               duplicatedTabCount: 2,
-              iconUrl: previewIcon('G', '#475569'),
+              iconUrl: previewIcon('I', '#475569'),
             })),
           ]}
         />

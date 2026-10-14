@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { PurgeCSSPlugin } = require('purgecss-webpack-plugin')
 const glob = require('glob-all')
+const webpack = require('webpack')
 const extensionConfig = require('./webpack.config')
 
 // This alias belongs only to this build. Extension bundles always use the real API.
@@ -16,6 +17,7 @@ module.exports = () => {
     entry: {
       workspace: path.join(__dirname, 'src/js/demo.tsx'),
       shell: path.join(__dirname, 'src/js/demo-shell.ts'),
+      'settings-preview': path.join(__dirname, 'src/js/settings-preview.tsx'),
     },
     output: {
       ...config.output,
@@ -49,6 +51,11 @@ module.exports = () => {
       },
     },
     plugins: [
+      new webpack.DefinePlugin({
+        chrome: 'undefined',
+        'window.chrome': 'undefined',
+        'globalThis.chrome': 'undefined',
+      }),
       ...config.plugins.filter(
         (plugin) =>
           !(plugin instanceof CopyWebpackPlugin) &&
@@ -92,6 +99,11 @@ module.exports = () => {
         template: path.join(__dirname, 'src/demo-workspace.html'),
         filename: 'workspace.html',
         chunks: ['workspace'],
+      }),
+      new HtmlWebpackPlugin({
+        template: path.join(__dirname, 'src/settings-preview.html'),
+        filename: 'settings-preview.html',
+        chunks: ['settings-preview'],
       }),
     ].filter(Boolean),
   }

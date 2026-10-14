@@ -34,7 +34,9 @@ const numberRanges: Array<[string, number, number]> = [
   ['tabWidth', 15, 50],
 ]
 
-const sanitizePreferences = (value: unknown): Record<string, unknown> => {
+export const sanitizePreferences = (
+  value: unknown,
+): Record<string, unknown> => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
   const source = value as Record<string, unknown>
   const settings: Record<string, unknown> = {}

@@ -1,67 +1,145 @@
-import React, { useEffect, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { observer } from 'mobx-react-lite'
+import useSystemTheme from 'use-system-theme'
 import { useStore } from 'components/hooks/useStore'
 import { useAppTheme } from 'libs/appTheme'
-import { getUiColorTokens } from 'libs/uiColorTokens'
-import { getActionCountLayout } from 'libs/verify'
-import { SearchIcon } from 'icons/actionIcons'
-import {
-  CloseIcon,
-  MoreHorizIcon,
-  SettingsSharpIcon,
-  HelpIcon,
-  RefreshIcon,
-  KeyboardArrowLeftIcon,
-  LightModeRoundedIcon,
-  DarkModeRoundedIcon,
-} from 'icons/materialIcons'
+import { browser } from 'libs'
+import { drawActionIcon, formatActionTabCountLabel } from 'libs/verify'
 import tabManagerIcon from 'img/icon-128.png'
 import tabManagerDarkIcon from 'img/icon-128-dark.png'
-import { Example, SampleWindowPreview } from './SettingsExamples'
-import { previewWindows } from './SettingsPreviewData'
-import { TabRowsPreview } from './TabRowPreview'
+import { Example } from './SettingsExamples'
 
-export default observer(function SettingsPopupPreview() {
+const popupWidth = 800
+const popupHeight = 600
+
+export default observer(function SettingsPopupPreview({
+  onClose,
+}: {
+  onClose: () => void
+}) {
   const { userStore } = useStore()
   const theme = useAppTheme()
   const dark = theme.mode === 'dark'
-  const colors = getUiColorTokens(
-    dark,
-    userStore.uiPreset,
-    userStore.increaseContrast,
-  )
-  const [query, setQuery] = useState('')
-  const [toolbarHovered, setToolbarHovered] = useState(false)
-  const [toolbarFocused, setToolbarFocused] = useState(false)
-  const [popupToolbarHovered, setPopupToolbarHovered] = useState(false)
-  const [popupToolbarFocused, setPopupToolbarFocused] = useState(false)
-  const [hint, setHint] = useState(0)
+  const browserDark = useSystemTheme() === 'dark'
+  const frameRef = useRef<HTMLIFrameElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const iconRef = useRef<HTMLCanvasElement>(null)
+  const [scale, setScale] = useState(0.5)
+  const [counts, setCounts] = useState({
+    tabCount: 23,
+    currentWindowTabCount: 4,
+  })
+  const [ready, setReady] = useState(false)
+  const settings = JSON.stringify({
+    fontSize: userStore.fontSize,
+    tabWidth: userStore.tabWidth,
+    autoFitColumns: userStore.autoFitColumns,
+    windowOrder: userStore.windowOrder,
+    uiPreset: userStore.uiPreset,
+    increaseContrast: userStore.increaseContrast,
+    showUrl: userStore.showUrl,
+    showTabIcon: userStore.showTabIcon,
+    showTabTooltip: userStore.showTabTooltip,
+    tabTooltipUrlLines: userStore.tabTooltipUrlLines,
+    highlightDuplicatedTab: userStore.highlightDuplicatedTab,
+    highlightActiveTabsInAllWindows: userStore.highlightActiveTabsInAllWindows,
+    showUnmatchedTab: userStore.showUnmatchedTab,
+    showAppWindow: userStore.showAppWindow,
+    litePopupMode: userStore.litePopupMode,
+    toolbarAutoHide: userStore.toolbarAutoHide,
+    showShortcutHint: userStore.showShortcutHint,
+    useSystemTheme: false,
+    darkTheme: dark,
+  })
+  const sendPreferences = useCallback(() => {
+    frameRef.current?.contentWindow?.postMessage(
+      { type: 'settings-preview:preferences', settings: JSON.parse(settings) },
+      window.location.origin,
+    )
+  }, [settings])
+  useEffect(sendPreferences, [sendPreferences])
   useEffect(() => {
-    if (!hint) return
-    const timeout = window.setTimeout(() => setHint(0), 2500)
-    return () => window.clearTimeout(timeout)
-  }, [hint])
-  const tabs = previewWindows.flatMap((win) => win.tabs)
-  const filtered = tabs.filter((tab) =>
-    `${tab.title} ${tab.url}`
-      .toLocaleLowerCase()
-      .includes(query.toLocaleLowerCase()),
-  )
+    const onState = (event: MessageEvent) => {
+      if (
+        event.source !== frameRef.current?.contentWindow ||
+        event.origin !== window.location.origin
+      )
+        return
+      if (event.data?.type === 'settings-preview:escape') {
+        onClose()
+        return
+      }
+      if (event.data?.type !== 'settings-preview:state') return
+      const { tabCount, currentWindowTabCount } = event.data
+      if (
+        !Number.isInteger(tabCount) ||
+        tabCount < 0 ||
+        !Number.isInteger(currentWindowTabCount) ||
+        currentWindowTabCount < 0
+      )
+        return
+      setReady(true)
+      setCounts((previous) =>
+        previous.tabCount === tabCount &&
+        previous.currentWindowTabCount === currentWindowTabCount
+          ? previous
+          : { tabCount, currentWindowTabCount },
+      )
+    }
+    window.addEventListener('message', onState)
+    return () => window.removeEventListener('message', onState)
+  }, [onClose])
+  useLayoutEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const measure = () => setScale(container.clientWidth / popupWidth)
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
+    resizeObserver?.observe(container)
+    window.addEventListener('resize', measure)
+    measure()
+    return () => {
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
   const count =
     userStore.actionTabCountMode === 'currentWindow'
-      ? previewWindows[0].tabs.length
-      : tabs.length
-  const iconLayout = getActionCountLayout(24, String(count))
-  const toolbarVisible =
-    !userStore.toolbarAutoHide || toolbarHovered || toolbarFocused
-  const popupToolbarVisible =
-    !userStore.toolbarAutoHide || popupToolbarHovered || popupToolbarFocused
+      ? counts.currentWindowTabCount
+      : counts.tabCount
+  const label =
+    userStore.actionTabCountMode === 'off'
+      ? null
+      : formatActionTabCountLabel(count)
+  useEffect(() => {
+    const canvas = iconRef.current
+    if (!canvas) return
+    let cancelled = false
+    const bitmap = new Image()
+    bitmap.onload = () => {
+      if (cancelled) return
+      const size = Math.round(19 * window.devicePixelRatio)
+      canvas.width = size
+      canvas.height = size
+      drawActionIcon(canvas, bitmap, size, label, browserDark)
+    }
+    bitmap.src = browserDark ? tabManagerDarkIcon : tabManagerIcon
+    return () => {
+      cancelled = true
+    }
+  }, [browserDark, label])
   return (
     <div data-testid="settings-popup-preview">
       <Example label="browser and popup">
         <div
           className="settings-browser-preview"
-          style={{ backgroundColor: colors.appCanvasSurface }}
+          data-browser-theme={browserDark ? 'dark' : 'light'}
         >
           <div className="settings-browser-titlebar" aria-hidden="true">
             <span className="settings-browser-traffic-lights">
@@ -69,227 +147,67 @@ export default observer(function SettingsPopupPreview() {
               <i />
               <i />
             </span>
-            <span>Tab Manager</span>
+            <span>Project notes</span>
           </div>
           <div className="settings-browser-addressbar">
             <span className="settings-browser-address" aria-hidden="true">
-              tab.jenny.media
+              notes.example.test/project
             </span>
-            <span
+            <canvas
+              ref={iconRef}
               className="settings-browser-extension-icon"
               role="img"
               aria-label={
-                userStore.actionTabCountMode === 'off'
+                label === null
                   ? 'Extension icon without tab count'
-                  : `Extension icon: ${count} tabs`
+                  : `Extension icon: ${count} sample tabs`
               }
-              style={{ backgroundColor: dark ? '#334155' : '#fff' }}
-            >
-              <img
-                src={dark ? tabManagerDarkIcon : tabManagerIcon}
-                alt=""
-                width={24}
-                height={24}
-              />
-              {userStore.actionTabCountMode !== 'off' && (
-                <span
-                  data-testid="settings-preview-icon-count"
-                  style={{
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    left: iconLayout.overlayInsetLeft,
-                    right: iconLayout.overlayInsetRight,
-                    bottom: iconLayout.overlayBottomInset,
-                    height: iconLayout.overlayHeight,
-                    borderRadius: iconLayout.borderRadius,
-                    fontSize: iconLayout.fontSize,
-                    fontWeight: iconLayout.fontWeight,
-                    backgroundColor: dark ? '#e0e7ff' : '#1d4ed8',
-                    color: dark ? '#1f2350' : '#fff',
-                  }}
-                >
-                  {count}
-                </span>
-              )}
-            </span>
+              data-testid="settings-preview-icon-count"
+              data-count={label}
+            />
           </div>
           <div className="settings-browser-scene">
             <div
-              className="settings-browser-background"
-              aria-hidden="true"
-              style={{ color: colors.mutedText }}
+              ref={containerRef}
+              className="settings-popup-frame"
+              style={{ height: popupHeight * scale + 2 }}
             >
-              <strong>
-                {previewWindows.length} windows · {tabs.length} tabs
-              </strong>
-              {previewWindows[0].tabs.map((tab) => (
-                <div key={tab.id}>{tab.title}</div>
-              ))}
-            </div>
-            <div
-              className="settings-popup-sample"
-              data-lite-mode={userStore.litePopupMode}
-              style={{
-                backgroundColor: colors.windowCardSurface,
-                color: colors.primaryText,
-                borderColor: colors.windowCardBorderColor,
-                borderRadius: userStore.uiPreset === 'classic' ? 0 : 6,
-              }}
-            >
-              <div
-                className="settings-popup-sample-summary"
-                style={{ backgroundColor: colors.popupHeaderSurface }}
-              >
-                {previewWindows.length} windows · {tabs.length} tabs
-              </div>
-              <label className="settings-popup-sample-search">
-                <SearchIcon fontSize={16} aria-hidden="true" />
-                <input
-                  aria-label="Search sample popup tabs"
-                  placeholder="Search sample tabs…"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-              </label>
-              <div className="settings-popup-sample-results">
-                {userStore.litePopupMode || query ? (
-                  filtered.length ? (
-                    <TabRowsPreview
-                      configs={filtered.slice(0, 5).map((tab) => ({
-                        ...tab,
-                        id: tab.id + 3000,
-                        fontSize: userStore.fontSize,
-                        uiPreset: userStore.uiPreset,
-                        increaseContrast: userStore.increaseContrast,
-                        showTabIcon: userStore.showTabIcon,
-                        showUrl: userStore.showUrl,
-                      }))}
-                    />
-                  ) : (
-                    <p className="settings-preview-caption">
-                      No sample tabs match.
-                    </p>
-                  )
-                ) : (
-                  previewWindows.map((win) => (
-                    <SampleWindowPreview
-                      key={win.id}
-                      win={win}
-                      idOffset={3000}
-                    />
-                  ))
-                )}
-              </div>
-              <div
-                className="settings-popup-sample-footer"
-                tabIndex={userStore.litePopupMode ? undefined : 0}
-                role="group"
-                aria-label="Popup toolbar preview"
-                onMouseEnter={() => setPopupToolbarHovered(true)}
-                onMouseLeave={() => setPopupToolbarHovered(false)}
-                onFocus={() => setPopupToolbarFocused(true)}
-                onBlur={() => setPopupToolbarFocused(false)}
+              <iframe
+                ref={frameRef}
+                title="Sample Tab Manager popup"
+                src={`${browser.runtime.getURL('settings-preview.html')}?not_popup=1`}
+                onLoad={sendPreferences}
+                className="settings-popup-iframe"
                 style={{
-                  backgroundColor: colors.popupControlsSurface,
-                  borderColor: colors.popupControlsBorderColor,
-                  borderTopLeftRadius: colors.toolbarShellBorderRadius,
+                  width: popupWidth,
+                  height: popupHeight,
+                  transform: `scale(${scale})`,
                 }}
-              >
-                <span className="flex items-center gap-3" aria-hidden="true">
-                  {userStore.litePopupMode ? (
-                    <>
-                      {dark ? (
-                        <LightModeRoundedIcon fontSize={16} />
-                      ) : (
-                        <DarkModeRoundedIcon fontSize={16} />
-                      )}
-                      <MoreHorizIcon fontSize={16} />
-                    </>
-                  ) : popupToolbarVisible ? (
-                    <>
-                      <SettingsSharpIcon fontSize={16} />
-                      <HelpIcon fontSize={16} />
-                      <RefreshIcon fontSize={16} />
-                      <MoreHorizIcon fontSize={16} />
-                    </>
-                  ) : (
-                    <KeyboardArrowLeftIcon fontSize={16} />
-                  )}
-                </span>
-              </div>
+              />
             </div>
-            <div
-              className="settings-preview-toolbar"
-              data-testid="settings-preview-toolbar"
-              data-visible={toolbarVisible}
-              tabIndex={0}
-              role="group"
-              aria-label="Full-page toolbar preview"
-              onMouseEnter={() => setToolbarHovered(true)}
-              onMouseLeave={() => setToolbarHovered(false)}
-              onFocus={() => setToolbarFocused(true)}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget as Node))
-                  setToolbarFocused(false)
-              }}
-              style={{
-                backgroundColor: colors.toolbarShellBackground,
-                color: colors.primaryText,
-                borderColor: colors.toolbarShellBorderColor,
-                borderTopLeftRadius: colors.toolbarShellBorderRadius,
-              }}
-            >
-              <span aria-hidden="true" className="flex items-center gap-3">
-                {toolbarVisible ? (
-                  <>
-                    <SettingsSharpIcon fontSize={16} />
-                    <HelpIcon fontSize={16} />
-                    <RefreshIcon fontSize={16} />
-                    <MoreHorizIcon fontSize={16} />
-                    <CloseIcon fontSize={16} />
-                  </>
-                ) : (
-                  <KeyboardArrowLeftIcon fontSize={16} />
-                )}
-              </span>
-            </div>
-            {hint > 0 && userStore.showShortcutHint && (
-              <div className="settings-preview-shortcut-hint" role="status">
-                Space · Select tab
-              </div>
-            )}
           </div>
         </div>
       </Example>
       <p className="settings-preview-hint">
+        {userStore.litePopupMode ? 'Lite popup' : 'Full popup'} · Fictional
+        sample tabs.{' '}
         {userStore.litePopupMode
-          ? 'Lite popup: search results without the window overview.'
-          : 'Full popup: browse windows or search sample tabs.'}{' '}
-        Icon count:{' '}
-        {userStore.actionTabCountMode === 'off'
-          ? 'off'
-          : `${count} ${userStore.actionTabCountMode === 'currentWindow' ? 'in this window' : 'across all windows'}`}
-        .
-      </p>
-      <p className="settings-preview-hint">
-        Hover or focus the browser’s lower-right corner to try the full-page
-        toolbar. Lite popup controls always stay visible.
+          ? 'Lite controls stay visible.'
+          : 'Hover or focus the popup’s lower-right corner to try its toolbar.'}
       </p>
       <button
         type="button"
         className="settings-preview-hint-button"
-        disabled={!userStore.showShortcutHint}
-        onClick={() => setHint((value) => value + 1)}
+        disabled={!ready || !userStore.showShortcutHint}
+        onClick={() =>
+          frameRef.current?.contentWindow?.postMessage(
+            { type: 'settings-preview:hint' },
+            window.location.origin,
+          )
+        }
       >
         Show sample shortcut hint
       </button>
-      {!userStore.showShortcutHint && (
-        <span className="settings-preview-hint ml-2">
-          Shortcut hints are off.
-        </span>
-      )}
     </div>
   )
 })

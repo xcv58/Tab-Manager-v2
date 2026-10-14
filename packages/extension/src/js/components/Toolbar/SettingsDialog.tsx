@@ -1096,7 +1096,7 @@ export default observer(() => {
               className="settings-shared-preview"
               data-settings-preview="Keep toolbar visible|Use lite popup mode|Extension icon count|Show shortcut hints"
             >
-              <SettingsPopupPreview />
+              <SettingsPopupPreview onClose={closeDialog} />
             </div>
           </SettingsPreviewLayout>
         </SettingsPanel>
