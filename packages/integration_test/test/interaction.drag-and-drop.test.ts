@@ -835,7 +835,11 @@ test.describe('The Extension page should', () => {
     await page.reload()
     await waitForTestId(page, `tab-group-header-${groupId}`)
     await waitForTestId(page, `tab-row-${setup.targetTabId}`)
-    await page.getByTestId(`tab-group-header-${groupId}`).hover()
+    const groupHeader = page.getByTestId(`tab-group-header-${groupId}`)
+    // Keep the handle revealed when another headed worker takes Xvfb focus.
+    // Hover rendering is covered separately by the group-header visual test.
+    await groupHeader.focus()
+    await groupHeader.hover()
     await page.waitForTimeout(200)
     await expect(
       page.getByTestId(`tab-group-drag-handle-${groupId}`),

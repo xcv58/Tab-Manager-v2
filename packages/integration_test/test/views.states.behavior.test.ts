@@ -304,7 +304,14 @@ test.describe('The Extension page should', () => {
     await toggleToolbarButton.click()
     await toolbar.hover()
     await page.waitForTimeout(400)
-    await page.getByRole('button', { name: 'More toolbar actions' }).click()
+    const more = page.getByRole('button', { name: 'More toolbar actions' })
+    const triggerBefore = await more.boundingBox()
+    const dockBefore = await toolbar.boundingBox()
+    await more.click()
+    await expect(toggleToolbarButton).toBeVisible()
+    await expect.poll(() => more.boundingBox()).toEqual(triggerBefore)
+    await expect.poll(() => toolbar.boundingBox()).toEqual(dockBefore)
+    await expect(toolbar).toHaveCSS('opacity', '1')
     const cleanDuplicatedButton = page.getByRole('menuitem', {
       name: /^Close \d+ duplicate tabs?$/,
     })
@@ -318,6 +325,11 @@ test.describe('The Extension page should', () => {
         threshold: 0.2,
       },
     )
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('menu')).toBeHidden()
+    await expect(more).toBeFocused()
+    await expect.poll(() => more.boundingBox()).toEqual(triggerBefore)
+    await expect(toggleToolbarButton).toBeVisible()
   })
 
   test('render settings state variants', async () => {

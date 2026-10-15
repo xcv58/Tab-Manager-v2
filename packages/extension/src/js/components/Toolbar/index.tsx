@@ -84,7 +84,9 @@ export default observer(() => {
       }}
     >
       {visible && <Toolbar visible={visible} onMenuOpenChange={setMenuOpen} />}
-      {!pinned && <ToolbarIndicator />}
+      {userStore.toolbarAutoHide && tabStore.selection.size === 0 && (
+        <ToolbarIndicator />
+      )}
     </div>
   )
 })
