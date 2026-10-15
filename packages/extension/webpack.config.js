@@ -1,6 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
 const fs = require('fs')
+const packageMetadata = require('./package.json')
 const env = require('./utils/env')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -197,8 +198,8 @@ const options = {
             }
             return Buffer.from(
               JSON.stringify({
-                description: process.env.npm_package_description,
-                version: process.env.npm_package_version,
+                description: packageMetadata.description,
+                version: packageMetadata.version,
                 ...json,
               }),
             )

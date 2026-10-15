@@ -82,7 +82,7 @@
       "screenshotCount": 5,
       "notes": [
         "Use the first five recommended screenshots. The Settings screenshot is supplied as an alternate.",
-        "The short description comes from the extension package. The proposed summary is a draft; package.json and manifests are unchanged pending review.",
+        "The short description comes from the extension package. The proposed summary is a draft; the package description and version remain unchanged pending review.",
         "There is no standalone keyword field in this preparation. Use relevant words naturally in the summary and description.",
         "Use the 440×280 promotional tile and optional 1400×560 marquee. Keep screenshot exports full bleed.",
         "Retain the existing publisher identity and business/trader designation. Owner confirmation is needed for legal or business changes."

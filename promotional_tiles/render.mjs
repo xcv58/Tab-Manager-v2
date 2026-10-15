@@ -1,8 +1,10 @@
+/* global document */
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { URL, fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SRC_DIR = join(__dirname, 'src')
@@ -62,6 +64,15 @@ const outputs = [
 ]
 
 const tempDir = mkdtempSync(join(tmpdir(), 'tab-manager-promo-'))
+const browser =
+  process.env.PROMO_TILE_RENDERER === 'browser'
+    ? await createRequire(
+        new URL('../packages/integration_test/package.json', import.meta.url),
+      )('playwright').chromium.launch({
+        executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
+        headless: true,
+      })
+    : null
 
 try {
   for (const [sourceName, outputName] of outputs) {
@@ -76,9 +87,17 @@ try {
 
     writeFileSync(tempSvgPath, svg)
 
-    execFileSync('rsvg-convert', [tempSvgPath, '-o', tempPngPath], {
-      stdio: 'inherit',
-    })
+    if (browser) {
+      const page = await browser.newPage()
+      await page.setContent(`<style>body{margin:0}</style>${svg}`)
+      await page.evaluate(() => document.fonts.ready)
+      await page.locator('svg').screenshot({ path: tempPngPath })
+      await page.close()
+    } else {
+      execFileSync('rsvg-convert', [tempSvgPath, '-o', tempPngPath], {
+        stdio: 'inherit',
+      })
+    }
     execFileSync(
       'magick',
       [
@@ -102,5 +121,6 @@ try {
     { stdio: 'inherit' },
   )
 } finally {
+  await browser?.close()
   rmSync(tempDir, { force: true, recursive: true })
 }

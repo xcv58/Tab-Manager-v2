@@ -12,27 +12,38 @@ import {
 } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { basename, join } from 'node:path'
+import {
+  hashFile,
+  integrationTestFiles,
+  suitePaths,
+  validateSuiteRecordings,
+} from './capture-provenance.mjs'
 
 const ROOT_DIR =
   process.env.CAPTURE_ROOT_DIR ||
   fileURLToPath(new URL('../../..', import.meta.url))
 const PACKAGE_DIR = fileURLToPath(new URL('..', import.meta.url))
 const TEST_DIR = join(PACKAGE_DIR, 'test')
-const OUTPUT_DIR = join(ROOT_DIR, '.tmp/video-captures/integration-test-suite')
+const PARTIAL = Boolean(process.env.TEST_VIDEO_FILES?.trim())
+const paths = suitePaths(ROOT_DIR, PARTIAL)
+const OUTPUT_DIR = paths.directory
 const RAW_CLIP_DIR = join(OUTPUT_DIR, 'clips')
 const FAST_CLIP_DIR = join(OUTPUT_DIR, 'sped-up')
 const CONCAT_LIST_PATH = join(OUTPUT_DIR, 'concat.txt')
 const MANIFEST_PATH = join(OUTPUT_DIR, 'recordings.json')
 const FINAL_OUTPUT_DIR = join(ROOT_DIR, '.tmp/video-captures/mp4')
-const FINAL_OUTPUT_PATH = join(
-  FINAL_OUTPUT_DIR,
-  'tab-manager-v2-integration-test-suite.mp4',
-)
+const FINAL_OUTPUT_PATH = paths.video
 
 const PLAYBACK_SPEED = Number(process.env.TEST_VIDEO_SPEED || '10')
 const OUTPUT_FPS = 25
 const RESUME = process.env.TEST_VIDEO_RESUME === '1'
+const ASSEMBLE_ONLY = process.env.TEST_VIDEO_ASSEMBLE_ONLY === '1'
 const CONTINUE_ON_FAILURE = process.env.TEST_VIDEO_CONTINUE_ON_FAILURE !== '0'
+const RECAPTURE_FILES = new Set(
+  String(process.env.TEST_VIDEO_RECAPTURE_FILES || '')
+    .split(',')
+    .filter(Boolean),
+)
 const REQUESTED_TEST_FILES = new Set(
   String(process.env.TEST_VIDEO_FILES || '')
     .split(',')
@@ -105,14 +116,42 @@ function ffprobeDuration(path) {
 }
 
 function testFiles() {
-  return readdirSync(TEST_DIR)
-    .filter((entry) => !entry.startsWith('.'))
-    .filter((entry) => entry.endsWith('.test.ts'))
-    .filter(
-      (entry) =>
-        REQUESTED_TEST_FILES.size === 0 || REQUESTED_TEST_FILES.has(entry),
-    )
-    .sort()
+  const all = integrationTestFiles(TEST_DIR)
+  for (const file of REQUESTED_TEST_FILES)
+    if (!all.includes(file))
+      throw new Error(`Unknown requested test file: ${file}`)
+  return all.filter(
+    (file) => !REQUESTED_TEST_FILES.size || REQUESTED_TEST_FILES.has(file),
+  )
+}
+
+function recordingHashes(file, clips) {
+  return {
+    testSha256: hashFile(join(TEST_DIR, file)),
+    clipHashes: clips.map((name) => ({
+      name,
+      rawSha256: hashFile(join(RAW_CLIP_DIR, name)),
+      spedUpSha256: hashFile(join(FAST_CLIP_DIR, name)),
+    })),
+  }
+}
+
+function canReuse(saved, file) {
+  try {
+    validateSuiteRecordings([saved], TEST_DIR, [file])
+    const current = recordingHashes(file, saved.clips)
+    return saved.clipHashes.every((clip) => {
+      const verified = current.clipHashes.find(
+        (entry) => entry.name === clip.name,
+      )
+      return (
+        clip.rawSha256 === verified.rawSha256 &&
+        clip.spedUpSha256 === verified.spedUpSha256
+      )
+    })
+  } catch {
+    return false
+  }
 }
 
 function clipLabel(index, file) {
@@ -187,6 +226,10 @@ function formatSeconds(totalSeconds) {
 
 function main() {
   const files = testFiles()
+  if (ASSEMBLE_ONLY && (!RESUME || RECAPTURE_FILES.size))
+    throw new Error(
+      'Assemble-only requires TEST_VIDEO_RESUME=1 and no recapture request',
+    )
   if (files.length === 0) {
     throw new Error(`No test files found in ${TEST_DIR}`)
   }
@@ -219,14 +262,7 @@ function main() {
   for (const [index, file] of files.entries()) {
     const label = clipLabel(index, file)
     const saved = previous?.recordings.find((entry) => entry.file === file)
-    if (
-      saved?.passed &&
-      saved.clips.every(
-        (clip) =>
-          existsSync(join(RAW_CLIP_DIR, clip)) &&
-          existsSync(join(FAST_CLIP_DIR, clip)),
-      )
-    ) {
+    if (!RECAPTURE_FILES.has(file) && canReuse(saved, file)) {
       console.log(`Reusing passed recording for ${file}`)
       for (const clip of saved.clips) {
         totalRawSeconds += ffprobeDuration(join(RAW_CLIP_DIR, clip))
@@ -236,6 +272,9 @@ function main() {
       recordings.push(saved)
       continue
     }
+
+    if (ASSEMBLE_ONLY)
+      throw new Error(`Cannot reassemble unverified saved recording: ${file}`)
 
     // Replace only this file's generated takes when recovering a failed run.
     for (const clip of readdirSync(RAW_CLIP_DIR).filter(
@@ -286,24 +325,45 @@ function main() {
       totalFinalSeconds += ffprobeDuration(fastClipPath)
       spedUpClips.push(fastClipPath)
     }
-    recordings.push({ file, passed, clips })
+    recordings.push({ file, passed, clips, ...recordingHashes(file, clips) })
+    // Retain completed later files during a selective recovery run. Otherwise
+    // an interruption would discard their metadata before reaching them.
+    const remaining = (previous?.recordings || []).filter(
+      (entry) => !recordings.some((recording) => recording.file === entry.file),
+    )
+    const progress = [...recordings, ...remaining]
     writeFileSync(
       MANIFEST_PATH,
       JSON.stringify(
-        { playbackSpeed: PLAYBACK_SPEED, recordings, failedFiles },
+        {
+          complete: false,
+          playbackSpeed: PLAYBACK_SPEED,
+          recordings: progress,
+          failedFiles: progress
+            .filter((entry) => !entry.passed)
+            .map((entry) => entry.file),
+        },
         null,
         2,
       ),
     )
   }
 
+  if (!failedFiles.length) validateSuiteRecordings(recordings, TEST_DIR, files)
   concatClips(spedUpClips)
 
   const finalDuration = ffprobeDuration(FINAL_OUTPUT_PATH)
   writeFileSync(
     MANIFEST_PATH,
     JSON.stringify(
-      { playbackSpeed: PLAYBACK_SPEED, recordings, failedFiles, finalDuration },
+      {
+        complete: !PARTIAL && failedFiles.length === 0,
+        playbackSpeed: PLAYBACK_SPEED,
+        recordings,
+        failedFiles,
+        finalDuration,
+        sha256: hashFile(FINAL_OUTPUT_PATH),
+      },
       null,
       2,
     ),

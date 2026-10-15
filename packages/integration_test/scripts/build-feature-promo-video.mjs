@@ -12,6 +12,9 @@ import {
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { chromium } from 'playwright'
+import { createHash } from 'node:crypto'
+import { SAMPLE_SITES } from './capture-sites.mjs'
+import { hashFile, validateFeatures } from './capture-provenance.mjs'
 
 const ROOT_DIR =
   process.env.CAPTURE_ROOT_DIR ||
@@ -746,6 +749,21 @@ function writeChapters() {
 async function main() {
   ensureExists(VIDEO_DIR, 'captured feature clip directory')
   ensureExists(ICON_PATH, 'extension icon')
+  const manifest = JSON.parse(
+    readFileSync(
+      join(ROOT_DIR, '.tmp/video-captures/capture-manifest.json'),
+      'utf8',
+    ),
+  )
+  const catalogueHash = createHash('sha256')
+    .update(JSON.stringify(SAMPLE_SITES))
+    .digest('hex')
+  const inputClips = validateFeatures(
+    manifest,
+    catalogueHash,
+    VIDEO_DIR,
+    CLIPS.map((clip) => clip.id),
+  )
 
   rmSync(PROMO_DIR, { recursive: true, force: true })
   mkdirSync(SEGMENT_DIR, { recursive: true })
@@ -776,6 +794,22 @@ async function main() {
 
   xfadeSegments(segmentPaths)
   writeChapters()
+  writeFileSync(
+    join(PROMO_DIR, 'provenance.json'),
+    JSON.stringify(
+      {
+        catalogueSha256: catalogueHash,
+        extensionVersion: manifest.extensionVersion,
+        buildSha256: manifest.buildSha256,
+        inputClips,
+        sha256: hashFile(OUTPUT_PATH),
+        chaptersSha256: hashFile(join(PROMO_DIR, 'chapters.json')),
+        captionsSha256: hashFile(join(PROMO_DIR, 'captions.vtt')),
+      },
+      null,
+      2,
+    ),
+  )
   console.log(OUTPUT_PATH)
 }
 

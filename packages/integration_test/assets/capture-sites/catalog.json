@@ -1,0 +1,470 @@
+{
+  "notes/project": {
+    "url": "http://notes.example.test/project",
+    "title": "Project notes"
+  },
+  "notes/shortcuts": {
+    "url": "http://notes.example.test/shortcuts",
+    "title": "Project shortcuts"
+  },
+  "notes/handbook": {
+    "url": "http://notes.example.test/handbook",
+    "title": "Project handbook"
+  },
+  "watch/project-tour": {
+    "url": "http://watch.example.test/project-tour",
+    "title": "Project walkthrough"
+  },
+  "watch/library": {
+    "url": "http://watch.example.test/library",
+    "title": "Video library"
+  },
+  "projects/board": {
+    "url": "http://projects.example.test/board",
+    "title": "Team project board"
+  },
+  "docs/web": {
+    "url": "http://docs.example.test/web",
+    "title": "Web reference"
+  },
+  "docs/browser": {
+    "url": "http://docs.example.test/browser",
+    "title": "Browser guide"
+  },
+  "assistant/chat": {
+    "url": "http://assistant.example.test/chat",
+    "title": "Writing assistant"
+  },
+  "assistant/drafts": {
+    "url": "http://assistant.example.test/drafts",
+    "title": "Drafting room"
+  },
+  "assistant/ideas": {
+    "url": "http://assistant.example.test/ideas",
+    "title": "Idea notebook"
+  },
+  "models/library": {
+    "url": "http://models.example.test/library",
+    "title": "Model library"
+  },
+  "models/journal": {
+    "url": "http://models.example.test/journal",
+    "title": "Model journal"
+  },
+  "reference/home": {
+    "url": "http://reference.example.test/home",
+    "title": "Reference library"
+  },
+  "community/stories": {
+    "url": "http://community.example.test/stories",
+    "title": "Community stories"
+  },
+  "news/today": {
+    "url": "http://news.example.test/today",
+    "title": "Today’s headlines"
+  },
+  "docs/components": {
+    "url": "http://docs.example.test/components",
+    "title": "Component guide"
+  },
+  "guides/accessibility": {
+    "url": "http://guides.example.test/accessibility",
+    "title": "Accessibility handbook"
+  },
+  "hosting/deployments": {
+    "url": "http://hosting.example.test/deployments",
+    "title": "Cloud deployments"
+  },
+  "runtime/handbook": {
+    "url": "http://runtime.example.test/handbook",
+    "title": "Runtime handbook"
+  },
+  "docs/extensions": {
+    "url": "http://docs.example.test/extensions",
+    "title": "Extension guide"
+  },
+  "guides/browser": {
+    "url": "http://guides.example.test/browser",
+    "title": "Browser workshop"
+  },
+  "research/browser": {
+    "url": "http://research.example.test/browser",
+    "title": "Browser research"
+  },
+  "testing/handbook": {
+    "url": "http://testing.example.test/handbook",
+    "title": "Testing handbook"
+  },
+  "tooling/build": {
+    "url": "http://tooling.example.test/build",
+    "title": "Build toolkit"
+  },
+  "journal/design": {
+    "url": "http://journal.example.test/design",
+    "title": "Design journal"
+  },
+  "journal/layout": {
+    "url": "http://journal.example.test/layout",
+    "title": "Layout techniques"
+  },
+  "news/world": {
+    "url": "http://news.example.test/world",
+    "title": "World briefing"
+  },
+  "news/daily": {
+    "url": "http://news.example.test/daily",
+    "title": "Daily briefing"
+  },
+  "community/browser": {
+    "url": "http://community.example.test/browser",
+    "title": "Browser discussion"
+  },
+  "docs/getting-started": {
+    "url": "http://docs.example.test/getting-started",
+    "title": "Getting started"
+  },
+  "assistant/studio": {
+    "url": "http://assistant.example.test/studio",
+    "title": "Assistant studio"
+  },
+  "notebook/workspace": {
+    "url": "http://notebook.example.test/workspace",
+    "title": "Workspace notebook"
+  },
+  "notebook/personal": {
+    "url": "http://notebook.example.test/personal",
+    "title": "Personal notebook"
+  },
+  "plans/roadmap": {
+    "url": "http://plans.example.test/roadmap",
+    "title": "Team roadmap"
+  },
+  "design/review": {
+    "url": "http://design.example.test/review",
+    "title": "Design review"
+  },
+  "team/messages": {
+    "url": "http://team.example.test/messages",
+    "title": "Team messages"
+  },
+  "meet/room": {
+    "url": "http://meet.example.test/room",
+    "title": "Meeting room"
+  },
+  "meet/calendar": {
+    "url": "http://meet.example.test/calendar",
+    "title": "Team calendar"
+  },
+  "plans/tracker": {
+    "url": "http://plans.example.test/tracker",
+    "title": "Project tracker"
+  },
+  "design/canvas": {
+    "url": "http://design.example.test/canvas",
+    "title": "Design canvas"
+  },
+  "projects/review": {
+    "url": "http://projects.example.test/review",
+    "title": "Code review"
+  },
+  "projects/repository": {
+    "url": "http://projects.example.test/repository",
+    "title": "Source repository"
+  },
+  "projects/handbook": {
+    "url": "http://projects.example.test/handbook",
+    "title": "Project handbook"
+  },
+  "hosting/sites": {
+    "url": "http://hosting.example.test/sites",
+    "title": "Site dashboard"
+  },
+  "data/workspace": {
+    "url": "http://data.example.test/workspace",
+    "title": "Data workspace"
+  },
+  "data/console": {
+    "url": "http://data.example.test/console",
+    "title": "App console"
+  },
+  "tooling/requests": {
+    "url": "http://tooling.example.test/requests",
+    "title": "Request workspace"
+  },
+  "tooling/containers": {
+    "url": "http://tooling.example.test/containers",
+    "title": "Container guide"
+  },
+  "tooling/clusters": {
+    "url": "http://tooling.example.test/clusters",
+    "title": "Cluster handbook"
+  },
+  "docs/types": {
+    "url": "http://docs.example.test/types",
+    "title": "Type reference"
+  },
+  "docs/views": {
+    "url": "http://docs.example.test/views",
+    "title": "View guide"
+  },
+  "docs/interfaces": {
+    "url": "http://docs.example.test/interfaces",
+    "title": "Interface handbook"
+  },
+  "docs/routing": {
+    "url": "http://docs.example.test/routing",
+    "title": "Routing guide"
+  },
+  "languages/overview": {
+    "url": "http://languages.example.test/overview",
+    "title": "Language overview"
+  },
+  "languages/tutorial": {
+    "url": "http://languages.example.test/tutorial",
+    "title": "Scripting tutorial"
+  },
+  "languages/systems": {
+    "url": "http://languages.example.test/systems",
+    "title": "Systems handbook"
+  },
+  "data/reference": {
+    "url": "http://data.example.test/reference",
+    "title": "Database reference"
+  },
+  "cloud/services": {
+    "url": "http://cloud.example.test/services",
+    "title": "Cloud services"
+  },
+  "cloud/workspace": {
+    "url": "http://cloud.example.test/workspace",
+    "title": "Cloud workspace"
+  },
+  "cloud/console": {
+    "url": "http://cloud.example.test/console",
+    "title": "Cloud console"
+  },
+  "cloud/network": {
+    "url": "http://cloud.example.test/network",
+    "title": "Network dashboard"
+  },
+  "hosting/apps": {
+    "url": "http://hosting.example.test/apps",
+    "title": "App hosting"
+  },
+  "hosting/projects": {
+    "url": "http://hosting.example.test/projects",
+    "title": "Hosting projects"
+  },
+  "hosting/regions": {
+    "url": "http://hosting.example.test/regions",
+    "title": "Deployment regions"
+  },
+  "hosting/servers": {
+    "url": "http://hosting.example.test/servers",
+    "title": "Server dashboard"
+  },
+  "hosting/pipeline": {
+    "url": "http://hosting.example.test/pipeline",
+    "title": "Release pipeline"
+  },
+  "data/collections": {
+    "url": "http://data.example.test/collections",
+    "title": "Data collections"
+  },
+  "data/cache": {
+    "url": "http://data.example.test/cache",
+    "title": "Cache reference"
+  },
+  "business/payments": {
+    "url": "http://business.example.test/payments",
+    "title": "Payment overview"
+  },
+  "design/whiteboard": {
+    "url": "http://design.example.test/whiteboard",
+    "title": "Team whiteboard"
+  },
+  "writing/review": {
+    "url": "http://writing.example.test/review",
+    "title": "Writing review"
+  },
+  "plans/tasks": {
+    "url": "http://plans.example.test/tasks",
+    "title": "Task board"
+  },
+  "plans/schedule": {
+    "url": "http://plans.example.test/schedule",
+    "title": "Team schedule"
+  },
+  "plans/weekly": {
+    "url": "http://plans.example.test/weekly",
+    "title": "Weekly planner"
+  },
+  "plans/goals": {
+    "url": "http://plans.example.test/goals",
+    "title": "Project goals"
+  },
+  "plans/today": {
+    "url": "http://plans.example.test/today",
+    "title": "Today’s tasks"
+  },
+  "reading/highlights": {
+    "url": "http://reading.example.test/highlights",
+    "title": "Reading highlights"
+  },
+  "watch/recordings": {
+    "url": "http://watch.example.test/recordings",
+    "title": "Team recordings"
+  },
+  "files/shared": {
+    "url": "http://files.example.test/shared",
+    "title": "Shared files"
+  },
+  "files/archive": {
+    "url": "http://files.example.test/archive",
+    "title": "File archive"
+  },
+  "workflow/automations": {
+    "url": "http://workflow.example.test/automations",
+    "title": "Workflow automations"
+  },
+  "community/home": {
+    "url": "http://community.example.test/home",
+    "title": "Community home"
+  },
+  "community/articles": {
+    "url": "http://community.example.test/articles",
+    "title": "Developer articles"
+  },
+  "journal/stories": {
+    "url": "http://journal.example.test/stories",
+    "title": "Featured stories"
+  },
+  "journal/letters": {
+    "url": "http://journal.example.test/letters",
+    "title": "Weekly letters"
+  },
+  "writing/resources": {
+    "url": "http://writing.example.test/resources",
+    "title": "Creator resources"
+  },
+  "community/links": {
+    "url": "http://community.example.test/links",
+    "title": "Community links"
+  },
+  "team/network": {
+    "url": "http://team.example.test/network",
+    "title": "Professional network"
+  },
+  "team/chat": {
+    "url": "http://team.example.test/chat",
+    "title": "Community chat"
+  },
+  "watch/live": {
+    "url": "http://watch.example.test/live",
+    "title": "Live workshops"
+  },
+  "news/audio": {
+    "url": "http://news.example.test/audio",
+    "title": "Audio briefing"
+  },
+  "news/international": {
+    "url": "http://news.example.test/international",
+    "title": "International news"
+  },
+  "news/technology": {
+    "url": "http://news.example.test/technology",
+    "title": "Technology news"
+  },
+  "news/science": {
+    "url": "http://news.example.test/science",
+    "title": "Science digest"
+  },
+  "news/startups": {
+    "url": "http://news.example.test/startups",
+    "title": "Startup journal"
+  },
+  "news/devices": {
+    "url": "http://news.example.test/devices",
+    "title": "Device digest"
+  },
+  "journal/browser": {
+    "url": "http://journal.example.test/browser",
+    "title": "Browser journal"
+  },
+  "models/routing": {
+    "url": "http://models.example.test/routing",
+    "title": "Model workspace"
+  },
+  "models/experiments": {
+    "url": "http://models.example.test/experiments",
+    "title": "Model experiments"
+  },
+  "assistant/lab": {
+    "url": "http://assistant.example.test/lab",
+    "title": "Assistant lab"
+  },
+  "assistant/images": {
+    "url": "http://assistant.example.test/images",
+    "title": "Image workshop"
+  },
+  "research/studies": {
+    "url": "http://research.example.test/studies",
+    "title": "Research studies"
+  },
+  "research/workflows": {
+    "url": "http://research.example.test/workflows",
+    "title": "Assistant workflows"
+  },
+  "metrics/overview": {
+    "url": "http://metrics.example.test/overview",
+    "title": "Metrics dashboard"
+  },
+  "metrics/errors": {
+    "url": "http://metrics.example.test/errors",
+    "title": "Error overview"
+  },
+  "metrics/charts": {
+    "url": "http://metrics.example.test/charts",
+    "title": "Metrics charts"
+  },
+  "metrics/monitoring": {
+    "url": "http://metrics.example.test/monitoring",
+    "title": "Monitoring guide"
+  },
+  "styles/utility": {
+    "url": "http://styles.example.test/utility",
+    "title": "Style reference"
+  },
+  "tooling/packages": {
+    "url": "http://tooling.example.test/packages",
+    "title": "Package handbook"
+  },
+  "runtime/toolkit": {
+    "url": "http://runtime.example.test/toolkit",
+    "title": "Runtime toolkit"
+  },
+  "tooling/checks": {
+    "url": "http://tooling.example.test/checks",
+    "title": "Code checks"
+  },
+  "tooling/formatting": {
+    "url": "http://tooling.example.test/formatting",
+    "title": "Formatting guide"
+  },
+  "testing/unit": {
+    "url": "http://testing.example.test/unit",
+    "title": "Unit testing guide"
+  },
+  "testing/interfaces": {
+    "url": "http://testing.example.test/interfaces",
+    "title": "Interface testing"
+  },
+  "design/components": {
+    "url": "http://design.example.test/components",
+    "title": "Component gallery"
+  },
+  "metrics/speed": {
+    "url": "http://metrics.example.test/speed",
+    "title": "Page performance"
+  }
+}

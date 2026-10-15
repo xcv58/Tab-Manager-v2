@@ -49,6 +49,9 @@ jobs:
       - name: Dependency security regression
         run: pnpm test:dependency-security
 
+      - name: Capture fixture and media preview regression
+        run: pnpm test:capture-sites
+
       - name: Install xvfb
         if: ${{ matrix.node == 25 }}
         run: sudo apt-get update && sudo apt-get install -y xvfb
