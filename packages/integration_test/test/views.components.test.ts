@@ -229,6 +229,29 @@ test.describe('The Extension page should', () => {
 
     const toolbar = page.locator('.toolbar').first()
     await expect(toolbar).toBeVisible()
+    await expect(
+      toolbar.getByRole('button', {
+        name: 'Cluster Ungrouped & Sort Tabs',
+        exact: true,
+      }),
+    ).toBeVisible()
+    await expect(
+      toolbar.getByRole('button', { name: 'Inverse select tabs', exact: true }),
+    ).toBeVisible()
+    await expect(
+      toolbar.getByRole('checkbox', { name: 'Select all tabs' }),
+    ).toBeVisible()
+    await expect(
+      toolbar.getByRole('button', {
+        name: 'Clean duplicated tabs',
+        exact: true,
+      }),
+    ).toBeDisabled()
+    await expect(
+      toolbar.getByRole('button', { name: 'Toggle toolbar' }),
+    ).toHaveCount(0)
+    await expect(toolbar).toHaveCSS('opacity', '0.4')
+    expect((await toolbar.boundingBox())!.height).toBeLessThanOrEqual(42)
     const toolbarScreenshot = await toolbar.screenshot()
     expect(toolbarScreenshot).toMatchSnapshot('toolbar-strip-medium.png', {
       maxDiffPixelRatio: 0.12,
@@ -250,6 +273,17 @@ test.describe('The Extension page should', () => {
         threshold: 0.2,
       },
     )
+
+    await toolbar.hover()
+    await expect(toolbar).toHaveCSS('opacity', '1')
+    await toolbar
+      .getByRole('button', { name: 'Inverse select tabs', exact: true })
+      .click()
+    await expect(toolbar.getByRole('status')).toHaveText('3 selected')
+    await expect(
+      toolbar.getByRole('button', { name: 'Close 3 tabs', exact: true }),
+    ).toHaveText('Close 3')
+    await expect(toolbar).toHaveCSS('opacity', '1')
   })
 
   test('render medium settings dialog component', async () => {

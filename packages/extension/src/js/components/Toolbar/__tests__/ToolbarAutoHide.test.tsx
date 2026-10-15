@@ -85,6 +85,27 @@ describe('toolbar auto-hide holds', () => {
     expect(screen.queryByTestId('expanded-toolbar')).toBeNull()
   })
 
+  it('retains the collapse control while an open menu holds the toolbar visible', async () => {
+    const { dock } = await setup()
+    fireEvent.mouseEnter(dock)
+    const indicator = screen.getByRole('button', { name: 'Toggle toolbar' })
+
+    fireEvent.click(screen.getByText('Open menu'))
+    expect(screen.getByRole('button', { name: 'Toggle toolbar' })).toBe(
+      indicator,
+    )
+    fireEvent.mouseLeave(dock)
+    waitForHide()
+    expect(screen.getByTestId('expanded-toolbar')).toBeVisible()
+
+    fireEvent.click(screen.getByText('Dismiss menu'))
+    expect(screen.getByRole('button', { name: 'Toggle toolbar' })).toBe(
+      indicator,
+    )
+    waitForHide()
+    expect(screen.queryByTestId('expanded-toolbar')).toBeNull()
+  })
+
   it('keeps the toolbar open when a hold ends under the pointer', async () => {
     const { dock, selection } = await setup()
     fireEvent.mouseEnter(dock)

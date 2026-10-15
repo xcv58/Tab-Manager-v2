@@ -29,7 +29,7 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
   return (
     <>
       <div
-        className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl border-b"
+        className="search-header flex items-center justify-center shrink-0 h-12 border-b"
         style={{
           backgroundColor: uiColors.popupHeaderSurface,
           borderBottomColor: uiColors.popupHeaderBorderColor,
@@ -37,8 +37,8 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
         }}
       >
         <Summary />
-        <LayoutRepackIndicator />
         <AutocompleteSearch autoFocus={autoFocus} open bottomInset={44} />
+        <LayoutRepackIndicator />
       </div>
       <div
         className="corner-dock absolute right-0 bottom-0 flex items-center gap-1 border px-2 py-1"

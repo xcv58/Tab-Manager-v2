@@ -51,7 +51,6 @@ export default observer(function TabOption(props: Props) {
   const showInlineGroupContext = showGroupContext && showInlineGroupBadge
   const groupColor = getChromeTabGroupColor(tabGroup?.color)
   const showGroupTitle = matchesSearchText(groupLabel, query, matchMode)
-  const pin = tab.pinned && PIN
 
   const onRemove = (event: React.SyntheticEvent) => {
     event.stopPropagation()
@@ -145,12 +144,12 @@ export default observer(function TabOption(props: Props) {
   return (
     <div
       tabIndex={-1}
-      className="relative flex w-full"
+      className="relative flex items-center w-full"
       data-testid={`search-tab-row-${tab.id}`}
       {...contextMenuHandlers(actionStore, `search-tab-${tab.id}`, tab)}
     >
       <TabMenu tab={tab} menuKey={`search-tab-${tab.id}`} hideTrigger />
-      {pin}
+      {tab.pinned && PIN}
       <Icon tab={tab} faked />
       <TabDetailsAnchor tab={tab} surface="search">
         {rowButton}

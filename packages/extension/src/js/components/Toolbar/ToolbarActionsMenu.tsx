@@ -59,13 +59,17 @@ export default observer(function ToolbarActionsMenu({
           menu.onOpen(event)
           onOpenChange(true)
         }}
-        style={{
-          width: showLabel ? 'auto' : 36,
-          height: 36,
-          padding: '0 8px',
-          gap: 6,
-          borderRadius: 6,
-        }}
+        style={
+          showLabel
+            ? {
+                width: 'auto',
+                height: 36,
+                padding: '0 8px',
+                gap: 6,
+                borderRadius: 6,
+              }
+            : undefined
+        }
       >
         <MoreHorizIcon fontSize={20} />
         {showLabel && <span className="toolbar-action-label">More</span>}

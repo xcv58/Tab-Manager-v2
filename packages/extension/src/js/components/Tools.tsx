@@ -33,7 +33,7 @@ export default observer(({ showSearchResultMenu }: Props) => {
   }
   return (
     <div
-      className="flex items-center justify-center h-12 px-1 text-3xl shrink-0 border-b"
+      className="search-header flex items-center justify-center h-12 shrink-0 border-b"
       style={{
         backgroundColor: uiColors.popupHeaderSurface,
         borderBottomColor: uiColors.popupHeaderBorderColor,
@@ -41,11 +41,13 @@ export default observer(({ showSearchResultMenu }: Props) => {
       }}
     >
       <Summary />
-      <LayoutRepackIndicator />
       <AutocompleteSearch showResultMenu={showSearchResultMenu} />
-      <SyncButton />
-      <ThemeToggle />
-      <OpenInTab />
+      <div className="search-header-actions">
+        <LayoutRepackIndicator />
+        <SyncButton />
+        <ThemeToggle />
+        <OpenInTab />
+      </div>
     </div>
   )
 })

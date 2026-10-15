@@ -660,6 +660,51 @@ test.describe('The Extension page should', () => {
     await expect(titleInput).toHaveCSS('color-scheme', 'dark')
   })
 
+  test('keep search aligned and fill the available header space', async () => {
+    const header = page.locator('.search-header')
+    const search = page.getByTestId('toolbar-search-input')
+    const input = search.getByRole('combobox')
+    const hint = search.getByText('/ search · > commands')
+
+    const checkGeometry = async () => {
+      const [headerRect, searchRect] = await Promise.all([
+        header.boundingBox(),
+        search.boundingBox(),
+      ])
+      expect(headerRect).not.toBeNull()
+      expect(searchRect).not.toBeNull()
+      expect(searchRect!.x).toBeCloseTo(headerRect!.x, 0)
+      expect(searchRect!.y).toBeCloseTo(headerRect!.y, 0)
+      // The header may have a one-pixel bottom divider in Modern mode.
+      expect(
+        Math.abs(headerRect!.height - searchRect!.height),
+      ).toBeLessThanOrEqual(1)
+      await expect(search).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+      await expect(input).toHaveCSS('font-size', '12.25px')
+      const actionsRect = await page
+        .locator('.search-header-actions')
+        .boundingBox()
+      expect(actionsRect).not.toBeNull()
+      expect(searchRect!.x + searchRect!.width).toBeCloseTo(actionsRect!.x, 0)
+    }
+
+    await checkGeometry()
+    await expect(hint).toHaveCSS('font-size', '12.25px')
+    await hint.click()
+    await expect(input).toBeFocused()
+    await expect(input).toHaveCSS('outline-style', 'none')
+    await input.fill('a query with no matches')
+    await checkGeometry()
+    await expect(hint).toBeHidden()
+    await input.press('Escape')
+
+    await page.evaluate(async () => {
+      await chrome.storage.sync.set({ uiPreset: 'classic' })
+    })
+    await page.reload()
+    await checkGeometry()
+  })
+
   test('render search input atom', async () => {
     const searchInput = page.getByTestId('toolbar-search-input')
     await expect(searchInput).toBeVisible()

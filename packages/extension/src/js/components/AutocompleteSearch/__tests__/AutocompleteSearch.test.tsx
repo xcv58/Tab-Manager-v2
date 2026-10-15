@@ -472,25 +472,42 @@ describe('AutocompleteSearch', () => {
     expect(screen.queryByRole('option')).not.toBeInTheDocument()
   })
 
-  it('uses the same smaller font size for the input text and the search hint', () => {
+  it('shows the shortcut hint only while the search is empty', () => {
     renderAutocompleteSearch()
 
     const input = screen.getByRole('combobox')
-    const hint = screen.getByText('/ search · > commands')
+    expect(screen.getByText('/ search · > commands')).toBeVisible()
 
-    expect(input).toHaveStyle('font-size: 0.8125rem')
-    expect(hint).toHaveStyle('font-size: 0.8125rem')
+    fireEvent.change(input, { target: { value: 'Alpha' } })
+    expect(screen.queryByText('/ search · > commands')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear search' }))
+    expect(input).toHaveValue('')
+    expect(screen.getByText('/ search · > commands')).toBeVisible()
   })
 
-  it('uses a flexing root so the search field does not overlap the toolbar summary', () => {
-    renderAutocompleteSearch()
+  it.each(['icon', 'hint', 'background'])(
+    'focuses search when its %s is clicked',
+    (target) => {
+      renderAutocompleteSearch()
 
-    const input = screen.getByRole('combobox')
-    const root = input.parentElement?.parentElement
+      const input = screen.getByRole('combobox')
+      const field = screen.getByTestId('toolbar-search-input')
+      const clicked =
+        target === 'hint'
+          ? screen.getByText('/ search · > commands')
+          : target === 'icon'
+            ? field.querySelector('[aria-hidden="true"]')!
+            : field
 
-    expect(root).toHaveStyle('flex: 1 1 0%')
-    expect(root).toHaveStyle('min-width: 0')
-  })
+      fireEvent.mouseDown(clicked)
+      fireEvent.click(clicked)
+
+      expect(input).toHaveFocus()
+      expect(input).toHaveValue('')
+      expect(input).toHaveAttribute('aria-expanded', 'true')
+    },
+  )
 
   it('caps the lite popup result list height to the exact available space above the bottom controls', async () => {
     const originalInnerHeight = window.innerHeight
