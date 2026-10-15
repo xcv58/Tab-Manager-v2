@@ -491,7 +491,10 @@ test.describe('The Extension page should', () => {
     await expect(
       frame.getByRole('button', { name: 'Settings', exact: true }),
     ).toHaveCount(1)
-    await expect(settings).toHaveScreenshot('settings-popup-controls.png')
+    await expect(settings).toHaveScreenshot('settings-popup-controls.png', {
+      // Release versions change independently of this settings layout.
+      mask: [settings.getByText(/^v\d+\.\d+\.\d+$/)],
+    })
     await sampleRow.hover()
     await sampleRow.getByRole('button', { name: 'Close', exact: true }).click()
     await expect(icon).toHaveAttribute('data-count', '22')

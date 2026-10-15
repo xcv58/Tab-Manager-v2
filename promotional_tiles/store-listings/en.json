@@ -1,0 +1,148 @@
+{
+  "status": "Draft for owner review. Do not upload or publish without approval.",
+  "language": "English",
+  "name": "Tab Manager v2",
+  "headline": "Too many tabs, handled.",
+  "summary": "Find any tab, organize your windows, and clear duplicates—all in one place.",
+  "description": "Too many tabs, handled.\n\nFind the page you need across all your windows, keep related tabs together, and close extra copies. Move several tabs at once, copy their links, or save a tab list for later.\n\nFind your tabs\nSearch open tabs by title or web address. Find pages inside collapsed groups, too. You can also include browser history in search when you enable it in Settings.\n\nKeep related pages together\nName and color your browser tab groups. Drag tabs between windows and groups, or send them straight to the beginning or end. Select several tabs to move them together.\n\nClear out extra copies\nSpot repeated pages and close duplicate tabs from one place.\n\nCopy links or save a tab list\nCopy tab titles, links, or both. Save selected tabs as CSV, TSV, JSON, or Markdown for a spreadsheet, notes, or another tool. Your selection stays ready if you want to try another format.\n\nGet things done your way\nRight-click a tab, group, or window header for quick actions. Open the command palette inside Tab Manager with Command+K on Mac or Alt+K on Windows and Linux. Type to find an action for your current selection.\n\nMake it comfortable\nChoose light or dark colors, a Modern or compact Classic layout, and a comfortable text size. Search Settings and preview display changes as you make them.\n\nFree and open source. Core tab management runs locally in your browser, with no account or analytics.\n\nTry it: https://tab.jenny.media/demo/\nHelp: https://tab.jenny.media/support/\nPrivacy: https://tab.jenny.media/privacy/\nSource code: https://github.com/xcv58/Tab-Manager-v2",
+  "firefoxAddition": "\n\nFirefox containers\nSee Firefox container labels and organize tabs by container.",
+  "whatsNew": "- Find actions in a dedicated command palette, or right-click tabs, groups, and window headers.\n- Move tabs to the beginning or end of windows and groups.\n- Copy titles and links, or download tab lists as CSV, TSV, JSON, and Markdown.\n- Search the redesigned Settings and preview display changes.\n- Select and copy text from tab tooltips, with expandable long titles and links.\n- Enjoy clearer selection, search, and drag-and-drop feedback.",
+  "links": {
+    "homepage": "https://tab.jenny.media/",
+    "support": "https://tab.jenny.media/support/",
+    "privacy": "https://tab.jenny.media/privacy/",
+    "source": "https://github.com/xcv58/Tab-Manager-v2",
+    "issues": "https://github.com/xcv58/Tab-Manager-v2/issues",
+    "demo": "https://tab.jenny.media/demo/",
+    "sponsor": "https://github.com/sponsors/xcv58"
+  },
+  "publisher": "xcv58",
+  "license": "MIT",
+  "pricing": "Free",
+  "singlePurpose": "Help people find, organize, move, and clean up browser tabs and windows.",
+  "permissionExplanations": {
+    "tabs": "Read tab titles and web addresses to show and search open tabs. Move, select, pin, reload, and close tabs when the user chooses an action.",
+    "tabGroups": "Show browser tab group names and colors, and let the user create, rename, recolor, collapse, ungroup, and move groups and their tabs.",
+    "storage": "Save settings and local interface state, such as theme, text size, popup placement, and preserved search. Browser sync may synchronize settings if enabled.",
+    "history": "Search previously visited pages only when the user enables Include browser history in results. Results are used locally and are not sent to our servers.",
+    "management": "Look up extension names and icons for open chrome-extension:// tabs so those tabs can display the correct icon. Tab Manager does not install or remove other extensions.",
+    "contextualIdentities": "Read Firefox container names, colors, and icons to show container labels and support container-aware tab actions.",
+    "cookies": "Support Firefox container cookie-store identification for container-aware tab actions. Tab Manager does not read website cookie values."
+  },
+  "privacyReview": {
+    "publicStatement": "Core tab management runs locally in your browser. No account is required, and the extension includes no analytics or advertising trackers.",
+    "dataUsage": "The developer does not collect or transmit tab, window, history, or settings data to its own servers. Keep the store's no-data-collection declaration consistent with the privacy policy.",
+    "thirdParties": "Browser sync may synchronize settings through the browser vendor. The popup references Google Fonts, so font requests go directly to Google. Do not claim that the extension makes no external requests or that all data always stays on one device.",
+    "remoteCode": "Executable extension code is bundled in the package. Google Fonts supplies a stylesheet and font assets, not downloaded executable extension code.",
+    "reviewGate": "Recheck the private dashboard's exact data-use questions against these facts before making declarations. This package does not submit or certify them."
+  },
+  "screenshots": [
+    {
+      "id": "01-find-any-tab",
+      "headline": "Find any tab, in any window",
+      "caption": "Search by title or web address across your windows without switching between them.",
+      "recommendedTheme": "light"
+    },
+    {
+      "id": "02-organize-groups",
+      "headline": "Keep related pages together",
+      "caption": "Give browser tab groups clear names and colors, then move tabs together.",
+      "recommendedTheme": "light"
+    },
+    {
+      "id": "03-clear-extra-copies",
+      "headline": "Clear out extra copies",
+      "caption": "Find duplicate tabs and close the extra copies from one place.",
+      "recommendedTheme": "light"
+    },
+    {
+      "id": "04-command-palette",
+      "headline": "Type what you want to do",
+      "caption": "Open the command palette inside Tab Manager to find actions for your selected tabs.",
+      "recommendedTheme": "dark"
+    },
+    {
+      "id": "05-save-tab-list",
+      "headline": "Copy links or save a tab list",
+      "caption": "Save selected tabs as CSV, TSV, JSON, or Markdown. Your selection stays ready for another format.",
+      "recommendedTheme": "light"
+    },
+    {
+      "id": "06-make-it-comfortable",
+      "headline": "Make it comfortable",
+      "caption": "Search Settings and use the shared preview to choose which details each tab shows.",
+      "recommendedTheme": "light"
+    }
+  ],
+  "stores": {
+    "chrome": {
+      "label": "Chrome Web Store",
+      "category": "Workflow & Planning",
+      "supportEmail": "chrome-extension@xcv58.com",
+      "screenshotCount": 5,
+      "notes": [
+        "Use the first five recommended screenshots. The Settings screenshot is supplied as an alternate.",
+        "The short description comes from the extension package. The proposed summary is a draft; package.json and manifests are unchanged pending review.",
+        "There is no standalone keyword field in this preparation. Use relevant words naturally in the summary and description.",
+        "Use the 440×280 promotional tile and optional 1400×560 marquee. Keep screenshot exports full bleed.",
+        "Retain the existing publisher identity and business/trader designation. Owner confirmation is needed for legal or business changes."
+      ]
+    },
+    "firefox": {
+      "label": "Firefox Add-ons",
+      "category": "Tabs",
+      "supportEmail": "firefox-addon@xcv58.com",
+      "tagsProposed": ["tabs", "tab groups", "search", "productivity"],
+      "screenshotCount": 6,
+      "notes": [
+        "Use all six recommended screenshots. Enter the supplied captions in AMO; the screenshots contain no added marketing text.",
+        "Use Tabs as the category. Remove Web Development unless there is a deliberate reason to target that audience.",
+        "The tag ideas need matching against the choices actually offered in AMO. Prioritize tab management over secondary dark-mode or privacy tags.",
+        "Use the Firefox-specific description, including the containers paragraph. Retain the existing add-on ID and desktop compatibility settings.",
+        "Use the current MIT license, no-data-collection declaration, and existing sponsor link. Do not change Android availability without a separate compatibility decision."
+      ]
+    },
+    "edge": {
+      "label": "Microsoft Edge Add-ons",
+      "category": "Productivity",
+      "supportEmail": "Keep the existing verified publisher contact; use the support-page link for users.",
+      "searchTerms": [
+        "tab manager",
+        "tab search",
+        "tab groups",
+        "duplicate tabs",
+        "organize tabs",
+        "copy links",
+        "export tabs"
+      ],
+      "screenshotCount": 6,
+      "notes": [
+        "Use all six recommended screenshots and the 440×280 promotional tile. The 1400×560 marquee fits the optional large promotional tile.",
+        "The proposed seven search terms contain fourteen words; every term is under thirty characters.",
+        "Name and short description are package-derived. Apply the proposed summary to the release package only after copy approval.",
+        "Replace the older description with this shared, current description. It deliberately omits Firefox-only container features.",
+        "Retain existing markets, visibility, publisher identity, and verified business/contact information."
+      ]
+    }
+  },
+  "reviewerNotes": "No account or paid subscription is required. Open Tab Manager from the extension button, then use full feature mode or Open in a browser tab to try the command palette, group destinations, and export. The palette shortcut is Command+K on macOS or Alt+K on Windows/Linux while Tab Manager has focus. Select tabs with their checkboxes before testing batch actions. History search is optional in Settings. Lite popup mode intentionally keeps a smaller set of actions and can open the full view. Firefox container features require Firefox containers. Screenshots show the release candidate, including the group color picker correction, ahead of the separate version-bump/release step.",
+  "unchangedFields": "Keep the existing extension IDs, package compatibility constraints, distribution markets, availability, ownership, publisher identity, business/trader information, and pricing. English is the prepared listing language; do not imply the extension UI is localized into other languages.",
+  "video": {
+    "localFile": "video/product-tour.mp4",
+    "status": "The existing refreshed product tour is supplied as the proposed Chrome/Edge store video. No new YouTube upload or store video URL has been created. Firefox can link to the tour on the website."
+  },
+  "guidance": [
+    {
+      "title": "Chrome image requirements",
+      "url": "https://developer.chrome.com/docs/webstore/images"
+    },
+    {
+      "title": "Firefox listing guidance",
+      "url": "https://extensionworkshop.com/documentation/develop/create-an-appealing-listing/"
+    },
+    {
+      "title": "Edge listing fields and image requirements",
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension"
+    }
+  ]
+}

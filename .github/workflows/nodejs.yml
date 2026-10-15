@@ -99,8 +99,10 @@ jobs:
           retention-days: 30
 
       - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+        if: ${{ matrix.node == 25 && !cancelled() }}
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            packages/integration_test/playwright-report/
+            packages/integration_test/test-results/
           retention-days: 30

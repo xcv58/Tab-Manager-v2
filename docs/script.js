@@ -153,8 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
       '1,000+ tabs, still smooth.': '1,000 多个标签页，依然流畅。',
       'Your browser does not support embedded videos. You can download the scale demo video directly instead.':
         '你的浏览器不支持嵌入式视频。你可以改为直接下载规模演示视频。',
-      'Recorded with 1,024 sample tabs in a local test workspace.':
-        '在本地测试工作区中录制，包含 1,024 个示例标签页。',
+      'Recorded with 1,024 sample tabs. Background pages were unloaded.':
+        '使用 1,024 个示例标签页录制，后台页面已卸载。',
       Testing: '测试',
       'Every change, tested end to end.': '每次改动，都经过端到端测试。',
       'Watch automated checks of search, grouping, cleanup, shortcuts, and settings, played at 10× speed.':
@@ -346,8 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
       '1,000+ tabs, still smooth.': '1,000 多個分頁，依然順暢。',
       'Your browser does not support embedded videos. You can download the scale demo video directly instead.':
         '你的瀏覽器不支援嵌入式影片。你可以改為直接下載規模演示影片。',
-      'Recorded with 1,024 sample tabs in a local test workspace.':
-        '在本機測試工作區中錄製，包含 1,024 個範例分頁。',
+      'Recorded with 1,024 sample tabs. Background pages were unloaded.':
+        '使用 1,024 個範例分頁錄製，背景頁面已卸載。',
       Testing: '測試',
       'Every change, tested end to end.': '每次變更，都經過端對端測試。',
       'Watch automated checks of search, grouping, cleanup, shortcuts, and settings, played at 10× speed.':

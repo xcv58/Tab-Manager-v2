@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="280" viewBox="0 0 440 280">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#111827"/><stop offset="1" stop-color="#202a43"/>
+    </linearGradient>
+  </defs>
+  <rect width="440" height="280" fill="url(#bg)"/>
+  <rect width="440" height="5" fill="#9395ff"/>
+  <rect x="28" y="27" width="36" height="36" rx="9" fill="#fff"/>
+  <image href="{{ICON_IMAGE}}" x="31" y="30" width="30" height="30"/>
+  <g fill="#f7f9ff" font-family="Arial, Helvetica, sans-serif">
+    <text x="76" y="51" font-size="18" font-weight="700">Tab Manager v2</text>
+    <text x="28" y="128" font-size="43" font-weight="700" letter-spacing="-1.5">Too many tabs,</text>
+    <text x="28" y="177" font-size="43" font-weight="700" letter-spacing="-1.5" fill="#b4b8ff">handled.</text>
+    <text x="29" y="231" font-size="16" fill="#d5ddef">Find, organize, and clean up tabs.</text>
+  </g>
+</svg>
