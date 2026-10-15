@@ -20,9 +20,10 @@ import { useAppTheme } from 'libs/appTheme'
 import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
 import ControlIconButton from 'components/ControlIconButton'
 import { CloseIcon } from 'icons/materialIcons'
-import { BrowserWindowIcon } from 'icons/actionIcons'
+import { BrowserWindowIcon, SearchIcon } from 'icons/actionIcons'
 import { getWindowLabel } from 'libs/windowLabel'
 import { getUiColorTokens } from 'libs/uiColorTokens'
+import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ search · > commands'
@@ -597,7 +598,6 @@ const AutocompleteSearch = observer((props: Props) => {
       className="toolbar-search"
       style={
         {
-          '--toolbar-search-border': uiColors.toolbarShellBorderColor,
           '--toolbar-search-focus': uiColors.focusRing,
           '--toolbar-search-muted': uiColors.mutedText,
           color: uiColors.primaryText,
@@ -608,11 +608,22 @@ const AutocompleteSearch = observer((props: Props) => {
       <div
         data-testid="toolbar-search-input"
         className="toolbar-search-input"
+        onMouseDown={(event) => {
+          // Decorative areas focus the field without briefly blurring it.
+          if (event.target !== searchInputRef.current) event.preventDefault()
+        }}
         onClick={() => {
           inputProps.onFocus()
           searchInputRef.current?.focus()
         }}
       >
+        <span
+          className="toolbar-search-icon"
+          aria-hidden="true"
+          style={{ width: DEFAULT_CONTROL_SIZE }}
+        >
+          <SearchIcon fontSize={20} />
+        </span>
         <input
           ref={(node) => {
             searchInputRef.current = node

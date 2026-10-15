@@ -13,7 +13,6 @@ import RowActionRail from 'components/RowActionRail'
 
 export default observer((props: TabProps) => {
   const { tab } = props
-  const pin = tab.pinned && PIN
 
   const onRemove = (event: React.SyntheticEvent) => {
     event.stopPropagation()
@@ -24,8 +23,8 @@ export default observer((props: TabProps) => {
   }
 
   return (
-    <div tabIndex={-1} className="relative flex w-full">
-      {pin}
+    <div tabIndex={-1} className="relative flex items-center w-full">
+      {tab.pinned && PIN}
       <Icon tab={tab} faked />
       <TabContent tab={tab} faked />
       <RowActionRail tail={<DuplicateMarker tab={tab} faked />}>

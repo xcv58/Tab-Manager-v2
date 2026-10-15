@@ -37,8 +37,8 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
         }}
       >
         <Summary />
-        <LayoutRepackIndicator />
         <AutocompleteSearch autoFocus={autoFocus} open bottomInset={44} />
+        <LayoutRepackIndicator />
       </div>
       <div
         className="corner-dock absolute right-0 bottom-0 flex items-center gap-1 border px-2 py-1"

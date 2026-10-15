@@ -41,11 +41,13 @@ export default observer(({ showSearchResultMenu }: Props) => {
       }}
     >
       <Summary />
-      <LayoutRepackIndicator />
       <AutocompleteSearch showResultMenu={showSearchResultMenu} />
-      <SyncButton />
-      <ThemeToggle />
-      <OpenInTab />
+      <div className="search-header-actions">
+        <LayoutRepackIndicator />
+        <SyncButton />
+        <ThemeToggle />
+        <OpenInTab />
+      </div>
     </div>
   )
 })

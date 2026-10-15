@@ -35,7 +35,6 @@ export default observer((props: TabProps & { className?: string }) => {
     isMatched,
     isSelected,
     isHovered,
-    pinned,
     shouldHighlight,
   } = tab
 
@@ -104,7 +103,6 @@ export default observer((props: TabProps & { className?: string }) => {
     setNodeRef(nodeRef)
   }, [setNodeRef])
 
-  const pin = pinned && PIN
   const isPrimaryActive = tab.active && !!tab.win?.lastFocused
   const showActiveIndicator = (tab.win?.tabs?.length || 0) > 1
   const activeIndicatorColor = tab.active
@@ -167,7 +165,7 @@ export default observer((props: TabProps & { className?: string }) => {
           }}
         />
       )}
-      {pin}
+      {tab.pinned && PIN}
       <Icon tab={tab} disableSequentialFocus={props.disableSequentialFocus} />
       <TabContent
         tab={tab}

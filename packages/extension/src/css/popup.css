@@ -29,32 +29,49 @@ body {
 }
 
 .search-header {
+  gap: 0;
+  padding: 0;
+}
+
+.search-header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
   gap: 2px;
-  padding: 0.65rem 8px 0;
 }
 
 .toolbar-search {
   position: relative;
   flex: 1 1 0%;
   min-width: 0;
+  height: 100%;
   container-type: inline-size;
 }
 
 .toolbar-search-input {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   min-width: 0;
-  height: 2rem;
-  padding: 0 8px;
-  border-bottom: 1px solid var(--toolbar-search-border);
-  box-shadow: inset 0 -1px transparent;
+  height: 100%;
+  /* Keep text aligned with tab titles while the field fills the header. */
+  padding: 0 0 0 calc(0.25rem + 2px);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 -2px transparent;
 }
 
 .toolbar-search-input:focus-within {
-  border-bottom-color: var(--toolbar-search-focus);
-  box-shadow: inset 0 -1px var(--toolbar-search-focus);
+  box-shadow: inset 0 -2px var(--toolbar-search-focus);
+}
+
+.toolbar-search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--toolbar-search-muted);
 }
 
 .toolbar-search-field {
@@ -66,7 +83,7 @@ body {
   border: 0;
   background: transparent;
   color: inherit;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.4;
   outline: none;
 }
@@ -78,8 +95,9 @@ body {
 
 .toolbar-search-hint {
   flex-shrink: 0;
+  padding: 0 8px;
   color: var(--toolbar-search-muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.4;
   white-space: nowrap;
   user-select: none;
