@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#111827"/><stop offset="1" stop-color="#202a43"/>
+    </linearGradient>
+    <clipPath id="frame"><rect x="622" y="47" width="736" height="460" rx="12"/></clipPath>
+  </defs>
+  <rect width="1400" height="560" fill="url(#bg)"/>
+  <rect width="1400" height="5" fill="#9395ff"/>
+  <rect x="50" y="53" width="48" height="48" rx="12" fill="#fff"/>
+  <image href="{{ICON_IMAGE}}" x="54" y="57" width="40" height="40"/>
+  <g fill="#f7f9ff" font-family="Arial, Helvetica, sans-serif">
+    <text x="115" y="86" font-size="28" font-weight="700">Tab Manager v2</text>
+    <text x="50" y="231" font-size="66" font-weight="700" letter-spacing="-2">Too many tabs,</text>
+    <text x="50" y="306" font-size="66" font-weight="700" letter-spacing="-2" fill="#b4b8ff">handled.</text>
+    <text x="52" y="376" font-size="24" fill="#d5ddef">Find any tab. Keep pages together.</text>
+    <text x="52" y="412" font-size="24" fill="#d5ddef">Clear out extra copies.</text>
+  </g>
+  <rect x="621" y="46" width="738" height="462" rx="13" fill="#eef2ff" stroke="#66718a" stroke-width="2"/>
+  <image href="{{SCREENSHOT_IMAGE}}" x="622" y="47" width="736" height="460" preserveAspectRatio="xMidYMid meet" clip-path="url(#frame)"/>
+</svg>

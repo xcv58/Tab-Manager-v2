@@ -2,7 +2,6 @@
 /* global URL, console, setTimeout, chrome, document, window, HTMLElement */
 
 import { spawnSync } from 'node:child_process'
-import { createServer } from 'node:http'
 import {
   existsSync,
   mkdirSync,
@@ -276,70 +275,6 @@ function buildThousandTwentyFourScaleWindows(resolveUrl = realUrl) {
   ]
 }
 
-async function startLocalFixtureServer() {
-  const server = await new Promise((resolve) => {
-    const nextServer = createServer((req, res) => {
-      const requestUrl = new URL(req.url || '/', 'http://127.0.0.1')
-      const title =
-        requestUrl.searchParams.get('title') || requestUrl.pathname.slice(1)
-      const body =
-        requestUrl.searchParams.get('body') ||
-        `Local scale fixture for ${title}`
-
-      res.writeHead(200, {
-        'content-type': 'text/html; charset=utf-8',
-        'cache-control': 'no-store',
-      })
-      res.end(`<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${title}</title>
-  </head>
-  <body>
-    <main>
-      <h1>${title}</h1>
-      <p>${body}</p>
-      <code>${requestUrl.pathname}</code>
-    </main>
-  </body>
-</html>`)
-    })
-    nextServer.listen(0, '127.0.0.1', () => resolve(nextServer))
-  })
-
-  const { port } = server.address()
-  return {
-    baseUrl: `http://127.0.0.1:${port}`,
-    close: () =>
-      new Promise((resolve, reject) => {
-        server.close((error) => {
-          if (error) {
-            reject(error)
-            return
-          }
-          resolve()
-        })
-      }),
-  }
-}
-
-function toFixtureTitle(key) {
-  return key
-    .split('/')
-    .flatMap((part) => part.split('-'))
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-}
-
-function buildLocalFixtureUrl(baseUrl, key) {
-  const title = toFixtureTitle(key)
-  const slug = key.replaceAll('/', '-')
-  const body = `Synthetic stress fixture for ${title}`
-  return `${baseUrl}/scale/${slug}?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
-}
-
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -494,6 +429,39 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
         return batches
       }
 
+      const settleAndDiscardBatch = async (windowId, tabIds) => {
+        if (!waitOptions.discardAfterLoad) return
+        const pending = new Set(tabIds)
+        const deadline =
+          Date.now() + waitOptions.maxAttempts * waitOptions.pollIntervalMs
+        while (pending.size && Date.now() < deadline) {
+          const tabs = await chrome.tabs.query({ windowId })
+          for (const tab of tabs) {
+            if (!pending.has(tab.id) || tab.status !== 'complete') continue
+            const title = String(tab.title || '').trim()
+            if (
+              !title ||
+              title === tab.url ||
+              !/^https:\/\//.test(tab.url || '') ||
+              waitOptions.blockedTitleSnippets.some((text) =>
+                title.toLowerCase().includes(text),
+              )
+            ) {
+              throw new Error(
+                `Invalid public page in scale capture: ${tab.url}: ${title}`,
+              )
+            }
+            if (!tab.active) await chrome.tabs.discard(tab.id)
+            pending.delete(tab.id)
+          }
+          if (pending.size) await delay(waitOptions.pollIntervalMs)
+        }
+        if (pending.size)
+          throw new Error(
+            `Public pages did not finish loading: ${[...pending].join(', ')}`,
+          )
+      }
+
       const waitForTabCount = async (windowId, expectedCount) => {
         for (let attempt = 0; attempt < waitOptions.maxAttempts; attempt += 1) {
           const tabs = await chrome.tabs.query({ windowId })
@@ -520,7 +488,7 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
             .trim()
             .toLowerCase()
           return (
-            tab.status === 'complete' &&
+            (tab.status === 'complete' || tab.discarded) &&
             title.length > 0 &&
             !url.startsWith('chrome-error://') &&
             !blockedTitleSnippets.some((snippet) => title.includes(snippet))
@@ -582,20 +550,36 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
         }
 
         let expectedCount = firstBatch.length
+        const firstTabs = await waitForTabCount(windowId, expectedCount)
+        await settleAndDiscardBatch(
+          windowId,
+          firstTabs.map((tab) => tab.id),
+        )
+        if (waitOptions.discardAfterLoad)
+          console.log(
+            `[scale capture] Prepared ${expectedCount}/${urls.length} public tabs in window ${windowId}`,
+          )
 
         if (restBatches.length > 0) {
           await delay(waitOptions.batchPauseMs)
         }
 
         for (const batch of restBatches) {
+          const batchTabIds = []
           for (const url of batch) {
-            await chrome.tabs.create({
+            const tab = await chrome.tabs.create({
               windowId,
               url,
               active: false,
             })
+            batchTabIds.push(tab.id)
             expectedCount += 1
           }
+          await settleAndDiscardBatch(windowId, batchTabIds)
+          if (waitOptions.discardAfterLoad)
+            console.log(
+              `[scale capture] Prepared ${expectedCount}/${urls.length} public tabs in window ${windowId}`,
+            )
           await waitForTabCount(windowId, expectedCount)
           await delay(waitOptions.batchPauseMs)
         }
@@ -692,18 +676,37 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
   )
 }
 
-async function initControlContext() {
+async function initControlContext({ nativeFeatures = false } = {}) {
   const userDataDir = mkdtempSync(join(tmpdir(), 'tmv2-video-'))
   const context = await chromium.launchPersistentContext(userDataDir, {
     executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
     headless: false,
+    // Playwright's feature overrides crash Chromium when a new tab is created
+    // after discarding a public page. The scale recorder uses native defaults,
+    // matching normal browser sessions; the small feature scenes keep theirs.
+    ignoreDefaultArgs: nativeFeatures || undefined,
     screen: VIEWPORT,
     viewport: VIEWPORT,
     args: [
+      ...(nativeFeatures
+        ? [
+            `--user-data-dir=${userDataDir}`,
+            '--remote-debugging-pipe',
+            '--no-first-run',
+            '--no-default-browser-check',
+            '--force-color-profile=srgb',
+            '--password-store=basic',
+            '--use-mock-keychain',
+            ...(process.platform === 'linux' && process.getuid?.() === 0
+              ? ['--no-sandbox']
+              : []),
+          ]
+        : []),
       '--disable-dev-shm-usage',
       '--ipc=host',
       `--disable-extensions-except=${EXTENSION_PATH}`,
       `--load-extension=${EXTENSION_PATH}`,
+      ...(nativeFeatures ? ['about:blank'] : []),
     ],
   })
 
@@ -983,19 +986,6 @@ async function waitForGroupTitle(page, groupId, expectedTitle) {
   )
 }
 
-function getDemoTabTitle(url) {
-  try {
-    const parsedUrl = new URL(url)
-    return parsedUrl.searchParams.get('title') || parsedUrl.pathname || url
-  } catch {
-    return url
-  }
-}
-
-function normalizeVisibleTabTitle(text = '') {
-  return text.replace(/\s+/g, ' ').trim()
-}
-
 async function getVisibleWindowTabTitles(page, windowId, limit = 12) {
   return page.evaluate(
     ({ nextWindowId, nextLimit }) => {
@@ -1226,7 +1216,13 @@ async function withScenario(
   options = {},
 ) {
   const { context, controlPage, fullPageUrl, userDataDir } =
-    await initControlContext()
+    await initControlContext({
+      nativeFeatures: !!options.waitOptions?.discardAfterLoad,
+    })
+  controlPage.on('console', (message) => {
+    if (message.text().startsWith('[scale capture]'))
+      console.log(message.text())
+  })
 
   try {
     await resetScenario(controlPage, fullPageUrl, settings)
@@ -1790,246 +1786,235 @@ async function recordHundredPlusTabsScale() {
 
 async function recordThousandTwentyFourTabsScale() {
   const clipName = '08-thousand-twenty-four-tabs-scale'
-  // This scale clip intentionally swaps real sites for local synthetic fixtures
-  // so the 1,024-tab scenario stays deterministic, fast, and safe to capture.
-  const fixtureServer = await startLocalFixtureServer()
+  const windows = buildThousandTwentyFourScaleWindows()
 
-  try {
-    const windows = buildThousandTwentyFourScaleWindows((key) =>
-      buildLocalFixtureUrl(fixtureServer.baseUrl, key),
-    )
+  return withScenario(
+    clipName,
+    windows,
+    {
+      useSystemTheme: false,
+      darkTheme: false,
+      tabWidth: 16,
+      fontSize: 13,
+    },
+    async (page, startPoint, createdWindows) => {
+      const heroWindowId = createdWindows[0].windowId
+      const renamedHeroGroupId = createdWindows[0].groups[1].groupId
+      const sideGroupId = createdWindows[1].groups[0].groupId
+      const closedWindowId = createdWindows[2].windowId
+      const finalScenarioCounts = {
+        windowCount: createdWindows.length,
+        tabCount: 1024 - 10 - windows[2].tabs.length + 1,
+      }
+      await demoHold(page, 1000)
 
-    return await withScenario(
-      clipName,
-      windows,
-      {
-        useSystemTheme: false,
-        darkTheme: false,
-        tabWidth: 16,
-        fontSize: 13,
-      },
-      async (page, startPoint, createdWindows) => {
-        const heroWindowId = createdWindows[0].windowId
-        const renamedHeroGroupId = createdWindows[0].groups[1].groupId
-        const sideGroupId = createdWindows[1].groups[0].groupId
-        const closedWindowId = createdWindows[2].windowId
-        const finalScenarioCounts = {
-          windowCount: createdWindows.length,
-          tabCount: 1024 - 10 - windows[2].tabs.length + 1,
-        }
-        await demoHold(page, 1000)
+      const heroWindowTitle = page.getByTestId(`window-title-${heroWindowId}`)
+      const titleCenter = await getCenter(heroWindowTitle)
+      await moveCursor(page, startPoint, titleCenter, 900)
+      await demoPause(page, 180)
 
-        const heroWindowTitle = page.getByTestId(`window-title-${heroWindowId}`)
-        const titleCenter = await getCenter(heroWindowTitle)
-        await moveCursor(page, startPoint, titleCenter, 900)
-        await demoPause(page, 180)
-
-        const expectedSortedPairs = [
-          [
-            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[7])),
-            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[6])),
-          ],
-          [
-            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[11])),
-            normalizeVisibleTabTitle(getDemoTabTitle(windows[0].tabs[10])),
-          ],
-        ]
-        const initialVisibleTitles = await getVisibleWindowTabTitles(
-          page,
-          heroWindowId,
-          12,
-        )
-        if (hasOrderedTitlePairs(initialVisibleTitles, expectedSortedPairs)) {
-          throw new Error(
-            'Expected the featured 1,024-tab window to start unsorted before the demo click',
-          )
-        }
-
-        const actionsButton = heroWindowTitle.getByRole('button', {
-          name: 'Window actions',
-        })
-        await actionsButton.waitFor({ state: 'visible', timeout: 15000 })
-        const actionsCenter = await getCenter(actionsButton)
-        await moveCursor(page, titleCenter, actionsCenter, 430)
-        await demoPause(page, 120)
-        await clickLocator(page, actionsButton)
-        const sortButton = page.getByRole('menuitem', {
-          name: 'Sort tabs',
-          exact: true,
-        })
-        await sortButton.waitFor({ state: 'visible', timeout: 15000 })
-        const sortCenter = await getCenter(sortButton)
-        await moveCursor(page, actionsCenter, sortCenter, 430)
-        await demoPause(page, 120)
-        await clickLocator(page, sortButton)
-        await waitForVisibleWindowTabOrderChange(
-          page,
-          heroWindowId,
-          initialVisibleTitles,
-          expectedSortedPairs,
-        )
-        await demoHold(page, 1050)
-
-        const scrollContainer = page.getByTestId('window-list-scroll-container')
-        const scrollBox = await scrollContainer.boundingBox()
-        if (!scrollBox) {
-          throw new Error('Failed to read scroll container bounds')
-        }
-        const scrollPoint = {
-          x: scrollBox.x + scrollBox.width * 0.28,
-          y: scrollBox.y + scrollBox.height * 0.48,
-        }
-        await moveCursor(page, sortCenter, scrollPoint, 620)
-        await demoPause(page, 120)
-        await wheelCursor(page, 5600, 36)
-        await demoPause(page, 140)
-        await wheelCursor(page, -5600, 36)
-        await demoPause(page, 140)
-        await wheelCursorXY(page, 2600, 0, 24)
-        await demoPause(page, 140)
-        await wheelCursorXY(page, -2600, 0, 24)
-        await demoHold(page, 700)
-
-        const heroGroupHeader = page.getByTestId(
-          `tab-group-header-${renamedHeroGroupId}`,
-        )
-        const heroGroupHeaderCenter = await getCenter(heroGroupHeader)
-        await moveCursor(page, scrollPoint, heroGroupHeaderCenter, 540)
-        await demoPause(page, 100)
-        await heroGroupHeader.focus()
-        const heroGroupMenu = page.getByTestId(
-          `tab-group-menu-${renamedHeroGroupId}`,
-        )
-        await heroGroupMenu.waitFor({ state: 'visible', timeout: 15000 })
-        const heroGroupMenuCenter = await getCenter(heroGroupMenu)
-        await moveCursor(page, heroGroupHeaderCenter, heroGroupMenuCenter, 500)
-        await demoPause(page, 140)
-        await clickLocator(page, heroGroupMenu)
-
-        const renameItem = page.getByTestId(
-          `tab-group-menu-rename-${renamedHeroGroupId}`,
-        )
-        await renameItem.waitFor({ state: 'visible', timeout: 15000 })
-        const renameCenter = await getCenter(renameItem)
-        await moveCursor(page, heroGroupMenuCenter, renameCenter, 360)
-        await demoPause(page, 120)
-        await clickLocator(page, renameItem)
-
-        const editor = page.getByTestId(
-          `tab-group-editor-${renamedHeroGroupId}`,
-        )
-        await editor.waitFor({ state: 'visible', timeout: 15000 })
-        const titleInput = page.getByTestId(
-          `tab-group-editor-title-${renamedHeroGroupId}`,
-        )
-        const titleInputCenter = await getCenter(titleInput)
-        await moveCursor(page, renameCenter, titleInputCenter, 460)
-        await demoPause(page, 120)
-        await clickLocator(page, titleInput)
-        await titleInput.fill('Launch Ops')
-        await demoPause(page, 120)
-
-        const redColor = page.getByTestId(
-          `tab-group-editor-color-${renamedHeroGroupId}-red`,
-        )
-        const redColorCenter = await getCenter(redColor)
-        await moveCursor(page, titleInputCenter, redColorCenter, 360)
-        await demoPause(page, 120)
-        await clickLocator(page, redColor)
-        await page.keyboard.press('Escape')
-        await editor.waitFor({ state: 'hidden', timeout: 15000 })
-        await waitForFloatingUiToClear(page)
-        await waitForGroupTitle(page, renamedHeroGroupId, 'Launch Ops')
-        await demoHold(page, 600)
-
-        const renamedHeroToggle = page.getByTestId(
-          `tab-group-toggle-${renamedHeroGroupId}`,
-        )
-        const renamedHeroToggleCenter = await getCenter(renamedHeroToggle)
-        await moveCursor(page, redColorCenter, renamedHeroToggleCenter, 520)
-        await demoPause(page, 120)
-        await clickLocator(page, renamedHeroToggle)
-        await demoHold(page, 700)
-
-        const syncPoint = {
-          x: scrollBox.x + scrollBox.width * 0.12,
-          y: scrollBox.y + 24,
-        }
-        await moveCursor(page, renamedHeroToggleCenter, syncPoint, 620)
-        await demoPause(page, 120)
-        await page.evaluate(() => {
-          const activeElement = document.activeElement
-          if (activeElement instanceof HTMLElement) {
-            activeElement.blur()
-          }
-        })
-        await page.keyboard.press('s')
-        await demoHold(page, 900)
-
-        const sideGroupHeader = page.getByTestId(
-          `tab-group-header-${sideGroupId}`,
-        )
-        const sideGroupHeaderCenter = await getCenter(sideGroupHeader)
-        await moveCursor(page, syncPoint, sideGroupHeaderCenter, 760)
-        await demoPause(page, 100)
-        await sideGroupHeader.focus()
-        const sideGroupClose = sideGroupHeader.locator(
-          'button[aria-label="Close group"]',
-        )
-        await sideGroupClose.waitFor({ state: 'visible', timeout: 15000 })
-        const sideGroupCloseCenter = await getCenter(sideGroupClose)
-        await moveCursor(page, sideGroupHeaderCenter, sideGroupCloseCenter, 340)
-        await demoPause(page, 140)
-        await clickLocator(page, sideGroupClose)
-        await sideGroupHeader.waitFor({ state: 'hidden', timeout: 15000 })
-        await demoHold(page, 700)
-
-        const closingWindowTitle = page.getByTestId(
-          `window-title-${closedWindowId}`,
-        )
-        const closingWindowTitleCenter = await getCenter(closingWindowTitle)
-        await moveCursor(
-          page,
-          sideGroupCloseCenter,
-          closingWindowTitleCenter,
-          720,
-        )
-        await demoPause(page, 100)
-        await closingWindowTitle.focus()
-        const closingWindowButton = closingWindowTitle.locator(
-          'button[aria-label="Close window"]',
-        )
-        await closingWindowButton.waitFor({ state: 'visible', timeout: 15000 })
-        const closingWindowCenter = await getCenter(closingWindowButton)
-        await moveCursor(
-          page,
-          closingWindowTitleCenter,
-          closingWindowCenter,
-          320,
-        )
-        await demoPause(page, 140)
-        await clickLocator(page, closingWindowButton)
-        await waitForScenarioReady(page, finalScenarioCounts)
-
-        const finalPoint = {
-          x: scrollBox.x + scrollBox.width * 0.33,
-          y: scrollBox.y + scrollBox.height * 0.32,
-        }
-        await moveCursor(page, closingWindowCenter, finalPoint, 660)
-        await demoHold(page, 1500)
-      },
-      {
-        waitOptions: {
-          batchSize: 24,
-          batchPauseMs: 250,
-          stablePolls: 3,
-          postLoadSettleMs: 900,
+      // Compare the browser's real page titles for React/Vercel and
+      // Extension Workshop/Microsoft, whose domains have a known sort order.
+      const expectedSortedPairs = await page.evaluate(
+        async (ids) => {
+          const tabs = await Promise.all(ids.map((id) => chrome.tabs.get(id)))
+          const titles = tabs.map((tab) => tab.title.trim())
+          if (titles.some((title) => !title))
+            throw new Error('Scale capture is missing real page titles')
+          return [
+            [titles[0], titles[1]],
+            [titles[2], titles[3]],
+          ]
         },
+        [7, 6, 10, 11].map((index) => createdWindows[0].tabIds[index]),
+      )
+      const initialVisibleTitles = await getVisibleWindowTabTitles(
+        page,
+        heroWindowId,
+        12,
+      )
+      if (hasOrderedTitlePairs(initialVisibleTitles, expectedSortedPairs)) {
+        throw new Error(
+          'Expected the featured 1,024-tab window to start unsorted before the demo click',
+        )
+      }
+
+      const actionsButton = heroWindowTitle.getByRole('button', {
+        name: 'Window actions',
+      })
+      await actionsButton.waitFor({ state: 'visible', timeout: 15000 })
+      const actionsCenter = await getCenter(actionsButton)
+      await moveCursor(page, titleCenter, actionsCenter, 430)
+      await demoPause(page, 120)
+      await clickLocator(page, actionsButton)
+      const sortButton = page.getByRole('menuitem', {
+        name: 'Sort tabs',
+        exact: true,
+      })
+      await sortButton.waitFor({ state: 'visible', timeout: 15000 })
+      const sortCenter = await getCenter(sortButton)
+      await moveCursor(page, actionsCenter, sortCenter, 430)
+      await demoPause(page, 120)
+      await clickLocator(page, sortButton)
+      await waitForVisibleWindowTabOrderChange(
+        page,
+        heroWindowId,
+        initialVisibleTitles,
+        expectedSortedPairs,
+      )
+      await demoHold(page, 1050)
+
+      const scrollContainer = page.getByTestId('window-list-scroll-container')
+      const scrollBox = await scrollContainer.boundingBox()
+      if (!scrollBox) {
+        throw new Error('Failed to read scroll container bounds')
+      }
+      const scrollPoint = {
+        x: scrollBox.x + scrollBox.width * 0.28,
+        y: scrollBox.y + scrollBox.height * 0.48,
+      }
+      await moveCursor(page, sortCenter, scrollPoint, 620)
+      await demoPause(page, 120)
+      await wheelCursor(page, 5600, 36)
+      await demoPause(page, 140)
+      await wheelCursor(page, -5600, 36)
+      await demoPause(page, 140)
+      await wheelCursorXY(page, 2600, 0, 24)
+      await demoPause(page, 140)
+      await wheelCursorXY(page, -2600, 0, 24)
+      await demoHold(page, 700)
+
+      const heroGroupHeader = page.getByTestId(
+        `tab-group-header-${renamedHeroGroupId}`,
+      )
+      const heroGroupHeaderCenter = await getCenter(heroGroupHeader)
+      await moveCursor(page, scrollPoint, heroGroupHeaderCenter, 540)
+      await demoPause(page, 100)
+      await heroGroupHeader.focus()
+      const heroGroupMenu = page.getByTestId(
+        `tab-group-menu-${renamedHeroGroupId}`,
+      )
+      await heroGroupMenu.waitFor({ state: 'visible', timeout: 15000 })
+      const heroGroupMenuCenter = await getCenter(heroGroupMenu)
+      await moveCursor(page, heroGroupHeaderCenter, heroGroupMenuCenter, 500)
+      await demoPause(page, 140)
+      await clickLocator(page, heroGroupMenu)
+
+      const renameItem = page.getByTestId(
+        `tab-group-menu-rename-${renamedHeroGroupId}`,
+      )
+      await renameItem.waitFor({ state: 'visible', timeout: 15000 })
+      const renameCenter = await getCenter(renameItem)
+      await moveCursor(page, heroGroupMenuCenter, renameCenter, 360)
+      await demoPause(page, 120)
+      await clickLocator(page, renameItem)
+
+      const editor = page.getByTestId(`tab-group-editor-${renamedHeroGroupId}`)
+      await editor.waitFor({ state: 'visible', timeout: 15000 })
+      const titleInput = page.getByTestId(
+        `tab-group-editor-title-${renamedHeroGroupId}`,
+      )
+      const titleInputCenter = await getCenter(titleInput)
+      await moveCursor(page, renameCenter, titleInputCenter, 460)
+      await demoPause(page, 120)
+      await clickLocator(page, titleInput)
+      await titleInput.fill('Launch Ops')
+      await demoPause(page, 120)
+
+      const redColor = page.getByTestId(
+        `tab-group-editor-color-${renamedHeroGroupId}-red`,
+      )
+      const redColorCenter = await getCenter(redColor)
+      await moveCursor(page, titleInputCenter, redColorCenter, 360)
+      await demoPause(page, 120)
+      await clickLocator(page, redColor)
+      await page.keyboard.press('Escape')
+      await editor.waitFor({ state: 'hidden', timeout: 15000 })
+      await waitForFloatingUiToClear(page)
+      await waitForGroupTitle(page, renamedHeroGroupId, 'Launch Ops')
+      await demoHold(page, 600)
+
+      const renamedHeroToggle = page.getByTestId(
+        `tab-group-toggle-${renamedHeroGroupId}`,
+      )
+      const renamedHeroToggleCenter = await getCenter(renamedHeroToggle)
+      await moveCursor(page, redColorCenter, renamedHeroToggleCenter, 520)
+      await demoPause(page, 120)
+      await clickLocator(page, renamedHeroToggle)
+      await demoHold(page, 700)
+
+      const syncPoint = {
+        x: scrollBox.x + scrollBox.width * 0.12,
+        y: scrollBox.y + 24,
+      }
+      await moveCursor(page, renamedHeroToggleCenter, syncPoint, 620)
+      await demoPause(page, 120)
+      await page.evaluate(() => {
+        const activeElement = document.activeElement
+        if (activeElement instanceof HTMLElement) {
+          activeElement.blur()
+        }
+      })
+      await page.keyboard.press('s')
+      await demoHold(page, 900)
+
+      const sideGroupHeader = page.getByTestId(
+        `tab-group-header-${sideGroupId}`,
+      )
+      const sideGroupHeaderCenter = await getCenter(sideGroupHeader)
+      await moveCursor(page, syncPoint, sideGroupHeaderCenter, 760)
+      await demoPause(page, 100)
+      await sideGroupHeader.focus()
+      const sideGroupClose = sideGroupHeader.locator(
+        'button[aria-label="Close group"]',
+      )
+      await sideGroupClose.waitFor({ state: 'visible', timeout: 15000 })
+      const sideGroupCloseCenter = await getCenter(sideGroupClose)
+      await moveCursor(page, sideGroupHeaderCenter, sideGroupCloseCenter, 340)
+      await demoPause(page, 140)
+      await clickLocator(page, sideGroupClose)
+      await sideGroupHeader.waitFor({ state: 'hidden', timeout: 15000 })
+      await demoHold(page, 700)
+
+      const closingWindowTitle = page.getByTestId(
+        `window-title-${closedWindowId}`,
+      )
+      const closingWindowTitleCenter = await getCenter(closingWindowTitle)
+      await moveCursor(
+        page,
+        sideGroupCloseCenter,
+        closingWindowTitleCenter,
+        720,
+      )
+      await demoPause(page, 100)
+      await closingWindowTitle.focus()
+      const closingWindowButton = closingWindowTitle.locator(
+        'button[aria-label="Close window"]',
+      )
+      await closingWindowButton.waitFor({ state: 'visible', timeout: 15000 })
+      const closingWindowCenter = await getCenter(closingWindowButton)
+      await moveCursor(page, closingWindowTitleCenter, closingWindowCenter, 320)
+      await demoPause(page, 140)
+      await clickLocator(page, closingWindowButton)
+      await waitForScenarioReady(page, finalScenarioCounts)
+
+      const finalPoint = {
+        x: scrollBox.x + scrollBox.width * 0.33,
+        y: scrollBox.y + scrollBox.height * 0.32,
+      }
+      await moveCursor(page, closingWindowCenter, finalPoint, 660)
+      await demoHold(page, 1500)
+    },
+    {
+      waitOptions: {
+        batchSize: 16,
+        batchPauseMs: 250,
+        discardAfterLoad: true,
+        stablePolls: 3,
+        postLoadSettleMs: 900,
       },
-    )
-  } finally {
-    await fixtureServer.close()
-  }
+    },
+  )
 }
 
 const CLIPS = [
