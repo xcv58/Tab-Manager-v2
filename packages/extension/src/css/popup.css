@@ -903,7 +903,8 @@ body {
   min-width: 0;
 }
 
-.command-palette-layout > :not([role='listbox']):not(.command-palette-error) {
+/* Keep recovery actions visible; let the results list absorb height limits. */
+.command-palette-layout > :not([role='listbox']) {
   flex-shrink: 0;
 }
 @media (max-height: 700px), (max-width: 600px) {

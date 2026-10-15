@@ -363,7 +363,6 @@ const PaletteDialog = observer(function PaletteDialog() {
           <div
             className="command-palette-error px-4 py-3 text-sm"
             data-testid="palette-action-error"
-            style={{ minHeight: 0, overflowY: 'auto' }}
           >
             <p role="alert">{actionStore.error}</p>
             <div className="mt-2 flex gap-2">
