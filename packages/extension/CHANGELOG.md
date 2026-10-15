@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.2...v3.0.0) (2026-10-15)
+
+
+### Features
+
+* **ui:** refine workflows and add a dedicated command palette ([#2670](https://github.com/xcv58/Tab-Manager-v2/issues/2670)) ([7d129f8](https://github.com/xcv58/Tab-Manager-v2/commit/7d129f8b077805d0e0c3bb2fbccf29734853b66c))
+
+
+### Bug Fixes
+
+* finalize v3.0 search, exports and release preparation ([03c2522](https://github.com/xcv58/Tab-Manager-v2/commit/03c25220fed2afb6e1f0043561674793a0dff2ea))
+* **perf:** reduce popup overhead and memory retention ([#2668](https://github.com/xcv58/Tab-Manager-v2/issues/2668)) ([e3aeea9](https://github.com/xcv58/Tab-Manager-v2/commit/e3aeea9288909072ee31c06aa4c23dddcbd4a43d))
+* **release:** preserve manifest metadata and refresh media ([#2676](https://github.com/xcv58/Tab-Manager-v2/issues/2676)) ([a815fdb](https://github.com/xcv58/Tab-Manager-v2/commit/a815fdb9d91f469e4b2aa738f5091cee5d2ffac1))
+* **ui:** align search header and restore compact toolbar controls ([#2675](https://github.com/xcv58/Tab-Manager-v2/issues/2675)) ([a46cf29](https://github.com/xcv58/Tab-Manager-v2/commit/a46cf2949ed3d98b42b5bf88cbd4be2df91c0c35))
+* **ui:** improve compact layouts and palette error recovery ([6ed9403](https://github.com/xcv58/Tab-Manager-v2/commit/6ed940368f901f088575548c13c1870683087b15))
+
 ## [2.7.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.1...v2.7.2) (2026-10-12)
 
 
