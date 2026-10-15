@@ -14,6 +14,7 @@ import { join } from 'node:path'
 import { chromium } from 'playwright'
 import { createHash } from 'node:crypto'
 import { SAMPLE_SITES } from './capture-sites.mjs'
+import { hashFile, validateFeatures } from './capture-provenance.mjs'
 
 const ROOT_DIR =
   process.env.CAPTURE_ROOT_DIR ||
@@ -757,20 +758,12 @@ async function main() {
   const catalogueHash = createHash('sha256')
     .update(JSON.stringify(SAMPLE_SITES))
     .digest('hex')
-  if (manifest.catalogueSha256 !== catalogueHash)
-    throw new Error(
-      'Recapture the feature clips with the current local sample websites',
-    )
-  for (const clip of CLIPS) {
-    const recording = manifest.recordings.find((entry) => entry.id === clip.id)
-    const path = join(VIDEO_DIR, `${clip.id}.mp4`)
-    if (
-      !recording ||
-      recording.sha256 !==
-        createHash('sha256').update(readFileSync(path)).digest('hex')
-    )
-      throw new Error(`Stale or missing local capture: ${clip.id}`)
-  }
+  const inputClips = validateFeatures(
+    manifest,
+    catalogueHash,
+    VIDEO_DIR,
+    CLIPS.map((clip) => clip.id),
+  )
 
   rmSync(PROMO_DIR, { recursive: true, force: true })
   mkdirSync(SEGMENT_DIR, { recursive: true })
@@ -806,12 +799,12 @@ async function main() {
     JSON.stringify(
       {
         catalogueSha256: catalogueHash,
-        inputClips: manifest.recordings.filter((entry) =>
-          CLIPS.some((clip) => clip.id === entry.id),
-        ),
-        sha256: createHash('sha256')
-          .update(readFileSync(OUTPUT_PATH))
-          .digest('hex'),
+        extensionVersion: manifest.extensionVersion,
+        buildSha256: manifest.buildSha256,
+        inputClips,
+        sha256: hashFile(OUTPUT_PATH),
+        chaptersSha256: hashFile(join(PROMO_DIR, 'chapters.json')),
+        captionsSha256: hashFile(join(PROMO_DIR, 'captions.vtt')),
       },
       null,
       2,

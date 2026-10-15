@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 1,
+  "features": {
+    "mode": "local-fictional-sites",
+    "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+    "extensionVersion": "3.0.0",
+    "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+    "recordings": [
+      {
+        "id": "01-find-tab-fast",
+        "capturedAt": "2026-10-15T20:14:16.095Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "84f343f9d069f90a76de8b1be1f2368a32688af564ad8dc5d55cb9b0485e335a"
+      },
+      {
+        "id": "02-organize-groups",
+        "capturedAt": "2026-10-15T20:14:30.828Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "cea5093af6edee9a740c0c434fb15390d3acecc5627537feb045cfec63978af9"
+      },
+      {
+        "id": "03-clean-up-duplicates",
+        "capturedAt": "2026-10-15T20:14:44.187Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "95a3e1fde5b29ed0afeffc77a1ed7420de68166ca769b18a9388d80eb7e60425"
+      },
+      {
+        "id": "04-see-large-workspaces-clearly",
+        "capturedAt": "2026-10-15T20:14:56.801Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "a40e123efa8f20853711b491435fe4d3aac532c4a1419a832b77755469b4a937"
+      },
+      {
+        "id": "05-keyboard-workflow",
+        "capturedAt": "2026-10-15T20:15:10.729Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "627211a887a83c96063f18301992025dbde531e651a66cb3d1b42fd93ba075a6"
+      },
+      {
+        "id": "06-customize-the-view",
+        "capturedAt": "2026-10-15T20:15:25.206Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "080baf34e1d4f8029bb506ae3d0d9bc48bacfa44b9d16d22dae71ecec9b9becb"
+      },
+      {
+        "id": "08-thousand-twenty-four-tabs-scale",
+        "capturedAt": "2026-10-15T20:17:43.864Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "99e688f69a88d79a9ba68296d9827311783fac46cb9d0ee8cf584f2f8d1e72a5"
+      }
+    ]
+  },
+  "promo": {
+    "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+    "extensionVersion": "3.0.0",
+    "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+    "inputClips": [
+      {
+        "id": "01-find-tab-fast",
+        "capturedAt": "2026-10-15T20:14:16.095Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "84f343f9d069f90a76de8b1be1f2368a32688af564ad8dc5d55cb9b0485e335a"
+      },
+      {
+        "id": "03-clean-up-duplicates",
+        "capturedAt": "2026-10-15T20:14:44.187Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "95a3e1fde5b29ed0afeffc77a1ed7420de68166ca769b18a9388d80eb7e60425"
+      },
+      {
+        "id": "02-organize-groups",
+        "capturedAt": "2026-10-15T20:14:30.828Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "cea5093af6edee9a740c0c434fb15390d3acecc5627537feb045cfec63978af9"
+      },
+      {
+        "id": "04-see-large-workspaces-clearly",
+        "capturedAt": "2026-10-15T20:14:56.801Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "a40e123efa8f20853711b491435fe4d3aac532c4a1419a832b77755469b4a937"
+      },
+      {
+        "id": "05-keyboard-workflow",
+        "capturedAt": "2026-10-15T20:15:10.729Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "627211a887a83c96063f18301992025dbde531e651a66cb3d1b42fd93ba075a6"
+      },
+      {
+        "id": "06-customize-the-view",
+        "capturedAt": "2026-10-15T20:15:25.206Z",
+        "catalogueSha256": "8753686a5d244ef3f2fe1b148b33e06765a107fc446096952537dd4ac1525f2b",
+        "extensionVersion": "3.0.0",
+        "buildSha256": "07ba64eb0624c4dc769ca687e21a989d05729c39b38e94491666de1934555b45",
+        "sha256": "080baf34e1d4f8029bb506ae3d0d9bc48bacfa44b9d16d22dae71ecec9b9becb"
+      }
+    ],
+    "sha256": "a24c3863a14a5e2530c5855b8eb287f24f9269dc1a29d1e6da01956be7d403fe",
+    "chaptersSha256": "6aee6861a4d520b1c0cf7a0fe08ea2299149eaf6849fb8aa7e5a4a81f3d0156a",
+    "captionsSha256": "169b73efe69ce47cdbc2bf46abbcb0f470320f9ac873b6c22cc2ae382617ca4b"
+  },
+  "integrationSuite": {
+    "complete": true,
+    "playbackSpeed": 10,
+    "recordings": [
+      {
+        "file": "fixture.pinboard.test.ts",
+        "passed": true,
+        "clips": [
+          "01-fixture.pinboard-1792090506191-3230.mp4",
+          "01-fixture.pinboard-1792090512762-3230.mp4",
+          "01-fixture.pinboard-1792090517225-3230.mp4"
+        ],
+        "testSha256": "7d5c4bdd24747dccc8c7d5bd22ae096c55354612dc7ada1e42c1641bce9a5b08",
+        "clipHashes": [
+          {
+            "name": "01-fixture.pinboard-1792090506191-3230.mp4",
+            "rawSha256": "e5dbf71afc7e94eaa6b1e790a0f0b54190e4472b7ca36e856c955fb4cf30f3ec",
+            "spedUpSha256": "6f52a90327a2ba3ab6a2417be6f8a099e4f0582e34f001aff916e466ab65a3c4"
+          },
+          {
+            "name": "01-fixture.pinboard-1792090512762-3230.mp4",
+            "rawSha256": "623c4f8bd1a631306bdb3381d12ff16712d8861dd63a82959116f870c76ddf7b",
+            "spedUpSha256": "74b279c809beece48ca83ec51e3c6486a0de2312afa2f9820ed96f4f04171694"
+          },
+          {
+            "name": "01-fixture.pinboard-1792090517225-3230.mp4",
+            "rawSha256": "b29aaa4cbe670314e90e63c99ce35ab486a1fa24860b383a5da9a4572b354e5d",
+            "spedUpSha256": "c7c38f6b5315682d8de4c784a0b204da8ec55a669ba52f24fd5f867a48fcee2c"
+          }
+        ]
+      },
+      {
+        "file": "interaction.commands-and-groups.test.ts",
+        "passed": true,
+        "clips": ["02-interaction.commands-and-groups-1792090527612-4253.mp4"],
+        "testSha256": "379c60a02d8a94784d6741fc399065d63906ccb56fb36c71f724c3a1d2ef8cbf",
+        "clipHashes": [
+          {
+            "name": "02-interaction.commands-and-groups-1792090527612-4253.mp4",
+            "rawSha256": "7560cfe75a6df72acce8b0de30471dbd1aca5dac808b28296eb909877502ad6b",
+            "spedUpSha256": "5aa2edcf32bb968d08e3620d7223415245857a2fed3f4c36e334a36b7be618b5"
+          }
+        ]
+      },
+      {
+        "file": "interaction.drag-and-drop.test.ts",
+        "passed": true,
+        "clips": ["03-interaction.drag-and-drop-1792090569178-5234.mp4"],
+        "testSha256": "e7a54c680c9d79c09c4a5b4e85b51efc9058707e65850d5adf7cb3570495dfe3",
+        "clipHashes": [
+          {
+            "name": "03-interaction.drag-and-drop-1792090569178-5234.mp4",
+            "rawSha256": "84b71121cf449ce3023af8eae3e5c422d5f1a46251afc5a9d2f14e7dccb9f3c6",
+            "spedUpSha256": "4dedcfcde18607898b64d09f880a70443050c63bdc7d1fd38506e7b898470bf8"
+          }
+        ]
+      },
+      {
+        "file": "interaction.fixture.test.ts",
+        "passed": true,
+        "clips": ["04-interaction.fixture-1792089630054-5161.mp4"],
+        "testSha256": "6bdc1bf003d0fb016be12ba1fff374c92e08a8bbf20035cbee3af80877a0f603",
+        "clipHashes": [
+          {
+            "name": "04-interaction.fixture-1792089630054-5161.mp4",
+            "rawSha256": "3936b0a7416804786234fd845e2bca0d27a8b86553009fe829e20ba56b97bb5a",
+            "spedUpSha256": "eea4486563c1b8ed96bff0117b2540001f5736c8529cd2ba19592aeac6ad0163"
+          }
+        ]
+      },
+      {
+        "file": "interaction.layout.test.ts",
+        "passed": true,
+        "clips": ["05-interaction.layout-1792089653558-5723.mp4"],
+        "testSha256": "b5f7000b57573fde5afb65a155964c753e8d048e42ffdbc6addf05ceea7f29bc",
+        "clipHashes": [
+          {
+            "name": "05-interaction.layout-1792089653558-5723.mp4",
+            "rawSha256": "423d5888b9f1e81693fe0be2dcf6e37b834c620ece67d9499bdae5d8759e3ba7",
+            "spedUpSha256": "c84e6d59deb546784fa3b0fca638baa72b384561fc88c371db2f5c6c8ae8c16b"
+          }
+        ]
+      },
+      {
+        "file": "interaction.palette-workspace.test.ts",
+        "passed": true,
+        "clips": [
+          "06-interaction.palette-workspace-1792089779140-17725.mp4",
+          "06-interaction.palette-workspace-1792089785219-17725.mp4",
+          "06-interaction.palette-workspace-1792089792376-17725.mp4",
+          "06-interaction.palette-workspace-1792089798401-17725.mp4",
+          "06-interaction.palette-workspace-1792089806650-17725.mp4",
+          "06-interaction.palette-workspace-1792089814865-17725.mp4",
+          "06-interaction.palette-workspace-1792089821904-17725.mp4",
+          "06-interaction.palette-workspace-1792089828477-17725.mp4",
+          "06-interaction.palette-workspace-1792089833404-17725.mp4",
+          "06-interaction.palette-workspace-1792089838391-17725.mp4",
+          "06-interaction.palette-workspace-1792089843202-17725.mp4",
+          "06-interaction.palette-workspace-1792089850101-17725.mp4",
+          "06-interaction.palette-workspace-1792089855490-17725.mp4",
+          "06-interaction.palette-workspace-1792089862206-17725.mp4"
+        ],
+        "testSha256": "a5a12fcf2ab490bcef1657ea54d068735d9e351718b63bcca57286cc724f2502",
+        "clipHashes": [
+          {
+            "name": "06-interaction.palette-workspace-1792089779140-17725.mp4",
+            "rawSha256": "1325aa77cd0503e8f1e4fd2ffb41daaa27bb2dc35ccc989b61aee1a52cf8bfa0",
+            "spedUpSha256": "0279d62e0f55708246b6173e0482717813e1a37cc821d5495aabc82a92dbb40e"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089785219-17725.mp4",
+            "rawSha256": "4564ef32eabaad0c6aa14b6e150854e8af98d3d8918047aec0502832008f53c6",
+            "spedUpSha256": "5eabae39b3f8625c0984e6ac447cfe6bf1a30299c09cb8575e08ee0026e017f0"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089792376-17725.mp4",
+            "rawSha256": "ad4a7925288f5cdcc740990f225d164c1f40457d3a2e76f70d44ba1700c1c12d",
+            "spedUpSha256": "25ee56b6493bb6925fc1bd805733a7244893d21a889795f76b2b28793073e056"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089798401-17725.mp4",
+            "rawSha256": "82cb643a4de5852bc307072793ed90a116e2b558448fc30ccd8a6b1d1820eeaf",
+            "spedUpSha256": "c6f03a48e120d1111b268a26638dcb149fd0d9bc2f543073115a84dd188bb03a"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089806650-17725.mp4",
+            "rawSha256": "48eb12bde246860a7379d554864d8d0aba70f693724c504b0dd615a7a9818a6c",
+            "spedUpSha256": "3e4e16c97c7e5f4a73e99ac215fc23d4ca737772073f7fddde93755141f5f6a6"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089814865-17725.mp4",
+            "rawSha256": "a40cea808142328204720aa1edfe4aa4ba70a88d931c9e1ccdef7ba83e32d5bc",
+            "spedUpSha256": "d2f1fe8a7d4f615361307e9f317e280d397ab595104f5bfe70cb69369eab0aa0"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089821904-17725.mp4",
+            "rawSha256": "7208d034bd227dd645372a4aebd7f3896ead3bca38e87588cd761894055d82fa",
+            "spedUpSha256": "6dc0d6b3aa8f0c00fdc67060ba92fab36dd6985bf74f1d61d5bd5cda76ba5c9f"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089828477-17725.mp4",
+            "rawSha256": "7e493be19414fad3bfe73f9377f4adcb05422279045d6ba6ca16e1fbd79645b5",
+            "spedUpSha256": "fa03f0475d0f06338269df2e97799f009e23da859908ac6e28819d7cec80aecd"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089833404-17725.mp4",
+            "rawSha256": "c8622efa4dd30e9a9e3119e663361120319faee952a8bf183113f3a2a99c14ed",
+            "spedUpSha256": "a75b7abb9b823294e56b613abc322fa88a18ce0441cf6d0ae8ea07d0d4dff810"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089838391-17725.mp4",
+            "rawSha256": "bc70421bc6a271b12beef5ed5e72eceadbf9a18644c1b47153571eab4e9496dc",
+            "spedUpSha256": "792facea3a4413b527584024bcdd39c83762f78e9700c2c952c468e0dbf3e69f"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089843202-17725.mp4",
+            "rawSha256": "2399a25c932c0573780c4cac14725815eca95799cf568eb3924897b12b1fce91",
+            "spedUpSha256": "8d06e568a2abb71e426338979e4435184fc68abb7767714ecd00c89480b49181"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089850101-17725.mp4",
+            "rawSha256": "7a4471bb08610e55e747e09433d9754c1dac67f6938f69a253ac6315d18852c5",
+            "spedUpSha256": "15c001b458fa502a0e7fbae2f8d3fe0548bdf66ec94e0172ac788caa9919456a"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089855490-17725.mp4",
+            "rawSha256": "382268e61ab63ca42d9260d3abf8a1fa1955eac4a35b949fe2160f5ab2eec593",
+            "spedUpSha256": "a27982642d0cb73092dd000878d996036b1f61a198f8320f56c8e56f74734211"
+          },
+          {
+            "name": "06-interaction.palette-workspace-1792089862206-17725.mp4",
+            "rawSha256": "8cd7c250596881c05ce5887bdb60722dc77f5bd393e0875fe977eafaad757b5a",
+            "spedUpSha256": "848487d6ff2920959de34a7eb7178712d573a9e4bb2b3767cbe4ecb4f6590367"
+          }
+        ]
+      },
+      {
+        "file": "interaction.settings.test.ts",
+        "passed": true,
+        "clips": ["07-interaction.settings-1792090640845-7171.mp4"],
+        "testSha256": "bc3b137437b1e674d2e0729789b44584c97f2106d674a4015cf3a4e6b0b5d60d",
+        "clipHashes": [
+          {
+            "name": "07-interaction.settings-1792090640845-7171.mp4",
+            "rawSha256": "de37453914ba976b7b74e9b94d302d1963b15c1fb452484a4db01935f55ea8a4",
+            "spedUpSha256": "b3de0b30ea64b5bf02ce815c22ebb9db2ae539eb240060296ea6eeadff51d68b"
+          }
+        ]
+      },
+      {
+        "file": "interaction.tab-moves.test.ts",
+        "passed": true,
+        "clips": ["08-interaction.tab-moves-1792089974386-26306.mp4"],
+        "testSha256": "57b46866815338fc9919b080a5dbb169894e4890c7c1b7e5eaa393cd9d8bcbd7",
+        "clipHashes": [
+          {
+            "name": "08-interaction.tab-moves-1792089974386-26306.mp4",
+            "rawSha256": "a548120a01c9879f4d02d82e46105d14f6e321ec8ed81f03ab798a5999d8563e",
+            "spedUpSha256": "94a5bca16dbfec3e8e071bdd631c34ffc51718ccf6178c2d5ec00da44802e278"
+          }
+        ]
+      },
+      {
+        "file": "interaction.tab-tooltip.test.ts",
+        "passed": true,
+        "clips": [
+          "09-interaction.tab-tooltip-1792090014946-27446.mp4",
+          "09-interaction.tab-tooltip-1792090023966-27446.mp4",
+          "09-interaction.tab-tooltip-1792090046651-27446.mp4"
+        ],
+        "testSha256": "fbfd10efa2fc67db956055accca54f924a217e8740389e98a17892516aefe031",
+        "clipHashes": [
+          {
+            "name": "09-interaction.tab-tooltip-1792090014946-27446.mp4",
+            "rawSha256": "d52147beb358e46d6c451bb329db3aa6cb84a9e04804950c23426ccc57b5e93f",
+            "spedUpSha256": "edf6086b2f0a2dfb7a37a61b43d173ff63331cebb7cc7fa3bd7cd456c1a883be"
+          },
+          {
+            "name": "09-interaction.tab-tooltip-1792090023966-27446.mp4",
+            "rawSha256": "14c3c63f94073e743bbda2c50377c6a3a849462633a3e943d06b63c943154ee6",
+            "spedUpSha256": "7f7eb24471dd60c07768c7d0d2669b15acd674bc1e619f14f8d44185c5ba7fca"
+          },
+          {
+            "name": "09-interaction.tab-tooltip-1792090046651-27446.mp4",
+            "rawSha256": "c981b71adcdb73ba51f1d97dded9d0f6f1edd1f7be10e29efb72798bb222873d",
+            "spedUpSha256": "e5d0fd79cb2b98ea244ef9786c99595965851cf8d5f935e65be1d581bc970d13"
+          }
+        ]
+      },
+      {
+        "file": "interaction.virtualized-drag.test.ts",
+        "passed": true,
+        "clips": [
+          "10-interaction.virtualized-drag-1792090068703-29262.mp4",
+          "10-interaction.virtualized-drag-1792090085102-29262.mp4"
+        ],
+        "testSha256": "64b0884a9f40fb553991705fe9939025bd753b2aa7f7c25887cb102a463ecdf7",
+        "clipHashes": [
+          {
+            "name": "10-interaction.virtualized-drag-1792090068703-29262.mp4",
+            "rawSha256": "1b1ee455f4098e6c2a75e8c489f84494de95fd444c4e8aab02c615c782157e63",
+            "spedUpSha256": "8563c2b7839e4d918cb1e2ecf3918284bf4b7fa5306602dbfe504868362c9b7e"
+          },
+          {
+            "name": "10-interaction.virtualized-drag-1792090085102-29262.mp4",
+            "rawSha256": "e3e27d905fb299b7f7ef4d6211ee7696a5a0fe86035dceee993c21ef4967a258",
+            "spedUpSha256": "82b1f3ed81364494ed5f0deacd918312d25bb6c79985d2fae65b502447ccf37c"
+          }
+        ]
+      },
+      {
+        "file": "performance.benchmark.test.ts",
+        "passed": true,
+        "clips": ["11-performance.benchmark-1792090100997-32458.mp4"],
+        "testSha256": "43be1bed7186e88b1d886a5651597e0704ce529718915021a4d79863931d817f",
+        "clipHashes": [
+          {
+            "name": "11-performance.benchmark-1792090100997-32458.mp4",
+            "rawSha256": "bd847c3ad813f5cef87717981305f4df98a2ca00021de4e5eec5f6d4e3f55ad3",
+            "spedUpSha256": "763dff8960def5c318c78be86a7e89353f0e54841ae70848e02e666a1aa5c4dc"
+          }
+        ]
+      },
+      {
+        "file": "views.components.test.ts",
+        "passed": true,
+        "clips": ["12-views.components-1792090707744-9499.mp4"],
+        "testSha256": "513e11b9cc9129e15d2f3a8c3e3577ffe2186dd37b96d65eb4f269ee404438de",
+        "clipHashes": [
+          {
+            "name": "12-views.components-1792090707744-9499.mp4",
+            "rawSha256": "1bfce2b4800da5f777bc077eb0e4291bec749f8a6c648f068af64ec62ed834d9",
+            "spedUpSha256": "a2b71ad3f4ef0e0847a4298caa6497a767f7782797bca008a42dd400d839b45d"
+          }
+        ]
+      },
+      {
+        "file": "views.fixture.behavior.test.ts",
+        "passed": true,
+        "clips": ["13-views.fixture.behavior-1792090764861-13950.mp4"],
+        "testSha256": "fde08fc8b2bedc0974af8200f47253d5259a46b3165cbdc10ad1e0525acd0d03",
+        "clipHashes": [
+          {
+            "name": "13-views.fixture.behavior-1792090764861-13950.mp4",
+            "rawSha256": "11287ea893f5859771e154ab432e909c70312302776970821fc4cd5e6dc4f80e",
+            "spedUpSha256": "2289b93c63a40997dd6c3293c92ba92b7cf18e43e3103b89ea753178ea77e8df"
+          }
+        ]
+      },
+      {
+        "file": "views.keyboard.behavior.test.ts",
+        "passed": true,
+        "clips": ["14-views.keyboard.behavior-1792090825507-15034.mp4"],
+        "testSha256": "7ead07b1016352c920fbcf891248da965519d239a6120e0df45f535ceb2c44c9",
+        "clipHashes": [
+          {
+            "name": "14-views.keyboard.behavior-1792090825507-15034.mp4",
+            "rawSha256": "870a2b3730b12556acce9d030aea9413552a86ab8af86006f86cd48a468ff020",
+            "spedUpSha256": "3340243851e91f34fa33c4905e3ef4216961b93fe8c06cd695719f4a968b1646"
+          }
+        ]
+      },
+      {
+        "file": "views.search.behavior.test.ts",
+        "passed": true,
+        "clips": ["15-views.search.behavior-1792090867666-15509.mp4"],
+        "testSha256": "eb7b24c6e2709f4bec0297a51f5230b2fefc212a629700db80a057ac0505fb4e",
+        "clipHashes": [
+          {
+            "name": "15-views.search.behavior-1792090867666-15509.mp4",
+            "rawSha256": "d993700f4c82fa9091421ccf251fd489c6b3a78202d9e71f8ebcd301c2e38aa5",
+            "spedUpSha256": "2c96044c00008aa5a17612169f7d885f6167012da11c2d8719087207652b2d7d"
+          }
+        ]
+      },
+      {
+        "file": "views.states.behavior.test.ts",
+        "passed": true,
+        "clips": ["16-views.states.behavior-1792090965924-16856.mp4"],
+        "testSha256": "2dd949eb11186b9e85f37db6bcf3cbdba438d8c1d24a7183e6854df92efe84d9",
+        "clipHashes": [
+          {
+            "name": "16-views.states.behavior-1792090965924-16856.mp4",
+            "rawSha256": "6d6fd3577d94c1c7e273f75118e0a0afb30117a891c8b78472265c6215988921",
+            "spedUpSha256": "97fa797424069980d8b1dcfe115a41a5bf600a8a042ceeee19c48d5a86dc1ba4"
+          }
+        ]
+      },
+      {
+        "file": "views.test.ts",
+        "passed": true,
+        "clips": ["17-views-1792091004588-20503.mp4"],
+        "testSha256": "29a912c458ab38de08077a900e18ef3a6b4830d9a873ae64da2f6aec1c1b645e",
+        "clipHashes": [
+          {
+            "name": "17-views-1792091004588-20503.mp4",
+            "rawSha256": "ae4ddd0a43fcfe177bdc527eeeed4e83c38cb8d72024f50c1c9b0180c1de7a10",
+            "spedUpSha256": "46ee48cc924373687d57ea8958f3b755bc1b5852647134b8066a3890a0021b04"
+          }
+        ]
+      }
+    ],
+    "failedFiles": [],
+    "finalDuration": 188.84,
+    "sha256": "2a513ec80771b0fe09bf05571aaaee3bca2175eb94ffbf827cb2ab5122b9e8e0"
+  }
+}

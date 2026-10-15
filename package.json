@@ -27,7 +27,7 @@
     "test": "run-s test:unit test:integration",
     "test:lint": "pnpm lint",
     "test:unit": "pnpm --filter ./packages/extension test",
-    "test:capture-sites": "node --test packages/integration_test/scripts/capture-sites.test.mjs scripts/preview-release-media.test.mjs",
+    "test:capture-sites": "node --test packages/integration_test/scripts/capture-sites.test.mjs scripts/preview-release-media.test.mjs packages/integration_test/scripts/capture-provenance.test.mjs",
     "test:dependency-security": "node --test scripts/dependency-security.test.cjs",
     "test:integration": "run-s test:integration:build test:integration:run",
     "test:integration:build": "pnpm --filter ./packages/extension build:chrome",

@@ -16,7 +16,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { sampleUrl, startCaptureSites } from './capture-sites.mjs'
-import { createHash } from 'node:crypto'
+import {
+  extensionBuild,
+  hashFile,
+  reusableRecordings,
+} from './capture-provenance.mjs'
 
 let captureSites
 
@@ -2062,8 +2066,11 @@ async function main() {
       ? JSON.parse(readFileSync(manifestPath, 'utf8'))
       : null
     const fixtureHash = captureSites.provenance().catalogueSha256
-    const recordings =
-      previous?.catalogueSha256 === fixtureHash ? previous.recordings : []
+    const provenance = {
+      catalogueSha256: fixtureHash,
+      ...extensionBuild(EXTENSION_PATH),
+    }
+    const recordings = reusableRecordings(previous, provenance, MP4_DIR)
     const outputs = []
     for (const clip of CLIPS) {
       if (!shouldCaptureClip(clip.id)) {
@@ -2075,10 +2082,8 @@ async function main() {
       const entry = {
         id: clip.id,
         capturedAt: new Date().toISOString(),
-        extensionVersion: JSON.parse(
-          readFileSync(join(EXTENSION_PATH, 'manifest.json'), 'utf8'),
-        ).version,
-        sha256: createHash('sha256').update(readFileSync(path)).digest('hex'),
+        ...provenance,
+        sha256: hashFile(path),
       }
       const index = recordings.findIndex((entry) => entry.id === clip.id)
       if (index < 0) recordings.push(entry)
@@ -2088,7 +2093,7 @@ async function main() {
         JSON.stringify(
           {
             mode: 'local-fictional-sites',
-            catalogueSha256: fixtureHash,
+            ...provenance,
             recordings,
           },
           null,

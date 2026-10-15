@@ -167,6 +167,13 @@ The promo assembly script lives at
 
 Feature video rules:
 
+- Captures record the candidate version, a hash of all packaged extension
+  files, and the sample catalogue hash. Selective capture only retains clips
+  with the same identity and matching MP4 hashes. Retake the full public set
+  after a build, candidate version, or fixture change.
+- Rebuild the promo after changing any of its six input clips. Public sync
+  verifies those inputs against the current clip manifest as well as the
+  assembled video, captions, and chapters before updating public assets.
 - Treat `.tmp/video-captures/**` as generated local artifacts. Do not commit
   raw captures, segment renders, overlay assets, or preview stills unless the
   user explicitly asks for a checked-in deliverable.
@@ -199,6 +206,20 @@ The capture script lives at
 
 Integration test video rules:
 
+- `TEST_VIDEO_FILES` produces a separate `integration-test-suite-partial`
+  directory and MP4. A partial run must never replace the full suite video.
+  To recover selected files in a full run, use `TEST_VIDEO_RESUME=1` with
+  `TEST_VIDEO_RECAPTURE_FILES`, leaving `TEST_VIDEO_FILES` unset.
+- Public sync requires a complete, passing recording for every current test
+  file, matching test-source hashes, and the final MP4 hash. A replaced or
+  truncated MP4 is not accepted just because the recording previously passed.
+- `TEST_VIDEO_RESUME=1 TEST_VIDEO_ASSEMBLE_ONLY=1` reassembles verified saved
+  footage without rerunning tests. It rejects missing or changed clips/test
+  sources. Legacy recordings without clip hashes need verification before
+  reuse; do not add new build metadata to historical footage.
+- Public sync writes a reviewable receipt at
+  `packages/integration_test/assets/public-media-provenance.json`, keeping
+  generated raw footage out of the repository.
 - Treat `.tmp/video-captures/**` as generated local artifacts. Do not commit
   intermediate captures or work directories unless the user explicitly asks
   for them.
