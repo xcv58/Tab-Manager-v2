@@ -49,7 +49,7 @@ export default observer(() => {
         color: theme.palette.text.primary,
       }}
     >
-      <DialogTitle>
+      <DialogTitle style={{ flexShrink: 0 }}>
         <div className="flex items-end flex-wrap gap-x-6 gap-y-3 pr-8">
           <h2>Keyboard Shortcuts</h2>
           <div className="flex-1" style={{ minWidth: 160 }}>
@@ -76,7 +76,7 @@ export default observer(() => {
           </div>
         </div>
       </DialogTitle>
-      <DialogContent style={{ minHeight: 'calc(100vh - 142px)' }}>
+      <DialogContent style={{ minHeight: 0 }}>
         <Help search={search.toLowerCase()} />
       </DialogContent>
     </Dialog>

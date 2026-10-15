@@ -666,11 +666,12 @@ const AutocompleteSearch = observer((props: Props) => {
             aria-label="Clear search"
             controlSize="compact"
             onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation()
+              searchInputRef.current?.focus()
               search('')
               setDismissed(true)
               handleOpenChange(false)
-              searchInputRef.current?.focus()
             }}
             style={{ width: 24, minWidth: 24, height: 24, minHeight: 24 }}
           >

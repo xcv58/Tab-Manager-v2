@@ -6,9 +6,17 @@ import useReduceMotion from 'libs/useReduceMotion'
 import { defaultTransitionDuration } from 'libs/transition'
 
 export default observer(() => {
-  const { shortcutStore } = useStore()
+  const { shortcutStore, actionStore, userStore } = useStore()
   const { combo, toastOpen } = shortcutStore
   const reduceMotion = useReduceMotion()
+  // Opening a dialog is already visible feedback. Remove any toast immediately
+  // rather than fading it over the dialog's controls.
+  if (
+    shortcutStore.dialogOpen ||
+    actionStore.paletteOpen ||
+    userStore.dialogOpen
+  )
+    return null
   return (
     <Snackbar
       open={toastOpen}

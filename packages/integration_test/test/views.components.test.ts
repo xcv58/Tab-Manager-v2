@@ -1158,11 +1158,11 @@ test.describe('The Extension page should', () => {
       threshold: 0.2,
     })
 
-    // Clear this visual fixture explicitly. Escape's dismissal order depends
-    // on whether search, a result list, or an interactive tooltip has focus;
-    // that keyboard behavior has dedicated interaction coverage.
-    await queryInput.fill('')
-    await queryInput.press('Escape')
+    // Use explicit cleanup for this visual fixture. Escape dismisses an open
+    // tooltip first; that keyboard behavior has dedicated interaction coverage.
+    await page
+      .getByRole('button', { name: 'Clear search', exact: true })
+      .click()
     await expect(queryInput).toHaveAttribute('aria-expanded', 'false')
     await expect(
       page.locator('input[placeholder*="Search tabs or URLs"]'),

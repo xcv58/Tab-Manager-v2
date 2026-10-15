@@ -237,7 +237,9 @@ export default function Menu({
         maxHeight: toolbar
           ? 'calc(100vh - ' + toolbar.getBoundingClientRect().height + 'px)'
           : 'calc(100vh - 32px)',
-        maxWidth: toolbar ? '100vw' : undefined,
+        maxWidth: toolbar
+          ? 'min(30rem, 100vw)'
+          : 'min(30rem, calc(100vw - 32px))',
         outline: 'none',
         ...style,
       }}
@@ -284,10 +286,11 @@ export function MenuItem({
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={onClick}
-      className={className}
+      className={`action-menu-item ${className || ''}`}
       style={{
         display: 'flex',
         width: '100%',
+        minWidth: 0,
         alignItems: 'center',
         gap: 8,
         border: 0,
@@ -299,6 +302,7 @@ export function MenuItem({
         opacity: disabled ? 0.5 : 1,
         pointerEvents: disabled ? 'none' : undefined,
         textAlign: 'left',
+        overflowWrap: 'anywhere',
         color: 'inherit',
         ...style,
       }}

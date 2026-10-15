@@ -95,9 +95,9 @@ export default observer((props: { search: string }) => {
       </p>
       <table
         className="shortcut-help-table"
-        style={{ width: '100%', borderCollapse: 'collapse' }}
+        style={{ width: '100%', borderCollapse: 'collapse', fontSize: '1rem' }}
       >
-        <thead>
+        <thead className="text-xs">
           <tr>
             <th
               style={{
@@ -120,7 +120,7 @@ export default observer((props: { search: string }) => {
             >
               Hotkey(s)
             </th>
-            <th className="shortcut-run-cell">Run action</th>
+            <th className="shortcut-run-cell whitespace-nowrap">Run action</th>
           </tr>
         </thead>
         <tbody>{content}</tbody>

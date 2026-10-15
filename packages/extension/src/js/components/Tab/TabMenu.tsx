@@ -126,7 +126,6 @@ export default observer(
           style={{
             zIndex: theme.zIndex.tooltip + 1,
             minWidth: 260,
-            maxWidth: 'calc(100vw - 32px)',
           }}
         >
           <MenuSection>This tab</MenuSection>
@@ -161,8 +160,10 @@ export default observer(
               data-testid={`tab-menu-option-${tab.id}-remove-this-tab-from-group`}
               onClick={run(() => tabGroupStore.ungroupTab(tab.id))}
             >
-              <UngroupTabIcon fontSize={18} /> Remove from{' '}
-              {tabGroup.title || 'group'}
+              <UngroupTabIcon fontSize={18} />
+              <span className="min-w-0">
+                Remove from {tabGroup.title || 'group'}
+              </span>
             </MenuItem>
           )}
           {sameDomainTabs?.length > 1 && (

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Popover from 'components/ui/Popover'
 import { useAppTheme } from 'libs/appTheme'
 import {
@@ -55,10 +55,6 @@ export default (props: Props) => {
     onRename(title)
   }
 
-  const selectedColorMeta = useMemo(() => {
-    return getChromeTabGroupColor(initialColor)
-  }, [initialColor])
-
   return (
     <Popover
       anchorEl={anchorEl}
@@ -69,6 +65,7 @@ export default (props: Props) => {
       }}
       style={{
         width: 320,
+        maxWidth: 'calc(100vw - 32px)',
         borderRadius: 12,
         padding: 12,
         overflow: 'visible',
@@ -113,8 +110,10 @@ export default (props: Props) => {
           aria-label="Group name"
         />
         <div
-          className="mt-4 flex items-center justify-between"
+          className="mt-3 grid grid-cols-9 gap-1"
           data-testid={`tab-group-editor-colors-${groupId}`}
+          role="group"
+          aria-label="Group color"
         >
           {CHROME_TAB_GROUP_COLOR_ORDER.map((color) => {
             const colorMeta = getChromeTabGroupColor(color)
@@ -122,12 +121,13 @@ export default (props: Props) => {
             return (
               <button
                 key={color}
-                className="group-color-option relative h-9 w-9 rounded-full"
+                className="group-color-option relative grid aspect-square w-full place-items-center rounded-full"
                 aria-label={color}
                 aria-pressed={selected}
                 style={
                   {
                     '--group-color-focus': theme.palette.text.primary,
+                    '--group-color-hover': theme.palette.action.hover,
                   } as React.CSSProperties
                 }
                 onClick={() => onRecolor(color)}
@@ -135,29 +135,23 @@ export default (props: Props) => {
                 title={color}
               >
                 <span
-                  className="absolute inset-0 rounded-full"
+                  className="pointer-events-none relative rounded-full"
                   style={{
+                    width: 20,
+                    height: 20,
                     backgroundColor: colorMeta.line,
                   }}
-                />
-                {selected && (
-                  <>
+                >
+                  {selected && (
                     <span
                       className="absolute rounded-full"
                       style={{
-                        inset: 2,
-                        border: `3px solid ${selectedColorMeta.line}`,
+                        inset: 3,
+                        border: `2px solid ${theme.palette.background.paper}`,
                       }}
                     />
-                    <span
-                      className="absolute rounded-full"
-                      style={{
-                        inset: 7,
-                        border: '3px solid #ffffff',
-                      }}
-                    />
-                  </>
-                )}
+                  )}
+                </span>
               </button>
             )
           })}

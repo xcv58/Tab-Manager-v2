@@ -103,15 +103,24 @@ const SettingsPanel = ({
     style={style}
     data-testid={testId}
   >
-    <div className="settings-section-heading">
-      <h2
-        id={`settings-heading-${sectionId}`}
-        tabIndex={-1}
-        style={panelTitleStyle}
-      >
-        {title}
-      </h2>
-      {description && <p style={panelDescriptionStyle}>{description}</p>}
+    <div className="settings-section-header">
+      <div className="settings-section-heading">
+        <h2
+          id={`settings-heading-${sectionId}`}
+          tabIndex={-1}
+          style={panelTitleStyle}
+        >
+          {title}
+        </h2>
+      </div>
+      {description && (
+        <p
+          className="settings-section-description"
+          style={panelDescriptionStyle}
+        >
+          {description}
+        </p>
+      )}
     </div>
     <div className="settings-section-content">{children}</div>
   </section>
@@ -1137,7 +1146,7 @@ export default observer(() => {
         className="settings-footer"
         style={{ borderColor: panelStyle.borderColor }}
       >
-        <div className="flex items-center gap-2 opacity-80 min-w-0 flex-wrap">
+        <div className="settings-footer-links">
           <SponsorButton />
           <FeedbackButton />
           <span className="text-xs opacity-65">
