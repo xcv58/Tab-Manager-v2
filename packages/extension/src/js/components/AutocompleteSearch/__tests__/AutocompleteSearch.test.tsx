@@ -364,6 +364,27 @@ describe('AutocompleteSearch', () => {
   })
 
   it.each([undefined, true])(
+    'clears search without reopening results or losing input focus (controlled open: %s)',
+    async (open) => {
+      renderAutocompleteSearch({ initialQuery: 'alpha', open })
+      const input = screen.getByRole('combobox')
+      act(() => input.focus())
+      const result = await screen.findByTestId('search-tab-row-1')
+      act(() => result.focus())
+
+      fireEvent.click(screen.getByRole('button', { name: 'Clear search' }))
+
+      expect(input).toHaveValue('')
+      expect(input).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      expect(input).toHaveFocus()
+
+      fireEvent.change(input, { target: { value: 'beta' } })
+      expect(input).toHaveAttribute('aria-expanded', 'true')
+    },
+  )
+
+  it.each([undefined, true])(
     'clears and dismisses search from a focused result (controlled open: %s)',
     async (open) => {
       renderAutocompleteSearch({ initialQuery: 'alpha', open })

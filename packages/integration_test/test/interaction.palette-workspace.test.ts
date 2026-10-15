@@ -236,6 +236,96 @@ test('palette preserves the mounted search list, scroll and a deep result', asyn
   }
 })
 
+test('palette move recovery remains visible with large text in a compact window', async () => {
+  const { browserContext, page, extensionURL } = await initBrowserWithExtension(
+    { headless: true },
+  )
+  try {
+    await closeCurrentWindowTabsExceptActive(page, extensionURL)
+    await page.setViewportSize({ width: 800, height: 600 })
+    const sourceId = await page.evaluate(async () => {
+      await chrome.storage.sync.set({ fontSize: 22 })
+      const source = await chrome.tabs.create({
+        url: 'data:text/html,<title>Recovery source</title>',
+        active: false,
+      })
+      for (let index = 0; index < 8; index++) {
+        const tab = await chrome.tabs.create({
+          url: `data:text/html,<title>Destination ${index}</title>`,
+          active: false,
+        })
+        const groupId = await chrome.tabs.group({ tabIds: [tab.id!] })
+        await chrome.tabGroups.update(groupId, { title: `Group ${index}` })
+      }
+      return source.id!
+    })
+    await page.reload()
+    const selection = page
+      .getByTestId('tab-row-' + sourceId)
+      .getByRole('checkbox')
+    await selection.focus()
+    await selection.check()
+    await page.keyboard.press(
+      process.platform === 'darwin' ? 'Meta+k' : 'Alt+k',
+    )
+    const palette = page.getByTestId('command-palette')
+    await palette
+      .getByRole('combobox', { name: 'Search commands' })
+      .fill('move')
+    await palette
+      .getByRole('option', { name: 'Move 1 selected tab to…', exact: true })
+      .click()
+    await page.evaluate(() => {
+      const move = chrome.tabs.move
+      chrome.tabs.move = (() => {
+        chrome.tabs.move = move
+        throw new Error('Tabs cannot currently be edited')
+      }) as typeof move
+    })
+    const destinations = palette.getByRole('listbox', { name: 'Destinations' })
+    await destinations
+      .getByRole('option')
+      .filter({ hasText: 'Current window' })
+      .click()
+    await expect(palette.getByRole('alert')).toHaveText(
+      'Couldn’t move these tabs.',
+    )
+    const retry = palette.getByRole('button', { name: 'Retry', exact: true })
+    await expect(retry).toBeFocused()
+    const error = (await palette
+      .getByTestId('palette-action-error')
+      .boundingBox())!
+    for (const name of ['Retry', 'Cancel']) {
+      const button = palette.getByRole('button', { name, exact: true })
+      await expect(button).toBeInViewport({ ratio: 1 })
+      const bounds = (await button.boundingBox())!
+      expect(bounds.y).toBeGreaterThanOrEqual(error.y)
+      expect(bounds.y + bounds.height).toBeLessThanOrEqual(
+        error.y + error.height,
+      )
+    }
+    expect(
+      await destinations.evaluate(
+        (node) =>
+          node.clientHeight > 0 && node.scrollHeight > node.clientHeight,
+      ),
+    ).toBe(true)
+    await retry.press('Enter')
+    await expect(palette).toBeHidden()
+    await expect
+      .poll(() =>
+        page.evaluate(async (id) => {
+          const tab = await chrome.tabs.get(id)
+          const tabs = await chrome.tabs.query({ windowId: tab.windowId })
+          return tab.index === tabs.length - 1
+        }, sourceId),
+      )
+      .toBe(true)
+  } finally {
+    await browserContext.close()
+  }
+})
+
 for (const recovery of ['retry', 'cancel', 'destination'] as const) {
   test(`palette move failure offers ${recovery} recovery`, async () => {
     const { browserContext, page, extensionURL } =

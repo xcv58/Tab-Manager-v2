@@ -72,7 +72,8 @@ test.describe('The Extension page should', () => {
   test.setTimeout(60000)
   test.beforeAll(async () => {
     fixtureServer = await startIntegrationFixtureServer()
-    const init = await initBrowserWithExtension()
+    // Parallel desktop windows can dismiss another suite's hover tooltip.
+    const init = await initBrowserWithExtension({ headless: true })
     browserContext = init.browserContext
     extensionURL = init.extensionURL
     page = init.page
