@@ -573,7 +573,9 @@ test.describe('The Extension page should', () => {
       settings.getByRole('checkbox', { name: 'Show tab icons' }),
     ).toBeVisible()
     await expect(settings.getByRole('status')).toHaveText('1 matching setting')
-    await expect(settings).toHaveScreenshot('settings-search-favicon.png')
+    await expect(settings).toHaveScreenshot('settings-search-favicon.png', {
+      mask: [settings.getByText(/^v\d+\.\d+\.\d+$/)],
+    })
     await search.fill('tab')
     await selectSettingsSection(page, 'Popup & controls')
     await expect(
@@ -602,7 +604,9 @@ test.describe('The Extension page should', () => {
     await page.setViewportSize({ width: 390, height: 720 })
     await page.locator('button[aria-label="Settings"]').first().click()
     await selectSettingsSection(page, 'Appearance')
-    await expect(settings).toHaveScreenshot('settings-single-page-narrow.png')
+    await expect(settings).toHaveScreenshot('settings-single-page-narrow.png', {
+      mask: [settings.getByText(/^v\d+\.\d+\.\d+$/)],
+    })
     expect(
       await settings.evaluate((node) => node.scrollWidth <= node.clientWidth),
     ).toBe(true)
