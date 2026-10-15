@@ -22,10 +22,10 @@ import ControlIconButton from 'components/ControlIconButton'
 import { CloseIcon } from 'icons/materialIcons'
 import { BrowserWindowIcon } from 'icons/actionIcons'
 import { getWindowLabel } from 'libs/windowLabel'
+import { getUiColorTokens } from 'libs/uiColorTokens'
 
 const SEARCH_PLACEHOLDER = 'Search tabs or URLs'
 const SEARCH_HINT = '/ search · > commands'
-const SEARCH_FONT_SIZE = '0.8125rem'
 const LISTBOX_MARGIN_TOP = 4
 
 const commandFilter = (options, { inputValue }) => {
@@ -398,6 +398,11 @@ const AutocompleteSearch = observer((props: Props) => {
   const searchInputRef = useSearchInputRef()
   const { userStore, searchStore, tabGroupStore, actionStore, hoverStore } =
     useStore()
+  const uiColors = getUiColorTokens(
+    theme.mode === 'dark',
+    userStore.uiPreset,
+    userStore.increaseContrast,
+  )
   const { search, query, startType, stopType, isCommand } = searchStore
   const resultMenuEnabled = showResultMenu || isCommand
   const options = useOptions(resultMenuEnabled)
@@ -589,20 +594,20 @@ const AutocompleteSearch = observer((props: Props) => {
           rootProps.ref.current = node
         }
       }}
-      style={{ position: 'relative', flex: '1 1 0%', minWidth: 0 }}
+      className="toolbar-search"
+      style={
+        {
+          '--toolbar-search-border': uiColors.toolbarShellBorderColor,
+          '--toolbar-search-focus': uiColors.focusRing,
+          '--toolbar-search-muted': uiColors.mutedText,
+          color: uiColors.primaryText,
+        } as React.CSSProperties
+      }
     >
       {/* Input Field */}
       <div
         data-testid="toolbar-search-input"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          width: '100%',
-          minWidth: 0,
-          borderBottom: '1px solid',
-          borderColor: 'var(--input-border, rgba(0,0,0,0.42))',
-          position: 'relative',
-        }}
+        className="toolbar-search-input"
         onClick={() => {
           inputProps.onFocus()
           searchInputRef.current?.focus()
@@ -618,6 +623,7 @@ const AutocompleteSearch = observer((props: Props) => {
             }
           }}
           type="text"
+          className="toolbar-search-field"
           value={inputProps.value}
           onChange={inputProps.onChange}
           onKeyDown={(event) => {
@@ -650,16 +656,6 @@ const AutocompleteSearch = observer((props: Props) => {
           aria-autocomplete={inputProps['aria-autocomplete']}
           aria-expanded={inputProps['aria-expanded']}
           role={inputProps.role}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            border: 'none',
-            background: 'transparent',
-            color: theme.palette.text.primary,
-            fontSize: SEARCH_FONT_SIZE,
-            padding: '4px 0 5px',
-            outline: 'none',
-          }}
         />
         {query && (
           <ControlIconButton
@@ -678,18 +674,7 @@ const AutocompleteSearch = observer((props: Props) => {
             <CloseIcon fontSize={16} />
           </ControlIconButton>
         )}
-        {!query && (
-          <span
-            className="pr-2 whitespace-nowrap select-none"
-            style={{
-              color: theme.palette.text.secondary,
-              opacity: 0.8,
-              fontSize: SEARCH_FONT_SIZE,
-            }}
-          >
-            {SEARCH_HINT}
-          </span>
-        )}
+        {!query && <span className="toolbar-search-hint">{SEARCH_HINT}</span>}
       </div>
 
       {/* Dropdown Paper */}

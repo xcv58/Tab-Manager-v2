@@ -29,7 +29,7 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
   return (
     <>
       <div
-        className="flex items-center justify-center shrink-0 h-12 px-1 text-3xl border-b"
+        className="search-header flex items-center justify-center shrink-0 h-12 border-b"
         style={{
           backgroundColor: uiColors.popupHeaderSurface,
           borderBottomColor: uiColors.popupHeaderBorderColor,
