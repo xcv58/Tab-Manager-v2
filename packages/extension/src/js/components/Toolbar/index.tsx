@@ -20,8 +20,8 @@ export default observer(() => {
   const isClassicUi = userStore.uiPreset === 'classic'
 
   const { lazyHideToolbar, showToolbar, toolbarVisible } = userStore
-  const pinned =
-    tabStore.selection.size > 0 || menuOpen || !userStore.toolbarAutoHide
+  const active = tabStore.selection.size > 0 || menuOpen
+  const pinned = active || !userStore.toolbarAutoHide
   const visible = toolbarVisible || pinned
   const dragging = dragStore.dragging
   useEffect(() => {
@@ -42,6 +42,7 @@ export default observer(() => {
       ref={toolbarRef}
       data-increase-contrast={userStore.increaseContrast ? 'true' : 'false'}
       data-pinned={pinned ? 'true' : 'false'}
+      data-active={active ? 'true' : 'false'}
       onMouseEnter={() => {
         pointerInside.current = true
         showToolbar()

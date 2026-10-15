@@ -197,7 +197,7 @@ body {
 
 .toolbar:hover,
 .toolbar:focus-within,
-.toolbar[data-pinned='true'] {
+.toolbar[data-active='true'] {
   opacity: 1;
 }
 
