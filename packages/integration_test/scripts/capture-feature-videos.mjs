@@ -3,6 +3,7 @@
 
 import { spawnSync } from 'node:child_process'
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -14,11 +15,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
+import { sampleUrl, startCaptureSites } from './capture-sites.mjs'
+import { createHash } from 'node:crypto'
+
+let captureSites
 
 const ROOT_DIR =
   process.env.CAPTURE_ROOT_DIR ||
   fileURLToPath(new URL('../../..', import.meta.url))
-const EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
+let EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
 const OUTPUT_DIR = join(ROOT_DIR, '.tmp/video-captures')
 const MP4_DIR = join(OUTPUT_DIR, 'mp4')
 const WORK_DIR = join(OUTPUT_DIR, 'screencast-work')
@@ -34,12 +39,12 @@ const CAPTURE_FPS = 25
 const UI_READY_TIMEOUT_MS = 120000
 const UI_SETTLE_DELAY_MS = 700
 const NAVIGATION_TIMEOUT_MS = 120000
-const TAB_LOAD_TIMEOUT_MS = 90000
+const TAB_LOAD_TIMEOUT_MS = 30000
 const TAB_LOAD_POLL_INTERVAL_MS = 250
 const TAB_LOAD_STABLE_POLLS = 4
-const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
+const TAB_POST_LOAD_SETTLE_DELAY_MS = 250
 const TAB_CREATE_BATCH_SIZE = 6
-const TAB_CREATE_BATCH_DELAY_MS = 2500
+const TAB_CREATE_BATCH_DELAY_MS = 50
 const DEMO_CURSOR_MOVE_MULTIPLIER = 0.62
 const DEMO_MICRO_PAUSE_MULTIPLIER = 0.58
 const DEMO_HOLD_MULTIPLIER = 0.82
@@ -72,36 +77,34 @@ const DEFAULT_SETTINGS = {
   fontSize: 14,
 }
 
-const REAL_URLS = {
-  'brand/jenny-home': 'https://jenny.media/',
-  'brand/jenny-short': 'https://s.jenny.media/',
-  'brand/jenny-youtube': 'https://www.youtube.com/@JennyTV1',
-  'launch/final-checklist': 'https://github.com/',
-  'launch/release-roadmap': 'https://developer.chrome.com/',
-  'launch/store-copy': 'https://developer.mozilla.org/',
-  'launch/support-plan': 'https://vercel.com/',
-  'launch/qa-signoff': 'https://react.dev/',
-  'launch/rollout-plan': 'https://nodejs.org/',
-  'research/tab-groups-api': 'https://developer.chrome.com/docs/extensions/',
-  'research/firefox-parity': 'https://extensionworkshop.com/',
-  'research/edge-review':
-    'https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/',
-  'research/keyboard-flows': 'https://playwright.dev/',
-  'research/ux-followups': 'https://vite.dev/',
-  'reading/design-refresh': 'https://www.smashingmagazine.com/',
-  'reading/accessibility-audit': 'https://web.dev/',
-  'reading/changelog-draft': 'https://css-tricks.com/',
-  'support/customer-4821': 'https://www.reuters.com/',
-  'support/customer-5104': 'https://apnews.com/',
-  'support/release-mail': 'https://www.reddit.com/r/chrome_extensions/',
-  'support/docs-ticket':
-    'https://developer.chrome.com/docs/extensions/get-started/',
+const SCENARIO_URLS = {
+  'project/notes': sampleUrl('notes/project'),
+  'project/shortcuts': sampleUrl('notes/shortcuts'),
+  'project/walkthrough': sampleUrl('watch/project-tour'),
+  'launch/final-checklist': sampleUrl('projects/board'),
+  'launch/release-roadmap': sampleUrl('docs/browser'),
+  'launch/store-copy': sampleUrl('docs/web'),
+  'launch/support-plan': sampleUrl('hosting/deployments'),
+  'launch/qa-signoff': sampleUrl('docs/components'),
+  'launch/rollout-plan': sampleUrl('runtime/handbook'),
+  'research/tab-groups-api': sampleUrl('docs/extensions'),
+  'research/firefox-parity': sampleUrl('guides/browser'),
+  'research/edge-review': sampleUrl('research/browser'),
+  'research/keyboard-flows': sampleUrl('testing/handbook'),
+  'research/ux-followups': sampleUrl('tooling/build'),
+  'reading/design-refresh': sampleUrl('journal/design'),
+  'reading/accessibility-audit': sampleUrl('guides/accessibility'),
+  'reading/changelog-draft': sampleUrl('journal/layout'),
+  'support/customer-4821': sampleUrl('news/world'),
+  'support/customer-5104': sampleUrl('news/daily'),
+  'support/release-mail': sampleUrl('community/browser'),
+  'support/docs-ticket': sampleUrl('docs/getting-started'),
 }
 
 const SCALE_DEMO_URL_KEYS = [
-  'brand/jenny-home',
-  'brand/jenny-short',
-  'brand/jenny-youtube',
+  'project/notes',
+  'project/shortcuts',
+  'project/walkthrough',
   'launch/final-checklist',
   'launch/release-roadmap',
   'launch/store-copy',
@@ -119,18 +122,18 @@ const SCALE_DEMO_URL_KEYS = [
 
 const REVERSED_SCALE_DEMO_URL_KEYS = [...SCALE_DEMO_URL_KEYS].reverse()
 
-function realUrl(key) {
-  const url = REAL_URLS[key]
+function scenarioUrl(key) {
+  const url = SCENARIO_URLS[key]
   if (!url) {
-    throw new Error(`Missing real url mapping for ${key}`)
+    throw new Error(`Missing sample URL mapping for ${key}`)
   }
   return url
 }
 
-function buildRepeatedRealUrls(keys, rounds) {
+function buildRepeatedSampleUrls(keys, rounds) {
   return Array.from({ length: rounds }, (_, round) => {
     const orderedKeys = round % 2 === 0 ? keys : [...keys].reverse()
-    return orderedKeys.map((key) => realUrl(key))
+    return orderedKeys.map((key) => scenarioUrl(key))
   }).flat()
 }
 
@@ -187,7 +190,7 @@ function buildWeightedTabCounts(
 function buildScaleDemoWindowTabs(
   tabCount,
   windowIndex = 0,
-  resolveUrl = realUrl,
+  resolveUrl = scenarioUrl,
 ) {
   const keyCount = SCALE_DEMO_URL_KEYS.length
 
@@ -252,7 +255,7 @@ function buildScaleDemoWindowGroups(tabs, windowIndex) {
   return []
 }
 
-function buildThousandTwentyFourScaleWindows(resolveUrl = realUrl) {
+function buildThousandTwentyFourScaleWindows(resolveUrl = scenarioUrl) {
   const featuredWindowTabs = 256
   const distributedWindowCount = 10
   const otherWindowCounts = buildWeightedTabCounts(
@@ -442,13 +445,13 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
             if (
               !title ||
               title === tab.url ||
-              !/^https:\/\//.test(tab.url || '') ||
+              !/^http:\/\/[^/]+\.example\.test\//.test(tab.url || '') ||
               waitOptions.blockedTitleSnippets.some((text) =>
                 title.toLowerCase().includes(text),
               )
             ) {
               throw new Error(
-                `Invalid public page in scale capture: ${tab.url}: ${title}`,
+                `Invalid sample page in scale capture: ${tab.url}: ${title}`,
               )
             }
             if (!tab.active) await chrome.tabs.discard(tab.id)
@@ -458,7 +461,7 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
         }
         if (pending.size)
           throw new Error(
-            `Public pages did not finish loading: ${[...pending].join(', ')}`,
+            `Sample pages did not finish loading: ${[...pending].join(', ')}`,
           )
       }
 
@@ -557,7 +560,7 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
         )
         if (waitOptions.discardAfterLoad)
           console.log(
-            `[scale capture] Prepared ${expectedCount}/${urls.length} public tabs in window ${windowId}`,
+            `[scale capture] Prepared ${expectedCount}/${urls.length} sample tabs in window ${windowId}`,
           )
 
         if (restBatches.length > 0) {
@@ -578,7 +581,7 @@ async function createDemoWindows(page, windows, waitOptionOverrides = {}) {
           await settleAndDiscardBatch(windowId, batchTabIds)
           if (waitOptions.discardAfterLoad)
             console.log(
-              `[scale capture] Prepared ${expectedCount}/${urls.length} public tabs in window ${windowId}`,
+              `[scale capture] Prepared ${expectedCount}/${urls.length} sample tabs in window ${windowId}`,
             )
           await waitForTabCount(windowId, expectedCount)
           await delay(waitOptions.batchPauseMs)
@@ -682,7 +685,7 @@ async function initControlContext({ nativeFeatures = false } = {}) {
     executablePath: process.env.TMV2_TEST_BROWSER_PATH || undefined,
     headless: false,
     // Playwright's feature overrides crash Chromium when a new tab is created
-    // after discarding a public page. The scale recorder uses native defaults,
+    // after discarding a sample page. The scale recorder uses native defaults,
     // matching normal browser sessions; the small feature scenes keep theirs.
     ignoreDefaultArgs: nativeFeatures || undefined,
     screen: VIEWPORT,
@@ -702,6 +705,7 @@ async function initControlContext({ nativeFeatures = false } = {}) {
               : []),
           ]
         : []),
+      `--proxy-server=${captureSites.proxy.server}`,
       '--disable-dev-shm-usage',
       '--ipc=host',
       `--disable-extensions-except=${EXTENSION_PATH}`,
@@ -1272,22 +1276,22 @@ async function recordFindTabFast() {
   const windows = [
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('research/tab-groups-api'),
-        realUrl('launch/support-plan'),
-        realUrl('launch/rollout-plan'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/shortcuts'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('research/tab-groups-api'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('launch/rollout-plan'),
       ],
       groups: [
         {
-          title: 'Jenny Media',
+          title: 'Project space',
           color: 'blue',
           collapsed: true,
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
-            realUrl('brand/jenny-youtube'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/shortcuts'),
+            scenarioUrl('project/walkthrough'),
           ],
         },
       ],
@@ -1308,7 +1312,7 @@ async function recordFindTabFast() {
       await demoPause(page, 180)
       await clickCurrent(page)
       await demoPause(page, 220)
-      await searchInput.type('jenny', { delay: paceType(170) })
+      await searchInput.type('project', { delay: paceType(170) })
       await demoHold(page, 2600)
     },
   )
@@ -1319,21 +1323,21 @@ async function recordOrganizeGroups() {
   const windows = [
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('launch/support-plan'),
-        realUrl('launch/rollout-plan'),
-        realUrl('research/tab-groups-api'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/shortcuts'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('launch/rollout-plan'),
+        scenarioUrl('research/tab-groups-api'),
       ],
       groups: [
         {
-          title: 'Jenny Media',
+          title: 'Project space',
           color: 'green',
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
-            realUrl('brand/jenny-youtube'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/shortcuts'),
+            scenarioUrl('project/walkthrough'),
           ],
         },
       ],
@@ -1383,47 +1387,47 @@ async function recordCleanUpDuplicates() {
   const windows = [
     {
       tabs: [
-        realUrl('launch/final-checklist'),
-        realUrl('launch/final-checklist'),
-        realUrl('launch/support-plan'),
-        realUrl('launch/support-plan'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('support/release-mail'),
-        realUrl('research/firefox-parity'),
-        realUrl('research/firefox-parity'),
-        realUrl('support/docs-ticket'),
+        scenarioUrl('launch/final-checklist'),
+        scenarioUrl('launch/final-checklist'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('support/release-mail'),
+        scenarioUrl('research/firefox-parity'),
+        scenarioUrl('research/firefox-parity'),
+        scenarioUrl('support/docs-ticket'),
       ],
       groups: [
         {
           title: 'Operations',
           color: 'orange',
           urls: [
-            realUrl('launch/final-checklist'),
-            realUrl('launch/support-plan'),
-            realUrl('brand/jenny-youtube'),
-            realUrl('support/release-mail'),
+            scenarioUrl('launch/final-checklist'),
+            scenarioUrl('launch/support-plan'),
+            scenarioUrl('project/walkthrough'),
+            scenarioUrl('support/release-mail'),
           ],
         },
       ],
     },
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
-        realUrl('brand/jenny-short'),
-        realUrl('support/customer-4821'),
-        realUrl('support/customer-5104'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/shortcuts'),
+        scenarioUrl('project/shortcuts'),
+        scenarioUrl('support/customer-4821'),
+        scenarioUrl('support/customer-5104'),
       ],
       groups: [
         {
           title: 'Cleanup Queue',
           color: 'green',
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
-            realUrl('support/customer-4821'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/shortcuts'),
+            scenarioUrl('support/customer-4821'),
           ],
         },
       ],
@@ -1466,24 +1470,24 @@ async function recordLargeWorkspaces() {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('launch/store-copy'),
-        realUrl('launch/qa-signoff'),
-        realUrl('launch/rollout-plan'),
-        realUrl('launch/support-plan'),
-        realUrl('research/keyboard-flows'),
-        realUrl('research/ux-followups'),
-        realUrl('reading/accessibility-audit'),
-        realUrl('reading/changelog-draft'),
+        scenarioUrl('launch/release-roadmap'),
+        scenarioUrl('launch/store-copy'),
+        scenarioUrl('launch/qa-signoff'),
+        scenarioUrl('launch/rollout-plan'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('research/keyboard-flows'),
+        scenarioUrl('research/ux-followups'),
+        scenarioUrl('reading/accessibility-audit'),
+        scenarioUrl('reading/changelog-draft'),
       ],
       groups: [
         {
           title: 'Launch',
           color: 'blue',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('launch/store-copy'),
-            realUrl('launch/qa-signoff'),
+            scenarioUrl('launch/release-roadmap'),
+            scenarioUrl('launch/store-copy'),
+            scenarioUrl('launch/qa-signoff'),
           ],
         },
         {
@@ -1491,9 +1495,9 @@ async function recordLargeWorkspaces() {
           color: 'orange',
           collapsed: true,
           urls: [
-            realUrl('launch/rollout-plan'),
-            realUrl('launch/support-plan'),
-            realUrl('research/keyboard-flows'),
+            scenarioUrl('launch/rollout-plan'),
+            scenarioUrl('launch/support-plan'),
+            scenarioUrl('research/keyboard-flows'),
           ],
         },
         {
@@ -1501,35 +1505,35 @@ async function recordLargeWorkspaces() {
           color: 'green',
           collapsed: true,
           urls: [
-            realUrl('research/ux-followups'),
-            realUrl('reading/accessibility-audit'),
-            realUrl('reading/changelog-draft'),
+            scenarioUrl('research/ux-followups'),
+            scenarioUrl('reading/accessibility-audit'),
+            scenarioUrl('reading/changelog-draft'),
           ],
         },
       ],
     },
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-short'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('research/tab-groups-api'),
-        realUrl('research/firefox-parity'),
-        realUrl('research/edge-review'),
-        realUrl('support/customer-4821'),
-        realUrl('support/customer-5104'),
-        realUrl('support/release-mail'),
-        realUrl('support/docs-ticket'),
-        realUrl('launch/final-checklist'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/shortcuts'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('research/tab-groups-api'),
+        scenarioUrl('research/firefox-parity'),
+        scenarioUrl('research/edge-review'),
+        scenarioUrl('support/customer-4821'),
+        scenarioUrl('support/customer-5104'),
+        scenarioUrl('support/release-mail'),
+        scenarioUrl('support/docs-ticket'),
+        scenarioUrl('launch/final-checklist'),
       ],
       groups: [
         {
           title: 'Brand',
           color: 'green',
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/jenny-short'),
-            realUrl('brand/jenny-youtube'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/shortcuts'),
+            scenarioUrl('project/walkthrough'),
           ],
         },
         {
@@ -1537,9 +1541,9 @@ async function recordLargeWorkspaces() {
           color: 'blue',
           collapsed: true,
           urls: [
-            realUrl('research/tab-groups-api'),
-            realUrl('research/firefox-parity'),
-            realUrl('research/edge-review'),
+            scenarioUrl('research/tab-groups-api'),
+            scenarioUrl('research/firefox-parity'),
+            scenarioUrl('research/edge-review'),
           ],
         },
         {
@@ -1547,10 +1551,10 @@ async function recordLargeWorkspaces() {
           color: 'red',
           collapsed: true,
           urls: [
-            realUrl('support/customer-4821'),
-            realUrl('support/customer-5104'),
-            realUrl('support/release-mail'),
-            realUrl('support/docs-ticket'),
+            scenarioUrl('support/customer-4821'),
+            scenarioUrl('support/customer-5104'),
+            scenarioUrl('support/release-mail'),
+            scenarioUrl('support/docs-ticket'),
           ],
         },
       ],
@@ -1582,18 +1586,18 @@ async function recordKeyboardWorkflow() {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('launch/store-copy'),
-        realUrl('launch/final-checklist'),
-        realUrl('launch/rollout-plan'),
+        scenarioUrl('launch/release-roadmap'),
+        scenarioUrl('launch/store-copy'),
+        scenarioUrl('launch/final-checklist'),
+        scenarioUrl('launch/rollout-plan'),
       ],
       groups: [
         {
           title: 'AI Tools',
           color: 'blue',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('launch/store-copy'),
+            scenarioUrl('launch/release-roadmap'),
+            scenarioUrl('launch/store-copy'),
           ],
         },
       ],
@@ -1638,20 +1642,20 @@ async function recordCustomizeView() {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('research/tab-groups-api'),
-        realUrl('reading/design-refresh'),
-        realUrl('launch/support-plan'),
-        realUrl('brand/jenny-home'),
+        scenarioUrl('launch/release-roadmap'),
+        scenarioUrl('research/tab-groups-api'),
+        scenarioUrl('reading/design-refresh'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('project/notes'),
       ],
       groups: [
         {
           title: 'Workspace',
           color: 'blue',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('research/tab-groups-api'),
-            realUrl('reading/design-refresh'),
+            scenarioUrl('launch/release-roadmap'),
+            scenarioUrl('research/tab-groups-api'),
+            scenarioUrl('reading/design-refresh'),
           ],
         },
       ],
@@ -1702,7 +1706,7 @@ async function recordHundredPlusTabsScale() {
   const clipName = '07-hundred-plus-tabs-scale'
   const windows = [
     {
-      tabs: buildRepeatedRealUrls(SCALE_DEMO_URL_KEYS, 8),
+      tabs: buildRepeatedSampleUrls(SCALE_DEMO_URL_KEYS, 8),
       groups: [],
     },
   ]
@@ -1813,8 +1817,7 @@ async function recordThousandTwentyFourTabsScale() {
       await moveCursor(page, startPoint, titleCenter, 900)
       await demoPause(page, 180)
 
-      // Compare the browser's real page titles for React/Vercel and
-      // Extension Workshop/Microsoft, whose domains have a known sort order.
+      // Compare actual sample-tab titles with their known domain sort order.
       const expectedSortedPairs = await page.evaluate(
         async (ids) => {
           const tabs = await Promise.all(ids.map((id) => chrome.tabs.get(id)))
@@ -2038,18 +2041,69 @@ async function main() {
 
   mkdirSync(WORK_DIR, { recursive: true })
 
-  const outputs = []
-  for (const clip of CLIPS) {
-    if (!shouldCaptureClip(clip.id)) {
-      continue
-    }
-    console.log(`Capturing ${clip.id}`)
-    outputs.push(await clip.capture())
+  const candidateVersion = process.env.FEATURE_VIDEO_VERSION
+  let candidateDir
+  if (candidateVersion) {
+    if (!/^\d+\.\d+\.\d+$/.test(candidateVersion))
+      throw new Error('Invalid candidate version')
+    candidateDir = mkdtempSync(join(tmpdir(), 'tmv2-video-candidate-'))
+    cpSync(EXTENSION_PATH, candidateDir, { recursive: true })
+    const manifest = JSON.parse(
+      readFileSync(join(candidateDir, 'manifest.json'), 'utf8'),
+    )
+    manifest.version = candidateVersion
+    writeFileSync(join(candidateDir, 'manifest.json'), JSON.stringify(manifest))
+    EXTENSION_PATH = candidateDir
   }
+  captureSites = await startCaptureSites()
+  try {
+    const manifestPath = join(OUTPUT_DIR, 'capture-manifest.json')
+    const previous = existsSync(manifestPath)
+      ? JSON.parse(readFileSync(manifestPath, 'utf8'))
+      : null
+    const fixtureHash = captureSites.provenance().catalogueSha256
+    const recordings =
+      previous?.catalogueSha256 === fixtureHash ? previous.recordings : []
+    const outputs = []
+    for (const clip of CLIPS) {
+      if (!shouldCaptureClip(clip.id)) {
+        continue
+      }
+      console.log(`Capturing ${clip.id}`)
+      const path = await clip.capture()
+      outputs.push(path)
+      const entry = {
+        id: clip.id,
+        capturedAt: new Date().toISOString(),
+        extensionVersion: JSON.parse(
+          readFileSync(join(EXTENSION_PATH, 'manifest.json'), 'utf8'),
+        ).version,
+        sha256: createHash('sha256').update(readFileSync(path)).digest('hex'),
+      }
+      const index = recordings.findIndex((entry) => entry.id === clip.id)
+      if (index < 0) recordings.push(entry)
+      else recordings[index] = entry
+      writeFileSync(
+        manifestPath,
+        JSON.stringify(
+          {
+            mode: 'local-fictional-sites',
+            catalogueSha256: fixtureHash,
+            recordings,
+          },
+          null,
+          2,
+        ),
+      )
+    }
 
-  console.log('done')
-  for (const output of outputs) {
-    console.log(output)
+    console.log('done')
+    for (const output of outputs) {
+      console.log(output)
+    }
+  } finally {
+    await captureSites.close()
+    if (candidateDir) rmSync(candidateDir, { recursive: true, force: true })
   }
 }
 

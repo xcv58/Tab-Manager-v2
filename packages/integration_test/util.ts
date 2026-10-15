@@ -69,6 +69,32 @@ const duckduckgoFixtureIcon = `data:image/x-icon;base64,${readFileSync(
   join(__dirname, 'assets/fixtures/duckduckgo.ico'),
 ).toString('base64')}`
 
+// Preserve the legacy URL/redirect assertions and screenshot metadata without
+// loading these public sites during tests or test-video recordings.
+const legacyMetadataFixtures = [
+  {
+    host: 'xcv58.com',
+    title: 'BLOG | XCV58',
+    icon: 'xcv58.png',
+    type: 'image/png',
+  },
+  {
+    host: 'nextjs.org',
+    title: 'Next.js by Vercel - The React Framework',
+    icon: 'nextjs.ico',
+    type: 'image/x-icon',
+  },
+  {
+    host: 'ops-class.org',
+    title: 'ops-class.org | Learn Operating Systems Online',
+    icon: 'ops-class.png',
+    type: 'image/png',
+  },
+].map((site) => ({
+  ...site,
+  favicon: `data:${site.type};base64,${readFileSync(join(__dirname, 'assets/fixtures', site.icon)).toString('base64')}`,
+}))
+
 export type IntegrationFixtureServer = {
   baseUrl: string
   close: () => Promise<void>
@@ -299,6 +325,13 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
     screen: INTEGRATION_VIEWPORT,
     viewport: INTEGRATION_VIEWPORT,
     args: [
+      // Recordings use local servers and routed metadata fixtures. Fail any
+      // accidental public navigation immediately instead of waiting on DNS.
+      ...(captureDir
+        ? [
+            '--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1',
+          ]
+        : []),
       // Follow suggestions on https://playwright.dev/docs/ci#docker
       '--disable-dev-shm-usage',
       '--ipc=host',
@@ -345,6 +378,30 @@ export const initBrowserWithExtension = async ({ headless = false } = {}) => {
           body: `<!doctype html><title>DuckDuckGo - Protection. Privacy. Peace of mind.</title><link rel="icon" href="${duckduckgoFixtureIcon}"><p>Offline tab metadata fixture</p>`,
         })
       }
+    },
+  )
+
+  await browserContext.route(
+    /^https?:\/\/(?:xcv58\.com|nextjs\.org|ops-class\.org)\//,
+    async (route) => {
+      const url = new URL(route.request().url())
+      if (url.protocol === 'http:') {
+        url.protocol = 'https:'
+        // A document redirect creates a separate intercepted request, keeping
+        // the legacy HTTPS upgrade local even with browser networking disabled.
+        await route.fulfill({
+          contentType: 'text/html; charset=utf-8',
+          body: `<!doctype html><meta http-equiv="refresh" content="0;url=${escapeHtml(url.href)}">`,
+        })
+        return
+      }
+      const site = legacyMetadataFixtures.find(
+        (site) => site.host === url.hostname,
+      )
+      await route.fulfill({
+        contentType: 'text/html; charset=utf-8',
+        body: `<!doctype html><title>${escapeHtml(site.title)}</title><link rel="icon" href="${site.favicon}"><p>Offline tab metadata fixture</p>`,
+      })
     },
   )
 

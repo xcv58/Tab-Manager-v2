@@ -103,11 +103,12 @@ The WebP conversion script lives at
 
 Release screenshot rules:
 
-- Use real public URLs only. The scripted set includes `https://jenny.media/`,
-  `https://tab.jenny.media/`, `https://chatgpt.com/`,
-  `https://claude.ai/login`, `https://gemini.google.com/`,
-  `https://www.youtube.com/@JennyTV1`, plus a mix of docs, community, and
-  news sites.
+- Use the shared fictional websites in
+  `packages/integration_test/assets/capture-sites/catalog.json`. Serve them via
+  the capture-only local proxy in `scripts/capture-sites.mjs`; it must never
+  forward external requests. Keep real browser tabs and the built extension UI.
+- Read sample titles and favicons from the browser, not injected extension data.
+  Keep live public-site compatibility checks separate from marketing captures.
 - The capture script generates light and dark PNG variants for every shot with
   `-light.png` and `-dark.png` suffixes.
 - The conversion script generates full-size WebP files plus `-small.webp`
@@ -125,9 +126,17 @@ Release screenshot rules:
   aligned with the vendored GLightbox assets in `docs/assets/vendor/glightbox/`.
 - Export at `1280x800` as PNG24 with alpha removed so the PNG files stay valid
   for Chrome Web Store submission.
-- The current Chrome Web Store shortlist is the light-theme set for
-  `01-overview-groups`, `02-group-editing`, `03-search-groups`,
-  `05-keyboard-shortcuts`, and `06-grouped-tabs-focus`.
+- Store-specific captures use
+  `packages/integration_test/scripts/capture-store-listing-review.mjs` with
+  `STORE_SCREENSHOT_BROWSER=chrome`, `firefox`, or `edge`. Assemble the local
+  review with `scripts/prepare-store-listing-review.mjs` in that package.
+- Preserve the approved store shortlist, order, captions, and theme choices in
+  `promotional_tiles/store-listings/en.json`. The eight-scene website gallery
+  and the six-scene store capture set have different purposes.
+- For release preparation only, `STORE_SCREENSHOT_VERSION`,
+  `RELEASE_SCREENSHOT_VERSION`, and `FEATURE_VIDEO_VERSION` can set a candidate
+  version in a temporary capture copy. Never change tracked versions just to
+  prepare media; disclose the candidate version in the review package.
 
 ## Feature Videos
 
@@ -142,6 +151,15 @@ To regenerate the reusable feature video clips and promo:
    and `.tmp/video-captures/promo/tab-manager-v2-feature-promo.mp4` for the
    combined promo.
 
+After both video pipelines finish, run `pnpm sync:release-media` to copy the
+finished public videos and extract poster raster sources. Then run
+`pnpm build:marketing-artwork` and `pnpm build:site`. Preview the finished site
+with `pnpm preview:release-media` and the store package with
+`pnpm preview:store-listings`; these servers support byte ranges for video
+seeking. A basic `python -m http.server` does not. The artwork scripts also
+support `PROMO_TILE_RENDERER=browser` and `DOCS_POSTER_RENDERER=browser` with
+`TMV2_TEST_BROWSER_PATH` when `rsvg-convert` is unavailable.
+
 The standalone capture script lives at
 `packages/integration_test/scripts/capture-feature-videos.mjs`.
 The promo assembly script lives at
@@ -152,7 +170,10 @@ Feature video rules:
 - Treat `.tmp/video-captures/**` as generated local artifacts. Do not commit
   raw captures, segment renders, overlay assets, or preview stills unless the
   user explicitly asks for a checked-in deliverable.
-- Use real public URLs only for scripted tab setups.
+- Use the same local fictional websites as release and store screenshots.
+  Keep real tab, group and window APIs; do not substitute a mocked extension.
+- Describe the 1,024-tab video as a Tab Manager UI demonstration with local
+  sample pages and unloaded background tabs, not a website-loading benchmark.
 - Keep the promo visually aligned with the docs site: dark background,
   cool neutral surfaces, indigo-led accents, and sans-serif typography.
 - Prefer the named clip library as the source material:

@@ -6,6 +6,7 @@ import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
+import { SAMPLE_SITES } from './capture-sites.mjs'
 
 const root = fileURLToPath(new URL('../../..', import.meta.url))
 const output = resolve(
@@ -46,6 +47,12 @@ const proof = {
   runtimeDiffSha256: createHash('sha256').update(runtimeDiff).digest('hex'),
   status: copy.status,
   candidateManifestVersion: '3.0.0',
+  captureSites: {
+    mode: 'local-fictional-sites',
+    catalogueSha256: createHash('sha256')
+      .update(JSON.stringify(SAMPLE_SITES))
+      .digest('hex'),
+  },
   captures: {},
   artworkReferences: [],
   validation: {},
@@ -78,6 +85,10 @@ const captureSets = Object.fromEntries(
     if (captures.length !== 12)
       throw new Error(`Expected twelve captures for ${store}`)
     for (const capture of captures) {
+      if (
+        capture.fixtures?.catalogueSha256 !== proof.captureSites.catalogueSha256
+      )
+        throw new Error(`Stale or non-local capture: ${store}/${capture.file}`)
       const path = join(output, 'captures', store, capture.file)
       if (hash(path) !== capture.sha256)
         throw new Error(`Capture checksum mismatch: ${path}`)
@@ -272,8 +283,21 @@ for (const store of ['chrome', 'edge']) {
   )
 }
 cpSync(
+  join(root, 'packages/integration_test/assets/capture-sites'),
+  join(output, 'source/capture-sites'),
+  { recursive: true },
+)
+cpSync(
+  join(root, 'packages/integration_test/scripts/capture-sites.mjs'),
+  join(output, 'source/capture-sites.mjs'),
+)
+cpSync(
   join(root, 'promotional_tiles/store-listings/en.json'),
   join(output, 'copy-source.json'),
+)
+cpSync(
+  join(root, 'scripts/preview-release-media.mjs'),
+  join(output, 'source/preview-release-media.mjs'),
 )
 writeFileSync(join(output, 'provenance.json'), JSON.stringify(proof, null, 2))
 
@@ -345,13 +369,13 @@ const html = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="v
   )
   .join(
     '',
-  )}<button data-view="shared" aria-pressed="false">Artwork, video & capture details</button></nav><main><div class="notice">All screenshots show the real built extension in isolated Chrome, Firefox, and Edge profiles. The temporary capture manifests use <strong>3.0.0</strong>, matching the separate release PR. The group editor and Settings screenshots, plus the product tour, were refreshed from the final merged UI. Unchanged approved screenshots are retained. The tracked package version is unchanged. Store dashboards have not been edited.</div>${storeHtml}<section class="store" id="shared" hidden><h2>Promotional artwork</h2><p>One clear headline, the existing T identity, and a real product image in the marquee. No version number or “coming soon” wording.</p><div class="artwork"><figure><a href="artwork/small-tile-440x280.png" target="_blank"><img width="440" height="280" src="artwork/small-tile-440x280.png" alt="Small tile: Too many tabs, handled."></a><figcaption>Chrome / Edge small tile · 440×280 · <a download href="artwork/small-tile-440x280.png">PNG</a> · <a download href="artwork/small-tile-440x280.svg">SVG source</a></figcaption></figure><figure><a href="artwork/marquee-1400x560.png" target="_blank"><img width="1400" height="560" src="artwork/marquee-1400x560.png" alt="Marquee: Too many tabs, handled, alongside the actual Tab Manager workspace"></a><figcaption>Chrome marquee / Edge large tile · 1400×560 · <a download href="artwork/marquee-1400x560.png">PNG</a> · <a download href="artwork/marquee-1400x560.svg">SVG source</a></figcaption></figure></div><h3>Existing icon</h3><p>The recognizable T icon is retained. Each store folder includes its icon exports; Firefox also has 32×32 and 64×64 versions.</p><img src="chrome/icons/icon-128.png" alt="Tab Manager T icon" width="96" height="96" style="background:white;border-radius:12px;padding:12px"><h3>Proposed store video</h3><p>${escape(copy.video.status)}</p><video controls preload="none" poster="video/poster.png"><source src="video/product-tour.mp4" type="video/mp4"></video><p><a download href="video/product-tour.mp4">Download the product tour</a></p><h3>Capture and asset checks</h3>${pre(JSON.stringify(proof.validation, null, 2))}<p class="muted">Source commit: ${sourceCommit}<br>Merged master: ${mergedCommit}<br>Capture browsers: ${Object.entries(
+  )}<button data-view="shared" aria-pressed="false">Artwork, video & capture details</button></nav><main><div class="notice">All screenshots show the real built extension in isolated Chrome, Firefox, and Edge profiles. The temporary capture manifests use <strong>3.0.0</strong>, matching the separate release PR. All screenshots and the product tour use the final merged UI with fictional websites served locally. No external website loads are needed during capture. The tracked package version is unchanged. Store dashboards have not been edited.</div>${storeHtml}<section class="store" id="shared" hidden><h2>Promotional artwork</h2><p>One clear headline, the existing T identity, and a real product image in the marquee. No version number or “coming soon” wording.</p><div class="artwork"><figure><a href="artwork/small-tile-440x280.png" target="_blank"><img width="440" height="280" src="artwork/small-tile-440x280.png" alt="Small tile: Too many tabs, handled."></a><figcaption>Chrome / Edge small tile · 440×280 · <a download href="artwork/small-tile-440x280.png">PNG</a> · <a download href="artwork/small-tile-440x280.svg">SVG source</a></figcaption></figure><figure><a href="artwork/marquee-1400x560.png" target="_blank"><img width="1400" height="560" src="artwork/marquee-1400x560.png" alt="Marquee: Too many tabs, handled, alongside the actual Tab Manager workspace"></a><figcaption>Chrome marquee / Edge large tile · 1400×560 · <a download href="artwork/marquee-1400x560.png">PNG</a> · <a download href="artwork/marquee-1400x560.svg">SVG source</a></figcaption></figure></div><h3>Existing icon</h3><p>The recognizable T icon is retained. Each store folder includes its icon exports; Firefox also has 32×32 and 64×64 versions.</p><img src="chrome/icons/icon-128.png" alt="Tab Manager T icon" width="96" height="96" style="background:white;border-radius:12px;padding:12px"><h3>Proposed store video</h3><p>${escape(copy.video.status)}</p><video controls preload="none" poster="video/poster.png"><source src="video/product-tour.mp4" type="video/mp4"></video><p><a download href="video/product-tour.mp4">Download the product tour</a></p><h3>Capture and asset checks</h3>${pre(JSON.stringify(proof.validation, null, 2))}<p class="muted">Source commit: ${sourceCommit}<br>Merged master: ${mergedCommit}<br>Capture browsers: ${Object.entries(
   captureSets,
 )
   .map(([key, captures]) => `${key} ${captures[0].browserVersion}`)
   .join(
     ' · ',
-  )}<br>These are native macOS marketing captures. Linux verification is tracked separately from the store review package.</p><p>Captured public websites supply their actual titles and icons. Settings previews contain the extension’s built-in fictional examples. Firefox captions remain separate from its PNGs.</p><p>Private dashboard-only fields, legal identity, and tag picker availability need checking during a separately approved upload. The new short description is prepared for review; it has not been applied to package.json.</p><p><a href="provenance.json" download>Download provenance and all image checksums</a> · <a href="copy-source.json" download>Download shared copy source</a></p><h3>Store guidance checked</h3><div class="sources">${copy.guidance.map((source) => `<a href="${escape(source.url)}" target="_blank" rel="noopener">${escape(source.title)}</a>`).join('')}</div></section></main><dialog id="lightbox"><div class="copy-top"><p id="lightbox-title"></p><button id="close-lightbox">Close</button></div><img id="lightbox-image" alt=""></dialog><script>
+  )}<br>These are native macOS marketing captures. Linux verification is tracked separately from the store review package.</p><p>Fictional sample websites supply titles and icons through real browser tabs. The capture-only local proxy blocks external requests. Settings previews use the extension’s built-in examples. Firefox captions remain separate from its PNGs.</p><p>Private dashboard-only fields, legal identity, and tag picker availability need checking during a separately approved upload. The new short description is prepared for review; it has not been applied to package.json.</p><p><a href="provenance.json" download>Download provenance and all image checksums</a> · <a href="copy-source.json" download>Download shared copy source</a></p><h3>Store guidance checked</h3><div class="sources">${copy.guidance.map((source) => `<a href="${escape(source.url)}" target="_blank" rel="noopener">${escape(source.title)}</a>`).join('')}</div></section></main><dialog id="lightbox"><div class="copy-top"><p id="lightbox-title"></p><button id="close-lightbox">Close</button></div><img id="lightbox-image" alt=""></dialog><script>
 document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.store').forEach(section=>section.hidden=section.id!==button.dataset.view);document.querySelectorAll('[data-view]').forEach(other=>other.setAttribute('aria-pressed',String(other===button)));history.replaceState(null,'','#'+button.dataset.view);window.scrollTo({top:0,behavior:'instant'})}));
 const initial=document.querySelector('[data-view="'+location.hash.slice(1)+'"]');if(initial)initial.click();
 document.querySelectorAll('[data-copy]').forEach(button=>button.addEventListener('click',async()=>{const value=document.getElementById(button.dataset.copy).innerText;try{await navigator.clipboard.writeText(value);button.textContent='Copied';setTimeout(()=>button.textContent='Copy text',1600)}catch{button.textContent='Select text to copy'}}));
@@ -367,7 +391,7 @@ writeFileSync(
 )
 writeFileSync(
   join(output, 'README.md'),
-  `# Store listing review\n\nNothing uploaded or published. Open index.html, or serve this folder locally.\n\n- chrome/: five recommended screenshots, Settings alternate, complete fields, icons and promotional tiles\n- firefox/: six recommended screenshots, separate captions, Firefox-specific copy and icons\n- edge/: six recommended screenshots, complete fields, icons and promotional tiles\n- captures/: all thirty-six light/dark PNGs, original browser tab metadata, capture checksums\n- artwork/: PNG exports and self-contained SVG sources\n- video/: existing refreshed product tour for review\n- provenance.json: source commits, candidate-manifest disclosure and validation results\n\nThe temporary capture manifest uses 3.0.0 to match the existing release PR. The group color picker was corrected after visual review. Tracked manifests/package versions were not changed; provenance records the local runtime diff hash.\n\nStore field suggestions are drafts. Publisher/legal fields remain unchanged. A separately approved upload must check private dashboard fields, available tags, release/package state, and live store results.\n`,
+  `# Store listing review\n\nNothing uploaded or published. Open index.html, or serve this folder locally. For video seeking, run \`node source/preview-release-media.mjs . 8778\` from this folder and open http://127.0.0.1:8778/.\n\n- chrome/: five recommended screenshots, Settings alternate, complete fields, icons and promotional tiles\n- firefox/: six recommended screenshots, separate captions, Firefox-specific copy and icons\n- edge/: six recommended screenshots, complete fields, icons and promotional tiles\n- captures/: all thirty-six light/dark PNGs, sample browser tab metadata, capture checksums\n- artwork/: PNG exports and self-contained SVG sources\n- video/: refreshed product tour for review\n- provenance.json: source commits, candidate-manifest disclosure and validation results\n\nThe temporary capture manifest uses 3.0.0 to match the existing release PR. All screenshots and the tour were refreshed using the merged UI and shared local fictional websites. Tracked manifests/package versions were not changed; provenance records the fixture catalogue hash.\n\nStore field suggestions are drafts. Publisher/legal fields remain unchanged. A separately approved upload must check private dashboard fields, available tags, release/package state, and live store results.\n`,
 )
 console.log(
   `Prepared ${output}/index.html: 36 verified captures; ${summaryCount}-character summary; all three store drafts.`,

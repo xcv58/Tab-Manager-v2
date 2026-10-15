@@ -45,6 +45,19 @@ const browser =
     : null
 
 try {
+  execFileSync(
+    'magick',
+    [
+      join(SOURCE_DIR, 'feature-promo-source.png'),
+      '-alpha',
+      'remove',
+      '-alpha',
+      'off',
+      '-strip',
+      join(OUTPUT_DIR, 'tab-manager-v2-feature-promo-poster.png'),
+    ],
+    { stdio: 'inherit' },
+  )
   for (const [sourceName, outputName] of outputs) {
     const sourcePath = join(SOURCE_DIR, sourceName)
     const tempSvgPath = join(tempDir, sourceName)

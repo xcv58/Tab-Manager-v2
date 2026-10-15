@@ -33,6 +33,11 @@ const PLAYBACK_SPEED = Number(process.env.TEST_VIDEO_SPEED || '10')
 const OUTPUT_FPS = 25
 const RESUME = process.env.TEST_VIDEO_RESUME === '1'
 const CONTINUE_ON_FAILURE = process.env.TEST_VIDEO_CONTINUE_ON_FAILURE !== '0'
+const RECAPTURE_FILES = new Set(
+  String(process.env.TEST_VIDEO_RECAPTURE_FILES || '')
+    .split(',')
+    .filter(Boolean),
+)
 const REQUESTED_TEST_FILES = new Set(
   String(process.env.TEST_VIDEO_FILES || '')
     .split(',')
@@ -220,6 +225,7 @@ function main() {
     const label = clipLabel(index, file)
     const saved = previous?.recordings.find((entry) => entry.file === file)
     if (
+      !RECAPTURE_FILES.has(file) &&
       saved?.passed &&
       saved.clips.every(
         (clip) =>
@@ -287,10 +293,22 @@ function main() {
       spedUpClips.push(fastClipPath)
     }
     recordings.push({ file, passed, clips })
+    // Retain completed later files during a selective recovery run. Otherwise
+    // an interruption would discard their metadata before reaching them.
+    const remaining = (previous?.recordings || []).filter(
+      (entry) => !recordings.some((recording) => recording.file === entry.file),
+    )
+    const progress = [...recordings, ...remaining]
     writeFileSync(
       MANIFEST_PATH,
       JSON.stringify(
-        { playbackSpeed: PLAYBACK_SPEED, recordings, failedFiles },
+        {
+          playbackSpeed: PLAYBACK_SPEED,
+          recordings: progress,
+          failedFiles: progress
+            .filter((entry) => !entry.passed)
+            .map((entry) => entry.file),
+        },
         null,
         2,
       ),

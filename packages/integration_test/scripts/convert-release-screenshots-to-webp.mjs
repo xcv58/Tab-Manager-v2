@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global URL, console */
 
 import { readdirSync, existsSync, mkdirSync, rmSync } from 'node:fs'
 import { join, parse } from 'node:path'

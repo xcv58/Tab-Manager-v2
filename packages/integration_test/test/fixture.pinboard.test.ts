@@ -1,6 +1,50 @@
 import { test, expect } from '@playwright/test'
 import { initBrowserWithExtension } from '../util'
 
+test('legacy tab fixtures retain metadata offline and preserve redirects', async () => {
+  const { browserContext, page } = await initBrowserWithExtension({
+    headless: true,
+  })
+  try {
+    await browserContext.setOffline(true)
+    const fixture = await browserContext.newPage()
+    for (const [url, expectedUrl, title] of [
+      ['https://xcv58.com/', 'https://xcv58.com/', 'BLOG | XCV58'],
+      [
+        'https://nextjs.org/',
+        'https://nextjs.org/',
+        'Next.js by Vercel - The React Framework',
+      ],
+      [
+        'https://ops-class.org/',
+        'https://ops-class.org/',
+        'ops-class.org | Learn Operating Systems Online',
+      ],
+    ]) {
+      await fixture.goto(url)
+      await expect(fixture).toHaveURL(expectedUrl)
+      await expect(fixture).toHaveTitle(title)
+      await expect
+        .poll(() =>
+          page.evaluate(
+            async (url) =>
+              (await chrome.tabs.query({})).find((tab) => tab.url === url),
+            expectedUrl,
+          ),
+        )
+        .toMatchObject({
+          title,
+          favIconUrl: expect.stringMatching(/^data:image\//),
+        })
+    }
+    await fixture.goto('http://xcv58.com/ABC')
+    await expect(fixture).toHaveURL('https://xcv58.com/ABC')
+    await expect(fixture).toHaveTitle('BLOG | XCV58')
+  } finally {
+    await browserContext.close()
+  }
+})
+
 test('DuckDuckGo fixture retains tab metadata and favicon without network access', async () => {
   const { browserContext, page } = await initBrowserWithExtension({
     headless: true,

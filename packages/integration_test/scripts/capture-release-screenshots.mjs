@@ -2,23 +2,34 @@
 /* global URL, chrome, console, document, HTMLElement, HTMLInputElement, location, NodeFilter, requestAnimationFrame, setTimeout, window */
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
+import { SAMPLE_SITES, sampleUrl, startCaptureSites } from './capture-sites.mjs'
+
+let captureSites
 
 const VIEWPORT = { width: 1280, height: 800 }
 const UI_READY_TIMEOUT_MS = 120000
 const UI_SETTLE_DELAY_MS = 700
 const NAVIGATION_TIMEOUT_MS = 120000
-const TAB_LOAD_TIMEOUT_MS = 90000
+const TAB_LOAD_TIMEOUT_MS = 30000
 const TAB_LOAD_POLL_INTERVAL_MS = 250
 const TAB_STATE_STABLE_POLLS = 12
-const TAB_POST_LOAD_SETTLE_DELAY_MS = 1800
+const TAB_POST_LOAD_SETTLE_DELAY_MS = 250
 const SCREENSHOT_SETTLE_DELAY_MS = 600
 const TAB_CREATE_BATCH_SIZE = 6
-const TAB_CREATE_BATCH_DELAY_MS = 2500
+const TAB_CREATE_BATCH_DELAY_MS = 50
 const DENSE_OVERVIEW_FOCUS_WINDOW_INDEX = 5
 const DENSE_OVERVIEW_FOCUS_TAB_INDEX = 1
 const GROUPED_FOCUS_WINDOW_INDEX = 2
@@ -44,128 +55,11 @@ const INTERSTITIAL_TITLE_SNIPPETS = [
   'temporarily unavailable',
   'verify you are human',
 ]
-const AUTH_TITLE_SNIPPETS = ['sign in', 'log in', 'login']
-const REQUIRED_TAB_TITLE_RULES = [
-  ['https://www.youtube.com/@jennytv1', ['jenny tv']],
-  [
-    'https://about.gitlab.com/',
-    ['gitlab', 'ai for the entire software lifecycle'],
-  ],
-  ['https://ai.google.dev/', ['google ai']],
-  ['https://airtable.com/', ['airtable']],
-  ['https://apnews.com/', ['associated press'], { allowStableLoading: true }],
-  ['https://arstechnica.com/', ['ars technica'], { allowStableLoading: true }],
-  ['https://asana.com/', ['asana']],
-  ['https://aws.amazon.com/', ['amazon web services', 'aws']],
-  ['https://azure.microsoft.com/', ['microsoft azure']],
-  ['https://bitbucket.org/', ['bitbucket']],
-  ['https://blog.mozilla.org/', ['mozilla']],
-  ['https://bun.sh/', ['bun']],
-  ['https://calendly.com/', ['calendly']],
-  ['https://chatgpt.com/', ['chatgpt']],
-  ['https://claude.ai/login', ['claude'], { allowAuthTitle: true }],
-  ['https://clickup.com/', ['clickup']],
-  ['https://cloud.google.com/', ['google cloud']],
-  ['https://css-tricks.com/', ['css-tricks']],
-  ['https://deepmind.google/', ['deepmind']],
-  ['https://deno.com/', ['deno'], { allowStableLoading: true }],
-  ['https://dev.to/', ['dev community']],
-  ['https://developer.chrome.com/', ['chrome']],
-  ['https://developer.mozilla.org/', ['mdn web docs']],
-  ['https://discord.com/', ['discord']],
-  ['https://extensionworkshop.com/', ['extension workshop']],
-  ['https://firebase.google.com/', ['firebase']],
-  ['https://fly.io/', ['fly']],
-  ['https://gemini.google.com/', ['gemini']],
-  ['https://github.com/', ['github']],
-  ['https://gitlab.com/', ['gitlab', 'ai for the entire software lifecycle']],
-  ['https://go.dev/', ['go programming language']],
-  ['https://grafana.com/', ['grafana']],
-  ['https://huggingface.co/', ['hugging face']],
-  ['https://jenny.media/', ['jenny']],
-  ['https://kubernetes.io/', ['kubernetes']],
-  ['https://learn.microsoft.com/', ['microsoft edge']],
-  ['https://linear.app/', ['linear']],
-  ['https://lobste.rs/', ['lobsters']],
-  ['https://miro.com/', ['miro']],
-  ['https://mistral.ai/', ['mistral']],
-  ['https://monday.com/', ['monday']],
-  ['https://news.ycombinator.com/', ['hacker news']],
-  ['https://nextjs.org/', ['next.js']],
-  ['https://nodejs.org/', ['node.js']],
-  ['https://notion.so/', ['notion']],
-  ['https://openrouter.ai/', ['openrouter']],
-  ['https://pagespeed.web.dev/', ['pagespeed insights']],
-  ['https://playwright.dev/', ['fast and reliable']],
-  ['https://pnpm.io/', ['pnpm']],
-  ['https://www.postgresql.org/', ['postgresql'], { allowStableLoading: true }],
-  ['https://prometheus.io/', ['prometheus']],
-  ['https://railway.com/', ['railway']],
-  ['https://react.dev/', ['react']],
-  ['https://readwise.io/', ['readwise']],
-  ['https://render.com/', ['render']],
-  ['https://replicate.com/', ['replicate']],
-  ['https://sentry.io/', ['sentry']],
-  ['https://slack.com/', ['slack']],
-  ['https://stability.ai/', ['stability ai']],
-  ['https://stripe.com/', ['stripe']],
-  ['https://substack.com/', ['substack']],
-  ['https://supabase.com/', ['supabase']],
-  ['https://svelte.dev/', ['svelte']],
-  ['https://tab.jenny.media/', ['tab manager']],
-  ['https://tailwindcss.com/', ['tailwind css']],
-  ['https://techcrunch.com/', ['techcrunch'], { allowStableLoading: true }],
-  ['https://testing-library.com/', ['testing library']],
-  ['https://todoist.com/', ['todoist']],
-  ['https://trello.com/', ['trello', 'capture, organize, and tackle']],
-  ['https://vercel.com/', ['vercel']],
-  ['https://vite.dev/', ['vite']],
-  ['https://vuejs.org/', ['vue.js']],
-  ['https://web.dev/', ['web.dev']],
-  ['https://www.bbc.com/', ['bbc'], { allowStableLoading: true }],
-  ['https://www.box.com/', ['box']],
-  ['https://www.cloudflare.com/', ['cloudflare']],
-  ['https://www.datadoghq.com/', ['datadog']],
-  ['https://www.digitalocean.com/', ['digitalocean']],
-  ['https://www.docker.com/', ['docker']],
-  ['https://www.dropbox.com/', ['dropbox']],
-  ['https://www.engadget.com/', ['engadget'], { allowStableLoading: true }],
-  ['https://www.figma.com/', ['figma']],
-  ['https://www.grammarly.com/', ['grammarly']],
-  ['https://www.heroku.com/', ['heroku']],
-  ['https://www.langchain.com/', ['langchain']],
-  ['https://www.linkedin.com/', ['linkedin'], { allowAuthTitle: true }],
-  ['https://www.loom.com/', ['loom']],
-  ['https://www.mongodb.com/', ['mongodb'], { allowStableLoading: true }],
-  ['https://www.netlify.com/', ['netlify']],
-  ['https://www.notion.so/', ['notion']],
-  ['https://www.npr.org/', ['npr'], { allowStableLoading: true }],
-  ['https://www.postman.com/', ['postman', 'api engineering for your agents']],
-  ['https://www.python.org/', ['python']],
-  [
-    'https://www.reddit.com/r/chrome_extensions/',
-    ['chrome extensions enthusiasts'],
-  ],
-  ['https://www.reddit.com/', ['reddit']],
-  ['https://www.rust-lang.org/', ['rust']],
-  ['https://www.smashingmagazine.com/', ['smashing magazine']],
-  [
-    'https://www.theguardian.com/international',
-    ['the guardian'],
-    { allowStableLoading: true },
-  ],
-  ['https://www.theverge.com/', ['the verge'], { allowStableLoading: true }],
-  ['https://www.twitch.tv/', ['twitch']],
-  ['https://www.typescriptlang.org/', ['typescript']],
-  ['https://www.wikipedia.org/', ['wikipedia']],
-  ['https://www.youtube.com/', ['youtube']],
-  ['https://zapier.com/', ['zapier']],
-  ['https://zoom.us/', ['zoom']],
-].map(([urlPrefix, titleIncludesAny, options = {}]) => ({
-  urlPrefix,
-  titleIncludesAny,
-  blockedTitleIncludes: options.allowAuthTitle ? [] : AUTH_TITLE_SNIPPETS,
-  allowStableLoading: options.allowStableLoading || false,
+const REQUIRED_TAB_TITLE_RULES = Object.values(SAMPLE_SITES).map((site) => ({
+  urlPrefix: site.url.toLowerCase(),
+  titleIncludesAny: [site.title.toLowerCase()],
+  blockedTitleIncludes: [],
+  allowStableLoading: false,
 }))
 
 function assertExplicitTitleExpectations(urls, context) {
@@ -182,22 +76,12 @@ function assertExplicitTitleExpectations(urls, context) {
   }
 }
 
-const CANONICAL_SOURCE_ALIASES = {
-  'https://azure.microsoft.com/': ['https://azure.microsoft.com/en-us'],
-  'https://blog.mozilla.org/': ['https://blog.mozilla.org/en'],
-  'https://developer.mozilla.org/': ['https://developer.mozilla.org/en-us'],
-  'https://gemini.google.com/': ['https://gemini.google.com/app'],
-  'https://gitlab.com/': ['https://about.gitlab.com/'],
-  'https://notion.so/': ['https://notion.com/'],
-  'https://nodejs.org/': ['https://nodejs.org/en'],
-  'https://sentry.io/': ['https://sentry.io/welcome'],
-  'https://zoom.us/': ['https://zoom.com/'],
-}
+const CANONICAL_SOURCE_ALIASES = {}
 const FALLBACK_TAB_ICON_STATE = '(deterministic-fallback)'
 const ROOT_DIR = join(fileURLToPath(new URL('../../..', import.meta.url)))
 const OUTPUT_ROOT_DIR = join(ROOT_DIR, 'docs/assets/images/release-candidates')
 const PNG_OUTPUT_DIR = join(OUTPUT_ROOT_DIR, 'png')
-const EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
+let EXTENSION_PATH = join(ROOT_DIR, 'packages/extension/build/build_chrome')
 const parseRequestedFilter = (environmentName) => {
   if (!Object.prototype.hasOwnProperty.call(process.env, environmentName)) {
     return { provided: false, values: [] }
@@ -256,35 +140,33 @@ const DEFAULT_SETTINGS = {
 }
 const GROUPED_FOCUS_TAB_WIDTH = VIEWPORT.width / 5 / DEFAULT_SETTINGS.fontSize
 
-// Avoid URLs that frequently trigger bot checks during automation captures.
-const REAL_URLS = {
-  'brand/jenny-home': 'https://jenny.media/',
-  'brand/tab-manager': 'https://tab.jenny.media/',
-  'brand/jenny-youtube': 'https://www.youtube.com/@JennyTV1',
-  'launch/release-roadmap': 'https://developer.chrome.com/',
-  'launch/store-copy': 'https://developer.mozilla.org/',
-  'launch/final-checklist': 'https://github.com/',
-  'launch/support-plan': 'https://vercel.com/',
-  'launch/qa-signoff': 'https://react.dev/',
-  'launch/rollout-plan': 'https://nodejs.org/',
-  'research/tab-groups-api': 'https://developer.chrome.com/docs/extensions/',
-  'research/firefox-parity': 'https://extensionworkshop.com/',
-  'research/edge-review':
-    'https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/',
-  'research/keyboard-flows': 'https://playwright.dev/',
-  'research/ux-followups': 'https://vite.dev/',
-  'research/screenshot-brief': 'https://news.ycombinator.com/',
-  'reading/design-refresh': 'https://www.smashingmagazine.com/',
-  'reading/accessibility-audit': 'https://web.dev/',
-  'reading/performance-review': 'https://pagespeed.web.dev/',
-  'reading/changelog-draft': 'https://css-tricks.com/',
-  'support/customer-4821': 'https://news.ycombinator.com/',
-  'support/customer-5104': 'https://www.wikipedia.org/',
-  'support/release-mail': 'https://www.reddit.com/r/chrome_extensions/',
-  'support/docs-ticket':
-    'https://developer.chrome.com/docs/extensions/get-started/',
-  'ops/duplicate-tabs': 'https://jenny.media/',
-  'ops/window-groups': 'https://tab.jenny.media/',
+// Shared fictional pages are served locally without internet access.
+const SCENARIO_URLS = {
+  'project/notes': sampleUrl('notes/project'),
+  'project/handbook': sampleUrl('notes/handbook'),
+  'project/walkthrough': sampleUrl('watch/project-tour'),
+  'launch/release-roadmap': sampleUrl('docs/browser'),
+  'launch/store-copy': sampleUrl('docs/web'),
+  'launch/final-checklist': sampleUrl('projects/board'),
+  'launch/support-plan': sampleUrl('hosting/deployments'),
+  'launch/qa-signoff': sampleUrl('docs/components'),
+  'launch/rollout-plan': sampleUrl('runtime/handbook'),
+  'research/tab-groups-api': sampleUrl('docs/extensions'),
+  'research/firefox-parity': sampleUrl('guides/browser'),
+  'research/edge-review': sampleUrl('research/browser'),
+  'research/keyboard-flows': sampleUrl('testing/handbook'),
+  'research/ux-followups': sampleUrl('tooling/build'),
+  'research/screenshot-brief': sampleUrl('community/stories'),
+  'reading/design-refresh': sampleUrl('journal/design'),
+  'reading/accessibility-audit': sampleUrl('guides/accessibility'),
+  'reading/performance-review': sampleUrl('metrics/speed'),
+  'reading/changelog-draft': sampleUrl('journal/layout'),
+  'support/customer-4821': sampleUrl('community/stories'),
+  'support/customer-5104': sampleUrl('reference/home'),
+  'support/release-mail': sampleUrl('community/browser'),
+  'support/docs-ticket': sampleUrl('docs/getting-started'),
+  'ops/duplicate-tabs': sampleUrl('notes/project'),
+  'ops/window-groups': sampleUrl('notes/handbook'),
 }
 
 function buildWindowsFromGroupLayout(groups, layout) {
@@ -314,20 +196,20 @@ const DENSE_OVERVIEW_GROUPS = [
     title: 'AI Workspace',
     color: 'blue',
     urls: [
-      'https://chatgpt.com/',
-      'https://claude.ai/login',
-      'https://gemini.google.com/',
-      'https://ai.google.dev/',
+      sampleUrl('assistant/chat'),
+      sampleUrl('assistant/drafts'),
+      sampleUrl('assistant/ideas'),
+      sampleUrl('assistant/studio'),
     ],
   },
   {
     title: 'Productivity',
     color: 'green',
     urls: [
-      'https://www.notion.so/',
-      'https://linear.app/',
-      'https://www.figma.com/',
-      'https://slack.com/',
+      sampleUrl('notebook/workspace'),
+      sampleUrl('plans/roadmap'),
+      sampleUrl('design/review'),
+      sampleUrl('team/messages'),
     ],
   },
   {
@@ -335,10 +217,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'orange',
     collapsed: true,
     urls: [
-      'https://zoom.us/',
-      'https://calendly.com/',
-      'https://airtable.com/',
-      'https://github.com/Canva',
+      sampleUrl('meet/room'),
+      sampleUrl('meet/calendar'),
+      sampleUrl('plans/tracker'),
+      sampleUrl('design/canvas'),
     ],
   },
   {
@@ -346,10 +228,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://github.com/',
-      'https://gitlab.com/',
-      'https://bitbucket.org/',
-      'https://about.gitlab.com/',
+      sampleUrl('projects/board'),
+      sampleUrl('projects/review'),
+      sampleUrl('projects/repository'),
+      sampleUrl('projects/handbook'),
     ],
   },
   {
@@ -357,10 +239,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://vercel.com/',
-      'https://www.netlify.com/',
-      'https://supabase.com/',
-      'https://firebase.google.com/',
+      sampleUrl('hosting/deployments'),
+      sampleUrl('hosting/sites'),
+      sampleUrl('data/workspace'),
+      sampleUrl('data/console'),
     ],
   },
   {
@@ -368,10 +250,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'yellow',
     collapsed: true,
     urls: [
-      'https://www.postman.com/',
-      'https://www.docker.com/',
-      'https://kubernetes.io/',
-      'https://www.typescriptlang.org/',
+      sampleUrl('tooling/requests'),
+      sampleUrl('tooling/containers'),
+      sampleUrl('tooling/clusters'),
+      sampleUrl('docs/types'),
     ],
   },
   {
@@ -379,30 +261,30 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://react.dev/',
-      'https://vuejs.org/',
-      'https://svelte.dev/',
-      'https://nextjs.org/',
+      sampleUrl('docs/components'),
+      sampleUrl('docs/views'),
+      sampleUrl('docs/interfaces'),
+      sampleUrl('docs/routing'),
     ],
   },
   {
     title: 'Web Docs',
     color: 'green',
     urls: [
-      'https://jenny.media/',
-      'https://tab.jenny.media/',
-      'https://developer.mozilla.org/',
-      'https://developer.chrome.com/',
+      sampleUrl('notes/project'),
+      sampleUrl('notes/handbook'),
+      sampleUrl('docs/web'),
+      sampleUrl('docs/browser'),
     ],
   },
   {
     title: 'Languages',
     color: 'red',
     urls: [
-      'https://go.dev/',
-      'https://www.python.org/',
-      'https://www.rust-lang.org/',
-      'https://www.postgresql.org/',
+      sampleUrl('languages/overview'),
+      sampleUrl('languages/tutorial'),
+      sampleUrl('languages/systems'),
+      sampleUrl('data/reference'),
     ],
   },
   {
@@ -410,10 +292,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://aws.amazon.com/',
-      'https://azure.microsoft.com/',
-      'https://cloud.google.com/',
-      'https://www.cloudflare.com/',
+      sampleUrl('cloud/services'),
+      sampleUrl('cloud/workspace'),
+      sampleUrl('cloud/console'),
+      sampleUrl('cloud/network'),
     ],
   },
   {
@@ -421,10 +303,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://render.com/',
-      'https://railway.com/',
-      'https://fly.io/',
-      'https://www.digitalocean.com/',
+      sampleUrl('hosting/apps'),
+      sampleUrl('hosting/projects'),
+      sampleUrl('hosting/regions'),
+      sampleUrl('hosting/servers'),
     ],
   },
   {
@@ -432,10 +314,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'orange',
     collapsed: true,
     urls: [
-      'https://www.heroku.com/',
-      'https://www.mongodb.com/',
-      'https://github.com/redis/redis',
-      'https://stripe.com/',
+      sampleUrl('hosting/pipeline'),
+      sampleUrl('data/collections'),
+      sampleUrl('data/cache'),
+      sampleUrl('business/payments'),
     ],
   },
   {
@@ -443,10 +325,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://miro.com/',
-      'https://www.grammarly.com/',
-      'https://trello.com/',
-      'https://asana.com/',
+      sampleUrl('design/whiteboard'),
+      sampleUrl('writing/review'),
+      sampleUrl('plans/tasks'),
+      sampleUrl('plans/schedule'),
     ],
   },
   {
@@ -454,10 +336,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://monday.com/',
-      'https://clickup.com/',
-      'https://todoist.com/',
-      'https://readwise.io/',
+      sampleUrl('plans/weekly'),
+      sampleUrl('plans/goals'),
+      sampleUrl('plans/today'),
+      sampleUrl('reading/highlights'),
     ],
   },
   {
@@ -465,10 +347,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'orange',
     collapsed: true,
     urls: [
-      'https://www.loom.com/',
-      'https://www.dropbox.com/',
-      'https://www.box.com/',
-      'https://zapier.com/',
+      sampleUrl('watch/recordings'),
+      sampleUrl('files/shared'),
+      sampleUrl('files/archive'),
+      sampleUrl('workflow/automations'),
     ],
   },
   {
@@ -476,10 +358,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://news.ycombinator.com/',
-      'https://www.reddit.com/',
-      'https://dev.to/',
-      'https://github.com/Medium',
+      sampleUrl('community/stories'),
+      sampleUrl('community/home'),
+      sampleUrl('community/articles'),
+      sampleUrl('journal/stories'),
     ],
   },
   {
@@ -487,10 +369,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://substack.com/',
-      'https://github.com/topics/content-creation',
-      'https://lobste.rs/',
-      'https://www.youtube.com/',
+      sampleUrl('journal/letters'),
+      sampleUrl('writing/resources'),
+      sampleUrl('community/links'),
+      sampleUrl('watch/library'),
     ],
   },
   {
@@ -498,10 +380,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'purple',
     collapsed: true,
     urls: [
-      'https://www.wikipedia.org/',
-      'https://www.linkedin.com/',
-      'https://discord.com/',
-      'https://www.twitch.tv/',
+      sampleUrl('reference/home'),
+      sampleUrl('team/network'),
+      sampleUrl('team/chat'),
+      sampleUrl('watch/live'),
     ],
   },
   {
@@ -509,10 +391,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://www.npr.org/',
-      'https://www.bbc.com/',
-      'https://www.theguardian.com/international',
-      'https://apnews.com/',
+      sampleUrl('news/audio'),
+      sampleUrl('news/today'),
+      sampleUrl('news/international'),
+      sampleUrl('news/daily'),
     ],
   },
   {
@@ -520,10 +402,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://www.theverge.com/',
-      'https://arstechnica.com/',
-      'https://techcrunch.com/',
-      'https://www.engadget.com/',
+      sampleUrl('news/technology'),
+      sampleUrl('news/science'),
+      sampleUrl('news/startups'),
+      sampleUrl('news/devices'),
     ],
   },
   {
@@ -531,10 +413,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'red',
     collapsed: true,
     urls: [
-      'https://www.smashingmagazine.com/',
-      'https://css-tricks.com/',
-      'https://web.dev/',
-      'https://blog.mozilla.org/',
+      sampleUrl('journal/design'),
+      sampleUrl('journal/layout'),
+      sampleUrl('guides/accessibility'),
+      sampleUrl('journal/browser'),
     ],
   },
   {
@@ -542,10 +424,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://openrouter.ai/',
-      'https://huggingface.co/',
-      'https://replicate.com/',
-      'https://huggingface.co/blog',
+      sampleUrl('models/routing'),
+      sampleUrl('models/library'),
+      sampleUrl('models/experiments'),
+      sampleUrl('models/journal'),
     ],
   },
   {
@@ -553,10 +435,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://mistral.ai/',
-      'https://stability.ai/',
-      'https://deepmind.google/',
-      'https://www.langchain.com/',
+      sampleUrl('assistant/lab'),
+      sampleUrl('assistant/images'),
+      sampleUrl('research/studies'),
+      sampleUrl('research/workflows'),
     ],
   },
   {
@@ -564,10 +446,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'orange',
     collapsed: true,
     urls: [
-      'https://www.datadoghq.com/',
-      'https://sentry.io/',
-      'https://grafana.com/',
-      'https://prometheus.io/',
+      sampleUrl('metrics/overview'),
+      sampleUrl('metrics/errors'),
+      sampleUrl('metrics/charts'),
+      sampleUrl('metrics/monitoring'),
     ],
   },
   {
@@ -575,10 +457,10 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'blue',
     collapsed: true,
     urls: [
-      'https://tailwindcss.com/',
-      'https://vite.dev/',
-      'https://pnpm.io/',
-      'https://bun.sh/',
+      sampleUrl('styles/utility'),
+      sampleUrl('tooling/build'),
+      sampleUrl('tooling/packages'),
+      sampleUrl('runtime/toolkit'),
     ],
   },
   {
@@ -586,20 +468,20 @@ const DENSE_OVERVIEW_GROUPS = [
     color: 'green',
     collapsed: true,
     urls: [
-      'https://nodejs.org/',
-      'https://github.com/eslint/eslint',
-      'https://github.com/prettier/prettier',
-      'https://github.com/vitest-dev/vitest',
+      sampleUrl('runtime/handbook'),
+      sampleUrl('tooling/checks'),
+      sampleUrl('tooling/formatting'),
+      sampleUrl('testing/unit'),
     ],
   },
   {
     title: 'Testing',
     color: 'yellow',
     urls: [
-      'https://www.youtube.com/@JennyTV1',
-      'https://playwright.dev/',
-      'https://testing-library.com/',
-      'https://github.com/storybookjs/storybook',
+      sampleUrl('watch/project-tour'),
+      sampleUrl('testing/handbook'),
+      sampleUrl('testing/interfaces'),
+      sampleUrl('design/components'),
     ],
   },
 ]
@@ -610,10 +492,10 @@ const DENSE_OVERVIEW_WINDOWS = buildWindowsFromGroupLayout(
   DENSE_OVERVIEW_GROUP_LAYOUT,
 )
 
-function realUrl(key) {
-  const url = REAL_URLS[key]
+function scenarioUrl(key) {
+  const url = SCENARIO_URLS[key]
   if (!url) {
-    throw new Error(`Missing real url mapping for ${key}`)
+    throw new Error(`Missing sample URL mapping for ${key}`)
   }
   return url
 }
@@ -655,6 +537,7 @@ async function initExtensionPage() {
   const context = await chromium.launchPersistentContext(userDataDir, {
     executablePath: process.env.RELEASE_SCREENSHOT_BROWSER_PATH || undefined,
     headless: false,
+    proxy: captureSites.proxy,
     ignoreDefaultArgs: ['--enable-automation'],
     screen: VIEWPORT,
     viewport: VIEWPORT,
@@ -2929,21 +2812,21 @@ async function captureGroupEditing(page, fullPageUrl, theme, controller) {
   const windows = [
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/tab-manager'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('launch/support-plan'),
-        realUrl('launch/rollout-plan'),
-        realUrl('research/tab-groups-api'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/handbook'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('launch/rollout-plan'),
+        scenarioUrl('research/tab-groups-api'),
       ],
       groups: [
         {
-          title: 'Jenny Media',
+          title: 'Project space',
           color: 'green',
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/tab-manager'),
-            realUrl('brand/jenny-youtube'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/handbook'),
+            scenarioUrl('project/walkthrough'),
           ],
         },
       ],
@@ -2995,22 +2878,22 @@ async function captureSearchGroups(page, fullPageUrl, theme, controller) {
   const windows = [
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/tab-manager'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('research/tab-groups-api'),
-        realUrl('launch/support-plan'),
-        realUrl('launch/rollout-plan'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/handbook'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('research/tab-groups-api'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('launch/rollout-plan'),
       ],
       groups: [
         {
-          title: 'Jenny Media',
+          title: 'Project space',
           color: 'blue',
           collapsed: true,
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/tab-manager'),
-            realUrl('brand/jenny-youtube'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/handbook'),
+            scenarioUrl('project/walkthrough'),
           ],
         },
       ],
@@ -3023,7 +2906,7 @@ async function captureSearchGroups(page, fullPageUrl, theme, controller) {
   await waitForScenarioReady(page, scenarioCounts(windows))
   await page.waitForSelector(`[data-testid="tab-group-header-${groupId}"]`)
   const searchInput = page.locator('input[placeholder*="Search tabs or URLs"]')
-  await searchInput.fill('jenny')
+  await searchInput.fill('project')
   await page.waitForTimeout(250)
   return saveScreenshot(
     page,
@@ -3041,47 +2924,47 @@ async function captureDuplicateCleanup(page, fullPageUrl, theme, controller) {
   const windows = [
     {
       tabs: [
-        realUrl('launch/final-checklist'),
-        realUrl('launch/final-checklist'),
-        realUrl('launch/support-plan'),
-        realUrl('launch/support-plan'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('brand/jenny-youtube'),
-        realUrl('support/release-mail'),
-        realUrl('research/firefox-parity'),
-        realUrl('research/firefox-parity'),
-        realUrl('support/docs-ticket'),
+        scenarioUrl('launch/final-checklist'),
+        scenarioUrl('launch/final-checklist'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('launch/support-plan'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('project/walkthrough'),
+        scenarioUrl('support/release-mail'),
+        scenarioUrl('research/firefox-parity'),
+        scenarioUrl('research/firefox-parity'),
+        scenarioUrl('support/docs-ticket'),
       ],
       groups: [
         {
           title: 'Operations',
           color: 'orange',
           urls: [
-            realUrl('launch/final-checklist'),
-            realUrl('launch/support-plan'),
-            realUrl('brand/jenny-youtube'),
-            realUrl('support/release-mail'),
+            scenarioUrl('launch/final-checklist'),
+            scenarioUrl('launch/support-plan'),
+            scenarioUrl('project/walkthrough'),
+            scenarioUrl('support/release-mail'),
           ],
         },
       ],
     },
     {
       tabs: [
-        realUrl('brand/jenny-home'),
-        realUrl('brand/jenny-home'),
-        realUrl('brand/tab-manager'),
-        realUrl('brand/tab-manager'),
-        realUrl('support/customer-4821'),
-        realUrl('support/customer-5104'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/notes'),
+        scenarioUrl('project/handbook'),
+        scenarioUrl('project/handbook'),
+        scenarioUrl('support/customer-4821'),
+        scenarioUrl('support/customer-5104'),
       ],
       groups: [
         {
           title: 'Cleanup Queue',
           color: 'green',
           urls: [
-            realUrl('brand/jenny-home'),
-            realUrl('brand/tab-manager'),
-            realUrl('support/customer-4821'),
+            scenarioUrl('project/notes'),
+            scenarioUrl('project/handbook'),
+            scenarioUrl('support/customer-4821'),
           ],
         },
       ],
@@ -3109,18 +2992,18 @@ async function captureKeyboardShortcuts(page, fullPageUrl, theme, controller) {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('launch/store-copy'),
-        realUrl('launch/final-checklist'),
-        realUrl('launch/rollout-plan'),
+        scenarioUrl('launch/release-roadmap'),
+        scenarioUrl('launch/store-copy'),
+        scenarioUrl('launch/final-checklist'),
+        scenarioUrl('launch/rollout-plan'),
       ],
       groups: [
         {
           title: 'AI Tools',
           color: 'blue',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('launch/store-copy'),
+            scenarioUrl('launch/release-roadmap'),
+            scenarioUrl('launch/store-copy'),
           ],
         },
       ],
@@ -3196,17 +3079,17 @@ async function captureSettings(page, fullPageUrl, theme, controller) {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('research/tab-groups-api'),
-        realUrl('reading/design-refresh'),
+        scenarioUrl('launch/release-roadmap'),
+        scenarioUrl('research/tab-groups-api'),
+        scenarioUrl('reading/design-refresh'),
       ],
       groups: [
         {
           title: 'Workspace',
           color: 'purple',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('research/tab-groups-api'),
+            scenarioUrl('launch/release-roadmap'),
+            scenarioUrl('research/tab-groups-api'),
           ],
         },
       ],
@@ -3232,19 +3115,19 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
   const windows = [
     {
       tabs: [
-        realUrl('launch/release-roadmap'),
-        realUrl('launch/store-copy'),
-        realUrl('reading/accessibility-audit'),
-        realUrl('launch/qa-signoff'),
-        realUrl('brand/jenny-youtube'),
+        scenarioUrl('launch/release-roadmap'),
+        scenarioUrl('launch/store-copy'),
+        scenarioUrl('reading/accessibility-audit'),
+        scenarioUrl('launch/qa-signoff'),
+        scenarioUrl('project/walkthrough'),
       ],
       groups: [
         {
           title: 'AI Tools',
           color: 'blue',
           urls: [
-            realUrl('launch/release-roadmap'),
-            realUrl('launch/store-copy'),
+            scenarioUrl('launch/release-roadmap'),
+            scenarioUrl('launch/store-copy'),
           ],
         },
       ],
@@ -3273,7 +3156,7 @@ async function captureCommandPalette(page, fullPageUrl, theme, controller) {
 async function main() {
   assertExplicitTitleExpectations(
     [
-      ...Object.values(REAL_URLS),
+      ...Object.values(SCENARIO_URLS),
       ...DENSE_OVERVIEW_GROUPS.flatMap((group) => group.urls),
     ],
     'release capture source registry',
@@ -3370,8 +3253,26 @@ async function main() {
 
   let context = null
   let userDataDir = null
+  let candidateDir = null
   const captureStructureSignatureByScenario = new Map()
   try {
+    const candidateVersion = process.env.RELEASE_SCREENSHOT_VERSION
+    if (candidateVersion) {
+      if (!/^\d+\.\d+\.\d+$/.test(candidateVersion))
+        throw new Error('Invalid candidate version')
+      candidateDir = mkdtempSync(join(tmpdir(), 'tmv2-release-candidate-'))
+      cpSync(EXTENSION_PATH, candidateDir, { recursive: true })
+      const manifest = JSON.parse(
+        readFileSync(join(candidateDir, 'manifest.json'), 'utf8'),
+      )
+      manifest.version = candidateVersion
+      writeFileSync(
+        join(candidateDir, 'manifest.json'),
+        JSON.stringify(manifest),
+      )
+      EXTENSION_PATH = candidateDir
+    }
+    captureSites = await startCaptureSites()
     const init = await initExtensionPage()
     context = init.context
     userDataDir = init.userDataDir
@@ -3413,6 +3314,8 @@ async function main() {
     if (context) {
       await context.close()
     }
+    await captureSites?.close()
+    if (candidateDir) rmSync(candidateDir, { recursive: true, force: true })
     if (userDataDir) {
       rmSync(userDataDir, { recursive: true, force: true })
     }

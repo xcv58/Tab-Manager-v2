@@ -2,6 +2,7 @@
 /* global chrome, document, HTMLInputElement, Event, setTimeout, console, URL, fetch, innerWidth, innerHeight, outerWidth, outerHeight, getComputedStyle */
 // Captures the actual built extension in an isolated profile. No store writes.
 import { chromium } from 'playwright'
+import { SAMPLE_SITES, sampleUrl, startCaptureSites } from './capture-sites.mjs'
 import { execFileSync, spawn } from 'node:child_process'
 import { createServer } from 'node:http'
 import {
@@ -53,11 +54,13 @@ if (candidateVersion) {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const viewport = { width: 1280, height: 800 }
 let cleanup = async () => {}
+let captureSites
 
 async function chromiumRuntime() {
   const context = await chromium.launchPersistentContext(profile, {
     executablePath: process.env.STORE_SCREENSHOT_BROWSER_PATH || undefined,
     headless: false,
+    proxy: captureSites.proxy,
     viewport,
     screen: viewport,
     ignoreDefaultArgs: ['--enable-automation'],
@@ -102,6 +105,13 @@ async function firefoxRuntime() {
     .browser_specific_settings.gecko.id
   const prefs = {
     'marionette.port': port + 1,
+    'network.proxy.type': 1,
+    'network.proxy.http': '127.0.0.1',
+    'network.proxy.http_port': captureSites.port,
+    'network.proxy.ssl': '127.0.0.1',
+    'network.proxy.ssl_port': captureSites.port,
+    'network.proxy.no_proxies_on': 'localhost, 127.0.0.1',
+    'network.trr.mode': 5,
     'extensions.webextensions.uuids': JSON.stringify({ [addonId]: uuid }),
     'browser.shell.checkDefaultBrowser': false,
     'browser.startup.homepage_override.mstone': 'ignore',
@@ -274,7 +284,7 @@ async function firefoxRuntime() {
   }
 }
 
-// Real public pages; titles and favicons are read from the browser, never invented.
+// Fictional local pages; titles and favicons still come from real browser tabs.
 const definitions = [
   {
     groups: [
@@ -282,18 +292,18 @@ const definitions = [
         title: 'Work',
         color: 'blue',
         urls: [
-          'https://tab.jenny.media/',
-          'https://github.com/',
-          'https://developer.mozilla.org/',
+          sampleUrl('notes/handbook'),
+          sampleUrl('projects/board'),
+          sampleUrl('docs/web'),
         ],
       },
       {
         title: 'AI tools',
         color: 'purple',
         urls: [
-          'https://chatgpt.com/',
-          'https://huggingface.co/',
-          'https://gemini.google.com/',
+          sampleUrl('assistant/chat'),
+          sampleUrl('models/library'),
+          sampleUrl('assistant/ideas'),
         ],
       },
     ],
@@ -304,18 +314,18 @@ const definitions = [
         title: 'Reading',
         color: 'green',
         urls: [
-          'https://www.wikipedia.org/',
-          'https://news.ycombinator.com/',
-          'https://jenny.media/',
+          sampleUrl('reference/home'),
+          sampleUrl('community/stories'),
+          sampleUrl('notes/project'),
         ],
       },
       {
         title: 'Watch later',
         color: 'orange',
         urls: [
-          'https://www.youtube.com/@JennyTV1',
-          'https://www.youtube.com/',
-          'https://www.bbc.com/',
+          sampleUrl('watch/project-tour'),
+          sampleUrl('watch/library'),
+          sampleUrl('news/today'),
         ],
       },
     ],
@@ -326,18 +336,18 @@ const definitions = [
         title: 'Research',
         color: 'cyan',
         urls: [
-          'https://react.dev/',
-          'https://web.dev/',
-          'https://developer.chrome.com/',
+          sampleUrl('docs/components'),
+          sampleUrl('guides/accessibility'),
+          sampleUrl('docs/browser'),
         ],
       },
       {
         title: 'Extra copies',
         color: 'red',
         urls: [
-          'https://github.com/',
-          'https://jenny.media/',
-          'https://tab.jenny.media/',
+          sampleUrl('projects/board'),
+          sampleUrl('notes/project'),
+          sampleUrl('notes/handbook'),
         ],
       },
     ],
@@ -382,6 +392,7 @@ const scenes = [
 ]
 
 async function main() {
+  captureSites = await startCaptureSites()
   const runtime =
     kind === 'firefox' ? await firefoxRuntime() : await chromiumRuntime()
   const waitFor = async (fn, argument, timeout = 30000) => {
@@ -491,20 +502,47 @@ async function main() {
     return { windows: result, controllerId: controller.id }
   }, definitions)
   console.log(`${kind} ${runtime.version}: created 3 windows and 19 tabs`)
+  // Edge can defer loading background-tab icons until a tab is activated.
+  // Visit each real sample tab before recording, then restore the controller.
+  if (kind === 'edge') {
+    await runtime.run(async ({ windows, controllerId }) => {
+      for (const win of windows) {
+        for (const id of win.tabIds) {
+          await chrome.tabs.update(id, { active: true })
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        }
+      }
+      await chrome.tabs.update(controllerId, { active: true })
+    }, fixture)
+  }
   await waitFor(
     async (ids) => {
       const api = typeof browser === 'object' ? browser : chrome
       const tabs = await Promise.all(ids.map((id) => api.tabs.get(id)))
       return tabs.every(
         (tab) =>
-          /^https:/.test(tab.url || '') &&
+          /^http:\/\/[^/]+\.example\.test\//.test(tab.url || '') &&
           !!tab.title?.trim() &&
+          !!tab.favIconUrl &&
           tab.status === 'complete',
       )
     },
     fixture.windows.flatMap((win) => win.tabIds),
-    120000,
-  )
+    30000,
+  ).catch(async (error) => {
+    const diagnostics = await runtime.run(async () => {
+      const api = typeof browser === 'object' ? browser : chrome
+      return (await api.tabs.query({})).map(
+        ({ title, url, favIconUrl, status }) => ({
+          title,
+          url,
+          favIconUrl,
+          status,
+        }),
+      )
+    })
+    throw new Error(`${error.message}\n${JSON.stringify(diagnostics)}`)
+  })
   const sourceTabs = await runtime.run(async () => {
     const api = typeof browser === 'object' ? browser : chrome
     return (await api.tabs.query({})).map(
@@ -522,6 +560,17 @@ async function main() {
     join(destination, 'source-tabs.json'),
     JSON.stringify(sourceTabs, null, 2),
   )
+  for (const tab of sourceTabs.filter(
+    (tab) =>
+      !tab.url.startsWith('chrome-extension:') &&
+      !tab.url.startsWith('moz-extension:'),
+  )) {
+    const site = Object.values(SAMPLE_SITES).find(
+      (site) => site.url === tab.url,
+    )
+    if (!site || tab.title !== site.title || !tab.favIconUrl)
+      throw new Error('Sample tab metadata mismatch: ' + JSON.stringify(tab))
+  }
   const blocked = sourceTabs.filter((tab) =>
     /just a moment|access denied|internal server error|captcha|page not found|security check/i.test(
       tab.title,
@@ -616,7 +665,7 @@ async function main() {
             ),
           )
         }
-        await fill('input[placeholder="Search tabs or URLs"]', 'jenny')
+        await fill('input[placeholder="Search tabs or URLs"]', 'project')
       } else if (scene.id === '02-organize-groups') {
         const id = fixture.windows[0].groups[0].id
         await click(`[data-testid="tab-group-menu-${id}"]`)
@@ -742,6 +791,7 @@ async function main() {
         browser: kind,
         browserVersion: runtime.version,
         sourceCommit,
+        fixtures: captureSites.provenance(),
         capturedAt: new Date().toISOString(),
         extensionVersion:
           candidateVersion ||
@@ -762,5 +812,6 @@ try {
   await main()
 } finally {
   await cleanup()
+  await captureSites?.close()
   rmSync(profile, { recursive: true, force: true })
 }

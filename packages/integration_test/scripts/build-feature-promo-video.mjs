@@ -12,6 +12,8 @@ import {
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { chromium } from 'playwright'
+import { createHash } from 'node:crypto'
+import { SAMPLE_SITES } from './capture-sites.mjs'
 
 const ROOT_DIR =
   process.env.CAPTURE_ROOT_DIR ||
@@ -746,6 +748,29 @@ function writeChapters() {
 async function main() {
   ensureExists(VIDEO_DIR, 'captured feature clip directory')
   ensureExists(ICON_PATH, 'extension icon')
+  const manifest = JSON.parse(
+    readFileSync(
+      join(ROOT_DIR, '.tmp/video-captures/capture-manifest.json'),
+      'utf8',
+    ),
+  )
+  const catalogueHash = createHash('sha256')
+    .update(JSON.stringify(SAMPLE_SITES))
+    .digest('hex')
+  if (manifest.catalogueSha256 !== catalogueHash)
+    throw new Error(
+      'Recapture the feature clips with the current local sample websites',
+    )
+  for (const clip of CLIPS) {
+    const recording = manifest.recordings.find((entry) => entry.id === clip.id)
+    const path = join(VIDEO_DIR, `${clip.id}.mp4`)
+    if (
+      !recording ||
+      recording.sha256 !==
+        createHash('sha256').update(readFileSync(path)).digest('hex')
+    )
+      throw new Error(`Stale or missing local capture: ${clip.id}`)
+  }
 
   rmSync(PROMO_DIR, { recursive: true, force: true })
   mkdirSync(SEGMENT_DIR, { recursive: true })
@@ -776,6 +801,22 @@ async function main() {
 
   xfadeSegments(segmentPaths)
   writeChapters()
+  writeFileSync(
+    join(PROMO_DIR, 'provenance.json'),
+    JSON.stringify(
+      {
+        catalogueSha256: catalogueHash,
+        inputClips: manifest.recordings.filter((entry) =>
+          CLIPS.some((clip) => clip.id === entry.id),
+        ),
+        sha256: createHash('sha256')
+          .update(readFileSync(OUTPUT_PATH))
+          .digest('hex'),
+      },
+      null,
+      2,
+    ),
+  )
   console.log(OUTPUT_PATH)
 }
 
