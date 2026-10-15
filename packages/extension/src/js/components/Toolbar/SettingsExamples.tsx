@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useLayoutEffect, useMemo, useRef } from 'react'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
@@ -246,38 +246,19 @@ export const WindowLayoutExample = observer(function WindowLayoutExample() {
   )
 })
 
-// Measure the sticky heading so a large reading size never obscures the preview.
+// Share the scroll surface's measured sticky height with every preview.
 export function SettingsPreviewLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [headingHeight, setHeadingHeight] = useState(0)
-  useLayoutEffect(() => {
-    const heading = ref.current
-      ?.closest('.settings-section')
-      ?.querySelector<HTMLElement>('.settings-section-heading')
-    if (!heading) return
-    const measure = () =>
-      setHeadingHeight(heading.getBoundingClientRect().height)
-    const resizeObserver =
-      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
-    resizeObserver?.observe(heading)
-    window.addEventListener('resize', measure)
-    measure()
-    return () => {
-      resizeObserver?.disconnect()
-      window.removeEventListener('resize', measure)
-    }
-  }, [])
   return (
     <div
-      ref={ref}
       className="settings-preview-layout"
       style={
         {
-          '--settings-preview-top': headingHeight + 12 + 'px',
+          '--settings-preview-top':
+            'calc(var(--settings-sticky-height, 80px) + 4px)',
         } as React.CSSProperties
       }
     >

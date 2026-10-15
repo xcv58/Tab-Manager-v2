@@ -128,13 +128,20 @@ const PaletteDialog = observer(function PaletteDialog() {
       style={{
         width: 580,
         maxWidth: 'calc(100vw - 24px)',
+        maxHeight: 'calc(100dvh - 24px)',
         margin: 12,
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: 12,
       }}
     >
       <div
-        style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        className="command-palette-layout"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          overflow: 'hidden',
+        }}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault()
@@ -195,14 +202,14 @@ const PaletteDialog = observer(function PaletteDialog() {
               color: 'inherit',
               width: '100%',
               minWidth: 0,
-              fontSize: 14,
+              fontSize: '1rem',
             }}
           />
         </div>
         <p
           id={contextId}
           title={context}
-          className="line-clamp-2 px-4 py-2 text-xs break-words"
+          className="command-palette-context line-clamp-2 px-4 py-2 text-xs break-words"
           style={{ color: theme.palette.text.secondary }}
         >
           {context}
@@ -249,8 +256,9 @@ const PaletteDialog = observer(function PaletteDialog() {
           aria-busy={actionStore.busy}
           style={{
             overflowY: 'auto',
+            flex: '1 1 auto',
             minHeight: 0,
-            maxHeight: 'min(420px, calc(100vh - 220px))',
+            maxHeight: 420,
             margin: 0,
             padding: '0 6px 6px',
             listStyle: 'none',
@@ -352,7 +360,11 @@ const PaletteDialog = observer(function PaletteDialog() {
           </p>
         )}
         {actionStore.error && (
-          <div className="px-4 py-3 text-sm" data-testid="palette-action-error">
+          <div
+            className="command-palette-error px-4 py-3 text-sm"
+            data-testid="palette-action-error"
+            style={{ minHeight: 0, overflowY: 'auto' }}
+          >
             <p role="alert">{actionStore.error}</p>
             <div className="mt-2 flex gap-2">
               {actionStore.failedMove && (

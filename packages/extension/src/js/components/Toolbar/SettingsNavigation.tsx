@@ -35,6 +35,14 @@ const matches = (text: string, query: string) =>
     .split(/\s+/)
     .every((word) => text.toLocaleLowerCase().includes(word))
 
+// Short views pin only the title; spacious views pin its description too.
+const stickyHeadings = (container: Element) =>
+  Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '.settings-section-header, .settings-section-heading',
+    ),
+  ).filter((heading) => getComputedStyle(heading).position === 'sticky')
+
 const controlText = (nodes: React.ReactNode): string =>
   React.Children.toArray(nodes)
     .map((node) => {
@@ -142,8 +150,7 @@ export default function SettingsNavigation({
     setMoreBelow(
       container.scrollHeight - container.scrollTop - container.clientHeight > 1,
     )
-    const heights = Array.from(
-      container.querySelectorAll<HTMLElement>('.settings-section-heading'),
+    const heights = stickyHeadings(container).map(
       (heading) => heading.getBoundingClientRect().height,
     )
     container.style.setProperty(
@@ -162,9 +169,8 @@ export default function SettingsNavigation({
     const target = event.target as HTMLElement
     // Tooltip portals have their own position and focus handling.
     if (!container?.contains(target) || target === container) return
-    const heading = target
-      .closest('.settings-section')
-      ?.querySelector<HTMLElement>('.settings-section-heading')
+    const section = target.closest('.settings-section')
+    const heading = section ? stickyHeadings(section)[0] : undefined
     if (heading?.contains(target)) return
     const viewport = container.getBoundingClientRect()
     // A switch's clipped checkbox is not its visible track or row focus ring.

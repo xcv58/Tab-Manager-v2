@@ -97,9 +97,12 @@ body {
 .tab-details-status:empty {
   display: none;
 }
+.group-color-option:hover {
+  background-color: var(--group-color-hover);
+}
 .group-color-option:focus-visible {
   outline: 2px solid var(--group-color-focus);
-  outline-offset: 3px;
+  outline-offset: 1px;
 }
 
 .toolbar {
@@ -494,7 +497,7 @@ body {
 .settings-section + .settings-section {
   border-top: 1px solid var(--settings-section-border);
 }
-.settings-section-heading {
+.settings-section-header {
   position: sticky;
   top: 0;
   z-index: 2;
@@ -787,6 +790,25 @@ body {
   padding: 12px 24px;
   border-top: 1px solid var(--settings-border);
 }
+.settings-footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+  font-size: clamp(12px, 0.875rem, 14px);
+  opacity: 0.8;
+}
+.settings-footer-links a {
+  padding: 4px;
+  font-size: inherit;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.settings-footer-links > span {
+  font-size: 12px;
+  line-height: 1.4;
+}
 .settings-done {
   flex-shrink: 0;
   padding: 8px 24px;
@@ -809,7 +831,7 @@ body {
   .settings-scroll {
     padding: 0 0 12px;
   }
-  .settings-section-heading {
+  .settings-section-header {
     min-height: auto;
     padding: 12px 24px;
   }
@@ -828,6 +850,32 @@ body {
   .settings-footer {
     padding: 12px;
   }
+  .settings-done {
+    padding-inline: 16px;
+  }
+}
+@media (max-height: 760px) {
+  .settings-section-header {
+    display: contents;
+  }
+  .settings-section-heading {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 49% 12px 24px;
+    background: var(--settings-surface);
+  }
+  .settings-section-description {
+    padding: 0 49% 12px 24px;
+  }
+}
+@media (max-height: 760px) and (max-width: 600px) {
+  .settings-section-heading {
+    padding: 12px 24px;
+  }
+  .settings-section-description {
+    padding: 0 24px 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -844,6 +892,28 @@ body {
   margin: 16px 12px 8px;
   font-size: 0.8125rem;
   font-weight: 600;
+}
+
+.action-menu-item > svg,
+.action-menu-item > [aria-hidden='true'],
+.action-menu-item > kbd {
+  flex-shrink: 0;
+}
+.action-menu-item > span {
+  min-width: 0;
+}
+
+.command-palette-layout > :not([role='listbox']):not(.command-palette-error) {
+  flex-shrink: 0;
+}
+@media (max-height: 700px), (max-width: 600px) {
+  .command-palette-context {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: unset;
+  }
 }
 
 .shortcut-run-cell {
