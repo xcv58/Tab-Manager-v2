@@ -1936,3 +1936,107 @@ code {
 .faq-item .permission-details p {
   padding: 16px 0 0;
 }
+
+/* Shared header: appearance stays at the physical right of the first row. */
+.site-header {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  align-items: start;
+  direction: ltr;
+}
+.site-header > .logo {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+.site-header .logo img {
+  flex-shrink: 0;
+}
+.site-header > .nav-wrapper {
+  grid-column: 2;
+  grid-row: 1;
+  order: 0;
+  min-width: 0;
+  max-width: 100%;
+  align-items: start;
+}
+.site-header > .theme-toggle {
+  grid-column: 3;
+  grid-row: 1;
+  order: 0;
+  width: 44px;
+  height: 44px;
+}
+.site-header [hidden] {
+  display: none !important;
+}
+@media (max-width: 1050px) {
+  .site-header,
+  .site-header[data-menu-ready] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0 8px;
+    padding: 10px 0;
+  }
+  .site-header > .logo {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: clamp(0.95rem, 3.8vw, 1.1rem);
+    gap: 8px;
+  }
+  .site-header > .site-menu-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+  }
+  .site-header > .theme-toggle {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .site-header[data-menu-ready] > .site-menu-toggle {
+    display: inline-flex;
+  }
+  .site-header > .nav-wrapper,
+  .site-header[data-menu-ready] > .nav-wrapper {
+    display: flex;
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    order: 0;
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    margin: 10px 0 0;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-color);
+    box-shadow: none;
+  }
+  .site-header .nav-links {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 2px;
+  }
+  .site-header .nav-links a {
+    min-height: var(--tap-target-size);
+    padding: 8px 12px;
+  }
+  .site-header .language-select-wrap {
+    max-width: 100%;
+  }
+  .site-header .language-select {
+    min-height: var(--tap-target-size);
+    max-width: 100%;
+  }
+}
+
+/* Navigation must remain visible when optional enhancement scripts are unavailable. */
+.site-header.fade-in {
+  opacity: 1;
+  transform: none;
+}

@@ -261,3 +261,10 @@ This outputs packaged browser builds under `packages/extension/build/`.
 ## Thanks
 
 The default favicon is made by [Lyolya](https://www.flaticon.com/authors/lyolya) from [Flaticon](https://www.flaticon.com) and is licensed under [Creative Commons BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+
+### Public website header
+
+The shared website header keeps appearance at the physical top right. Through
+1050 px, its menu opens the existing links and language selector; without that
+script the links remain visible. The same header is used by the overview, demo,
+support, and privacy routes. Website controls do not change extension behavior.

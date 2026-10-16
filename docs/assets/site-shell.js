@@ -207,6 +207,7 @@
     }
     const toggle = document.getElementById('theme-toggle')
     if (toggle) {
+      toggle.hidden = false
       const nextAppearance = resolvedTheme === 'dark' ? 'light' : 'dark'
       const label =
         nextAppearance === 'dark'
@@ -311,68 +312,145 @@
   }
   applyPreferences()
 
+  function initializeHeaderMenu({ header, control, panel, breakpoint, label }) {
+    if (!header || !control || !panel) return
+    const phone = window.matchMedia(`(max-width: ${breakpoint}px)`)
+    let lastHeaderFocus = null
+    const isOpen = () => phone.matches && !panel.hidden
+    const setOpen = (open) => {
+      panel.hidden = phone.matches && !open
+      control.setAttribute('aria-expanded', String(phone.matches && open))
+      control.setAttribute('aria-label', label(phone.matches && open))
+      control.title = control.getAttribute('aria-label')
+      if (!open)
+        panel.querySelectorAll('details[open]').forEach((details) => {
+          details.open = false
+        })
+    }
+    const close = (returnFocus = false) => {
+      const wasOpen = isOpen()
+      setOpen(false)
+      if (wasOpen && returnFocus) control.focus({ preventScroll: true })
+    }
+    const sync = () => {
+      // CSS may hide the focused link before the media-query event reaches us.
+      const active =
+        document.activeElement === document.body
+          ? lastHeaderFocus
+          : document.activeElement
+      const panelFocused = !!active && panel.contains(active)
+      const menuFocused = active === control
+      control.hidden = !phone.matches
+      setOpen(false)
+      // Match the visible reading order while retaining one set of native links.
+      if (phone.matches) {
+        if (header.lastElementChild !== panel) header.append(panel)
+      } else if (panel.nextElementSibling !== control)
+        header.insertBefore(panel, control)
+      if (phone.matches && panelFocused) control.focus({ preventScroll: true })
+      else if (!phone.matches && (panelFocused || menuFocused)) {
+        const destination = panelFocused
+          ? active
+          : panel.querySelector('a, summary, select, button')
+        destination?.focus({ preventScroll: true })
+      }
+    }
+    header.addEventListener('focusin', (event) => {
+      lastHeaderFocus = event.target
+    })
+    document.addEventListener('focusin', (event) => {
+      if (!header.contains(event.target)) {
+        lastHeaderFocus = null
+        close()
+      }
+    })
+    document.addEventListener(
+      'pointerdown',
+      (event) => {
+        if (!header.contains(event.target)) {
+          lastHeaderFocus = null
+          close()
+        }
+      },
+      true,
+    )
+    control.addEventListener('click', () => setOpen(!isOpen()))
+    document.addEventListener('click', (event) => {
+      if (!header.contains(event.target)) close()
+    })
+    header.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && !header.contains(event.relatedTarget)) close()
+    })
+    window.addEventListener('blur', () => {
+      // Focus entering the embedded demo does not dispatch parent focusin.
+      if (document.activeElement instanceof HTMLIFrameElement) {
+        lastHeaderFocus = null
+        close()
+      }
+    })
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key !== 'Escape' || !isOpen()) return
+        // Let the existing language disclosure handle its own first Escape.
+        if (event.target.closest?.('details[open]')) return
+        event.preventDefault()
+        close(true)
+      },
+      true,
+    )
+    panel.addEventListener('click', (event) => {
+      const link = event.target.closest('a')
+      if (
+        !link ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        event.button
+      )
+        return
+      close()
+      const target = new URL(link.href)
+      if (
+        target.origin === location.origin &&
+        target.pathname === location.pathname &&
+        target.search === location.search &&
+        target.hash
+      ) {
+        const destination = document.getElementById(
+          decodeURIComponent(target.hash.slice(1)),
+        )
+        if (destination) {
+          destination.tabIndex = -1
+          destination.focus({ preventScroll: true })
+        }
+      }
+    })
+    phone.addEventListener('change', sync)
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) sync()
+    })
+    header.setAttribute('data-header-ready', '')
+    sync()
+  }
+
   function ready() {
     const header = document.querySelector('.site-header')
     const menuToggle = document.getElementById('site-menu-toggle')
     const navigation = document.getElementById('site-navigation')
     if (header && menuToggle && navigation) {
-      const mobile = window.matchMedia('(max-width: 768px)')
-      const setMenuOpen = (open, restoreFocus = false) => {
-        header.setAttribute('data-menu-open', String(open && mobile.matches))
-        menuToggle.setAttribute('aria-expanded', String(open && mobile.matches))
-        updateControls()
-        if (restoreFocus && mobile.matches)
-          menuToggle.focus({ preventScroll: true })
-      }
-      const fitMenu = () => {
-        if (!mobile.matches) return
-        const viewport = window.visualViewport
-        const bottom = viewport
-          ? viewport.offsetTop + viewport.height
-          : window.innerHeight
-        header.style.setProperty(
-          '--site-menu-height',
-          `${Math.max(0, bottom - header.getBoundingClientRect().bottom - 12)}px`,
-        )
-      }
+      initializeHeaderMenu({
+        header,
+        control: menuToggle,
+        panel: navigation,
+        breakpoint: 1050,
+        label: (open) =>
+          open
+            ? text('Close menu', '关闭菜单', '關閉選單')
+            : text('Open menu', '打开菜单', '開啟選單'),
+      })
       header.setAttribute('data-menu-ready', '')
-      menuToggle.addEventListener('click', () => {
-        fitMenu()
-        setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true')
-      })
-      navigation.addEventListener('click', (event) => {
-        if (event.target instanceof Element && event.target.closest('a'))
-          setMenuOpen(false, true)
-      })
-      document.addEventListener('click', (event) => {
-        if (event.target instanceof Node && !header.contains(event.target))
-          setMenuOpen(false)
-      })
-      header.addEventListener('focusout', (event) => {
-        if (event.relatedTarget && !header.contains(event.relatedTarget))
-          setMenuOpen(false)
-      })
-      document.addEventListener('keydown', (event) => {
-        if (
-          event.key === 'Escape' &&
-          menuToggle.getAttribute('aria-expanded') === 'true'
-        ) {
-          setMenuOpen(false, true)
-        }
-      })
-      mobile.addEventListener('change', () => {
-        setMenuOpen(false, navigation.contains(document.activeElement))
-        fitMenu()
-      })
-      window.addEventListener('resize', fitMenu)
-      window.addEventListener('scroll', fitMenu, { passive: true })
-      window.visualViewport?.addEventListener('resize', fitMenu)
-      window.visualViewport?.addEventListener('scroll', fitMenu)
-      window.addEventListener('blur', () => {
-        if (document.activeElement instanceof HTMLIFrameElement)
-          setMenuOpen(false)
-      })
-      fitMenu()
     }
     updateControls()
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
