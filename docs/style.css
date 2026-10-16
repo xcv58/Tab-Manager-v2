@@ -2025,6 +2025,9 @@ code {
 .site-header[data-menu-compact] .language-select {
   max-width: 100%;
 }
+.site-header[data-menu-compact] .language-select-wrap {
+  align-self: flex-start;
+}
 @media (max-width: 1050px) {
   .site-header,
   .site-header[data-menu-ready] {
@@ -2084,6 +2087,7 @@ code {
   }
   .site-header .language-select-wrap {
     max-width: 100%;
+    align-self: flex-start;
   }
   .site-header .language-select {
     min-height: var(--tap-target-size);
