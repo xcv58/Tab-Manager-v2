@@ -19,7 +19,7 @@ const IndicatorIcon = ({ toolbarVisible }: { toolbarVisible: boolean }) => {
   return <KeyboardArrowLeftIcon />
 }
 
-export default observer(() => {
+export default observer(({ heldOpen = false }: { heldOpen?: boolean }) => {
   const theme = useAppTheme()
   const { userStore } = useStore()
   const uiColors = getUiColorTokens(
@@ -57,7 +57,12 @@ export default observer(() => {
           borderRadius: 0,
         }}
         className="focus:outline-none"
-        disabled={!toolbarAutoHide}
+        disabled={!toolbarAutoHide || heldOpen}
+        title={
+          heldOpen
+            ? 'The toolbar stays open while tabs are selected or a menu is open'
+            : undefined
+        }
         onFocus={showToolbar}
         onMouseEnter={showToolbar}
         onClick={() => {
@@ -72,7 +77,7 @@ export default observer(() => {
       >
         <Fade in>
           <div>
-            <IndicatorIcon {...{ toolbarVisible }} />
+            <IndicatorIcon toolbarVisible={toolbarVisible || heldOpen} />
           </div>
         </Fade>
       </IconButton>

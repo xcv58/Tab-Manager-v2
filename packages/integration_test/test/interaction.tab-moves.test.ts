@@ -61,6 +61,14 @@ const selectTabs = async (tabIds: number[]) => {
     await checkbox.focus()
     await checkbox.check()
   }
+  // Keep destination rows available for these menu/shortcut move scenarios.
+  const collapse = page.getByRole('button', { name: /Collapse actions for/ })
+  if (await collapse.isVisible()) {
+    await collapse.click()
+    await expect(
+      page.getByRole('button', { name: /Expand actions for/ }),
+    ).toBeFocused()
+  }
 }
 
 const readWindowOrder = (windowId: number) =>
@@ -106,8 +114,7 @@ test.describe('Selected tab move regressions', () => {
         await selectTabs([ids[1], ids[3]])
         const destination = page.getByTestId(`tab-row-${ids[5]}`)
         if (method === 'menu') {
-          await destination.hover()
-          await destination.getByRole('button', { name: 'Tab actions' }).click()
+          await destination.press('Shift+F10')
           await page
             .getByRole('menuitem', {
               name: new RegExp(
@@ -201,8 +208,7 @@ test.describe('Selected tab move regressions', () => {
       await reloadPopup()
       await selectTabs(source.slice(1, 3))
       const target = page.getByTestId(`tab-row-${destination[before ? 1 : 0]}`)
-      await target.hover()
-      await target.getByRole('button', { name: 'Tab actions' }).click()
+      await target.press('Shift+F10')
       await page
         .getByRole('menuitem', {
           name: new RegExp(`^Move .* ${before ? 'before' : 'after'} this tab$`),

@@ -2,8 +2,31 @@ import SearchStore, { matchesSearchText } from 'stores/SearchStore'
 import { browser, NOT_POPUP } from 'libs'
 import log from 'libs/log'
 import { autorun, runInAction } from 'mobx'
+import TabStore from 'stores/TabStore'
 
 describe('SearchStore', () => {
+  it('toggles only matching tabs while Clear removes hidden selections too', () => {
+    const tabs = [
+      { id: 1, title: 'Alpha', url: '', isVisible: true },
+      { id: 2, title: 'Beta', url: '', isVisible: true },
+    ]
+    const store = {
+      windowStore: { tabs },
+      userStore: { showUrl: false, searchHistory: false },
+    } as any
+    store.tabStore = new TabStore(store)
+    const search = new SearchStore(store)
+    runInAction(() => {
+      search._query = 'Alpha'
+    })
+    store.tabStore.selectAll(tabs)
+    search.toggleSelectAll()
+    expect([...store.tabStore.selection.keys()]).toEqual([2])
+    search.toggleSelectAll()
+    expect([...store.tabStore.selection.keys()]).toEqual([2, 1])
+    search.unselectAll()
+    expect(store.tabStore.selection.size).toBe(0)
+  })
   afterEach(() => {
     jest.restoreAllMocks()
     document.body.innerHTML = ''

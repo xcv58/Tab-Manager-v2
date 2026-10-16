@@ -5,6 +5,12 @@ import { StoreContext } from 'components/hooks/useStore'
 import { browser } from 'libs'
 import UserStore from 'stores/UserStore'
 import ToolbarDock from '..'
+import { withActionStore } from '__testutils__/actionStore'
+
+jest.mock('../SelectionToolbar', () => ({
+  __esModule: true,
+  default: () => null,
+}))
 
 jest.mock('../Toolbar', () => ({
   __esModule: true,
@@ -31,11 +37,11 @@ const setup = async () => {
   const { container } = render(
     <StoreContext.Provider
       value={
-        {
+        withActionStore({
           userStore,
           tabStore: { selection },
           dragStore: { dragging: false },
-        } as any
+        }) as any
       }
     >
       <ToolbarDock />

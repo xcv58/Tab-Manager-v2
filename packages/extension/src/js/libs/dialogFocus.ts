@@ -14,17 +14,22 @@ export const captureDialogFocusTarget = (): HTMLElement | null => {
 
 export const restoreDialogFocusTarget = (
   focusTarget: HTMLElement | null | (() => HTMLElement | null),
+  fallback?: () => HTMLElement | null,
 ): void => {
-  if (!focusTarget || typeof window === 'undefined') {
+  if ((!focusTarget && !fallback) || typeof window === 'undefined') {
     return
   }
 
   window.requestAnimationFrame(() => {
-    const target =
-      typeof focusTarget === 'function' ? focusTarget() : focusTarget
-    if (!target?.isConnected || target.hasAttribute('disabled')) {
-      return
-    }
+    let target = typeof focusTarget === 'function' ? focusTarget() : focusTarget
+    const isAvailable = (element: HTMLElement | null): element is HTMLElement =>
+      !!(
+        element?.isConnected &&
+        !element.hasAttribute('disabled') &&
+        !element.closest('[hidden], [aria-hidden="true"], [inert]')
+      )
+    if (!isAvailable(target)) target = fallback?.() || null
+    if (!isAvailable(target)) return
     target.focus({ preventScroll: true })
   })
 }

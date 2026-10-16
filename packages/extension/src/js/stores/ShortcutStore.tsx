@@ -3,6 +3,7 @@ import { getWindowLabel } from 'libs/windowLabel'
 import TabGroupRow from './TabGroupRow'
 import Mousetrap from 'mousetrap'
 import { getCommandPaletteShortcut } from 'libs/commandPaletteShortcut'
+import { TOOLBAR_FOCUS_SHORTCUT } from 'libs/toolbarFocusShortcut'
 import { isLiteShortcut } from 'libs/litePopup'
 import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
 import { getNoun, openInNewTab } from 'libs'
@@ -44,6 +45,30 @@ const hasFocusedElement = () => {
 
 const settingsDialogAllowedCombos = new Set(['escape', '?', 'ctrl+/', 'ctrl+,'])
 
+// Keep text editing and printable shortcut sequences local to the search field.
+// Modifier actions use the same commands as the palette, including busy guards.
+const selectionPaletteCommandIds: Record<string, string> = {
+  'ctrl+r': 'reload-selection',
+  'ctrl+p': 'pin-selection',
+  'ctrl+u': 'invert-selection',
+  'ctrl+n': 'clear-selection',
+  'ctrl+m': 'select-all-matching',
+  'ctrl+8': 'select-matching',
+  'ctrl+s': 'sort-all',
+  'shift+ctrl+s': 'cluster-all',
+  'shift+ctrl+c': 'clean-duplicates',
+  'ctrl+o': 'open-app-tab',
+  'ctrl+i': 'theme',
+  'ctrl+,': 'settings',
+  'ctrl+/': 'help',
+}
+const selectionPaletteAllowedCombos = new Set([
+  ...Object.keys(selectionPaletteCommandIds),
+  getCommandPaletteShortcut(),
+  'command+shift+p',
+  TOOLBAR_FOCUS_SHORTCUT,
+])
+
 export type ShortcutHelpAction = {
   label: string
   disabledReason?: string
@@ -80,6 +105,7 @@ export default class ShortcutStore {
   inputShortcutSet = new Set([
     'escape',
     getCommandPaletteShortcut(),
+    TOOLBAR_FOCUS_SHORTCUT,
     'command+shift+p',
     'ctrl+enter',
     'ctrl+h',
@@ -92,6 +118,7 @@ export default class ShortcutStore {
     'shift+ctrl+s',
     'ctrl+x',
     'ctrl+r',
+    'ctrl+u',
     'ctrl+g',
     'ctrl+8',
     'ctrl+m',
@@ -105,6 +132,14 @@ export default class ShortcutStore {
   ])
 
   shortcuts: ShortcutDefinition[] = [
+    [
+      TOOLBAR_FOCUS_SHORTCUT,
+      (event: Event) => {
+        preventDefault(event)
+        this.store.actionStore.focusToolbar()
+      },
+      'Focus toolbar',
+    ],
     [
       'alt+down',
       (event: Event) => {
@@ -172,7 +207,8 @@ export default class ShortcutStore {
     ],
     [
       ['r', 'ctrl+r'],
-      () => {
+      (event: Event) => {
+        preventDefault(event)
         this.store.reload()
       },
       'Reload tab',
@@ -564,6 +600,8 @@ export default class ShortcutStore {
     // Details controls keep native text copying and keyboard interaction, but
     // must never invoke the workspace's printable or modifier shortcuts.
     if (element.closest?.('[data-tab-details-panel]')) return true
+    if (element.closest?.('[data-selection-palette]'))
+      return !selectionPaletteAllowedCombos.has(combo)
     if (this.store.actionStore?.paletteOpen) {
       return true
     }
@@ -612,6 +650,17 @@ export default class ShortcutStore {
       Mousetrap.bind(key, (e, combo) => {
         this.combo = `${formatTabMoveShortcut(combo)}: ${getDescription(description)}`
         this.openToast()
+        if (
+          (e.target as HTMLElement)?.closest?.('[data-selection-palette]') &&
+          selectionPaletteCommandIds[combo]
+        ) {
+          preventDefault(e)
+          const command = this.store.actionStore
+            .getCommands({ includeSteps: false })
+            .find((item) => item.id === selectionPaletteCommandIds[combo])
+          if (command) void this.store.actionStore.execute(command)
+          return
+        }
         func(e)
       }),
     )
@@ -853,7 +902,10 @@ export default class ShortcutStore {
 
   closeDialog = () => {
     this.dialogOpen = false
-    restoreDialogFocusTarget(this.dialogFocusTarget)
+    restoreDialogFocusTarget(
+      this.dialogFocusTarget,
+      () => this.store.searchStore?.getSearchInputEl?.() || null,
+    )
     this.dialogFocusTarget = null
   }
 }

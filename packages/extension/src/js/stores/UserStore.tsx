@@ -357,7 +357,10 @@ export default class UserStore {
 
   closeDialog = () => {
     this.dialogOpen = false
-    restoreDialogFocusTarget(this.dialogFocusTarget)
+    restoreDialogFocusTarget(
+      this.dialogFocusTarget,
+      () => this.store.searchStore?.getSearchInputEl?.() || null,
+    )
     this.dialogFocusTarget = null
   }
 

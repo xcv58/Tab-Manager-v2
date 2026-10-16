@@ -8,17 +8,16 @@ import { useStore } from 'components/hooks/useStore'
 export default observer(() => {
   const { searchStore } = useStore()
   const { allTabSelected, someTabSelected, matchedTabs } = searchStore
-  const title = (allTabSelected ? 'Unselect' : 'Select') + ' all tabs'
+  const title =
+    (allTabSelected ? 'Deselect' : 'Select') +
+    ` all ${searchStore.queryActive ? 'matching ' : ''}tabs`
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <Checkbox
           checked={allTabSelected}
           disabled={matchedTabs.length === 0}
-          onChange={(e) => {
-            e.target.blur()
-            searchStore.toggleSelectAll()
-          }}
+          onChange={() => searchStore.toggleSelectAll()}
           indeterminate={someTabSelected}
           aria-label={title}
         />

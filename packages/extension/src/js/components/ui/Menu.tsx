@@ -53,22 +53,29 @@ export default function Menu({
 
     lastAnchorRef.current = anchorEl
     const anchorRect = anchorEl.getBoundingClientRect()
-    const menuRect = menuRef.current.getBoundingClientRect()
-
     const dock = anchorEl.closest<HTMLElement>('.corner-dock')
     const dockRect = dock?.getBoundingClientRect()
-    setPosition(
-      clampOverlayPosition({
-        top: dockRect
-          ? dockRect.top - menuRect.height
-          : (anchorPosition?.top ?? anchorRect.bottom),
-        left: dockRect
-          ? window.innerWidth - menuRect.width
-          : (anchorPosition?.left ?? anchorRect.left),
-        width: menuRect.width,
-        height: menuRect.height,
-        margin: dockRect ? 0 : 16,
-      }),
+    // Apply the current height constraint before measuring, including after
+    // a resize. Measuring under the old constraint can place a grown menu
+    // below its dock or outside the viewport.
+    if (dockRect)
+      menuRef.current.style.maxHeight = `${Math.max(0, dockRect.top)}px`
+    const menuRect = menuRef.current.getBoundingClientRect()
+    const nextPosition = clampOverlayPosition({
+      top: dockRect
+        ? dockRect.top - menuRect.height
+        : (anchorPosition?.top ?? anchorRect.bottom),
+      left: dockRect
+        ? window.innerWidth - menuRect.width
+        : (anchorPosition?.left ?? anchorRect.left),
+      width: menuRect.width,
+      height: menuRect.height,
+      margin: dockRect ? 0 : 16,
+    })
+    setPosition((current) =>
+      current.top === nextPosition.top && current.left === nextPosition.left
+        ? current
+        : nextPosition,
     )
   }, [anchorEl, anchorPosition, open])
 
@@ -189,6 +196,13 @@ export default function Menu({
 
   useEffect(() => {
     if (!open) return
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(updatePosition)
+    if (menuRef.current) observer?.observe(menuRef.current)
+    const dock = anchorEl?.closest<HTMLElement>('.corner-dock')
+    if (dock) observer?.observe(dock)
     document.addEventListener('mousedown', handleClickOutside)
     window.addEventListener('resize', updatePosition)
     window.addEventListener('scroll', updatePosition, {
@@ -196,13 +210,14 @@ export default function Menu({
       passive: true,
     })
     return () => {
+      observer?.disconnect()
       document.removeEventListener('mousedown', handleClickOutside)
       window.removeEventListener('resize', updatePosition)
       window.removeEventListener('scroll', updatePosition, {
         capture: true,
       })
     }
-  }, [open, handleClickOutside, updatePosition])
+  }, [open, handleClickOutside, updatePosition, anchorEl])
 
   if (!open) return null
 
@@ -234,9 +249,7 @@ export default function Menu({
         paddingTop: 8,
         paddingBottom: 8,
         overflow: 'auto',
-        maxHeight: toolbar
-          ? 'calc(100vh - ' + toolbar.getBoundingClientRect().height + 'px)'
-          : 'calc(100vh - 32px)',
+        maxHeight: toolbar ? undefined : 'calc(100vh - 32px)',
         maxWidth: toolbar
           ? 'min(30rem, 100vw)'
           : 'min(30rem, calc(100vw - 32px))',
