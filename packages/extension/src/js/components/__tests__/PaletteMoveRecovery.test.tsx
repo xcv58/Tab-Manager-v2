@@ -133,18 +133,17 @@ describe('palette move recovery', () => {
     expect(selection.size).toBe(1)
   })
 
-  it('retry excludes tabs which disappeared during refresh', async () => {
+  it('cancels stale retry when refresh removes the selected source', async () => {
     const { store, actions, selection } = setup()
     fireEvent.click(screen.getByRole('option', { name: /before this tab/ }))
     await screen.findByRole('alert')
     store.windowStore.syncAllWindows.mockImplementation(async () => {
       store.windowStore.tabs = []
+      selection.clear()
     })
     await act(async () => actions.retryMove())
-    expect(actions.error).toBe('These tabs are no longer available.')
-    expect(
-      screen.getByRole('button', { name: 'Cancel', exact: true }),
-    ).toBeVisible()
+    expect(actions.error).toBe('')
+    expect(actions.failedMove).toBeNull()
     expect(selection.size).toBe(0)
     expect(store.dragStore.moveSelectedTabsRelativeToTab).toHaveBeenCalledTimes(
       1,

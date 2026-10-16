@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, runInAction } from 'mobx'
+import { makeAutoObservable, observable, reaction, runInAction } from 'mobx'
 import type Store from 'stores'
 import type Focusable from './Focusable'
 import type Tab from './Tab'
@@ -16,6 +16,7 @@ import { restoreDialogFocusTarget } from 'libs/dialogFocus'
 import TabGroupRow from './TabGroupRow'
 import { getWindowLabel } from 'libs/windowLabel'
 import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
+import { TOOLBAR_FOCUS_SHORTCUT_LABEL } from 'libs/toolbarFocusShortcut'
 
 export type ActionMenuAnchor = {
   key: string
@@ -132,6 +133,9 @@ export default class ActionStore {
   menu: ActionMenuAnchor | null = null
   menuAnchors = new Map<string, ActionMenuAnchor>()
   paletteOpen = false
+  selectionPaletteOpen = false
+  toolbarFocusRequest = 0
+  toolbarFocusTarget: HTMLElement | null = null
   query = ''
   choosingDestination = false
   formatAction: 'copy' | 'export' | null = null
@@ -142,6 +146,7 @@ export default class ActionStore {
   groupEditorId: number | null = null
   destinationEdge: 'beginning' | 'end' = 'end'
   paletteFocusTarget: HTMLElement | null = null
+  paletteToolbarFocusTarget = false
   paletteSearchFocusTarget: { rowId: string; detailsAnchor: boolean } | null =
     null
   paletteDetailsTarget: { tabId: number; surface: 'search' | 'list' } | null =
@@ -154,9 +159,18 @@ export default class ActionStore {
       menu: observable.ref,
       menuAnchors: observable.shallow,
       paletteFocusTarget: false,
+      toolbarFocusTarget: false,
       paletteSearchFocusTarget: false,
       failedMove: observable.ref,
     })
+    reaction(
+      () => !!this.failedMove && !this.busy && !this.failedMoveMatchesSelection,
+      (stale) => {
+        // This panel is nonmodal: a new selection starts a new action rather
+        // than letting Retry silently restore an earlier set of tabs.
+        if (stale) this.back()
+      },
+    )
   }
 
   get liteMode() {
@@ -317,13 +331,58 @@ export default class ActionStore {
     this.menu = null
   }
 
-  openPalette = (query = '') => {
+  focusToolbar = () => {
     if (
+      this.liteMode ||
+      this.busy ||
+      this.paletteOpen ||
       this.store.dragStore.dragging ||
       this.store.userStore.dialogOpen ||
       this.store.shortcutStore.dialogOpen
     )
       return
+    const target = document.activeElement
+    if (target instanceof HTMLElement && !target.closest('.toolbar'))
+      this.toolbarFocusTarget = target
+    // Settle the workspace search's blur/focus reactions before focusing the
+    // dock. Otherwise they can take focus back to the previously focused tab.
+    this.store.searchStore.blur()
+    this.closeMenu()
+    this.store.hoverStore.hideTooltip()
+    this.store.userStore.showToolbar()
+    if (this.store.tabStore.selection.size) this.openSelectionPalette()
+    this.toolbarFocusRequest += 1
+  }
+
+  openSelectionPalette = () => {
+    if (
+      this.selectionPaletteOpen ||
+      this.paletteOpen ||
+      this.busy ||
+      this.liteMode ||
+      !this.store.tabStore.selection.size
+    )
+      return
+    this.closeMenu()
+    this.back()
+    this.selectionPaletteOpen = true
+  }
+
+  closeSelectionPalette = () => {
+    if (this.busy || !this.selectionPaletteOpen) return
+    this.selectionPaletteOpen = false
+    this.back()
+  }
+
+  openPalette = (query = '') => {
+    if (
+      this.busy ||
+      this.store.dragStore.dragging ||
+      this.store.userStore.dialogOpen ||
+      this.store.shortcutStore.dialogOpen
+    )
+      return
+    this.closeSelectionPalette()
     if (!this.paletteOpen) {
       const tabId = this.store.focusStore.focusedTab?.id
       const surface =
@@ -335,6 +394,8 @@ export default class ActionStore {
         (document.activeElement instanceof HTMLElement
           ? document.activeElement
           : null)
+      this.paletteToolbarFocusTarget =
+        !!this.paletteFocusTarget?.closest('.toolbar')
       const searchRow = this.paletteFocusTarget?.closest<HTMLElement>(
         '[data-testid^="search-tab-row-"]',
       )
@@ -363,6 +424,11 @@ export default class ActionStore {
 
   closePalette = (restoreFocus = true) => {
     if (this.busy) return
+    const fromSelection =
+      this.selectionPaletteOpen &&
+      document.activeElement instanceof HTMLElement &&
+      !!document.activeElement.closest('[data-selection-palette]')
+    this.closeSelectionPalette()
     const wasOpen = this.paletteOpen
     this.paletteOpen = false
     this.choosingDestination = false
@@ -370,15 +436,18 @@ export default class ActionStore {
     this.failedMove = null
     this.error = ''
     if (
-      wasOpen &&
+      (wasOpen || fromSelection) &&
       restoreFocus &&
       !this.store.userStore.dialogOpen &&
       !this.store.shortcutStore.dialogOpen
     ) {
-      const target = this.paletteFocusTarget
-      const searchTarget = this.paletteSearchFocusTarget
+      const target = wasOpen ? this.paletteFocusTarget : null
+      const searchTarget = wasOpen ? this.paletteSearchFocusTarget : null
+      const toolbarTarget = fromSelection || this.paletteToolbarFocusTarget
       // Resolve after React removes the background's inert state. Use a search
       // replacement if browser updates removed the original row in the meantime.
+      // Inline afterClose actions also need a stable caller before a new dialog
+      // captures focus; their search field is removed when the panel collapses.
       restoreDialogFocusTarget(() => {
         if (
           this.paletteOpen ||
@@ -387,6 +456,16 @@ export default class ActionStore {
         )
           return null
         if (target?.isConnected) return target
+        if (toolbarTarget)
+          return (
+            document.querySelector<HTMLElement>(
+              '[data-selection-palette-handle]',
+            ) ||
+            document.querySelector<HTMLElement>(
+              '[data-toolbar-base] button:not(:disabled), [data-toolbar-base] input:not(:disabled)',
+            ) ||
+            this.store.searchStore.getSearchInputEl()
+          )
         if (searchTarget) {
           const row = document.querySelector<HTMLElement>(
             `[data-testid="${searchTarget.rowId}"]`,
@@ -433,6 +512,16 @@ export default class ActionStore {
     )
   }
 
+  get failedMoveMatchesSelection() {
+    const failed = this.failedMove
+    const selection = this.store.tabStore.selection
+    return (
+      !!failed &&
+      selection.size === failed.tabIds.length &&
+      failed.tabIds.every((id) => selection.has(id))
+    )
+  }
+
   runMove = async (target: PaletteMoveTarget) => {
     const { windowStore, tabGroupStore, dragStore } = this.store
     if (
@@ -467,22 +556,11 @@ export default class ActionStore {
     this.busy = true
     try {
       await this.store.windowStore.syncAllWindows()
-      const ids = new Set(failed.tabIds)
-      const remaining = this.store.windowStore.tabs.filter(
-        (tab) => ids.has(tab.id) && !tab.removing,
-      )
       runInAction(() => {
-        this.store.tabStore.unselectAll()
-        this.store.tabStore.selectAll(remaining)
         this.busy = false
+        if (!this.failedMoveMatchesSelection) this.back()
       })
-      if (!remaining.length) {
-        runInAction(() => {
-          this.error = 'These tabs are no longer available.'
-          this.failedMove = null
-        })
-        return
-      }
+      if (this.failedMove !== failed) return
       if (!this.moveDestinationAvailable) {
         runInAction(() => {
           this.error = 'That destination is no longer available.'
@@ -528,7 +606,8 @@ export default class ActionStore {
   }
 
   showFeedback = (message: string) => {
-    if (this.paletteOpen && this.formatAction) this.feedback = message
+    if ((this.paletteOpen || this.selectionPaletteOpen) && this.formatAction)
+      this.feedback = message
     else this.store.shortcutStore.showMoveHint(message)
   }
 
@@ -568,7 +647,13 @@ export default class ActionStore {
       await command.run()
       runInAction(() => {
         this.busy = false
-        if (!command.keepOpen) this.closePalette()
+        if (!command.keepOpen) {
+          if (this.selectionPaletteOpen) {
+            if (!this.store.tabStore.selection.size)
+              this.closeSelectionPalette()
+            else if (this.choosingDestination || this.formatAction) this.back()
+          } else this.closePalette()
+        }
       })
     } catch (error) {
       runInAction(() => {
@@ -579,12 +664,54 @@ export default class ActionStore {
             : 'Could not complete this action. Please try again.'
         if (command.moveTarget)
           this.failedMove = { target: command.moveTarget, tabIds }
-        if (!this.paletteOpen) this.store.shortcutStore.showMoveHint(this.error)
+        if (!this.paletteOpen && !this.selectionPaletteOpen)
+          this.store.shortcutStore.showMoveHint(this.error)
       })
     }
   }
 
   get commands(): PaletteCommand[] {
+    return this.getCommands()
+  }
+
+  get selectionCommands(): PaletteCommand[] {
+    return this.getCommands({ selectionOnly: true })
+  }
+
+  get selectionControls(): PaletteCommand[] {
+    const { tabStore, searchStore } = this.store
+    return [
+      {
+        id: 'clear-selection',
+        icon: 'deselect',
+        label: 'Clear selection',
+        section: 'Selection',
+        aliases: 'deselect unselect none',
+        disabledReason: !tabStore.selection.size
+          ? 'Select tabs first'
+          : undefined,
+        run: tabStore.unselectAll,
+      },
+      {
+        id: 'invert-selection',
+        icon: 'invert',
+        label: searchStore.queryActive
+          ? 'Invert selection of matching tabs'
+          : 'Invert selection',
+        section: 'Selection',
+        shortcut: 'Ctrl U',
+        disabledReason: !searchStore.matchedTabs.length
+          ? 'No tabs to select'
+          : undefined,
+        run: searchStore.invertSelect,
+      },
+    ]
+  }
+
+  getCommands({
+    selectionOnly = false,
+    includeSteps = true,
+  } = {}): PaletteCommand[] {
     if (this.liteMode) return this.getLiteCommands()
     const {
       tabStore,
@@ -599,10 +726,13 @@ export default class ActionStore {
     } = this.store
     const count = tabStore.selection.size
     const selectedScope = `${count} selected ${getNoun('tab', count)}`
-    const copySources = count
-      ? tabStore.sources
-      : this.store._getFocusedOrSelectedTab?.() ||
-        (focusStore.focusedTab ? [focusStore.focusedTab] : [])
+    const copySources =
+      selectionOnly && !count
+        ? []
+        : count
+          ? tabStore.sources
+          : this.store._getFocusedOrSelectedTab?.() ||
+            (focusStore.focusedTab ? [focusStore.focusedTab] : [])
     const copyScope = count
       ? selectedScope
       : focusStore.focusedTab
@@ -619,7 +749,7 @@ export default class ActionStore {
     const moveReason = dragStore.pendingWindowEdgeDrop
       ? 'A tab move is already in progress'
       : selectionReason
-    if (this.formatAction) {
+    if (includeSteps && this.formatAction) {
       const exporting = this.formatAction === 'export'
       return copyFormats.map((option) => ({
         id: `${this.formatAction}-${option.format}`,
@@ -642,7 +772,7 @@ export default class ActionStore {
         },
       }))
     }
-    if (this.choosingDestination) {
+    if (includeSteps && this.choosingDestination) {
       const windowTitle = getWindowLabel
       const windows = new Map(windowStore.windows.map((win) => [win.id, win]))
       // Group metadata includes collapsed groups whose tab rows are hidden.
@@ -700,8 +830,6 @@ export default class ActionStore {
     const tab = focusStore.focusedTab
     const win = focusStore.focusedWindow
     const focusedItem = focusStore.focusedItem
-    const duplicateCount = windowStore.getDuplicateTabsToRemoveCount()
-    const hasTabs = windowStore.windows.some((window) => window.tabs?.length)
     const commands: PaletteCommand[] = []
     if (count) {
       commands.push(
@@ -805,6 +933,9 @@ export default class ActionStore {
         this.query = ''
       },
     })
+    if (selectionOnly) return [...commands, ...this.selectionControls]
+    const duplicateCount = windowStore.getDuplicateTabsToRemoveCount()
+    const hasTabs = windowStore.windows.some((window) => window.tabs?.length)
     if (tab) {
       commands.push(
         {
@@ -933,14 +1064,7 @@ export default class ActionStore {
           : undefined,
         run: () => searchStore.toggleSelectAll(),
       },
-      {
-        id: 'clear-selection',
-        icon: 'deselect',
-        label: 'Clear selection',
-        section: 'Selection',
-        disabledReason: selectionReason,
-        run: tabStore.unselectAll,
-      },
+      this.selectionControls[0],
       {
         id: 'clean-duplicates',
         icon: 'clean-duplicates',
@@ -998,6 +1122,16 @@ export default class ActionStore {
         aliases: 'help hotkeys',
         shortcut: '?',
         run: shortcutStore.openDialog,
+      },
+      {
+        id: 'focus-toolbar',
+        icon: 'keyboard',
+        label: 'Focus toolbar',
+        section: 'Application',
+        aliases: 'selection palette actions dock',
+        shortcut: TOOLBAR_FOCUS_SHORTCUT_LABEL,
+        afterClose: true,
+        run: this.focusToolbar,
       },
       {
         id: 'theme',
@@ -1063,17 +1197,7 @@ export default class ActionStore {
         section: 'Application',
         run: openOrTogglePopup,
       },
-      {
-        id: 'invert-selection',
-        icon: 'invert',
-        label: 'Invert selection of matching tabs',
-        section: 'Selection',
-        shortcut: 'Ctrl U',
-        disabledReason: !searchStore.matchedTabs.length
-          ? 'No tabs to select'
-          : undefined,
-        run: () => searchStore.invertSelect(),
-      },
+      this.selectionControls[1],
       {
         id: 'select-all-matching',
         icon: 'select',

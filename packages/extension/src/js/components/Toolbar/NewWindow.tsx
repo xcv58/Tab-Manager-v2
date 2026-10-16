@@ -9,14 +9,14 @@ import { useStore } from 'components/hooks/useStore'
 export default observer(({ label }: { label?: string }) => {
   const { dragStore, tabStore } = useStore()
   const { dropToNewWindow } = dragStore
-  const { selection, tabDescription } = tabStore
-  const title = `Open ${tabDescription} in new window`
+  const { selection } = tabStore
+  const title = `Move ${selection.size} selected ${selection.size === 1 ? 'tab' : 'tabs'} to a new window`
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">
         <IconButton
           onClick={() => dropToNewWindow()}
-          disabled={selection.size === 0}
+          disabled={selection.size === 0 || !!dragStore.pendingWindowEdgeDrop}
           className="focus:outline-none"
           aria-label={title}
           style={
@@ -25,7 +25,9 @@ export default observer(({ label }: { label?: string }) => {
                   width: 'auto',
                   gap: 6,
                   padding: '0 8px',
-                  height: 36,
+                  height: 'auto',
+                  minHeight: 36,
+                  lineHeight: 1.3,
                   borderRadius: 6,
                 }
               : undefined

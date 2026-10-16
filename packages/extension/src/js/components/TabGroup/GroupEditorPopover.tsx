@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Popover from 'components/ui/Popover'
 import { useAppTheme } from 'libs/appTheme'
+import { restoreDialogFocusTarget } from 'libs/dialogFocus'
 import {
   CHROME_TAB_GROUP_COLOR_ORDER,
   getChromeTabGroupColor,
@@ -54,6 +55,12 @@ export default (props: Props) => {
     committedTitleRef.current = title
     onRename(title)
   }
+  const closeFromKeyboard = () => {
+    onClose()
+    restoreDialogFocusTarget(anchorEl, () =>
+      document.querySelector<HTMLInputElement>('.toolbar-search-field'),
+    )
+  }
 
   return (
     <Popover
@@ -71,7 +78,16 @@ export default (props: Props) => {
         overflow: 'visible',
       }}
     >
-      <div data-testid={`tab-group-editor-${groupId}`}>
+      <div
+        data-testid={`tab-group-editor-${groupId}`}
+        onKeyDown={(event) => {
+          if (event.key !== 'Escape') return
+          event.preventDefault()
+          event.stopPropagation()
+          commitTitle()
+          closeFromKeyboard()
+        }}
+      >
         <input
           ref={titleInputRef}
           className="w-full rounded-2xl border-2 px-4 py-2 text-2xl font-medium outline-none"
@@ -96,14 +112,14 @@ export default (props: Props) => {
               event.preventDefault()
               event.stopPropagation()
               commitTitle()
-              onClose()
+              closeFromKeyboard()
             }
             if (event.key === 'Escape') {
               event.preventDefault()
               event.stopPropagation()
               skipBlurCommitRef.current = true
               setTitle(initialTitle)
-              onClose()
+              closeFromKeyboard()
             }
           }}
           data-testid={`tab-group-editor-title-${groupId}`}

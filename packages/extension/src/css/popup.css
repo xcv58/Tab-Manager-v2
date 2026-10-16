@@ -201,6 +201,143 @@ body {
   opacity: 1;
 }
 
+.selection-toolbar-content {
+  display: flex;
+  flex-direction: column;
+  max-height: min(28rem, calc(100dvh - 80px));
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 0.875rem;
+}
+
+.selection-palette-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.selection-palette-panel[hidden] {
+  display: none;
+}
+
+.selection-palette-search {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid;
+}
+
+.selection-palette-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+}
+
+.selection-palette-search:focus-within {
+  box-shadow: inset 0 -2px var(--focus-ring-color, #1a73e8);
+}
+
+.selection-palette-list {
+  flex: 1 1 auto;
+  min-height: min(2.5rem, 20dvh);
+  max-height: 18rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.selection-palette-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.selection-palette-option[aria-disabled='true'] {
+  cursor: default;
+}
+
+.selection-palette-label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.selection-palette-detail,
+.selection-palette-shortcut {
+  font-size: 0.75rem;
+}
+
+.selection-palette-detail {
+  display: block;
+  margin-top: 2px;
+}
+
+.selection-palette-shortcut {
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.selection-palette-back,
+.selection-palette-position,
+.selection-palette-footer {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  font-size: 0.75rem;
+}
+
+.selection-palette-position button {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.selection-palette-footer {
+  justify-content: space-between;
+  border-top: 1px solid;
+}
+
+@media (max-height: 400px) {
+  .selection-palette-footer {
+    display: none;
+  }
+}
+
+.selection-palette-empty,
+.selection-palette-feedback,
+.selection-palette-error {
+  padding: 12px;
+  font-size: 0.875rem;
+}
+
+.selection-toolbar-count {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .window-drop-header {
   container-type: inline-size;
   container-name: window-drop-header;

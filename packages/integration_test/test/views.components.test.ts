@@ -237,7 +237,7 @@ test.describe('The Extension page should', () => {
     ).toBeVisible()
     await expect(
       toolbar.getByRole('button', { name: 'Inverse select tabs', exact: true }),
-    ).toBeVisible()
+    ).toHaveCount(0)
     await expect(
       toolbar.getByRole('checkbox', { name: 'Select all tabs' }),
     ).toBeVisible()
@@ -276,13 +276,17 @@ test.describe('The Extension page should', () => {
 
     await toolbar.hover()
     await expect(toolbar).toHaveCSS('opacity', '1')
-    await toolbar
-      .getByRole('button', { name: 'Inverse select tabs', exact: true })
-      .click()
+    await toolbar.getByRole('checkbox', { name: 'Select all tabs' }).check()
     await expect(toolbar.getByRole('status')).toHaveText('3 selected')
     await expect(
-      toolbar.getByRole('button', { name: 'Close 3 tabs', exact: true }),
-    ).toHaveText('Close 3')
+      toolbar.getByRole('option', { name: /Close 3 tabs/ }),
+    ).toBeVisible()
+    await expect(
+      toolbar.getByRole('option', { name: /Invert selection/ }),
+    ).toBeVisible()
+    await expect(
+      toolbar.getByRole('option', { name: /Clear selection/ }),
+    ).toBeVisible()
     await expect(toolbar).toHaveCSS('opacity', '1')
   })
 

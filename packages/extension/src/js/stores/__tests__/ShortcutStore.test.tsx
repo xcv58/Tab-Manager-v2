@@ -1,5 +1,79 @@
 import ShortcutStore from 'stores/ShortcutStore'
 import DragStore from 'stores/DragStore'
+import Mousetrap from 'mousetrap'
+
+describe('selection palette keyboard isolation', () => {
+  afterEach(() => {
+    document.body.replaceChildren()
+    jest.restoreAllMocks()
+  })
+
+  it.each(['ctrl+r', 'ctrl+u', 'ctrl+n', 'ctrl+shift+f', 'ctrl+,', 'ctrl+/'])(
+    'allows %s from selection search',
+    (combo) => {
+      const shortcuts = new ShortcutStore({} as any)
+      document.body.innerHTML = '<div data-selection-palette><input></div>'
+      expect(
+        shortcuts.stopCallback(
+          new KeyboardEvent('keydown'),
+          document.querySelector('input')!,
+          combo,
+        ),
+      ).toBe(false)
+    },
+  )
+
+  it.each(['r', 'p', 'd d', 'ctrl+c', 'ctrl+x', 'ctrl+v', 'escape'])(
+    'keeps %s local to selection search',
+    (combo) => {
+      const shortcuts = new ShortcutStore({} as any)
+      document.body.innerHTML = '<div data-selection-palette><input></div>'
+      expect(
+        shortcuts.stopCallback(
+          new KeyboardEvent('keydown'),
+          document.querySelector('input')!,
+          combo,
+        ),
+      ).toBe(true)
+    },
+  )
+
+  it.each([
+    ['ctrl+r', 'reload-selection'],
+    ['ctrl+u', 'invert-selection'],
+  ])(
+    'routes %s through the root command even in a destination or format step',
+    (combo, id) => {
+      const command = { id, run: jest.fn() }
+      const actionStore = {
+        getCommands: jest.fn(() => [command]),
+        execute: jest.fn(),
+      }
+      const shortcuts = new ShortcutStore({ actionStore, userStore: {} } as any)
+      const bind = jest
+        .spyOn(Mousetrap, 'bind')
+        .mockImplementation(() => Mousetrap)
+      shortcuts.resume()
+      const binding = bind.mock.calls.find(([keys]) =>
+        (Array.isArray(keys) ? keys : [keys]).includes(combo),
+      )!
+      document.body.innerHTML = '<div data-selection-palette><input></div>'
+      const event = new KeyboardEvent('keydown', { cancelable: true })
+      Object.defineProperty(event, 'target', {
+        value: document.querySelector('input'),
+      })
+      ;(binding[1] as (event: KeyboardEvent, combo: string) => void)(
+        event,
+        combo,
+      )
+      expect(event.defaultPrevented).toBe(true)
+      expect(actionStore.getCommands).toHaveBeenCalledWith({
+        includeSteps: false,
+      })
+      expect(actionStore.execute).toHaveBeenCalledWith(command)
+    },
+  )
+})
 
 describe('ShortcutStore tab details', () => {
   afterEach(() => {

@@ -4,6 +4,34 @@ import {
 } from 'libs/dialogFocus'
 
 describe('dialogFocus', () => {
+  afterEach(() => {
+    document.body.replaceChildren()
+    jest.restoreAllMocks()
+  })
+
+  it.each(['removed', 'disabled', 'hidden', 'aria-hidden', 'inert'])(
+    'uses the search fallback when the opener is %s',
+    (state) => {
+      let nextFrame: FrameRequestCallback
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        nextFrame = cb
+        return 0
+      })
+      document.body.innerHTML =
+        '<div id="parent"><button id="opener">Open</button></div><input id="search">'
+      const opener = document.getElementById('opener')!
+      const search = document.getElementById('search')!
+      restoreDialogFocusTarget(opener, () => search)
+      if (state === 'removed') opener.remove()
+      else if (state === 'disabled') opener.setAttribute('disabled', '')
+      else
+        document
+          .getElementById('parent')!
+          .setAttribute(state, state === 'aria-hidden' ? 'true' : '')
+      nextFrame(0)
+      expect(search).toHaveFocus()
+    },
+  )
   it('blurs the active element when capturing dialog focus', () => {
     document.body.innerHTML = '<button id="trigger">Open</button>'
     const trigger = document.getElementById('trigger') as HTMLButtonElement

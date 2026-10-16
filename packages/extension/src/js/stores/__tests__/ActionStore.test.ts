@@ -1,5 +1,6 @@
 import { withActionStore } from '__testutils__/actionStore'
 import { matchCommandItems } from 'libs/commandMatching'
+import { observable, runInAction } from 'mobx'
 
 const setup = () => {
   const tab = {
@@ -52,6 +53,26 @@ describe('palette focus restoration', () => {
     return { row, button }
   }
 
+  it.each(['inline', 'modal'])(
+    'returns to the stable toolbar handle when the %s palette input disappears',
+    (origin) => {
+      const { actions } = setup()
+      document.body.innerHTML =
+        '<div class="toolbar"><div data-selection-palette><input id="selection-search"></div></div>'
+      const input = document.getElementById('selection-search')!
+      actions.openSelectionPalette()
+      input.focus()
+      if (origin === 'modal') actions.openPalette()
+      actions.closePalette()
+      input.remove()
+      const handle = document.createElement('button')
+      handle.setAttribute('data-selection-palette-handle', '')
+      document.querySelector('.toolbar')!.append(handle)
+      nextFrame(0)
+      expect(handle).toHaveFocus()
+    },
+  )
+
   it.each(['menu', 'row', 'button'])(
     'returns to a recreated collapsed-group result opened from its %s',
     (opener) => {
@@ -99,6 +120,75 @@ describe('palette focus restoration', () => {
     store.userStore.dialogOpen = true
     nextFrame(0)
     expect(document.activeElement).toBe(document.body)
+  })
+})
+
+describe('nonmodal selection actions', () => {
+  it('keeps inline copy formats open without changing the selected tabs', async () => {
+    const { store, actions, tab } = setup()
+    actions.openSelectionPalette()
+    actions.chooseFormat('copy')
+    await actions.execute(
+      actions.selectionCommands.find((command) => command.id === 'copy-tsv')!,
+    )
+    expect(store.copyTabs).toHaveBeenCalledWith([tab], 'tsv')
+    expect(actions.selectionPaletteOpen).toBe(true)
+    expect(actions.paletteOpen).toBe(false)
+    expect(actions.feedback).toBe('Copied')
+  })
+
+  it('blocks duplicate actions and dismissal while an operation is pending', async () => {
+    const { actions } = setup()
+    actions.openSelectionPalette()
+    let complete: () => void
+    const run = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          complete = resolve
+        }),
+    )
+    const command = {
+      id: 'pending',
+      label: 'Pending',
+      icon: 'move' as const,
+      section: 'Selection',
+      run,
+    }
+    const pending = actions.execute(command)
+    await actions.execute(command)
+    actions.closeSelectionPalette()
+    actions.openPalette()
+    expect(run).toHaveBeenCalledTimes(1)
+    expect(actions.selectionPaletteOpen).toBe(true)
+    expect(actions.paletteOpen).toBe(false)
+    complete()
+    await pending
+    expect(actions.busy).toBe(false)
+  })
+
+  it('discards a failed move when the live selection changes instead of restoring old tabs', async () => {
+    const { store, actions, tab } = setup()
+    store.tabStore.selection = observable.map([[tab.id, tab]])
+    const run = jest.fn().mockRejectedValue(new Error('Unavailable'))
+    actions.openSelectionPalette()
+    await actions.execute({
+      id: 'move',
+      label: 'Move',
+      icon: 'move',
+      section: 'Selection',
+      moveTarget: { kind: 'window', id: 7, edge: 'end' },
+      run,
+    })
+    expect(actions.failedMove?.tabIds).toEqual([tab.id])
+    runInAction(() => {
+      store.tabStore.selection.clear()
+      store.tabStore.selection.set(2, { ...tab, id: 2 })
+    })
+    expect(actions.failedMove).toBeNull()
+    expect(actions.error).toBe('')
+    await actions.retryMove()
+    expect(run).toHaveBeenCalledTimes(1)
+    expect([...store.tabStore.selection.keys()]).toEqual([2])
   })
 })
 

@@ -464,7 +464,9 @@ export default class SearchStore {
 
   toggleSelectAll = () => {
     if (this.allTabSelected) {
-      this.unselectAll()
+      // This control owns the matching tabs, including when other selected
+      // tabs are hidden by a filter. Clear selection is the global action.
+      this.store.tabStore.unselectAll(this.matchedTabs)
     } else {
       this.selectAll()
     }
