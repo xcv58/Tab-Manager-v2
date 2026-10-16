@@ -15,6 +15,7 @@ export default observer(() => {
   const toolbarRef = useRef<HTMLDivElement>(null)
   const pointerInside = useRef(false)
   const previouslySelected = useRef(false)
+  const escapeStartedHere = useRef(false)
   const lastFocusRequest = useRef(0)
   const uiColors = getUiColorTokens(
     theme.mode === 'dark',
@@ -83,6 +84,7 @@ export default observer(() => {
       data-active={active ? 'true' : 'false'}
       onKeyDown={(event) => {
         if (!selectionVisible && event.key === 'Escape') {
+          escapeStartedHere.current = true
           event.preventDefault()
           event.stopPropagation()
         }
@@ -91,6 +93,8 @@ export default observer(() => {
         if (!selectionVisible && event.key === 'Escape') {
           event.preventDefault()
           event.stopPropagation()
+          if (!escapeStartedHere.current) return
+          escapeStartedHere.current = false
           const caller = actionStore.toolbarFocusTarget
           if (caller?.isConnected && !toolbarRef.current?.contains(caller))
             caller.focus({ preventScroll: true })
@@ -107,6 +111,8 @@ export default observer(() => {
       }}
       onFocus={showToolbar}
       onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+          escapeStartedHere.current = false
         if (
           !pinned &&
           !pointerInside.current &&

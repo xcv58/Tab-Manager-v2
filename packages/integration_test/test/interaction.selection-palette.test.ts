@@ -188,6 +188,30 @@ test('New window remains directly reachable for a partial selection', async () =
   await expect(panel()).toBeHidden()
 })
 
+test('dialog Escape release keeps focus at the base toolbar opener without a selection', async () => {
+  const search = page.getByRole('combobox', {
+    name: 'Search tabs or URLs',
+    exact: true,
+  })
+  await search.focus()
+  await page.keyboard.press('Control+Shift+f')
+  const settings = page.getByRole('button', { name: 'Settings', exact: true })
+  await expect(settings).toBeFocused()
+  await settings.press('Enter')
+  const dialog = page.getByRole('dialog', { name: 'Settings', exact: true })
+  await expect
+    .poll(() =>
+      dialog.evaluate((node) => node.contains(document.activeElement)),
+    )
+    .toBe(true)
+  await page.keyboard.down('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(settings).toBeFocused()
+  await page.keyboard.up('Escape')
+  await settings.dispatchEvent('keyup', { key: 'Escape', bubbles: true })
+  await expect(settings).toBeFocused()
+})
+
 for (const dialog of ['settings', 'help'] as const) {
   test(`${dialog} returns to stable toolbar controls from selection search and More`, async () => {
     await select(0)
@@ -208,10 +232,21 @@ for (const dialog of ['settings', 'help'] as const) {
         overlay.evaluate((node) => node.contains(document.activeElement)),
       )
       .toBe(true)
-    await page.keyboard.press('Escape')
+    // Focus can return between keydown and keyup. The release must not also
+    // act as a second Escape in the collapsed selection palette.
+    await page.keyboard.down('Escape')
+    await expect(overlay).toBeHidden()
     await expect(
       panel().getByRole('button', { name: /Expand actions/ }),
     ).toBeFocused()
+    await page.keyboard.up('Escape')
+    // Also cover a release delivered after the overlay restores its opener.
+    await panel()
+      .getByRole('button', { name: /Expand actions/ })
+      .dispatchEvent('keyup', { key: 'Escape', bubbles: true })
+    await expect(
+      panel().getByRole('button', { name: /Expand actions/ }),
+    ).toBeFocused({ timeout: 3000 })
     const more = page.getByRole('button', { name: 'More toolbar actions' })
     await more.click()
     await page

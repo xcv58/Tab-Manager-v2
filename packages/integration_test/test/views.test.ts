@@ -458,22 +458,24 @@ test.describe('The Extension page should', () => {
             const node = main?.firstElementChild as HTMLElement | null
             return node ? window.getComputedStyle(node).borderBottomWidth : null
           })(),
-          toolbar: readBackground('.toolbar'),
+          toolbar: readBackground(
+            '.toolbar > .corner-dock:not(.selection-toolbar)',
+          ),
           toolbarBorderTopWidth: (() => {
             const node = document.querySelector(
-              '.toolbar',
+              '.toolbar > .corner-dock:not(.selection-toolbar)',
             ) as HTMLElement | null
             return node ? window.getComputedStyle(node).borderTopWidth : null
           })(),
           toolbarBorderRightWidth: (() => {
             const node = document.querySelector(
-              '.toolbar',
+              '.toolbar > .corner-dock:not(.selection-toolbar)',
             ) as HTMLElement | null
             return node ? window.getComputedStyle(node).borderRightWidth : null
           })(),
           toolbarBorderLeftWidth: (() => {
             const node = document.querySelector(
-              '.toolbar',
+              '.toolbar > .corner-dock:not(.selection-toolbar)',
             ) as HTMLElement | null
             return node ? window.getComputedStyle(node).borderLeftWidth : null
           })(),

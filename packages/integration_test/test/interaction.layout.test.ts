@@ -1141,7 +1141,7 @@ test.describe('The Extension page should', () => {
       (relayoutRect?.y || 0) + (relayoutRect?.height || 0),
     ).toBeLessThanOrEqual(toolbarRect?.y || 0)
     const viewport = page.viewportSize()
-    const dockRect = await page.locator('.corner-dock').boundingBox()
+    const dockRect = await page.locator('.toolbar.corner-dock').boundingBox()
     expect(dockRect.x + dockRect.width).toBe(viewport.width)
     expect(dockRect.y + dockRect.height).toBe(viewport.height)
 

@@ -54,6 +54,7 @@ export default observer(function SelectionToolbar() {
   const listRef = useRef<HTMLUListElement>(null)
   const recoveryRef = useRef<HTMLButtonElement>(null)
   const hadFocus = useRef(false)
+  const escapeStartedHere = useRef(false)
   const focusFrame = useRef<number | null>(null)
   const panelId = useId()
   const step = actionStore.choosingDestination
@@ -220,7 +221,10 @@ export default observer(function SelectionToolbar() {
       aria-label="Selected tab actions"
       style={{ color: theme.palette.text.primary }}
       onKeyDown={(event) => {
-        if (event.key === 'Escape') event.preventDefault()
+        if (event.key === 'Escape') {
+          escapeStartedHere.current = true
+          event.preventDefault()
+        }
         if (['Escape', 'Enter', ' '].includes(event.key))
           event.stopPropagation()
       }}
@@ -229,6 +233,10 @@ export default observer(function SelectionToolbar() {
         if (event.key === 'Escape') {
           event.preventDefault()
           event.stopPropagation()
+          // A dialog may close on keydown and restore this handle before keyup.
+          // That release belongs to the dialog, not a second palette dismissal.
+          if (!escapeStartedHere.current) return
+          escapeStartedHere.current = false
           if (choosingStep && !actionStore.failedMove) actionStore.back()
           else collapse(true)
         }
@@ -241,8 +249,10 @@ export default observer(function SelectionToolbar() {
       }}
       onBlurCapture={(event) => {
         const next = event.relatedTarget as HTMLElement | null
-        if (next && !event.currentTarget.contains(next))
+        if (next && !event.currentTarget.contains(next)) {
           hadFocus.current = false
+          escapeStartedHere.current = false
+        }
       }}
     >
       {!expanded && (
