@@ -3,6 +3,7 @@ import type { Page, BrowserContext } from 'playwright'
 import {
   closeCurrentWindowTabsExceptActive,
   initBrowserWithExtension,
+  waitForSurfaceToFullyAppear,
 } from '../util'
 
 let page: Page
@@ -340,6 +341,26 @@ for (const recovery of [
   })
 }
 
+test('theme changes keep the palette and toolbar edges flush with the viewport', async () => {
+  await select(0)
+  await focusActions()
+  const shell = page.locator('.selection-toolbar')
+  const base = page.locator('.toolbar > .corner-dock:not(.selection-toolbar)')
+  for (let theme = 0; theme < 4; theme++) {
+    await expect(shell).toHaveCSS('border-bottom-width', '0px', {
+      timeout: 3000,
+    })
+    await expect(shell).toHaveCSS('border-right-width', '0px', {
+      timeout: 3000,
+    })
+    await expect(base).toHaveCSS('border-bottom-width', '0px', {
+      timeout: 3000,
+    })
+    await expect(base).toHaveCSS('border-right-width', '0px', { timeout: 3000 })
+    await page.getByRole('button', { name: 'Toggle light/dark theme' }).click()
+  }
+})
+
 for (const mode of ['light', 'dark', 'classic'] as const) {
   test(`selection palette ${mode} view has bounded scrolling at large font sizes`, async () => {
     await page.evaluate(
@@ -379,16 +400,11 @@ for (const mode of ['light', 'dark', 'classic'] as const) {
     await query().fill('')
     await expect.poll(() => list.evaluate((node) => node.scrollTop)).toBe(0)
     await page.mouse.move(10, 10)
-    const dock = await page.locator('.toolbar').first().boundingBox()
-    const selection = await page.locator('.selection-toolbar').boundingBox()
-    await expect(page).toHaveScreenshot(`selection-palette-${mode}.png`, {
-      clip: {
-        x: dock.x,
-        y: selection.y,
-        width: dock.width,
-        height: dock.y + dock.height - selection.y,
-      },
-    })
+    // The base toolbar has dedicated snapshots. Capture this surface directly
+    // so Playwright measures it after fonts and transitions have settled.
+    const selection = page.locator('.selection-toolbar')
+    await waitForSurfaceToFullyAppear(page, selection)
+    await expect(selection).toHaveScreenshot(`selection-palette-${mode}.png`)
   })
 }
 
