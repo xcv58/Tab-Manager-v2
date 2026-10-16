@@ -60,6 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Try the interactive demo': '试用交互演示',
       'No installation needed. Explore with sample tabs.':
         '无需安装。使用示例标签页体验功能。',
+      'Using a phone? Try the demo, or': '正在使用手机？可以先试用演示，或',
+      'check browser support': '查看浏览器支持情况',
+      'before installing.': '再决定是否安装。',
       Privacy: '隐私',
       Support: '支持',
       'Theme Toggle': '主题切换',
@@ -253,6 +256,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Try the interactive demo': '試用互動示範',
       'No installation needed. Explore with sample tabs.':
         '無需安裝。使用範例分頁體驗功能。',
+      'Using a phone? Try the demo, or': '正在使用手機？可以先試用示範，或',
+      'check browser support': '查看瀏覽器支援情況',
+      'before installing.': '再決定是否安裝。',
       Privacy: '隱私',
       Support: '支援',
       'Theme Toggle': '主題切換',

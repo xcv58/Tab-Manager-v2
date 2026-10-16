@@ -300,6 +300,11 @@ code {
   padding: 2px;
 }
 
+.logo > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .nav-wrapper {
   order: 1;
   display: flex;
@@ -1607,7 +1612,7 @@ code {
     min-width: 0;
     gap: 8px;
     font-size: clamp(0.95rem, 3.8vw, 1.1rem);
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .logo img {

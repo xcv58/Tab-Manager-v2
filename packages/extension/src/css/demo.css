@@ -46,6 +46,13 @@
   color: var(--text-secondary);
   margin: 2px 0 0;
 }
+.demo-language-note {
+  flex: none;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
 .demo-picker {
   position: relative;
   min-width: 0;
@@ -340,6 +347,7 @@
 }
 .demo-page[data-expanded='true'] .demo-header,
 .demo-page[data-expanded='true'] .demo-controls,
+.demo-page[data-expanded='true'] .demo-language-note,
 .demo-page[data-expanded='true'] .system-appearance {
   display: none;
 }

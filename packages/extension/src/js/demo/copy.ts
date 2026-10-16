@@ -9,6 +9,7 @@ type ScenarioCopy = Pick<
 const shellCopy: Record<DemoLanguage, Record<string, string>> = {
   'zh-Hans': {
     'Interactive demo': '交互演示',
+    'The extension interface is shown in English.': '演示操作界面目前为英文。',
     'Sample tabs. Your browser stays untouched.':
       '示例标签页，不影响你的浏览器。',
     'About this workspace': '关于此工作区',
@@ -56,6 +57,7 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
   },
   'zh-Hant': {
     'Interactive demo': '互動示範',
+    'The extension interface is shown in English.': '示範操作介面目前為英文。',
     'Sample tabs. Your browser stays untouched.':
       '範例分頁，不影響你的瀏覽器。',
     'About this workspace': '關於此工作區',

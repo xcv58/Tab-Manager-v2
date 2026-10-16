@@ -30,6 +30,7 @@ const page = document.querySelector<HTMLElement>('.demo-page')!
 const main = document.querySelector<HTMLElement>('.demo-main')!
 const header = document.querySelector<HTMLElement>('.demo-header')!
 const controls = document.querySelector<HTMLElement>('.demo-controls')!
+const languageNote = document.querySelector<HTMLElement>('.demo-language-note')!
 const expand = document.querySelector<HTMLButtonElement>('#expand-demo')!
 const exitExpanded =
   document.querySelector<HTMLButtonElement>('#exit-expanded')!
@@ -49,7 +50,7 @@ const fitWorkspace = () => {
     const gap = parseFloat(window.getComputedStyle(main).rowGap) || 0
     page.style.setProperty(
       '--demo-shell-height',
-      `${header.getBoundingClientRect().height + controls.getBoundingClientRect().height + gap + 12}px`,
+      `${header.getBoundingClientRect().height + controls.getBoundingClientRect().height + languageNote.getBoundingClientRect().height + gap * 2 + 12}px`,
     )
   }
 }
@@ -255,6 +256,7 @@ window.visualViewport?.addEventListener('scroll', () => {
 const shellObserver = new ResizeObserver(fitWorkspace)
 shellObserver.observe(header)
 shellObserver.observe(controls)
+shellObserver.observe(languageNote)
 mobile.addEventListener('change', renderCopy)
 window.addEventListener('scroll', fitGuide, { passive: true })
 document.addEventListener('click', (event) => {
