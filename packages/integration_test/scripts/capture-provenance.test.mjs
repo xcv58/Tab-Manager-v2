@@ -233,7 +233,13 @@ test('partial runs have separate receipts and MP4s, preserving the complete suit
   assert.notEqual(full.video, partial.video)
 })
 
-for (const malformed of ['chapters', 'homepage'])
+for (const malformed of [
+  'chapters',
+  'missing chapter seek',
+  'early chapter seek',
+  'late chapter seek',
+  'homepage',
+])
   test(`invalid ${malformed} metadata leaves all existing public assets untouched`, (t) => {
     const f = fixture(t)
     // Use the real catalogue so the script reaches its final metadata preflight.
@@ -245,15 +251,22 @@ for (const malformed of ['chapters', 'homepage'])
     f.promo.catalogueSha256 = catalogueSha256
     for (const entry of [...f.features.recordings, ...f.promo.inputClips])
       entry.catalogueSha256 = catalogueSha256
-    const chapters = f.write(
-      '.tmp/video-captures/promo/chapters.json',
+    const chapterData =
       malformed === 'chapters'
         ? []
         : PROMO_CLIP_IDS.map((id, index) => ({
             id,
             start: index + 1,
             end: index + 2,
-          })),
+            seek: index + 1.25,
+          }))
+    if (malformed === 'missing chapter seek') delete chapterData[0].seek
+    if (malformed === 'early chapter seek') chapterData[0].seek = 0
+    if (malformed === 'late chapter seek')
+      chapterData[0].seek = chapterData[0].end
+    const chapters = f.write(
+      '.tmp/video-captures/promo/chapters.json',
+      chapterData,
     )
     const captions = f.write(
       '.tmp/video-captures/promo/captions.vtt',
@@ -293,9 +306,9 @@ for (const malformed of ['chapters', 'homepage'])
     assert.notEqual(result.status, 0)
     assert.match(
       result.stderr,
-      malformed === 'chapters'
-        ? /Invalid promo chapters/
-        : /Website chapter buttons do not match/,
+      malformed === 'homepage'
+        ? /Website chapter buttons do not match/
+        : /Invalid promo chapters/,
     )
     assert.equal(readFileSync(publicPath, 'utf8'), 'approved public video')
     assert.equal(readFileSync(poster, 'utf8'), 'approved poster')

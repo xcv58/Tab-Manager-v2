@@ -42,8 +42,8 @@
       '支援原生分頁群組的瀏覽器中的分頁群組',
     ],
     privacyAccessHistory: [
-      '启用“Include browser history in results”（在结果中包含浏览器历史记录）设置时的浏览器历史记录结果',
-      '啟用「Include browser history in results」（在結果中包含瀏覽器歷史紀錄）設定時的瀏覽器歷史紀錄結果',
+      '“Include browser history in results”（在结果中包含浏览器历史记录）开启时的浏览器历史记录结果；该设置默认开启，可在设置中关闭',
+      '「Include browser history in results」（在結果中包含瀏覽器歷史紀錄）開啟時的瀏覽器歷史紀錄結果；此設定預設開啟，可在設定中關閉',
     ],
     privacyAccessContainers: [
       '用于容器相关功能的 Firefox 容器身份及相关 Cookie 存储信息',
@@ -191,6 +191,7 @@
     shortcutKeys: ['快捷键', '快速鍵'],
     shortcutFocus: ['聚焦标签页搜索', '聚焦分頁搜尋'],
     shortcutCommands: ['打开命令面板', '開啟指令面板'],
+    shortcutSelectionActions: ['查找所选标签页的操作', '尋找所選分頁的操作'],
     shortcutSelect: ['选择聚焦的标签页', '選取聚焦的分頁'],
     shortcutWindow: ['将所选标签页移到新窗口', '將所選分頁移到新視窗'],
     shortcutGroup: ['为所选标签页创建组', '為所選分頁建立群組'],
@@ -216,8 +217,8 @@
     ],
     historyTitle: ['可选的浏览器历史记录搜索', '選用的瀏覽器歷史紀錄搜尋'],
     historyBody: [
-      '在设置中启用“Include browser history in results”（在结果中包含浏览器历史记录），可将浏览器历史记录包含在搜索中。关闭该设置后，搜索结果不包含历史记录。此功能使用浏览器的 <code>history</code> 权限。有关浏览器访问和存储数据的详情，请阅读<a href="../privacy/">隐私政策</a>。',
-      '在設定中啟用「Include browser history in results」（在結果中包含瀏覽器歷史紀錄），可將瀏覽器歷史紀錄包含在搜尋中。關閉該設定後，搜尋結果不包含歷史紀錄。此功能使用瀏覽器的 <code>history</code> 權限。有關瀏覽器存取和儲存資料的詳情，請閱讀<a href="../privacy/">隱私政策</a>。',
+      '搜索默认包含浏览器历史记录。在设置中关闭“Include browser history in results”（在结果中包含浏览器历史记录）后，搜索结果不包含历史记录。此功能使用浏览器的 <code>history</code> 权限。有关浏览器访问和存储数据的详情，请阅读<a href="../privacy/">隐私政策</a>。',
+      '搜尋預設包含瀏覽器歷史紀錄。在設定中關閉「Include browser history in results」（在結果中包含瀏覽器歷史紀錄）後，搜尋結果不包含歷史紀錄。此功能使用瀏覽器的 <code>history</code> 權限。有關瀏覽器存取和儲存資料的詳情，請閱讀<a href="../privacy/">隱私政策</a>。',
     ],
     containersTitle: ['Firefox 容器', 'Firefox 容器'],
     containersBody: [
@@ -231,8 +232,8 @@
     ],
     tabActionsTitle: ['标签页操作与复制', '分頁操作與複製'],
     tabActionsBody: [
-      '右键点击标签页、窗口标题栏或标签页组以查看操作。悬停标签页即可选择标题和网址文字，复制或展开长文本。在完整视图中，选择标签页并用命令面板复制标题、网址、两者、CSV、TSV、JSON 或 Markdown，或下载 CSV、TSV、JSON 或 Markdown。复制和导出会保留所选标签页。',
-      '在分頁、視窗標題列或分頁群組上按右鍵以查看操作。停留在分頁上即可選取標題和網址文字，複製或展開長文字。在完整檢視中，選取分頁並用指令面板複製標題、網址、兩者、CSV、TSV、JSON 或 Markdown，或下載 CSV、TSV、JSON 或 Markdown。複製和匯出會保留所選分頁。',
+      '右键点击标签页、窗口标题栏或标签页组以查看操作。悬停标签页即可选择标题和网址文字，复制或展开长文本。在完整视图中，选中标签页并在角落的操作搜索中输入文字，即可一起移动、重新加载、复制或保存。按 Ctrl+Shift+F 聚焦操作搜索；未选择标签页时，该快捷键会聚焦工具栏。按 Esc 返回或收起操作。可复制标题、网址、两者、CSV、TSV、JSON 或 Markdown，也可下载 CSV、TSV、JSON 或 Markdown。复制和导出会保留所选标签页。',
+      '在分頁、視窗標題列或分頁群組上按右鍵以查看操作。停留在分頁上即可選取標題和網址文字，複製或展開長文字。在完整檢視中，選取分頁並在角落的操作搜尋中輸入文字，即可一起移動、重新載入、複製或儲存。按 Ctrl+Shift+F 聚焦操作搜尋；未選取分頁時，此快速鍵會聚焦工具列。按 Esc 返回或收合操作。可複製標題、網址、兩者、CSV、TSV、JSON 或 Markdown，也可下載 CSV、TSV、JSON 或 Markdown。複製和匯出會保留所選分頁。',
     ],
     liteModeTitle: ['精简模式中的快捷操作', '精簡模式中的快捷操作'],
     liteModeBody: [

@@ -2843,6 +2843,15 @@ async function captureGroupEditing(page, fullPageUrl, theme, controller) {
   await page.waitForSelector(`[data-testid="tab-group-editor-${groupId}"]`)
   const titleInput = page.getByTestId(`tab-group-editor-title-${groupId}`)
   await titleInput.fill('AI Workspace')
+  await titleInput.press('Enter')
+  await page.waitForFunction(
+    async (id) => (await chrome.tabGroups.get(id)).title === 'AI Workspace',
+    groupId,
+  )
+  windowData.groups[0].title = 'AI Workspace'
+  await page.getByTestId(`tab-group-menu-${groupId}`).click()
+  await page.getByTestId(`tab-group-menu-rename-${groupId}`).click()
+  await titleInput.waitFor({ state: 'visible' })
   const selection = await titleInput.evaluate(async (input) => {
     await new Promise((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(resolve))

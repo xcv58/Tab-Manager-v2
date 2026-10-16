@@ -80,8 +80,11 @@ if (
       chapter.id !== PROMO_CLIP_IDS[index] ||
       !Number.isFinite(chapter.start) ||
       !Number.isFinite(chapter.end) ||
+      !Number.isFinite(chapter.seek) ||
       chapter.start < 0 ||
       chapter.end <= chapter.start ||
+      chapter.seek < chapter.start ||
+      chapter.seek >= chapter.end ||
       (index > 0 && chapter.start < chapters[index - 1].end - 0.001),
   )
 )
@@ -94,9 +97,9 @@ const homepage = readFileSync(homepagePath, 'utf8').replace(
     const chapter = chapters[chapterIndex++]
     if (!chapter)
       throw new Error('More website chapter buttons than captured chapters')
-    const seconds = Math.floor(chapter.start)
+    const seconds = Math.floor(chapter.seek)
     const label = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
-    return `${before}${Number(chapter.start.toFixed(2))}${after}${label}`
+    return `${before}${chapter.seek}${after}${label}`
   },
 )
 if (chapterIndex !== chapters.length)

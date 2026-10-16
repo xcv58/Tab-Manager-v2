@@ -507,12 +507,20 @@ async function main() {
   if (kind === 'edge') {
     await runtime.run(async ({ windows, controllerId }) => {
       for (const win of windows) {
+        await chrome.windows.update(win.windowId, { focused: true })
         for (const id of win.tabIds) {
           await chrome.tabs.update(id, { active: true })
-          await new Promise((resolve) => setTimeout(resolve, 100))
+          for (let attempt = 0; attempt < 100; attempt++) {
+            const tab = await chrome.tabs.get(id)
+            if (tab.status === 'complete' && tab.favIconUrl) break
+            if (attempt === 20) await chrome.tabs.reload(id)
+            await new Promise((resolve) => setTimeout(resolve, 100))
+          }
         }
       }
       await chrome.tabs.update(controllerId, { active: true })
+      const controller = await chrome.tabs.get(controllerId)
+      await chrome.windows.update(controller.windowId, { focused: true })
     }, fixture)
   }
   await waitFor(
@@ -683,16 +691,14 @@ async function main() {
       ) {
         for (const id of fixture.windows[1].tabIds.slice(0, 3))
           await click(`[data-testid="tab-row-${id}"] input[type="checkbox"]`)
-        await palette()
         if (scene.id === '05-save-tab-list') {
-          await fill('input[aria-label="Search commands"]', 'export')
-          await click(
-            '[data-testid="command-palette"] [role="option"]',
-            'Export 3 selected tabs',
-          )
+          await fill('[data-selection-action-search]', 'export')
+          await click('[data-selection-palette] [role="option"]', 'Export…')
           await waitFor(() =>
             document.body.textContent.includes('Export Markdown'),
           )
+        } else {
+          await palette()
         }
       } else if (scene.id === '06-make-it-comfortable') {
         await click('button[aria-label="Settings"]')

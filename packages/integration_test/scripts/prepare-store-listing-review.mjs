@@ -2,20 +2,63 @@
 /* global console, document, URL */
 import { chromium } from 'playwright'
 import { execFileSync } from 'node:child_process'
-import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { SAMPLE_SITES } from './capture-sites.mjs'
 
 const root = fileURLToPath(new URL('../../..', import.meta.url))
-const output = resolve(
+const destination = resolve(
   process.env.STORE_SCREENSHOT_OUTPUT ||
     join(root, '.tmp/store-listing-refresh'),
 )
+const captureSource = resolve(process.env.STORE_SCREENSHOT_INPUT || destination)
+mkdirSync(dirname(destination), { recursive: true })
+// Assemble only named inputs into a fresh folder. Preserve the previous review
+// separately so obsolete sources and nested ZIPs never leak into the new one.
+const output = mkdtempSync(join(dirname(destination), '.store-listing-review-'))
 const copy = JSON.parse(
   readFileSync(join(root, 'promotional_tiles/store-listings/en.json')),
 )
+const captureFiles = new Set(
+  copy.screenshots.flatMap((shot) =>
+    ['light', 'dark'].map((theme) => `${shot.id}-${theme}.png`),
+  ),
+)
+for (const store of Object.keys(copy.stores)) {
+  const source = join(captureSource, 'captures', store)
+  const target = join(output, 'captures', store)
+  const captures = JSON.parse(readFileSync(join(source, 'captures.json')))
+  if (
+    captures.length !== captureFiles.size ||
+    new Set(captures.map((capture) => capture.file)).size !==
+      captureFiles.size ||
+    captures.some((capture) => !captureFiles.has(capture.file))
+  )
+    throw new Error(`Unexpected capture file set for ${store}`)
+  mkdirSync(target, { recursive: true })
+  for (const file of ['captures.json', ...captureFiles])
+    cpSync(join(source, file), join(target, file))
+}
+for (const theme of ['light', 'dark']) {
+  for (const file of [
+    `overview-${theme}.json`,
+    `00-workspace-overview-${theme}.png`,
+  ])
+    cpSync(
+      join(captureSource, 'captures/chrome', file),
+      join(output, 'captures/chrome', file),
+    )
+}
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -60,15 +103,68 @@ const proof = {
 mkdirSync(join(output, 'artwork'), { recursive: true })
 mkdirSync(join(output, 'video'), { recursive: true })
 mkdirSync(join(output, 'source'), { recursive: true })
-writeFileSync(join(output, 'source/extension-ui-fix.patch'), runtimeDiff)
-cpSync(
-  join(root, 'docs/assets/videos/tab-manager-v2-feature-promo.mp4'),
-  join(output, 'video/product-tour.mp4'),
+writeFileSync(
+  join(output, 'changelog.md'),
+  readFileSync(join(root, 'CHANGELOG.md'), 'utf8'),
 )
+writeFileSync(join(output, 'source/extension-ui-fix.patch'), runtimeDiff)
 cpSync(
   join(root, 'docs/assets/images/tab-manager-v2-feature-promo-poster.png'),
   join(output, 'video/poster.png'),
 )
+const publicMedia = JSON.parse(
+  readFileSync(
+    join(root, 'packages/integration_test/assets/public-media-provenance.json'),
+    'utf8',
+  ),
+)
+proof.videos = {}
+for (const [source, target, expectedHash] of [
+  [
+    'tab-manager-v2-feature-promo.mp4',
+    'product-tour.mp4',
+    publicMedia.promo.sha256,
+  ],
+  [
+    'tab-manager-v2-1024-tabs-scale-demo.mp4',
+    'large-workspace.mp4',
+    publicMedia.features.recordings.find(
+      (clip) => clip.id === '08-thousand-twenty-four-tabs-scale',
+    )?.sha256,
+  ],
+  [
+    'tab-manager-v2-integration-test-suite.mp4',
+    'integration-tests.mp4',
+    publicMedia.integrationSuite.sha256,
+  ],
+]) {
+  const sourcePath = join(root, 'docs/assets/videos', source)
+  if (hash(sourcePath) !== expectedHash)
+    throw new Error(`Public video receipt mismatch: ${source}`)
+  cpSync(sourcePath, join(output, 'video', target))
+  proof.videos[target] = expectedHash
+}
+writeFileSync(
+  join(output, 'public-media-provenance.json'),
+  JSON.stringify(publicMedia, null, 2) + '\n',
+)
+for (const [source, target, expectedHash] of [
+  [
+    'docs/assets/tracks/tab-manager-v2-feature-promo.vtt',
+    'captions.vtt',
+    publicMedia.promo.captionsSha256,
+  ],
+  [
+    '.tmp/video-captures/promo/chapters.json',
+    'chapters.json',
+    publicMedia.promo.chaptersSha256,
+  ],
+]) {
+  const sourcePath = join(root, source)
+  if (hash(sourcePath) !== expectedHash)
+    throw new Error(`Public tour metadata receipt mismatch: ${source}`)
+  cpSync(sourcePath, join(output, 'video', target))
+}
 
 const descriptionFor = (store) => {
   if (store !== 'firefox') return copy.description
@@ -254,19 +350,22 @@ try {
     })
     await page.setContent(`<html><body style="margin:0">${svg}</body></html>`)
     await page.evaluate(() => document.fonts.ready)
-    const raw = join(output, 'artwork', name + '-raw.png')
-    await page.screenshot({ path: raw })
-    execFileSync('magick', [
-      raw,
-      '-alpha',
-      'remove',
-      '-alpha',
-      'off',
-      '-strip',
-      '-define',
-      'png:color-type=2',
-      join(output, 'artwork', name + '.png'),
-    ])
+    const raw = await page.screenshot()
+    execFileSync(
+      'magick',
+      [
+        'png:-',
+        '-alpha',
+        'remove',
+        '-alpha',
+        'off',
+        '-strip',
+        '-define',
+        'png:color-type=2',
+        join(output, 'artwork', name + '.png'),
+      ],
+      { input: raw },
+    )
     await page.close()
   }
 } finally {
@@ -298,6 +397,34 @@ cpSync(
 cpSync(
   join(root, 'scripts/preview-release-media.mjs'),
   join(output, 'source/preview-release-media.mjs'),
+)
+for (const file of [
+  'capture-store-listing-review.mjs',
+  'prepare-store-listing-review.mjs',
+])
+  cpSync(
+    join(root, 'packages/integration_test/scripts', file),
+    join(output, 'source', file),
+  )
+for (const file of ['store-small-tile.svg', 'store-marquee.svg'])
+  cpSync(
+    join(root, 'promotional_tiles/src', file),
+    join(output, 'source', file),
+  )
+writeFileSync(
+  join(output, 'source/README.md'),
+  '# Source snapshots\n\nThese are current source snapshots for review. Run capture and assembly scripts from the full repository, where their dependencies and extension build are available. `copy-source.json` at the review root is the listing copy source. The preview server is standalone: run `node source/preview-release-media.mjs . 8778` from the review root.\n',
+)
+proof.sourceSnapshots = Object.fromEntries(
+  [
+    'copy-source.json',
+    'source/capture-sites.mjs',
+    'source/capture-store-listing-review.mjs',
+    'source/prepare-store-listing-review.mjs',
+    'source/preview-release-media.mjs',
+    'source/store-small-tile.svg',
+    'source/store-marquee.svg',
+  ].map((file) => [file, hash(join(output, file))]),
 )
 writeFileSync(join(output, 'provenance.json'), JSON.stringify(proof, null, 2))
 
@@ -369,7 +496,7 @@ const html = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="v
   )
   .join(
     '',
-  )}<button data-view="shared" aria-pressed="false">Artwork, video & capture details</button></nav><main><div class="notice">All screenshots show the real built extension in isolated Chrome, Firefox, and Edge profiles. The temporary capture manifests use <strong>3.0.0</strong>, matching the separate release PR. All screenshots and the product tour use the final merged UI with fictional websites served locally. No external website loads are needed during capture. The tracked package version is unchanged. Store dashboards have not been edited.</div>${storeHtml}<section class="store" id="shared" hidden><h2>Promotional artwork</h2><p>One clear headline, the existing T identity, and a real product image in the marquee. No version number or “coming soon” wording.</p><div class="artwork"><figure><a href="artwork/small-tile-440x280.png" target="_blank"><img width="440" height="280" src="artwork/small-tile-440x280.png" alt="Small tile: Too many tabs, handled."></a><figcaption>Chrome / Edge small tile · 440×280 · <a download href="artwork/small-tile-440x280.png">PNG</a> · <a download href="artwork/small-tile-440x280.svg">SVG source</a></figcaption></figure><figure><a href="artwork/marquee-1400x560.png" target="_blank"><img width="1400" height="560" src="artwork/marquee-1400x560.png" alt="Marquee: Too many tabs, handled, alongside the actual Tab Manager workspace"></a><figcaption>Chrome marquee / Edge large tile · 1400×560 · <a download href="artwork/marquee-1400x560.png">PNG</a> · <a download href="artwork/marquee-1400x560.svg">SVG source</a></figcaption></figure></div><h3>Existing icon</h3><p>The recognizable T icon is retained. Each store folder includes its icon exports; Firefox also has 32×32 and 64×64 versions.</p><img src="chrome/icons/icon-128.png" alt="Tab Manager T icon" width="96" height="96" style="background:white;border-radius:12px;padding:12px"><h3>Proposed store video</h3><p>${escape(copy.video.status)}</p><video controls preload="none" poster="video/poster.png"><source src="video/product-tour.mp4" type="video/mp4"></video><p><a download href="video/product-tour.mp4">Download the product tour</a></p><h3>Capture and asset checks</h3>${pre(JSON.stringify(proof.validation, null, 2))}<p class="muted">Source commit: ${sourceCommit}<br>Merged master: ${mergedCommit}<br>Capture browsers: ${Object.entries(
+  )}<button data-view="shared" aria-pressed="false">Artwork, video & capture details</button></nav><main><div class="notice">All screenshots show the real built extension in isolated Chrome, Firefox, and Edge profiles. The temporary capture manifests use <strong>3.0.0</strong> for local review only. The final release version and tag are pending approval. All screenshots and the product tour use the final merged UI with fictional websites served locally. No external website loads are needed during capture. The tracked package version is unchanged. Store dashboards have not been edited.</div>${storeHtml}<section class="store" id="shared" hidden><h2>Promotional artwork</h2><p>One clear headline, the existing T identity, and a real product image in the marquee. No version number or “coming soon” wording.</p><div class="artwork"><figure><a href="artwork/small-tile-440x280.png" target="_blank"><img width="440" height="280" src="artwork/small-tile-440x280.png" alt="Small tile: Too many tabs, handled."></a><figcaption>Chrome / Edge small tile · 440×280 · <a download href="artwork/small-tile-440x280.png">PNG</a> · <a download href="artwork/small-tile-440x280.svg">SVG source</a></figcaption></figure><figure><a href="artwork/marquee-1400x560.png" target="_blank"><img width="1400" height="560" src="artwork/marquee-1400x560.png" alt="Marquee: Too many tabs, handled, alongside the actual Tab Manager workspace"></a><figcaption>Chrome marquee / Edge large tile · 1400×560 · <a download href="artwork/marquee-1400x560.png">PNG</a> · <a download href="artwork/marquee-1400x560.svg">SVG source</a></figcaption></figure></div><h3>Existing icon</h3><p>The recognizable T icon is retained. Each store folder includes its icon exports; Firefox also has 32×32 and 64×64 versions.</p><img src="chrome/icons/icon-128.png" alt="Tab Manager T icon" width="96" height="96" style="background:white;border-radius:12px;padding:12px"><h3>Proposed store video</h3><p>${escape(copy.video.status)}</p><video controls preload="none" poster="video/poster.png"><source src="video/product-tour.mp4" type="video/mp4"><track kind="captions" src="video/captions.vtt" srclang="en" label="English"></video><p><a download href="video/product-tour.mp4">Download the product tour</a> · <a download href="video/captions.vtt">Captions</a> · <a download href="video/chapters.json">Chapters</a></p><p>Additional review videos: <a href="video/large-workspace.mp4">Large workspace demonstration</a> · <a href="video/integration-tests.mp4">Complete automated checks</a>. <a href="changelog.md">Release highlights</a></p><h3>Capture and asset checks</h3>${pre(JSON.stringify(proof.validation, null, 2))}<p class="muted">Source commit: ${sourceCommit}<br>Merged master: ${mergedCommit}<br>Capture browsers: ${Object.entries(
   captureSets,
 )
   .map(([key, captures]) => `${key} ${captures[0].browserVersion}`)
@@ -391,8 +518,19 @@ writeFileSync(
 )
 writeFileSync(
   join(output, 'README.md'),
-  `# Store listing review\n\nNothing uploaded or published. Open index.html, or serve this folder locally. For video seeking, run \`node source/preview-release-media.mjs . 8778\` from this folder and open http://127.0.0.1:8778/.\n\n- chrome/: five recommended screenshots, Settings alternate, complete fields, icons and promotional tiles\n- firefox/: six recommended screenshots, separate captions, Firefox-specific copy and icons\n- edge/: six recommended screenshots, complete fields, icons and promotional tiles\n- captures/: all thirty-six light/dark PNGs, sample browser tab metadata, capture checksums\n- artwork/: PNG exports and self-contained SVG sources\n- video/: refreshed product tour for review\n- provenance.json: source commits, candidate-manifest disclosure and validation results\n\nThe temporary capture manifest uses 3.0.0 to match the existing release PR. All screenshots and the tour were refreshed using the merged UI and shared local fictional websites. Tracked manifests/package versions were not changed; provenance records the fixture catalogue hash.\n\nStore field suggestions are drafts. Publisher/legal fields remain unchanged. A separately approved upload must check private dashboard fields, available tags, release/package state, and live store results.\n`,
+  `# Store listing review\n\nNothing uploaded or published. Open index.html, or serve this folder locally. For video seeking, run \`node source/preview-release-media.mjs . 8778\` from this folder and open http://127.0.0.1:8778/.\n\n- chrome/: five recommended screenshots, Settings alternate, complete fields, icons and promotional tiles\n- firefox/: six recommended screenshots, separate captions, Firefox-specific copy and icons\n- edge/: six recommended screenshots, complete fields, icons and promotional tiles\n- captures/: all thirty-six light/dark PNGs, sample browser tab metadata, capture checksums\n- artwork/: PNG exports and self-contained SVG sources\n- video/: refreshed product tour, large-workspace demonstration and complete test video, tour captions and chapters for review\n- changelog.md: user-facing release highlights\n- public-media-provenance.json: receipt matching all three videos\n- provenance.json: source commits, candidate-manifest disclosure and validation results\n\nThe temporary capture manifest uses 3.0.0 for local review; the final release version and tag remain pending approval. All screenshots and the tour were refreshed using the merged UI and shared local fictional websites. Tracked manifests/package versions were not changed; provenance records the fixture catalogue hash.\n\nStore field suggestions are drafts. Publisher/legal fields remain unchanged. A separately approved upload must check private dashboard fields, available tags, release/package state, and live store results.\n`,
 )
+const previous = existsSync(destination)
+  ? `${destination}.previous-${new Date().toISOString().replaceAll(':', '-')}`
+  : null
+if (previous) renameSync(destination, previous)
+try {
+  renameSync(output, destination)
+} catch (error) {
+  if (previous) renameSync(previous, destination)
+  throw error
+}
 console.log(
-  `Prepared ${output}/index.html: 36 verified captures; ${summaryCount}-character summary; all three store drafts.`,
+  `Prepared ${destination}/index.html: 36 verified captures; ${summaryCount}-character summary; all three store drafts.`,
 )
+if (previous) console.log(`Preserved previous review at ${previous}`)

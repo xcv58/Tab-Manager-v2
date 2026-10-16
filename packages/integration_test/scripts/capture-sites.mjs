@@ -101,6 +101,9 @@ export async function startCaptureSites() {
   // Do not tunnel HTTPS or forward any request to another server.
   server.on('connect', (_request, socket) => {
     blockedRequests++
+    // Browsers may reset a rejected tunnel when their temporary profile closes.
+    // CONNECT sockets are detached from the HTTP server's normal error handling.
+    socket.on('error', () => socket.destroy())
     socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n')
   })
   await new Promise((resolve, reject) => {
