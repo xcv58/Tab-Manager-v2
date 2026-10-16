@@ -10,7 +10,7 @@ To provide its features, the extension may access:
 
 - open tabs and windows
 - native tab groups on browsers that support them
-- browser history results when you enable the "Include browser history in results" setting
+- browser history results when "Include browser history in results" is on; this setting is on by default and can be turned off in Settings
 - Firefox container identities and related cookie-store information for container-aware features
 - installed extension metadata for `chrome-extension://` pages so the UI can show the correct icon
 

@@ -147,14 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
       'Clear duplicates before they pile up.': '趁重复标签页堆起来前先清理。',
       'Rename and organize groups.': '重命名并整理标签页组。',
       'Stay oriented in large workspaces.': '在大型工作区里保持清楚。',
-      'Move faster with shortcuts.': '用快捷键更快操作。',
+      'Copy several links at once.': '一次复制多个链接。',
       'Customize the view.': '自定义视图。',
       Performance: '性能',
-      '1,000+ tabs, still smooth.': '1,000 多个标签页，依然流畅。',
+      '1,000+ tabs, one clear view.': '1,000 多个标签页，一目了然。',
       'Your browser does not support embedded videos. You can download the scale demo video directly instead.':
         '你的浏览器不支持嵌入式视频。你可以改为直接下载规模演示视频。',
-      'Recorded with 1,024 sample tabs. Background pages were unloaded.':
-        '使用 1,024 个示例标签页录制，后台页面已卸载。',
+      'Recorded with 1,024 local sample tabs and unloaded background pages. This demonstrates Tab Manager’s interface, not website loading speed.':
+        '使用 1,024 个本地示例标签页录制，后台页面已卸载。此视频展示 Tab Manager 的界面，而非网站加载速度。',
       Testing: '测试',
       'Every change, tested end to end.': '每次改动，都经过端到端测试。',
       'Watch automated checks of search, grouping, cleanup, shortcuts, and settings, played at 10× speed.':
@@ -211,8 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'Copy page titles and links, or download a list for later. Expand long titles and addresses to read and copy the full text.':
         '复制页面标题和链接，或下载列表供以后使用。展开长标题和网址，阅读和复制完整内容。',
       'Find an action quickly': '快速找到操作',
-      'Open the command menu and type what you want to do. Built-in shortcut help makes keyboard actions easy to discover.':
-        '打开命令菜单，输入你想做的事。内置快捷键帮助，让键盘操作更容易上手。',
+      'Select a few tabs, then type to find actions to move, copy, or save them together. Use shortcuts to keep your hands on the keyboard.':
+        '选中多个标签页，输入文字即可找到移动、复制或保存它们的操作。使用快捷键，全程无需离开键盘。',
       'Make it comfortable': '调成你喜欢的样子',
       'Adjust colors, text size, and layout. Search settings and see previews as you make changes.':
         '调整颜色、文字大小和布局。搜索设置，修改时即可查看预览。',
@@ -340,14 +340,14 @@ document.addEventListener('DOMContentLoaded', () => {
       'Clear duplicates before they pile up.': '趁重複分頁堆起來前先清理。',
       'Rename and organize groups.': '重新命名並整理分頁群組。',
       'Stay oriented in large workspaces.': '在大型工作區裡保持清楚。',
-      'Move faster with shortcuts.': '用快速鍵更快操作。',
+      'Copy several links at once.': '一次複製多個連結。',
       'Customize the view.': '自訂檢視。',
       Performance: '效能',
-      '1,000+ tabs, still smooth.': '1,000 多個分頁，依然順暢。',
+      '1,000+ tabs, one clear view.': '1,000 多個分頁，一目了然。',
       'Your browser does not support embedded videos. You can download the scale demo video directly instead.':
         '你的瀏覽器不支援嵌入式影片。你可以改為直接下載規模演示影片。',
-      'Recorded with 1,024 sample tabs. Background pages were unloaded.':
-        '使用 1,024 個範例分頁錄製，背景頁面已卸載。',
+      'Recorded with 1,024 local sample tabs and unloaded background pages. This demonstrates Tab Manager’s interface, not website loading speed.':
+        '使用 1,024 個本機範例分頁錄製，背景頁面已卸載。此影片展示 Tab Manager 的介面，而非網站載入速度。',
       Testing: '測試',
       'Every change, tested end to end.': '每次變更，都經過端對端測試。',
       'Watch automated checks of search, grouping, cleanup, shortcuts, and settings, played at 10× speed.':
@@ -404,8 +404,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'Copy page titles and links, or download a list for later. Expand long titles and addresses to read and copy the full text.':
         '複製頁面標題和連結，或下載清單供日後使用。展開長標題和網址，閱讀和複製完整內容。',
       'Find an action quickly': '快速找到操作',
-      'Open the command menu and type what you want to do. Built-in shortcut help makes keyboard actions easy to discover.':
-        '開啟命令選單，輸入你想做的事。內建快速鍵說明，讓鍵盤操作更容易上手。',
+      'Select a few tabs, then type to find actions to move, copy, or save them together. Use shortcuts to keep your hands on the keyboard.':
+        '選取多個分頁，輸入文字即可找到移動、複製或儲存它們的操作。使用快速鍵，全程無需離開鍵盤。',
       'Make it comfortable': '調成你喜歡的樣子',
       'Adjust colors, text size, and layout. Search settings and see previews as you make changes.':
         '調整顏色、文字大小和版面。搜尋設定，修改時即可查看預覽。',

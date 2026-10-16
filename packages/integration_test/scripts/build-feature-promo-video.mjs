@@ -75,8 +75,8 @@ const CLIPS = [
     id: '05-keyboard-workflow',
     chapter: '05 / 06',
     title: 'Find An Action Quickly',
-    caption: 'Move faster with shortcuts.',
-    subtitle: 'Open the command menu and type what you want to do.',
+    caption: 'Copy several links at once.',
+    subtitle: 'Select tabs and type to find the action you need.',
     accent: BRAND_ACCENT,
   },
   {
@@ -268,6 +268,9 @@ function cssShared({ transparent, clipHeight = 0 }) {
     .brand img {
       width: 38px;
       height: 38px;
+      padding: 4px;
+      border-radius: 9px;
+      background: #fff;
       display: block;
       object-fit: contain;
     }
@@ -378,6 +381,9 @@ function cssShared({ transparent, clipHeight = 0 }) {
       display: block;
       margin: 8px 0 18px;
       object-fit: contain;
+      padding: 8px;
+      border-radius: 16px;
+      background: #fff;
     }
     .eyebrow {
       color: var(--muted);
@@ -719,7 +725,10 @@ function writeChapters() {
       start +
       durationForVideo(clipOutputPath(clip.id)) -
       SCENE_TRANSITION_SECONDS
-    const chapter = { id: clip.id, start, end, caption: clip.caption }
+    // Keep transition bounds in the metadata. Both the VTT chapter menu and
+    // website buttons land after the incoming crossfade, with a frame of margin.
+    const seek = (Math.ceil((start + SCENE_TRANSITION_SECONDS) * FPS) + 1) / FPS
+    const chapter = { id: clip.id, start, end, seek, caption: clip.caption }
     start = end
     return chapter
   })
@@ -740,7 +749,7 @@ function writeChapters() {
       chapters
         .map(
           (chapter) =>
-            `${timestamp(chapter.start)} --> ${timestamp(chapter.end)}\n${chapter.caption}\n`,
+            `${timestamp(chapter.seek)} --> ${timestamp(chapter.end)}\n${chapter.caption}\n`,
         )
         .join('\n'),
   )

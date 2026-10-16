@@ -1618,24 +1618,19 @@ async function recordKeyboardWorkflow() {
       const tab = page.getByTestId(`tab-row-${createdWindows[0].tabIds[0]}`)
       const tabCenter = await getCenter(tab)
       await moveCursor(page, startPoint, tabCenter, 700)
-      await tab.click({ button: 'right' })
-      await page.getByRole('menu').waitFor({ state: 'visible' })
-      await demoHold(page, 700)
-      await page.keyboard.press('Escape')
-
-      await page.keyboard.press(
-        process.platform === 'darwin' ? 'Meta+k' : 'Alt+k',
-      )
-      const palette = page.getByRole('dialog', { name: 'Command palette' })
-      const searchBox = palette.getByRole('combobox')
-      await searchBox.waitFor({ state: 'visible', timeout: 15000 })
-      await demoPause(page, 350)
-      const searchCenter = await getCenter(searchBox)
-      await moveCursor(page, tabCenter, searchCenter, 700)
-      await demoPause(page, 120)
-      await clickCurrent(page)
-      await demoPause(page, 180)
-      await searchBox.type('copy', { delay: paceType(150) })
+      for (const id of createdWindows[0].tabIds.slice(0, 2)) {
+        await page.getByTestId(`tab-row-${id}`).getByRole('checkbox').focus()
+        await page.keyboard.press('Space')
+        await demoPause(page, 220)
+      }
+      await page.keyboard.press('Control+Shift+f')
+      const selectionSearch = page.getByRole('combobox', {
+        name: 'Search selected-tab actions',
+      })
+      await selectionSearch.waitFor({ state: 'visible' })
+      await selectionSearch.type('copy', { delay: paceType(150) })
+      await demoHold(page, 1400)
+      await page.keyboard.press('Enter')
       await demoHold(page, 1900)
     },
   )
