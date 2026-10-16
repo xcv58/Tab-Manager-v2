@@ -30,6 +30,7 @@ const page = document.querySelector<HTMLElement>('.demo-page')!
 const main = document.querySelector<HTMLElement>('.demo-main')!
 const header = document.querySelector<HTMLElement>('.demo-header')!
 const controls = document.querySelector<HTMLElement>('.demo-controls')!
+const languageNote = document.querySelector<HTMLElement>('.demo-language-note')!
 const expand = document.querySelector<HTMLButtonElement>('#expand-demo')!
 const exitExpanded =
   document.querySelector<HTMLButtonElement>('#exit-expanded')!
@@ -49,7 +50,7 @@ const fitWorkspace = () => {
     const gap = parseFloat(window.getComputedStyle(main).rowGap) || 0
     page.style.setProperty(
       '--demo-shell-height',
-      `${header.getBoundingClientRect().height + controls.getBoundingClientRect().height + gap + 12}px`,
+      `${header.getBoundingClientRect().height + controls.getBoundingClientRect().height + languageNote.getBoundingClientRect().height + gap * 2 + 12}px`,
     )
   }
 }
@@ -173,6 +174,16 @@ const renderCopy = () => {
       : site?.getLanguage() === 'zh-Hant'
         ? '試用 Tab Manager v2 · 互動示範'
         : 'Try Tab Manager v2 · Interactive demo'
+  document
+    .querySelector('meta[name="description"]')
+    ?.setAttribute(
+      'content',
+      site?.getLanguage() === 'zh-Hans'
+        ? '使用示例工作区体验 Tab Manager v2，从一个标签页到 1,500 个。无需安装扩展。'
+        : site?.getLanguage() === 'zh-Hant'
+          ? '使用範例工作區體驗 Tab Manager v2，從一個分頁到 1,500 個。無需安裝擴充功能。'
+          : 'Explore Tab Manager v2 with sample workspaces, from one tab to 1,500. No extension required.',
+    )
   fitGuide()
 }
 
@@ -255,6 +266,7 @@ window.visualViewport?.addEventListener('scroll', () => {
 const shellObserver = new ResizeObserver(fitWorkspace)
 shellObserver.observe(header)
 shellObserver.observe(controls)
+shellObserver.observe(languageNote)
 mobile.addEventListener('change', renderCopy)
 window.addEventListener('scroll', fitGuide, { passive: true })
 document.addEventListener('click', (event) => {

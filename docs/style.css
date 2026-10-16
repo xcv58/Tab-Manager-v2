@@ -300,6 +300,11 @@ code {
   padding: 2px;
 }
 
+.logo > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .nav-wrapper {
   order: 1;
   display: flex;
@@ -406,8 +411,7 @@ code {
 .language-select {
   appearance: none;
   -webkit-appearance: none;
-  min-height: 36px;
-  max-width: 150px;
+  min-height: var(--tap-target-size);
   padding: 0 30px 0 34px;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -877,7 +881,13 @@ code {
 
 .video-tour-layout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
+}
+
+.video-tour-frame,
+.video-tour-copy {
+  min-width: 0;
 }
 
 .video-tour-frame {
@@ -1607,7 +1617,7 @@ code {
     min-width: 0;
     gap: 8px;
     font-size: clamp(0.95rem, 3.8vw, 1.1rem);
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .logo img {
@@ -1888,4 +1898,240 @@ code {
     width: 56px;
     height: 56px;
   }
+}
+
+/* Keep optional implementation details behind a readable native disclosure. */
+.permission-details {
+  margin-top: 16px;
+  padding: 12px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.permission-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--text-primary);
+}
+.permission-details > summary::-webkit-details-marker {
+  display: none;
+}
+.permission-details > summary::after,
+.faq-item .permission-details > summary::after {
+  content: '+';
+  position: static;
+  flex: none;
+}
+.permission-details[open] > summary::after,
+.faq-item .permission-details[open] > summary::after {
+  content: '−';
+}
+.faq-item .permission-details {
+  margin: 0 32px 24px;
+}
+.faq-item .permission-details > summary {
+  padding: 0;
+  font-size: 1rem;
+}
+.faq-item .permission-details p {
+  padding: 16px 0 0;
+}
+
+/* Shared header: appearance stays at the physical right of the first row. */
+.site-header {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  direction: ltr;
+}
+.site-header > .logo {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+.site-header .logo img {
+  flex-shrink: 0;
+}
+.site-header > .nav-wrapper {
+  grid-column: 2;
+  grid-row: 1;
+  order: 0;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+}
+.site-header > .theme-toggle {
+  grid-column: 3;
+  grid-row: 1;
+  order: 0;
+  width: 44px;
+  height: 44px;
+}
+.site-header [hidden] {
+  display: none !important;
+}
+
+/* Larger text can need a menu even on a desktop-sized screen. */
+.site-header[data-menu-compact] {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: start;
+  gap: 0 8px;
+  padding: 10px 0;
+}
+.site-header[data-menu-compact] > .logo {
+  font-size: clamp(0.95rem, 3.8vw, 1.1rem);
+  gap: 8px;
+}
+.site-header[data-menu-compact] > .site-menu-toggle {
+  display: inline-flex;
+  grid-column: 2;
+  grid-row: 1;
+  order: 0;
+}
+.site-header[data-menu-compact] > .nav-wrapper {
+  display: flex;
+  position: static;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-items: stretch;
+  flex-direction: column;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+  margin: 10px 0 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-color);
+  box-shadow: none;
+}
+.site-header[data-menu-compact] .nav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 2px;
+}
+.site-header[data-menu-compact] .nav-links a {
+  min-height: var(--tap-target-size);
+  padding: 8px 12px;
+}
+.site-header[data-menu-compact] .language-select-wrap,
+.site-header[data-menu-compact] .language-select {
+  max-width: 100%;
+}
+.site-header[data-menu-compact] .language-select-wrap {
+  align-self: flex-start;
+}
+@media (max-width: 1050px) {
+  .site-header,
+  .site-header[data-menu-ready] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: start;
+    gap: 0 8px;
+    padding: 10px 0;
+  }
+  .site-header > .logo {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: clamp(0.95rem, 3.8vw, 1.1rem);
+    gap: 8px;
+  }
+  .site-header > .site-menu-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+  }
+  .site-header > .theme-toggle {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .site-header[data-menu-ready] > .site-menu-toggle {
+    display: inline-flex;
+  }
+  .site-header > .nav-wrapper,
+  .site-header[data-menu-ready] > .nav-wrapper {
+    display: flex;
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    order: 0;
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    margin: 10px 0 0;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-color);
+    box-shadow: none;
+  }
+  .site-header .nav-links {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 2px;
+  }
+  .site-header .nav-links a {
+    min-height: var(--tap-target-size);
+    padding: 8px 12px;
+  }
+  .site-header .language-select-wrap {
+    max-width: 100%;
+    align-self: flex-start;
+  }
+  .site-header .language-select {
+    min-height: var(--tap-target-size);
+    max-width: 100%;
+  }
+}
+
+/* Navigation must remain visible when optional enhancement scripts are unavailable. */
+.site-header.fade-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Measure the full desktop row before choosing the compact menu. The existing
+   nodes stay in place, so language changes and larger text use their real size. */
+.site-header[data-menu-measuring] > .logo {
+  width: max-content;
+  font-size: 1.25rem;
+  gap: 12px;
+}
+.site-header[data-menu-measuring] .logo > span {
+  white-space: nowrap;
+}
+.site-header[data-menu-measuring] > .nav-wrapper {
+  display: flex !important;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 16px;
+}
+.site-header[data-menu-measuring] .nav-links {
+  width: max-content;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 14px;
+}
+.site-header[data-menu-measuring] .nav-links a {
+  padding: 0 4px;
+  white-space: nowrap;
 }

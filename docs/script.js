@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedCopy = {
     'zh-Hans': {
+      'See permission names': '查看权限名称',
       'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
         '跨窗口查找标签页，整理相关页面，关闭重复项，复制或分享标签页。',
       'Open command palette screenshot': '打开命令面板截图',
@@ -60,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Try the interactive demo': '试用交互演示',
       'No installation needed. Explore with sample tabs.':
         '无需安装。使用示例标签页体验功能。',
+      'Using a phone? Try the demo, or': '正在使用手机？可以先试用演示，或',
+      'check browser support': '查看浏览器支持情况',
+      'before installing.': '再决定是否安装。',
       Privacy: '隐私',
       Support: '支持',
       'Theme Toggle': '主题切换',
@@ -74,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '在一个可搜索的工作区里查看所有窗口中的标签页。',
       'Find the page you need, organize tabs together, and clear out duplicates without switching between windows.':
         '找到需要的页面，一起整理标签页，清理重复项，无需在窗口之间来回切换。',
-      'Free and open source. Runs locally in your browser.':
-        '免费开源，在你的浏览器中运行。',
+      'Free and open source. Your tab data stays in your browser.':
+        '免费开源。标签页数据留在你的浏览器中。',
       'Get Tab Manager v2 for Chrome': '获取 Chrome 版 Tab Manager v2',
       'Get Tab Manager v2 for Firefox': '获取 Firefox 版 Tab Manager v2',
       'Get Tab Manager v2 for Edge': '获取 Edge 版 Tab Manager v2',
@@ -93,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
       'Show light screenshots': '显示浅色截图',
       'Show dark screenshots': '显示深色截图',
       'Open tab group editing screenshot': '打开标签页组编辑截图',
-      'Edit native tab groups': '编辑原生标签页组',
+      'Edit your browser’s tab groups': '编辑浏览器标签页组',
       'Tab group editing screenshot in light theme':
         '浅色主题下的标签页组编辑截图',
       'Tab group editing screenshot in dark theme':
         '深色主题下的标签页组编辑截图',
-      'Edit native tab groups where supported by the browser.':
-        '在浏览器支持时，直接编辑原生标签页组。',
+      'Edit your browser’s tab groups where supported by the browser.':
+        '在浏览器支持时，直接编辑浏览器标签页组。',
       'Open search with tab groups screenshot': '打开标签页组搜索截图',
       'Search across windows and groups': '跨窗口和标签页组搜索',
       'Search across grouped tabs in light theme':
@@ -128,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '浅色主题下的标签页组聚焦截图',
       'Grouped tabs support screenshot in dark theme':
         '深色主题下的标签页组聚焦截图',
-      'Stay oriented inside large native tab groups where supported by the browser.':
-        '在浏览器支持时，即使原生标签页组很大，也能保持清楚。',
+      'Stay oriented inside large tab groups where supported by the browser.':
+        '在浏览器支持时，即使浏览器标签页组很大，也能保持清楚。',
       'Open settings screenshot': '打开设置截图',
       'Customize the view': '自定义视图',
       'Settings screenshot in light theme': '浅色主题下的设置截图',
@@ -167,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'When your browser turns into a working set, the hard part is no longer opening tabs. It is finding, comparing, and cleaning them up quickly.':
         '当浏览器变成你的工作台，难的已经不是打开标签页，而是快速找到、比较和整理它们。',
       'The Old Way': '旧方式',
-      'Native tab strips and window hopping': '原生标签栏和来回切换窗口',
+      'Browser tab bars and switching windows': '浏览器标签栏和来回切换窗口',
       'Manual Scanning': '手动查找',
       'Scan tiny favicons and truncated titles across multiple windows just to find one tab.':
         '为了找一个标签页，只能在多个窗口里扫视小小的网站图标和被截断的标题。',
@@ -192,8 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'Spot duplicate tabs and clean them up before they pile up.':
         '在重复标签页越积越多前，先找出来并清理掉。',
       'See the Whole Session': '看清整个会话',
-      'Keep windows and native tab groups in a single focused view where supported by the browser.':
-        '把窗口和原生标签页组集中在一个清晰视图中；是否支持取决于浏览器。',
+      'Keep windows and your browser’s tab groups in a single focused view where supported by the browser.':
+        '把窗口和浏览器标签页组集中在一个清晰视图中；是否支持取决于浏览器。',
       'Common Workflows': '常用场景',
       'The jobs people open it for.': '大家打开它，通常就是为了这些事。',
       'Find the page you need, tidy up extra tabs, or organize a busy browser.':
@@ -224,11 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
         '浏览器支持同步存储时，设置会保存在浏览器同步存储中。如果同步存储不可用，扩展会回退到本地存储，功能照常可用。',
       'What permissions does the extension need?': '扩展需要哪些权限？',
       'Does it work with browser tab groups?': '它支持浏览器标签页组吗？',
-      'Yes, where supported by the browser. Tab Manager v2 lets you manage native tab groups directly without leaving the extension.':
-        '支持，前提是浏览器本身支持。Tab Manager v2 让你不用离开扩展，就能直接管理原生标签页组。',
+      'Yes, where supported by the browser. Tab Manager v2 lets you manage your browser’s tab groups directly without leaving the extension.':
+        '支持，前提是浏览器本身支持。Tab Manager v2 让你不用离开扩展，就能直接管理浏览器标签页组。',
       'Can I rename windows?': '我可以重命名窗口吗？',
-      "No. If you want labels for related tabs, use your browser's native tab groups instead. Tab Manager v2 can rename and recolor those groups where supported by the browser.":
-        '不可以。如果你想给相关标签页加标签，请改用浏览器原生标签页组。只要浏览器支持，Tab Manager v2 可以重命名这些组并修改颜色。',
+      'No. If you want labels for related tabs, use your browser’s tab groups instead. Tab Manager v2 can rename and recolor those groups where supported by the browser.':
+        '不可以。如果你想给相关标签页加标签，请改用浏览器标签页组。只要浏览器支持，Tab Manager v2 可以重命名这些组并修改颜色。',
       Issues: '问题反馈',
       'Privacy Policy': '隐私政策',
       'Back to Top': '返回顶部',
@@ -253,6 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Try the interactive demo': '試用互動示範',
       'No installation needed. Explore with sample tabs.':
         '無需安裝。使用範例分頁體驗功能。',
+      'Using a phone? Try the demo, or': '正在使用手機？可以先試用示範，或',
+      'check browser support': '查看瀏覽器支援情況',
+      'before installing.': '再決定是否安裝。',
       Privacy: '隱私',
       Support: '支援',
       'Theme Toggle': '主題切換',
@@ -267,8 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '在一個可搜尋的工作區裡查看所有視窗中的分頁。',
       'Find the page you need, organize tabs together, and clear out duplicates without switching between windows.':
         '找到需要的頁面，一起整理分頁，清理重複項，無需在視窗之間來回切換。',
-      'Free and open source. Runs locally in your browser.':
-        '免費開源，在你的瀏覽器中執行。',
+      'Free and open source. Your tab data stays in your browser.':
+        '免費開源。分頁資料留在你的瀏覽器中。',
       'Get Tab Manager v2 for Chrome': '取得 Chrome 版 Tab Manager v2',
       'Get Tab Manager v2 for Firefox': '取得 Firefox 版 Tab Manager v2',
       'Get Tab Manager v2 for Edge': '取得 Edge 版 Tab Manager v2',
@@ -286,13 +293,13 @@ document.addEventListener('DOMContentLoaded', () => {
       'Show light screenshots': '顯示淺色截圖',
       'Show dark screenshots': '顯示深色截圖',
       'Open tab group editing screenshot': '開啟分頁群組編輯截圖',
-      'Edit native tab groups': '編輯原生分頁群組',
+      'Edit your browser’s tab groups': '編輯瀏覽器分頁群組',
       'Tab group editing screenshot in light theme':
         '淺色主題下的分頁群組編輯截圖',
       'Tab group editing screenshot in dark theme':
         '深色主題下的分頁群組編輯截圖',
-      'Edit native tab groups where supported by the browser.':
-        '在瀏覽器支援時，直接編輯原生分頁群組。',
+      'Edit your browser’s tab groups where supported by the browser.':
+        '在瀏覽器支援時，直接編輯瀏覽器分頁群組。',
       'Open search with tab groups screenshot': '開啟分頁群組搜尋截圖',
       'Search across windows and groups': '跨視窗與群組搜尋',
       'Search across grouped tabs in light theme':
@@ -321,8 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '淺色主題下的分頁群組聚焦截圖',
       'Grouped tabs support screenshot in dark theme':
         '深色主題下的分頁群組聚焦截圖',
-      'Stay oriented inside large native tab groups where supported by the browser.':
-        '在瀏覽器支援時，即使原生分頁群組很大，也能保持清楚。',
+      'Stay oriented inside large tab groups where supported by the browser.':
+        '在瀏覽器支援時，即使瀏覽器分頁群組很大，也能保持清楚。',
       'Open settings screenshot': '開啟設定截圖',
       'Customize the view': '自訂檢視',
       'Settings screenshot in light theme': '淺色主題下的設定截圖',
@@ -360,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'When your browser turns into a working set, the hard part is no longer opening tabs. It is finding, comparing, and cleaning them up quickly.':
         '當瀏覽器變成你的工作台，難的已經不是開啟分頁，而是快速找到、比較和整理它們。',
       'The Old Way': '舊方式',
-      'Native tab strips and window hopping': '原生分頁列和來回切換視窗',
+      'Browser tab bars and switching windows': '瀏覽器分頁列和來回切換視窗',
       'Manual Scanning': '手動查找',
       'Scan tiny favicons and truncated titles across multiple windows just to find one tab.':
         '為了找一個分頁，只能在多個視窗裡掃視小小的網站圖示和被截斷的標題。',
@@ -385,8 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'Spot duplicate tabs and clean them up before they pile up.':
         '在重複分頁越積越多前，先找出來並清理掉。',
       'See the Whole Session': '看清整個工作階段',
-      'Keep windows and native tab groups in a single focused view where supported by the browser.':
-        '把視窗和原生分頁群組集中在一個清晰檢視中；是否支援取決於瀏覽器。',
+      'Keep windows and your browser’s tab groups in a single focused view where supported by the browser.':
+        '把視窗和瀏覽器分頁群組集中在一個清晰檢視中；是否支援取決於瀏覽器。',
       'Common Workflows': '常用情境',
       'The jobs people open it for.': '大家打開它，通常就是為了這些事。',
       'Find the page you need, tidy up extra tabs, or organize a busy browser.':
@@ -418,11 +425,12 @@ document.addEventListener('DOMContentLoaded', () => {
         '瀏覽器支援同步儲存時，設定會保存在瀏覽器同步儲存中。如果同步儲存不可用，擴充功能會改用本機儲存，功能照常可用。',
       'What permissions does the extension need?': '擴充功能需要哪些權限？',
       'Does it work with browser tab groups?': '它支援瀏覽器分頁群組嗎？',
-      'Yes, where supported by the browser. Tab Manager v2 lets you manage native tab groups directly without leaving the extension.':
-        '支援，前提是瀏覽器本身支援。Tab Manager v2 讓你不用離開擴充功能，就能直接管理原生分頁群組。',
+      'Yes, where supported by the browser. Tab Manager v2 lets you manage your browser’s tab groups directly without leaving the extension.':
+        '支援，前提是瀏覽器本身支援。Tab Manager v2 讓你不用離開擴充功能，就能直接管理瀏覽器分頁群組。',
       'Can I rename windows?': '我可以重新命名視窗嗎？',
-      "No. If you want labels for related tabs, use your browser's native tab groups instead. Tab Manager v2 can rename and recolor those groups where supported by the browser.":
-        '不可以。如果你想替相關分頁加標籤，請改用瀏覽器原生分頁群組。只要瀏覽器支援，Tab Manager v2 可以重新命名這些群組並修改顏色。',
+      'No. If you want labels for related tabs, use your browser’s tab groups instead. Tab Manager v2 can rename and recolor those groups where supported by the browser.':
+        '不可以。如果你想替相關分頁加標籤，請改用瀏覽器分頁群組。只要瀏覽器支援，Tab Manager v2 可以重新命名這些群組並修改顏色。',
+      'See permission names': '查看權限名稱',
       Issues: '問題回報',
       'Privacy Policy': '隱私權政策',
       'Back to Top': '回到頂端',
@@ -430,16 +438,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedHtml = {
     'zh-Hans': {
+      'faq.permissionsSummary':
+        '扩展需要访问打开的标签页和窗口、保存的设置，以及标签页组等浏览器功能。搜索默认包含浏览器历史记录；在 Settings（设置）中关闭“Include browser history in results”即可隐藏它。标签页数据留在你的浏览器中。',
       'faq.safariUnsupportedBody':
-        'Safari 不支持 <code>tabs.move()</code> 这个 WebExtension API，而 Tab Manager v2 需要它来拖放排序并在窗口之间移动标签页，所以体验会不完整。',
+        'Tab Manager v2 支持 Chrome、Edge 和 Firefox。目前没有 Safari 版本。',
       'faq.permissionsBody':
-        'Tab Manager v2 使用 <code>tabs</code>、<code>storage</code> 和 <code>management</code> 来完成核心的标签页和窗口管理。它还会使用 <code>history</code> 来支持可选的浏览器历史记录搜索设置；在支持的浏览器上使用 <code>tabGroups</code> 来支持原生标签页组功能；并在 Firefox 上使用 <code>contextualIdentities</code> 和 <code>cookies</code> 来支持容器相关功能。你的标签页数据会留在浏览器里，扩展不会加入分析或跟踪。',
+        'Tab Manager v2 使用 <code>tabs</code>、<code>storage</code> 和 <code>management</code> 来完成核心的标签页和窗口管理。它还会使用 <code>history</code> 来支持可选的浏览器历史记录搜索设置；在支持的浏览器上使用 <code>tabGroups</code> 来支持浏览器标签页组功能；并在 Firefox 上使用 <code>contextualIdentities</code> 和 <code>cookies</code> 来支持容器相关功能。你的标签页数据会留在浏览器里，扩展不会加入分析或跟踪。',
     },
     'zh-Hant': {
+      'faq.permissionsSummary':
+        '擴充功能需要存取開啟的分頁和視窗、儲存的設定，以及分頁群組等瀏覽器功能。搜尋預設包含瀏覽器歷史紀錄；在 Settings（設定）中關閉「Include browser history in results」即可隱藏它。分頁資料留在你的瀏覽器中。',
       'faq.safariUnsupportedBody':
-        'Safari 不支援 <code>tabs.move()</code> 這個 WebExtension API，而 Tab Manager v2 需要它來拖放排序並在視窗之間移動分頁，所以體驗會不完整。',
+        'Tab Manager v2 支援 Chrome、Edge 和 Firefox。目前沒有 Safari 版本。',
       'faq.permissionsBody':
-        'Tab Manager v2 使用 <code>tabs</code>、<code>storage</code> 和 <code>management</code> 來完成核心的分頁和視窗管理。它還會使用 <code>history</code> 來支援可選的瀏覽器歷史記錄搜尋設定；在支援的瀏覽器上使用 <code>tabGroups</code> 來支援原生分頁群組功能；並在 Firefox 上使用 <code>contextualIdentities</code> 和 <code>cookies</code> 來支援容器相關功能。你的分頁資料會留在瀏覽器裡，擴充功能不會加入分析或追蹤。',
+        'Tab Manager v2 使用 <code>tabs</code>、<code>storage</code> 和 <code>management</code> 來完成核心的分頁和視窗管理。它還會使用 <code>history</code> 來支援可選的瀏覽器歷史記錄搜尋設定；在支援的瀏覽器上使用 <code>tabGroups</code> 來支援瀏覽器分頁群組功能；並在 Firefox 上使用 <code>contextualIdentities</code> 和 <code>cookies</code> 來支援容器相關功能。你的分頁資料會留在瀏覽器裡，擴充功能不會加入分析或追蹤。',
     },
   }
   const translatableAttributes = [

@@ -74,6 +74,36 @@
     }
   }
 
+  function getLanguageHint() {
+    const hint = new URLSearchParams(window.location.search).get('lang')
+    return languages.has(hint) ? hint : null
+  }
+
+  function getPreferredLanguage() {
+    const saved = readPreference('site-language')
+    return languages.has(saved)
+      ? saved
+      : getLanguageHint() || getDeviceLanguage()
+  }
+
+  // Carry the current choice between site pages even if storage is blocked.
+  // Existing route parameters and section anchors stay intact.
+  function languageLink(link) {
+    const href = link.getAttribute('href')
+    if (!href || href.startsWith('#')) return
+    const url = new URL(href, window.location.href)
+    if (url.origin !== window.location.origin) return
+    if (!/\/$|\.html$/.test(url.pathname)) return
+    if (/\/(assets|site)\//.test(url.pathname)) return
+    url.searchParams.set('lang', language)
+    const next = url.pathname + url.search + url.hash
+    if (href !== next) link.setAttribute('href', next)
+  }
+
+  function updateLanguageLinks() {
+    document.querySelectorAll('a[href]').forEach(languageLink)
+  }
+
   let darkMedia = null
   try {
     darkMedia = window.matchMedia('(prefers-color-scheme: dark)')
@@ -81,10 +111,10 @@
     // Browsers without media-query support use the light system appearance.
   }
   let theme = normalizeTheme(readPreference('theme'))
-  const storedLanguage = readPreference('site-language')
-  let language = storedLanguage
-    ? normalizeLanguage(storedLanguage)
-    : getDeviceLanguage()
+  let language = getPreferredLanguage()
+  if (!languages.has(readPreference('site-language')) && getLanguageHint()) {
+    writePreference('site-language', language)
+  }
   let resolvedTheme = resolveTheme()
 
   function resolveTheme() {
@@ -115,6 +145,7 @@
     document.dispatchEvent(
       new CustomEvent('site:language-change', { detail: { language } }),
     )
+    updateLanguageLinks()
   }
 
   function localizeHeader() {
@@ -176,6 +207,7 @@
     }
     const toggle = document.getElementById('theme-toggle')
     if (toggle) {
+      toggle.hidden = false
       const nextAppearance = resolvedTheme === 'dark' ? 'light' : 'dark'
       const label =
         nextAppearance === 'dark'
@@ -258,10 +290,16 @@
     const changed = language !== nextLanguage
     language = nextLanguage
     applyPreferences()
-    if (persist) writePreference('site-language', language)
+    if (persist) {
+      writePreference('site-language', language)
+      const url = new URL(window.location.href)
+      url.searchParams.set('lang', language)
+      window.history.replaceState(window.history.state, '', url)
+    }
     updateControls()
     if (announce) announceLanguage()
     if (changed) dispatchLanguage()
+    else updateLanguageLinks()
   }
 
   window.TabManagerSite = {
@@ -274,68 +312,183 @@
   }
   applyPreferences()
 
+  function initializeHeaderMenu({ header, control, panel, breakpoint, label }) {
+    if (!header || !control || !panel) return
+    const phone = window.matchMedia(`(max-width: ${breakpoint}px)`)
+    let lastHeaderFocus = null
+    let compact = false
+    let initialized = false
+    const desktopFits = () => {
+      const logo = header.querySelector('.logo')
+      const appearance = header.querySelector('.theme-toggle')
+      if (!logo || !appearance) return true
+      header.setAttribute('data-menu-measuring', '')
+      const needed =
+        logo.getBoundingClientRect().width +
+        panel.getBoundingClientRect().width +
+        appearance.getBoundingClientRect().width +
+        32 // Two 16px gaps in the full desktop row.
+      const available = header.getBoundingClientRect().width
+      header.removeAttribute('data-menu-measuring')
+      return needed <= available
+    }
+    const isOpen = () => compact && !panel.hidden
+    const setOpen = (open) => {
+      panel.hidden = compact && !open
+      control.setAttribute('aria-expanded', String(compact && open))
+      control.setAttribute('aria-label', label(compact && open))
+      control.title = control.getAttribute('aria-label')
+      if (!open)
+        panel.querySelectorAll('details[open]').forEach((details) => {
+          details.open = false
+        })
+    }
+    const close = (returnFocus = false) => {
+      const wasOpen = isOpen()
+      setOpen(false)
+      if (wasOpen && returnFocus) control.focus({ preventScroll: true })
+    }
+    const sync = (reset = false) => {
+      const nextCompact = phone.matches || !desktopFits()
+      if (initialized && nextCompact === compact && !reset) return
+      // CSS may hide the focused link before the media-query event reaches us.
+      const active =
+        document.activeElement === document.body
+          ? lastHeaderFocus
+          : document.activeElement
+      const panelFocused = !!active && panel.contains(active)
+      const menuFocused = active === control
+      compact = nextCompact
+      initialized = true
+      header.toggleAttribute('data-menu-compact', compact)
+      control.hidden = !compact
+      setOpen(false)
+      // Match the visible reading order while retaining one set of native links.
+      if (compact) {
+        if (header.lastElementChild !== panel) header.append(panel)
+      } else if (panel.nextElementSibling !== control)
+        header.insertBefore(panel, control)
+      if (compact && panelFocused) control.focus({ preventScroll: true })
+      else if (!compact && (panelFocused || menuFocused)) {
+        const destination = panelFocused
+          ? active
+          : panel.querySelector('a, summary, select, button')
+        destination?.focus({ preventScroll: true })
+      }
+    }
+    header.addEventListener('focusin', (event) => {
+      lastHeaderFocus = event.target
+    })
+    document.addEventListener('focusin', (event) => {
+      if (!header.contains(event.target)) {
+        lastHeaderFocus = null
+        close()
+      }
+    })
+    document.addEventListener(
+      'pointerdown',
+      (event) => {
+        if (!header.contains(event.target)) {
+          lastHeaderFocus = null
+          close()
+        }
+      },
+      true,
+    )
+    control.addEventListener('click', () => setOpen(!isOpen()))
+    document.addEventListener('click', (event) => {
+      if (!header.contains(event.target)) close()
+    })
+    header.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && !header.contains(event.relatedTarget)) close()
+    })
+    window.addEventListener('blur', () => {
+      // Focus entering the embedded demo does not dispatch parent focusin.
+      if (document.activeElement instanceof HTMLIFrameElement) {
+        lastHeaderFocus = null
+        close()
+      }
+    })
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key !== 'Escape' || !isOpen()) return
+        // Let the existing language disclosure handle its own first Escape.
+        if (event.target.closest?.('details[open]')) return
+        event.preventDefault()
+        close(true)
+      },
+      true,
+    )
+    panel.addEventListener('click', (event) => {
+      const link = event.target.closest('a')
+      if (
+        !link ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        event.button
+      )
+        return
+      close()
+      const target = new URL(link.href)
+      if (
+        target.origin === location.origin &&
+        target.pathname === location.pathname &&
+        target.search === location.search &&
+        target.hash
+      ) {
+        const destination = document.getElementById(
+          decodeURIComponent(target.hash.slice(1)),
+        )
+        if (destination) {
+          destination.tabIndex = -1
+          destination.focus({ preventScroll: true })
+        }
+      }
+    })
+    let pendingSync = null
+    const scheduleSync = () => {
+      if (pendingSync !== null) return
+      pendingSync = window.requestAnimationFrame(() => {
+        pendingSync = null
+        sync()
+      })
+    }
+    phone.addEventListener('change', scheduleSync)
+    window.addEventListener('resize', scheduleSync)
+    document.addEventListener('site:language-change', scheduleSync)
+    document.fonts?.ready.then(scheduleSync)
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(scheduleSync)
+      ;[header, ...header.querySelectorAll('.logo, .nav-links, select')].forEach(
+        (element) => observer.observe(element),
+      )
+    }
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) sync(true)
+    })
+    header.setAttribute('data-header-ready', '')
+    sync()
+  }
+
   function ready() {
     const header = document.querySelector('.site-header')
     const menuToggle = document.getElementById('site-menu-toggle')
     const navigation = document.getElementById('site-navigation')
     if (header && menuToggle && navigation) {
-      const mobile = window.matchMedia('(max-width: 768px)')
-      const setMenuOpen = (open, restoreFocus = false) => {
-        header.setAttribute('data-menu-open', String(open && mobile.matches))
-        menuToggle.setAttribute('aria-expanded', String(open && mobile.matches))
-        updateControls()
-        if (restoreFocus && mobile.matches)
-          menuToggle.focus({ preventScroll: true })
-      }
-      const fitMenu = () => {
-        if (!mobile.matches) return
-        const viewport = window.visualViewport
-        const bottom = viewport
-          ? viewport.offsetTop + viewport.height
-          : window.innerHeight
-        header.style.setProperty(
-          '--site-menu-height',
-          `${Math.max(0, bottom - header.getBoundingClientRect().bottom - 12)}px`,
-        )
-      }
+      initializeHeaderMenu({
+        header,
+        control: menuToggle,
+        panel: navigation,
+        breakpoint: 1050,
+        label: (open) =>
+          open
+            ? text('Close menu', '关闭菜单', '關閉選單')
+            : text('Open menu', '打开菜单', '開啟選單'),
+      })
       header.setAttribute('data-menu-ready', '')
-      menuToggle.addEventListener('click', () => {
-        fitMenu()
-        setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true')
-      })
-      navigation.addEventListener('click', (event) => {
-        if (event.target instanceof Element && event.target.closest('a'))
-          setMenuOpen(false, true)
-      })
-      document.addEventListener('click', (event) => {
-        if (event.target instanceof Node && !header.contains(event.target))
-          setMenuOpen(false)
-      })
-      header.addEventListener('focusout', (event) => {
-        if (event.relatedTarget && !header.contains(event.relatedTarget))
-          setMenuOpen(false)
-      })
-      document.addEventListener('keydown', (event) => {
-        if (
-          event.key === 'Escape' &&
-          menuToggle.getAttribute('aria-expanded') === 'true'
-        ) {
-          setMenuOpen(false, true)
-        }
-      })
-      mobile.addEventListener('change', () => {
-        setMenuOpen(false, navigation.contains(document.activeElement))
-        fitMenu()
-      })
-      window.addEventListener('resize', fitMenu)
-      window.addEventListener('scroll', fitMenu, { passive: true })
-      window.visualViewport?.addEventListener('resize', fitMenu)
-      window.visualViewport?.addEventListener('scroll', fitMenu)
-      window.addEventListener('blur', () => {
-        if (document.activeElement instanceof HTMLIFrameElement)
-          setMenuOpen(false)
-      })
-      fitMenu()
     }
     updateControls()
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
@@ -346,6 +499,11 @@
     })
     const selector = document.getElementById('language-selector')
     selector?.addEventListener('change', () => setLanguage(selector.value))
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return
+      const link = event.target.closest('a[href]')
+      if (link) languageLink(link)
+    })
     dispatchLanguage()
     dispatchTheme()
   }
@@ -379,10 +537,15 @@
     if (event.key === 'site-language' || event.key === null) {
       setLanguage(
         event.key === null || !event.newValue
-          ? getDeviceLanguage()
+          ? getLanguageHint() || getDeviceLanguage()
           : event.newValue,
         { persist: false, announce: false },
       )
+    }
+  })
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      setLanguage(getPreferredLanguage(), { persist: false, announce: false })
     }
   })
 })()

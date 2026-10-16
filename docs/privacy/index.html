@@ -44,11 +44,10 @@
         </header>
         <article class="page-prose" aria-labelledby="policy-title">
           <p data-page-copy="privacyIntro">
-            Tab Manager v2 is a browser extension for managing tabs and windows.
-            Its core functionality runs locally in your browser. We do not
-            operate an account system, do not send your tab, window, history, or
-            settings data to our own servers, and do not include analytics or
-            advertising trackers.
+            Tab Manager v2 helps you manage tabs and windows. Your tab, window,
+            history, and settings data stays in your browser; we do not send it
+            to our servers. No account is needed, and the extension has no usage
+            analytics or advertising trackers.
           </p>
 
           <section aria-labelledby="access">
@@ -61,7 +60,7 @@
             <ul>
               <li data-page-copy="privacyAccessTabs">open tabs and windows</li>
               <li data-page-copy="privacyAccessGroups">
-                native tab groups on browsers that support them
+                your browser’s tab groups, where supported
               </li>
               <li data-page-copy="privacyAccessHistory">
                 browser history results when "Include browser history in
@@ -69,13 +68,12 @@
                 off in Settings
               </li>
               <li data-page-copy="privacyAccessContainers">
-                Firefox container identities and related cookie-store
-                information for container-aware features
+                Firefox containers and the related information that keeps their
+                sign-ins separate
               </li>
               <li data-page-copy="privacyAccessExtensions">
-                installed extension metadata for
-                <code>chrome-extension://</code> pages so the UI can show the
-                correct icon
+                information about installed extensions, such as their names and
+                icons, so their pages show the correct icon
               </li>
             </ul>
           </section>
@@ -85,9 +83,9 @@
               What the extension stores in your browser
             </h2>
             <p data-page-copy="privacyStorageIntro">
-              Tab Manager v2 stores data in browser
-              <code>storage.sync</code> when available, with
-              <code>storage.local</code> as a fallback.
+              Your browser saves your settings and the information needed to
+              remember how you use the interface. It can sync settings between
+              devices when browser sync is available.
             </p>
             <p data-page-copy="privacyStorageListIntro">
               Stored data may include:
@@ -114,10 +112,18 @@
               </li>
             </ul>
             <p data-page-copy="privacyStorageSync">
-              If your browser sync service is enabled, settings saved through
-              <code>storage.sync</code> may be synchronized by your browser
-              vendor under that vendor's privacy policy.
+              If you enable browser sync, your browser provider may sync these
+              settings under its own privacy policy.
             </p>
+            <details class="permission-details">
+              <summary data-page-copy="storageDetailsTitle">
+                Browser storage details
+              </summary>
+              <p data-page-copy="privacyStorageTechnical">
+                Settings and interface state use <code>storage.sync</code> when
+                available, with <code>storage.local</code> as a fallback.
+              </p>
+            </details>
           </section>
 
           <section aria-labelledby="permissions">
@@ -125,32 +131,40 @@
               Permissions
             </h2>
             <p data-page-copy="privacyPermissionsIntro">
-              The extension requests these permissions to support its features:
+              Tab Manager v2 needs access to open tabs and windows, saved
+              settings, and supported browser features. Browser history search
+              is on by default; turn off “Include browser history in results” in
+              Settings to exclude it.
             </p>
-            <ul>
-              <li data-page-copy="privacyPermissionTabs">
-                <code>tabs</code>: read and manage open tabs and windows
-              </li>
-              <li data-page-copy="privacyPermissionStorage">
-                <code>storage</code>: save settings and UI state
-              </li>
-              <li data-page-copy="privacyPermissionManagement">
-                <code>management</code>: look up installed extension metadata
-                for <code>chrome-extension://</code> tabs
-              </li>
-              <li data-page-copy="privacyPermissionHistory">
-                <code>history</code>: support the optional browser history
-                search feature
-              </li>
-              <li data-page-copy="privacyPermissionGroups">
-                <code>tabGroups</code>: read and manage native tab groups on
-                supported browsers
-              </li>
-              <li data-page-copy="privacyPermissionContainers">
-                <code>contextualIdentities</code> and <code>cookies</code>:
-                support Firefox container-aware features
-              </li>
-            </ul>
+            <details class="permission-details">
+              <summary data-page-copy="permissionDetailsTitle">
+                Permission names and technical details
+              </summary>
+              <ul>
+                <li data-page-copy="privacyPermissionTabs">
+                  <code>tabs</code>: read and manage open tabs and windows
+                </li>
+                <li data-page-copy="privacyPermissionStorage">
+                  <code>storage</code>: save settings and UI state
+                </li>
+                <li data-page-copy="privacyPermissionManagement">
+                  <code>management</code>: look up installed extension metadata
+                  for <code>chrome-extension://</code> tabs
+                </li>
+                <li data-page-copy="privacyPermissionHistory">
+                  <code>history</code>: support the optional browser history
+                  search feature
+                </li>
+                <li data-page-copy="privacyPermissionGroups">
+                  <code>tabGroups</code>: read and manage browser tab groups on
+                  supported browsers
+                </li>
+                <li data-page-copy="privacyPermissionContainers">
+                  <code>contextualIdentities</code> and <code>cookies</code>:
+                  support Firefox container-aware features
+                </li>
+              </ul>
+            </details>
           </section>
 
           <section aria-labelledby="network">
@@ -158,8 +172,8 @@
               Network and third parties
             </h2>
             <p data-page-copy="privacyNetworkCore">
-              Tab Manager v2 does not send your browsing data to Tab Manager v2
-              servers because no such service is used for core functionality.
+              We do not receive your tabs, windows, browser history, or settings
+              on our own servers.
             </p>
             <p data-page-copy="privacyNetworkLinks">
               The extension and docs include links to third-party sites such as

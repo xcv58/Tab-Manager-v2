@@ -28,8 +28,8 @@
       '生效日期：2026 年 3 月 11 日',
     ],
     privacyIntro: [
-      'Tab Manager v2 是用于管理标签页和窗口的浏览器扩展。其核心功能在你的浏览器中本地运行。我们不运营账户系统，不会将你的标签页、窗口、历史记录或设置数据发送到我们自己的服务器，也不包含分析或广告跟踪器。',
-      'Tab Manager v2 是用於管理分頁和視窗的瀏覽器擴充功能。其核心功能在你的瀏覽器中本機執行。我們不營運帳戶系統，不會將你的分頁、視窗、歷史紀錄或設定資料傳送到我們自己的伺服器，也不包含分析或廣告追蹤器。',
+      'Tab Manager v2 帮助你管理标签页和窗口。标签页、窗口、历史记录和设置数据留在你的浏览器中，不会发送到我们的服务器。无需账户，扩展也不包含使用情况分析或广告跟踪工具。',
+      'Tab Manager v2 幫助你管理分頁和視窗。分頁、視窗、歷史紀錄和設定資料留在你的瀏覽器中，不會傳送到我們的伺服器。無需帳戶，擴充功能也不包含使用情況分析或廣告追蹤工具。',
     ],
     privacyAccessTitle: ['扩展会访问哪些信息', '擴充功能會存取哪些資訊'],
     privacyAccessIntro: [
@@ -38,28 +38,28 @@
     ],
     privacyAccessTabs: ['打开的标签页和窗口', '開啟的分頁和視窗'],
     privacyAccessGroups: [
-      '支持原生标签页组的浏览器中的标签页组',
-      '支援原生分頁群組的瀏覽器中的分頁群組',
+      '浏览器的标签页组（如果支持）',
+      '瀏覽器的分頁群組（如果支援）',
     ],
     privacyAccessHistory: [
       '“Include browser history in results”（在结果中包含浏览器历史记录）开启时的浏览器历史记录结果；该设置默认开启，可在设置中关闭',
       '「Include browser history in results」（在結果中包含瀏覽器歷史紀錄）開啟時的瀏覽器歷史紀錄結果；此設定預設開啟，可在設定中關閉',
     ],
     privacyAccessContainers: [
-      '用于容器相关功能的 Firefox 容器身份及相关 Cookie 存储信息',
-      '用於容器相關功能的 Firefox 容器身分及相關 Cookie 儲存資訊',
+      'Firefox 容器及用于区分其登录身份的相关信息',
+      'Firefox 容器及用於區分其登入身分的相關資訊',
     ],
     privacyAccessExtensions: [
-      '已安装扩展的元数据，用于为 <code>chrome-extension://</code> 页面显示正确的图标',
-      '已安裝擴充功能的中繼資料，用於為 <code>chrome-extension://</code> 頁面顯示正確的圖示',
+      '已安装扩展的信息，例如名称和图标，以便为这些扩展的页面显示正确图标',
+      '已安裝擴充功能的資訊，例如名稱和圖示，以便為這些擴充功能的頁面顯示正確圖示',
     ],
     privacyStorageTitle: [
       '扩展会在浏览器中存储哪些数据',
       '擴充功能會在瀏覽器中儲存哪些資料',
     ],
     privacyStorageIntro: [
-      'Tab Manager v2 在可用时使用浏览器的 <code>storage.sync</code> 存储数据，并以 <code>storage.local</code> 作为备用方案。',
-      'Tab Manager v2 在可用時使用瀏覽器的 <code>storage.sync</code> 儲存資料，並以 <code>storage.local</code> 作為備用方案。',
+      '浏览器会保存你的设置，以及记住界面使用方式所需的信息。如果支持浏览器同步，设置也可以在设备间同步。',
+      '瀏覽器會儲存你的設定，以及記住介面使用方式所需的資訊。如果支援瀏覽器同步，設定也可以在裝置間同步。',
     ],
     privacyStorageListIntro: ['存储的数据可能包括：', '儲存的資料可能包括：'],
     privacyStorageSettings: [
@@ -83,13 +83,13 @@
       '螢幕邊界和偵測到的系統主題等顯示資訊，用於調整彈出視窗的大小和位置',
     ],
     privacyStorageSync: [
-      '如果启用了浏览器同步服务，通过 <code>storage.sync</code> 保存的设置可能由浏览器供应商根据其隐私政策进行同步。',
-      '如果啟用了瀏覽器同步服務，透過 <code>storage.sync</code> 儲存的設定可能由瀏覽器供應商根據其隱私政策進行同步。',
+      '如果你启用浏览器同步，浏览器提供商可能会依据其隐私政策同步这些设置。',
+      '如果你啟用瀏覽器同步，瀏覽器供應商可能會依據其隱私政策同步這些設定。',
     ],
     privacyPermissionsTitle: ['权限', '權限'],
     privacyPermissionsIntro: [
-      '扩展请求以下权限来支持其功能：',
-      '擴充功能要求以下權限來支援其功能：',
+      'Tab Manager v2 需要访问打开的标签页和窗口、保存的设置，以及浏览器支持的功能。历史记录搜索默认开启；在 Settings（设置）中关闭“Include browser history in results”即可排除历史记录。',
+      'Tab Manager v2 需要存取開啟的分頁和視窗、儲存的設定，以及瀏覽器支援的功能。歷史紀錄搜尋預設開啟；在 Settings（設定）中關閉「Include browser history in results」即可排除歷史紀錄。',
     ],
     privacyPermissionTabs: [
       '<code>tabs</code>：读取和管理打开的标签页和窗口',
@@ -108,8 +108,8 @@
       '<code>history</code>：支援選用的瀏覽器歷史紀錄搜尋功能',
     ],
     privacyPermissionGroups: [
-      '<code>tabGroups</code>：在支持的浏览器中读取和管理原生标签页组',
-      '<code>tabGroups</code>：在支援的瀏覽器中讀取和管理原生分頁群組',
+      '<code>tabGroups</code>：在支持的浏览器中读取和管理浏览器标签页组',
+      '<code>tabGroups</code>：在支援的瀏覽器中讀取和管理瀏覽器分頁群組',
     ],
     privacyPermissionContainers: [
       '<code>contextualIdentities</code> 和 <code>cookies</code>：支持 Firefox 容器相关功能',
@@ -117,8 +117,8 @@
     ],
     privacyNetworkTitle: ['网络和第三方服务', '網路和第三方服務'],
     privacyNetworkCore: [
-      'Tab Manager v2 不会将你的浏览数据发送到 Tab Manager v2 服务器，因为核心功能不使用这样的服务。',
-      'Tab Manager v2 不會將你的瀏覽資料傳送到 Tab Manager v2 伺服器，因為核心功能不使用這樣的服務。',
+      '我们不会在自己的服务器上接收你的标签页、窗口、浏览器历史记录或设置。',
+      '我們不會在自己的伺服器上接收你的分頁、視窗、瀏覽器歷史紀錄或設定。',
     ],
     privacyNetworkLinks: [
       '扩展和文档包含指向浏览器商店、GitHub 和支持页面等第三方网站的链接。如果你打开这些链接，你与这些网站的交互受其隐私政策约束。',
@@ -155,6 +155,12 @@
       '交互演示将示例标签页、标签页组和历史记录保存在页面内存中。刷新页面、切换工作区或选择“重新开始”会丢弃这些示例更改。演示设置（包括独立的演示主题）保存在当前浏览器标签页的会话存储中，在刷新、页面导航和工作区切换后仍会保留。“重新开始”也会清除演示设置。保存的网站主题和语言保持不变。',
       '互動示範將範例分頁、分頁群組和歷史紀錄保存在頁面記憶體中。重新整理頁面、切換工作區或選擇「重新開始」會捨棄這些範例變更。示範設定（包括獨立的示範主題）儲存在目前瀏覽器分頁的工作階段儲存空間中，在重新整理、頁面導覽和工作區切換後仍會保留。「重新開始」也會清除示範設定。儲存的網站主題和語言保持不變。',
     ],
+    permissionDetailsTitle: ['权限名称和技术详情', '權限名稱和技術詳情'],
+    storageDetailsTitle: ['浏览器存储详情', '瀏覽器儲存詳情'],
+    privacyStorageTechnical: [
+      '可用时，设置和界面状态通过浏览器的 <code>storage.sync</code> 保存；否则使用 <code>storage.local</code>。',
+      '可用時，設定和介面狀態透過瀏覽器的 <code>storage.sync</code> 儲存；否則使用 <code>storage.local</code>。',
+    ],
     supportTitle: ['支持', '支援'],
     supportLead: [
       '开始使用，了解适合的浏览器功能，或报告问题。',
@@ -166,8 +172,8 @@
       '選擇與你的瀏覽器對應的商店。安裝後，從瀏覽器工具列開啟 Tab Manager v2。',
     ],
     browserSupport: [
-      '支持 Chrome、Edge 和 Firefox。功能是否可用取决于浏览器提供的 API。本项目不支持 Safari；相关限制记录在 <a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545">issue #2545</a> 中。',
-      '支援 Chrome、Edge 和 Firefox。功能是否可用取決於瀏覽器提供的 API。本專案不支援 Safari；相關限制記錄在 <a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545">issue #2545</a> 中。',
+      '请使用 Chrome、Edge 或 Firefox。目前没有 Safari 版本。后续进展请见<a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545">Safari 相关讨论</a>。',
+      '請使用 Chrome、Edge 或 Firefox。目前沒有 Safari 版本。後續進展請見<a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545">Safari 相關討論</a>。',
     ],
     quickStartTitle: ['快速开始', '快速開始'],
     quickStartOpen: [
@@ -210,25 +216,25 @@
       '在 Mac 上，請用 Option 代替 Alt。移動快速鍵要求焦點位於視窗卡片內。快速鍵行為可能因平台和瀏覽器而有所不同。請使用應用程式內的快速鍵說明查看完整列表，包括 Vim 按鍵序列。',
     ],
     browserFeaturesTitle: ['浏览器功能', '瀏覽器功能'],
-    groupsTitle: ['原生标签页组', '原生分頁群組'],
+    groupsTitle: ['浏览器的标签页组', '瀏覽器的分頁群組'],
     groupsBody: [
-      '如果浏览器支持原生标签页组，你可以在 Tab Manager v2 中重命名、更改颜色、折叠或取消分组。创建组时，请选择同一窗口中的标签页。不提供自定义窗口名称功能；请使用标签页组为一组标签页命名。',
-      '如果瀏覽器支援原生分頁群組，你可以在 Tab Manager v2 中重新命名、更改顏色、摺疊或取消分組。建立群組時，請選取同一視窗中的分頁。不提供自訂視窗名稱功能；請使用分頁群組為一組分頁命名。',
+      '如果浏览器支持标签页组，你可以在 Tab Manager v2 中为组命名、更改颜色、折叠或取消分组。选择同一窗口中的标签页即可创建组。请用有名称的组整理相关标签页；目前不能自定义窗口名称。',
+      '如果瀏覽器支援分頁群組，你可以在 Tab Manager v2 中為群組命名、更改顏色、摺疊或取消分組。選取同一視窗中的分頁即可建立群組。請用有名稱的群組整理相關分頁；目前不能自訂視窗名稱。',
     ],
-    historyTitle: ['可选的浏览器历史记录搜索', '選用的瀏覽器歷史紀錄搜尋'],
+    historyTitle: ['显示或隐藏浏览器历史记录', '顯示或隱藏瀏覽器歷史紀錄'],
     historyBody: [
-      '搜索默认包含浏览器历史记录。在设置中关闭“Include browser history in results”（在结果中包含浏览器历史记录）后，搜索结果不包含历史记录。此功能使用浏览器的 <code>history</code> 权限。有关浏览器访问和存储数据的详情，请阅读<a href="../privacy/">隐私政策</a>。',
-      '搜尋預設包含瀏覽器歷史紀錄。在設定中關閉「Include browser history in results」（在結果中包含瀏覽器歷史紀錄）後，搜尋結果不包含歷史紀錄。此功能使用瀏覽器的 <code>history</code> 權限。有關瀏覽器存取和儲存資料的詳情，請閱讀<a href="../privacy/">隱私政策</a>。',
+      '搜索默认包含浏览器历史记录。如果只想搜索打开的标签页，请在 Settings（设置）中关闭 <strong>Include browser history in results</strong>。有关浏览器访问和保存数据的详情，请阅读<a href="../privacy/">隐私政策</a>。',
+      '搜尋預設包含瀏覽器歷史紀錄。如果只想搜尋開啟的分頁，請在 Settings（設定）中關閉 <strong>Include browser history in results</strong>。有關瀏覽器存取和儲存資料的詳情，請閱讀<a href="../privacy/">隱私政策</a>。',
     ],
     containersTitle: ['Firefox 容器', 'Firefox 容器'],
     containersBody: [
-      '当 Firefox 提供所需 API 时，可以使用容器相关流程。这些功能使用容器身份及相关 Cookie 存储信息。Firefox 容器与原生标签页组不同，并且需要安装扩展。',
-      '當 Firefox 提供所需 API 時，可以使用容器相關流程。這些功能使用容器身分及相關 Cookie 儲存資訊。Firefox 容器與原生分頁群組不同，並且需要安裝擴充功能。',
+      'Firefox 容器可将不同的登录身份分开。功能可用时，Tab Manager v2 可以管理容器中的标签页。容器与标签页组不同，需要安装扩展才能使用。',
+      'Firefox 容器可將不同的登入身分分開。功能可用時，Tab Manager v2 可以管理容器中的分頁。容器與分頁群組不同，需要安裝擴充功能才能使用。',
     ],
     settingsTitle: ['设置和外观', '設定和外觀'],
     settingsBody: [
-      '在单页设置中搜索主题、对比度、布局、工具栏可见性、标题行数限制、网址行数限制和搜索偏好。置顶章节标题和实时预览帮助你了解变化。设置在可用时使用浏览器同步存储，并以本地存储作为备用方案。网站的主题和语言适用于本网站；已安装的扩展有自己的设置。',
-      '在單頁設定中搜尋主題、對比、版面配置、工具列可見性、標題行數限制、網址行數限制和搜尋偏好。置頂章節標題和即時預覽幫助你了解變化。設定在可用時使用瀏覽器同步儲存，並以本機儲存作為備用方案。網站的主題和語言適用於本網站；已安裝的擴充功能有自己的設定。',
+      '打开 Settings（设置），搜索想调整的主题、对比度、布局、工具栏显示、Title line limit（标题行数）、URL line limit（网址行数）或搜索偏好。预览会显示变化。浏览器会保存这些设置；如果你启用浏览器同步，也可以在设备间同步。网站的主题和语言设置与扩展分开。',
+      '開啟 Settings（設定），搜尋想調整的主題、對比、版面配置、工具列顯示、Title line limit（標題行數）、URL line limit（網址行數）或搜尋偏好。預覽會顯示變化。瀏覽器會儲存這些設定；如果你啟用瀏覽器同步，也可以在裝置間同步。網站的主題和語言設定與擴充功能分開。',
     ],
     tabActionsTitle: ['标签页操作与复制', '分頁操作與複製'],
     tabActionsBody: [
@@ -258,8 +264,8 @@
       '複製操作會將範例網址複製到剪貼簿，並取決於瀏覽器的剪貼簿存取權限。',
     ],
     demoScale: [
-      '可选的 1,500 标签页工作区用于体验模拟数据下的界面，并非原生浏览器内存基准测试。',
-      '選用的 1,500 分頁工作區用於體驗模擬資料下的介面，並非原生瀏覽器記憶體基準測試。',
+      '可选的 1,500 标签页工作区让你使用示例数据体验布局，不会测量浏览器的内存占用。',
+      '選用的 1,500 分頁工作區讓你使用範例資料體驗版面配置，不會測量瀏覽器的記憶體用量。',
     ],
     demoLanguage: [
       '嵌入的扩展界面以英文显示。网站文本支持英文、简体中文和繁体中文。',

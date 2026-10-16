@@ -58,8 +58,10 @@ overrides:
   'yaml@1.10.2': 1.10.3
   'yaml@2.8.2': 2.8.3
 patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
   image-size@2.0.2: patches/image-size@2.0.2.patch
   node-forge@1.4.0: patches/node-forge@1.4.0.patch
+  sprintf-js@1.0.3: patches/sprintf-js@1.0.3.patch
 
 auditConfig:
   ignoreGhsas:

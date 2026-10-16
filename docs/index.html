@@ -81,6 +81,16 @@
     />
     <noscript>
       <link rel="stylesheet" href="assets/vendor/glightbox/glightbox.min.css" />
+      <style>
+        .fade-in,
+        .gallery-grid.fade-in .screenshot-frame,
+        .fade-in .versus-card,
+        .fade-in .feature-card,
+        .fade-in .faq-item {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
     </noscript>
 
     <link rel="stylesheet" href="assets/vendor/videojs/video-js.min.css" />
@@ -103,11 +113,36 @@
             alt="Tab Manager v2 logo"
             decoding="async"
           />
-          Tab Manager v2
+          <span>Tab Manager v2</span>
         </a>
 
         <button
+          id="site-menu-toggle"
+          class="site-menu-toggle"
+          type="button"
+          aria-label="Open menu"
+          title="Open menu"
+          aria-expanded="false"
+          aria-controls="site-navigation"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path
+              class="site-menu-open-icon"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+            <path class="site-menu-close-icon" d="m6 6 12 12M6 18 18 6"></path>
+          </svg>
+        </button>
+        <button
           id="theme-toggle"
+          hidden
           class="theme-toggle"
           type="button"
           aria-label="Switch to dark appearance"
@@ -145,30 +180,6 @@
             <line x1="21" y1="12" x2="23" y2="12"></line>
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-        </button>
-        <button
-          id="site-menu-toggle"
-          class="site-menu-toggle"
-          type="button"
-          aria-label="Open menu"
-          title="Open menu"
-          aria-expanded="false"
-          aria-controls="site-navigation"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <path
-              class="site-menu-open-icon"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-            <path class="site-menu-close-icon" d="m6 6 12 12M6 18 18 6"></path>
           </svg>
         </button>
 
@@ -250,7 +261,7 @@
                 duplicates without switching between windows.
               </p>
               <p class="hero-note">
-                Free and open source. Runs locally in your browser.
+                Free and open source. Your tab data stays in your browser.
               </p>
               <div class="demo-cta">
                 <a href="demo/" class="btn-demo">Try the interactive demo</a>
@@ -306,6 +317,11 @@
                   <span>Edge</span>
                 </a>
               </div>
+              <p class="hero-note">
+                Using a phone? Try the demo, or
+                <a href="support/#install">check browser support</a>
+                before installing.
+              </p>
             </div>
 
             <a
@@ -424,15 +440,15 @@
               href="assets/images/release-candidates/webp/02-group-editing-light.webp"
               aria-label="Open tab group editing screenshot"
               data-gallery="screenshots"
-              data-title="Edit native tab groups"
+              data-title="Edit your browser’s tab groups"
               data-light-href="assets/images/release-candidates/webp/02-group-editing-light.webp"
               data-dark-href="assets/images/release-candidates/webp/02-group-editing-dark.webp"
               data-light-src="assets/images/release-candidates/webp/02-group-editing-light-small.webp"
               data-dark-src="assets/images/release-candidates/webp/02-group-editing-dark-small.webp"
               data-light-srcset="assets/images/release-candidates/webp/02-group-editing-light-small.webp 640w, assets/images/release-candidates/webp/02-group-editing-light.webp 1280w"
               data-dark-srcset="assets/images/release-candidates/webp/02-group-editing-dark-small.webp 640w, assets/images/release-candidates/webp/02-group-editing-dark.webp 1280w"
-              data-light-title="Edit native tab groups"
-              data-dark-title="Edit native tab groups"
+              data-light-title="Edit your browser’s tab groups"
+              data-dark-title="Edit your browser’s tab groups"
               data-light-alt="Tab group editing screenshot in light theme"
               data-dark-alt="Tab group editing screenshot in dark theme"
             >
@@ -450,7 +466,8 @@
                 loading="lazy"
               />
               <span class="screenshot-caption"
-                >Edit native tab groups where supported by the browser.</span
+                >Edit your browser’s tab groups where supported by the
+                browser.</span
               >
             </a>
             <a
@@ -586,8 +603,8 @@
                 loading="lazy"
               />
               <span class="screenshot-caption"
-                >Stay oriented inside large native tab groups where supported by
-                the browser.</span
+                >Stay oriented inside large tab groups where supported by the
+                browser.</span
               >
             </a>
             <a
@@ -886,7 +903,7 @@
             <div class="versus-card old-way">
               <div class="versus-header">
                 <h3>The Old Way</h3>
-                <p>Native tab strips and window hopping</p>
+                <p>Browser tab bars and switching windows</p>
               </div>
               <ul class="versus-list">
                 <li class="versus-item">
@@ -974,8 +991,8 @@
                   <div class="versus-content">
                     <strong>See the Whole Session</strong>
                     <span
-                      >Keep windows and native tab groups in a single focused
-                      view where supported by the browser.</span
+                      >Keep windows and your browser’s tab groups in a single
+                      focused view where supported by the browser.</span
                     >
                   </div>
                 </li>
@@ -1069,10 +1086,8 @@
             <details class="faq-item">
               <summary>Why is Safari not supported?</summary>
               <p data-i18n-html="faq.safariUnsupportedBody">
-                Safari does not support the
-                <code>tabs.move()</code> WebExtension API that Tab Manager v2
-                relies on for drag-and-drop reordering and moving tabs between
-                windows, so the experience would be incomplete.
+                Tab Manager v2 supports Chrome, Edge, and Firefox. There is no
+                Safari version.
               </p>
             </details>
             <details class="faq-item">
@@ -1085,31 +1100,42 @@
             </details>
             <details class="faq-item">
               <summary>What permissions does the extension need?</summary>
-              <p data-i18n-html="faq.permissionsBody">
-                Tab Manager v2 uses <code>tabs</code>, <code>storage</code>, and
-                <code>management</code> for core tab and window management. It
-                also includes <code>history</code> for the optional browser
-                history search setting, <code>tabGroups</code> on supported
-                browsers for native tab-group features, and
-                <code>contextualIdentities</code> plus <code>cookies</code> on
-                Firefox for container-aware features. Your tab data stays in
-                your browser, and the extension does not add analytics or
-                tracking.
+              <p data-i18n-html="faq.permissionsSummary">
+                It needs access to your open tabs and windows, saved settings,
+                and browser features such as tab groups. Search includes browser
+                history by default; turn off “Include browser history in
+                results” in Settings to hide it. Your tab data stays in your
+                browser.
               </p>
+              <details class="permission-details">
+                <summary>See permission names</summary>
+                <p data-i18n-html="faq.permissionsBody">
+                  Tab Manager v2 uses <code>tabs</code>, <code>storage</code>,
+                  and <code>management</code> for core tab and window
+                  management. It also includes <code>history</code> for the
+                  optional browser history search setting,
+                  <code>tabGroups</code> on supported browsers for browser
+                  tab-group features, and <code>contextualIdentities</code> plus
+                  <code>cookies</code> on Firefox for container-aware features.
+                  Your tab data stays in your browser, and the extension does
+                  not add analytics or tracking.
+                </p>
+              </details>
             </details>
             <details class="faq-item">
               <summary>Does it work with browser tab groups?</summary>
               <p>
                 Yes, where supported by the browser. Tab Manager v2 lets you
-                manage native tab groups directly without leaving the extension.
+                manage your browser’s tab groups directly without leaving the
+                extension.
               </p>
             </details>
             <details class="faq-item">
               <summary>Can I rename windows?</summary>
               <p>
-                No. If you want labels for related tabs, use your browser's
-                native tab groups instead. Tab Manager v2 can rename and recolor
-                those groups where supported by the browser.
+                No. If you want labels for related tabs, use your browser’s tab
+                groups instead. Tab Manager v2 can rename and recolor those
+                groups where supported by the browser.
               </p>
             </details>
           </div>
