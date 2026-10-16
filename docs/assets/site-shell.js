@@ -74,6 +74,36 @@
     }
   }
 
+  function getLanguageHint() {
+    const hint = new URLSearchParams(window.location.search).get('lang')
+    return languages.has(hint) ? hint : null
+  }
+
+  function getPreferredLanguage() {
+    const saved = readPreference('site-language')
+    return languages.has(saved)
+      ? saved
+      : getLanguageHint() || getDeviceLanguage()
+  }
+
+  // Carry the current choice between site pages even if storage is blocked.
+  // Existing route parameters and section anchors stay intact.
+  function languageLink(link) {
+    const href = link.getAttribute('href')
+    if (!href || href.startsWith('#')) return
+    const url = new URL(href, window.location.href)
+    if (url.origin !== window.location.origin) return
+    if (!/\/$|\.html$/.test(url.pathname)) return
+    if (/\/(assets|site)\//.test(url.pathname)) return
+    url.searchParams.set('lang', language)
+    const next = url.pathname + url.search + url.hash
+    if (href !== next) link.setAttribute('href', next)
+  }
+
+  function updateLanguageLinks() {
+    document.querySelectorAll('a[href]').forEach(languageLink)
+  }
+
   let darkMedia = null
   try {
     darkMedia = window.matchMedia('(prefers-color-scheme: dark)')
@@ -81,10 +111,10 @@
     // Browsers without media-query support use the light system appearance.
   }
   let theme = normalizeTheme(readPreference('theme'))
-  const storedLanguage = readPreference('site-language')
-  let language = storedLanguage
-    ? normalizeLanguage(storedLanguage)
-    : getDeviceLanguage()
+  let language = getPreferredLanguage()
+  if (!languages.has(readPreference('site-language')) && getLanguageHint()) {
+    writePreference('site-language', language)
+  }
   let resolvedTheme = resolveTheme()
 
   function resolveTheme() {
@@ -115,6 +145,7 @@
     document.dispatchEvent(
       new CustomEvent('site:language-change', { detail: { language } }),
     )
+    updateLanguageLinks()
   }
 
   function localizeHeader() {
@@ -258,10 +289,16 @@
     const changed = language !== nextLanguage
     language = nextLanguage
     applyPreferences()
-    if (persist) writePreference('site-language', language)
+    if (persist) {
+      writePreference('site-language', language)
+      const url = new URL(window.location.href)
+      url.searchParams.set('lang', language)
+      window.history.replaceState(window.history.state, '', url)
+    }
     updateControls()
     if (announce) announceLanguage()
     if (changed) dispatchLanguage()
+    else updateLanguageLinks()
   }
 
   window.TabManagerSite = {
@@ -346,6 +383,11 @@
     })
     const selector = document.getElementById('language-selector')
     selector?.addEventListener('change', () => setLanguage(selector.value))
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element)) return
+      const link = event.target.closest('a[href]')
+      if (link) languageLink(link)
+    })
     dispatchLanguage()
     dispatchTheme()
   }
@@ -379,10 +421,15 @@
     if (event.key === 'site-language' || event.key === null) {
       setLanguage(
         event.key === null || !event.newValue
-          ? getDeviceLanguage()
+          ? getLanguageHint() || getDeviceLanguage()
           : event.newValue,
         { persist: false, announce: false },
       )
+    }
+  })
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      setLanguage(getPreferredLanguage(), { persist: false, announce: false })
     }
   })
 })()

@@ -1894,3 +1894,45 @@ code {
     height: 56px;
   }
 }
+
+/* Keep optional implementation details behind a readable native disclosure. */
+.permission-details {
+  margin-top: 16px;
+  padding: 12px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.permission-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--text-primary);
+}
+.permission-details > summary::-webkit-details-marker {
+  display: none;
+}
+.permission-details > summary::after,
+.faq-item .permission-details > summary::after {
+  content: '+';
+  position: static;
+  flex: none;
+}
+.permission-details[open] > summary::after,
+.faq-item .permission-details[open] > summary::after {
+  content: '−';
+}
+.faq-item .permission-details {
+  margin: 0 32px 24px;
+}
+.faq-item .permission-details > summary {
+  padding: 0;
+  font-size: 1rem;
+}
+.faq-item .permission-details p {
+  padding: 16px 0 0;
+}

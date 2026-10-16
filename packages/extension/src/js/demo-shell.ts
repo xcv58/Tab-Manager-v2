@@ -174,6 +174,16 @@ const renderCopy = () => {
       : site?.getLanguage() === 'zh-Hant'
         ? '試用 Tab Manager v2 · 互動示範'
         : 'Try Tab Manager v2 · Interactive demo'
+  document
+    .querySelector('meta[name="description"]')
+    ?.setAttribute(
+      'content',
+      site?.getLanguage() === 'zh-Hans'
+        ? '使用示例工作区体验 Tab Manager v2，从一个标签页到 1,500 个。无需安装扩展。'
+        : site?.getLanguage() === 'zh-Hant'
+          ? '使用範例工作區體驗 Tab Manager v2，從一個分頁到 1,500 個。無需安裝擴充功能。'
+          : 'Explore Tab Manager v2 with sample workspaces, from one tab to 1,500. No extension required.',
+    )
   fitGuide()
 }
 
