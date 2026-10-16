@@ -144,7 +144,8 @@ export default observer(() => {
           overflowY: 'auto',
           boxSizing: 'border-box',
           backgroundColor: uiColors.toolbarShellBackground,
-          border: `1px solid ${uiColors.toolbarShellBorderColor}`,
+          borderTop: `1px solid ${uiColors.toolbarShellBorderColor}`,
+          borderLeft: `1px solid ${uiColors.toolbarShellBorderColor}`,
           borderRight: 'none',
           borderBottom: 'none',
           borderTopLeftRadius: uiColors.toolbarShellBorderRadius,
@@ -159,7 +160,10 @@ export default observer(() => {
           maxWidth: '100vw',
           overflow: 'hidden',
           backgroundColor: uiColors.toolbarShellBackground,
-          border: isClassicUi
+          borderTop: isClassicUi
+            ? 'none'
+            : `1px solid ${uiColors.toolbarShellBorderColor}`,
+          borderLeft: isClassicUi
             ? 'none'
             : `1px solid ${uiColors.toolbarShellBorderColor}`,
           borderRight: 'none',
