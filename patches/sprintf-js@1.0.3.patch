@@ -1,0 +1,35 @@
+diff --git a/src/sprintf.js b/src/sprintf.js
+index c0fc7c08b2e6fe38de2883034b8d28c8f34e9866..de77add12b4e60b7f458cc6f73ecd9f8c595ed6f 100644
+--- a/src/sprintf.js
++++ b/src/sprintf.js
+@@ -73,13 +73,13 @@
+                         arg = JSON.stringify(arg, null, match[6] ? parseInt(match[6]) : 0)
+                     break
+                     case "e":
+-                        arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential()
++                        arg = match[7] ? arg.toExponential(bounded_precision(match[7], 0)) : arg.toExponential()
+                     break
+                     case "f":
+-                        arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg)
++                        arg = match[7] ? parseFloat(arg).toFixed(bounded_precision(match[7], 0)) : parseFloat(arg)
+                     break
+                     case "g":
+-                        arg = match[7] ? parseFloat(arg).toPrecision(match[7]) : parseFloat(arg)
++                        arg = match[7] ? parseFloat(arg).toPrecision(bounded_precision(match[7], 1)) : parseFloat(arg)
+                     break
+                     case "o":
+                         arg = arg.toString(8)
+@@ -181,6 +181,13 @@
+         return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase()
+     }
+ 
++    // Keep floating-point precision within ECMAScript's supported range.
++    // Oversized format-string precision must not cause an uncaught RangeError
++    // (CVE-2026-97058), including values that overflow to Infinity.
++    function bounded_precision(precision, minimum) {
++        return Math.min(100, Math.max(minimum, Number(precision)))
++    }
++
+     function str_repeat(input, multiplier) {
+         return Array(multiplier + 1).join(input)
+     }

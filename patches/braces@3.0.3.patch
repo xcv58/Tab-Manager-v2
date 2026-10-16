@@ -1,0 +1,135 @@
+diff --git a/lib/compile.js b/lib/compile.js
+index dce69beb90ece5c3b0ca234a949418f9f34eedbc..0ac6d06a5c213e6c77246c1ecb240f1ecb4a6238 100644
+--- a/lib/compile.js
++++ b/lib/compile.js
+@@ -4,7 +4,8 @@ const fill = require('fill-range');
+ const utils = require('./utils');
+ 
+ const compile = (ast, options = {}) => {
+-  const walk = (node, parent = {}) => {
++  const walk = (node, parent = {}, depth = 0) => {
++    utils.assertDepth(depth);
+     const invalidBlock = utils.isInvalidBrace(parent);
+     const invalidNode = node.invalid === true && options.escapeInvalid === true;
+     const invalid = invalidBlock === true || invalidNode === true;
+@@ -47,7 +48,7 @@ const compile = (ast, options = {}) => {
+ 
+     if (node.nodes) {
+       for (const child of node.nodes) {
+-        output += walk(child, node);
++        output += walk(child, node, depth + 1);
+       }
+     }
+ 
+diff --git a/lib/constants.js b/lib/constants.js
+index 2bb3b8840382c56700869b3a9e1f958fcce01efd..a94fcfb5566a620c69c99427098de3d609d0c9a5 100644
+--- a/lib/constants.js
++++ b/lib/constants.js
+@@ -1,6 +1,7 @@
+ 'use strict';
+ 
+ module.exports = {
++  MAX_AST_DEPTH: 128,
+   MAX_LENGTH: 10000,
+ 
+   // Digits
+diff --git a/lib/expand.js b/lib/expand.js
+index 35b2c41d6afdb8f0197959e26079f266e48370d3..1afd0b5b1109312115a88d780c31997a2fd81930 100644
+--- a/lib/expand.js
++++ b/lib/expand.js
+@@ -33,7 +33,8 @@ const append = (queue = '', stash = '', enclose = false) => {
+ const expand = (ast, options = {}) => {
+   const rangeLimit = options.rangeLimit === undefined ? 1000 : options.rangeLimit;
+ 
+-  const walk = (node, parent = {}) => {
++  const walk = (node, parent = {}, depth = 0) => {
++    utils.assertDepth(depth);
+     node.queue = [];
+ 
+     let p = parent;
+@@ -45,7 +46,7 @@ const expand = (ast, options = {}) => {
+     }
+ 
+     if (node.invalid || node.dollar) {
+-      q.push(append(q.pop(), stringify(node, options)));
++      q.push(append(q.pop(), stringify(node, options, depth)));
+       return;
+     }
+ 
+@@ -63,7 +64,7 @@ const expand = (ast, options = {}) => {
+ 
+       let range = fill(...args, options);
+       if (range.length === 0) {
+-        range = stringify(node, options);
++        range = stringify(node, options, depth);
+       }
+ 
+       q.push(append(q.pop(), range));
+@@ -82,6 +83,7 @@ const expand = (ast, options = {}) => {
+ 
+     for (let i = 0; i < node.nodes.length; i++) {
+       const child = node.nodes[i];
++      utils.assertDepth(depth + 1);
+ 
+       if (child.type === 'comma' && node.type === 'brace') {
+         if (i === 1) queue.push('');
+@@ -100,7 +102,7 @@ const expand = (ast, options = {}) => {
+       }
+ 
+       if (child.nodes) {
+-        walk(child, node);
++        walk(child, node, depth + 1);
+       }
+     }
+ 
+diff --git a/lib/stringify.js b/lib/stringify.js
+index 8bcf872c31894f81a8c64d9202fd607e4fd7ea2b..fdc82ee628e20b313cafc49824532e08b0fbf914 100644
+--- a/lib/stringify.js
++++ b/lib/stringify.js
+@@ -2,8 +2,9 @@
+ 
+ const utils = require('./utils');
+ 
+-module.exports = (ast, options = {}) => {
+-  const stringify = (node, parent = {}) => {
++module.exports = (ast, options = {}, initialDepth = 0) => {
++  const stringify = (node, parent = {}, depth = 0) => {
++    utils.assertDepth(depth);
+     const invalidBlock = options.escapeInvalid && utils.isInvalidBrace(parent);
+     const invalidNode = node.invalid === true && options.escapeInvalid === true;
+     let output = '';
+@@ -21,12 +22,12 @@ module.exports = (ast, options = {}) => {
+ 
+     if (node.nodes) {
+       for (const child of node.nodes) {
+-        output += stringify(child);
++        output += stringify(child, undefined, depth + 1);
+       }
+     }
+     return output;
+   };
+ 
+-  return stringify(ast);
++  return stringify(ast, undefined, initialDepth);
+ };
+ 
+diff --git a/lib/utils.js b/lib/utils.js
+index d19311fe044ad5157624077670dc297e8b53da49..c3c5b40779122108c0ad2fe6f94dd257b2b58152 100644
+--- a/lib/utils.js
++++ b/lib/utils.js
+@@ -1,5 +1,15 @@
+ 'use strict';
+ 
++const { MAX_AST_DEPTH } = require('./constants');
++
++// Bound recursive AST walkers before they exhaust the native call stack
++// (CVE-2026-93687), including callers that supply an AST instead of a string.
++exports.assertDepth = depth => {
++  if (depth > MAX_AST_DEPTH) {
++    throw new SyntaxError(`Pattern nesting depth exceeds maximum (${MAX_AST_DEPTH})`);
++  }
++};
++
+ exports.isInteger = num => {
+   if (typeof num === 'number') {
+     return Number.isInteger(num);
