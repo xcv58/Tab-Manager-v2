@@ -178,6 +178,11 @@
   font-weight: 600;
 }
 
+.page-table th[scope='row'] {
+  min-width: 12em;
+  overflow-wrap: normal;
+}
+
 .page-table td {
   white-space: nowrap;
 }

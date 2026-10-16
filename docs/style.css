@@ -411,8 +411,7 @@ code {
 .language-select {
   appearance: none;
   -webkit-appearance: none;
-  min-height: 36px;
-  max-width: 150px;
+  min-height: var(--tap-target-size);
   padding: 0 30px 0 34px;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -882,7 +881,13 @@ code {
 
 .video-tour-layout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
+}
+
+.video-tour-frame,
+.video-tour-copy {
+  min-width: 0;
 }
 
 .video-tour-frame {
@@ -1941,7 +1946,7 @@ code {
 .site-header {
   display: grid;
   grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
-  align-items: start;
+  align-items: center;
   direction: ltr;
 }
 .site-header > .logo {
@@ -1958,7 +1963,7 @@ code {
   order: 0;
   min-width: 0;
   max-width: 100%;
-  align-items: start;
+  align-items: center;
 }
 .site-header > .theme-toggle {
   grid-column: 3;
@@ -1970,11 +1975,62 @@ code {
 .site-header [hidden] {
   display: none !important;
 }
+
+/* Larger text can need a menu even on a desktop-sized screen. */
+.site-header[data-menu-compact] {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: start;
+  gap: 0 8px;
+  padding: 10px 0;
+}
+.site-header[data-menu-compact] > .logo {
+  font-size: clamp(0.95rem, 3.8vw, 1.1rem);
+  gap: 8px;
+}
+.site-header[data-menu-compact] > .site-menu-toggle {
+  display: inline-flex;
+  grid-column: 2;
+  grid-row: 1;
+  order: 0;
+}
+.site-header[data-menu-compact] > .nav-wrapper {
+  display: flex;
+  position: static;
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-items: stretch;
+  flex-direction: column;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+  margin: 10px 0 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-color);
+  box-shadow: none;
+}
+.site-header[data-menu-compact] .nav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 2px;
+}
+.site-header[data-menu-compact] .nav-links a {
+  min-height: var(--tap-target-size);
+  padding: 8px 12px;
+}
+.site-header[data-menu-compact] .language-select-wrap,
+.site-header[data-menu-compact] .language-select {
+  max-width: 100%;
+}
 @media (max-width: 1050px) {
   .site-header,
   .site-header[data-menu-ready] {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: start;
     gap: 0 8px;
     padding: 10px 0;
   }
@@ -2039,4 +2095,39 @@ code {
 .site-header.fade-in {
   opacity: 1;
   transform: none;
+}
+
+/* Measure the full desktop row before choosing the compact menu. The existing
+   nodes stay in place, so language changes and larger text use their real size. */
+.site-header[data-menu-measuring] > .logo {
+  width: max-content;
+  font-size: 1.25rem;
+  gap: 12px;
+}
+.site-header[data-menu-measuring] .logo > span {
+  white-space: nowrap;
+}
+.site-header[data-menu-measuring] > .nav-wrapper {
+  display: flex !important;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: max-content;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 16px;
+}
+.site-header[data-menu-measuring] .nav-links {
+  width: max-content;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 14px;
+}
+.site-header[data-menu-measuring] .nav-links a {
+  padding: 0 4px;
+  white-space: nowrap;
 }

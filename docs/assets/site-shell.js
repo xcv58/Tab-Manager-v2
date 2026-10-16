@@ -316,11 +316,27 @@
     if (!header || !control || !panel) return
     const phone = window.matchMedia(`(max-width: ${breakpoint}px)`)
     let lastHeaderFocus = null
-    const isOpen = () => phone.matches && !panel.hidden
+    let compact = false
+    let initialized = false
+    const desktopFits = () => {
+      const logo = header.querySelector('.logo')
+      const appearance = header.querySelector('.theme-toggle')
+      if (!logo || !appearance) return true
+      header.setAttribute('data-menu-measuring', '')
+      const needed =
+        logo.getBoundingClientRect().width +
+        panel.getBoundingClientRect().width +
+        appearance.getBoundingClientRect().width +
+        32 // Two 16px gaps in the full desktop row.
+      const available = header.getBoundingClientRect().width
+      header.removeAttribute('data-menu-measuring')
+      return needed <= available
+    }
+    const isOpen = () => compact && !panel.hidden
     const setOpen = (open) => {
-      panel.hidden = phone.matches && !open
-      control.setAttribute('aria-expanded', String(phone.matches && open))
-      control.setAttribute('aria-label', label(phone.matches && open))
+      panel.hidden = compact && !open
+      control.setAttribute('aria-expanded', String(compact && open))
+      control.setAttribute('aria-label', label(compact && open))
       control.title = control.getAttribute('aria-label')
       if (!open)
         panel.querySelectorAll('details[open]').forEach((details) => {
@@ -332,7 +348,9 @@
       setOpen(false)
       if (wasOpen && returnFocus) control.focus({ preventScroll: true })
     }
-    const sync = () => {
+    const sync = (reset = false) => {
+      const nextCompact = phone.matches || !desktopFits()
+      if (initialized && nextCompact === compact && !reset) return
       // CSS may hide the focused link before the media-query event reaches us.
       const active =
         document.activeElement === document.body
@@ -340,15 +358,18 @@
           : document.activeElement
       const panelFocused = !!active && panel.contains(active)
       const menuFocused = active === control
-      control.hidden = !phone.matches
+      compact = nextCompact
+      initialized = true
+      header.toggleAttribute('data-menu-compact', compact)
+      control.hidden = !compact
       setOpen(false)
       // Match the visible reading order while retaining one set of native links.
-      if (phone.matches) {
+      if (compact) {
         if (header.lastElementChild !== panel) header.append(panel)
       } else if (panel.nextElementSibling !== control)
         header.insertBefore(panel, control)
-      if (phone.matches && panelFocused) control.focus({ preventScroll: true })
-      else if (!phone.matches && (panelFocused || menuFocused)) {
+      if (compact && panelFocused) control.focus({ preventScroll: true })
+      else if (!compact && (panelFocused || menuFocused)) {
         const destination = panelFocused
           ? active
           : panel.querySelector('a, summary, select, button')
@@ -427,9 +448,26 @@
         }
       }
     })
-    phone.addEventListener('change', sync)
+    let pendingSync = null
+    const scheduleSync = () => {
+      if (pendingSync !== null) return
+      pendingSync = window.requestAnimationFrame(() => {
+        pendingSync = null
+        sync()
+      })
+    }
+    phone.addEventListener('change', scheduleSync)
+    window.addEventListener('resize', scheduleSync)
+    document.addEventListener('site:language-change', scheduleSync)
+    document.fonts?.ready.then(scheduleSync)
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(scheduleSync)
+      ;[header, ...header.querySelectorAll('.logo, .nav-links, select')].forEach(
+        (element) => observer.observe(element),
+      )
+    }
     window.addEventListener('pageshow', (event) => {
-      if (event.persisted) sync()
+      if (event.persisted) sync(true)
     })
     header.setAttribute('data-header-ready', '')
     sync()
