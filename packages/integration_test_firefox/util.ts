@@ -237,6 +237,25 @@ export const saveFirefoxDiagnostics = async (
     driver.takeScreenshot().then((data) => {
       writeFileSync(join(artifacts, `${filename}.png`), data, 'base64')
     }),
+    driver
+      .executeScript(() => ({
+        url: location.href,
+        hasFocus: document.hasFocus(),
+        activeElement: document.activeElement?.outerHTML,
+        inputs: Array.from(
+          document.querySelectorAll('input[role="combobox"]'),
+        ).map((input: HTMLInputElement) => ({
+          label: input.getAttribute('aria-label'),
+          value: input.value,
+          expanded: input.getAttribute('aria-expanded'),
+        })),
+      }))
+      .then((data) =>
+        writeFileSync(
+          join(artifacts, `${filename}.json`),
+          JSON.stringify(data, null, 2),
+        ),
+      ),
     driver.getPageSource().then((data) => {
       writeFileSync(join(artifacts, `${filename}.html`), data)
     }),

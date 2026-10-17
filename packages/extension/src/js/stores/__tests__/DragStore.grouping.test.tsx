@@ -47,6 +47,42 @@ describe('DragStore with tab groups', () => {
     process.env.TARGET_BROWSER = originalTargetBrowser
   })
 
+  it('restores Firefox collapsed states after all selected group blocks have moved', async () => {
+    process.env.TARGET_BROWSER = 'firefox'
+    const tabs = [
+      { id: 1, windowId: 1, index: 0, groupId: 10 },
+      { id: 2, windowId: 1, index: 1, groupId: 10 },
+      { id: 3, windowId: 1, index: 2, groupId: 20 },
+      { id: 4, windowId: 1, index: 3, groupId: 20 },
+    ]
+    const calls: string[] = []
+    const updateTabGroup = jest.fn(async (id) => {
+      calls.push(`restore-${id}`)
+    })
+    const dragStore = setupDragStore({
+      selection: new Map(tabs.map((tab) => [tab.id, tab])),
+      targetTabs: [],
+      tabGroupStore: {
+        getNoGroupId: () => -1,
+        getTabGroup: (id) => ({ id, collapsed: id === 10 }),
+        getGroup: async (id) => ({ id, collapsed: false, windowId: 3 }),
+        moveGroup: async (id) => {
+          calls.push(`move-${id}`)
+        },
+        updateTabGroup,
+      },
+    })
+    dragStore.getTabFromBrowser = jest.fn(
+      async (id) => tabs.find((tab) => tab.id === id) as any,
+    )
+    dragStore.getWindowTabsFromBrowser = jest.fn(
+      async () => [{ id: 5, windowId: 3, index: 0, groupId: -1 }] as any,
+    )
+    await dragStore.moveBlankSpaceBlocks(tabs as any, new Set([10, 20]), 3, 0)
+    expect(calls).toEqual(['move-20', 'move-10', 'restore-10'])
+    expect(updateTabGroup).toHaveBeenCalledWith(10, { collapsed: true })
+  })
+
   it('dragStartTab should only select dragged grouped tab', () => {
     process.env.TARGET_BROWSER = 'chrome'
     const selection = new Map()

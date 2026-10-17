@@ -301,6 +301,19 @@ export default class DragStore {
     index: number,
   ) => {
     const blocks = this.getBlankSpaceMoveBlocks(sources, wholeSelectedGroupIds)
+    const collapsedGroups =
+      process.env.TARGET_BROWSER === 'firefox'
+        ? new Map<number, boolean | undefined>(
+            Array.from(
+              wholeSelectedGroupIds,
+              (id) =>
+                [
+                  id,
+                  this.store.tabGroupStore.getTabGroup(id)?.collapsed,
+                ] as const,
+            ),
+          )
+        : new Map<number, boolean>()
     // Selection can retain old window IDs after Chrome transfers tabs. Resolve
     // by stable tab ID so active source tabs still move last in their new window.
     const browserSources = await Promise.all(
@@ -352,6 +365,15 @@ export default class DragStore {
         })
       } else {
         await this.store.windowStore.moveTabs(block.tabs, windowId, nextIndex)
+      }
+    }
+    // A later Firefox group transfer can expand a group already placed in the
+    // destination. Reapply collapsed state after the entire block move ends.
+    for (const [groupId, collapsed] of collapsedGroups) {
+      if (collapsed == null) continue
+      const group = await this.store.tabGroupStore.getGroup(groupId)
+      if (group && group.collapsed !== collapsed) {
+        await this.store.tabGroupStore.updateTabGroup(groupId, { collapsed })
       }
     }
   }

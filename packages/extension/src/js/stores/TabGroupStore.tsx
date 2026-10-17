@@ -641,11 +641,59 @@ export default class GroupStore {
     if (this.isNoGroupId(groupId)) {
       return null
     }
-    const updated = await tabGroupsApi.move(groupId, moveProperties)
-    if (updated) {
-      this.tabGroupMap.set(updated.id, updated)
+    const previous = (await this.getGroup(groupId)) || this.getTabGroup(groupId)
+    const collapsed = previous?.collapsed
+    const members =
+      process.env.TARGET_BROWSER === 'firefox'
+        ? (await browser.tabs.query({ groupId })).sort(
+            (a, b) => a.index - b.index,
+          )
+        : []
+    const activeIndex = members.findIndex((tab) => tab.active)
+    const deferActive =
+      activeIndex >= 0 &&
+      moveProperties.windowId != null &&
+      moveProperties.windowId !== members[activeIndex].windowId &&
+      members.slice(activeIndex + 1).some((tab) => tab.discarded)
+    if (deferActive) {
+      // Gecko adopts group members in strip order. Its active member must move
+      // last so adopting it cannot activate an unloaded selected successor.
+      await browser.tabs.move(members[activeIndex].id, {
+        index: members[members.length - 1].index,
+      })
     }
-    const latest = updated || (await this.getGroup(groupId))
+    let updated: TabGroup | null = null
+    try {
+      updated = await tabGroupsApi.move(groupId, moveProperties)
+    } finally {
+      if (deferActive) {
+        const current = (
+          await browser.tabs.query({ groupId: updated?.id ?? groupId })
+        ).sort((a, b) => a.index - b.index)
+        if (
+          current.length === members.length &&
+          members.every((tab) =>
+            current.some((candidate) => candidate.id === tab.id),
+          )
+        ) {
+          // Restore the same order even when a rejected native move leaves the
+          // group in its source window. Never reorder a changed membership.
+          const first = current[0]
+          for (const [offset, tab] of members.entries()) {
+            await browser.tabs.move(tab.id, {
+              windowId: first.windowId,
+              index: first.index + offset,
+            })
+          }
+        }
+      }
+    }
+    let latest = updated || (await this.getGroup(groupId))
+    // Firefox expands a group while transferring it to another window.
+    // Restore the user's state after the native move has completed.
+    if (latest && collapsed != null && latest.collapsed !== collapsed) {
+      latest = await this.updateTabGroup(latest.id, { collapsed })
+    }
     if (latest) {
       this.tabGroupMap.set(latest.id, latest)
     }

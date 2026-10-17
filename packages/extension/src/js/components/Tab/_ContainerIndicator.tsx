@@ -1,7 +1,8 @@
 import React from 'react'
+import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
 
-const ContainerIndicator = (props) => {
+const ContainerIndicator = observer((props) => {
   const { cookieStoreId } = props
   const { containerStore } = useStore()
   const container = containerStore.getContainer(cookieStoreId)
@@ -20,6 +21,6 @@ const ContainerIndicator = (props) => {
       }}
     />
   )
-}
+})
 
 export default ContainerIndicator

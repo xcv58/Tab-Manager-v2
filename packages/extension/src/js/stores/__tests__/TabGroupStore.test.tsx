@@ -575,6 +575,111 @@ describe('TabGroupStore', () => {
     expect(result?.id).toBe(42)
   })
 
+  it('moves a Firefox group active member last and restores the original member order', async () => {
+    const target = process.env.TARGET_BROWSER
+    process.env.TARGET_BROWSER = 'firefox'
+    const original = {
+      id: 42,
+      windowId: 1,
+      collapsed: false,
+      title: 'Work',
+      color: 'blue',
+    }
+    const calls: string[] = []
+    ;(browser as any).tabGroups.get = jest.fn(() => Promise.resolve(original))
+    ;(browser as any).tabs.query = jest
+      .fn()
+      .mockResolvedValueOnce([
+        { id: 10, windowId: 1, index: 3, active: true },
+        { id: 11, windowId: 1, index: 4, discarded: true },
+      ])
+      .mockResolvedValueOnce([
+        { id: 11, windowId: 2, index: 5 },
+        { id: 10, windowId: 2, index: 6 },
+      ])
+    ;(browser as any).tabs.move = jest.fn(async (id) => {
+      calls.push(`tab-${id}`)
+    })
+    ;(browser as any).tabGroups.move = jest.fn(async () => {
+      calls.push('group')
+      return { ...original, windowId: 2 }
+    })
+    try {
+      await groupStore().moveGroup(42, { windowId: 2, index: 5 })
+      expect(calls).toEqual(['tab-10', 'group', 'tab-10', 'tab-11'])
+      expect((browser as any).tabs.move.mock.calls).toEqual([
+        [10, { index: 4 }],
+        [10, { windowId: 2, index: 5 }],
+        [11, { windowId: 2, index: 6 }],
+      ])
+    } finally {
+      if (target === undefined) delete process.env.TARGET_BROWSER
+      else process.env.TARGET_BROWSER = target
+    }
+  })
+
+  it('restores Firefox source member order when the native group transfer is rejected', async () => {
+    const target = process.env.TARGET_BROWSER
+    process.env.TARGET_BROWSER = 'firefox'
+    ;(browser as any).tabGroups.get = jest.fn(() =>
+      Promise.resolve({ id: 42, windowId: 1, collapsed: false }),
+    )
+    ;(browser as any).tabs.query = jest
+      .fn()
+      .mockResolvedValueOnce([
+        { id: 10, windowId: 1, index: 3, active: true },
+        { id: 11, windowId: 1, index: 4, discarded: true },
+      ])
+      .mockResolvedValueOnce([
+        { id: 11, windowId: 1, index: 3 },
+        { id: 10, windowId: 1, index: 4 },
+      ])
+    ;(browser as any).tabs.move = jest.fn(() => Promise.resolve())
+    ;(browser as any).tabGroups.move.mockRejectedValueOnce(
+      new Error('Move rejected'),
+    )
+    try {
+      await expect(
+        groupStore().moveGroup(42, { windowId: 2, index: 5 }),
+      ).rejects.toThrow('Move rejected')
+      expect((browser as any).tabs.move.mock.calls).toEqual([
+        [10, { index: 4 }],
+        [10, { windowId: 1, index: 3 }],
+        [11, { windowId: 1, index: 4 }],
+      ])
+    } finally {
+      if (target === undefined) delete process.env.TARGET_BROWSER
+      else process.env.TARGET_BROWSER = target
+    }
+  })
+
+  it.each([true, false])(
+    'preserves collapsed=%s when the browser changes it during a native move',
+    async (collapsed) => {
+      const original = {
+        id: 42,
+        windowId: 1,
+        title: 'Work',
+        color: 'blue',
+        collapsed,
+      }
+      const moved = { ...original, windowId: 2, collapsed: !collapsed }
+      ;(browser as any).tabGroups.get = jest.fn(() => Promise.resolve(original))
+      ;(browser as any).tabGroups.move.mockResolvedValueOnce(moved)
+      ;(browser as any).tabGroups.update.mockResolvedValueOnce({
+        ...moved,
+        collapsed,
+      })
+      const store = groupStore()
+      const result = await store.moveGroup(42, { windowId: 2, index: -1 })
+      expect((browser as any).tabGroups.update).toHaveBeenCalledWith(42, {
+        collapsed,
+      })
+      expect(result).toEqual({ ...original, windowId: 2 })
+      expect(store.getTabGroup(42)).toEqual(result)
+    },
+  )
+
   it('should ungroup one tab only with ungroupTab', async () => {
     const store = new TabGroupStore({
       windowStore: {
