@@ -670,21 +670,20 @@ export default class GroupStore {
         const current = (
           await browser.tabs.query({ groupId: updated?.id ?? groupId })
         ).sort((a, b) => a.index - b.index)
+        const currentIds = new Set(current.map((tab) => tab.id))
         if (
           current.length === members.length &&
-          members.every((tab) =>
-            current.some((candidate) => candidate.id === tab.id),
-          )
+          members.every((tab) => currentIds.has(tab.id))
         ) {
           // Restore the same order even when a rejected native move leaves the
           // group in its source window. Never reorder a changed membership.
           const first = current[0]
-          for (const [offset, tab] of members.entries()) {
-            await browser.tabs.move(tab.id, {
-              windowId: first.windowId,
-              index: first.index + offset,
-            })
-          }
+          // Only the active member was displaced. One move restores its slot
+          // and leaves the other members' relative order intact for large groups.
+          await browser.tabs.move(members[activeIndex].id, {
+            windowId: first.windowId,
+            index: first.index + activeIndex,
+          })
         }
       }
     }

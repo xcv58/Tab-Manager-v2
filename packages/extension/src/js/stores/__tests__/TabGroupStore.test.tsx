@@ -590,12 +590,14 @@ describe('TabGroupStore', () => {
     ;(browser as any).tabs.query = jest
       .fn()
       .mockResolvedValueOnce([
-        { id: 10, windowId: 1, index: 3, active: true },
-        { id: 11, windowId: 1, index: 4, discarded: true },
+        { id: 10, windowId: 1, index: 3, discarded: true },
+        { id: 11, windowId: 1, index: 4, active: true },
+        { id: 12, windowId: 1, index: 5, discarded: true },
       ])
       .mockResolvedValueOnce([
-        { id: 11, windowId: 2, index: 5 },
-        { id: 10, windowId: 2, index: 6 },
+        { id: 10, windowId: 2, index: 5 },
+        { id: 12, windowId: 2, index: 6 },
+        { id: 11, windowId: 2, index: 7 },
       ])
     ;(browser as any).tabs.move = jest.fn(async (id) => {
       calls.push(`tab-${id}`)
@@ -606,10 +608,9 @@ describe('TabGroupStore', () => {
     })
     try {
       await groupStore().moveGroup(42, { windowId: 2, index: 5 })
-      expect(calls).toEqual(['tab-10', 'group', 'tab-10', 'tab-11'])
+      expect(calls).toEqual(['tab-11', 'group', 'tab-11'])
       expect((browser as any).tabs.move.mock.calls).toEqual([
-        [10, { index: 4 }],
-        [10, { windowId: 2, index: 5 }],
+        [11, { index: 5 }],
         [11, { windowId: 2, index: 6 }],
       ])
     } finally {
@@ -645,7 +646,6 @@ describe('TabGroupStore', () => {
       expect((browser as any).tabs.move.mock.calls).toEqual([
         [10, { index: 4 }],
         [10, { windowId: 1, index: 3 }],
-        [11, { windowId: 1, index: 4 }],
       ])
     } finally {
       if (target === undefined) delete process.env.TARGET_BROWSER
