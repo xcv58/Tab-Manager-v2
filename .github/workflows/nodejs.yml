@@ -7,6 +7,80 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  firefox-integration-test:
+    name: Firefox integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Use the real Firefox and geckodriver provisioned on the Ubuntu runner.
+      # Fail explicitly if either disappears instead of skipping the suite.
+      - name: Check Firefox tooling
+        run: |
+          set -euo pipefail
+          firefox_binary=$(command -v firefox)
+          geckodriver_binary=$(command -v geckodriver)
+          "$firefox_binary" --version
+          "$geckodriver_binary" --version
+          echo "FIREFOX_BINARY=$firefox_binary" >> "$GITHUB_ENV"
+          echo "GECKODRIVER=$geckodriver_binary" >> "$GITHUB_ENV"
+
+      - name: Build and package Firefox extension
+        run: |
+          pnpm --filter tab-manager-v2 build:firefox
+          pnpm --filter tab-manager-v2 zip:firefox
+
+      - name: Firefox browser integration
+        env:
+          FIREFOX_E2E_ARTIFACTS: ${{ github.workspace }}/.tmp/firefox-e2e
+        run: pnpm --filter integration-test-firefox test:firefox:ci
+
+      - name: Firefox unloaded tab move regression
+        timeout-minutes: 5
+        env:
+          TM_BROWSER: firefox
+        run: |
+          TM_FIREFOX_BINARY="$FIREFOX_BINARY" TM_GECKODRIVER="$GECKODRIVER" \
+            pnpm test:integration:unloaded-tabs
+
+      - name: Upload Firefox diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-integration-results
+          path: |
+            .tmp/firefox-e2e/
+            .tmp/issue-2651/production-firefox-results.json
+          retention-days: 30
+
   test-build-integration-test:
     runs-on: ubuntu-latest
     strategy:
@@ -33,7 +107,7 @@ jobs:
         id: pnpm-cache
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+          echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/cache@v4
         name: Setup pnpm cache

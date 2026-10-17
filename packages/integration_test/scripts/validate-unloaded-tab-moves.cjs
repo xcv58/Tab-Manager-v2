@@ -124,6 +124,9 @@ async function firefox() {
   })
   return {
     version: session.capabilities.browserVersion,
+    // Refresh through WebDriver: reloading inside execute/async can destroy
+    // its callback context before Gecko returns the command's result.
+    reload: () => request(route + '/refresh', {}),
     run: async (body, ...args) => {
       const result = await request(route + '/execute/async', {
         script: `const args=Array.from(arguments),done=args.pop();(async()=>{${body}})().then(value=>done({value}),e=>done({error:String(e),stack:e.stack}));`,
@@ -287,6 +290,7 @@ async function chrome() {
   await waitForPopup()
   return {
     version: version.product,
+    reload: () => send('Page.reload', {}, sessionId),
     run: async (body, ...args) => {
       // A reload replaces the execution context. Resolve the current global
       // only after navigation has completed and extension APIs are available.
@@ -319,7 +323,7 @@ const scenarios = [
   ...[false, true].flatMap((append) =>
     [0, 1].map((active) => ({
       name: `whole-groups-active-${active}-${append ? 'end' : 'beginning'}`,
-      count: 1,
+      count: 3,
       active,
       append,
       groups: true,
@@ -375,11 +379,17 @@ const scenarios = [
   try {
     const runtime = await (kind === 'firefox' ? firefox() : chrome())
     report.version = runtime.version
+    report.groupCapabilities = await runtime.run(
+      `return {group:typeof browser.tabs.group,move:typeof browser.tabGroups?.move};`,
+    )
+    // Both browser jobs exercise whole native groups. Missing APIs must fail
+    // visibly instead of silently excluding their regression scenarios.
+    assert.equal(report.groupCapabilities.group, 'function')
+    assert.equal(report.groupCapabilities.move, 'function')
     for (const config of scenarios.filter(
       (c) =>
-        (kind === 'chrome' || !c.groups) &&
-        (!process.env.TM_CASES ||
-          process.env.TM_CASES.split(',').includes(c.name)),
+        !process.env.TM_CASES ||
+        process.env.TM_CASES.split(',').includes(c.name),
     )) {
       console.log('START', kind, config.name)
       const fixture = await runtime.run(
@@ -399,10 +409,10 @@ const scenarios = [
           let ready=false;
           for(let i=0;i<300;i++){if((await browser.tabs.query({windowId:source.id})).every(t=>t.status==='complete')){ready=true;break;}await new Promise(r=>setTimeout(r,100));}
           if(!ready)throw new Error('Initial loads incomplete');
-          if(c.groups)for(const [i,tab] of tabs.entries()){const id=await browser.tabs.group({tabIds:[tab.id],createProperties:{windowId:source.id}});groups.push({...await browser.tabGroups.update(id,{title:'Group-'+i,color:i===0?'blue':'green'}),tabIds:[tab.id]});}
+          if(c.groups)for(let i=0;i<tabs.length;i+=2){const tabIds=tabs.slice(i,i+2).map(tab=>tab.id);const id=await browser.tabs.group({tabIds,createProperties:{windowId:source.id}});groups.push({...await browser.tabGroups.update(id,{title:'Group-'+i,color:i===0?'blue':'green'}),tabIds});}
           // Creating a native group can activate its tab. Set the source's
           // intended active tab after grouping before discarding the others.
-          if(c.groups)await browser.tabs.update(tabs[c.active].id,{active:true});
+          if(c.groups){await browser.tabs.update(tabs[c.active].id,{active:true});for(let i=1;i<groups.length;i++)groups[i]={...await browser.tabGroups.update(groups[i].id,{collapsed:true}),tabIds:groups[i].tabIds};}
           for(const tab of tabs)if(tab.id!==tabs[c.active].id)await browser.tabs.discard(tab.id);
           selected.push(...(await browser.tabs.query({windowId:source.id})).sort((a,b)=>a.index-b.index));
         }
@@ -419,24 +429,39 @@ const scenarios = [
         fixture.selected.filter((tab) => tab.discarded).length,
         config.count * (config.windows || 1),
       )
+      console.log('FIXTURE READY', kind, config.name)
       // Hydrate the popup from finalized browser state before selecting.
-      await runtime.run(`location.reload();return true;`)
+      await runtime.reload()
       await sleep(500)
-      await runtime.run(
+      const selectedCount = await runtime.run(
         `
         const [s,c]=args;
+        const current=await browser.tabs.getCurrent();if(!current.active)await browser.tabs.update(current.id,{active:true});await browser.windows.update(current.windowId,{focused:true});
+        await new Promise(r=>setTimeout(r,100));
         window.unloadEvents=[];window.unloadListener=(id,change)=>{if(s.selected.some(t=>t.id===id)&&change.status==='loading')window.unloadEvents.push(id)};
         browser.tabs.onUpdated.addListener(window.unloadListener);
         for(let attempt=0;attempt<200;attempt++){
           if(s.windows.every(id=>document.querySelector('[data-testid="window-card-'+id+'"] input[aria-label="Select all tabs"]'))&&document.querySelector('[data-testid="window-drop-zone-'+(c.append?'bottom':'top')+'-'+s.dest+'"]'))break;
           await new Promise(r=>setTimeout(r,100));
         }
-        for(const id of s.windows){const control=document.querySelector('[data-testid="window-card-'+id+'"] input[aria-label="Select all tabs"]');if(!control)throw new Error('Selection control missing');control.click();}
+        if(c.groups){
+          // A window's checkbox selects visible rows. Use each group header's
+          // selection shortcut so collapsed members are included as well.
+          for(const group of s.groups){const header=document.querySelector('[data-testid="tab-group-header-'+group.id+'"]');if(!header)throw new Error('Group header missing');header.focus();for(const type of ['keydown','keypress','keyup'])header.dispatchEvent(new KeyboardEvent(type,{bubbles:true,cancelable:true,key:'x',code:'KeyX',keyCode:type==='keypress'?120:88,charCode:type==='keypress'?120:0,which:type==='keypress'?120:88}));}
+        }else{for(const id of s.windows){const control=document.querySelector('[data-testid="window-card-'+id+'"] input[aria-label="Select all tabs"]');if(!control)throw new Error('Selection control missing');control.click();}}
         await new Promise(r=>setTimeout(r,300));
+        const text=Array.from(document.querySelectorAll('p')).map(el=>el.textContent||'').find(text=>/,\\s*\\d+\\s+tabs?\\s+selected/i.test(text))||'';
+        return Number(text.match(/,\\s*(\\d+)\\s+tabs?\\s+selected/i)?.[1]??-1);
       `,
         fixture,
         config,
       )
+      assert.equal(
+        selectedCount,
+        fixture.selected.length,
+        'Fixture must select every source tab, including collapsed group members',
+      )
+      console.log('SELECTION READY', kind, config.name)
       hits.length = 0
       await runtime.run(
         `
@@ -463,12 +488,13 @@ const scenarios = [
         fixture,
         config,
       )
+      console.log('MOVE REQUESTED', kind, config.name)
       const result = await runtime.run(
         `
-        const s=args[0];let after;
-        for(let attempt=0;attempt<600;attempt++){after=await Promise.all(s.selected.map(t=>browser.tabs.get(t.id)));if(after.every(t=>t.windowId===s.dest))break;await new Promise(r=>setTimeout(r,100));}
+        const s=args[0],ids=new Set(s.selected.map(t=>t.id)),deadline=Date.now()+60000;let after;
+        for(;Date.now()<deadline;){after=(await browser.tabs.query({})).filter(t=>ids.has(t.id));if(after.length===s.selected.length&&after.every(t=>t.windowId===s.dest))break;await new Promise(r=>setTimeout(r,100));}
         await new Promise(r=>setTimeout(r,1500));
-        after=await Promise.all(s.selected.map(t=>browser.tabs.get(t.id)));
+        after=(await browser.tabs.query({})).filter(t=>ids.has(t.id));
         const destination=(await browser.tabs.query({windowId:s.dest})).sort((a,b)=>a.index-b.index);
         browser.tabs.onUpdated.removeListener(window.unloadListener);
         const groups=s.groups.length?await browser.tabGroups.query({windowId:s.dest}):[];
@@ -494,13 +520,17 @@ const scenarios = [
         discardedAfter: result.after.filter((t) => t.discarded).length,
         reloadRequests: hits.length,
         loadingEvents: result.loadingEvents,
-        allMoved: result.after.every((t) => t.windowId === fixture.dest),
+        allMoved:
+          result.after.length === fixture.selected.length &&
+          result.after.every((t) => t.windowId === fixture.dest),
         orderCorrect:
           JSON.stringify(result.destination.map((t) => t.id)) ===
           JSON.stringify(expected.map((t) => t.id)),
         ...(config.groups
           ? {
-              // Verify each group's membership, title, and color.
+              groupsBefore: fixture.groups,
+              groupsAfter: result.groups,
+              // Verify multi-tab membership and metadata, including a collapsed group.
               groupsPreserved:
                 result.groups.length === fixture.groups.length &&
                 fixture.groups.every((before) =>
@@ -508,6 +538,7 @@ const scenarios = [
                     (after) =>
                       after.title === before.title &&
                       after.color === before.color &&
+                      after.collapsed === before.collapsed &&
                       JSON.stringify(
                         result.after
                           .filter((tab) => tab.groupId === after.id)

@@ -1068,7 +1068,7 @@ export default class ActionStore {
       {
         id: 'clean-duplicates',
         icon: 'clean-duplicates',
-        label: `Close ${duplicateCount} duplicate ${getNoun('tab', duplicateCount)}`,
+        label: `Close ${duplicateCount} duplicate ${duplicateCount === 1 ? 'tab' : 'tabs'}`,
         section: 'Across windows',
         aliases: 'clean duplicates deduplicate',
         danger: true,

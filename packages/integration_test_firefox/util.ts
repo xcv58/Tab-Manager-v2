@@ -1,4 +1,12 @@
-import { copyFileSync, existsSync, unlinkSync } from 'fs'
+import {
+  closeSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { randomUUID } from 'crypto'
@@ -75,7 +83,10 @@ const withTimeout = async <T>(
 
 const getFirefoxBinary = () => {
   const envBinary = process.env.FIREFOX_BINARY
-  if (envBinary && existsSync(envBinary)) {
+  if (envBinary) {
+    if (!existsSync(envBinary)) {
+      throw new Error(`Configured Firefox binary does not exist: ${envBinary}`)
+    }
     return envBinary
   }
   if (process.platform === 'darwin') {
@@ -115,13 +126,13 @@ const createTemporaryXpi = () => {
 
 export const initBrowserWithExtension =
   async (): Promise<FirefoxExtensionSession> => {
-    const addonArchivePath = createTemporaryXpi()
     const firefoxBinary = getFirefoxBinary()
     if (!firefoxBinary) {
       throw new Error(
         'Firefox binary not found. Install Firefox or run tests in CI where Firefox is provisioned.',
       )
     }
+    const addonArchivePath = createTemporaryXpi()
 
     const options = new firefox.Options()
     if (process.env.FIREFOX_BINARY) {
@@ -138,9 +149,19 @@ export const initBrowserWithExtension =
     }
     // geckodriver enables extension-page testing in the temporary profile.
     // https://firefox-source-docs.mozilla.org/testing/geckodriver/Flags.html
-    const serviceBuilder = new firefox.ServiceBuilder().addArguments(
-      '--allow-system-access',
-    )
+    const serviceBuilder = new firefox.ServiceBuilder(
+      process.env.GECKODRIVER,
+    ).addArguments('--allow-system-access')
+    const artifacts = process.env.FIREFOX_E2E_ARTIFACTS
+    let logFile: number | undefined
+    if (artifacts) {
+      mkdirSync(artifacts, { recursive: true })
+      logFile = openSync(
+        join(artifacts, `geckodriver-${randomUUID()}.log`),
+        'a',
+      )
+      serviceBuilder.setStdio(['ignore', logFile, logFile])
+    }
     if (FIREFOX_E2E_DEBUG) {
       serviceBuilder.enableVerboseLogging(true)
     }
@@ -153,9 +174,16 @@ export const initBrowserWithExtension =
         .setFirefoxService(serviceBuilder)
         .build(),
       60000,
-    )
+    ).finally(() => {
+      if (logFile !== undefined) closeSync(logFile)
+    })
 
     try {
+      const capabilities = await driver.getCapabilities()
+      console.log('[firefox-e2e] browser', {
+        firefox: capabilities.get('browserVersion'),
+        geckodriver: capabilities.get('moz:geckodriverVersion'),
+      })
       debugLog('install addon', addonArchivePath)
       const addonId = await withTimeout(
         'installAddon',
@@ -182,6 +210,7 @@ export const initBrowserWithExtension =
         addonId,
       }
     } catch (error) {
+      await saveFirefoxDiagnostics(driver, 'startup')
       if (FIREFOX_E2E_DEBUG) {
         debugLog(
           'failed startup',
@@ -193,6 +222,45 @@ export const initBrowserWithExtension =
       throw error
     }
   }
+
+// Save each case before the next fixture reset destroys its browser state.
+// Diagnostic collection must not hide the original browser/test failure.
+export const saveFirefoxDiagnostics = async (
+  driver: WebDriver,
+  label: string,
+) => {
+  const artifacts = process.env.FIREFOX_E2E_ARTIFACTS
+  if (!artifacts || !driver) return
+  mkdirSync(artifacts, { recursive: true })
+  const filename = label.replace(/[^a-z0-9-]+/gi, '-').slice(0, 160)
+  await Promise.allSettled([
+    driver.takeScreenshot().then((data) => {
+      writeFileSync(join(artifacts, `${filename}.png`), data, 'base64')
+    }),
+    driver
+      .executeScript(() => ({
+        url: location.href,
+        hasFocus: document.hasFocus(),
+        activeElement: document.activeElement?.outerHTML,
+        inputs: Array.from(
+          document.querySelectorAll('input[role="combobox"]'),
+        ).map((input: HTMLInputElement) => ({
+          label: input.getAttribute('aria-label'),
+          value: input.value,
+          expanded: input.getAttribute('aria-expanded'),
+        })),
+      }))
+      .then((data) =>
+        writeFileSync(
+          join(artifacts, `${filename}.json`),
+          JSON.stringify(data, null, 2),
+        ),
+      ),
+    driver.getPageSource().then((data) => {
+      writeFileSync(join(artifacts, `${filename}.html`), data)
+    }),
+  ])
+}
 
 export const closeBrowserWithExtension = async ({
   driver,
@@ -247,8 +315,8 @@ export const executeInExtension = async <
       }
       run().catch((error: unknown) => {
         const message =
-          error instanceof Error
-            ? error.message
+          error && typeof error === 'object' && 'message' in error
+            ? String(error.message)
             : typeof error === 'string'
               ? error
               : JSON.stringify(error)
@@ -360,22 +428,21 @@ export const createWindowsWithTabs = async (
   driver: WebDriver,
   windowUrls: string[][],
 ): Promise<number[]> => {
-  return await executeInExtension(
-    driver,
-    async (windowsToCreate) => {
-      const windowIds: number[] = []
-      for (const urls of windowsToCreate) {
-        if (!urls.length) {
-          continue
-        }
+  const windowIds: number[] = []
+  // Bound each WebDriver call to one window. Creating the entire workspace in
+  // one script can time out while Firefox is still creating background tabs.
+  for (const urls of windowUrls) {
+    if (!urls.length) continue
+    const windowId = await executeInExtension(
+      driver,
+      async (urls) => {
         const [firstUrl, ...remainingUrls] = urls
         const createdWindow = await browser.windows.create({
           url: firstUrl,
           focused: false,
         })
         if (typeof createdWindow.id !== 'number') {
-          windowIds.push(-1)
-          continue
+          throw new Error('Firefox did not return the created window ID')
         }
         for (const url of remainingUrls) {
           await browser.tabs.create({
@@ -384,12 +451,13 @@ export const createWindowsWithTabs = async (
             active: false,
           })
         }
-        windowIds.push(createdWindow.id)
-      }
-      return windowIds
-    },
-    windowUrls,
-  )
+        return createdWindow.id
+      },
+      urls,
+    )
+    windowIds.push(windowId)
+  }
+  return windowIds
 }
 
 export const groupTabsByUrl = async (
@@ -435,17 +503,24 @@ export const groupTabsByUrl = async (
           }
         }
         pickedTabIds = nextPickedIds
-        if (pickedTabIds.length >= Math.min(2, urls.length)) {
+        if (pickedTabIds.length === urls.length) {
           break
         }
         await new Promise((resolve) => setTimeout(resolve, 150))
       }
 
-      if (pickedTabIds.length < Math.min(2, urls.length)) {
-        return -1
+      if (pickedTabIds.length !== urls.length) {
+        throw new Error(
+          `Found ${pickedTabIds.length} of ${urls.length} fixture tabs`,
+        )
       }
       const groupId = await browser.tabs.group({
         tabIds: pickedTabIds,
+        // Firefox defaults new groups to the current window, moving tabs out
+        // of the intended fixture window unless its ID is explicit.
+        ...(typeof windowId === 'number'
+          ? { createProperties: { windowId } }
+          : {}),
       })
       await browser.tabGroups.update(groupId, {
         title,

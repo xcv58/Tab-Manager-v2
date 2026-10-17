@@ -62,7 +62,7 @@ export const demoScenarios: ReadonlyArray<DemoScenario> = [
     title: 'Duplicates across windows',
     description:
       'Repeated URLs and hash variants across pinned tabs and groups.',
-    hint: 'Search “Jenny”, inspect duplicate markers, then use Clean duplicated tabs in the toolbar. Select matching tabs to try bulk actions across windows.',
+    hint: 'Search “Jenny”, inspect duplicate markers, then use “Close duplicate tabs” in the toolbar. Select matching tabs to try bulk actions across windows.',
     category: 'Workflow',
     tabCount: 24,
     windowCount: 3,

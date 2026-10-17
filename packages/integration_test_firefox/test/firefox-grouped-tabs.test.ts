@@ -1,4 +1,5 @@
-import { WebDriver } from 'selenium-webdriver'
+import { By, WebDriver, until } from 'selenium-webdriver'
+import { createServer } from 'node:http'
 import {
   SEARCH_INPUT_SELECTOR,
   FirefoxExtensionSession,
@@ -17,13 +18,16 @@ import {
   updateTabGroup,
   dragByTestId,
   getTabsByUrls,
+  saveFirefoxDiagnostics,
+  executeInExtension,
 } from '../util'
 
+let fixtureBaseURL = ''
 const uniqueUrls = (prefix: string, size: number) => {
   const stamp = `${Date.now()}-${Math.floor(Math.random() * 100000)}`
   return [...Array(size)].map(
     (_, index) =>
-      `https://example.com/?tab-manager-v2-firefox-e2e=${prefix}-${stamp}-${index}`,
+      `${fixtureBaseURL}/?tab-manager-v2-firefox-e2e=${prefix}-${stamp}-${index}`,
   )
 }
 
@@ -46,20 +50,44 @@ const describeFirefox =
   process.env.FIREFOX_E2E === '1' ? describe : describe.skip
 
 describeFirefox('Firefox extension grouped tabs integration', () => {
+  const fixtureServer = createServer((_request, response) => {
+    response.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    })
+    response.end('<title>Firefox group fixture</title><p>Local sample tab</p>')
+  })
   let session: FirefoxExtensionSession
   let driver: WebDriver
   let extensionURL: string
 
   beforeAll(async () => {
+    await new Promise<void>((resolve) =>
+      fixtureServer.listen(0, '127.0.0.1', resolve),
+    )
+    const address = fixtureServer.address()
+    if (!address || typeof address === 'string')
+      throw new Error('Missing fixture port')
+    fixtureBaseURL = `http://127.0.0.1:${address.port}`
     session = await initBrowserWithExtension()
     driver = session.driver
     extensionURL = session.extensionURL
   })
 
   afterAll(async () => {
-    if (session) {
-      await closeBrowserWithExtension(session)
+    try {
+      if (session) await closeBrowserWithExtension(session)
+    } finally {
+      fixtureServer.closeAllConnections()
+      await new Promise<void>((resolve) => fixtureServer.close(() => resolve()))
     }
+  })
+
+  afterEach(async () => {
+    await saveFirefoxDiagnostics(
+      driver,
+      expect.getState().currentTestName || 'grouped-tabs',
+    )
   })
 
   beforeEach(async () => {
@@ -274,5 +302,95 @@ describeFirefox('Firefox extension grouped tabs integration', () => {
     const snapshots = await getTabsByUrls(driver, [urlA, urlB])
     expect(snapshots).toHaveLength(2)
     expect(snapshots.every((tab) => tab.groupId === -1)).toBe(true)
+  })
+
+  it('moves only same-container tabs to a new window and preserves their container', async () => {
+    const urls = uniqueUrls('container-move', 3)
+    const fixture = await executeInExtension(
+      driver,
+      async (urls) => {
+        const identity = await browser.contextualIdentities.create({
+          name: 'Firefox CI container',
+          color: 'blue',
+          icon: 'briefcase',
+        })
+        const tabs = []
+        for (const url of urls.slice(0, 2)) {
+          tabs.push(
+            await browser.tabs.create({
+              url,
+              cookieStoreId: identity.cookieStoreId,
+              active: false,
+            }),
+          )
+        }
+        const other = await browser.tabs.create({ url: urls[2], active: false })
+        return {
+          cookieStoreId: identity.cookieStoreId,
+          tabIds: tabs.map((tab) => tab.id),
+          otherId: other.id,
+          originalWindowId: other.windowId,
+        }
+      },
+      urls,
+    )
+
+    try {
+      await driver.get(extensionURL)
+      const row = await waitForCss(
+        driver,
+        `[data-testid="tab-row-${fixture.tabIds[0]}"]`,
+      )
+      await driver.actions({ async: true }).contextClick(row).perform()
+      const move = await driver.wait(
+        until.elementLocated(
+          By.xpath(
+            '//*[@role="menuitem" and contains(., "Open same container tabs in a new window")]',
+          ),
+        ),
+        30000,
+      )
+      await move.click()
+
+      await driver.wait(async () => {
+        const tabs = await executeInExtension(
+          driver,
+          async (cookieStoreId) => browser.tabs.query({ cookieStoreId }),
+          fixture.cookieStoreId,
+        )
+        // A tab may briefly be absent from tabs.get() while Firefox adopts it
+        // into the new window. Wait for a complete snapshot with the same IDs.
+        return (
+          tabs.length === fixture.tabIds.length &&
+          tabs.every(
+            (tab) =>
+              fixture.tabIds.includes(tab.id) &&
+              tab.windowId !== fixture.originalWindowId,
+          )
+        )
+      }, 30000)
+      const state = await executeInExtension(
+        driver,
+        async ({ tabIds, otherId }) => ({
+          tabs: await Promise.all(tabIds.map((id) => browser.tabs.get(id))),
+          other: await browser.tabs.get(otherId),
+        }),
+        fixture,
+      )
+      expect(new Set(state.tabs.map((tab) => tab.windowId)).size).toBe(1)
+      expect(
+        state.tabs.every((tab) => tab.cookieStoreId === fixture.cookieStoreId),
+      ).toBe(true)
+      expect(state.other.windowId).toBe(fixture.originalWindowId)
+      expect(state.other.cookieStoreId).not.toBe(fixture.cookieStoreId)
+    } finally {
+      await executeInExtension(
+        driver,
+        async (cookieStoreId) => {
+          await browser.contextualIdentities.remove(cookieStoreId)
+        },
+        fixture.cookieStoreId,
+      )
+    }
   })
 })
