@@ -80,21 +80,20 @@ const normalWindows = (windows: any[]) => {
   }))
 }
 
-const checked = async (target: any, requireURL: boolean) => {
+const checked = async (target: any) => {
   const tab: any = await readable(() => raw.tabs.get(target.id))
   if (
+    tab.id !== target.id ||
     tab.incognito ||
     tab.windowId !== target.windowId ||
-    (tab.url || '') !== (target.url || '')
+    // Safari can withhold URLs, including for Start Pages. Tab IDs identify
+    // actions; a URL is an additional navigation check only when disclosed.
+    (tab.url && target.url && tab.url !== target.url)
   ) {
     throw new Error(
       'A selected tab changed. Refresh the view and review your selection.',
     )
   }
-  if (requireURL && !tab.url)
-    throw new Error(
-      'Safari has not shared this tab’s URL. Allow website access in Safari, then refresh before changing it.',
-    )
   return tab
 }
 
@@ -192,13 +191,6 @@ const runAction = (request: any) => {
         job.state = 'done'
         return
       }
-      const requiresURL = (target: any) =>
-        request.action !== 'focus' &&
-        !(
-          request.action === 'update' &&
-          target.properties.active === true &&
-          Object.keys(target.properties).length === 1
-        )
       // Bound concurrent reads without imposing an arbitrary limit on selection size.
       for (let index = 0; index < targets.length; index += 50) {
         if (job.cancelRequested) {
@@ -206,9 +198,7 @@ const runAction = (request: any) => {
           return
         }
         await Promise.all(
-          targets
-            .slice(index, index + 50)
-            .map((tab) => checked(tab, requiresURL(tab))),
+          targets.slice(index, index + 50).map((tab) => checked(tab)),
         )
       }
       for (const target of targets) {
@@ -216,7 +206,7 @@ const runAction = (request: any) => {
           job.state = 'cancelled'
           return
         }
-        const current = await checked(target, requiresURL(target))
+        const current = await checked(target)
         if (job.cancelRequested) {
           job.state = 'cancelled'
           return
@@ -368,12 +358,6 @@ const mutate = async (
       targets.push(
         seenTabs.get(id) || remember(await readable(() => raw.tabs.get(id))),
       )
-    if (
-      action === 'close' &&
-      !backgroundContext &&
-      !(await safariState.confirmClose(unique))
-    )
-      return undefined
     if (action === 'close' && !backgroundContext)
       safariState.setRemovingTabs(unique)
     return await sendAction({
@@ -518,14 +502,6 @@ const windows = {
       )
       if (win.incognito) throw new Error('Private windows are excluded.')
       const tabs = win.tabs || []
-      if (
-        !backgroundContext &&
-        !(await safariState.confirmWindowClose(
-          id,
-          tabs.map((tab: any) => tab.id),
-        ))
-      )
-        return undefined
       return await sendAction({
         kind: 'safari-tab-action',
         id: crypto.randomUUID(),

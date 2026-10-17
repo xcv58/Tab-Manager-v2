@@ -11,14 +11,11 @@ export type SafariActionProgress = {
 
 class SafariState {
   error = ''
-  closeIDs = new Set<number>()
   removingTabIDs = new Set<number>()
-  closeWindow: { id: number; tabCount: number } | null = null
   progress: SafariActionProgress | null = null
-  private closeReply: ((approved: boolean) => void) | null = null
 
   constructor() {
-    makeAutoObservable<SafariState, 'closeReply'>(this, { closeReply: false })
+    makeAutoObservable(this)
   }
 
   showError = (error: unknown) => {
@@ -36,38 +33,6 @@ class SafariState {
 
   setRemovingTabs = (ids: number[]) => {
     this.removingTabIDs = new Set(ids)
-  }
-
-  get confirmationOpen() {
-    return this.closeWindow !== null || this.closeIDs.size > 0
-  }
-
-  private requestClose = (
-    ids: number[],
-    win?: { id: number; tabCount: number },
-  ) => {
-    if (this.closeReply) {
-      this.error = 'Finish the current confirmation first.'
-      return Promise.resolve(false)
-    }
-    if (!win && !ids.length) return Promise.resolve(false)
-    this.closeIDs = new Set(ids)
-    this.closeWindow = win || null
-    return new Promise<boolean>((resolve) => {
-      this.closeReply = resolve
-    })
-  }
-
-  confirmClose = (ids: number[]) => this.requestClose(ids)
-  confirmWindowClose = (id: number, ids: number[]) =>
-    this.requestClose(ids, { id, tabCount: ids.length })
-
-  finishClose = (approved: boolean) => {
-    const reply = this.closeReply
-    this.closeReply = null
-    this.closeIDs.clear()
-    this.closeWindow = null
-    reply?.(approved)
   }
 }
 

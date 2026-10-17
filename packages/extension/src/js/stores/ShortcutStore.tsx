@@ -611,7 +611,6 @@ export default class ShortcutStore {
     combo: string,
     sequence?: string,
   ) => {
-    if (isSafari && safariState.confirmationOpen) return true
     if (
       isSafari &&
       safariState.progress &&

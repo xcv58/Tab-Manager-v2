@@ -4,6 +4,25 @@ import { createRoot } from 'react-dom/client'
 import '../../css/popup.css'
 import '@pigment-css/react/styles.css'
 
+// Safari's separate popup-type window has no working native Reload command.
+// Keep the familiar page shortcut distinct from Control+R (reload tabs).
+document.addEventListener(
+  'keydown',
+  (event) => {
+    if (
+      event.metaKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.shiftKey &&
+      event.key.toLowerCase() === 'r'
+    ) {
+      event.preventDefault()
+      location.reload()
+    }
+  },
+  true,
+)
+
 const root = createRoot(document.getElementById('app-container')!)
 function StartupError({ message }: { message: string }) {
   return (

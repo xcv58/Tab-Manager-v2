@@ -8,6 +8,8 @@ From the repository root, run `pnpm build:safari:app`. It builds the Safari web 
 
 Open the app and enable Tab Manager v2 in Safari Settings for the desired profile. Safari asks for website access separately when needed. Use the toolbar icon or Control+W for the popup, Control+T for a separate manager window, Control+O for a browser tab, and Option+B to cycle recently used open tabs. First installation opens the full browser-tab view; ordinary updates do not intentionally open it.
 
+Command+R reloads the Tab Manager view, including the separate window. Control+R reloads the selected or focused Safari tabs.
+
 The native project consumes `packages/extension/build/build_safari` as resources. Rebuild the web bundle before regenerating the Xcode project. Do not copy JavaScript into an already signed app. Generated Xcode projects, built apps and capture/observation output are local artifacts.
 
 ## App identity
@@ -55,7 +57,8 @@ The export configuration preserves the chosen version/build and exports locally.
 - Search and manage tabs in normal windows in the current Safari profile, using only active tab groups Safari exposes.
 - Select tabs, pin/unpin, reload, close, copy and export with the shared controls and settings.
 - Check and serialize mutations, show aggregate progress and stop between tabs. Command-period or Control-period invokes the same cancellation helper as Stop.
-- Close an entire browser window only after separate confirmation, warning that Safari may have undisplayed tabs.
+- Close individual or selected tabs directly, as in Chrome. Tab actions use current-session tab and window IDs; missing URL access does not block actions on Start Pages or other tabs. Disclosed URLs provide an additional changed-tab check.
+- Close an entire browser window directly, as in Chrome, including any inactive tab groups Safari keeps in that window.
 - Store settings locally and use generic local tab icons. No external favicon service is used.
 
 Private browsing is deliberately excluded from both reads and mutations. Moving/reordering tabs, moving selected tabs into new windows, sorting/clustering, native tab-group management, browser history search, address-bar keywords, browser-synced preferences and Chrome-style app-window enumeration are unavailable and hidden. Titles and URLs depend on Safari's website-access permissions. The host app does not poll or maintain a separate native tab overview.

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
-import Dialog, { DialogContent, DialogTitle } from 'components/ui/Dialog'
 import { useStore } from 'components/hooks/useStore'
 import { browser } from 'libs'
 import { safariState, cancelSafariAction } from './state'
@@ -26,7 +25,6 @@ export default observer(function SafariStatus() {
     }
   }
   const progress = safariState.progress
-  const closingWindow = safariState.closeWindow !== null
   return (
     <>
       <div
@@ -78,38 +76,6 @@ export default observer(function SafariStatus() {
           </button>
         </div>
       )}
-      <Dialog
-        open={safariState.confirmationOpen}
-        onClose={() => safariState.finishClose(false)}
-        aria-labelledby="safari-close-title"
-      >
-        <DialogTitle>
-          <span id="safari-close-title">
-            {closingWindow
-              ? 'Close this Safari window?'
-              : `Close ${safariState.closeIDs.size} ${safariState.closeIDs.size === 1 ? 'tab' : 'tabs'}?`}
-          </span>
-        </DialogTitle>
-        <DialogContent>
-          {closingWindow
-            ? 'Safari will close the entire window, not just the tabs shown here. It may contain tabs in inactive groups that Tab Manager cannot display.'
-            : 'Review your selection before closing. Safari will recheck each tab before the action.'}
-        </DialogContent>
-        <div className="flex justify-end gap-3 px-6 pb-5">
-          <button
-            className="rounded border px-3 py-2"
-            onClick={() => safariState.finishClose(false)}
-          >
-            Cancel
-          </button>
-          <button
-            className="rounded border px-3 py-2 text-red-600"
-            onClick={() => safariState.finishClose(true)}
-          >
-            {closingWindow ? 'Close window' : 'Close tabs'}
-          </button>
-        </div>
-      </Dialog>
     </>
   )
 })
