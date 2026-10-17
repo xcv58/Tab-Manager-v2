@@ -243,7 +243,7 @@ test.describe('The Extension page should', () => {
     ).toBeVisible()
     await expect(
       toolbar.getByRole('button', {
-        name: 'Clean duplicated tabs',
+        name: 'Close 0 duplicate tabs',
         exact: true,
       }),
     ).toBeDisabled()

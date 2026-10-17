@@ -397,7 +397,7 @@ export default observer((props: Props) => {
                     onCleanDuplicatesInGroup()
                   }}
                 >
-                  Clean {duplicatedTabsToRemoveInGroup} duplicate
+                  Close {duplicatedTabsToRemoveInGroup} duplicate
                   {duplicatedTabsToRemoveInGroup > 1 ? ' tabs' : ' tab'}
                 </MenuItem>
               </>

@@ -4,6 +4,7 @@
   "description": "Firefox extension integration test via Selenium + geckodriver",
   "scripts": {
     "test:firefox": "jest --runInBand",
+    "test:firefox:ci": "node scripts/run-ci.cjs",
     "test:firefox:headed": "FIREFOX_E2E_HEADLESS=false jest --runInBand"
   },
   "devDependencies": {

@@ -11,6 +11,7 @@ import {
   groupTabsByUrl,
   initBrowserWithExtension,
   waitForCss,
+  saveFirefoxDiagnostics,
 } from '../util'
 
 const WINDOW_COUNT = 4
@@ -268,6 +269,30 @@ const setupGroupedWorkspace = async (
     }
   }
 
+  const workload = await executeInExtension(
+    driver,
+    async (ids) => {
+      return Promise.all(
+        ids.map(async (windowId) => {
+          const tabs = await browser.tabs.query({ windowId })
+          return {
+            tabs: tabs.length,
+            groups: new Set(
+              tabs.map((tab) => tab.groupId).filter((id) => id !== -1),
+            ).size,
+          }
+        }),
+      )
+    },
+    windowIds,
+  )
+  expect(workload).toEqual(
+    Array.from({ length: WINDOW_COUNT }, () => ({
+      tabs: TABS_PER_WINDOW,
+      groups: Math.ceil(TABS_PER_WINDOW / GROUP_SIZE),
+    })),
+  )
+
   await driver.get(extensionURL)
 }
 
@@ -314,6 +339,13 @@ describeFirefox('Firefox performance scenarios', () => {
 
   beforeEach(async () => {
     await resetExtensionState(session)
+  })
+
+  afterEach(async () => {
+    await saveFirefoxDiagnostics(
+      driver,
+      expect.getState().currentTestName || 'performance',
+    )
   })
 
   it('opens the medium grouped workload and renders popup content', async () => {
@@ -380,9 +412,17 @@ describeFirefox('Firefox performance scenarios', () => {
     const initialState = await readKeyboardState(driver)
     const finalState = await measureStateTransition({
       driver,
-      label: 'keyboard:50',
+      label: 'keyboard:offscreen',
       action: async () => {
-        await pressKey(driver, 'j', 50)
+        // Navigation follows the rendered columns. A fixed number of keys can
+        // stay on screen as the layout changes, so advance until scrolling is
+        // needed rather than assuming the 50th row is below the viewport.
+        for (let step = 0; step < 200; step += 1) {
+          await pressKey(driver, 'j')
+          const state = await readKeyboardState(driver)
+          if (state.scrollTop > initialState.scrollTop) return
+        }
+        throw new Error('Keyboard navigation did not reveal an offscreen row')
       },
       readState: async () => await readKeyboardState(driver),
       predicate: (state) =>

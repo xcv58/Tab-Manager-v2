@@ -1768,7 +1768,7 @@ async function recordHundredPlusTabsScale() {
       await demoHold(page, 900)
 
       const cleanButton = page
-        .locator('button[aria-label^="Clean "][aria-label*="duplicate"]')
+        .locator('button[aria-label^="Close "][aria-label*="duplicate"]')
         .first()
       await cleanButton.waitFor({ state: 'visible', timeout: 15000 })
       const cleanCenter = await getCenter(cleanButton)

@@ -120,7 +120,7 @@ const scenarioCopy: Record<
       label: '清理重复项',
       title: '跨窗口的重复标签页',
       description: '固定标签页和标签页组中包含重复网址及不同网址片段。',
-      hint: '搜索“Jenny”、查看重复标记，再使用工具栏中的 Clean duplicated tabs 清理重复标签页。选择匹配项来体验跨窗口批量操作。',
+      hint: '搜索“Jenny”、查看重复标记，再使用工具栏中的 Close duplicate tabs 关闭重复标签页。选择匹配项来体验跨窗口批量操作。',
     },
     large: {
       label: '大型工作区',
@@ -201,7 +201,7 @@ const scenarioCopy: Record<
       label: '清理重複項目',
       title: '跨視窗的重複分頁',
       description: '固定分頁和分頁群組中包含重複網址及不同網址片段。',
-      hint: '搜尋「Jenny」、查看重複標記，再使用工具列中的 Clean duplicated tabs 清理重複分頁。選取符合項目來體驗跨視窗批次操作。',
+      hint: '搜尋「Jenny」、查看重複標記，再使用工具列中的 Close duplicate tabs 關閉重複分頁。選取符合項目來體驗跨視窗批次操作。',
     },
     large: {
       label: '大型工作區',

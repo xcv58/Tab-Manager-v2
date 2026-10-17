@@ -6,7 +6,7 @@ import { getCommandPaletteShortcut } from 'libs/commandPaletteShortcut'
 import { TOOLBAR_FOCUS_SHORTCUT } from 'libs/toolbarFocusShortcut'
 import { isLiteShortcut } from 'libs/litePopup'
 import { getMountedTabDetailsSurface } from 'libs/tabTooltip'
-import { getNoun, openInNewTab } from 'libs'
+import { openInNewTab } from 'libs'
 import Store from 'stores'
 import debounce from 'lodash.debounce'
 import { getTabMoveDestinationHint } from 'libs/tabMovePlan'
@@ -187,12 +187,7 @@ export default class ShortcutStore {
       () => {
         const duplicatedTabsToRemoveCount =
           this.store.windowStore.getDuplicateTabsToRemoveCount()
-        return duplicatedTabsToRemoveCount
-          ? `Clean ${duplicatedTabsToRemoveCount} duplicate ${getNoun(
-              'tab',
-              duplicatedTabsToRemoveCount,
-            )}`
-          : 'Clean duplicated tabs'
+        return `Close ${duplicatedTabsToRemoveCount} duplicate ${duplicatedTabsToRemoveCount === 1 ? 'tab' : 'tabs'}`
       },
     ],
     [
