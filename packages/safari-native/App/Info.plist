@@ -25,7 +25,7 @@
 			<string>Safari prototype</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>tabmanager-safari-prototype</string>
+				<string>$(TM_SAFARI_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
@@ -35,5 +35,9 @@
 	<string>14.0</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SafariAppGroupIdentifier</key>
+	<string>$(TM_SAFARI_APP_GROUP_IDENTIFIER)</string>
+	<key>SafariExtensionIdentifier</key>
+	<string>$(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)</string>
 </dict>
 </plist>

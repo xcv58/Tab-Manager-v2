@@ -27,5 +27,9 @@
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler</string>
 	</dict>
+	<key>SafariAppGroupIdentifier</key>
+	<string>$(TM_SAFARI_APP_GROUP_IDENTIFIER)</string>
+	<key>SafariExtensionIdentifier</key>
+	<string>$(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)</string>
 </dict>
 </plist>

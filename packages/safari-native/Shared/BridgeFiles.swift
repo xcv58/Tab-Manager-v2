@@ -2,12 +2,17 @@ import Foundation
 
 // Team-prefixed macOS App Group keeps Safari data on this Mac, shared only
 // between the signed host and its extension. No browser metadata is uploaded.
+private final class BridgeIdentityBundle: NSObject {}
+
 enum BridgeFiles {
-    static let group = "5736QK4NZX.com.xcv58.TabManagerSafariPrototype"
-    static let extensionID = "com.xcv58.TabManagerSafariPrototype.Bridge"
+    // Resolve from this signed target's plist, not the Safari host process.
+    // Missing configuration fails closed rather than targeting the Debug app.
+    private static let bundle = Bundle(for: BridgeIdentityBundle.self)
+    static let group = bundle.object(forInfoDictionaryKey: "SafariAppGroupIdentifier") as? String ?? ""
+    static let extensionID = bundle.object(forInfoDictionaryKey: "SafariExtensionIdentifier") as? String ?? ""
 
     static func directory() throws -> URL {
-        guard let container = FileManager.default.containerURL(
+        guard !group.isEmpty, let container = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: group
         ) else { throw BridgeError.unavailableGroup }
         let directory = container.appendingPathComponent("Snapshots", isDirectory: true)

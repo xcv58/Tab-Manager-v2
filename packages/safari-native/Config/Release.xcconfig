@@ -1,0 +1,6 @@
+// Existing App Store Connect record: 6758364114 (Tab Manager v2).
+// Keep the original app/extension identifiers for the beta update path.
+TM_SAFARI_APP_BUNDLE_IDENTIFIER = com.xcv58.Tab-Manager-v2
+TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER = com.xcv58.Tab-Manager-v2.Extension
+TM_SAFARI_APP_GROUP_IDENTIFIER = 5736QK4NZX.com.xcv58.Tab-Manager-v2
+TM_SAFARI_URL_SCHEME = tab-manager-v2

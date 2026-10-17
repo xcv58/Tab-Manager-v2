@@ -1,0 +1,5 @@
+// Local development stays separate from the existing App Store app.
+TM_SAFARI_APP_BUNDLE_IDENTIFIER = com.xcv58.TabManagerSafariPrototype
+TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER = com.xcv58.TabManagerSafariPrototype.Bridge
+TM_SAFARI_APP_GROUP_IDENTIFIER = 5736QK4NZX.com.xcv58.TabManagerSafariPrototype
+TM_SAFARI_URL_SCHEME = tabmanager-safari-prototype

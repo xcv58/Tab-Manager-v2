@@ -38,7 +38,7 @@ export default observer(function SafariStatus() {
           This Safari profile · Active tab groups only · Private windows
           excluded
         </span>
-        <a href="tabmanager-safari-prototype://open" className="underline">
+        <a href={process.env.SAFARI_HOST_APP_URL} className="underline">
           Safari access
         </a>
       </div>

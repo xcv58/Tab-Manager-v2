@@ -1,4 +1,7 @@
 name: TabManagerSafariPrototype
+configFiles:
+  Debug: Config/Debug.xcconfig
+  Release: Config/Release.xcconfig
 options:
   bundleIdPrefix: com.xcv58
   deploymentTarget:
@@ -31,9 +34,11 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: Tab Manager Safari Prototype
+        SafariExtensionIdentifier: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
+        SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
         CFBundleURLTypes:
           - CFBundleURLName: Safari prototype
-            CFBundleURLSchemes: [tabmanager-safari-prototype]
+            CFBundleURLSchemes: [$(TM_SAFARI_URL_SCHEME)]
         NSPrincipalClass: NSApplication
         LSMinimumSystemVersion: "14.0"
     entitlements:
@@ -41,10 +46,10 @@ targets:
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-write: true
-        com.apple.security.application-groups: [5736QK4NZX.com.xcv58.TabManagerSafariPrototype]
+        com.apple.security.application-groups: [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.xcv58.TabManagerSafariPrototype
+        PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_APP_BUNDLE_IDENTIFIER)
     dependencies:
       - target: SafariBridge
         embed: true
@@ -63,6 +68,8 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: Tab Manager Safari Bridge
+        SafariExtensionIdentifier: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
+        SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.Safari.web-extension
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
@@ -70,10 +77,10 @@ targets:
       path: Extension/Extension.entitlements
       properties:
         com.apple.security.app-sandbox: true
-        com.apple.security.application-groups: [5736QK4NZX.com.xcv58.TabManagerSafariPrototype]
+        com.apple.security.application-groups: [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.xcv58.TabManagerSafariPrototype.Bridge
+        PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
         SKIP_INSTALL: YES
 schemes:
   TabManagerSafariPrototype:

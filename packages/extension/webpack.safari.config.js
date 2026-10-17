@@ -7,6 +7,21 @@ const base = require('./webpack.config')
 
 module.exports = () => {
   const config = base()
+  const configuration = process.env.SAFARI_BUILD_CONFIGURATION || 'Debug'
+  if (!['Debug', 'Release'].includes(configuration))
+    throw new Error('SAFARI_BUILD_CONFIGURATION must be Debug or Release.')
+  // Read the URL scheme from the same configuration used by Xcode. Never send
+  // a production extension's setup link to the local prototype (or vice versa).
+  const identity = fs.readFileSync(
+    path.join(
+      __dirname,
+      '../safari-native/Config',
+      `${configuration}.xcconfig`,
+    ),
+    'utf8',
+  )
+  const scheme = identity.match(/^TM_SAFARI_URL_SCHEME = ([a-z0-9-]+)$/m)?.[1]
+  if (!scheme) throw new Error('Safari app URL scheme is missing or invalid.')
   return {
     ...config,
     entry: {
@@ -65,6 +80,7 @@ module.exports = () => {
         chrome: 'undefined',
         'window.chrome': 'undefined',
         'globalThis.chrome': 'undefined',
+        'process.env.SAFARI_HOST_APP_URL': JSON.stringify(`${scheme}://open`),
       }),
     ],
   }

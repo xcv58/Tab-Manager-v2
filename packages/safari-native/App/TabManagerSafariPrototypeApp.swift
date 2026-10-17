@@ -29,6 +29,10 @@ private struct SafariSetupView: View {
             HStack {
                 Button("Open Safari Extension Settings") {
                     Task {
+                        guard !BridgeFiles.extensionID.isEmpty else {
+                            self.error = "The Safari extension identifier is missing. Rebuild the app."
+                            return
+                        }
                         do { try await SFSafariApplication.showPreferencesForExtension(withIdentifier: BridgeFiles.extensionID) }
                         catch { self.error = error.localizedDescription }
                     }
