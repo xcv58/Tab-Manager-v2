@@ -47,6 +47,7 @@ targets:
             CFBundleURLSchemes: [$(TM_SAFARI_URL_SCHEME)]
         NSPrincipalClass: NSApplication
         LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: public.app-category.productivity
     entitlements:
       path: App/App.entitlements
       properties:
