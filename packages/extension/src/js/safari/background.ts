@@ -1,11 +1,9 @@
-import { installSafariActions } from './browser'
 import { toggleStandaloneWindow } from './standaloneWindow'
 import { browser, popupURL } from 'libs'
 import TabHistory from 'background/TabHistory'
 import TabCountIcon from 'background/TabCountIcon'
 import { setBrowserIcon } from 'libs/verify'
 
-installSafariActions()
 const history = new TabHistory()
 new TabCountIcon()
 void setBrowserIcon().catch(() => {})

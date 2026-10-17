@@ -642,10 +642,7 @@ export default class ActionStore {
     const tabIds = Array.from(this.store.tabStore.selection.keys()) as number[]
     this.failedMove = null
     try {
-      if (
-        command.afterClose ||
-        (isSafari && /^(close-|reload-|pin-|clean-)/.test(command.id))
-      ) {
+      if (command.afterClose) {
         this.busy = false
         this.closePalette()
         await new Promise<void>((resolve) =>

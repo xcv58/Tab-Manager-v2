@@ -56,8 +56,8 @@ The export configuration preserves the chosen version/build and exports locally.
 
 - Search and manage tabs in normal windows in the current Safari profile, using only active tab groups Safari exposes.
 - Select tabs, pin/unpin, reload, close, copy and export with the shared controls and settings.
-- Check and serialize mutations, show aggregate progress and stop between tabs. Command-period or Control-period invokes the same cancellation helper as Stop.
-- Close individual or selected tabs directly, as in Chrome. Tab actions use current-session tab and window IDs; missing URL access does not block actions on Start Pages or other tabs. Disclosed URLs provide an additional changed-tab check.
+- Use the shared close, reload and pin flows with standard browser APIs. Failed operations show an error; rows are removed after Safari reports the actual removal. There is no separate job queue, progress panel or Stop shortcut.
+- Close individual or selected tabs directly, as in Chrome. Tab actions use current-session tab and window IDs; missing URL access does not block actions on Start Pages or other tabs.
 - Close an entire browser window directly, as in Chrome, including any inactive tab groups Safari keeps in that window.
 - Store settings locally and use generic local tab icons. No external favicon service is used.
 
@@ -65,6 +65,6 @@ Private browsing is deliberately excluded from both reads and mutations. Moving/
 
 ## Verification and release boundary
 
-Chrome/Firefox extension builds, the website build and the signed Safari Debug build passed locally. Manual Safari checks covered the popup and full views, standalone-window reuse, recent-tab cycling, focus-on-open preferences, duplicate cleanup, close confirmation, whole-window closing and bulk cancellation. The latest cycling check completed 18 consecutive switches over a known four-tab history with repeated wraps. Stop was exercised through its shared keyboard handler; a live mouse click during a long batch remains a manual follow-up.
+The earlier 3.0.0 (14) candidate passed Chrome/Firefox and website builds, a signed Safari build and manual checks of popup/full/standalone views, cycling, focus preferences and tab actions. The latest cycling check completed 18 consecutive switches over four tabs with repeated wraps. The subsequent source changes remove the prototype queue and close confirmations, use standard batch operations and restore keyboard access to the interactive Settings preview. Those changes still require a new native candidate and manual Safari checks, including a large tab selection.
 
-The old native-workspace observation was abandoned and does not establish reliability of this architecture. Tests, CI, Linux visual checks and broader lifecycle/profile acceptance remain pending. Historical prototype-only tests are not coverage for the current shared Safari UI. This PR adds no automatic release or publishing workflow. The first 3.0.0 (14) candidate is prepared for a manual TestFlight upload; broader acceptance and App Store listing preparation remain separate from uploading it.
+The old native-workspace observation was abandoned and does not establish reliability of this architecture. Tests, CI, Linux visual checks and broader lifecycle/profile acceptance remain pending. Historical prototype-only tests are not coverage for the current shared Safari UI. This PR adds no automatic release or publishing workflow. The 3.0.0 (14) candidate was uploaded to TestFlight and does not include the subsequent source fixes. Increment the native build before the next upload; broader acceptance and App Store listing preparation remain separate.

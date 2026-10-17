@@ -1,18 +1,10 @@
 import { makeAutoObservable } from 'mobx'
 
-export type SafariActionProgress = {
-  id: string
-  action: string
-  state: 'queued' | 'running' | 'done' | 'failed' | 'cancelled'
-  completed: number
-  total: number
-  error?: string
-}
-
 class SafariState {
   error = ''
-  removingTabIDs = new Set<number>()
-  progress: SafariActionProgress | null = null
+  // Counts keep overlapping close requests from clearing each other's focus
+  // exclusions before Safari has delivered its removal events.
+  removingTabIDs = new Map<number, number>()
 
   constructor() {
     makeAutoObservable(this)
@@ -27,25 +19,17 @@ class SafariState {
   dismissError = () => {
     this.error = ''
   }
-  setProgress = (progress: SafariActionProgress | null) => {
-    this.progress = progress
+  startRemovingTabs = (ids: number[]) => {
+    for (const id of ids)
+      this.removingTabIDs.set(id, (this.removingTabIDs.get(id) || 0) + 1)
   }
-
-  setRemovingTabs = (ids: number[]) => {
-    this.removingTabIDs = new Set(ids)
+  finishRemovingTabs = (ids: number[]) => {
+    for (const id of ids) {
+      const count = (this.removingTabIDs.get(id) || 0) - 1
+      if (count > 0) this.removingTabIDs.set(id, count)
+      else this.removingTabIDs.delete(id)
+    }
   }
 }
 
 export const safariState = new SafariState()
-
-// Both the Stop button and keyboard shortcut cancel the same foreground job.
-export const cancelSafariAction = async () => {
-  const id = safariState.progress?.id
-  if (!id) return
-  const response = await (globalThis as any).browser.runtime.sendMessage({
-    kind: 'safari-action-cancel',
-    id,
-  })
-  if (!response?.ok)
-    throw new Error(response?.error || 'Safari could not stop this action.')
-}

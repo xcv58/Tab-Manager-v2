@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
 import { browser } from 'libs'
-import { safariState, cancelSafariAction } from './state'
+import { safariState } from './state'
 
 export default observer(function SafariStatus() {
   const { windowStore } = useStore()
@@ -24,7 +24,6 @@ export default observer(function SafariStatus() {
       safariState.showError(error)
     }
   }
-  const progress = safariState.progress
   return (
     <>
       <div
@@ -52,27 +51,6 @@ export default observer(function SafariStatus() {
           </button>
           <button onClick={safariState.dismissError} className="underline">
             Dismiss
-          </button>
-        </div>
-      )}
-      {progress && progress.total > 1 && (
-        <div
-          data-safari-action-controls
-          className="flex shrink-0 items-center gap-3 border-b px-3 py-2 text-sm"
-        >
-          <span role="status" aria-atomic="true" className="flex-1">
-            {progress.state === 'queued' ? 'Waiting for Safari' : 'Working'} ·{' '}
-            {progress.completed} of {progress.total} tabs
-          </span>
-          <button
-            className="underline"
-            title="Stop after current tab (⌘.)"
-            aria-keyshortcuts="Meta+. Control+."
-            onClick={() =>
-              void cancelSafariAction().catch(safariState.showError)
-            }
-          >
-            Stop after current tab
           </button>
         </div>
       )}

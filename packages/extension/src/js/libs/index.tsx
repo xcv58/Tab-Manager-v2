@@ -349,20 +349,8 @@ export const activateTab = async (id, isBackground = false) => {
   }
 }
 
-// These helpers exist only on the Safari adapter; other builds keep the standard API.
-type SafariBatchTabs = {
-  reloadMany: (ids: number[]) => Promise<unknown>
-  updateMany: (
-    updates: Array<{ id: number; properties: { pinned: boolean } }>,
-  ) => Promise<unknown>
-}
-
 export const reloadTabs = (tabs: Array<{ id: number }>) =>
-  isSafari
-    ? (browser.tabs as unknown as SafariBatchTabs).reloadMany(
-        tabs.map((tab) => tab.id),
-      )
-    : Promise.all(tabs.map((tab) => browser.tabs.reload(tab.id)))
+  Promise.all(tabs.map((tab) => browser.tabs.reload(tab.id)))
 
 export const togglePinTabs = async (tabs) => {
   const sortTabs = (tabs || []).sort((a, b) => {
@@ -373,13 +361,6 @@ export const togglePinTabs = async (tabs) => {
   })
   const pinnedTabs = sortTabs.filter((x) => x.pinned).reverse()
   const unpinnedTabs = sortTabs.filter((x) => !x.pinned)
-  if (isSafari)
-    return (browser.tabs as unknown as SafariBatchTabs).updateMany(
-      [...pinnedTabs, ...unpinnedTabs].map(({ id, pinned }) => ({
-        id,
-        properties: { pinned: !pinned },
-      })),
-    )
   await Promise.all(
     [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
       await browser.tabs.update(id, { pinned: !pinned })

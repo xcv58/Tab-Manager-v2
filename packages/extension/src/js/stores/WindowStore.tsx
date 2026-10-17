@@ -1333,8 +1333,8 @@ export default class WindowsStore {
       return
     }
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
-    // Safari waits for real browser removal. Advance only now, after approval,
-    // and skip the rest of the approved close batch when choosing a neighbor.
+    // Safari advances focus after browser removal, skipping other tabs in
+    // pending close requests when choosing a neighbor.
     const removedNow = isSafari
       ? this.windows.flatMap((win) =>
           win.tabs.filter((tab) =>

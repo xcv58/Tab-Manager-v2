@@ -176,6 +176,7 @@ export default observer(function SettingsPopupPreview({
               <iframe
                 ref={frameRef}
                 title="Sample Tab Manager popup"
+                tabIndex={0}
                 src={`${browser.runtime.getURL('settings-preview.html')}?not_popup=1`}
                 onLoad={sendPreferences}
                 className="settings-popup-iframe"
