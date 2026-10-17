@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from 'components/ui/Tooltip'
@@ -10,6 +11,7 @@ export default observer((props: WinProps) => {
   const { arrangeStore } = useStore()
   const { id } = props.win
   const { sortTabs } = arrangeStore
+  if (!canMoveTabs) return null
   return (
     <Tooltip title="Sort tabs">
       <ControlIconButton

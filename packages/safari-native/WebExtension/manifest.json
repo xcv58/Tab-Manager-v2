@@ -1,0 +1,52 @@
+{
+  "manifest_version": 2,
+  "name": "Tab Manager v2 \u2014 Safari Prototype",
+  "description": "Find and manage Safari tabs locally. Active tab groups only; private windows are excluded.",
+  "version": "0.1.0",
+  "permissions": ["tabs", "storage"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Tab Manager v2",
+    "default_icon": "icon-128.png"
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Alt+W",
+        "mac": "MacCtrl+W"
+      },
+      "description": "Open Tab Manager"
+    },
+    "OPEN-IN-NEW-TAB": {
+      "suggested_key": {
+        "default": "Alt+O",
+        "mac": "MacCtrl+O"
+      },
+      "description": "Open Tab Manager in a browser tab"
+    },
+    "TOGGLE-POPUP": {
+      "suggested_key": {
+        "default": "Alt+T",
+        "mac": "MacCtrl+T"
+      },
+      "description": "Open or toggle Tab Manager window"
+    },
+    "LAST-ACTIVE-TAB": {
+      "suggested_key": {
+        "default": "Alt+B",
+        "mac": "Alt+B"
+      },
+      "description": "Switch to next tab (recently used order)"
+    }
+  },
+  "content_security_policy": "script-src 'self'; object-src 'self'"
+}

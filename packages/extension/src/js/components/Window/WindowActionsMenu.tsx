@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import ControlIconButton from 'components/ControlIconButton'
@@ -65,9 +66,11 @@ export default observer(({ win }: WinProps) => {
         <MenuSection>
           This window{win.tabs ? ` · ${win.tabs.length} tabs` : ''}
         </MenuSection>
-        <MenuItem disabled={win.hide} onClick={sortTabs}>
-          <SortIcon fontSize={18} /> Sort tabs
-        </MenuItem>
+        {canMoveTabs && (
+          <MenuItem disabled={win.hide} onClick={sortTabs}>
+            <SortIcon fontSize={18} /> Sort tabs
+          </MenuItem>
+        )}
         <MenuItem disabled={win.hide} onClick={reloadTabs}>
           <RefreshIcon fontSize={18} /> Reload all{' '}
           {win.tabs ? `${win.tabs.length} ` : ''}tabs
@@ -85,28 +88,32 @@ export default observer(({ win }: WinProps) => {
           )}{' '}
           {win.hide ? 'Expand' : 'Collapse'} this window
         </MenuItem>
-        <MenuDivider />
-        <MenuSection>Move {moveScope} here</MenuSection>
-        <MenuItem
-          disabled={disabled}
-          onClick={() => moveToEdge('beginning')}
-          aria-keyshortcuts={getTabMoveAriaShortcut('beginning')}
-          aria-label={`Move ${moveScope} to beginning`}
-        >
-          <ArrowUpIcon fontSize={18} />
-          <span className="flex-1">Beginning</span>
-          <MoveShortcut position="beginning" />
-        </MenuItem>
-        <MenuItem
-          disabled={disabled}
-          onClick={() => moveToEdge('end')}
-          aria-keyshortcuts={getTabMoveAriaShortcut('end')}
-          aria-label={`Move ${moveScope} to end`}
-        >
-          <ArrowDownIcon fontSize={18} />
-          <span className="flex-1">End</span>
-          <MoveShortcut position="end" />
-        </MenuItem>
+        {canMoveTabs && (
+          <>
+            <MenuDivider />
+            <MenuSection>Move {moveScope} here</MenuSection>
+            <MenuItem
+              disabled={disabled}
+              onClick={() => moveToEdge('beginning')}
+              aria-keyshortcuts={getTabMoveAriaShortcut('beginning')}
+              aria-label={`Move ${moveScope} to beginning`}
+            >
+              <ArrowUpIcon fontSize={18} />
+              <span className="flex-1">Beginning</span>
+              <MoveShortcut position="beginning" />
+            </MenuItem>
+            <MenuItem
+              disabled={disabled}
+              onClick={() => moveToEdge('end')}
+              aria-keyshortcuts={getTabMoveAriaShortcut('end')}
+              aria-label={`Move ${moveScope} to end`}
+            >
+              <ArrowDownIcon fontSize={18} />
+              <span className="flex-1">End</span>
+              <MoveShortcut position="end" />
+            </MenuItem>
+          </>
+        )}
         <MenuDivider />
         <MenuItem
           onClick={() => {

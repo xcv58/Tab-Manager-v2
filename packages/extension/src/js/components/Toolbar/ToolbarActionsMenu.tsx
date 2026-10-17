@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React, { useEffect } from 'react'
 import { useActionMenu } from 'components/hooks/useActionMenu'
 import { getCommandPaletteShortcutLabel } from 'libs/commandPaletteShortcut'
@@ -146,9 +147,12 @@ export default observer(function ToolbarActionsMenu({
             </MenuItem>
             <MenuDivider />
             <MenuSection>Across windows</MenuSection>
-            <MenuItem onClick={run(() => arrangeStore.groupTabs())}>
-              <FilterListIcon fontSize={18} /> Cluster ungrouped &amp; sort tabs
-            </MenuItem>
+            {canMoveTabs && (
+              <MenuItem onClick={run(() => arrangeStore.groupTabs())}>
+                <FilterListIcon fontSize={18} /> Cluster ungrouped &amp; sort
+                tabs
+              </MenuItem>
+            )}
             <MenuItem
               disabled={!duplicateCount}
               onClick={run(() => windowStore.cleanDuplicatedTabs())}

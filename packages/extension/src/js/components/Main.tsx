@@ -1,3 +1,5 @@
+import { isSafari } from 'libs/browserCapabilities'
+import SafariStatus from 'safari/SafariStatus'
 import React, { useEffect, lazy } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
@@ -72,6 +74,7 @@ export default observer(() => {
   ])
   return (
     <main
+      tabIndex={isSafari ? -1 : undefined}
       onContextMenu={(event) => {
         const target = event.target as Element
         if (
@@ -102,6 +105,7 @@ export default observer(() => {
         color: theme.palette.text.primary,
       }}
     >
+      {isSafari && <SafariStatus />}
       {liteMode ? (
         <PopupView />
       ) : (

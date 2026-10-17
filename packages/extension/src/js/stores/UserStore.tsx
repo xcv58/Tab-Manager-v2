@@ -1,3 +1,4 @@
+import { isSafari } from 'libs/browserCapabilities'
 import { action, observable, computed, makeObservable } from 'mobx'
 import { browser } from 'libs'
 import {
@@ -43,7 +44,7 @@ const DEFAULT_SETTINGS = {
   tabTooltipTitleLines: DEFAULT_TAB_TOOLTIP_TITLE_LINES,
   tabTooltipUrlLines: DEFAULT_TAB_TOOLTIP_URL_LINES,
   preserveSearch: true,
-  searchHistory: true,
+  searchHistory: !isSafari,
   showSearchResultMenu: true,
   showUrl: true,
   autoFocusSearch: false,
@@ -82,6 +83,10 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
   nextSettings.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
     nextSettings.tabTooltipUrlLines,
   )
+  if (isSafari) {
+    nextSettings.searchHistory = false
+    nextSettings.showAppWindow = false
+  }
   const legacyKeys: string[] = []
 
   LEGACY_SETTINGS.forEach((key) => {

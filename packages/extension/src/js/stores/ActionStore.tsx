@@ -1,3 +1,4 @@
+import { isSafari, isSupportedCommand } from 'libs/browserCapabilities'
 import { makeAutoObservable, observable, reaction, runInAction } from 'mobx'
 import type Store from 'stores'
 import type Focusable from './Focusable'
@@ -195,9 +196,12 @@ export default class ActionStore {
         id: 'open-full-mode',
         icon: 'window',
         label: 'Open full Tab Manager',
-        detail: 'Organize, group, move and export tabs in full view',
-        aliases:
-          'organize group move sort bulk export csv tsv json markdown selection',
+        detail: isSafari
+          ? 'See all available windows and manage selected tabs'
+          : 'Organize, group, move and export tabs in full view',
+        aliases: isSafari
+          ? 'full view windows tabs settings export'
+          : 'organize group move sort bulk export csv tsv json markdown selection',
         section: 'Application',
         run: () => this.openFullView(),
       },
@@ -630,14 +634,18 @@ export default class ActionStore {
     this.store.windowStore.createNewWindow([tab])
 
   execute = async (command: PaletteCommand) => {
-    if (this.busy || command.disabledReason) return
+    if (this.busy || command.disabledReason || !isSupportedCommand(command.id))
+      return
     this.error = ''
     this.feedback = ''
     this.busy = true
     const tabIds = Array.from(this.store.tabStore.selection.keys()) as number[]
     this.failedMove = null
     try {
-      if (command.afterClose) {
+      if (
+        command.afterClose ||
+        (isSafari && /^(close-|reload-|pin-|clean-)/.test(command.id))
+      ) {
         this.busy = false
         this.closePalette()
         await new Promise<void>((resolve) =>
@@ -669,6 +677,13 @@ export default class ActionStore {
       })
     }
   }
+
+  getCommands = (
+    options: { includeSteps?: boolean; selectionOnly?: boolean } = {},
+  ) =>
+    this.getUnfilteredCommands(options).filter((command) =>
+      isSupportedCommand(command.id),
+    )
 
   get commands(): PaletteCommand[] {
     return this.getCommands()
@@ -708,7 +723,7 @@ export default class ActionStore {
     ]
   }
 
-  getCommands({
+  getUnfilteredCommands({
     selectionOnly = false,
     includeSteps = true,
   } = {}): PaletteCommand[] {
@@ -1098,7 +1113,7 @@ export default class ActionStore {
       {
         id: 'sync',
         icon: 'sync',
-        label: 'Sync all windows',
+        label: isSafari ? 'Refresh Safari tabs' : 'Sync all windows',
         section: 'Application',
         shortcut: 's',
         run: () => windowStore.syncAllWindows(),
@@ -1193,8 +1208,9 @@ export default class ActionStore {
       {
         id: 'open-full-mode',
         icon: 'new-window',
-        label: 'Open full feature mode',
+        label: isSafari ? 'Open Tab Manager window' : 'Open full feature mode',
         section: 'Application',
+        shortcut: isSafari ? 'Ctrl T' : undefined,
         run: openOrTogglePopup,
       },
       this.selectionControls[1],

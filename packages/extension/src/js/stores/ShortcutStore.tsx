@@ -1,3 +1,5 @@
+import { isSafari, isSupportedShortcut } from 'libs/browserCapabilities'
+import { safariState, cancelSafariAction } from 'safari/state'
 import { makeAutoObservable, runInAction } from 'mobx'
 import { getWindowLabel } from 'libs/windowLabel'
 import TabGroupRow from './TabGroupRow'
@@ -123,6 +125,8 @@ export default class ShortcutStore {
     'ctrl+8',
     'ctrl+m',
     'ctrl+n',
+    'command+.',
+    'ctrl+.',
     'ctrl+o',
     'shift+ctrl+g',
     'alt+shift+g',
@@ -131,7 +135,22 @@ export default class ShortcutStore {
     'alt+shift+u',
   ])
 
-  shortcuts: ShortcutDefinition[] = [
+  get shortcuts(): ShortcutDefinition[] {
+    return this.allShortcuts.filter(([, , description]) =>
+      isSupportedShortcut(getDescription(description)),
+    )
+  }
+
+  allShortcuts: ShortcutDefinition[] = [
+    isSafari && [
+      ['command+.', 'ctrl+.'],
+      (event: Event) => {
+        if (!safariState.progress) return
+        preventDefault(event)
+        void cancelSafariAction().catch(safariState.showError)
+      },
+      'Stop current Safari action',
+    ],
     [
       TOOLBAR_FOCUS_SHORTCUT,
       (event: Event) => {
@@ -216,7 +235,7 @@ export default class ShortcutStore {
           origin: 'keyboard',
         })
       },
-      'Sync all windows',
+      isSafari ? 'Refresh Safari tabs' : 'Sync all windows',
     ],
     [
       ['p', 'ctrl+p'],
@@ -592,6 +611,16 @@ export default class ShortcutStore {
     combo: string,
     sequence?: string,
   ) => {
+    if (isSafari && safariState.confirmationOpen) return true
+    if (
+      isSafari &&
+      safariState.progress &&
+      ['command+.', 'ctrl+.'].includes(combo)
+    )
+      return false
+    // Native Safari action buttons must keep Enter and Space for activation.
+    if (isSafari && element.closest?.('[data-safari-action-controls]'))
+      return true
     // Details controls keep native text copying and keyboard interaction, but
     // must never invoke the workspace's printable or modifier shortcuts.
     if (element.closest?.('[data-tab-details-panel]')) return true
@@ -690,6 +719,14 @@ export default class ShortcutStore {
         (Array.isArray(candidate) ? candidate[0] : candidate) === primary,
     )
     if (!definition) return null
+    if (isSafari && primary === 'command+.')
+      return {
+        label: 'Stop current Safari action',
+        disabledReason: safariState.progress
+          ? undefined
+          : 'No Safari action is running',
+        run: cancelSafariAction,
+      }
     const { actionStore, tabStore, focusStore, dragStore } = this.store
     const tab = focusStore.focusedTab
     const item = focusStore.focusedItem

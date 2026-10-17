@@ -1,3 +1,4 @@
+import { isSafari, canMoveTabs } from './browserCapabilities'
 import browser from 'webextension-polyfill'
 import log from 'libs/log'
 import { getTabInsertIndex, planTabMove } from 'libs/tabMovePlan'
@@ -13,7 +14,10 @@ export const popupURL = browser.runtime.getURL('popup.html') + `?${NOT_POPUP}=1`
 const closeIfCurrentTabIsPopup = () => {
   if (
     typeof window !== 'undefined' &&
-    /^(chrome|moz)-extension:$/.test(window.location.protocol) &&
+    /^(chrome|moz|safari-web)-extension:$/.test(window.location.protocol) &&
+    (!isSafari ||
+      (window.location.pathname.endsWith('/popup.html') &&
+        !new URLSearchParams(window.location.search).has(NOT_POPUP))) &&
     window.location.href !== popupURL
   ) {
     window.close()
@@ -28,6 +32,7 @@ export const getNoun = (noun, size) => {
 }
 
 export const moveTabs = async (tabs, windowId, from = 0) => {
+  if (!canMoveTabs) throw new Error('Moving tabs is unavailable in Safari.')
   if (!tabs || tabs.length === 0) {
     return
   }
@@ -344,6 +349,21 @@ export const activateTab = async (id, isBackground = false) => {
   }
 }
 
+// These helpers exist only on the Safari adapter; other builds keep the standard API.
+type SafariBatchTabs = {
+  reloadMany: (ids: number[]) => Promise<unknown>
+  updateMany: (
+    updates: Array<{ id: number; properties: { pinned: boolean } }>,
+  ) => Promise<unknown>
+}
+
+export const reloadTabs = (tabs: Array<{ id: number }>) =>
+  isSafari
+    ? (browser.tabs as unknown as SafariBatchTabs).reloadMany(
+        tabs.map((tab) => tab.id),
+      )
+    : Promise.all(tabs.map((tab) => browser.tabs.reload(tab.id)))
+
 export const togglePinTabs = async (tabs) => {
   const sortTabs = (tabs || []).sort((a, b) => {
     if (a.windowId !== b.windowId) {
@@ -353,6 +373,13 @@ export const togglePinTabs = async (tabs) => {
   })
   const pinnedTabs = sortTabs.filter((x) => x.pinned).reverse()
   const unpinnedTabs = sortTabs.filter((x) => !x.pinned)
+  if (isSafari)
+    return (browser.tabs as unknown as SafariBatchTabs).updateMany(
+      [...pinnedTabs, ...unpinnedTabs].map(({ id, pinned }) => ({
+        id,
+        properties: { pinned: !pinned },
+      })),
+    )
   await Promise.all(
     [...pinnedTabs, ...unpinnedTabs].map(async ({ id, pinned }) => {
       await browser.tabs.update(id, { pinned: !pinned })
@@ -385,6 +412,7 @@ const focusOnLastFocusedWin = async () => {
 }
 
 export const openOrTogglePopup = async () => {
+  if (isSafari) return browser.runtime.sendMessage({ action: 'TOGGLE-POPUP' })
   log.debug('openOrTogglePopup')
   const { _selfPopupActive } = await browser.storage.local.get({
     _selfPopupActive: false,
@@ -435,6 +463,7 @@ export const openPopup = async () => {
 }
 
 export const openInNewTab = () => {
+  if (isSafari) return openFullTabManager()
   browser.tabs.create({ url: popupURL })
   closeIfCurrentTabIsPopup()
 }

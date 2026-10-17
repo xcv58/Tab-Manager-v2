@@ -1,4 +1,5 @@
 import React from 'react'
+import { isSafari } from 'libs/browserCapabilities'
 import { observer } from 'mobx-react-lite'
 import Hotkeys from './Hotkeys'
 import { getDescription } from 'stores/ShortcutStore'
@@ -89,9 +90,9 @@ export default observer((props: { search: string }) => {
         </p>
       )}
       <p className="mb-4 text-sm">
-        To move tabs, select them, focus the destination tab or window, then use
-        a move shortcut. Vim keys are pressed in sequence; uppercase means
-        Shift.
+        {isSafari
+          ? 'While Safari is active: Control+W opens the popup, Control+T toggles the Tab Manager window, Control+O opens a tab, and Option+B cycles recently used tabs. Customize these in Safari Extension Settings. Vim keys below are pressed in sequence; uppercase means Shift.'
+          : 'To move tabs, select them, focus the destination tab or window, then use a move shortcut. Vim keys are pressed in sequence; uppercase means Shift.'}
       </p>
       <table
         className="shortcut-help-table"

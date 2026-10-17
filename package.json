@@ -54,7 +54,9 @@
     "lint": "eslint .",
     "prettier": "prettier --write",
     "lintfix": "pnpm prettier '**/*.{js,ts,tsx,yml}' && pnpm lint --fix",
-    "test:integration:unloaded-tabs": "pnpm --filter integration-test exec node scripts/validate-unloaded-tab-moves.cjs"
+    "test:integration:unloaded-tabs": "pnpm --filter integration-test exec node scripts/validate-unloaded-tab-moves.cjs",
+    "build:safari": "pnpm --filter ./packages/extension build:safari",
+    "build:safari:app": "node packages/safari-native/Tools/build-shared-ui.mjs"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",

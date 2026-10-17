@@ -1,3 +1,4 @@
+import { isSafari } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
@@ -35,6 +36,7 @@ export default observer(({ showSearchResultMenu }: Props) => {
     <div
       className="search-header flex items-center justify-center h-12 shrink-0 border-b"
       style={{
+        position: isSafari ? 'relative' : undefined,
         backgroundColor: uiColors.popupHeaderSurface,
         borderBottomColor: uiColors.popupHeaderBorderColor,
         borderBottom: isClassicUi ? 'none' : undefined,

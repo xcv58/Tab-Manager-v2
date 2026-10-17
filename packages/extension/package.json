@@ -25,7 +25,8 @@
     "stat:chrome": "rm -f build/SHA256SUMS.txt; sha256sum build/build_chrome/* build/build_chrome.zip | tee build/SHA256SUMS.txt; cat build/build_chrome/* | sha256sum | tee -a build/SHA256SUMS.txt",
     "test": "jest --maxWorkers=1",
     "test:firefox": "TARGET_BROWSER=firefox jest --maxWorkers=1",
-    "test-watch": "pnpm jest --watch"
+    "test-watch": "pnpm jest --watch",
+    "build:safari": "TARGET_BROWSER=safari NODE_ENV=production node utils/build-safari.js"
   },
   "browserslist": {
     "production": [

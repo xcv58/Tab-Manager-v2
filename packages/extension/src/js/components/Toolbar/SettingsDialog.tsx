@@ -1,3 +1,8 @@
+import {
+  isSafari,
+  canSearchHistory,
+  canShowAppWindows,
+} from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { browser } from 'libs'
@@ -863,13 +868,15 @@ export default observer(() => {
                   </ToggleGroup>
                 </div>
               </div>
-              <SettingsSwitchOption
-                title="Show app windows in list"
-                description="Include standalone app windows in the main list."
-                checked={showAppWindow}
-                onChange={toggleShowAppWindow}
-                style={rowDetailOptionStyle}
-              />
+              {canShowAppWindows && (
+                <SettingsSwitchOption
+                  title="Show app windows in list"
+                  description="Include standalone app windows in the main list."
+                  checked={showAppWindow}
+                  onChange={toggleShowAppWindow}
+                  style={rowDetailOptionStyle}
+                />
+              )}
             </div>
             <div
               className="settings-shared-preview"
@@ -1030,13 +1037,15 @@ export default observer(() => {
               onChange={toggleAutoFocusSearch}
               style={rowDetailOptionStyle}
             />
-            <SettingsSwitchOption
-              testId="settings-search-history"
-              title="Include browser history in results"
-              checked={searchHistory}
-              onChange={toggleSearchHistory}
-              style={rowDetailOptionStyle}
-            />
+            {canSearchHistory && (
+              <SettingsSwitchOption
+                testId="settings-search-history"
+                title="Include browser history in results"
+                checked={searchHistory}
+                onChange={toggleSearchHistory}
+                style={rowDetailOptionStyle}
+              />
+            )}
             <SettingsSwitchOption
               testId="settings-search-result-menu"
               title="Show result menu in full-page view"
@@ -1076,7 +1085,11 @@ export default observer(() => {
               <h3 className="settings-subheading">Browser popup</h3>
               <SettingsSwitchOption
                 title="Use lite popup mode"
-                description="Quick search and tab actions. Organization and Settings open in the full view. Applies the next time you open the browser popup."
+                description={
+                  isSafari
+                    ? 'Quick search and tab actions. The full workspace and Settings open in a browser tab. Applies the next time you open the popup.'
+                    : 'Quick search and tab actions. Organization and Settings open in the full view. Applies the next time you open the browser popup.'
+                }
                 checked={litePopupMode}
                 onChange={toggleLitePopupMode}
                 style={rowDetailOptionStyle}
