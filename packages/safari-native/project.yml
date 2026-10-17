@@ -12,12 +12,16 @@ settings:
     DEVELOPMENT_TEAM: 5736QK4NZX
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: Apple Development
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "3.0.0"
+    CURRENT_PROJECT_VERSION: "14"
     ENABLE_HARDENED_RUNTIME: YES
     GENERATE_INFOPLIST_FILE: NO
     SWIFT_EMIT_LOC_STRINGS: NO
     PRODUCT_NAME: $(TARGET_NAME)
+  configs:
+    Release:
+      CODE_SIGN_STYLE: Automatic
+      CODE_SIGN_IDENTITY: Apple Development
 targets:
   TabManagerSafariPrototype:
     type: application
@@ -33,11 +37,13 @@ targets:
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDisplayName: Tab Manager Safari Prototype
+        CFBundleDisplayName: Tab Manager v2
+        CFBundleName: Tab Manager v2
+        ITSAppUsesNonExemptEncryption: false
         SafariExtensionIdentifier: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
         SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
         CFBundleURLTypes:
-          - CFBundleURLName: Safari prototype
+          - CFBundleURLName: Tab Manager v2
             CFBundleURLSchemes: [$(TM_SAFARI_URL_SCHEME)]
         NSPrincipalClass: NSApplication
         LSMinimumSystemVersion: "14.0"
@@ -50,6 +56,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_APP_BUNDLE_IDENTIFIER)
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - target: SafariBridge
         embed: true
@@ -67,7 +74,9 @@ targets:
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDisplayName: Tab Manager Safari Bridge
+        CFBundleDisplayName: Tab Manager v2
+        CFBundleName: Tab Manager v2
+        ITSAppUsesNonExemptEncryption: false
         SafariExtensionIdentifier: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
         SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
         NSExtension:

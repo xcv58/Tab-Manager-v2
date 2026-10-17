@@ -20,7 +20,7 @@ private struct SafariSetupView: View {
             Label("Tab Manager for Safari", systemImage: "rectangle.3.group")
                 .font(.title.bold())
             Text("Your tabs, inside Safari.").font(.title2)
-            Text("1. Enable Tab Manager v2 — Safari Prototype in Safari Settings → Extensions for the profile you want to manage.")
+            Text("1. Enable Tab Manager v2 in Safari Settings → Extensions for the profile you want to manage.")
             Text("2. Click the Tab Manager icon in Safari’s toolbar. Allow website access for tabs whose titles and URLs you want to see.")
             Text("3. Use Control+W for the popup, Control+T for a separate window, or Control+O for a browser tab. Option+B switches recently used tabs.")
             Text("Only active tab groups in the current profile are available. Private windows are excluded. Tab data stays on this Mac.")
@@ -38,7 +38,7 @@ private struct SafariSetupView: View {
                     }
                 }.keyboardShortcut(.defaultAction)
                 Spacer()
-                Text("Prototype").font(.caption).foregroundStyle(.secondary)
+                Text("Version \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") (\(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""))").font(.caption).foregroundStyle(.secondary)
             }
         }.padding(28).frame(minWidth: 520, minHeight: 380)
     }
