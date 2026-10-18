@@ -6,7 +6,11 @@ import { openInNewTab } from 'libs'
 
 export default () => (
   <Tooltip title="Open in new tab" placement="left">
-    <IconButton onClick={openInNewTab} className="focus:outline-none">
+    <IconButton
+      aria-label="Open in new tab"
+      onClick={openInNewTab}
+      className="focus:outline-none"
+    >
       <OpenInBrowserIcon />
     </IconButton>
   </Tooltip>

@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Menu, { MenuItem, MenuDivider, MenuSection } from 'components/ui/Menu'
@@ -141,12 +142,14 @@ export default observer(
           <MenuItem onClick={run(() => actionStore.copyTabTitleAndUrl(tab))}>
             <TextDocumentIcon fontSize={18} /> Copy title and URL
           </MenuItem>
-          <MenuItem
-            disabled={dragStore.pendingWindowEdgeDrop}
-            onClick={run(() => actionStore.moveTabToNewWindow(tab))}
-          >
-            <OpenInNewIcon fontSize={18} /> Move to a new window
-          </MenuItem>
+          {canMoveTabs && (
+            <MenuItem
+              disabled={dragStore.pendingWindowEdgeDrop}
+              onClick={run(() => actionStore.moveTabToNewWindow(tab))}
+            >
+              <OpenInNewIcon fontSize={18} /> Move to a new window
+            </MenuItem>
+          )}
           <MenuItem onClick={run(tab.togglePin)}>
             {pinned ? (
               <UnpinIcon fontSize={18} />
@@ -166,36 +169,40 @@ export default observer(
               </span>
             </MenuItem>
           )}
-          {sameDomainTabs?.length > 1 && (
+          {canMoveTabs && sameDomainTabs?.length > 1 && (
             <MenuItem onClick={run(tab.groupTab)}>
               <OpenInNewIcon fontSize={18} /> Bring {sameDomainTabs.length}{' '}
               ungrouped tabs from this site here
             </MenuItem>
           )}
-          <MenuDivider />
-          <MenuSection>Move {moveScope} here</MenuSection>
-          <MenuItem
-            disabled={moveDisabled}
-            onClick={() => void actionStore.moveToTab(tab, true)}
-            aria-label={`Move ${moveScope} before this tab`}
-            aria-keyshortcuts={getTabMoveAriaShortcut('before')}
-            data-testid={`tab-menu-option-${tab.id}-move-selected-before-this-tab`}
-          >
-            <ArrowUpIcon fontSize={18} />{' '}
-            <span className="flex-1">Before this tab</span>
-            <MoveShortcut position="before" />
-          </MenuItem>
-          <MenuItem
-            disabled={moveDisabled}
-            onClick={() => void actionStore.moveToTab(tab, false)}
-            aria-label={`Move ${moveScope} after this tab`}
-            aria-keyshortcuts={getTabMoveAriaShortcut('after')}
-            data-testid={`tab-menu-option-${tab.id}-move-selected-after-this-tab`}
-          >
-            <ArrowDownIcon fontSize={18} />{' '}
-            <span className="flex-1">After this tab</span>
-            <MoveShortcut position="after" />
-          </MenuItem>
+          {canMoveTabs && (
+            <>
+              <MenuDivider />
+              <MenuSection>Move {moveScope} here</MenuSection>
+              <MenuItem
+                disabled={moveDisabled}
+                onClick={() => void actionStore.moveToTab(tab, true)}
+                aria-label={`Move ${moveScope} before this tab`}
+                aria-keyshortcuts={getTabMoveAriaShortcut('before')}
+                data-testid={`tab-menu-option-${tab.id}-move-selected-before-this-tab`}
+              >
+                <ArrowUpIcon fontSize={18} />{' '}
+                <span className="flex-1">Before this tab</span>
+                <MoveShortcut position="before" />
+              </MenuItem>
+              <MenuItem
+                disabled={moveDisabled}
+                onClick={() => void actionStore.moveToTab(tab, false)}
+                aria-label={`Move ${moveScope} after this tab`}
+                aria-keyshortcuts={getTabMoveAriaShortcut('after')}
+                data-testid={`tab-menu-option-${tab.id}-move-selected-after-this-tab`}
+              >
+                <ArrowDownIcon fontSize={18} />{' '}
+                <span className="flex-1">After this tab</span>
+                <MoveShortcut position="after" />
+              </MenuItem>
+            </>
+          )}
           {process.env.TARGET_BROWSER === 'firefox' && (
             <>
               <MenuDivider />

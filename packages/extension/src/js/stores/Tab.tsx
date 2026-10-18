@@ -1,3 +1,4 @@
+import { isSafari } from 'libs/browserCapabilities'
 import { action, computed, observable, makeObservable } from 'mobx'
 import { getDomain, togglePinTabs, browser } from 'libs'
 import bookmarks from 'img/chrome/bookmarks.png'
@@ -159,6 +160,7 @@ export default class Tab extends Focusable {
   closeDuplicatedTab = () => this.store.windowStore.closeDuplicatedTab(this)
 
   remove = ({ preserveFocus = true }: { preserveFocus?: boolean } = {}) => {
+    if (isSafari) return browser.tabs.remove(this.id)
     const nextFocusedItem = preserveFocus
       ? this.store.prepareFocusForRemovedTabs([this])
       : null
@@ -216,7 +218,7 @@ export default class Tab extends Focusable {
   }
 
   get duplicatedTabCount() {
-    return this.store.windowStore.tabFingerprintMap[this.fingerPrint]
+    return this.store.windowStore.tabFingerprintMap[this.fingerPrint] || 0
   }
 
   get isSelected() {
@@ -264,7 +266,7 @@ export default class Tab extends Focusable {
     const fingerPrint = this.store.userStore.ignoreHash
       ? this.url.split('#')[0]
       : this.url
-    return (fingerPrint || '').toLowerCase()
+    return isSafari ? fingerPrint || '' : (fingerPrint || '').toLowerCase()
   }
 
   setUrlIcon = async () => {
@@ -284,7 +286,12 @@ export default class Tab extends Focusable {
   }
 
   closeOtherTabs = () => {
-    this.win.tabs.filter((tab) => tab.id !== this.id).map((tab) => tab.remove())
+    const others = this.win.tabs.filter((tab) => tab.id !== this.id)
+    if (isSafari)
+      return others.length
+        ? browser.tabs.remove(others.map((tab) => tab.id))
+        : undefined
+    others.map((tab) => tab.remove())
   }
 
   closeWindow = () => this.win.closeWindow()

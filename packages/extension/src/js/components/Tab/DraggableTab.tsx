@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
@@ -13,7 +14,7 @@ export default observer((props: TabProps) => {
   const { dragStore } = useStore()
   const [dragProps, drag, connectDragPreview] = useDrag({
     type: ItemTypes.TAB,
-    canDrag: true,
+    canDrag: canMoveTabs,
     item: () => dragStore.dragStartTab(tab),
     end: () => {
       dragStore.dragEnd()

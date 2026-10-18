@@ -1,3 +1,4 @@
+import { isSafari } from 'libs/browserCapabilities'
 import React, { useEffect } from 'react'
 import classNames from 'classnames'
 import { observer } from 'mobx-react-lite'
@@ -38,6 +39,7 @@ export default observer(() => {
       )}
       style={{
         color: uiColors.mutedText,
+        position: isSafari ? 'absolute' : undefined,
       }}
     >
       <Title {...{ title }} />, {selected} {getNoun('tab', selected)} selected

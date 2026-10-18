@@ -1,3 +1,5 @@
+import { isSafari } from 'libs/browserCapabilities'
+import { safariState } from 'safari/state'
 import { makeAutoObservable } from 'mobx'
 import {
   browser,
@@ -1331,6 +1333,27 @@ export default class WindowsStore {
       return
     }
     log.debug('tabs.onRemoved:', { id, windowId, isWindowClosing })
+    // Safari advances focus after browser removal, skipping other tabs in
+    // pending close requests when choosing a neighbor.
+    const removedNow = isSafari
+      ? this.windows.flatMap((win) =>
+          win.tabs.filter((tab) =>
+            isWindowClosing ? win.id === windowId : tab.id === id,
+          ),
+        )
+      : []
+    const affectedFocus =
+      isSafari &&
+      this.store._isItemAffectedByTabs(
+        this.store.focusStore.focusedItem,
+        removedNow,
+      )
+    const nextFocusedItem = affectedFocus
+      ? this.store.prepareFocusForRemovedTabs([
+          ...removedNow,
+          ...this.tabs.filter((tab) => safariState.removingTabIDs.has(tab.id)),
+        ])
+      : null
     this.store.tabStore.selection.delete(id)
     if (!isWindowClosing) {
       this.removeTabs([id])
@@ -1348,6 +1371,7 @@ export default class WindowsStore {
       }
     }
     this.reconcileFocusedModels()
+    if (nextFocusedItem) this.store.restoreDomFocusAfterRemoval(nextFocusedItem)
   }
 
   onUpdated = (tabId: number, changeInfo, newTab: Tab) => {
@@ -1696,6 +1720,7 @@ export default class WindowsStore {
 
   get duplicateFamiliesByFingerprint() {
     return this.tabs.reduce((acc, tab) => {
+      if (!tab.fingerPrint) return acc
       const family = acc.get(tab.fingerPrint)
       if (family) {
         family.push(tab)
@@ -1779,17 +1804,28 @@ export default class WindowsStore {
 
   closeDuplicatedTab = (tab: Tab) => {
     const { id, fingerPrint } = tab
-    this.tabs
-      .filter((x) => x.fingerPrint === fingerPrint && x.id !== id)
-      .forEach((x) => x.remove())
+    if (!fingerPrint) return
+    const duplicates = this.tabs.filter(
+      (x) => x.fingerPrint === fingerPrint && x.id !== id,
+    )
+    if (isSafari)
+      return duplicates.length
+        ? browser.tabs.remove(duplicates.map((tab) => tab.id))
+        : undefined
+    duplicates.forEach((x) => x.remove())
   }
 
   cleanDuplicateTabs = (tabs: Tab[] = this.tabs) => {
-    this.getDuplicateTabsToRemove(tabs).forEach((tab) => tab.remove())
+    const duplicates = this.getDuplicateTabsToRemove(tabs)
+    if (isSafari)
+      return duplicates.length
+        ? browser.tabs.remove(duplicates.map((tab) => tab.id))
+        : undefined
+    duplicates.forEach((tab) => tab.remove())
   }
 
   cleanDuplicatedTabs = () => {
-    this.cleanDuplicateTabs(this.tabs)
+    return this.cleanDuplicateTabs(this.tabs)
   }
 
   getTargetWindow = (windowId: number) => {

@@ -1,3 +1,4 @@
+import { isSafari } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from 'components/ui/Tooltip'
@@ -7,10 +8,11 @@ import { useStore } from './hooks/useStore'
 
 export default observer(() => {
   const { windowStore } = useStore()
+  const title = isSafari ? 'Refresh Safari tabs' : 'Sync All Windows'
   return (
-    <Tooltip title="Sync All Windows" placement="left">
+    <Tooltip title={title} placement="left">
       <IconButton
-        aria-label="Sync All Windows"
+        aria-label={title}
         data-testid="sync-all-windows"
         onClick={() =>
           void windowStore.syncAllWindows({

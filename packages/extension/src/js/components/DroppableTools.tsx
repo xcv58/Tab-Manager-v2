@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useDrop } from 'react-dnd'
@@ -24,7 +25,7 @@ export default observer(({ showSearchResultMenu }: Props) => {
     drop: () => {
       dragStore.dropToNewWindow()
     },
-    canDrop: () => true,
+    canDrop: () => canMoveTabs,
     hover: (_, monitor) => {
       const targetId = monitor.getHandlerId()
       if (targetId) {

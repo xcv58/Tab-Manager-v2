@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import DragHandle from 'components/Tab/DragHandle'
@@ -25,9 +26,11 @@ export default observer((props: TabProps) => {
       <RowActionSlot visible={isFocused} hoverVisible>
         <TabMenu {...props} />
       </RowActionSlot>
-      <RowActionSlot visible={isFocused} hoverVisible>
-        <DragHandle />
-      </RowActionSlot>
+      {canMoveTabs && (
+        <RowActionSlot visible={isFocused} hoverVisible>
+          <DragHandle />
+        </RowActionSlot>
+      )}
     </div>
   )
 })

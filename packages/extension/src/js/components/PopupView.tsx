@@ -1,3 +1,4 @@
+import { isSafari } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
@@ -31,13 +32,18 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
       <div
         className="search-header flex items-center justify-center shrink-0 h-12 border-b"
         style={{
+          position: isSafari ? 'relative' : undefined,
           backgroundColor: uiColors.popupHeaderSurface,
           borderBottomColor: uiColors.popupHeaderBorderColor,
           borderBottom: isClassicUi ? 'none' : undefined,
         }}
       >
         <Summary />
-        <AutocompleteSearch autoFocus={autoFocus} open bottomInset={44} />
+        <AutocompleteSearch
+          autoFocus={isSafari ? userStore.autoFocusSearch : autoFocus}
+          open
+          bottomInset={44}
+        />
         <LayoutRepackIndicator />
       </div>
       <div

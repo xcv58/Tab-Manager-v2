@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Fade } from 'components/ui/Transition'
 import { OverlayContainerContext } from './OverlayContainer'
 import { useAppTheme } from 'libs/appTheme'
+import { isSafari } from 'libs/browserCapabilities'
 
 const openDialogStack: HTMLDivElement[] = []
 
@@ -152,6 +153,24 @@ export default function Dialog({
       const isFocusInsideDialog = !!(
         activeElement && dialogRef.current?.contains(activeElement)
       )
+
+      // Safari's default keyboard setting skips buttons during native Tab
+      // navigation. Move focus explicitly so every modal control is reachable.
+      if (isSafari) {
+        e.preventDefault()
+        const index = activeElement
+          ? focusableElements.indexOf(activeElement)
+          : -1
+        const nextIndex =
+          index < 0
+            ? e.shiftKey
+              ? focusableElements.length - 1
+              : 0
+            : (index + (e.shiftKey ? -1 : 1) + focusableElements.length) %
+              focusableElements.length
+        focusableElements[nextIndex].focus()
+        return
+      }
 
       if (e.shiftKey) {
         if (!isFocusInsideDialog || activeElement === firstElement) {

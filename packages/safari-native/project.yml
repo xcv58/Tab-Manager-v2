@@ -1,0 +1,99 @@
+name: TabManagerSafariPrototype
+configFiles:
+  Debug: Config/Debug.xcconfig
+  Release: Config/Release.xcconfig
+options:
+  bundleIdPrefix: com.xcv58
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: 5736QK4NZX
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: Apple Development
+    MARKETING_VERSION: "3.0.0"
+    CURRENT_PROJECT_VERSION: "14"
+    ENABLE_HARDENED_RUNTIME: YES
+    GENERATE_INFOPLIST_FILE: NO
+    SWIFT_EMIT_LOC_STRINGS: NO
+    PRODUCT_NAME: $(TARGET_NAME)
+  configs:
+    Release:
+      CODE_SIGN_STYLE: Automatic
+      CODE_SIGN_IDENTITY: Apple Development
+targets:
+  TabManagerSafariPrototype:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        excludes:
+          - WorkspaceStore.swift
+          - WorkspaceView.swift
+      - Shared
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Tab Manager v2
+        CFBundleName: Tab Manager v2
+        ITSAppUsesNonExemptEncryption: false
+        SafariExtensionIdentifier: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
+        SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
+        CFBundleURLTypes:
+          - CFBundleURLName: Tab Manager v2
+            CFBundleURLSchemes: [$(TM_SAFARI_URL_SCHEME)]
+        NSPrincipalClass: NSApplication
+        LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: public.app-category.productivity
+    entitlements:
+      path: App/App.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.application-groups: [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_APP_BUNDLE_IDENTIFIER)
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - target: SafariBridge
+        embed: true
+  SafariBridge:
+    type: app-extension
+    platform: macOS
+    sources:
+      - Extension
+      - Shared
+      - path: ../extension/build/build_safari
+        type: group
+        buildPhase: resources
+    info:
+      path: Extension/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: Tab Manager v2
+        CFBundleName: Tab Manager v2
+        ITSAppUsesNonExemptEncryption: false
+        SafariExtensionIdentifier: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
+        SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.Safari.web-extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SafariWebExtensionHandler
+    entitlements:
+      path: Extension/Extension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups: [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
+        SKIP_INSTALL: YES
+schemes:
+  TabManagerSafariPrototype:
+    build:
+      targets:
+        TabManagerSafariPrototype: all

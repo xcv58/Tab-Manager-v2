@@ -120,6 +120,7 @@ const renderAutocompleteSearch = ({
   const stopType = jest.fn()
   const setSearchEl = jest.fn()
   const openPalette = jest.fn()
+  const focusStore = { focus: jest.fn(), defocus: jest.fn() }
   const actionStore = observable({
     paletteOpen: false,
     menu: null,
@@ -176,6 +177,7 @@ const renderAutocompleteSearch = ({
       userStore,
       searchStore,
       actionStore,
+      focusStore,
       hoverStore: {
         hovered: false,
         hoveredSurface: 'list',
@@ -201,12 +203,29 @@ const renderAutocompleteSearch = ({
     )
   }
 
-  return { ...render(<Wrapper />), openPalette, actionStore }
+  return {
+    ...render(<Wrapper />),
+    openPalette,
+    actionStore,
+    focusStore,
+    stopType,
+  }
 }
 
 describe('AutocompleteSearch', () => {
   afterEach(() => {
     jest.clearAllMocks()
+  })
+
+  it('releases the old workspace focus before ending typing when focus enters a result', () => {
+    const { focusStore, stopType } = renderAutocompleteSearch({ open: true })
+    const input = screen.getByRole('combobox')
+    const result = screen.getAllByRole('option')[0]
+    fireEvent.blur(input, { relatedTarget: result })
+    expect(focusStore.defocus).toHaveBeenCalledTimes(1)
+    expect(focusStore.defocus.mock.invocationCallOrder[0]).toBeLessThan(
+      stopType.mock.invocationCallOrder[0],
+    )
   })
 
   it('moves the highlighted result with arrow keys', async () => {

@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from 'components/ui/Tooltip'
@@ -10,6 +11,7 @@ export default observer(({ label }: { label?: string }) => {
   const { dragStore, tabStore } = useStore()
   const { dropToNewWindow } = dragStore
   const { selection } = tabStore
+  if (!canMoveTabs) return null
   const title = `Move ${selection.size} selected ${selection.size === 1 ? 'tab' : 'tabs'} to a new window`
   return (
     <Tooltip title={title} enterDelay={TOOLTIP_DELAY}>

@@ -1,5 +1,12 @@
+import { isSafari } from 'libs/browserCapabilities'
 import { makeAutoObservable } from 'mobx'
-import { getNoun, togglePinTabs, writeToClipboard } from 'libs'
+import {
+  browser,
+  getNoun,
+  reloadTabs,
+  togglePinTabs,
+  writeToClipboard,
+} from 'libs'
 import {
   createTabExportRecords,
   downloadTabExport,
@@ -70,7 +77,8 @@ export default class Store {
     this.focusStore = new FocusStore(this)
     if (
       process.env.TARGET_BROWSER === 'firefox' ||
-      process.env.TARGET_BROWSER === 'chrome'
+      process.env.TARGET_BROWSER === 'chrome' ||
+      process.env.TARGET_BROWSER === 'safari'
     ) {
       this.tabGroupStore = new TabGroupStore(this)
     }
@@ -86,6 +94,10 @@ export default class Store {
     } else {
       tabsToRemove = this._getFocusedOrSelectedTab()
     }
+    if (isSafari)
+      return tabsToRemove.length
+        ? browser.tabs.remove(tabsToRemove.map((tab) => tab.id))
+        : undefined
     const nextFocusedItem = this.prepareFocusForRemovedTabs(tabsToRemove)
     this.tabStore.unselectAll()
     tabsToRemove.forEach((x) => x.remove({ preserveFocus: false }))
@@ -97,6 +109,14 @@ export default class Store {
     if (!this._isItemAffectedByTabs(initialFocusedItem, tabsToRemove)) {
       return null
     }
+
+    // Search results restore against their actual filtered order after React
+    // removes the row. Lite popups do not mount any workspace nodeRefs.
+    if (
+      this.focusStore.focusedSurface === 'search' &&
+      this.searchStore.resultFocusController?.hasFocus()
+    )
+      return null
 
     const {
       grid,
@@ -219,6 +239,7 @@ export default class Store {
     } else {
       tabsToReload = this._getFocusedOrSelectedTab()
     }
+    if (isSafari) return reloadTabs(tabsToReload).then(() => unselectAll())
     unselectAll()
     tabsToReload.forEach((x) => x.reload())
   }

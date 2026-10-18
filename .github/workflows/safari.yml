@@ -1,0 +1,56 @@
+name: Safari build
+
+on: [push]
+
+concurrency:
+  group: safari-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  safari-build:
+    name: Safari ${{ matrix.configuration }} build
+    runs-on: macos-15
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Lint Safari sources and build tools
+        run: pnpm exec eslint packages/extension/src/js/safari packages/safari-native/Tools/*.mjs
+      - name: Build shared Safari UI
+        env:
+          SAFARI_BUILD_CONFIGURATION: ${{ matrix.configuration }}
+        run: pnpm build:safari
+      - name: Install XcodeGen
+        run: brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+      - name: Generate native project
+        run: xcodegen generate --spec packages/safari-native/project.yml
+      # Compilation needs no developer account, certificates or store access.
+      # Signing and publication remain separate from this pull request check.
+      - name: Compile app and embedded extension without signing
+        run: >-
+          xcodebuild
+          -project packages/safari-native/TabManagerSafariPrototype.xcodeproj
+          -scheme TabManagerSafariPrototype
+          -configuration ${{ matrix.configuration }}
+          -destination 'generic/platform=macOS'
+          -derivedDataPath .tmp/safari-ci
+          CODE_SIGNING_ALLOWED=NO
+          build
+      - name: Verify packaged resources and identifiers
+        env:
+          SAFARI_BUILD_CONFIGURATION: ${{ matrix.configuration }}
+        run: node packages/safari-native/Tools/verify-build.mjs

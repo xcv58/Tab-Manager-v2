@@ -1,3 +1,4 @@
+import { isSafari, isSupportedShortcut } from 'libs/browserCapabilities'
 import { makeAutoObservable, runInAction } from 'mobx'
 import { getWindowLabel } from 'libs/windowLabel'
 import TabGroupRow from './TabGroupRow'
@@ -131,7 +132,14 @@ export default class ShortcutStore {
     'alt+shift+u',
   ])
 
-  shortcuts: ShortcutDefinition[] = [
+  get shortcuts(): ShortcutDefinition[] {
+    if (!isSafari) return this.allShortcuts
+    return this.allShortcuts.filter(([, , description]) =>
+      isSupportedShortcut(getDescription(description)),
+    )
+  }
+
+  allShortcuts: ShortcutDefinition[] = [
     [
       TOOLBAR_FOCUS_SHORTCUT,
       (event: Event) => {
@@ -216,7 +224,7 @@ export default class ShortcutStore {
           origin: 'keyboard',
         })
       },
-      'Sync all windows',
+      isSafari ? 'Refresh Safari tabs' : 'Sync all windows',
     ],
     [
       ['p', 'ctrl+p'],
@@ -592,6 +600,9 @@ export default class ShortcutStore {
     combo: string,
     sequence?: string,
   ) => {
+    // Native Safari action buttons must keep Enter and Space for activation.
+    if (isSafari && element.closest?.('[data-safari-action-controls]'))
+      return true
     // Details controls keep native text copying and keyboard interaction, but
     // must never invoke the workspace's printable or modifier shortcuts.
     if (element.closest?.('[data-tab-details-panel]')) return true

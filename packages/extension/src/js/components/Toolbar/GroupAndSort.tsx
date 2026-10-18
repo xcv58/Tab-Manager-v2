@@ -1,3 +1,4 @@
+import { canMoveTabs } from 'libs/browserCapabilities'
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import Tooltip from 'components/ui/Tooltip'
@@ -12,6 +13,7 @@ export default observer(() => {
   const { arrangeStore } = useStore()
 
   const { groupTabs } = arrangeStore
+  if (!canMoveTabs) return null
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <div className="flex">

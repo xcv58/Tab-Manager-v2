@@ -1,6 +1,7 @@
+import { canMoveTabs, isSafari } from 'libs/browserCapabilities'
 import { action, computed, observable, makeObservable } from 'mobx'
 import Tab from './Tab'
-import { browser } from 'libs'
+import { browser, reloadTabs } from 'libs'
 import Store from 'stores'
 import log from 'libs/log'
 import Focusable from './Focusable'
@@ -168,7 +169,7 @@ export default class Window extends Focusable {
   }
 
   get canDrop() {
-    return !['popup', 'devtools'].includes(this.type)
+    return canMoveTabs && !['popup', 'devtools'].includes(this.type)
   }
 
   get invisibleTabs() {
@@ -280,6 +281,7 @@ export default class Window extends Focusable {
   }
 
   reload = () => {
+    if (isSafari) return reloadTabs(this.tabs)
     this.tabs.forEach((tab) => tab.reload())
   }
 

@@ -3,9 +3,11 @@ import {
   setLastFocusedWindowId,
   browser,
   isSelfPopup,
+  isSelfPopupTab,
   setSelfPopupActive,
 } from 'libs'
 import actions from 'libs/actions'
+import { isSafari } from 'libs/browserCapabilities'
 import log from 'libs/log'
 
 const STORAGE_KEY = 'tabHistory'
@@ -21,6 +23,10 @@ export default class TabHistory {
   constructor() {
     const { onActivated, onFocusChanged, onRemoved } = this
     browser.tabs.onActivated.addListener(onActivated)
+    if (isSafari) {
+      browser.tabs.onCreated.addListener(this.onCreated)
+      browser.tabs.onUpdated.addListener(this.onUpdated)
+    }
     browser.tabs.onRemoved.addListener(onRemoved)
     browser.windows.onFocusChanged.addListener(onFocusChanged)
     this.actionMap = {
@@ -36,6 +42,56 @@ export default class TabHistory {
   resetCountHandler: ReturnType<typeof setTimeout> | null = null
 
   expectedTabId: number | null = null
+
+  private activationTail: Promise<unknown> = Promise.resolve()
+  private observationTail: Promise<unknown> = Promise.resolve()
+  private safariCycle: {
+    entries: HistoryEntry[]
+    index: number
+    lastTargetId: number | null
+    completedAt: number
+  } | null = null
+
+  private observe = (operation: () => Promise<void>) => {
+    if (!isSafari) return operation()
+    const observation = this.observationTail.then(operation)
+    this.observationTail = observation.catch(() => {})
+    return observation
+  }
+
+  // Safari can omit an activation event when creating an already-active tab.
+  private onCreated = (tab) =>
+    this.observe(async () => {
+      try {
+        // Safari's creation payload can precede the tab becoming active.
+        const current = await browser.tabs.get(tab.id)
+        if (!current.active || isSelfPopupTab(current)) return
+        const win = await browser.windows.get(current.windowId, {
+          populate: true,
+        })
+        if (win.focused && !isSelfPopup(win))
+          this.add({ tabId: current.id, windowId: current.windowId })
+      } catch (error) {
+        log.warn('Could not record newly created Safari tab', error)
+      }
+    })
+
+  private onUpdated = (_id, changes, tab) => {
+    // A newly opened foreground tab may gain its URL after onCreated.
+    if (tab?.active && (changes.url || changes.status === 'complete'))
+      return this.onCreated(tab)
+  }
+
+  rememberFocusedTab = () =>
+    this.observe(async () => {
+      const windows = await browser.windows.getAll({ populate: true })
+      const current = windows.find((win) => win.focused)
+      if (!current || isSelfPopup(current)) return
+      const active = current.tabs?.find((tab) => tab.active)
+      if (!active || (isSafari && isSelfPopupTab(active))) return
+      this.add({ tabId: active.id, windowId: current.id })
+      setLastFocusedWindowId(current.id)
+    })
 
   // Flag to indicate if history has been loaded from storage
   loaded = false
@@ -128,36 +184,151 @@ export default class TabHistory {
     return Math.max(this.tabHistory.length - 1 - this.count, 0)
   }
 
-  activateTab = async () => {
+  activateTab = () => {
+    // Keep rapid shortcut presses ordered while browser reads/activation await IPC.
+    const requestedAt = Date.now()
+    const activation = this.activationTail.then(() =>
+      this.activateNextTab(requestedAt),
+    )
+    this.activationTail = activation.catch(() => {})
+    return activation
+  }
+
+  private activateNextSafariTab = async (requestedAt: number) => {
+    await this.observationTail
+    const windows = await browser.windows.getAll({ populate: true })
+    const available = new Map<number, HistoryEntry>()
+    for (const win of windows) {
+      if (isSelfPopup(win)) continue
+      for (const tab of win.tabs || [])
+        if (!isSelfPopupTab(tab))
+          available.set(tab.id, { tabId: tab.id, windowId: win.id })
+    }
+    this.tabHistory = this.tabHistory
+      .filter((entry) => available.has(entry.tabId))
+      .map((entry) => available.get(entry.tabId)!)
+    const current = windows.find((win) => win.focused)
+    const currentTab = current?.tabs?.find((tab) => tab.active)
+    const currentId =
+      currentTab && available.has(currentTab.id) ? currentTab.id : null
+    let cycle = this.safariCycle
+    if (
+      !cycle ||
+      requestedAt - cycle.completedAt >= 1000 ||
+      currentId !== cycle.lastTargetId
+    ) {
+      if (currentId != null) this.add(available.get(currentId)!)
+      // Browser focus/update events can reorder live history while switching.
+      // Keep the burst's order fixed and wrap, rather than clamping at oldest.
+      const entries = [...this.tabHistory].reverse()
+      cycle = {
+        entries,
+        index:
+          currentId == null
+            ? -1
+            : entries.findIndex((entry) => entry.tabId === currentId),
+        lastTargetId: currentId,
+        completedAt: requestedAt,
+      }
+      this.safariCycle = cycle
+    }
+    for (let step = 0; step < cycle.entries.length; step += 1) {
+      cycle.index = (cycle.index + 1) % cycle.entries.length
+      const entry = cycle.entries[cycle.index]
+      if (!available.has(entry.tabId) || entry.tabId === currentId) continue
+      cycle.lastTargetId = entry.tabId
+      this.expectedTabId = entry.tabId
+      try {
+        await activateTab(entry.tabId, true)
+        // Give the user a full second after Safari finishes its async switch;
+        // queued shortcut presses remain in this cycle while IPC is pending.
+        cycle.completedAt = Date.now()
+      } catch (error) {
+        this.safariCycle = null
+        throw error
+      }
+      return
+    }
+  }
+
+  private activateNextTab = async (requestedAt: number) => {
     // Ensure loaded before trying to activate
     if (!this.loaded) {
       await this.init()
     }
 
+    if (isSafari) return this.activateNextSafariTab(requestedAt)
+    const startingCycle = this.resetCountHandler == null
+    if (isSafari || startingCycle) {
+      // Safari exposes only active groups. Both browsers must exclude the
+      // manager and stale entries instead of assuming the last entry is current.
+      const windows = await browser.windows.getAll({ populate: true })
+      const available = new Set(
+        windows
+          .filter((win) => !isSelfPopup(win))
+          .flatMap((win) =>
+            (win.tabs || [])
+              .filter((tab) => !isSafari || !isSelfPopupTab(tab))
+              .map((tab) => tab.id),
+          ),
+      )
+      this.tabHistory = this.tabHistory.filter((entry) =>
+        available.has(entry.tabId),
+      )
+      if (startingCycle) {
+        const current = windows.find((win) => win.focused)
+        const currentTab = current?.tabs?.find((tab) => tab.active)
+        const fromManager =
+          current &&
+          (isSelfPopup(current) ||
+            (isSafari && currentTab && isSelfPopupTab(currentTab)))
+        this.count = fromManager ? -1 : 0
+        const active = !fromManager && currentTab
+        if (active && (!isSafari || !isSelfPopupTab(active)))
+          this.add({ tabId: active.id, windowId: current.id })
+      }
+    }
     this.count += 1
     this.resetCount()
-    if (this.tabHistory.length > 1) {
+    if (
+      this.tabHistory.length > 1 ||
+      (this.count === 0 && this.tabHistory.length)
+    ) {
       const { tabId } = this.tabHistory[this.nextTabIndex]
       this.expectedTabId = tabId
-      activateTab(tabId, true)
+      return activateTab(tabId, true)
     }
   }
 
-  onActivated = async (activeInfo) => {
-    const { tabId, windowId } = activeInfo
-    if (tabId !== this.expectedTabId) {
-      const { length } = this.tabHistory
-      if (this.resetCountHandler) {
-        this.resetCount()
-        const index = this.tabHistory.findIndex((x) => x.tabId === tabId)
-        if (index < length - this.count) {
-          this.count += 1
-        }
-      }
-    }
-    this.expectedTabId = null
+  onActivated = (activeInfo) => {
+    const { tabId } = activeInfo
+    const expected = tabId === this.expectedTabId
+    if (expected) this.expectedTabId = null
+    return this.observe(() => this.recordActivated(activeInfo, expected))
+  }
+
+  private recordActivated = async ({ tabId, windowId }, expected: boolean) => {
     try {
       const tab = await browser.tabs.get(tabId)
+      if (isSelfPopupTab(tab)) {
+        if (isSafari) {
+          this.remove(tabId)
+          return
+        }
+        const win = await browser.windows.get(windowId, { populate: true })
+        if (isSelfPopup(win)) {
+          this.remove(tabId)
+          return
+        }
+      }
+      if (!isSafari && !expected) {
+        const { length } = this.tabHistory
+        if (this.resetCountHandler) {
+          this.resetCount()
+          const index = this.tabHistory.findIndex((x) => x.tabId === tabId)
+          if (index < length - this.count) this.count += 1
+        }
+      }
       this.add({ ...tab, tabId, windowId })
     } catch (e) {
       // Tab might not exist anymore
@@ -165,7 +336,10 @@ export default class TabHistory {
     }
   }
 
-  onFocusChanged = async (windowId) => {
+  onFocusChanged = (windowId) =>
+    this.observe(() => this.recordFocusedWindow(windowId))
+
+  private recordFocusedWindow = async (windowId) => {
     log.debug('onFocusChanged:', { windowId })
     if (windowId < 0) {
       return setSelfPopupActive(false)
@@ -192,7 +366,8 @@ export default class TabHistory {
         tab,
         isPopupWindow,
       })
-      this.add({ ...tab, tabId: tab.id, windowId })
+      if (!isSafari || !isSelfPopupTab(tab))
+        this.add({ ...tab, tabId: tab.id, windowId })
       setLastFocusedWindowId(windowId)
     } catch (e) {
       log.warn('Error in onFocusChanged:', e)

@@ -142,6 +142,8 @@ test('lite popup offers quick actions and routes Settings into the full view', a
       .fill('Lite quick target')
     await page
       .getByRole('listbox')
+      // History can contain the same URL; quick actions belong to the open tab.
+      .locator('[data-testid^="search-tab-row-"]')
       .getByRole('button', { name: /Lite quick target/ })
       .press('Shift+F10')
     const menu = page.getByRole('menu')

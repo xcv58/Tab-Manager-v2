@@ -1,4 +1,13 @@
-import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react'
+import React, {
+  useRef,
+  useState,
+  useMemo,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+} from 'react'
+import { isSafari } from 'libs/browserCapabilities'
+import { safariState } from 'safari/state'
 import { observer } from 'mobx-react-lite'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
@@ -194,6 +203,19 @@ type DividerOption = {
 }
 
 type SearchOption = HistoryItem | Tab | DividerOption | CommandOption
+
+const getResultKey = (option: SearchOption) => {
+  if (option instanceof Tab) return `tab-${option.id}`
+  if (option.isDivider)
+    return `divider-${option.dividerType}-${option.groupId ?? option.title}`
+  if ('id' in option) return `history-${option.id}`
+  return `command-${option.name}`
+}
+const isResultDisabled = (option: SearchOption) =>
+  Boolean(option.isDivider) ||
+  (option instanceof Tab &&
+    (option.removing ||
+      (isSafari && safariState.removingTabIDs.has(option.id))))
 
 function isHistoryItem(option: SearchOption): option is HistoryItem {
   // Browser tab IDs are numeric; history IDs are strings. Visit counts are
@@ -397,8 +419,14 @@ const AutocompleteSearch = observer((props: Props) => {
   } = props
   const theme = useAppTheme()
   const searchInputRef = useSearchInputRef()
-  const { userStore, searchStore, tabGroupStore, actionStore, hoverStore } =
-    useStore()
+  const {
+    userStore,
+    searchStore,
+    tabGroupStore,
+    actionStore,
+    hoverStore,
+    focusStore,
+  } = useStore()
   const uiColors = getUiColorTokens(
     theme.mode === 'dark',
     userStore.uiPreset,
@@ -504,7 +532,23 @@ const AutocompleteSearch = observer((props: Props) => {
     handleOpenChange(false)
   }
 
+  const onResultFocus = useCallback(
+    (option: SearchOption | null) => {
+      if (option instanceof Tab)
+        focusStore.focus(option, {
+          surface: 'search',
+          origin: 'keyboard',
+          moveDomFocus: false,
+        })
+      else focusStore.defocus()
+    },
+    [focusStore],
+  )
+
   const {
+    focusItem,
+    focusList,
+    hasResultFocus,
     highlightedIndex,
     listRef,
     getRootProps,
@@ -523,10 +567,48 @@ const AutocompleteSearch = observer((props: Props) => {
       search(value)
     },
     onSelect: handleSelect,
-    isItemDisabled: useMemo(() => (item) => Boolean(item.isDivider), []),
+    isItemDisabled: isResultDisabled,
+    resultNavigation: !isCommand,
+    getItemKey: getResultKey,
+    onItemFocus: onResultFocus,
     isOpen,
     onOpenChange: handleOpenChange,
   })
+
+  useLayoutEffect(() => {
+    if (!isOpen || isCommand) return
+    const controller = {
+      hasFocus: hasResultFocus,
+      focusTab: (id?: number) => {
+        let index = filteredOptions.findIndex(
+          (option) =>
+            option instanceof Tab &&
+            option.id === id &&
+            !isResultDisabled(option),
+        )
+        if (index < 0)
+          index = filteredOptions.findIndex(
+            (option) => !isResultDisabled(option),
+          )
+        if (index < 0) focusList()
+        else focusItem(index)
+        return true
+      },
+    }
+    searchStore.resultFocusController = controller
+    return () => {
+      if (searchStore.resultFocusController === controller)
+        searchStore.resultFocusController = null
+    }
+  }, [
+    isOpen,
+    isCommand,
+    filteredOptions,
+    focusItem,
+    focusList,
+    hasResultFocus,
+    searchStore,
+  ])
 
   const inputProps = getInputProps()
   const rootProps = getRootProps()
@@ -658,6 +740,20 @@ const AutocompleteSearch = observer((props: Props) => {
             inputProps.onFocus()
           }}
           onBlur={(e) => {
+            // Firefox can deliver input blur before the result's focus event.
+            // Update the model first: ending typing otherwise lets the old
+            // workspace row reclaim DOM focus during this transition.
+            const nextRow =
+              e.relatedTarget instanceof Element
+                ? e.relatedTarget.closest<HTMLElement>('[role="option"]')
+                : null
+            if (!isCommand && nextRow && rootRef.current?.contains(nextRow)) {
+              const option = filteredOptions.find(
+                (option) =>
+                  String(getResultKey(option)) === nextRow.dataset.resultKey,
+              )
+              if (option && !isResultDisabled(option)) onResultFocus(option)
+            }
             stopType()
             inputProps.onBlur(e as any)
           }}
@@ -737,6 +833,7 @@ const AutocompleteSearch = observer((props: Props) => {
               itemSize={() => tabHeight}
               overscanCount={5}
               itemCount={itemCount}
+              itemKey={(index, data) => getResultKey(data.options[index])}
             >
               {SearchResultRow}
             </VariableSizeList>
