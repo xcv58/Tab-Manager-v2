@@ -11,7 +11,10 @@ const noEvent = {
   hasListener: () => false,
 }
 
-const readable = async <T>(operation: () => Promise<T>): Promise<T> => {
+const readable = async <T>(
+  operation: () => Promise<T>,
+  reportError = true,
+): Promise<T> => {
   let timer: ReturnType<typeof setTimeout>
   try {
     return await Promise.race([
@@ -29,7 +32,7 @@ const readable = async <T>(operation: () => Promise<T>): Promise<T> => {
       }),
     ])
   } catch (error) {
-    safariState.showError(error)
+    if (reportError) safariState.showError(error)
     throw error
   } finally {
     clearTimeout(timer!)
@@ -94,7 +97,21 @@ const normalWindow = async (id: number) => {
   return win
 }
 
-const event = (source: any, transform: (...args: any[]) => any[] | null) => {
+// Activation events omit incognito information. Check their window before
+// exposing them to stores, without showing errors for excluded or closed windows.
+const normalWindowEvent = async (windowId: number, args: any[]) => {
+  try {
+    const win: any = await readable(() => raw.windows.get(windowId), false)
+    return win?.id === windowId && !win.incognito ? args : null
+  } catch {
+    return null
+  }
+}
+
+const event = (
+  source: any,
+  transform: (...args: any[]) => any[] | null | Promise<any[] | null>,
+) => {
   if (!source) return noEvent
   const listeners = new Map<
     (...args: any[]) => void,
@@ -103,9 +120,24 @@ const event = (source: any, transform: (...args: any[]) => any[] | null) => {
   return {
     addListener(callback: (...args: any[]) => void) {
       if (listeners.has(callback)) return
+      let pending = Promise.resolve()
       const wrapped = (...args: any[]) => {
         const next = transform(...args)
-        if (next) callback(...next)
+        const deliver = (values: any[] | null) => {
+          if (values && listeners.get(callback) === wrapped)
+            return callback(...values)
+        }
+        if (next instanceof Promise) {
+          // Start reads immediately, but preserve source event order if Safari
+          // replies out of order. Unsubscribed listeners receive no late events.
+          const dispatch = pending.then(() => next).then(deliver)
+          pending = dispatch.then(
+            () => {},
+            () => {},
+          )
+          return dispatch
+        }
+        return deliver(next)
       }
       listeners.set(callback, wrapped)
       source.addListener(wrapped)
@@ -162,7 +194,9 @@ const tabs = {
   move: async () => {
     throw new Error('Moving tabs is unavailable in Safari.')
   },
-  onActivated: raw.tabs.onActivated || noEvent,
+  onActivated: event(raw.tabs.onActivated, (info) =>
+    normalWindowEvent(info.windowId, [info]),
+  ),
   onCreated: event(raw.tabs.onCreated, (tab) =>
     tab.incognito ? null : [normalizeTab(tab)],
   ),
@@ -176,9 +210,13 @@ const tabs = {
   onMoved: raw.tabs.onMoved || noEvent,
 }
 const windows = {
-  onCreated: raw.windows.onCreated || noEvent,
+  onCreated: event(raw.windows.onCreated, (win) =>
+    win.incognito ? null : [win],
+  ),
   onRemoved: raw.windows.onRemoved || noEvent,
-  onFocusChanged: raw.windows.onFocusChanged || noEvent,
+  onFocusChanged: event(raw.windows.onFocusChanged, async (windowId) =>
+    windowId <= 0 ? [windowId] : normalWindowEvent(windowId, [windowId]),
+  ),
   getAll: async (options: any = {}) =>
     normalWindows(
       await readable<any[]>(() =>

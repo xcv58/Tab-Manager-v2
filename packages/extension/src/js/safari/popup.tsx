@@ -1,5 +1,4 @@
 import React from 'react'
-import { installSafariPopupFocus } from './popupFocus'
 import { createRoot } from 'react-dom/client'
 import '../../css/popup.css'
 import '@pigment-css/react/styles.css'
@@ -62,6 +61,9 @@ void Promise.resolve()
     // Keep store initialization inside the same guarded startup sequence.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { store } = require('components/hooks/useStore')
+    // popupFocus imports the browser adapter too; keep its initialization guarded.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { installSafariPopupFocus } = require('./popupFocus')
     installSafariPopupFocus(store)
     root.render(
       <SafariBoundary>
