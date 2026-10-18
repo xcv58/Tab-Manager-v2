@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import console from 'node:console'
 import { execFileSync } from 'node:child_process'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'

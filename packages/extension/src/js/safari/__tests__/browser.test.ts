@@ -111,11 +111,10 @@ it('does not time out or replay a mutation while Safari owns the request', async
 it('bounds an unresponsive read and reports an actionable error', async () => {
   jest.useFakeTimers()
   raw.tabs.query.mockReturnValue(new Promise(() => {}))
-  const result = await expect(api.tabs.query()).rejects.toThrow(
-    'Safari did not respond',
-  )
-  await jest.advanceTimersByTimeAsync(5000)
-  await result
+  await Promise.all([
+    expect(api.tabs.query()).rejects.toThrow('Safari did not respond'),
+    jest.advanceTimersByTimeAsync(5000),
+  ])
   expect(safariState.error).toContain('Refresh the view')
 })
 
