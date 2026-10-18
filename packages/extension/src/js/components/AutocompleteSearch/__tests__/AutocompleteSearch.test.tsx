@@ -176,6 +176,7 @@ const renderAutocompleteSearch = ({
       userStore,
       searchStore,
       actionStore,
+      focusStore: { focus: jest.fn(), defocus: jest.fn() },
       hoverStore: {
         hovered: false,
         hoveredSurface: 'list',

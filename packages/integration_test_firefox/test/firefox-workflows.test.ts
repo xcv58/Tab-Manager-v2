@@ -223,6 +223,53 @@ describeFirefox('Firefox container, editor, and keyboard workflows', () => {
       if (session) await closeBrowserWithExtension(session)
     }
   })
+  it.each([false, true])(
+    'restores search-result focus after closing tabs in lite=%s',
+    async (lite) => {
+      const pages = urls('search-focus', 3)
+      const tabs = await fixtureTabs(pages)
+      expect(tabs).toHaveLength(3)
+      await executeInExtension(
+        driver,
+        async (lite) => {
+          const settings = {
+            litePopupMode: lite,
+            autoFocusSearch: false,
+            searchHistory: false,
+          }
+          await browser.storage.local.set(settings)
+          await browser.storage.sync.set(settings)
+        },
+        lite,
+      )
+      await driver.get(
+        lite ? session.extensionURL.split('?')[0] : session.extensionURL,
+      )
+      const search = await focus(SEARCH_INPUT_SELECTOR)
+      await search.sendKeys('search-focus')
+      const option = (id: number) =>
+        `[role="option"][data-result-key="tab-${id}"]`
+      for (const tab of tabs) await waitForCss(driver, option(tab.id!))
+      await focus(option(tabs[1].id!))
+      await keys(Key.ARROW_DOWN)
+      await expectFocus(option(tabs[2].id!))
+      for (let index = 2; index >= 0; index--) {
+        await keys('d', 'd')
+        await driver.wait(
+          async () =>
+            (await driver.findElements(By.css(option(tabs[index].id!))))
+              .length === 0,
+          10000,
+        )
+        await expectFocus(
+          index ? option(tabs[index - 1].id!) : '.toolbar-search',
+        )
+      }
+      await keys('/')
+      await expectFocus(SEARCH_INPUT_SELECTOR)
+    },
+  )
+
   afterAll(async () => {
     server.closeAllConnections()
     await new Promise<void>((resolve) => server.close(() => resolve()))

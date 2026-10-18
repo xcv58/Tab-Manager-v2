@@ -133,6 +133,7 @@ export default class ShortcutStore {
   ])
 
   get shortcuts(): ShortcutDefinition[] {
+    if (!isSafari) return this.allShortcuts
     return this.allShortcuts.filter(([, , description]) =>
       isSupportedShortcut(getDescription(description)),
     )
