@@ -3,13 +3,10 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useAppTheme } from 'libs/appTheme'
 import Summary from 'components/Summary'
-import OpenInTab from 'components/OpenInTab'
-import ThemeToggle from 'components/ThemeToggle'
-import SyncButton from './SyncButton'
 import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
-import LayoutRepackIndicator from './LayoutRepackIndicator'
+import HeaderActions from './HeaderActions'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
 type Props = {
@@ -44,12 +41,7 @@ export default observer(({ showSearchResultMenu }: Props) => {
     >
       <Summary />
       <AutocompleteSearch showResultMenu={showSearchResultMenu} />
-      <div className="search-header-actions">
-        <LayoutRepackIndicator />
-        <SyncButton />
-        <ThemeToggle />
-        <OpenInTab />
-      </div>
+      <HeaderActions />
     </div>
   )
 })

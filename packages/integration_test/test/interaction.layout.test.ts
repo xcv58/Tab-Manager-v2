@@ -693,9 +693,28 @@ test.describe('The Extension page should', () => {
       return
     }
 
-    await expect(page.getByTestId('layout-repack-button')).toBeVisible()
-    await page.getByTestId('layout-repack-button').click()
-    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+    const header = page.getByTestId('search-header-actions')
+    const search = page.getByTestId('toolbar-search-input')
+    const pendingSearchRect = await search.boundingBox()
+    const pendingHeaderRect = await header.boundingBox()
+    await expect(header.getByRole('button')).toHaveCount(1)
+    const relayout = page.getByTestId('layout-repack-button')
+    await relayout.click()
+    // The mouse stays over Relayout: completing it must not put a different
+    // action under the pointer. It swaps back only after hover and focus leave.
+    await expect(relayout).toHaveAttribute('aria-disabled', 'true')
+    await search.getByRole('combobox').focus()
+    await search.hover()
+    await expect(relayout).toBeHidden()
+    await expect(header.getByRole('button')).toHaveCount(3)
+    await expect(
+      header.getByRole('button', { name: 'Open in new tab' }),
+    ).toBeVisible()
+    const settledSearchRect = await search.boundingBox()
+    const settledHeaderRect = await header.boundingBox()
+    expect(settledSearchRect!.x).toBeCloseTo(pendingSearchRect!.x, 0)
+    expect(settledSearchRect!.width).toBeCloseTo(pendingSearchRect!.width, 0)
+    expect(settledHeaderRect!.width).toBeCloseTo(pendingHeaderRect!.width, 0)
 
     await expect
       .poll(
@@ -754,9 +773,28 @@ test.describe('The Extension page should', () => {
       return
     }
 
-    await expect(page.getByTestId('layout-repack-button')).toBeVisible()
-    await page.getByTestId('layout-repack-button').click()
-    await expect(page.getByTestId('layout-repack-button')).toBeHidden()
+    const header = page.getByTestId('search-header-actions')
+    const search = page.getByTestId('toolbar-search-input')
+    const pendingSearchRect = await search.boundingBox()
+    const pendingHeaderRect = await header.boundingBox()
+    await expect(header.getByRole('button')).toHaveCount(1)
+    const relayout = page.getByTestId('layout-repack-button')
+    await relayout.click()
+    // The mouse stays over Relayout: completing it must not put a different
+    // action under the pointer. It swaps back only after hover and focus leave.
+    await expect(relayout).toHaveAttribute('aria-disabled', 'true')
+    await search.getByRole('combobox').focus()
+    await search.hover()
+    await expect(relayout).toBeHidden()
+    await expect(header.getByRole('button')).toHaveCount(3)
+    await expect(
+      header.getByRole('button', { name: 'Open in new tab' }),
+    ).toBeVisible()
+    const settledSearchRect = await search.boundingBox()
+    const settledHeaderRect = await header.boundingBox()
+    expect(settledSearchRect!.x).toBeCloseTo(pendingSearchRect!.x, 0)
+    expect(settledSearchRect!.width).toBeCloseTo(pendingSearchRect!.width, 0)
+    expect(settledHeaderRect!.width).toBeCloseTo(pendingHeaderRect!.width, 0)
 
     await expect
       .poll(

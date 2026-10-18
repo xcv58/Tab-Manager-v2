@@ -2,6 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { reaction } from 'mobx'
 import App from 'components/App'
+import { setPopupModeOverride } from 'libs/popupMode'
 import { store } from 'components/hooks/useStore'
 import { addDemoTab, getDemoState, subscribeDemo } from './demo/browser'
 import '../css/popup.css'
@@ -11,7 +12,7 @@ import '../css/demo-workspace.css'
 // The adapter has already read the scenario hash. Full-page mode keeps normal
 // demo activation from closing this page; popup preview explicitly exercises
 // the shared popup UI against the same isolated sample browser adapter.
-const popupPreview = new URLSearchParams(window.location.search).has(
+let popupPreview = new URLSearchParams(window.location.search).has(
   'popup_preview',
 )
 const panel = new URLSearchParams(window.location.search).get('panel')
@@ -23,6 +24,9 @@ window.history.replaceState(
   `${window.location.pathname}?${popupPreview ? 'popup_preview=1' : 'not_popup=1'}${panelQuery}${window.location.hash}`,
 )
 
+setPopupModeOverride(popupPreview)
+
+let viewRequestId = 0
 let failed = false
 const sendState = () => {
   if (failed || store.windowStore.initialLoading || !store.userStore.loaded)
@@ -31,6 +35,8 @@ const sendState = () => {
   window.parent.postMessage(
     {
       type: 'demo:state',
+      view: popupPreview ? 'popup' : 'full',
+      viewRequestId,
       state: {
         ...state,
         activity: state.activity[0]?.message,
@@ -86,6 +92,15 @@ document.addEventListener(
 window.addEventListener('message', (event) => {
   if (event.origin !== window.location.origin || event.source !== window.parent)
     return
+  if (
+    event.data?.type === 'demo:set-view' &&
+    (event.data.view === 'full' || event.data.view === 'popup') &&
+    Number.isSafeInteger(event.data.viewRequestId) &&
+    event.data.viewRequestId >= viewRequestId
+  ) {
+    viewRequestId = event.data.viewRequestId
+    setView(event.data.view)
+  }
   if (event.data?.type === 'demo:add-tab')
     void addDemoTab().catch(sendActionError)
 })
@@ -110,6 +125,26 @@ class DemoBoundary extends React.Component<
   }
 }
 
+const setView = (view: 'full' | 'popup') => {
+  if (popupPreview !== (view === 'popup')) {
+    store.actionStore.closeMenu()
+    store.actionStore.closePalette(false)
+    popupPreview = view === 'popup'
+    const url = new URL(window.location.href)
+    url.searchParams.delete('not_popup')
+    url.searchParams.delete('popup_preview')
+    url.searchParams.set(popupPreview ? 'popup_preview' : 'not_popup', '1')
+    window.history.replaceState(null, '', url.href)
+    setPopupModeOverride(popupPreview)
+  }
+  sendState()
+}
+window.addEventListener('demo:open-full-view', (event) => {
+  setView('full')
+  const panel = (event as CustomEvent<{ panel?: string }>).detail?.panel
+  if (panel === 'settings') store.userStore.openDialog()
+  else if (panel === 'shortcuts') store.shortcutStore.openDialog()
+})
 createRoot(document.getElementById('app-container')!).render(
   <DemoBoundary>
     <App />

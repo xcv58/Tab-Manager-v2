@@ -1,10 +1,8 @@
-import { NOT_POPUP } from 'libs'
+import { isPopupMode } from './popupMode'
 import { getCommandPaletteShortcut } from './commandPaletteShortcut'
 
 export const isLitePopupMode = (enabled: boolean) =>
-  !!enabled &&
-  typeof window !== 'undefined' &&
-  !new URLSearchParams(window.location.search).has(NOT_POPUP)
+  !!enabled && typeof window !== 'undefined' && isPopupMode()
 
 export const isLiteShortcut = (shortcut: string) =>
   new Set([

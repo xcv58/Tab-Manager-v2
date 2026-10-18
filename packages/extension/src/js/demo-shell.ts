@@ -30,6 +30,44 @@ const page = document.querySelector<HTMLElement>('.demo-page')!
 const main = document.querySelector<HTMLElement>('.demo-main')!
 const header = document.querySelector<HTMLElement>('.demo-header')!
 const controls = document.querySelector<HTMLElement>('.demo-controls')!
+const workspace = document.querySelector<HTMLElement>('#workspace')!
+const viewButtons =
+  document.querySelectorAll<HTMLButtonElement>('[data-demo-view]')
+type DemoView = 'full' | 'popup'
+let view: DemoView =
+  new URL(window.location.href).searchParams.get('view') === 'popup'
+    ? 'popup'
+    : 'full'
+let frameReady = false
+let viewRequestId = 0
+const sendView = () =>
+  frame.contentWindow?.postMessage(
+    { type: 'demo:set-view', view, viewRequestId },
+    window.location.origin,
+  )
+const setView = (next: DemoView, notifyFrame = true) => {
+  view = next
+  workspace.dataset.view = view
+  workspace.classList.toggle('demo-popup-preview', view === 'popup')
+  viewButtons.forEach((button) =>
+    button.setAttribute(
+      'aria-pressed',
+      String(button.dataset.demoView === view),
+    ),
+  )
+  const url = new URL(window.location.href)
+  url.searchParams.set('view', view)
+  window.history.replaceState(null, '', url.href)
+  if (notifyFrame) {
+    viewRequestId += 1
+    if (frameReady) sendView()
+  }
+}
+viewButtons.forEach((button) =>
+  button.addEventListener('click', () =>
+    setView(button.dataset.demoView as DemoView),
+  ),
+)
 const languageNote = document.querySelector<HTMLElement>('.demo-language-note')!
 const expand = document.querySelector<HTMLButtonElement>('#expand-demo')!
 const exitExpanded =
@@ -195,6 +233,8 @@ const loadWorkspace = () => {
   url.searchParams.set('scenario', selected.id)
   window.history.replaceState(null, '', url.href)
   failed = false
+  frameReady = false
+  viewRequestId = 0
   currentCounts = null
   loading.hidden = false
   loadingCopy = 'Preparing your sample workspace…'
@@ -205,7 +245,13 @@ const loadWorkspace = () => {
   // discards sample stores while session configuration and website preferences
   // remain available to the fresh frame.
   const nextFrame = frame.cloneNode(false) as HTMLIFrameElement
-  nextFrame.src = selected.workspaceUrl
+  const workspaceURL = new URL(selected.workspaceUrl, window.location.href)
+  workspaceURL.searchParams.delete('not_popup')
+  workspaceURL.searchParams.set(
+    view === 'popup' ? 'popup_preview' : 'not_popup',
+    '1',
+  )
+  nextFrame.src = workspaceURL.href
   frame.replaceWith(nextFrame)
   frame = nextFrame
   loadingTimer = setTimeout(() => {
@@ -221,6 +267,17 @@ window.addEventListener('message', (event) => {
   )
     return
   if (event.data?.type === 'demo:state' && !failed) {
+    const firstState = !frameReady
+    frameReady = true
+    // A frame can report its URL's initial view after the user has changed the
+    // toggle. Replay the latest choice only once it can receive messages, and
+    // ignore older acknowledgements while a newer choice is still in flight.
+    if (firstState && viewRequestId > 0) sendView()
+    if (
+      (event.data.viewRequestId ?? 0) === viewRequestId &&
+      (event.data.view === 'full' || event.data.view === 'popup')
+    )
+      setView(event.data.view, false)
     clearTimeout(loadingTimer)
     loading.hidden = true
     addTab.disabled = false
@@ -295,5 +352,6 @@ document
   .querySelector('#workspace')!
   .addEventListener('focus', () => frame.focus())
 renderCopy()
+setView(view, false)
 loadWorkspace()
 fitWorkspace()

@@ -66,6 +66,36 @@
               <path d="m6 9 6 6 6-6"></path>
             </svg>
           </div>
+          <div
+            class="demo-view-toggle"
+            role="group"
+            aria-labelledby="demo-view-label"
+          >
+            <span
+              id="demo-view-label"
+              class="sr-only"
+              data-demo-copy="Preview mode"
+              >Preview mode</span
+            >
+            <button
+              type="button"
+              data-demo-view="full"
+              aria-pressed="true"
+              aria-controls="demo-frame"
+              data-demo-copy="Full view"
+            >
+              Full view
+            </button>
+            <button
+              type="button"
+              data-demo-view="popup"
+              aria-pressed="false"
+              aria-controls="demo-frame"
+              data-demo-copy="Popup"
+            >
+              Popup
+            </button>
+          </div>
           <div class="demo-actions">
             <button id="add-tab" type="button" title="Add tab">
               <svg

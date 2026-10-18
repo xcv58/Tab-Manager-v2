@@ -1,6 +1,7 @@
 import { MutableRefObject } from 'react'
 import { makeAutoObservable, observable } from 'mobx'
-import { browser, NOT_POPUP } from 'libs'
+import { browser } from 'libs'
+import { isPopupMode } from 'libs/popupMode'
 import Store from 'stores'
 import log from 'libs/log'
 import debounce from 'lodash.debounce'
@@ -127,10 +128,7 @@ export default class SearchStore {
   }
 
   get searchResultMenuEnabled() {
-    const isPopup =
-      typeof window === 'undefined' ||
-      !new URLSearchParams(window.location.search).has(NOT_POPUP)
-    return isPopup || this.store.userStore.showSearchResultMenu
+    return isPopupMode() || this.store.userStore.showSearchResultMenu
   }
 
   get tabSearchKeys() {

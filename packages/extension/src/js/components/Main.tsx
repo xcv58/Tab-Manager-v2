@@ -13,7 +13,7 @@ import { useStore, useFontSize } from './hooks/useStore'
 import DragLayer from './DragLayer'
 import { useTextClasses } from './hooks/useTheme'
 import DroppableTools from './DroppableTools'
-import { NOT_POPUP } from 'libs'
+import { isPopupMode } from 'libs/popupMode'
 import PopupView from './PopupView'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 import DeferredContent from './DeferredContent'
@@ -23,7 +23,7 @@ const CommandPalette = lazy(() => import('./CommandPalette'))
 const SettingsDialog = lazy(() => import('./Toolbar/SettingsDialog'))
 
 export default observer(() => {
-  const isPopup = !new URLSearchParams(window.location.search).has(NOT_POPUP)
+  const isPopup = isPopupMode()
   const theme = useAppTheme()
   const {
     windowStore,

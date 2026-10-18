@@ -160,6 +160,7 @@ test.describe('The Extension page should', () => {
     await page.reload()
     const inputSelector = 'input[type="text"]'
     await page.waitForSelector(inputSelector)
+    await expect(page.getByTestId('layout-repack-button')).toHaveCount(0)
     await expect(page.locator(TAB_QUERY)).toHaveCount(expectedTabCount, {
       timeout: 10000,
     })

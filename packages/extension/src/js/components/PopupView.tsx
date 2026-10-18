@@ -7,7 +7,6 @@ import ThemeToggle from 'components/ThemeToggle'
 import { useStore } from './hooks/useStore'
 import Loading from './Loading'
 import AutocompleteSearch from './AutocompleteSearch'
-import LayoutRepackIndicator from './LayoutRepackIndicator'
 import PopupActionsMenu from './PopupActionsMenu'
 import { getUiColorTokens } from 'libs/uiColorTokens'
 
@@ -44,7 +43,6 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
           open
           bottomInset={44}
         />
-        <LayoutRepackIndicator />
       </div>
       <div
         className="corner-dock absolute right-0 bottom-0 flex items-center gap-1 border px-2 py-1"

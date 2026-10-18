@@ -8,89 +8,51 @@ import { useAppTheme } from 'libs/appTheme'
 
 const TITLE = 'Relayout all columns'
 
-export default observer(() => {
+export default observer(({ enabled }: { enabled: boolean }) => {
   const { windowStore } = useStore()
   const theme = useAppTheme()
   const isDark = theme.mode === 'dark'
-  const showRelayout =
-    windowStore.layoutDirty || windowStore.windowLastUsedLayoutDirty
-
-  if (!showRelayout) {
-    return null
-  }
 
   return (
     <Tooltip title={TITLE} enterDelay={TOOLTIP_DELAY}>
       <button
         type="button"
-        onClick={(event) =>
+        onClick={(event) => {
+          if (!enabled) return
           windowStore.repackLayoutAndRevealActiveTab(
             event.detail === 0 ? 'keyboard' : 'mouse',
           )
-        }
+        }}
         aria-label={TITLE}
+        aria-disabled={!enabled || undefined}
         data-testid="layout-repack-button"
-        className="inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap border focus:outline-none transition-colors duration-200"
-        style={{
-          marginLeft: 6,
-          marginRight: 6,
-          paddingLeft: 9,
-          paddingRight: 9,
-          height: 28,
-          borderRadius: 10,
-          borderColor: theme.palette.divider,
-          backgroundColor: theme.palette.background.paper,
-          color: theme.palette.text.secondary,
-          cursor: 'pointer',
-          boxShadow: isDark
-            ? '0 1px 2px rgba(0, 0, 0, 0.45)'
-            : '0 1px 2px rgba(15, 23, 42, 0.08)',
-        }}
-        onMouseEnter={(e) => {
-          const t = e.currentTarget
-          t.style.borderColor = theme.palette.primary.light
-          t.style.backgroundColor = isDark
-            ? 'rgba(144, 202, 249, 0.12)'
-            : 'rgba(25, 118, 210, 0.08)'
-          t.style.color = theme.palette.text.primary
-          t.style.boxShadow = isDark
-            ? '0 2px 5px rgba(0, 0, 0, 0.5)'
-            : '0 2px 6px rgba(15, 23, 42, 0.14)'
-        }}
-        onMouseLeave={(e) => {
-          const t = e.currentTarget
-          t.style.borderColor = theme.palette.divider
-          t.style.backgroundColor = theme.palette.background.paper
-          t.style.color = theme.palette.text.secondary
-          t.style.boxShadow = isDark
-            ? '0 1px 2px rgba(0, 0, 0, 0.45)'
-            : '0 1px 2px rgba(15, 23, 42, 0.08)'
-        }}
+        className="header-relayout-button inline-flex items-center justify-center gap-1 shrink-0 whitespace-nowrap border focus:outline-none focus:ring transition-colors duration-200"
+        style={
+          {
+            '--relayout-border': theme.palette.divider,
+            '--relayout-background': theme.palette.background.paper,
+            '--relayout-color': theme.palette.text.secondary,
+            '--relayout-hover-border': theme.palette.primary.light,
+            '--relayout-hover-background': isDark
+              ? 'rgba(144, 202, 249, 0.12)'
+              : 'rgba(25, 118, 210, 0.08)',
+            '--relayout-hover-color': theme.palette.text.primary,
+          } as React.CSSProperties
+        }
       >
         <span
           data-testid="layout-dirty-indicator"
           aria-hidden="true"
           style={{
-            width: 7,
-            height: 7,
+            width: 6,
+            height: 6,
+            flexShrink: 0,
             borderRadius: '50%',
             backgroundColor: theme.palette.warning.main,
-            boxShadow: isDark
-              ? '0 0 0 1px rgba(0, 0, 0, 0.45)'
-              : '0 0 0 1px rgba(255, 255, 255, 0.9)',
           }}
         />
         <ViewColumnIcon fontSize={16} />
-        <span
-          style={{
-            fontSize: '0.72rem',
-            lineHeight: 1,
-            letterSpacing: '0.01em',
-            fontWeight: 700,
-          }}
-        >
-          Relayout
-        </span>
+        <span className="header-relayout-label">Relayout</span>
       </button>
     </Tooltip>
   )
