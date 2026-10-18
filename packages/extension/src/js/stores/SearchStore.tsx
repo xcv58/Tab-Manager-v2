@@ -60,6 +60,7 @@ export default class SearchStore {
       activeHistorySearch: false,
       refreshHistoryAfterCommand: false,
       searchEl: observable.ref,
+      resultFocusController: false,
     })
 
     this.store = store
@@ -73,6 +74,12 @@ export default class SearchStore {
   }
 
   searchEl: MutableRefObject<HTMLElement | null> | null = null
+
+  // The mounted result list owns its DOM/virtualization, not workspace rows.
+  resultFocusController: {
+    hasFocus: () => boolean
+    focusTab: (id?: number) => boolean
+  } | null = null
 
   query = ''
 

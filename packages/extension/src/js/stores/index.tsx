@@ -110,6 +110,14 @@ export default class Store {
       return null
     }
 
+    // Search results restore against their actual filtered order after React
+    // removes the row. Lite popups do not mount any workspace nodeRefs.
+    if (
+      this.focusStore.focusedSurface === 'search' &&
+      this.searchStore.resultFocusController?.hasFocus()
+    )
+      return null
+
     const {
       grid,
       columnIndex,

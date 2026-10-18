@@ -46,23 +46,7 @@ export const installSafariPopupFocus = (store: Store) => {
       const active = windowStore.lastFocusedWindow?.tabs.find(
         (tab) => tab.active,
       )
-      const row =
-        (active &&
-          document.querySelector<HTMLElement>(
-            `[data-testid="search-tab-row-${active.id}"]`,
-          )) ||
-        document.querySelector<HTMLElement>('[data-testid^="search-tab-row-"]')
-      if (row) {
-        const tab = windowStore.tabs.find(
-          (candidate) =>
-            row.getAttribute('data-testid') ===
-            `search-tab-row-${candidate.id}`,
-        )
-        if (tab)
-          focusStore.focus(tab, { surface: 'search', moveDomFocus: false })
-        row.focus({ preventScroll: true })
-        return
-      }
+      if (store.searchStore.resultFocusController?.focusTab(active?.id)) return
     } else {
       const active = windowStore.focusActiveTabInLastFocusedWindow({
         reveal: true,

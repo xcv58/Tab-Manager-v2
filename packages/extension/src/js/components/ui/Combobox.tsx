@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useId } from 'react'
+import { useResultFocus } from './useResultFocus'
 
 /** Minimal interface for a virtualized list ref (e.g. react-window FixedSizeList). */
 export interface VirtualListRef {
@@ -16,6 +17,10 @@ export interface UseComboboxProps<T> {
   autoHighlight?: boolean
   /** Reset keyboard navigation when switching to a different list scope. */
   highlightResetKey?: string
+  /** Let result rows own keyboard focus as well as the input. */
+  resultNavigation?: boolean
+  getItemKey?: (item: T) => string | number
+  onItemFocus?: (item: T | null) => void
 }
 
 export function useCombobox<T>({
@@ -28,11 +33,15 @@ export function useCombobox<T>({
   onOpenChange,
   autoHighlight = true,
   highlightResetKey,
+  resultNavigation = false,
+  getItemKey,
+  onItemFocus,
 }: UseComboboxProps<T>) {
   const comboboxId = useId()
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1)
   const listRef = useRef<VirtualListRef | null>(null)
   const rootRef = useRef<HTMLElement | null>(null)
+  const listboxRef = useRef<HTMLElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const isOpenRef = useRef(isOpen)
   const previousInputValueRef = useRef(inputValue)
@@ -155,6 +164,22 @@ export function useCombobox<T>({
     [getItemId, items, isItemDisabled, highlightedIndex],
   )
 
+  const resultFocus = useResultFocus({
+    enabled: resultNavigation && isOpen,
+    items,
+    getKey: getItemKey || getItemIdForIndex,
+    isDisabled: isItemDisabled,
+    rootRef,
+    listboxRef,
+    getItemId,
+    highlightItem,
+    onItemFocus,
+  })
+
+  function getItemIdForIndex(item: T) {
+    return items.indexOf(item)
+  }
+
   const preservePopupInteraction = useCallback((target: EventTarget | null) => {
     const element = target as HTMLElement | null
     if (!element) {
@@ -175,6 +200,7 @@ export function useCombobox<T>({
 
   const getRootProps = () => ({
     ref: rootRef,
+    tabIndex: resultNavigation ? -1 : undefined,
   })
 
   const getInputProps = () => ({
@@ -258,6 +284,48 @@ export function useCombobox<T>({
   })
 
   const getListboxProps = () => ({
+    ref: listboxRef,
+    tabIndex: resultNavigation ? -1 : undefined,
+    onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => {
+      if (
+        !resultNavigation ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return
+      const target = event.target as HTMLElement
+      if (
+        target.closest(
+          'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"]',
+        )
+      )
+        return
+      const option = target.closest('[role="option"]')
+      const index = items.findIndex(
+        (_, index) => getItemId(index) === option?.id,
+      )
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault()
+        event.stopPropagation()
+        const direction = event.key === 'ArrowDown' ? 1 : -1
+        let next =
+          index < 0 ? (direction > 0 ? 0 : items.length - 1) : index + direction
+        while (next >= 0 && next < items.length && isItemDisabled(items[next]))
+          next += direction
+        resultFocus.focusItem(next)
+      } else if (
+        event.key === 'Enter' &&
+        !target.closest('button, a') &&
+        index >= 0 &&
+        !isItemDisabled(items[index])
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+        onSelect(items[index])
+      }
+    },
     role: 'listbox',
     id: listboxId,
     onPointerDownCapture: (event: React.PointerEvent<HTMLElement>) => {
@@ -286,6 +354,10 @@ export function useCombobox<T>({
     const disabled = isItemDisabled(item)
     return {
       id: getItemId(index),
+      'data-result-key': getItemKey ? getItemKey(item) : index,
+      tabIndex: resultNavigation && !disabled ? -1 : undefined,
+      onFocus: (event: React.FocusEvent<HTMLElement>) =>
+        resultFocus.onFocus(index, event),
       role: 'option',
       'aria-selected': highlightedIndex === index,
       'aria-disabled': disabled,
@@ -303,6 +375,9 @@ export function useCombobox<T>({
   }
 
   return {
+    focusItem: resultFocus.focusItem,
+    focusList: resultFocus.focusList,
+    hasResultFocus: resultFocus.hasFocus,
     highlightedIndex,
     listRef,
     getRootProps,
