@@ -28,6 +28,8 @@ jobs:
           version: 10.32.1
           run_install: false
       - run: pnpm install --frozen-lockfile
+      - name: Lint Safari sources and build tools
+        run: pnpm exec eslint packages/extension/src/js/safari packages/safari-native/Tools/*.mjs
       - name: Build shared Safari UI
         env:
           SAFARI_BUILD_CONFIGURATION: ${{ matrix.configuration }}

@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
+import console from 'node:console'
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const configuration = process.env.SAFARI_BUILD_CONFIGURATION || 'Debug'
 if (!['Debug', 'Release'].includes(configuration))
