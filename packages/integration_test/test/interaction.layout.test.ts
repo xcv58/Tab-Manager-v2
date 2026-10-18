@@ -905,10 +905,11 @@ test.describe('The Extension page should', () => {
       await setupEmptyColumnRelayoutVisualScenario('adjacent')
     const relayoutAction = relayoutActions.first()
     const header = page.locator('.search-header')
+    const actions = page.getByTestId('search-header-actions')
     const search = page.getByTestId('toolbar-search-input')
     const pendingSearchRect = await search.boundingBox()
     const pendingHeaderRect = await header.boundingBox()
-    await expect(header.getByRole('button')).toHaveCount(1)
+    await expect(actions.getByRole('button')).toHaveCount(1)
     await expect(header).toHaveScreenshot(
       'search-header-relayout-light-pending.png',
     )
@@ -1000,13 +1001,7 @@ test.describe('The Extension page should', () => {
     await page.keyboard.press('Enter')
     await expect(relayoutAction).toBeHidden()
     await expect(page.getByTestId('layout-repack-button')).toBeHidden()
-    await expect(header.getByRole('button')).toHaveCount(3)
-    const settledSearchRect = await search.boundingBox()
-    const settledHeaderRect = await header.boundingBox()
-    expect(settledSearchRect!.x).toBeCloseTo(pendingSearchRect!.x, 0)
-    expect(settledSearchRect!.width).toBeCloseTo(pendingSearchRect!.width, 0)
-    expect(settledHeaderRect!.width).toBeCloseTo(pendingHeaderRect!.width, 0)
-    await expect(header).toHaveScreenshot('search-header-normal-dark.png')
+    await expect(actions.getByRole('button')).toHaveCount(3)
     await expect
       .poll(() =>
         page.evaluate(() => {
@@ -1021,6 +1016,18 @@ test.describe('The Extension page should', () => {
         }),
       )
       .toBe(true)
+    const settledSearchRect = await search.boundingBox()
+    const settledHeaderRect = await header.boundingBox()
+    expect(settledSearchRect!.x).toBeCloseTo(pendingSearchRect!.x, 0)
+    expect(settledSearchRect!.width).toBeCloseTo(pendingSearchRect!.width, 0)
+    expect(settledHeaderRect!.width).toBeCloseTo(pendingHeaderRect!.width, 0)
+    // Focus restoration may choose search or a surviving row. Check that above,
+    // then capture a consistent rest state independent of the restored target.
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement)
+        document.activeElement.blur()
+    })
+    await expect(header).toHaveScreenshot('search-header-normal-dark.png')
   })
 
   test('keyboard relayout focuses a surviving virtualized active tab', async () => {
