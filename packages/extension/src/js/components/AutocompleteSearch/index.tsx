@@ -740,6 +740,20 @@ const AutocompleteSearch = observer((props: Props) => {
             inputProps.onFocus()
           }}
           onBlur={(e) => {
+            // Firefox can deliver input blur before the result's focus event.
+            // Update the model first: ending typing otherwise lets the old
+            // workspace row reclaim DOM focus during this transition.
+            const nextRow =
+              e.relatedTarget instanceof Element
+                ? e.relatedTarget.closest<HTMLElement>('[role="option"]')
+                : null
+            if (!isCommand && nextRow && rootRef.current?.contains(nextRow)) {
+              const option = filteredOptions.find(
+                (option) =>
+                  String(getResultKey(option)) === nextRow.dataset.resultKey,
+              )
+              if (option && !isResultDisabled(option)) onResultFocus(option)
+            }
             stopType()
             inputProps.onBlur(e as any)
           }}

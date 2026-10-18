@@ -250,7 +250,15 @@ describeFirefox('Firefox container, editor, and keyboard workflows', () => {
       const option = (id: number) =>
         `[role="option"][data-result-key="tab-${id}"]`
       for (const tab of tabs) await waitForCss(driver, option(tab.id!))
-      await focus(option(tabs[1].id!))
+      // The document is already active after entering the query. Reusing the
+      // workspace focus helper would focus the browser window again, firing
+      // onFocusChanged and dismissing the dropdown before its row can focus.
+      const middle = await driver.findElement(By.css(option(tabs[1].id!)))
+      await driver.executeScript(
+        'arguments[0].focus({preventScroll:true})',
+        middle,
+      )
+      await expectFocus(option(tabs[1].id!))
       await keys(Key.ARROW_DOWN)
       await expectFocus(option(tabs[2].id!))
       for (let index = 2; index >= 0; index--) {

@@ -28,6 +28,7 @@ for (const lite of [false, true]) {
         { lite },
       )
       await page.goto(lite ? extensionURL.split('?')[0] : extensionURL)
+      await page.bringToFront()
       const input = page.getByRole('combobox')
       await input.fill('Focus fixture')
       const rows = page.locator('[role="option"][data-result-key^="tab-"]')
