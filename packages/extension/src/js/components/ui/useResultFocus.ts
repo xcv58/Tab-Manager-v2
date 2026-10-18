@@ -90,6 +90,13 @@ export const useResultFocus = <T>({
   }
 
   const hasFocus = useCallback(() => focused.current !== null, [])
+  const getFocusedIndex = useCallback(() => {
+    const current = focused.current
+    if (!enabled || !current) return -1
+    return items.findIndex(
+      (item) => getKey(item) === current.key && !isDisabled(item),
+    )
+  }, [enabled, items, getKey, isDisabled])
 
   useEffect(() => {
     if (!enabled) {
@@ -126,19 +133,26 @@ export const useResultFocus = <T>({
     const previous = previousItems.current
     previousItems.current = items
     const current = focused.current
-    if (
-      !enabled ||
-      !current ||
-      items.some((item) => getKey(item) === current.key)
-    )
-      return
-    cancelPendingFocus()
+    if (!enabled || !current) return
     const active = document.activeElement
+    const oldIndex = previous.findIndex((item) => getKey(item) === current.key)
+    const currentIndex = getFocusedIndex()
+    if (currentIndex >= 0) {
+      // A reordered virtual row may leave the mounted range and lose its DOM
+      // node. Recover that same result without interrupting input or menu focus.
+      if (
+        currentIndex !== oldIndex &&
+        active === document.body &&
+        !current.element.isConnected
+      )
+        focusItem(currentIndex)
+      return
+    }
+    cancelPendingFocus()
     if (active !== document.body && !current.element.contains(active)) {
       releaseFocus()
       return
     }
-    const oldIndex = previous.findIndex((item) => getKey(item) === current.key)
     const candidates = [
       ...previous.slice(oldIndex + 1),
       ...previous.slice(0, oldIndex).reverse(),
@@ -154,11 +168,12 @@ export const useResultFocus = <T>({
     items,
     getKey,
     isDisabled,
+    getFocusedIndex,
     focusItem,
     focusList,
     cancelPendingFocus,
     releaseFocus,
   ])
 
-  return { focusItem, focusList, onFocus, hasFocus }
+  return { focusItem, focusList, onFocus, hasFocus, getFocusedIndex }
 }

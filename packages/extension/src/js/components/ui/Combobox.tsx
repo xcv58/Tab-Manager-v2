@@ -1,4 +1,11 @@
-import { useState, useEffect, useCallback, useRef, useId } from 'react'
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+  useId,
+} from 'react'
 import { useResultFocus } from './useResultFocus'
 
 /** Minimal interface for a virtualized list ref (e.g. react-window FixedSizeList). */
@@ -66,59 +73,6 @@ export function useCombobox<T>({
     return -1
   }, [items, isItemDisabled])
 
-  // Reset highlight when items or input change
-  useEffect(() => {
-    if (!isOpen) {
-      setHighlightedIndex(-1)
-      previousInputValueRef.current = inputValue
-      previousIsOpenRef.current = isOpen
-      previousHighlightResetKeyRef.current = highlightResetKey
-      return
-    }
-
-    const inputValueChanged = previousInputValueRef.current !== inputValue
-    const justOpened = !previousIsOpenRef.current && isOpen
-    const scopeChanged =
-      previousHighlightResetKeyRef.current !== highlightResetKey
-
-    if (autoHighlight) {
-      const firstValidIndex = firstEnabledIndex()
-
-      setHighlightedIndex((currentIndex) => {
-        const currentItem =
-          currentIndex >= 0 && currentIndex < items.length
-            ? items[currentIndex]
-            : undefined
-        const shouldResetHighlight =
-          inputValueChanged ||
-          justOpened ||
-          scopeChanged ||
-          currentItem == null ||
-          isItemDisabled(currentItem)
-
-        if (!shouldResetHighlight) {
-          return currentIndex
-        }
-
-        return firstValidIndex >= 0 ? firstValidIndex : -1
-      })
-    } else {
-      setHighlightedIndex(-1)
-    }
-
-    previousInputValueRef.current = inputValue
-    previousIsOpenRef.current = isOpen
-    previousHighlightResetKeyRef.current = highlightResetKey
-  }, [
-    items,
-    inputValue,
-    isOpen,
-    autoHighlight,
-    firstEnabledIndex,
-    isItemDisabled,
-    highlightResetKey,
-  ])
-
   useEffect(() => {
     isOpenRef.current = isOpen
   }, [isOpen])
@@ -179,6 +133,64 @@ export function useCombobox<T>({
   function getItemIdForIndex(item: T) {
     return items.indexOf(item)
   }
+
+  // Keep a focused result selected by identity before paint. Input-owned
+  // navigation retains its normal query/scope reset behavior.
+  useLayoutEffect(() => {
+    if (!isOpen) {
+      setHighlightedIndex(-1)
+      previousInputValueRef.current = inputValue
+      previousIsOpenRef.current = isOpen
+      previousHighlightResetKeyRef.current = highlightResetKey
+      return
+    }
+
+    const inputValueChanged = previousInputValueRef.current !== inputValue
+    const justOpened = !previousIsOpenRef.current && isOpen
+    const scopeChanged =
+      previousHighlightResetKeyRef.current !== highlightResetKey
+
+    const focusedIndex = resultFocus.getFocusedIndex()
+    if (focusedIndex >= 0) {
+      setHighlightedIndex(focusedIndex)
+    } else if (autoHighlight) {
+      const firstValidIndex = firstEnabledIndex()
+
+      setHighlightedIndex((currentIndex) => {
+        const currentItem =
+          currentIndex >= 0 && currentIndex < items.length
+            ? items[currentIndex]
+            : undefined
+        const shouldResetHighlight =
+          inputValueChanged ||
+          justOpened ||
+          scopeChanged ||
+          currentItem == null ||
+          isItemDisabled(currentItem)
+
+        if (!shouldResetHighlight) {
+          return currentIndex
+        }
+
+        return firstValidIndex >= 0 ? firstValidIndex : -1
+      })
+    } else {
+      setHighlightedIndex(-1)
+    }
+
+    previousInputValueRef.current = inputValue
+    previousIsOpenRef.current = isOpen
+    previousHighlightResetKeyRef.current = highlightResetKey
+  }, [
+    items,
+    inputValue,
+    isOpen,
+    autoHighlight,
+    firstEnabledIndex,
+    isItemDisabled,
+    highlightResetKey,
+    resultFocus.getFocusedIndex,
+  ])
 
   const preservePopupInteraction = useCallback((target: EventTarget | null) => {
     const element = target as HTMLElement | null

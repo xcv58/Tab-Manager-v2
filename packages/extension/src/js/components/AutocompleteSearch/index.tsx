@@ -11,6 +11,7 @@ import { safariState } from 'safari/state'
 import { observer } from 'mobx-react-lite'
 import { useStore, useTabHeight } from 'components/hooks/useStore'
 import { useSearchInputRef } from 'components/hooks/useSearchInputRef'
+import { contextMenuHandlers } from 'components/hooks/useActionMenu'
 import { useOptions } from 'components/hooks/useOptions'
 import TabOption from './TabOption'
 import parse from 'autosuggest-highlight/parse'
@@ -377,13 +378,26 @@ const SearchResultRow = ({
   style: React.CSSProperties
   data: any
 }) => {
+  const { actionStore } = useStore()
   const option = data.options[index]
   const itemProps = data.getItemProps({ index, item: option })
   const isHighlighted = data.highlightedIndex === index
+  // Arrow navigation focuses the option itself. Its descendants keep their
+  // existing menu handlers, which stop propagation when they handle an event.
+  const menuProps =
+    option instanceof Tab
+      ? contextMenuHandlers(
+          actionStore,
+          `search-tab-${option.id}`,
+          option,
+          isResultDisabled(option),
+        )
+      : {}
 
   return (
     <li
       {...itemProps}
+      {...menuProps}
       style={{
         ...style,
         top: Number(style.top) + LISTBOX_PADDING,
