@@ -14,7 +14,7 @@ The native project consumes `packages/extension/build/build_safari` as resources
 
 ## App identity
 
-Production builds reuse App Store Connect app `6758364114`, with Safari version **3.0.0 (14)**. The earlier draft was 1.0 and its last TestFlight build was 13. The original app and extension IDs are preserved in the Release configuration. Debug keeps its existing development identity.
+Production builds reuse App Store Connect app `6758364114`. The tracked defaults are **3.0.0 (14)**; the latest uploaded TestFlight candidate is **3.0.0 (15)**, built with a native build-number override. The earlier draft was 1.0 and its last TestFlight build was 13. The original app and extension IDs are preserved in the Release configuration. Debug keeps its existing development identity.
 
 | Setting             | Debug                                            | Release                               |
 | ------------------- | ------------------------------------------------ | ------------------------------------- |
@@ -65,6 +65,10 @@ Private browsing is deliberately excluded from both reads and mutations. Moving/
 
 ## Verification and release boundary
 
-The earlier 3.0.0 (14) candidate passed Chrome/Firefox and website builds, a signed Safari build and manual checks of popup/full/standalone views, cycling, focus preferences and tab actions. The latest cycling check completed 18 consecutive switches over four tabs with repeated wraps. The subsequent source changes remove the prototype queue and close confirmations, use standard batch operations and restore keyboard access to the interactive Settings preview. Those changes still require a new native candidate and manual Safari checks, including a large tab selection.
+The Safari build workflow compiles Debug and Release on macOS without signing. It verifies the app and embedded extension identifiers, URL scheme, versions and every packaged web resource against the Safari build output. No Apple Developer credentials, store upload or publication are part of this check.
 
-The old native-workspace observation was abandoned and does not establish reliability of this architecture. Tests, CI, Linux visual checks and broader lifecycle/profile acceptance remain pending. Historical prototype-only tests are not coverage for the current shared Safari UI. This PR adds no automatic release or publishing workflow. The 3.0.0 (14) candidate was uploaded to TestFlight and does not include the subsequent source fixes. Increment the native build before the next upload; broader acceptance and App Store listing preparation remain separate.
+The shared unit suite covers the Safari adapter's access boundaries, bulk close behavior, read timeouts, overlapping requests, popup focus preferences and recent-tab cycling. Shared combobox regressions cover row navigation and focus recovery. The existing Linux Chromium suite checks visual baselines and real browser interactions; the Firefox integration suite also checks result focus after closing tabs in full and lite views. Mocked Safari APIs and unsigned compilation do not replace manual Safari acceptance.
+
+The 3.0.0 (15) TestFlight candidate includes the standard tab-action implementation and was accepted in manual testing. The newer shared result-focus and Safari startup-focus changes are not in that candidate. A future native upload must use an unused build number higher than 15 and be checked separately in Safari, including native popup focus with the preference on and off.
+
+The old native-workspace observation was abandoned and does not establish reliability of this architecture. Broader lifecycle/profile acceptance and App Store listing preparation remain separate. Historical prototype-only tests are not coverage for the current shared Safari UI. Automatic Safari release work is tracked separately in #2685; this PR adds build checks only.

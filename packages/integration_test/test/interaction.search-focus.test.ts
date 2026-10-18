@@ -53,7 +53,7 @@ for (const lite of [false, true]) {
       await page.keyboard.press('d')
       await page.keyboard.press('d')
       await expect(rows).toHaveCount(0)
-      await expect(page.locator('.toolbar-search')).toBeFocused()
+      await expect(page.getByRole('listbox')).toBeFocused()
       // Empty-result recovery must leave search usable by keyboard.
       await page.keyboard.press('/')
       await expect(input).toBeFocused()

@@ -262,7 +262,7 @@ describeFirefox('Firefox container, editor, and keyboard workflows', () => {
           10000,
         )
         await expectFocus(
-          index ? option(tabs[index - 1].id!) : '.toolbar-search',
+          index ? option(tabs[index - 1].id!) : '[role="listbox"]',
         )
       }
       await keys('/')
