@@ -36,8 +36,43 @@ body {
 .search-header-actions {
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
   flex-shrink: 0;
   gap: 2px;
+  width: max(124px, calc(7rem + 30px));
+  height: 100%;
+}
+
+.header-relayout-button {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  margin: 0 2px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border-color: var(--relayout-border);
+  background-color: var(--relayout-background);
+  color: var(--relayout-color);
+  cursor: pointer;
+}
+
+.header-relayout-button:hover,
+.header-relayout-button:focus-visible {
+  border-color: var(--relayout-hover-border);
+  background-color: var(--relayout-hover-background);
+  color: var(--relayout-hover-color);
+}
+
+.header-relayout-button[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.header-relayout-label {
+  font-size: 0.72rem;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  font-weight: 700;
 }
 
 .toolbar-search {

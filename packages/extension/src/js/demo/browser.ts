@@ -557,12 +557,12 @@ const browser = {
     ): Promise<DemoTab | undefined> => {
       if (properties.url && isDemoURL(properties.url)) {
         const destination = new URL(properties.url)
-        if (
-          !settingsPreview &&
-          (window.location.search.includes('popup_preview') ||
-            destination.searchParams.has('panel'))
-        ) {
-          window.location.assign(destination.href + window.location.hash)
+        if (!settingsPreview) {
+          window.dispatchEvent(
+            new CustomEvent('demo:open-full-view', {
+              detail: { panel: destination.searchParams.get('panel') },
+            }),
+          )
         }
         record('Opened the full Tab Manager view in the demo.')
         return undefined

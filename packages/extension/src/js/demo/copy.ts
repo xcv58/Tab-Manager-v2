@@ -24,6 +24,9 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample data only. No extension required.':
       '仅使用示例数据。无需安装扩展。',
     'Choose a workspace': '选择工作区',
+    'Preview mode': '预览模式',
+    'Full view': '完整视图',
+    Popup: '弹出窗口',
     'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. The demo theme is independent of the website theme. Start over also resets demo settings. Website theme and language stay saved.':
       '刷新或切换工作区会恢复示例标签页，并保留此标签页会话中的演示设置。演示主题与网站主题相互独立。“重新开始”也会重置演示设置。网站主题和语言仍会保存。',
     'Starts with': '初始配置',
@@ -72,6 +75,9 @@ const shellCopy: Record<DemoLanguage, Record<string, string>> = {
     'Sample data only. No extension required.':
       '僅使用範例資料。無需安裝擴充功能。',
     'Choose a workspace': '選擇工作區',
+    'Preview mode': '預覽模式',
+    'Full view': '完整檢視',
+    Popup: '彈出視窗',
     'Refreshing or switching workspaces restores sample tabs and keeps demo settings for this tab’s session. The demo theme is independent of the website theme. Start over also resets demo settings. Website theme and language stay saved.':
       '重新整理或切換工作區會還原範例分頁，並保留此分頁工作階段中的示範設定。示範主題與網站主題相互獨立。「重新開始」也會重設示範設定。網站主題和語言仍會儲存。',
     'Starts with': '初始配置',
