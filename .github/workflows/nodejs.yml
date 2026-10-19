@@ -7,6 +7,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-candidate-version:
+    name: Release candidate version
+    if: ${{ startsWith(github.ref_name, 'release-please--') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js 24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Require a matching release newer than 3.0.0
+        run: node scripts/release-policy.mjs candidate
+
   firefox-integration-test:
     name: Firefox integration
     runs-on: ubuntu-24.04
@@ -119,6 +133,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Release metadata regression
+        run: pnpm test:release-metadata
 
       - name: Dependency security regression
         run: pnpm test:dependency-security

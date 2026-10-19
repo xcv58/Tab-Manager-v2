@@ -38,10 +38,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Release tag must use the vMAJOR.MINOR.PATCH format"
-            exit 1
-          fi
+          node scripts/release-policy.mjs tag "$RELEASE_TAG"
 
           release_state="$(gh release view "$RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
