@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [3.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.2...c2dea3aacb3c1fb871434bdcbbcf54019b03f602) (2026-10-16)
 
 Compared with 2.7.2:
 
@@ -15,105 +15,90 @@ Compared with 2.7.2:
 
 ## [2.7.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.1...v2.7.2) (2026-10-12)
 
-
 ### Bug Fixes
 
-* simplify drag previews and keep tooltips clear ([#2666](https://github.com/xcv58/Tab-Manager-v2/issues/2666)) ([0ac987d](https://github.com/xcv58/Tab-Manager-v2/commit/0ac987d3e17ffe32affbca9251c7569e25fde80a))
+- simplify drag previews and keep tooltips clear ([#2666](https://github.com/xcv58/Tab-Manager-v2/issues/2666)) ([0ac987d](https://github.com/xcv58/Tab-Manager-v2/commit/0ac987d3e17ffe32affbca9251c7569e25fde80a))
 
 ## [2.7.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.0...v2.7.1) (2026-10-11)
 
-
 ### Bug Fixes
 
-* clarify tab drop feedback and URL tooltips for 2.7.1 ([#2663](https://github.com/xcv58/Tab-Manager-v2/issues/2663)) ([6685dc5](https://github.com/xcv58/Tab-Manager-v2/commit/6685dc588dd5c3c138178dce726c433eacec265b))
+- clarify tab drop feedback and URL tooltips for 2.7.1 ([#2663](https://github.com/xcv58/Tab-Manager-v2/issues/2663)) ([6685dc5](https://github.com/xcv58/Tab-Manager-v2/commit/6685dc588dd5c3c138178dce726c433eacec265b))
 
 ## [2.7.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.3...v2.7.0) (2026-10-09)
 
-
 ### Features
 
-* move selected tabs with menus, shortcuts, and header drop targets ([#2659](https://github.com/xcv58/Tab-Manager-v2/issues/2659)) ([95fd567](https://github.com/xcv58/Tab-Manager-v2/commit/95fd567f2742e05aabff5b1229eb91a05e057210))
-* **site:** add integrated demo and support pages ([#2660](https://github.com/xcv58/Tab-Manager-v2/issues/2660)) ([2e4cb73](https://github.com/xcv58/Tab-Manager-v2/commit/2e4cb73546846b9a6ecc6688b1430ff7f21089aa))
-
+- move selected tabs with menus, shortcuts, and header drop targets ([#2659](https://github.com/xcv58/Tab-Manager-v2/issues/2659)) ([95fd567](https://github.com/xcv58/Tab-Manager-v2/commit/95fd567f2742e05aabff5b1229eb91a05e057210))
+- **site:** add integrated demo and support pages ([#2660](https://github.com/xcv58/Tab-Manager-v2/issues/2660)) ([2e4cb73](https://github.com/xcv58/Tab-Manager-v2/commit/2e4cb73546846b9a6ecc6688b1430ff7f21089aa))
 
 ### Bug Fixes
 
-* **deps:** address dependency security advisories ([e0a8ae4](https://github.com/xcv58/Tab-Manager-v2/commit/e0a8ae44ff8d736edff7bcf43ab104221a7d6c98))
+- **deps:** address dependency security advisories ([e0a8ae4](https://github.com/xcv58/Tab-Manager-v2/commit/e0a8ae44ff8d736edff7bcf43ab104221a7d6c98))
 
 ## [2.6.3](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.2...v2.6.3) (2026-09-28)
 
-
 ### Bug Fixes
 
-* preserve viewed windows during manual relayout ([#2654](https://github.com/xcv58/Tab-Manager-v2/issues/2654)) ([26abfdd](https://github.com/xcv58/Tab-Manager-v2/commit/26abfddd39d6426696b810af3c6df89066f908ed))
+- preserve viewed windows during manual relayout ([#2654](https://github.com/xcv58/Tab-Manager-v2/issues/2654)) ([26abfdd](https://github.com/xcv58/Tab-Manager-v2/commit/26abfddd39d6426696b810af3c6df89066f908ed))
 
 ## [2.6.2](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.1...v2.6.2) (2026-09-27)
 
-
 ### Bug Fixes
 
-* preserve unloaded tabs when moving between windows ([#2652](https://github.com/xcv58/Tab-Manager-v2/issues/2652)) ([92804fe](https://github.com/xcv58/Tab-Manager-v2/commit/92804fedc07f87e0f11a413c4f44a8b1513bf2da))
+- preserve unloaded tabs when moving between windows ([#2652](https://github.com/xcv58/Tab-Manager-v2/issues/2652)) ([92804fe](https://github.com/xcv58/Tab-Manager-v2/commit/92804fedc07f87e0f11a413c4f44a8b1513bf2da))
 
 ## [2.6.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.6.0...v2.6.1) (2026-08-23)
 
-
 ### Bug Fixes
 
-* **deps:** remediate dependency vulnerabilities ([250b5aa](https://github.com/xcv58/Tab-Manager-v2/commit/250b5aa814003ebdad4fc0c0b21d49b83e2ac6bb))
+- **deps:** remediate dependency vulnerabilities ([250b5aa](https://github.com/xcv58/Tab-Manager-v2/commit/250b5aa814003ebdad4fc0c0b21d49b83e2ac6bb))
 
 ## [2.6.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.5.0...v2.6.0) (2026-08-04)
 
-
 ### Features
 
-* prioritize contiguous search matches ([#2644](https://github.com/xcv58/Tab-Manager-v2/issues/2644)) ([4f31c71](https://github.com/xcv58/Tab-Manager-v2/commit/4f31c711b6c2831b83a937fa755158d94cfa8eb2))
-
+- prioritize contiguous search matches ([#2644](https://github.com/xcv58/Tab-Manager-v2/issues/2644)) ([4f31c71](https://github.com/xcv58/Tab-Manager-v2/commit/4f31c711b6c2831b83a937fa755158d94cfa8eb2))
 
 ### Bug Fixes
 
-* keep window title visible on first-tab navigation ([3ec301b](https://github.com/xcv58/Tab-Manager-v2/commit/3ec301beb033c779146711dae12ee70988ea26a3))
-* preserve last-used window order ([#2647](https://github.com/xcv58/Tab-Manager-v2/issues/2647)) ([fb00fab](https://github.com/xcv58/Tab-Manager-v2/commit/fb00fab80b2d48c2cf7bec8399be7e92849b10ad))
+- keep window title visible on first-tab navigation ([3ec301b](https://github.com/xcv58/Tab-Manager-v2/commit/3ec301beb033c779146711dae12ee70988ea26a3))
+- preserve last-used window order ([#2647](https://github.com/xcv58/Tab-Manager-v2/issues/2647)) ([fb00fab](https://github.com/xcv58/Tab-Manager-v2/commit/fb00fab80b2d48c2cf7bec8399be7e92849b10ad))
 
 ## [2.5.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.4.1...v2.5.0) (2026-08-01)
 
-
 ### Features
 
-* **layout:** add empty-column relayout actions ([#2642](https://github.com/xcv58/Tab-Manager-v2/issues/2642)) ([a0e4002](https://github.com/xcv58/Tab-Manager-v2/commit/a0e40024c315b5d3dad2f0714b9f0e198b936df7))
+- **layout:** add empty-column relayout actions ([#2642](https://github.com/xcv58/Tab-Manager-v2/issues/2642)) ([a0e4002](https://github.com/xcv58/Tab-Manager-v2/commit/a0e40024c315b5d3dad2f0714b9f0e198b936df7))
 
 ## [2.4.1](https://github.com/xcv58/Tab-Manager-v2/compare/v2.4.0...v2.4.1) (2026-07-13)
 
-
 ### Bug Fixes
 
-* improve layout, drag, and search behavior ([#2638](https://github.com/xcv58/Tab-Manager-v2/issues/2638)) ([8a606b3](https://github.com/xcv58/Tab-Manager-v2/commit/8a606b3faf3e8be4ca37923c3cf63f1133bddf54))
+- improve layout, drag, and search behavior ([#2638](https://github.com/xcv58/Tab-Manager-v2/issues/2638)) ([8a606b3](https://github.com/xcv58/Tab-Manager-v2/commit/8a606b3faf3e8be4ca37923c3cf63f1133bddf54))
 
 ## [2.4.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.3.0...v2.4.0) (2026-07-07)
 
-
 ### Features
 
-* add active-tab highlight and contrast settings ([eb0d983](https://github.com/xcv58/Tab-Manager-v2/commit/eb0d983e277a29649a424795169de0d57ddf58d1))
-* add last-used window order setting ([97762ed](https://github.com/xcv58/Tab-Manager-v2/commit/97762ed8fcfad531021576b47afff05001d29d6f))
-
+- add active-tab highlight and contrast settings ([eb0d983](https://github.com/xcv58/Tab-Manager-v2/commit/eb0d983e277a29649a424795169de0d57ddf58d1))
+- add last-used window order setting ([97762ed](https://github.com/xcv58/Tab-Manager-v2/commit/97762ed8fcfad531021576b47afff05001d29d6f))
 
 ### Bug Fixes
 
-* wait for settings before initial window load ([#2634](https://github.com/xcv58/Tab-Manager-v2/issues/2634)) ([75a7cea](https://github.com/xcv58/Tab-Manager-v2/commit/75a7cea29a5f213185287ac8aa7c8f69ed54bb24))
+- wait for settings before initial window load ([#2634](https://github.com/xcv58/Tab-Manager-v2/issues/2634)) ([75a7cea](https://github.com/xcv58/Tab-Manager-v2/commit/75a7cea29a5f213185287ac8aa7c8f69ed54bb24))
 
 ## [2.3.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.2.0...v2.3.0) (2026-04-03)
 
-
 ### Features
 
-* add extension icon tab count overlay ([#2623](https://github.com/xcv58/Tab-Manager-v2/issues/2623)) ([c1d41b4](https://github.com/xcv58/Tab-Manager-v2/commit/c1d41b42e4a04957efeae902f63cc4e5a98061bc))
-* replace MUI with local UI primitives ([#2614](https://github.com/xcv58/Tab-Manager-v2/issues/2614)) ([181f1b3](https://github.com/xcv58/Tab-Manager-v2/commit/181f1b3473a829ff33dc4450534eaa5014a96487))
-
+- add extension icon tab count overlay ([#2623](https://github.com/xcv58/Tab-Manager-v2/issues/2623)) ([c1d41b4](https://github.com/xcv58/Tab-Manager-v2/commit/c1d41b42e4a04957efeae902f63cc4e5a98061bc))
+- replace MUI with local UI primitives ([#2614](https://github.com/xcv58/Tab-Manager-v2/issues/2614)) ([181f1b3](https://github.com/xcv58/Tab-Manager-v2/commit/181f1b3473a829ff33dc4450534eaa5014a96487))
 
 ### Bug Fixes
 
-* preserve grouped drag-and-drop semantics ([#2628](https://github.com/xcv58/Tab-Manager-v2/issues/2628)) ([09f3329](https://github.com/xcv58/Tab-Manager-v2/commit/09f3329d59865cc5a13c4c99896a973e6a77c2d1))
-* restore same-domain tab menu action ([#2626](https://github.com/xcv58/Tab-Manager-v2/issues/2626)) ([e59449b](https://github.com/xcv58/Tab-Manager-v2/commit/e59449b30456e5172d452820bf7a7dcd1ede728c))
+- preserve grouped drag-and-drop semantics ([#2628](https://github.com/xcv58/Tab-Manager-v2/issues/2628)) ([09f3329](https://github.com/xcv58/Tab-Manager-v2/commit/09f3329d59865cc5a13c4c99896a973e6a77c2d1))
+- restore same-domain tab menu action ([#2626](https://github.com/xcv58/Tab-Manager-v2/issues/2626)) ([e59449b](https://github.com/xcv58/Tab-Manager-v2/commit/e59449b30456e5172d452820bf7a7dcd1ede728c))
 
 ## [2.2.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.1.0...v2.2.0) (2026-03-26)
 

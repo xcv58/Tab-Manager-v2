@@ -1,4 +1,6 @@
+import console from 'node:console'
 import { spawnSync } from 'node:child_process'
+import { resolveReleaseBaseline } from './release-baseline.mjs'
 
 const HELP_TEXT = `Usage: node scripts/audit-release-please-releasability.mjs [options]
 
@@ -6,7 +8,7 @@ Summarize which commits since the latest release tag are likely to affect the
 extension package release managed by release-please.
 
 Options:
-  --from-ref REF       Analyze commits after REF. Defaults to latest v* tag.
+  --from-ref REF       Analyze commits after REF. Defaults to latest tag or manual baseline.
   --to-ref REF         Analyze commits up to REF. Defaults to HEAD.
   --package-path PATH  Package path to inspect. Defaults to packages/extension.
   --help               Show this help text.
@@ -23,7 +25,7 @@ if (options.help) {
 }
 
 const toRef = options.toRef || 'HEAD'
-const fromRef = options.fromRef || resolveLatestTag(toRef)
+const fromRef = options.fromRef || resolveReleaseBaseline(toRef)
 const commits = listCommits(fromRef, toRef)
 const analyzedCommits = commits.map((commit) =>
   analyzeCommit(commit, options.packagePath),
@@ -112,17 +114,6 @@ function expectValue(argv, index, flagName) {
     throw new Error(`Missing value for ${flagName}`)
   }
   return value
-}
-
-function resolveLatestTag(ref) {
-  return runGit([
-    'describe',
-    '--tags',
-    '--abbrev=0',
-    '--match',
-    'v*',
-    ref,
-  ]).trim()
 }
 
 function listCommits(fromRef, toRef) {
