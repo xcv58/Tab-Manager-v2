@@ -1,5 +1,10 @@
 import TabHistory from '../TabHistory'
-import { browser, setLastFocusedWindowId, setSelfPopupActive } from 'libs'
+import {
+  activateTab,
+  browser,
+  setLastFocusedWindowId,
+  setSelfPopupActive,
+} from 'libs'
 
 const popupUrl =
   'chrome-extension://ehkonpddnilnaghlnblmghpdobeomohi/popup.html?not_popup=1'
@@ -21,6 +26,7 @@ jest.mock('libs', () => ({
         addListener: jest.fn(),
       },
       get: jest.fn(),
+      getAll: jest.fn().mockResolvedValue([]),
     },
     storage: {
       local: {
@@ -52,7 +58,7 @@ describe('TabHistory.onFocusChanged', () => {
     })
   })
 
-  it('records last focused window when popup.html?not_popup=1 is opened in a normal window', async () => {
+  it('records the window but excludes a full-tab manager from recent-tab history', async () => {
     ;(browser.tabs.query as jest.Mock).mockResolvedValue([
       {
         id: 7,
@@ -80,12 +86,7 @@ describe('TabHistory.onFocusChanged', () => {
 
     expect(setSelfPopupActive).not.toHaveBeenCalledWith(true)
     expect(setLastFocusedWindowId).toHaveBeenCalledWith(42)
-    expect(tabHistory.tabHistory).toEqual([
-      expect.objectContaining({
-        tabId: 7,
-        windowId: 42,
-      }),
-    ])
+    expect(tabHistory.tabHistory).toEqual([])
   })
 
   it('keeps only navigation IDs when loading legacy history metadata', async () => {
@@ -108,8 +109,8 @@ describe('TabHistory.onFocusChanged', () => {
   it('does not create an invalid entry when cycling an empty history', async () => {
     const history = new TabHistory()
     await history.init()
-    history.count = 1
-    history.reset()
+    await history.activateTab()
+    expect(activateTab).not.toHaveBeenCalled()
     expect(history.tabHistory).toEqual([])
     history.add({ tabId: 7, windowId: 42 })
     expect(history.tabHistory).toEqual([{ tabId: 7, windowId: 42 }])

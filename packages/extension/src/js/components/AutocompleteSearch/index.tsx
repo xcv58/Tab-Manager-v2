@@ -438,6 +438,7 @@ const AutocompleteSearch = observer((props: Props) => {
     searchStore,
     tabGroupStore,
     actionStore,
+    shortcutStore,
     hoverStore,
     focusStore,
   } = useStore()
@@ -771,7 +772,12 @@ const AutocompleteSearch = observer((props: Props) => {
             stopType()
             inputProps.onBlur(e as any)
           }}
-          autoFocus={autoFocus || userStore.autoFocusSearch}
+          autoFocus={
+            (autoFocus ?? userStore.autoFocusSearch) &&
+            !userStore.dialogOpen &&
+            !shortcutStore.dialogOpen &&
+            !actionStore.paletteOpen
+          }
           placeholder={SEARCH_PLACEHOLDER}
           aria-activedescendant={inputProps['aria-activedescendant']}
           aria-autocomplete={inputProps['aria-autocomplete']}

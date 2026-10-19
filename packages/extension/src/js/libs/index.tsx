@@ -1,3 +1,4 @@
+import { getPopupWindowBounds } from './popupWindow'
 import { isSafari, canMoveTabs } from './browserCapabilities'
 import browser from 'webextension-polyfill'
 import log from 'libs/log'
@@ -417,27 +418,14 @@ export const getInt = (number) => Math.floor(number)
 
 export const openPopup = async () => {
   log.debug('openPopup')
-  const {
-    availHeight = 500,
-    availLeft = 0,
-    availTop = 0,
-    availWidth = 500,
-  } = await browser.storage.local.get([
+  const display = await browser.storage.local.get([
     'availHeight',
     'availLeft',
     'availTop',
     'availWidth',
   ])
-  log.debug('openPopup', { availHeight, availLeft, availTop, availWidth })
-  const width = getInt(Math.max(MAX_WIDTH, availWidth / 2))
-  const height = getInt(Math.max(MAX_HEIGHT, availHeight / 2))
-  const top = getInt(availTop + (availHeight - height) / 2)
-  const left = getInt(availLeft + (availWidth - width) / 2)
   browser.windows.create({
-    top,
-    left,
-    height,
-    width,
+    ...getPopupWindowBounds(display),
     url: popupURL,
     type: 'popup',
   })
@@ -458,8 +446,15 @@ export const openFullTabManager = async (panel?: 'settings' | 'shortcuts') => {
 
 export const openURL = (url: string) => browser.tabs.create({ url })
 
+const managerPageURL = popupURL.split(/[?#]/, 1)[0]
 export const isSelfPopupTab = (tab) =>
-  tab.url === popupURL || tab.pendingUrl === popupURL
+  [tab.url, tab.pendingUrl].some(
+    (value) =>
+      typeof value === 'string' &&
+      // Panels and search fragments are still the manager. Compare only its
+      // own document URL, without parsing every working tab during cycling.
+      value.split(/[?#]/, 1)[0] === managerPageURL,
+  )
 
 export const isSelfPopup = ({ type, tabs = [] }) => {
   if (type === 'popup' && tabs.length === 1) {

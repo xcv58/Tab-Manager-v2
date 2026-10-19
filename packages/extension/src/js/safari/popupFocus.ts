@@ -14,6 +14,9 @@ export const installSafariPopupFocus = (store: Store) => {
   const ready = () =>
     store.userStore.loaded && !store.windowStore.initialLoading
 
+  const shouldFocusSearch = () =>
+    store.userStore.litePopupMode || store.userStore.autoFocusSearch
+
   const stop = () => {
     finished = true
     cancelAnimationFrame(frame)
@@ -33,7 +36,7 @@ export const installSafariPopupFocus = (store: Store) => {
     const input = store.searchStore.getSearchInputEl()
     if (!input) return
     stop()
-    if (store.userStore.autoFocusSearch) {
+    if (shouldFocusSearch()) {
       input.focus({ preventScroll: true })
       return
     }
@@ -42,23 +45,16 @@ export const installSafariPopupFocus = (store: Store) => {
     // normal focus protection deliberately preserves an active search field.
     input.blur()
     const { windowStore, focusStore } = store
-    if (store.userStore.litePopupMode) {
-      const active = windowStore.lastFocusedWindow?.tabs.find(
-        (tab) => tab.active,
-      )
-      if (store.searchStore.resultFocusController?.focusTab(active?.id)) return
-    } else {
-      const active = windowStore.focusActiveTabInLastFocusedWindow({
-        reveal: true,
-      })
-      if (active) return
-      const first = windowStore.windows
-        .filter((win) => !win.hide)
-        .flatMap((win) => win.focusableRows)[0]
-      if (first) {
-        focusStore.focus(first, { reveal: true })
-        return
-      }
+    const active = windowStore.focusActiveTabInLastFocusedWindow({
+      reveal: true,
+    })
+    if (active) return
+    const first = windowStore.windows
+      .filter((win) => !win.hide)
+      .flatMap((win) => win.focusableRows)[0]
+    if (first) {
+      focusStore.focus(first, { reveal: true })
+      return
     }
     document.querySelector<HTMLElement>('main')?.focus({ preventScroll: true })
   }
@@ -68,7 +64,7 @@ export const installSafariPopupFocus = (store: Store) => {
       !finished &&
       target instanceof HTMLInputElement &&
       target.classList.contains('toolbar-search-field') &&
-      (!store.userStore.loaded || !store.userStore.autoFocusSearch)
+      (!store.userStore.loaded || !shouldFocusSearch())
     ) {
       // Native popover focus is not a user search request. A trusted key or
       // pointer event removes this guard before intentional focus is handled.

@@ -97,6 +97,20 @@ describe('Tab', () => {
       block: 'nearest',
       inline: 'nearest',
     })
+
+    // Switching popup modes can remount a focused row behind Settings.
+    // A new focus request must not pull keyboard focus out of that dialog.
+    store.userStore.dialogOpen = true
+    const dialogInput = document.createElement('input')
+    document.body.appendChild(dialogInput)
+    dialogInput.focus()
+    act(() => {
+      runInAction(() => {
+        tab.focusRequestId = 2
+      })
+    })
+    expect(dialogInput).toHaveFocus()
+    dialogInput.remove()
   })
 
   it('clears hover state when the row unmounts', () => {

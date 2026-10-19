@@ -98,6 +98,7 @@ let nextGroupId = fixture.nextGroupId
 let currentWindowId = windows[0]?.id ?? null
 let revision = 0
 let activityId = 0
+let recentTabHistory: import('../background/TabHistory').default | undefined
 const activity: Array<{ id: number; message: string; time: number }> = []
 const subscribers = new Set<() => void>()
 const getTabsFromWindows = (sourceWindows = windows) =>
@@ -1041,16 +1042,19 @@ const browser = {
         return
       }
       if (request.action === 'LAST-ACTIVE-TAB') {
-        const liveHistory = tabHistory.filter((entry) =>
-          windows.some((win) => win.tabs.some((tab) => tab.id === entry.tabId)),
-        )
-        const previous = liveHistory[Math.max(0, liveHistory.length - 2)]
-        if (previous) {
-          const tab = requireTab(previous.tabId)
-          activate(tab)
-          focusWindow(requireWindow(tab.windowId))
-          record(`Returned to “${tab.title}”.`)
+        if (!recentTabHistory) {
+          // Run the real cycling logic against fictional tabs only. Defer the
+          // import until the adapter is initialized to avoid the libs cycle.
+          const TabHistory: typeof import('../background/TabHistory').default =
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            require('../background/TabHistory').default
+          recentTabHistory = new TabHistory()
         }
+        await recentTabHistory.activateTab()
+        const active = windows
+          .find((win) => win.focused)
+          ?.tabs.find((tab) => tab.active)
+        if (active) record(`Switched to “${active.title}”.`)
         return
       }
       if (
