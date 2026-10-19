@@ -1032,7 +1032,7 @@ export default observer(() => {
             <SettingsSwitchOption
               testId="settings-search-focus"
               title="Focus search on open"
-              description="Place the cursor in search the next time Tab Manager opens."
+              description="Place the cursor in search when the full view opens. Lite popups always focus search."
               checked={autoFocusSearch}
               onChange={toggleAutoFocusSearch}
               style={rowDetailOptionStyle}

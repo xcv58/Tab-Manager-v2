@@ -266,7 +266,9 @@ export default class Tab extends Focusable {
     const fingerPrint = this.store.userStore.ignoreHash
       ? this.url.split('#')[0]
       : this.url
-    return isSafari ? fingerPrint || '' : (fingerPrint || '').toLowerCase()
+    // Keep duplicate matching consistent across browsers; optional strict
+    // path/query matching is tracked separately in #2692.
+    return (fingerPrint || '').toLowerCase()
   }
 
   setUrlIcon = async () => {

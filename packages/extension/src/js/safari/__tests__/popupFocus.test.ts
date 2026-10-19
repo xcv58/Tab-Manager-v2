@@ -76,23 +76,32 @@ it.each([false, true])(
   },
 )
 
-it.each([false, true])(
-  'blocks native initial field focus with autofocus OFF in lite=%s',
-  (lite) => {
-    const { input, store } = setup(lite, false)
-    const focus = jest.fn()
-    input.addEventListener('focusin', focus)
-    input.focus()
-    // The guard runs before React can open search results or paint a caret.
-    expect(input).not.toHaveFocus()
-    expect(focus).not.toHaveBeenCalled()
-    flush()
-    const focusTarget = lite
-      ? store.searchStore.resultFocusController.focusTab
-      : store.windowStore.focusActiveTabInLastFocusedWindow
-    expect(focusTarget).toHaveBeenCalledWith(lite ? 7 : { reveal: true })
-  },
-)
+it('blocks native initial field focus with autofocus OFF in the full popup', () => {
+  const { input, store } = setup(false, false)
+  const focus = jest.fn()
+  input.addEventListener('focusin', focus)
+  input.focus()
+  expect(input).not.toHaveFocus()
+  expect(focus).not.toHaveBeenCalled()
+  flush()
+  expect(
+    store.windowStore.focusActiveTabInLastFocusedWindow,
+  ).toHaveBeenCalledWith({ reveal: true })
+})
+
+it('focuses lite search even when the full-view autofocus preference is OFF', () => {
+  const { input, store } = setup(true, false)
+  input.focus()
+  expect(input).toHaveFocus()
+  flush()
+  expect(input).toHaveFocus()
+  expect(
+    store.searchStore.resultFocusController.focusTab,
+  ).not.toHaveBeenCalled()
+  expect(
+    store.windowStore.focusActiveTabInLastFocusedWindow,
+  ).not.toHaveBeenCalled()
+})
 
 it('waits for saved preferences and tabs before applying focus', () => {
   const { input, store } = setup(true, false, false)
@@ -103,7 +112,6 @@ it('waits for saved preferences and tabs before applying focus', () => {
     store.searchStore.resultFocusController.focusTab,
   ).not.toHaveBeenCalled()
   runInAction(() => {
-    store.userStore.autoFocusSearch = true
     store.userStore.loaded = true
     store.windowStore.initialLoading = false
   })

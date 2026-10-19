@@ -1,3 +1,5 @@
+import { getPopupWindowBounds } from 'libs/popupWindow'
+
 const safari = (globalThis as any).browser
 const managerURL = new URL(safari.runtime.getURL('popup.html'))
 managerURL.searchParams.set('not_popup', '1')
@@ -32,37 +34,10 @@ const toggle = async () => {
     'availLeft',
     'availTop',
   ])
-  const availableWidth =
-    Number.isFinite(screen.availWidth) && screen.availWidth > 0
-      ? screen.availWidth
-      : 1280
-  const availableHeight =
-    Number.isFinite(screen.availHeight) && screen.availHeight > 0
-      ? screen.availHeight
-      : 800
-  const width = Math.floor(
-    Math.min(
-      availableWidth,
-      Math.max(800, Math.min(1024, availableWidth * 0.7)),
-    ),
-  )
-  const height = Math.floor(
-    Math.min(
-      availableHeight,
-      Math.max(600, Math.min(768, availableHeight * 0.8)),
-    ),
-  )
   return safari.windows.create({
     type: 'popup',
     url: managerURL.href,
-    width,
-    height,
-    ...(Number.isFinite(screen.availLeft)
-      ? { left: Math.floor(screen.availLeft + (availableWidth - width) / 2) }
-      : {}),
-    ...(Number.isFinite(screen.availTop)
-      ? { top: Math.floor(screen.availTop + (availableHeight - height) / 2) }
-      : {}),
+    ...getPopupWindowBounds(screen),
   })
 }
 

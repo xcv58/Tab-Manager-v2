@@ -38,11 +38,7 @@ export default observer(({ autoFocus = true }: { autoFocus?: boolean }) => {
         }}
       >
         <Summary />
-        <AutocompleteSearch
-          autoFocus={isSafari ? userStore.autoFocusSearch : autoFocus}
-          open
-          bottomInset={44}
-        />
+        <AutocompleteSearch autoFocus={autoFocus} open bottomInset={44} />
       </div>
       <div
         className="corner-dock absolute right-0 bottom-0 flex items-center gap-1 border px-2 py-1"

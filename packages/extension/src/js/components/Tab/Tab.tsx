@@ -19,8 +19,14 @@ import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
-  const { dragStore, searchStore, focusStore, userStore, actionStore } =
-    useStore()
+  const {
+    dragStore,
+    searchStore,
+    focusStore,
+    userStore,
+    actionStore,
+    shortcutStore,
+  } = useStore()
   const isDarkTheme = useTheme()
   const increaseContrast = userStore.increaseContrast
   const colorTokens = getTabRowColorTokens(
@@ -74,7 +80,14 @@ export default observer((props: TabProps & { className?: string }) => {
         shouldRevealOnFocus,
         typing,
       }) => {
-        if (!nextIsFocused || typing || !nodeRef.current) {
+        if (
+          !nextIsFocused ||
+          typing ||
+          !nodeRef.current ||
+          userStore.dialogOpen ||
+          shortcutStore?.dialogOpen ||
+          actionStore?.paletteOpen
+        ) {
           return
         }
         if (shouldMoveDomFocus) {
@@ -96,7 +109,7 @@ export default observer((props: TabProps & { className?: string }) => {
         fireImmediately: true,
       },
     )
-  }, [focusStore, searchStore, tab])
+  }, [focusStore, searchStore, userStore, shortcutStore, actionStore, tab])
 
   useEffect(() => onMouseLeave, [onMouseLeave])
   useEffect(() => {
