@@ -379,7 +379,7 @@
       ? `Store submissions: ${submissions.map((item) => `${item.store}: ${item.state === 'submitted' ? 'submitted' : 'outcome requires reconciliation'}`).join(' · ')}. Store approval and public availability require separate verification.`
       : ''
     byId('verification-note').textContent = selected
-      ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some diagnostic archives exceeded the size limit and were not preserved; the manifest lists these omissions.' : ''}`
+      ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some evidence files were unavailable; the manifest lists these omissions.' : ''}`
       : requested
         ? 'The pinned evidence capture is unavailable in this website snapshot.'
         : 'No saved test or build results are available for this release.'

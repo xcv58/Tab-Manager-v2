@@ -2,15 +2,10 @@ import { spawnSync } from 'node:child_process'
 import { cp, mkdir, readFile, readdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { releasedCandidate } from './publish.mjs'
-import {
-  assert,
-  pages,
-  request,
-  repository,
-  uploadImmutable,
-} from './github.mjs'
+import { assert, pages, repository, uploadImmutable } from './github.mjs'
 import { sha256 } from '../performance/records.mjs'
 import { checkpoint } from './journal.mjs'
+import { readStoreReceipts, storeRetryDecision } from './store-receipts.mjs'
 
 const store = process.env.RELEASE_STORE
 assert(
@@ -33,34 +28,21 @@ const file = candidate.files.find(
 process.env.RELEASE_SOURCE = candidate.source.commit
 process.env.RELEASE_PACKAGE_SHA256 = file.sha256
 process.env.RELEASE_JOURNAL_DIR = resolve('.tmp/store-receipts')
-const previous = []
-for (const asset of await pages(`releases/${release.id}/assets`)) {
-  if (!new RegExp(`^store-${store}-\\d+-\\d+-\\d+\\.json$`).test(asset.name))
-    continue
-  assert(
-    asset.uploader?.login === 'github-actions[bot]',
-    'untrusted store receipt',
-  )
-  const receipt = JSON.parse(await request(`releases/assets/${asset.id}`, true))
-  assert(
-    receipt.commit === candidate.source.commit &&
-      receipt.packageSha256 === file.sha256 &&
-      receipt.candidateSha256 === process.env.CANDIDATE_SHA256,
-    'store receipt belongs to different packages',
-  )
-  previous.push(receipt)
-}
-if (previous.some((receipt) => receipt.phase === 'submitted')) {
+const previous = await readStoreReceipts(
+  await pages(`releases/${release.id}/assets`),
+  store,
+  candidate,
+  process.env.CANDIDATE_SHA256,
+)
+if (
+  storeRetryDecision(previous, process.env.RELEASE_RECONCILED === 'true') ===
+  'skip'
+) {
   process.stdout.write(
     `${store} already submitted these exact packages; no new store request.\n`,
   )
   process.exit(0)
 }
-if (previous.length)
-  assert(
-    process.env.RELEASE_RECONCILED === 'true',
-    'previous submission outcome requires store reconciliation; inspect archived operation IDs before explicitly retrying',
-  )
 const build = resolve('packages/extension/build')
 await mkdir(build, { recursive: true })
 for (const packageFile of candidate.files)

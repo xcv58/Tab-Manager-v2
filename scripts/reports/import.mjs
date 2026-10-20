@@ -8,7 +8,14 @@ import {
   validateChecks,
   loadCatalog,
 } from './catalog.mjs'
-import { assert, gh, pages, request, repository } from '../release/github.mjs'
+import {
+  assert,
+  gh,
+  pages,
+  request,
+  repository,
+  readJsonAsset,
+} from '../release/github.mjs'
 import { writeImmutable } from '../release/candidate.mjs'
 import {
   archiveDirectory,
@@ -16,6 +23,17 @@ import {
   sha256,
   validateRecord,
 } from '../performance/records.mjs'
+
+export async function readReportManifests(assets) {
+  const reports = []
+  for (const asset of assets.filter((asset) =>
+    /^release-report-.*\.manifest\.json$/.test(asset.name),
+  )) {
+    const saved = await readJsonAsset(asset, 'report manifest')
+    if (saved) reports.push({ asset, report: validateManifest(saved.value) })
+  }
+  return reports
+}
 
 export async function importRelease(tag) {
   assert(
@@ -43,17 +61,7 @@ export async function importRelease(tag) {
     'published release identity changed',
   )
   const pending = []
-  for (const asset of assets.filter((asset) =>
-    /^release-report-.*\.manifest\.json$/.test(asset.name),
-  )) {
-    assert(
-      asset.uploader?.login === 'github-actions[bot]' &&
-        asset.size <= 1_000_000,
-      'untrusted or oversized report',
-    )
-    const report = validateManifest(
-      JSON.parse(await request(`releases/assets/${asset.id}`, true)),
-    )
+  for (const { asset, report } of await readReportManifests(assets)) {
     assert(
       report.source.commit === commit &&
         report.source.tag === tag &&
@@ -66,7 +74,10 @@ export async function importRelease(tag) {
     for (const file of report.files) {
       const attachment = assets.find((asset) => asset.name === file.name)
       assert(
-        attachment && attachment.size === file.bytes,
+        attachment &&
+          attachment.state === 'uploaded' &&
+          attachment.uploader?.login === 'github-actions[bot]' &&
+          attachment.size === file.bytes,
         'missing report evidence',
       )
       file.url = `https://github.com/${repository}/releases/download/${tag}/${file.name}`

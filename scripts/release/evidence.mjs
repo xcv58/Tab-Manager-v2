@@ -8,6 +8,7 @@ import {
   repository,
   request,
   uploadImmutable,
+  readJsonAsset,
 } from './github.mjs'
 import { releasedCandidate } from './publish.mjs'
 import { trustedRun } from './candidate.mjs'
@@ -15,6 +16,7 @@ import { json, sha256, git } from '../performance/records.mjs'
 import { readMetricArtifact } from './metric-artifact.mjs'
 import { validateManifest, validateChecks } from '../reports/catalog.mjs'
 import { jestCounts, playwrightCounts } from '../reports/results.mjs'
+import { readStoreReceipts, summarizeStoreReceipts } from './store-receipts.mjs'
 
 assert(
   process.env.GITHUB_REPOSITORY === repository &&
@@ -30,7 +32,19 @@ const { candidate, release, publication } = await releasedCandidate(
   process.env.CANDIDATE_SHA256,
 )
 const existing = await pages(`releases/${release.id}/assets`)
-if (existing.some((file) => file.name === `${id}.manifest.json`)) {
+const existingManifest = existing.find(
+  (file) => file.name === `${id}.manifest.json`,
+)
+const archivedManifest =
+  existingManifest && (await readJsonAsset(existingManifest, 'report manifest'))
+if (archivedManifest) {
+  const manifest = validateManifest(archivedManifest.value)
+  assert(
+    manifest.id === id &&
+      manifest.source.commit === candidate.source.commit &&
+      manifest.source.tag === candidate.source.tag,
+    'archived report identity mismatch',
+  )
   process.stdout.write('Evidence capture already archived.\n')
   process.exit(0)
 }
@@ -201,37 +215,24 @@ for (const name of ['candidate.json', 'publication.json'])
   )
 // Store journals are a snapshot of submission state, independent of test status.
 const submissions = []
+const storeAssets = await pages(`releases/${release.id}/assets`)
 for (const store of ['chrome', 'firefox', 'edge']) {
-  const receipts = []
-  for (const asset of (await pages(`releases/${release.id}/assets`)).filter(
-    (asset) =>
-      new RegExp(`^store-${store}-\\d+-\\d+-\\d+\\.json$`).test(asset.name),
-  )) {
-    assert(
-      asset.uploader?.login === 'github-actions[bot]',
-      'untrusted store receipt',
-    )
-    const bytes = await request(`releases/assets/${asset.id}`, true),
-      receipt = JSON.parse(bytes)
-    assert(
-      receipt.commit === candidate.source.commit &&
-        receipt.candidateSha256 === process.env.CANDIDATE_SHA256,
-      'store receipt identity mismatch',
-    )
-    await save(`${id}-${asset.name}`, bytes, 'evidence')
-    receipts.push(receipt)
-  }
-  receipts.sort((a, b) => a.recordedAt.localeCompare(b.recordedAt))
-  const latest =
-    receipts.findLast((receipt) => receipt.phase === 'submitted') ||
-    receipts.at(-1)
-  if (latest)
-    submissions.push({
-      store,
-      state: latest.phase === 'submitted' ? 'submitted' : 'unknown',
-      runId: latest.runId,
-      recordedAt: latest.recordedAt,
-    })
+  const receipts = await readStoreReceipts(
+    storeAssets,
+    store,
+    candidate,
+    process.env.CANDIDATE_SHA256,
+  )
+  for (const { name, bytes } of receipts)
+    if (bytes) await save(`${id}-${name}`, bytes, 'evidence')
+    else
+      unavailableEvidence.push({
+        name,
+        reason:
+          'Store receipt upload did not complete; inspect store status before retrying.',
+      })
+  const submission = summarizeStoreReceipts(store, receipts)
+  if (submission) submissions.push(submission)
 }
 const publisher = await request(`actions/runs/${process.env.GITHUB_RUN_ID}`)
 await save(

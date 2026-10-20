@@ -8,6 +8,8 @@ import { URL } from 'node:url'
 
 const githubModule = new URL('./github.mjs', import.meta.url).href
 const publishModule = new URL('./publish.mjs', import.meta.url).href
+const receiptsModule = new URL('./store-receipts.mjs', import.meta.url).href
+const reportsModule = new URL('../reports/import.mjs', import.meta.url).href
 const repo = 'repos/xcv58/Tab-Manager-v2'
 const upload =
   'https://uploads.github.com/repos/xcv58/Tab-Manager-v2/releases/41/assets?name=package.zip'
@@ -27,6 +29,7 @@ async function scenario(t, responses, code) {
   const directory = await mkdtemp(join(tmpdir(), 'release-github-'))
   t.after(() => rm(directory, { recursive: true, force: true }))
   await writeFile(join(directory, 'responses.json'), JSON.stringify(responses))
+  await writeFile(join(directory, 'calls.json'), '[]')
   await writeFile(join(directory, 'package.zip'), 'frozen package bytes')
   await writeFile(
     join(directory, 'gh'),
@@ -60,7 +63,7 @@ process.stdout.write(response.bytes === undefined ? response.json === undefined 
     [
       '--input-type=module',
       '-e',
-      `const { optionalRelease, uploadImmutable, completedAsset } = await import(${JSON.stringify(githubModule)}); const { publicationReceipt } = await import(${JSON.stringify(publishModule)}); ${code}`,
+      `const { optionalRelease, uploadImmutable, completedAsset, readJsonAsset } = await import(${JSON.stringify(githubModule)}); const { publicationReceipt } = await import(${JSON.stringify(publishModule)}); const { readStoreReceipts, storeRetryDecision, summarizeStoreReceipts } = await import(${JSON.stringify(receiptsModule)}); const { readReportManifests } = await import(${JSON.stringify(reportsModule)}); ${code}`,
     ],
     {
       cwd: directory,
@@ -334,3 +337,217 @@ test('completed conflicting publication receipts remain immutable', async (t) =>
   )
   assert.match(error, /draft publication receipt conflicts/)
 })
+
+const candidate = {
+  source: { commit: 'a'.repeat(40), tag: 'v3.0.1' },
+  files: [{ name: 'build_chrome.zip', sha256: 'b'.repeat(64) }],
+}
+const receipt = {
+  schemaVersion: 1,
+  store: 'edge',
+  tag: candidate.source.tag,
+  commit: candidate.source.commit,
+  packageSha256: candidate.files[0].sha256,
+  candidateSha256: 'c'.repeat(64),
+  runId: '600',
+  attempt: 1,
+  recordedAt: '2026-10-20T12:00:00Z',
+  phase: 'submitted',
+}
+const incompleteReceipt = {
+  ...starter,
+  name: 'store-edge-500-1-001.json',
+  created_at: '2026-10-20T11:00:00Z',
+}
+const readReceipts = (assets) =>
+  `await readStoreReceipts(${JSON.stringify(assets)}, 'edge', ${JSON.stringify(candidate)}, ${JSON.stringify(receipt.candidateSha256)})`
+
+test('an empty old store checkpoint is unknown, requires reconciliation, and permits an explicit retry', async (t) => {
+  const result = await scenario(
+    t,
+    [],
+    `
+    const entries = ${readReceipts([incompleteReceipt])};
+    let blocked;
+    try { storeRetryDecision(entries, false) } catch (error) { blocked = error.message }
+    process.stdout.write(JSON.stringify({
+      blocked,
+      retry: storeRetryDecision(entries, true),
+      summary: summarizeStoreReceipts('edge', entries),
+      bytes: entries[0].bytes,
+      firstAttempt: storeRetryDecision([], false),
+    }));
+  `,
+  )
+  const value = JSON.parse(result)
+  assert.match(value.blocked, /requires store reconciliation/)
+  assert.equal(value.retry, 'submit')
+  assert.equal(value.firstAttempt, 'submit')
+  assert.equal(value.bytes, null)
+  assert.deepEqual(value.summary, {
+    store: 'edge',
+    state: 'unknown',
+    runId: '500',
+    recordedAt: incompleteReceipt.created_at,
+  })
+})
+
+test('a validated later store submission survives an older incomplete checkpoint and preserves original bytes', async (t) => {
+  const bytes = JSON.stringify(receipt) + '\n\n'
+  const saved = {
+    ...uploaded,
+    id: 52,
+    name: 'store-edge-600-1-902.json',
+    size: Buffer.byteLength(bytes),
+  }
+  const result = await scenario(
+    t,
+    [{ path: `${repo}/releases/assets/52`, bytes }],
+    `
+    const entries = ${readReceipts([saved, incompleteReceipt])};
+    process.stdout.write(JSON.stringify({
+      decision: storeRetryDecision(entries, false),
+      summary: summarizeStoreReceipts('edge', entries),
+      bytes: entries[0].bytes.toString(),
+    }));
+  `,
+  )
+  const value = JSON.parse(result)
+  assert.equal(value.decision, 'skip')
+  assert.equal(value.summary.state, 'submitted')
+  assert.equal(value.summary.runId, '600')
+  assert.equal(value.bytes, bytes)
+})
+
+for (const [name, mutate] of [
+  [
+    'wrong package',
+    (value) => {
+      value.packageSha256 = 'd'.repeat(64)
+    },
+  ],
+  [
+    'wrong candidate',
+    (value) => {
+      value.candidateSha256 = 'd'.repeat(64)
+    },
+  ],
+  [
+    'wrong filename run',
+    (value) => {
+      value.runId = '700'
+    },
+  ],
+]) {
+  test(`completed store receipts with ${name} are errors even for reconciled retries`, async (t) => {
+    const value = { ...receipt }
+    mutate(value)
+    const bytes = JSON.stringify(value)
+    const saved = {
+      ...uploaded,
+      name: 'store-edge-600-1-902.json',
+      size: Buffer.byteLength(bytes),
+    }
+    const error = await scenario(
+      t,
+      [{ path: `${repo}/releases/assets/51`, bytes }],
+      `
+      try { storeRetryDecision(${readReceipts([saved])}, true) }
+      catch (error) { process.stdout.write(error.message) }
+    `,
+    )
+    assert.match(error, /different packages or has invalid identity/)
+  })
+}
+
+const report = {
+  schemaVersion: 1,
+  kind: 'release-report',
+  id: 'release-report-600-1',
+  recordedAt: receipt.recordedAt,
+  source: { ...candidate.source, version: '3.0.1' },
+  publisher: {
+    repository: 'xcv58/Tab-Manager-v2',
+    workflow: 'publish-release.yml',
+    commit: candidate.source.commit,
+    runId: '600',
+    attempt: 1,
+  },
+  files: ['checks', 'publisher'].map((kind) => ({
+    kind,
+    name: `${kind}.json`,
+    bytes: 2,
+    sha256: 'd'.repeat(64),
+  })),
+}
+
+test('report discovery skips an old empty manifest and keeps the later complete capture', async (t) => {
+  const bytes = JSON.stringify(report)
+  const saved = {
+    ...uploaded,
+    id: 52,
+    name: `${report.id}.manifest.json`,
+    size: Buffer.byteLength(bytes),
+  }
+  const result = await scenario(
+    t,
+    [{ path: `${repo}/releases/assets/52`, bytes }],
+    `
+    const reports = await readReportManifests(${JSON.stringify([
+      { ...starter, name: 'release-report-500-1.manifest.json' },
+      saved,
+    ])});
+    process.stdout.write(JSON.stringify(reports.map(({ report }) => report.id)));
+  `,
+  )
+  assert.deepEqual(JSON.parse(result), [report.id])
+})
+
+for (const [name, asset] of [
+  [
+    'untrusted placeholder',
+    { ...starter, uploader: { login: 'someone-else' } },
+  ],
+  ['nonempty placeholder', { ...starter, size: 2 }],
+  ['empty completed upload', { ...uploaded, size: 0 }],
+  ['unsupported state', { ...uploaded, state: 'unknown' }],
+]) {
+  test(`JSON readers reject ${name} without downloading or deleting it`, async (t) => {
+    const error = await scenario(
+      t,
+      [],
+      `
+      try { await readJsonAsset(${JSON.stringify(asset)}) }
+      catch (error) { process.stdout.write(error.message) }
+    `,
+    )
+    assert.match(
+      error,
+      /untrusted|nonempty incomplete|empty or oversized|unsupported/,
+    )
+  })
+}
+
+for (const [name, bytes] of [
+  ['malformed completed JSON', '{'],
+  ['invalid completed schema', '{}'],
+]) {
+  test(`report discovery does not silently skip ${name}`, async (t) => {
+    const saved = {
+      ...uploaded,
+      name: `${report.id}.manifest.json`,
+      size: Buffer.byteLength(bytes),
+    }
+    const result = await scenario(
+      t,
+      [{ path: `${repo}/releases/assets/51`, bytes }],
+      `
+      let rejected = false;
+      try { await readReportManifests([${JSON.stringify(saved)}]) }
+      catch { rejected = true }
+      process.stdout.write(String(rejected));
+    `,
+    )
+    assert.equal(result, 'true')
+  })
+}

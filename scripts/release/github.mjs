@@ -49,6 +49,34 @@ export async function pages(path) {
     if (values.length < 100) return all
   }
 }
+// Readers never delete assets. A known interrupted upload is unavailable, not
+// an empty JSON document or a successfully completed operation.
+export async function readJsonAsset(asset, label = 'release JSON asset') {
+  assert(
+    asset.uploader?.login === 'github-actions[bot]',
+    `untrusted ${label}: ${asset.name}`,
+  )
+  if (asset.state === 'starter') {
+    assert(asset.size === 0, `nonempty incomplete ${label}: ${asset.name}`)
+    process.stderr.write(
+      `Warning: incomplete ${label} ${asset.name}; upload has not completed.\n`,
+    )
+    return null
+  }
+  assert(
+    asset.state === 'uploaded',
+    `unsupported ${label} state: ${asset.name}`,
+  )
+  assert(
+    Number.isSafeInteger(asset.size) &&
+      asset.size > 0 &&
+      asset.size <= 1_000_000,
+    `empty or oversized ${label}: ${asset.name}`,
+  )
+  const bytes = await request(`releases/assets/${asset.id}`, true)
+  assert(bytes.length === asset.size, `changed ${label} size: ${asset.name}`)
+  return { bytes, value: JSON.parse(bytes) }
+}
 export async function completedAsset(release, name) {
   assert(
     Number.isSafeInteger(release?.id) && release.id > 0,

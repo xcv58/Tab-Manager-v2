@@ -50,14 +50,6 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run:
-          name: Skip application verification for report-only imports
-          command: |
-            compare_revision="${CIRCLE_COMPARE_URL##*/}"
-            compare_revision="${compare_revision%%...*}"
-            if [ "$(node scripts/release/changes.mjs "$compare_revision")" = 'reports-only' ]; then
-              circleci-agent step halt
-            fi
       - *restore_cache
       - *pnpm_setup
       - *restore_playwright_cache

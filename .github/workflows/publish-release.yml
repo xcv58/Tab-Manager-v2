@@ -33,6 +33,7 @@ permissions:
 concurrency:
   group: publish-release-${{ inputs.candidate_run }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   release:
@@ -74,8 +75,10 @@ jobs:
     permissions:
       contents: write
     concurrency:
-      group: publish-chrome-${{ needs.release.outputs.tag }}
+      # One product per store: serialize draft mutations across release versions.
+      group: publish-chrome
       cancel-in-progress: false
+      queue: max
     steps:
       - uses: actions/checkout@v4
         with:
@@ -112,8 +115,10 @@ jobs:
     permissions:
       contents: write
     concurrency:
-      group: publish-firefox-${{ needs.release.outputs.tag }}
+      # One product per store: serialize draft mutations across release versions.
+      group: publish-firefox
       cancel-in-progress: false
+      queue: max
     steps:
       - uses: actions/checkout@v4
         with:
@@ -153,8 +158,10 @@ jobs:
     permissions:
       contents: write
     concurrency:
-      group: publish-edge-${{ needs.release.outputs.tag }}
+      # One product per store: serialize draft mutations across release versions.
+      group: publish-edge
       cancel-in-progress: false
+      queue: max
     steps:
       - uses: actions/checkout@v4
         with:

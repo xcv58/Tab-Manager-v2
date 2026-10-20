@@ -10,41 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  scope:
-    name: Determine application changes
-    runs-on: ubuntu-24.04
-    outputs:
-      application: ${{ steps.scope.outputs.application }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - id: scope
-        run: node scripts/release/changes.mjs
-
-  report-only:
-    name: Validate report data and website
-    needs: scope
-    if: ${{ needs.scope.outputs.application == 'false' }}
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 10.32.1
-      - run: pnpm install --frozen-lockfile
-      - run: node scripts/reports/catalog.mjs
-      - run: pnpm build:site
-
   firefox-integration-test:
-    needs: scope
-    if: ${{ needs.scope.outputs.application == 'true' }}
     name: Firefox integration
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -119,8 +85,6 @@ jobs:
           retention-days: 30
 
   test-build-integration-test:
-    needs: scope
-    if: ${{ needs.scope.outputs.application == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

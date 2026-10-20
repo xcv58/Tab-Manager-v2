@@ -90,8 +90,11 @@ trusted publisher. Completed assets remain immutable. Each invocation makes
 one cleanup/upload attempt; another failure stops with an error. The same
 recovery applies before reading an incomplete publication receipt.
 
-Chrome, Firefox, and Edge jobs run independently using the saved packages. Store
-credentials remain in the existing `chrome-web-store`, `firefox-amo`, and
+Chrome, Firefox, and Edge jobs run independently using the saved packages. Each
+store has one product-wide concurrency lock across all release tags. Up to 100
+waiting jobs queue without replacing earlier pending jobs; active submissions
+are never automatically cancelled. Queue order follows when jobs begin waiting,
+so it does not guarantee version order. Store credentials remain in the existing `chrome-web-store`, `firefox-amo`, and
 `edge-addons` GitHub environments. This flow needs no local store credentials,
 Release Please token, Vercel token, deployment hook, or custom website deploy job.
 The manual workflows become available after their definitions reach master.
@@ -110,7 +113,11 @@ A failure, timeout, or interruption is an **uncertain outcome**, not permission
 to resubmit. First inspect the store dashboard and archived operation/status
 receipts. If the attempt is confirmed unfinished and a new submission is needed,
 repeat the command with `--reconciled`. A journal upload failure stops the next
-store operation. There is no blind automatic retry after an ambiguous response.
+store operation. An empty, trusted `starter` receipt is retained as an unknown
+attempt: it does not crash receipt parsing, and retry still requires checking the
+store and explicitly using `--reconciled`. Completed malformed or mismatched
+receipts remain errors. There is no blind automatic retry after an ambiguous
+response.
 
 On a new machine or after losing the ignored local review state, run
 `pnpm release:review --tag v3.0.1` to recover and verify the published packages,
@@ -146,10 +153,16 @@ evidence. An appended capture never replaces an earlier capture.
 The explicit local import validates release/tag identity, trusted publisher
 receipts, file sizes/SHA-256, schema, and immutable record IDs before writing
 reviewable JSON under `notes/release-reports/` and `notes/performance/runs/`.
+Known empty, trusted `starter` report manifests are skipped with a warning; they
+never hide a later complete capture. Completed manifests and all referenced
+evidence must be uploaded, nonempty, and pass validation. Evidence capture also
+records incomplete store receipts as unavailable, with an unknown store outcome
+unless a validated successful submission for the exact packages was archived.
 An existing release without archived metrics can still be imported into the
 inventory. Review the diff and commit/push through normal repository rules.
-Report-only data pushes validate the website without repeating application
-builds, tests, or benchmarks. No bot opens a follow-up PR.
+Every push, including a report-data import, runs the normal application CI and
+website build. There is no path-based application verification bypass. No bot
+opens a follow-up PR.
 
 Open `http://127.0.0.1:8777/reports/` after the default preview command. Hover or
 tap charts for details; use arrow keys to browse and Enter to select. Choose a
