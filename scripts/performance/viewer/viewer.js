@@ -52,18 +52,21 @@
   }
   for (const release of catalog.inventory || []) {
     if (!map.has(release.commit))
-      map.set(release.commit, {
-        key: release.commit,
-        records: [],
-        source: {
-          commit: release.commit,
-          version: release.version,
-          status: 'released',
-          committedAt: release.releasedAt,
-          label: release.tag,
-          dirty: false,
-        },
-      })
+      map.set(release.commit, { key: release.commit, records: [], source: {} })
+    // Measurements are captured before publication. The reviewed release
+    // inventory promotes that source into history without rewriting its records.
+    const entry = map.get(release.commit)
+    entry.source = {
+      ...entry.source,
+      commit: release.commit,
+      version: release.version,
+      status: 'released',
+      committedAt: entry.source.committedAt || release.releasedAt,
+      publishedAt: release.releasedAt,
+      label: release.tag,
+      tag: release.tag,
+      dirty: false,
+    }
   }
   const allEntries = [...map.values()].sort(
     (a, b) =>
@@ -359,6 +362,11 @@
     byId('verification-context').textContent = selected
       ? `Captured ${selected.recordedAt.slice(0, 10)} · workflow ${selected.publisher.runId}, attempt ${selected.publisher.attempt}`
       : 'Not archived'
+    const submissions = selected?.submissions || []
+    byId('store-submissions').hidden = !submissions.length
+    byId('store-submissions').textContent = submissions.length
+      ? `Store submissions: ${submissions.map((item) => `${item.store}: ${item.state === 'submitted' ? 'submitted' : 'outcome requires reconciliation'}`).join(' · ')}. Store approval and public availability require separate verification.`
+      : ''
     byId('verification-note').textContent = selected
       ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some diagnostic archives exceeded the size limit and were not preserved; the manifest lists these omissions.' : ''}`
       : requested
@@ -1261,13 +1269,15 @@
       )
       button.addEventListener('click', () => selectEntry(entry.key))
       const date = document.createElement('small')
-      const published = entry.records
-        .map(
-          (record) =>
-            record.source.publishedAt || record.provenance.publishedAt,
-        )
-        .filter(Boolean)
-        .at(-1)
+      const published =
+        entry.source.publishedAt ||
+        entry.records
+          .map(
+            (record) =>
+              record.source.publishedAt || record.provenance.publishedAt,
+          )
+          .filter(Boolean)
+          .at(-1)
       date.textContent = `${published ? 'Released' : 'Source'} ${String(published || entry.source.committedAt).slice(0, 10)}`
       name.append(button, date)
       row.append(name)

@@ -25,10 +25,5 @@
       "destination": "/support/",
       "permanent": true
     }
-  ],
-  "git": {
-    "deploymentEnabled": {
-      "master": false
-    }
-  }
+  ]
 }

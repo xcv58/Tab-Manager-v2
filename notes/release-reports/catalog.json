@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "repository": "xcv58/Tab-Manager-v2",
+  "inventory": [
+    {
+      "commit": "3cd88a06e2936a5764a96e0d353b3ed08a78aeaf",
+      "version": "2.7.2",
+      "tag": "v2.7.2",
+      "releasedAt": "2026-10-12T02:16:42Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.7.2"
+    },
+    {
+      "commit": "90aa8ca4ce6237f453237b0a9e5aadcb25ce41dd",
+      "version": "2.7.1",
+      "tag": "v2.7.1",
+      "releasedAt": "2026-10-11T21:19:18Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.7.1"
+    },
+    {
+      "commit": "486f96876e36e844b0ebe5acdf260e103c4f8c7b",
+      "version": "2.7.0",
+      "tag": "v2.7.0",
+      "releasedAt": "2026-10-10T02:26:57Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.7.0"
+    },
+    {
+      "commit": "81f86f8e2e610e33c712a0f0ad2daae164f1f7e5",
+      "version": "2.6.3",
+      "tag": "v2.6.3",
+      "releasedAt": "2026-09-30T20:13:12Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.6.3"
+    },
+    {
+      "commit": "efbbd7ff33a24a44086835bb83622d445571873e",
+      "version": "2.6.2",
+      "tag": "v2.6.2",
+      "releasedAt": "2026-09-27T13:41:05Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.6.2"
+    },
+    {
+      "commit": "7f2cd7a1651f8e09213eb3c0b27a3ed6ecf6c2a8",
+      "version": "2.6.1",
+      "tag": "v2.6.1",
+      "releasedAt": "2026-08-23T15:41:40Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.6.1"
+    },
+    {
+      "commit": "060bf9f4ed7bcf47d5f34cf7de69d993cdac5698",
+      "version": "2.6.0",
+      "tag": "v2.6.0",
+      "releasedAt": "2026-08-04T00:14:00Z",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.6.0"
+    }
+  ],
+  "reports": []
+}

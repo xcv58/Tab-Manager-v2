@@ -1,16 +1,45 @@
 name: Safari build
 
-on: [push]
+on:
+  push:
+  workflow_call:
+    inputs:
+      source:
+        type: string
+        required: true
 
 concurrency:
-  group: safari-${{ github.workflow }}-${{ github.ref }}
+  group: safari-${{ github.workflow }}-${{ inputs.source || github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
+  scope:
+    runs-on: ubuntu-24.04
+    outputs:
+      application: ${{ steps.scope.outputs.application }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: scope
+        env:
+          CANDIDATE_SOURCE: ${{ inputs.source }}
+        run: |
+          if [ -n "$CANDIDATE_SOURCE" ]; then
+            echo "application=true" >> "$GITHUB_OUTPUT"
+          else
+            node scripts/release/changes.mjs
+          fi
+
   safari-build:
+    needs: scope
+    if: ${{ needs.scope.outputs.application == 'true' }}
     name: Safari ${{ matrix.configuration }} build
     runs-on: macos-15
     timeout-minutes: 20
@@ -20,6 +49,9 @@ jobs:
         configuration: [Debug, Release]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24

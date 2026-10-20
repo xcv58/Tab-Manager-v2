@@ -1,9 +1,11 @@
 import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import {
   readRecords,
   sha256,
   json,
   validateRecord,
+  repositoryRoot,
 } from '../performance/records.mjs'
 
 export const repository = 'xcv58/Tab-Manager-v2'
@@ -42,9 +44,7 @@ export function validateManifest(report) {
   )
   assert(
     report.publisher?.repository === repository &&
-      ['release-please.yml', 'refresh-release-reports.yml'].includes(
-        report.publisher.workflow,
-      ),
+      ['publish-release.yml'].includes(report.publisher.workflow),
     'unrecognized publisher',
   )
   assert(
@@ -81,6 +81,21 @@ export function validateManifest(report) {
     report.files.filter((file) => file.kind === 'publisher').length === 1,
     'one publisher receipt is required',
   )
+  if (report.submissions !== undefined) {
+    assert(Array.isArray(report.submissions), 'invalid store submissions')
+    const stores = new Set()
+    for (const item of report.submissions) {
+      assert(
+        ['chrome', 'firefox', 'edge'].includes(item.store) &&
+          !stores.has(item.store) &&
+          ['submitted', 'unknown'].includes(item.state) &&
+          /^\d+$/.test(String(item.runId)) &&
+          Number.isFinite(Date.parse(item.recordedAt)),
+        'invalid store receipt summary',
+      )
+      stores.add(item.store)
+    }
+  }
   return report
 }
 export function validateChecks(value, report) {
@@ -128,234 +143,125 @@ export function validateChecks(value, report) {
   return value
 }
 
-async function request(path, binary = false) {
-  const response = await fetch(
-    `https://api.github.com/repos/${repository}/${path}`,
-    {
-      headers: {
-        Accept: binary
-          ? 'application/octet-stream'
-          : 'application/vnd.github+json',
-        ...(process.env.GH_TOKEN
-          ? { Authorization: `Bearer ${process.env.GH_TOKEN}` }
-          : {}),
-      },
-      signal: AbortSignal.timeout(60_000),
-    },
+// This module is deliberately offline: both Vercel and local builds read Git.
+export const catalogPath = join(
+  repositoryRoot,
+  'notes/release-reports/catalog.json',
+)
+export const reportsDirectory = join(
+  repositoryRoot,
+  'notes/release-reports/reports',
+)
+export async function loadCatalog() {
+  const history = JSON.parse(
+    await readFile(
+      join(repositoryRoot, 'notes/release-reports/history.json'),
+      'utf8',
+    ),
   )
-  assert(response.ok, `GitHub ${response.status} for ${path}`)
-  return binary ? Buffer.from(await response.arrayBuffer()) : response.json()
-}
-export async function pages(path) {
-  const all = []
-  for (let page = 1; ; page++) {
-    const items = await request(
-      `${path}${path.includes('?') ? '&' : '?'}per_page=100&page=${page}`,
-    )
-    const values = Array.isArray(items)
-      ? items
-      : items.workflow_runs || items.artifacts || items.jobs
-    assert(Array.isArray(values), 'invalid GitHub pagination response')
-    all.push(...values)
-    if (values.length < 100) return all
-  }
-}
-export { request }
-
-export async function githubCatalog() {
-  const releases = (await pages('releases')).filter(
-    (release) =>
-      !release.draft &&
-      !release.prerelease &&
-      /^v\d+\.\d+\.\d+$/.test(release.tag_name) &&
-      release.tag_name
-        .slice(1)
-        .split('.')
-        .map(Number)
-        .some((n, i, a) => (i === 0 ? n > 2 : i === 1 && a[0] === 2 && n >= 6)),
-  )
-  const records = [],
-    reports = [],
-    inventory = []
-  for (const release of releases) {
-    // Resolve the tag rather than trusting target_commitish (often a branch).
-    const commit = (
-      await request(`commits/${encodeURIComponent(release.tag_name)}`)
-    ).sha
-    inventory.push({
-      commit,
-      version: release.tag_name.slice(1),
-      tag: release.tag_name,
-      releasedAt: release.published_at,
-      url: release.html_url,
-    })
-    const assets = await pages(`releases/${release.id}/assets`)
-    for (const asset of assets.filter((item) =>
-      /^release-report-.*\.manifest\.json$/.test(item.name),
-    )) {
-      assert(asset.size <= 1_000_000, 'oversized report manifest')
-      const bytes = await request(`releases/assets/${asset.id}`, true)
-      const report = validateManifest(JSON.parse(bytes))
-      assert(
-        report.source.commit === commit &&
-          report.source.tag === release.tag_name &&
-          asset.name === `${report.id}.manifest.json`,
-        'report belongs to a different release',
-      )
-      assert(
-        asset.uploader?.login === 'github-actions[bot]',
-        'manifest was not uploaded by the trusted workflow token',
-      )
-      const reportRecords = []
-      for (const file of report.files) {
-        const attachment = assets.find((item) => item.name === file.name)
-        assert(
-          attachment && attachment.size === file.bytes,
-          `missing or changed asset ${file.name}`,
-        )
-        // Diagnostic ZIPs are downloadable evidence; metrics/checks are the data input.
-        // Their API digest is checked when available; publisher verifies every byte.
-        if (file.kind === 'evidence') {
-          if (attachment.digest)
-            assert(
-              attachment.digest === `sha256:${file.sha256}`,
-              `evidence digest mismatch ${file.name}`,
-            )
-          else {
-            const evidence = await request(
-              `releases/assets/${attachment.id}`,
-              true,
-            )
-            assert(
-              evidence.length === file.bytes &&
-                sha256(evidence) === file.sha256,
-              `evidence checksum mismatch ${file.name}`,
-            )
-          }
-          file.url = attachment.browser_download_url
-          continue
-        }
-        const content = await request(`releases/assets/${attachment.id}`, true)
-        assert(
-          content.length === file.bytes && sha256(content) === file.sha256,
-          `checksum mismatch ${file.name}`,
-        )
-        const value = JSON.parse(content)
-        if (file.kind === 'metric') {
-          validateRecord(value)
-          assert(!value.source.dirty, 'dirty release measurement')
-          if (value.source.commit === report.source.commit)
-            assert(
-              value.source.version === report.source.version,
-              'measurement version disagrees with release',
-            )
-          reportRecords.push(value)
-        } else if (file.kind === 'checks')
-          report.checks = validateChecks(value, report).checks
-        else {
-          // The receipt survives Actions retention/deletion. Site builds depend
-          // on release assets, never on the continued existence of a CI run.
-          const publisher = value.run
-          assert(
-            publisher?.head_sha === report.publisher.commit &&
-              publisher.head_branch === 'master' &&
-              ['push', 'workflow_dispatch'].includes(publisher.event) &&
-              publisher.path ===
-                `.github/workflows/${report.publisher.workflow}` &&
-              String(publisher.id) === String(report.publisher.runId) &&
-              Number(publisher.run_attempt) ===
-                Number(report.publisher.attempt),
-            'publisher receipt does not match manifest',
-          )
-        }
-        file.url = attachment.browser_download_url
-      }
-      report.url = asset.browser_download_url
-      report.recordIds = reportRecords.map((record) => record.id)
-      reports.push(report)
-      records.push(...reportRecords)
-    }
-  }
-  return {
-    schemaVersion: 1,
-    repository,
-    fetchedAt: new Date().toISOString(),
-    inventory,
-    reports,
-    records,
-  }
-}
-
-export async function loadCatalog({
-  snapshot = process.env.REPORTS_SNAPSHOT,
-  remote = false,
-} = {}) {
-  const seed = (await readRecords()).filter((record) => !record.source.dirty)
-  const external = snapshot
-    ? JSON.parse(await readFile(snapshot, 'utf8'))
-    : remote
-      ? await githubCatalog()
-      : {
-          schemaVersion: 1,
-          repository,
-          inventory: [],
-          reports: [],
-          records: [],
-        }
   assert(
-    external.schemaVersion === 1 &&
-      external.repository === repository &&
-      Array.isArray(external.inventory) &&
-      Array.isArray(external.records) &&
-      Array.isArray(external.reports),
-    'invalid catalog snapshot',
+    history.schemaVersion === 1 && history.records.length === 19,
+    'invalid frozen history receipt',
   )
-  for (const report of external.reports) {
-    validateManifest(report)
-    validateChecks(
-      { schemaVersion: 1, commit: report.source.commit, checks: report.checks },
-      report,
+  for (const file of history.records) {
+    assert(
+      namePattern.test(file.name) && file.name.endsWith('.json'),
+      'unsafe historical record',
+    )
+    const bytes = await readFile(
+      join(repositoryRoot, 'notes/performance/runs', file.name),
+    )
+    assert(
+      bytes.length === file.bytes && sha256(bytes) === file.sha256,
+      `historical bytes changed: ${file.name}`,
     )
   }
-  for (const release of external.inventory)
+  const index = JSON.parse(await readFile(catalogPath, 'utf8'))
+  assert(
+    index.schemaVersion === 1 &&
+      index.repository === repository &&
+      Array.isArray(index.inventory) &&
+      Array.isArray(index.reports),
+    'invalid Git catalog',
+  )
+  const tags = new Set()
+  for (const release of index.inventory) {
     assert(
       commitPattern.test(release.commit) &&
         /^\d+\.\d+\.\d+$/.test(release.version) &&
         release.tag === `v${release.version}` &&
-        Number.isFinite(Date.parse(release.releasedAt)),
-      'invalid release inventory',
+        !tags.has(release.tag) &&
+        Number.isFinite(Date.parse(release.releasedAt)) &&
+        release.url ===
+          `https://github.com/${repository}/releases/tag/${release.tag}`,
+      'invalid or duplicate release inventory',
     )
-  const records = new Map()
-  for (const record of [...seed, ...external.records]) {
-    validateRecord(record)
-    assert(
-      !records.has(record.id) || json(records.get(record.id)) === json(record),
-      `conflicting record ${record.id}`,
-    )
-    records.set(record.id, record)
+    tags.add(release.tag)
   }
-  const catalog = { ...external, records: [...records.values()] }
-  catalog.digest = sha256(
-    json({
-      inventory: catalog.inventory,
-      reports: catalog.reports,
-      records: catalog.records,
-    }),
-  )
-  if (external.digest)
+  const records = (await readRecords()).filter((record) => !record.source.dirty)
+  const byId = new Map(records.map((record) => [record.id, record]))
+  const reports = []
+  const ids = new Set()
+  for (const name of index.reports) {
     assert(
-      external.digest === catalog.digest,
-      'catalog snapshot digest mismatch',
+      namePattern.test(name) && name.endsWith('.json') && !ids.has(name),
+      'unsafe or duplicate report path',
     )
+    ids.add(name)
+    const report = validateManifest(
+      JSON.parse(await readFile(join(reportsDirectory, name), 'utf8')),
+    )
+    validateChecks(
+      { schemaVersion: 1, commit: report.source.commit, checks: report.checks },
+      report,
+    )
+    const release = index.inventory.find(
+      (item) => item.tag === report.source.tag,
+    )
+    assert(
+      release?.commit === report.source.commit,
+      'report does not match release inventory',
+    )
+    assert(Array.isArray(report.recordIds), 'missing measurement inventory')
+    for (const id of report.recordIds)
+      assert(byId.has(id), `missing metric record ${id}`)
+    for (const file of report.files) {
+      assert(
+        file.url ===
+          `https://github.com/${repository}/releases/download/${report.source.tag}/${file.name}`,
+        'invalid evidence link',
+      )
+      if (file.kind === 'metric') {
+        const metric = report.metrics?.find((item) => item.name === file.name)
+        assert(metric && byId.has(metric.id), 'missing metric identity')
+        const bytes = await readFile(
+          join(repositoryRoot, 'notes/performance/runs', `${metric.id}.json`),
+        )
+        validateRecord(JSON.parse(bytes))
+        assert(
+          bytes.length === file.bytes && sha256(bytes) === file.sha256,
+          `changed metric ${metric.id}`,
+        )
+      }
+    }
+    reports.push(report)
+  }
+  const catalog = {
+    schemaVersion: 1,
+    repository,
+    inventory: index.inventory,
+    reports,
+    records,
+  }
+  catalog.digest = sha256(
+    json({ inventory: catalog.inventory, reports, records }),
+  )
   return catalog
 }
-
 if (process.argv[1] === import.meta.filename) {
-  const output = process.argv[2]
-  assert(output, 'usage: node scripts/reports/catalog.mjs OUTPUT.json')
-  const catalog = await loadCatalog({ remote: true })
-  await writeFile(output, json(catalog))
+  const catalog = await loadCatalog()
+  if (process.argv[2]) await writeFile(process.argv[2], json(catalog))
   process.stdout.write(
-    `Saved ${catalog.inventory.length} releases, ${catalog.records.length} records, ${catalog.reports.length} reports; ${catalog.digest}\n`,
+    `Validated ${catalog.inventory.length} published releases, ${catalog.records.length} records, ${catalog.reports.length} reports; ${catalog.digest}\n`,
   )
 }

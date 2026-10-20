@@ -8,13 +8,9 @@ import { buildViewer } from './performance/reports.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const output = path.join(root, 'dist/site')
-// A production publication is built by the coordinated workflow from a pinned,
-// fully validated catalog. Previews fetch at build time; local builds are offline.
-if (process.env.VERCEL_ENV === 'production' && !process.env.REPORTS_SNAPSHOT)
-  throw new Error('Production website builds require REPORTS_SNAPSHOT')
-const catalog = await loadCatalog({
-  remote: process.env.VERCEL === '1' || process.env.REPORTS_SOURCE === 'github',
-})
+// Every environment builds from the same reviewed Git data. No GitHub request,
+// credentials, release-event coordination, or production-only snapshot is needed.
+const catalog = await loadCatalog()
 const result = spawnSync('pnpm', ['build:demo'], {
   cwd: root,
   stdio: 'inherit',

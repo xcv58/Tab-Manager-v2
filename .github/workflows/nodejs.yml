@@ -7,21 +7,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release-candidate-version:
-    name: Release candidate version
-    if: ${{ startsWith(github.ref_name, 'release-please--') }}
-    runs-on: ubuntu-latest
+  scope:
+    name: Determine application changes
+    runs-on: ubuntu-24.04
+    outputs:
+      application: ${{ steps.scope.outputs.application }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Use Node.js 24 LTS
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Require a matching release newer than 3.0.0
-        run: node scripts/release-policy.mjs candidate
+      - id: scope
+        run: node scripts/release/changes.mjs
+
+  report-only:
+    name: Validate report data and website
+    needs: scope
+    if: ${{ needs.scope.outputs.application == 'false' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/reports/catalog.mjs
+      - run: pnpm build:site
 
   firefox-integration-test:
+    needs: scope
+    if: ${{ needs.scope.outputs.application == 'true' }}
     name: Firefox integration
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -69,8 +89,8 @@ jobs:
 
       - name: Build and package Firefox extension
         run: |
-          pnpm --filter tab-manager-v2 build:firefox
-          pnpm --filter tab-manager-v2 zip:firefox
+          pnpm --filter ./packages/extension build:firefox
+          pnpm --filter ./packages/extension zip:firefox
 
       - name: Firefox browser integration
         env:
@@ -96,6 +116,8 @@ jobs:
           retention-days: 30
 
   test-build-integration-test:
+    needs: scope
+    if: ${{ needs.scope.outputs.application == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

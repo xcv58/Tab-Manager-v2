@@ -24,10 +24,7 @@ function repository(t) {
     return git('rev-parse', 'HEAD')
   }
   const configure = (value) => {
-    writeFileSync(
-      join(cwd, 'release-please-config.json'),
-      JSON.stringify(value),
-    )
+    writeFileSync(join(cwd, 'release-config.json'), JSON.stringify(value))
     commit('chore: configure release baseline')
   }
   return { cwd, git, commit, configure }
