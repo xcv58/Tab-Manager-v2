@@ -7,18 +7,29 @@ extension package.
 ## Website page
 
 The website's **Performance** footer link opens `/performance/`. Its main
-view is **Release history**, showing every archived release. Use **History range**
-for all versions, the latest 10, or an inclusive custom range. Enable
+view is **Release history**, with separate bundle and runtime chart sections.
+Use **History range** for all releases, the latest 10, or an inclusive custom
+range. Open **Measurement settings** to change the runtime series or workload. Enable
 **Include development versions** to inspect archived candidate commits. The
 page identifies the frozen master snapshot rather than treating it as a release.
 Version, baseline, browser, measurement series, workload, and development-version
-visibility, history range, and comparison disclosure are preserved in the URL.
-Select any chart point (mouse or keyboard) or version in **Releases at a glance**
-to inspect it. **Compare two versions** exposes the highlighted version and its
+visibility, history range, comparison disclosure, and measurement-settings
+disclosure are preserved in the URL.
+Hover or focus any chart to inspect a version's value, observed range, sample
+count, and change from the comparison baseline. Guides highlight the same version
+across all six charts. Click or tap the chart to select that release; on a
+keyboard, Tab enters each chart, arrows or Home/End move between measured
+points, Enter/Space select, and Escape dismisses the detail. Touch details stay
+visible until another selection, a tap outside the charts, or scrolling.
+The version picker and expandable **Releases at a glance** table also select a
+release. The **Compared with** disclosure changes the inspected version and
 baseline; initially these are the latest measured release and its predecessor.
+Selection keeps focus in the chart or control you are using and updates the URL.
 The release table shows all six metrics and their changes from each version's
 preceding archived release, even if that preceding version is outside the range.
 Package evidence distinguishes original published ZIPs from source rebuilds.
+The release table, additional metrics, and **Measurement setup and evidence**
+stay in expandable sections below the charts.
 
 `pnpm build:site` builds the page into `dist/site/performance/`, using the shared
 site navigation and theme. It reads only checked-in archive records and excludes

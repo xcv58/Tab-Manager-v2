@@ -1,55 +1,83 @@
 <main id="main-content" class="performance-viewer" lang="en">
   <header>
-    <p class="eyebrow">Tab Manager v2</p>
+    <p class="eyebrow">Tab Manager v2 · Engineering</p>
     <h1>Release history</h1>
     <p class="description">
-      Follow package size and performance across releases. Select a point or a
-      release below to inspect its measurements and compare it with another
-      version.
+      The size and performance of Tab Manager v2, release by release.
     </p>
   </header>
-  <label class="version-options">
-    <input id="candidates" type="checkbox" />
-    Include development versions
-  </label>
   <form id="controls" aria-label="Release history controls">
     <label
-      >Package browser<select id="browser">
+      >Package<select id="browser">
         <option value="chrome">Chrome</option>
         <option value="firefox">Firefox</option>
       </select></label
     >
-    <label>Runtime measurement series<select id="series"></select></label>
-    <label>Startup and search workload<select id="workload"></select></label>
     <label
       >History range<select id="range">
-        <option value="all">All versions</option>
-        <option value="latest">Latest 10 versions</option>
-        <option value="custom">Choose a version range</option>
+        <option value="all">All releases</option>
+        <option value="latest">Latest 10</option>
+        <option value="custom">Custom range</option>
       </select></label
     >
+    <details id="measurement-settings">
+      <summary>Measurement settings</summary>
+      <div class="pair-controls">
+        <label>Runtime measurement series<select id="series"></select></label>
+        <label
+          >Startup and search workload<select id="workload"></select
+        ></label>
+      </div>
+      <label class="version-options">
+        <input id="candidates" type="checkbox" />
+        Include development versions
+      </label>
+      <p id="notice"></p>
+    </details>
   </form>
   <div id="custom-range" class="pair-controls" hidden>
     <label>From version<select id="from"></select></label>
     <label>Through version<select id="to"></select></label>
   </div>
   <p id="history-summary" role="status" aria-live="polite"></p>
-  <details id="comparison">
-    <summary>Compare two versions</summary>
-    <div class="pair-controls">
-      <label>Version to inspect<select id="target"></select></label>
-      <label>Compare with<select id="baseline"></select></label>
-    </div>
-  </details>
-  <p id="notice" role="status" aria-live="polite"></p>
-  <section id="charts" aria-label="Version comparison charts"></section>
+  <nav id="release-picker" aria-label="Inspect a release"></nav>
+  <section class="release-selection" aria-label="Selected release">
+    <h2 id="selected-release"></h2>
+    <details id="comparison">
+      <summary id="comparison-summary">Compare two versions</summary>
+      <div class="pair-controls">
+        <label>Version to inspect<select id="target"></select></label>
+        <label>Compare with<select id="baseline"></select></label>
+      </div>
+    </details>
+  </section>
+  <div id="charts">
+    <section class="chart-section" aria-labelledby="bundle-title">
+      <div class="section-heading">
+        <h2 id="bundle-title">Bundle size</h2>
+        <p id="package-context"></p>
+      </div>
+      <div id="bundle-charts" class="chart-grid"></div>
+    </section>
+    <section class="chart-section" aria-labelledby="runtime-title">
+      <div class="section-heading">
+        <h2 id="runtime-title">Runtime performance</h2>
+        <p id="runtime-context"></p>
+      </div>
+      <div id="runtime-charts" class="chart-grid"></div>
+    </section>
+  </div>
+  <p class="chart-help">
+    Hover or focus a point for details. Click, tap, or press Enter to inspect a
+    release. Use arrow keys to move between points.
+  </p>
   <p class="legend">
     Points show medians; whiskers show the observed minimum and maximum. Diamond
-    markers and dashed lines identify candidates. All plotted metrics use lower
-    values for less time or space.
+    markers and dashed lines identify candidates. Lower values use less time or
+    space. Local runtime measurements are advisory.
   </p>
-  <section id="release-history" aria-labelledby="release-history-title">
-    <h2 id="release-history-title">Releases at a glance</h2>
+  <details id="release-history">
+    <summary id="release-history-title">Releases at a glance</summary>
     <p class="description">
       Values follow the browser, measurement series, and workload above. Changes
       are relative to each version's preceding archived release; unavailable
@@ -77,7 +105,7 @@
         <tbody id="release-rows"></tbody>
       </table>
     </div>
-  </section>
+  </details>
   <details>
     <summary>More measurements</summary>
     <div class="table-scroll">
@@ -94,7 +122,7 @@
     </div>
   </details>
   <details class="methodology">
-    <summary>How these measurements work</summary>
+    <summary>Measurement setup and evidence</summary>
     <p>
       Download size is the exact Chrome or Firefox ZIP. Startup JavaScript
       counts the scripts loaded by the popup. Runtime charts use a production
@@ -131,18 +159,20 @@
       the original release dates. Original published ZIPs and rebuilt source
       packages are identified separately in the table.
     </p>
+    <section id="evidence" aria-labelledby="evidence-title">
+      <h2 id="evidence-title">Evidence for the selected version</h2>
+      <p id="source"></p>
+      <p id="provenance-note"></p>
+      <ul id="records"></ul>
+    </section>
   </details>
-  <section id="evidence" aria-labelledby="evidence-title">
-    <h2 id="evidence-title">Evidence for the selected version</h2>
-    <p id="source"></p>
-    <p id="provenance-note"></p>
-    <ul id="records"></ul>
-  </section>
-  <footer>
-    Runtime series separate browser, runner, fixture, and harness changes.
-    Missing measurements stay unavailable. Profiling uses simulated tab
-    metadata; native browser API latency and renderer RSS are not measured.
-  </footer>
+  <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
+  <p
+    id="chart-announcement"
+    class="visually-hidden"
+    role="status"
+    aria-live="polite"
+  ></p>
   <noscript
     >Enable JavaScript to view the archived measurements. The records directory
     also contains each original JSON record.</noscript

@@ -60,6 +60,7 @@
     ? query.get('range')
     : 'all'
   byId('comparison').open = query.get('compare') === '1'
+  byId('measurement-settings').open = query.get('setup') === '1'
   const requestedDevelopment = ['target', 'baseline'].some((name) => {
     const entry = map.get(query.get(name))
     return entry && entry.source.status !== 'released'
@@ -325,12 +326,12 @@
       },
     },
   ]
-  const plots = definitions.map((definition) => {
+  const plots = definitions.map((definition, index) => {
     const figure = document.createElement('figure')
     figure.className = 'plot'
     const header = document.createElement('div')
     header.className = 'plot-header'
-    const title = document.createElement('h2')
+    const title = document.createElement('h3')
     title.textContent = definition.title
     const delta = document.createElement('span')
     delta.className = 'delta'
@@ -339,13 +340,14 @@
     value.className = 'comparison-value'
     const selectedValue = document.createElement('strong')
     const baselineValue = document.createElement('small')
-    value.append(selectedValue, baselineValue)
+    baselineValue.className = 'visually-hidden'
+    value.append(selectedValue, delta, baselineValue)
     const svg = document.createElementNS(namespace, 'svg')
     svg.classList.add('chart')
     svg.setAttribute('role', 'group')
-    header.append(title, delta)
+    header.append(title)
     figure.append(header, value, caption, svg)
-    byId('charts').append(figure)
+    byId(index < 2 ? 'bundle-charts' : 'runtime-charts').append(figure)
     return {
       definition,
       figure,
@@ -354,8 +356,12 @@
       svg,
       selectedValue,
       baselineValue,
+      isBundle: index < 2,
     }
   })
+  const tooltip = byId('chart-tooltip')
+  const reportRoot = byId('main-content')
+  let preview = null
   const svgNode = (parent, type, attrs = {}, text) => {
     const node = document.createElementNS(namespace, type)
     for (const [key, value] of Object.entries(attrs))
@@ -370,12 +376,13 @@
     const target = map.get(controls.target.value),
       base = map.get(controls.baseline.value)
     const width = svg.getBoundingClientRect().width,
-      height = 232
+      height = 218
     const values = entries.map((entry, index) => ({
       entry,
       index,
       stat: definition.get(entry),
     }))
+    plot.points = []
     const targetStat = definition.get(target),
       baseStat = definition.get(base)
     const format = (stat) =>
@@ -386,8 +393,8 @@
     baselineValue.textContent = `${base ? entryLabel(base) : 'Baseline'}: ${format(baseStat)}`
     delta.textContent =
       targetStat && baseStat && baseStat.median > 0
-        ? `${percentChange(targetStat.median, baseStat.median)} vs baseline`
-        : 'Comparison unavailable'
+        ? percentChange(targetStat.median, baseStat.median)
+        : 'No comparison'
     caption.textContent = definition.subtitle()
     // Navigation or a hidden layout can briefly report a zero-width chart.
     // ResizeObserver will redraw it when it has usable space again.
@@ -404,17 +411,11 @@
       {},
       `${definition.title}, ${definition.unit}. ${values.map(({ entry, stat }) => `${entryLabel(entry)}: ${stat ? `${stat.median.toFixed(1)}, range ${stat.min.toFixed(1)} to ${stat.max.toFixed(1)}, ${stat.count} observation(s)` : 'not measured'}`).join('; ')}`,
     )
-    const left = 60,
-      right = width - 18,
+    const left = 52,
+      right = width - 10,
       top = 12,
-      bottom = 164
-    svgNode(svg, 'rect', {
-      class: 'frame',
-      x: left,
-      y: top,
-      width: right - left,
-      height: bottom - top,
-    })
+      bottom = 152
+    plot.bounds = { left, right, top, bottom }
     const valid = values.filter((point) => point.stat)
     if (!valid.length) {
       svgNode(
@@ -440,6 +441,20 @@
         ? (left + right) / 2
         : left + 18 + ((right - left - 36) * index) / (values.length - 1)
     const y = (value) => bottom - 5 - ((bottom - top - 10) * value) / ceiling
+    plot.points = values.map((point) => ({
+      ...point,
+      x: x(point.index),
+      y: point.stat ? y(point.stat.median) : (top + bottom) / 2,
+    }))
+    const selected = plot.points.find((point) => point.entry.key === target.key)
+    if (selected)
+      svgNode(svg, 'line', {
+        class: 'selection-guide',
+        x1: selected.x,
+        x2: selected.x,
+        y1: top,
+        y2: bottom,
+      })
     for (let tick = 0; tick <= ceiling + step * 0.01; tick += step) {
       const pos = y(tick)
       svgNode(svg, 'line', {
@@ -462,9 +477,9 @@
       svg,
       'text',
       {
-        x: 14,
+        x: 10,
         y: (top + bottom) / 2,
-        transform: `rotate(-90 14 ${(top + bottom) / 2})`,
+        transform: `rotate(-90 10 ${(top + bottom) / 2})`,
         'text-anchor': 'middle',
       },
       definition.unit,
@@ -537,7 +552,8 @@
         })
       const interactive = svgNode(svg, 'g', {
         class: 'release-point',
-        tabindex: '0',
+        'data-key': point.entry.key,
+        tabindex: current || (!targetStat && point === valid[0]) ? '0' : '-1',
         role: 'button',
         'aria-label': `Inspect ${entryLabel(point.entry)}: ${stat.median.toFixed(1)} ${definition.unit}`,
         'aria-pressed': String(current),
@@ -548,11 +564,43 @@
         r: 12,
         fill: 'transparent',
       })
-      interactive.addEventListener('click', () => selectEntry(point.entry.key))
+      interactive.addEventListener('click', (event) => {
+        event.stopPropagation()
+        selectEntry(point.entry.key)
+      })
+      interactive.addEventListener('focus', () => {
+        for (const node of svg.querySelectorAll('.release-point'))
+          node.setAttribute('tabindex', node === interactive ? '0' : '-1')
+        previewPoint(plot, point.entry.key, 'keyboard')
+      })
+      interactive.addEventListener('blur', () => {
+        if (preview?.mode === 'keyboard') clearPreview()
+      })
       interactive.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
           selectEntry(point.entry.key)
+        } else if (
+          ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)
+        ) {
+          event.preventDefault()
+          const nodes = [...svg.querySelectorAll('.release-point')]
+          const index = nodes.indexOf(interactive)
+          const next =
+            event.key === 'Home'
+              ? 0
+              : event.key === 'End'
+                ? nodes.length - 1
+                : Math.max(
+                    0,
+                    Math.min(
+                      nodes.length - 1,
+                      index + (event.key === 'ArrowRight' ? 1 : -1),
+                    ),
+                  )
+          nodes[next].focus({ preventScroll: true })
+        } else if (event.key === 'Escape') {
+          clearPreview()
         }
       })
       const marker =
@@ -565,14 +613,17 @@
           : svgNode(interactive, 'path', {
               d: `M${xx},${yy - 7}l5,7l-5,7l-5,-7Z`,
             })
-      marker.setAttribute('class', `point ${isBase ? 'selected-baseline' : ''}`)
+      marker.setAttribute(
+        'class',
+        `point ${current ? 'selected-target' : ''} ${isBase ? 'selected-baseline' : ''}`,
+      )
       svgNode(
         marker,
         'title',
         {},
         `${entryLabel(point.entry)}: ${stat.median.toFixed(1)} ${definition.unit}; ${stat.count} observations, min ${stat.min.toFixed(1)}, max ${stat.max.toFixed(1)}`,
       )
-      if (values.length <= 4 || current)
+      if (current)
         svgNode(
           svg,
           'text',
@@ -593,12 +644,225 @@
     svgNode(
       svg,
       'text',
-      { x: (left + right) / 2, y: 225, 'text-anchor': 'middle' },
+      { x: (left + right) / 2, y: 211, 'text-anchor': 'middle' },
       entries.some((entry) => entry.source.status !== 'released')
         ? 'Version · * candidate'
         : 'Version',
     )
+    svgNode(svg, 'rect', {
+      class: 'chart-hit',
+      'aria-hidden': 'true',
+      x: left,
+      y: top,
+      width: right - left,
+      height: bottom - top,
+    })
   }
+  function clearPreview() {
+    preview = null
+    tooltip.hidden = true
+    for (const plot of plots) {
+      for (const node of plot.svg.querySelectorAll(
+        '.hover-guide, .hover-marker',
+      ))
+        node.remove()
+      for (const node of plot.svg.querySelectorAll('[aria-describedby]'))
+        node.removeAttribute('aria-describedby')
+    }
+  }
+  function packageOrigin(entry) {
+    const record = bundleFor(entry)
+    const bundle = record?.bundles.find(
+      (item) => item.browser === controls.browser.value,
+    )
+    return !bundle
+      ? 'Not measured'
+      : bundle.origin === 'published-release'
+        ? 'Published ZIP'
+        : record.provenance.kind === 'packaged-bundles'
+          ? 'Release build'
+          : 'Source rebuild'
+  }
+  function previewPoint(plot, key, mode) {
+    const point = plot.points.find((item) => item.entry.key === key)
+    if (!point) return
+    clearPreview()
+    preview = {
+      plot,
+      key,
+      mode,
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    }
+    for (const other of plots) {
+      const matching = other.points.find((item) => item.entry.key === key)
+      if (!matching) continue
+      svgNode(other.svg, 'line', {
+        class: 'hover-guide',
+        x1: matching.x,
+        x2: matching.x,
+        y1: other.bounds.top,
+        y2: other.bounds.bottom,
+        'pointer-events': 'none',
+      })
+      if (matching.stat)
+        svgNode(other.svg, 'circle', {
+          class: 'hover-marker',
+          cx: matching.x,
+          cy: matching.y,
+          r: 6,
+        })
+    }
+    tooltip.replaceChildren()
+    const heading = document.createElement('strong')
+    heading.textContent = `${entryLabel(point.entry)} · ${plot.definition.title}`
+    tooltip.append(heading)
+    const addLine = (text, context = false) => {
+      const line = document.createElement('p')
+      line.textContent = text
+      if (context) line.className = 'tooltip-context'
+      tooltip.append(line)
+    }
+    const number = (value) =>
+      value.toLocaleString(undefined, { maximumFractionDigits: 1 })
+    const stat = point.stat
+    if (stat) {
+      addLine(
+        `${plot.isBundle ? 'Size' : 'Median'}: ${number(stat.median)} ${plot.definition.unit}`,
+      )
+      if (plot.isBundle) addLine(packageOrigin(point.entry), true)
+      else {
+        addLine(
+          `Observed range: ${number(stat.min)}–${number(stat.max)} ${plot.definition.unit}`,
+          true,
+        )
+        addLine(`${stat.count} observation${stat.count === 1 ? '' : 's'}`, true)
+      }
+      const base = map.get(controls.baseline.value)
+      const baseStat = plot.definition.get(base)
+      if (key === base?.key) addLine('Comparison baseline', true)
+      else if (baseStat?.median > 0)
+        addLine(
+          `${percentChange(stat.median, baseStat.median)} vs ${entryLabel(base)}`,
+          true,
+        )
+    } else addLine('Not measured in this series.', true)
+    tooltip.hidden = false
+    const rootRect = reportRoot.getBoundingClientRect()
+    const chartRect = plot.svg.getBoundingClientRect()
+    const tooltipRect = tooltip.getBoundingClientRect()
+    const left = Math.max(
+      12,
+      Math.min(
+        chartRect.left - rootRect.left + point.x + 14,
+        rootRect.width - tooltipRect.width - 12,
+      ),
+    )
+    const minimumTop = Math.max(8, 8 - rootRect.top)
+    let top = chartRect.top - rootRect.top + point.y - tooltipRect.height - 16
+    if (top < minimumTop) top = chartRect.top - rootRect.top + point.y + 18
+    top = Math.max(
+      minimumTop,
+      Math.min(
+        top,
+        window.innerHeight - rootRect.top - tooltipRect.height - 12,
+      ),
+    )
+    tooltip.style.left = `${left}px`
+    tooltip.style.top = `${top}px`
+    if (mode === 'keyboard') {
+      plot.svg
+        .querySelector(`[data-key="${key}"]`)
+        ?.setAttribute('aria-describedby', 'chart-tooltip')
+    }
+  }
+  function redrawPlots(keepPreview = false) {
+    const focused = document.activeElement
+    const focusedPlot = plots.find((plot) => plot.svg.contains(focused))
+    const focusedKey = focused?.getAttribute('data-key')
+    const retained = keepPreview ? preview : null
+    clearPreview()
+    for (const plot of plots) draw(plot)
+    if (focusedKey && focusedPlot) {
+      focusedPlot.svg
+        .querySelector(`[data-key="${focusedKey}"]`)
+        ?.focus({ preventScroll: true })
+    } else if (retained)
+      previewPoint(retained.plot, retained.key, retained.mode)
+  }
+  for (const plot of plots) {
+    const pointAt = (event) => {
+      if (!plot.points.length) return null
+      const rect = plot.svg.getBoundingClientRect()
+      const xx = event.clientX - rect.left,
+        yy = event.clientY - rect.top
+      const { left, right, top, bottom } = plot.bounds
+      if (xx < left || xx > right || yy < top || yy > bottom) return null
+      return plot.points.reduce((nearest, point) =>
+        Math.abs(point.x - xx) < Math.abs(nearest.x - xx) ? point : nearest,
+      )
+    }
+    plot.svg.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch' || preview?.mode === 'touch') return
+      const point = pointAt(event)
+      if (point) previewPoint(plot, point.entry.key, 'pointer')
+      else if (preview?.mode === 'pointer') clearPreview()
+    })
+    plot.svg.addEventListener('pointerleave', () => {
+      if (preview?.mode !== 'pointer') return
+      const focusedKey = document.activeElement?.getAttribute('data-key')
+      if (focusedKey && plot.svg.contains(document.activeElement))
+        previewPoint(plot, focusedKey, 'keyboard')
+      else clearPreview()
+    })
+    plot.svg.addEventListener('pointercancel', clearPreview)
+    plot.svg.addEventListener('click', (event) => {
+      const point = pointAt(event)
+      if (!point) return
+      selectEntry(point.entry.key)
+      previewPoint(
+        plot,
+        point.entry.key,
+        event.pointerType === 'touch' ? 'touch' : 'pointer',
+      )
+    })
+  }
+  document.addEventListener('click', (event) => {
+    // Selecting a release redraws the hit layer before this event bubbles.
+    // Its original path still identifies the chart even after the node detaches.
+    if (!plots.some((plot) => event.composedPath().includes(plot.figure)))
+      clearPreview()
+  })
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') clearPreview()
+  })
+  window.addEventListener(
+    'scroll',
+    () => {
+      const focused = document.activeElement
+      const focusedPlot = plots.find((plot) => plot.svg.contains(focused))
+      if (focusedPlot) {
+        // Tab navigation can scroll a newly focused point into view after focus.
+        // Keep its keyboard detail anchored as that native scrolling completes.
+        const point = focusedPlot.points.find(
+          (item) => item.entry.key === focused.dataset.key,
+        )
+        const screenY =
+          point && focusedPlot.svg.getBoundingClientRect().top + point.y
+        if (point && screenY >= 0 && screenY <= window.innerHeight)
+          previewPoint(focusedPlot, point.entry.key, 'keyboard')
+        else clearPreview()
+        return
+      }
+      if (
+        preview &&
+        (preview.scrollX !== window.scrollX ||
+          preview.scrollY !== window.scrollY)
+      )
+        clearPreview()
+    },
+    { passive: true },
+  )
   function details() {
     const target = map.get(controls.target.value),
       base = map.get(controls.baseline.value)
@@ -713,11 +977,33 @@
     }
   }
   function render() {
+    const focusedTableKey = byId('release-rows').contains(
+      document.activeElement,
+    )
+      ? document.activeElement.dataset.key
+      : null
+    const target = map.get(controls.target.value)
+    const base = map.get(controls.baseline.value)
     byId('history-summary').textContent =
-      `${entries.length} of ${eligibleEntries.length} archived versions · ${entryLabel(entries[0])} through ${entryLabel(entries.at(-1))}. Charts show the full selected range; highlighted values show ${entryLabel(map.get(controls.target.value))}.`
-    for (const plot of plots) draw(plot)
+      `${entries.length} of ${eligibleEntries.length} archived versions · ${entryLabel(entries[0])} — ${entryLabel(entries.at(-1))}`
+    byId('selected-release').textContent = `v${entryLabel(target)}`
+    byId('comparison-summary').textContent = base
+      ? `Compared with v${entryLabel(base)}`
+      : 'Compare two versions'
+    byId('package-context').textContent =
+      `${entryLabel(target)} · ${packageOrigin(target)}`
+    byId('runtime-context').textContent = groups.has(controls.series.value)
+      ? `Chrome · ${entries.filter((entry) => runtimeFor(entry)).length}/${entries.length} versions measured · Advisory`
+      : 'No runtime measurements'
+    releasePicker()
+    redrawPlots()
     details()
     releaseTable()
+    if (focusedTableKey) {
+      ;[...byId('release-rows').querySelectorAll('button')]
+        .find((button) => button.dataset.key === focusedTableKey)
+        ?.focus({ preventScroll: true })
+    }
   }
   function selectEntry(key) {
     const currentSeries = controls.series.value
@@ -733,10 +1019,39 @@
         : undefined,
     )
     setWorkloads(controls.workload.value)
-    byId('comparison').open = true
     render()
     remember()
-    controls.target.focus({ preventScroll: true })
+    byId('chart-announcement').textContent =
+      `Inspecting ${entryLabel(map.get(key))}. ${byId('comparison-summary').textContent}.`
+  }
+  function releasePicker() {
+    const picker = byId('release-picker')
+    const buttons = new Map(
+      [...picker.children].map((button) => [button.dataset.key, button]),
+    )
+    for (const [key, button] of buttons) {
+      if (!entries.some((entry) => entry.key === key)) button.remove()
+    }
+    for (const [index, entry] of entries.entries()) {
+      let button = buttons.get(entry.key)
+      if (!button) {
+        button = document.createElement('button')
+        button.type = 'button'
+        button.dataset.key = entry.key
+        button.textContent =
+          entry.source.status === 'released'
+            ? entry.source.version
+            : `${entry.source.commit.slice(0, 7)}*`
+        button.setAttribute('aria-label', `Inspect ${entryLabel(entry)}`)
+        button.addEventListener('click', () => selectEntry(entry.key))
+      }
+      button.setAttribute(
+        'aria-pressed',
+        String(entry.key === controls.target.value),
+      )
+      if (picker.children[index] !== button)
+        picker.insertBefore(button, picker.children[index] || null)
+    }
   }
   function releaseTable() {
     byId('release-rows').replaceChildren()
@@ -750,6 +1065,7 @@
       name.scope = 'row'
       const button = document.createElement('button')
       button.type = 'button'
+      button.dataset.key = entry.key
       button.textContent = entryLabel(entry)
       button.setAttribute(
         'aria-pressed',
@@ -787,17 +1103,7 @@
         row.append(cell)
       }
       const origin = document.createElement('td')
-      const record = bundleFor(entry)
-      const bundle = record?.bundles.find(
-        (item) => item.browser === controls.browser.value,
-      )
-      origin.textContent = bundle
-        ? bundle.origin === 'published-release'
-          ? 'Published ZIP'
-          : record.provenance.kind === 'packaged-bundles'
-            ? 'Release build'
-            : 'Source rebuild'
-        : 'Not measured'
+      origin.textContent = packageOrigin(entry)
       row.append(origin)
       byId('release-rows').append(row)
     }
@@ -815,6 +1121,7 @@
       from: controls.from.value,
       to: controls.to.value,
       compare: byId('comparison').open ? '1' : '0',
+      setup: byId('measurement-settings').open ? '1' : '0',
     }))
       url.searchParams.set(key, value)
     try {
@@ -857,6 +1164,8 @@
       remember()
     })
   byId('comparison').addEventListener('toggle', remember)
+  byId('measurement-settings').addEventListener('toggle', remember)
+  byId('controls').addEventListener('submit', (event) => event.preventDefault())
   controls.series.addEventListener('change', () => {
     setWorkloads(controls.workload.value)
     render()
@@ -868,7 +1177,7 @@
       remember()
     })
   new ResizeObserver(() => {
-    for (const plot of plots) draw(plot)
+    redrawPlots(true)
   }).observe(byId('charts'))
   render()
   remember()
