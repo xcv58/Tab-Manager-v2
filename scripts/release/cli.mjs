@@ -3,6 +3,8 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { assert, gh, repository } from './github.mjs'
 import { verifiedCandidate, commitPattern, hashPattern } from './candidate.mjs'
+import { candidatePreview } from './preview.mjs'
+import { reviewPublishedRelease } from './publish.mjs'
 import { git, json } from '../performance/records.mjs'
 import {
   assertReleaseVersion,
@@ -16,6 +18,7 @@ const { positionals, values } = parseArgs({
     version: { type: 'string' },
     notes: { type: 'string' },
     sha: { type: 'string' },
+    tag: { type: 'string' },
     run: { type: 'string' },
     approve: { type: 'string' },
     stores: { type: 'string', default: 'chrome,firefox,edge' },
@@ -31,6 +34,7 @@ const help = `Local release driver (no store credentials needed locally):
   # Review/version changes through the normal Git workflow, then freeze merged SHA:
   pnpm release:verify --sha FULL_MASTER_COMMIT
   pnpm release:review --run CANDIDATE_RUN_ID
+  pnpm release:review --tag v3.0.1  # recover a published review after CI artifacts expire
   pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256
   # Resume only selected unfinished stores, or append late benchmark evidence:
   pnpm release:publish --run RUN --approve SHA256 --stores edge [--reconciled]
@@ -113,20 +117,40 @@ if (command === 'prepare') {
     `Candidate verification dispatched for ${values.sha}. Find its run ID with gh run list --workflow release-candidate.yml, then run pnpm release:review --run ID.\n`,
   )
 } else if (command === 'review') {
-  assert(/^\d+$/.test(values.run || ''), '--run is required')
-  const root = resolve('.tmp/releases', values.run)
+  assert(
+    (values.tag && /^v\d+\.\d+\.\d+$/.test(values.tag)) ||
+      /^\d+$/.test(values.run || ''),
+    '--run or --tag is required',
+  )
+  const root = resolve('.tmp/releases', values.tag || values.run)
   await mkdir(root, { recursive: true })
   const directory = await mkdtemp(join(root, 'packages-'))
-  const verified = await verifiedCandidate(values.run, directory, undefined, {
-    gate: false,
-  })
+  let verified, preview
+  if (values.tag) {
+    const published = await reviewPublishedRelease(values.tag, directory)
+    verified = {
+      ...published,
+      jobs: published.publication.checks.map((check) => ({
+        ...check,
+        conclusion: 'success',
+      })),
+    }
+  } else {
+    verified = await verifiedCandidate(values.run, directory, undefined, {
+      gate: false,
+    })
+    preview = await candidatePreview(verified, directory)
+  }
   const { candidate, digest, jobs } = verified
+  const reviewRoot = resolve('.tmp/releases', String(candidate.build.runId))
+  await mkdir(reviewRoot, { recursive: true })
   await writeFile(
-    join(root, 'review.json'),
+    join(reviewRoot, 'review.json'),
     json({
       candidateSha256: digest,
       candidate,
       directory,
+      preview,
       reviewedAt: new Date().toISOString(),
     }),
   )
@@ -136,7 +160,9 @@ if (command === 'prepare') {
   for (const job of jobs)
     process.stdout.write(`${job.name}: ${job.conclusion || job.status}\n`)
   process.stdout.write(
-    `\nAdvisory benchmarks are optional. Review the packages and source before approving publication.\n`,
+    preview
+      ? `\nCandidate report: ${preview}\nServe it with: pnpm preview:release-media "${preview}" 8782\nOpen http://127.0.0.1:8782/?candidates=1&target=${candidate.source.commit}\nAdvisory benchmarks are optional; missing measurements remain explicit. Re-run review after benchmarks finish to refresh the local preview.\nReview source, packages and report before approving publication.\n`
+      : `\nPublished packages verified using archived gate receipts. Candidate run: ${candidate.build.runId}. Use this run ID and the displayed digest for a selected-store retry.\n`,
   )
 } else if (command === 'publish') {
   assert(

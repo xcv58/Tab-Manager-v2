@@ -69,6 +69,20 @@ export async function releasedCandidate(tag, directory, digest) {
   return { candidate, release, publication }
 }
 
+export async function reviewPublishedRelease(tag, directory) {
+  assert(/^v\d+\.\d+\.\d+$/.test(tag || ''), 'invalid published release tag')
+  const release = await request(`releases/tags/${tag}`)
+  const asset = (await pages(`releases/${release.id}/assets`)).find(
+    (item) => item.name === 'candidate.json',
+  )
+  assert(
+    asset?.uploader?.login === 'github-actions[bot]',
+    'missing trusted published candidate',
+  )
+  const digest = sha256(await request(`releases/assets/${asset.id}`, true))
+  return { ...(await releasedCandidate(tag, directory, digest)), digest }
+}
+
 async function main() {
   assert(
     process.env.GITHUB_REPOSITORY === repository &&

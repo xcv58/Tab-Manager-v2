@@ -49,8 +49,13 @@ required. Safari compilation is build evidence, not Safari browser acceptance.
 Runtime benchmarks and packaged-size collection use separate runners and are
 advisory. Required checks may finish while a benchmark is still running. The
 local review prints every job outcome, the source SHA, the candidate manifest
-SHA-256, and the directory containing downloaded packages. Review source and
-packages and use the locally built report page for presentation review.
+SHA-256, and the directory containing downloaded packages. It also assembles an unpublished
+local report from actual CI outcomes and whatever complete measurements are
+available, using the shared interactive viewer. The command prints a local
+preview command and URL. Missing benchmarks are explicit; rerun `release:review`
+after measurements finish to refresh the preview without rebuilding the candidate.
+This writes only ignored local output; it does not change the committed catalog.
+Review source, packages and this preview before approving publication.
 
 Reuse a previously prepared candidate by reviewing the same run; there is no
 need to dispatch it again. Source, dependency, version, or build-config changes
@@ -96,6 +101,11 @@ to resubmit. First inspect the store dashboard and archived operation/status
 receipts. If the attempt is confirmed unfinished and a new submission is needed,
 repeat the command with `--reconciled`. A journal upload failure stops the next
 store operation. There is no blind automatic retry after an ambiguous response.
+
+On a new machine or after losing the ignored local review state, run
+`pnpm release:review --tag v3.0.1` to recover and verify the published packages,
+original candidate run ID, manifest digest, and archived successful gate receipt.
+Use that run ID and digest for a selected-store retry.
 
 Published retries download GitHub release packages and the archived gate receipt;
 they do not depend on expired Actions artifacts and never rebuild the app.

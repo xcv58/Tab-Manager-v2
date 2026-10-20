@@ -68,6 +68,16 @@
       dirty: false,
     }
   }
+  for (const source of catalog.candidates || []) {
+    if (!map.has(source.commit))
+      map.set(source.commit, { key: source.commit, records: [], source })
+  }
+  if (catalog.preview) {
+    document.querySelector('.performance-viewer h1').textContent =
+      'Candidate release report'
+    document.querySelector('.performance-viewer .description').textContent =
+      `Unpublished local preview. Available measurements and actual CI outcomes are shown; publication still requires approval.${catalog.previewWarnings?.length ? ' Some advisory captures could not be loaded and are unavailable.' : ''}`
+  }
   const allEntries = [...map.values()].sort(
     (a, b) =>
       Date.parse(a.source.committedAt) - Date.parse(b.source.committedAt) ||
