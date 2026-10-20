@@ -1,4 +1,14 @@
 import React from 'react'
+
+let mockBridge: any
+jest.mock('libs/websiteIcons', () => ({
+  get websiteIcons() {
+    return mockBridge
+  },
+}))
+beforeEach(() => {
+  mockBridge = undefined
+})
 import { fireEvent, render, screen } from '@testing-library/react'
 import TabRowPreview, { TabRowsPreview } from '../TabRowPreview'
 
@@ -46,4 +56,25 @@ test('sample tab selection and focus work without exposing pretend destructive a
   expect(
     screen.queryByRole('button', { name: 'Close' }),
   ).not.toBeInTheDocument()
+})
+
+test('the actual Safari Settings row uses its sample icon without live lookups and remains interactive', () => {
+  mockBridge = { resolve: jest.fn(), subscribe: jest.fn(() => () => {}) }
+  const iconUrl = 'data:image/svg+xml,sample-settings-icon'
+  render(
+    <TabRowPreview
+      config={{
+        id: 1,
+        title: 'Static example',
+        url: 'https://example.com/',
+        iconUrl,
+      }}
+    />,
+  )
+  expect(document.querySelector('img')).toHaveAttribute('src', iconUrl)
+  expect(mockBridge.resolve).not.toHaveBeenCalled()
+  const checkbox = screen.getByRole('checkbox', { name: 'Toggle select' })
+  fireEvent.click(checkbox)
+  expect(checkbox).toBeChecked()
+  expect(mockBridge.resolve).not.toHaveBeenCalled()
 })

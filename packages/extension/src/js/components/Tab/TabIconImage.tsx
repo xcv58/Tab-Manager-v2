@@ -2,6 +2,7 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
 import { websiteIcons } from 'libs/websiteIcons'
+import { WebsiteIconBusyError } from 'libs/WebsiteIconBusyError'
 import emptyIcon from 'img/chrome/empty.png'
 import type { TabProps } from 'components/types'
 
@@ -44,16 +45,24 @@ const WebsiteTabIconImage = observer(function WebsiteTabIconImage({
   )
   React.useEffect(() => {
     if (!websiteIcons || !enabled || !visible || faked) return
-    let current = true
-    void websiteIcons
-      .resolve(id, url)
-      .then((image) => {
-        if (current && image) setResolved({ key, image })
-      })
-      .catch(() => {})
-    return () => {
-      current = false
+    const controller = new AbortController()
+    const { signal } = controller
+    const api = websiteIcons
+    const resolve = async () => {
+      while (!signal.aborted) {
+        try {
+          const image = await api.resolve(id, url, signal)
+          if (!signal.aborted && image) setResolved({ key, image })
+          return
+        } catch (error) {
+          if (!(error instanceof WebsiteIconBusyError) || !api.waitForCapacity)
+            return
+          await api.waitForCapacity(signal)
+        }
+      }
     }
+    void resolve()
+    return () => controller.abort()
   }, [id, url, key, enabled, visible, faked])
   const candidate =
     enabled && websiteIcons

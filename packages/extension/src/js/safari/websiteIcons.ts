@@ -1,9 +1,9 @@
 import type { WebsiteIcons } from 'libs/websiteIcons'
 import { websiteOriginPattern } from 'libs/websiteOriginPattern'
+import { createWebsiteIconQueue } from './websiteIconQueue'
 
 const MAX_BYTES = 256 * 1024
 const MAX_CACHE = 128
-const TIMEOUT = 8000
 
 // Lives only in the extension page's memory, not in synced storage or a server.
 export const createWebsiteIcons = (raw: any): WebsiteIcons => {
@@ -19,18 +19,11 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
       }),
     ),
   ]
-  const pending = new Map<string, Promise<string | null>>()
   const listeners = new Set<(tabId?: number) => void>()
-  const controllers = new Set<AbortController>()
-  let generation = 0
-  let active = 0
-  const waiting: Array<() => void> = []
   const invalidate = () => {
-    generation++
     cache.clear()
     missingHosts.clear()
-    pending.clear()
-    controllers.forEach((controller) => controller.abort())
+    queue.invalidate()
     listeners.forEach((listener) => listener())
   }
   raw.permissions?.onAdded?.addListener(invalidate)
@@ -131,7 +124,7 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
       credentials: 'omit',
       referrerPolicy: 'no-referrer',
       redirect: 'error',
-      cache: 'force-cache',
+      cache: 'no-store',
     })
     if (
       !response.ok ||
@@ -243,6 +236,7 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
     recordMissingHosts(id, url, image ? [] : [...missing].sort())
     return image
   }
+  const queue = createWebsiteIconQueue(load)
   return {
     hasAccess: async (urls) => {
       const origins = accessOrigins(urls)
@@ -258,49 +252,12 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
         return Promise.resolve(false)
       return raw.permissions.request({ origins })
     },
-    resolve: (id, url) => {
+    resolve: (id, url, signal) => {
       if (!Number.isInteger(id) || !websiteOriginPattern(url))
         return Promise.resolve(null)
-      const key = `${id}:${url}`
-      if (pending.has(key)) return pending.get(key)!
-      if (waiting.length >= 64) return Promise.resolve(null)
-      const startGeneration = generation
-      const result = new Promise<string | null>((resolve) => {
-        const start = () => {
-          if (generation !== startGeneration) {
-            resolve(null)
-            return
-          }
-          active++
-          const controller = new AbortController()
-          controllers.add(controller)
-          const timer = setTimeout(() => controller.abort(), TIMEOUT)
-          const aborted = new Promise<null>((done) =>
-            controller.signal.addEventListener('abort', () => done(null), {
-              once: true,
-            }),
-          )
-          Promise.race([load(id, url, controller.signal), aborted])
-            .then(
-              (image) => resolve(generation === startGeneration ? image : null),
-              () => resolve(null),
-            )
-            .finally(() => {
-              clearTimeout(timer)
-              controllers.delete(controller)
-              active--
-              while (active < 4 && waiting.length) waiting.shift()!()
-            })
-        }
-        if (active < 4) start()
-        else waiting.push(start)
-      })
-      pending.set(key, result)
-      void result.finally(() => {
-        if (pending.get(key) === result) pending.delete(key)
-      })
-      return result
+      return queue.resolve(id, url, signal)
     },
+    waitForCapacity: queue.waitForCapacity,
     subscribe: (listener) => {
       listeners.add(listener)
       return () => {

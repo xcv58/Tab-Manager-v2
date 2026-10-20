@@ -24,6 +24,11 @@ export default observer(function WebsiteIconAccess() {
       ),
     ].sort(),
   )
+  // A redacted URL can mean denied access or a Safari internal page. Offer
+  // manual help without guessing an origin or requesting broader permission.
+  const hasHiddenUrls = windowStore.tabs.some(
+    (tab) => !tab.incognito && !tab.url,
+  )
   const enabled = userStore.showTabIcon
   const updateMissing = (value: boolean) => {
     if (!value && ref.current?.contains(document.activeElement)) {
@@ -101,7 +106,7 @@ export default observer(function WebsiteIconAccess() {
       if (request.current === current) setBusy(false)
     }
   }
-  if (!enabled || !missing) return null
+  if (!enabled || !websiteIcons || (!missing && !hasHiddenUrls)) return null
   return (
     <div
       ref={ref}
@@ -112,21 +117,25 @@ export default observer(function WebsiteIconAccess() {
       <p id={descriptionId} className="m-0">
         {websiteIcons?.isDemo
           ? 'Preview Safari website access with sample icons. No websites are contacted.'
-          : 'Allow website access in Safari to display website icons.'}
+          : missing
+            ? 'Allow website access in Safari to display website icons.'
+            : 'Safari has not shared website details for some tabs. Built-in Safari pages may also have no website details.'}
       </p>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={() => void requestAccess()}
-        aria-describedby={descriptionId}
-        className="mt-2 rounded border border-slate-300 px-3 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
-      >
-        {busy ? 'Waiting for website access…' : 'Allow website access'}
-      </button>
-      {!websiteIcons?.isDemo && (
+      {missing && (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void requestAccess()}
+          aria-describedby={descriptionId}
+          className="mt-2 rounded border border-slate-300 px-3 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+        >
+          {busy ? 'Waiting for website access…' : 'Allow website access'}
+        </button>
+      )}
+      {(!websiteIcons.isDemo || hasHiddenUrls) && (
         <details className="mt-2">
           <summary className="cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">
-            How to allow access
+            {missing ? 'How to allow access' : 'Check Safari website access'}
           </summary>
           <p className="mt-1 mb-0">
             In Safari Settings → Extensions → Tab Manager v2 → Edit Websites,

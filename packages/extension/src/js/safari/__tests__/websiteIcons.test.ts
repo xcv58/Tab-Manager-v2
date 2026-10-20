@@ -140,6 +140,7 @@ it('uses a top-frame packaged reader and never sends cookies or referrers or fol
       credentials: 'omit',
       referrerPolicy: 'no-referrer',
       redirect: 'error',
+      cache: 'no-store',
     }),
   )
   expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:local-icon')

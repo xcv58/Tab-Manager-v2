@@ -81,7 +81,7 @@ export const Icon = observer((props: TabProps) => {
           onClick={() => select()}
           onFocus={focusInnerControl}
         >
-          <TabIconImage tab={props.tab} />
+          <TabIconImage tab={props.tab} faked={props.preview} />
         </IconButton>
       </div>
       <div
@@ -100,9 +100,15 @@ export const Icon = observer((props: TabProps) => {
 
 // Search rows use non-interactive icon controls, but still show live icons.
 export default observer((props: TabProps & { liveIcon?: boolean }) => {
-  const { faked, tab, disableSequentialFocus, liveIcon } = props
+  const { faked, tab, disableSequentialFocus, liveIcon, preview } = props
   if (!faked) {
-    return <Icon tab={tab} disableSequentialFocus={disableSequentialFocus} />
+    return (
+      <Icon
+        tab={tab}
+        preview={preview}
+        disableSequentialFocus={disableSequentialFocus}
+      />
+    )
   }
   return (
     <div
