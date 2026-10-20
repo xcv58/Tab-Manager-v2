@@ -1,234 +1,300 @@
-:root {
+.performance-standalone {
   color-scheme: light dark;
-  --background: light-dark(#fafbfe, #10131a);
-  --surface: light-dark(#ffffff, #191e29);
-  --text: light-dark(#182235, #e6ebf5);
-  --muted: light-dark(#5c687d, #a5b0c3);
-  --border: light-dark(#d9e0ec, #394253);
-  --series: light-dark(#5046d5, #a8a0ff);
-  --focus: light-dark(#5b52eb, #b1aaff);
+  --performance-background: light-dark(#fafbfe, #10131a);
+  --performance-surface: light-dark(#ffffff, #191e29);
+  --performance-text: light-dark(#182235, #e6ebf5);
+  --performance-muted: light-dark(#5c687d, #a5b0c3);
+  --performance-border: light-dark(#d9e0ec, #394253);
+  --performance-series: light-dark(#5046d5, #a8a0ff);
+  --performance-focus: light-dark(#5b52eb, #b1aaff);
   font:
     15px/1.5 system-ui,
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  background: var(--background);
-  color: var(--text);
+  background: var(--performance-background);
+  color: var(--performance-text);
 }
-* {
+.performance-viewer,
+.performance-viewer * {
   box-sizing: border-box;
 }
-body {
+.performance-standalone {
   margin: 0;
+  min-height: 100vh;
 }
-main {
+.performance-viewer {
   width: min(1120px, 100%);
   margin: auto;
   padding: 30px clamp(16px, 4vw, 40px) 40px;
 }
-h1 {
+.performance-viewer h1 {
   font-size: 30px;
   font-weight: 600;
   margin: 0 0 8px;
   letter-spacing: -0.025em;
 }
-h2 {
+.performance-viewer h2 {
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 6px;
 }
-p {
+.performance-viewer p {
   margin: 0;
 }
-.eyebrow {
-  color: var(--muted);
+.performance-viewer .eyebrow {
+  color: var(--performance-muted);
   margin-bottom: 4px;
 }
-.description {
+.performance-viewer .description {
   max-width: 75ch;
-  color: var(--muted);
+  color: var(--performance-muted);
 }
-#controls {
+.performance-viewer #controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
   gap: 14px 18px;
   margin: 24px 0 14px;
 }
-label {
+.performance-viewer label {
   display: flex;
   flex-direction: column;
   gap: 5px;
   min-width: 0;
   font-size: 13px;
 }
-select {
+.performance-viewer select {
   width: 100%;
   min-width: 0;
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--performance-border);
   border-radius: 8px;
-  color: var(--text);
-  background: var(--surface);
+  color: var(--performance-text);
+  background: var(--performance-surface);
   font: inherit;
   font-size: 15px;
   text-overflow: ellipsis;
 }
-select:focus-visible,
-a:focus-visible,
-summary:focus-visible {
-  outline: 3px solid var(--focus);
+.performance-viewer select:focus-visible,
+.performance-viewer input:focus-visible,
+.performance-viewer a:focus-visible,
+.performance-viewer summary:focus-visible {
+  outline: 3px solid var(--performance-focus);
   outline-offset: 3px;
 }
-select:disabled {
+.performance-viewer select:disabled {
   opacity: 0.65;
 }
-#notice {
-  color: var(--muted);
+.performance-viewer #notice {
+  color: var(--performance-muted);
   min-height: 23px;
   margin: 14px 0 22px;
   overflow-wrap: anywhere;
 }
-#charts {
+.performance-viewer #charts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 22px 28px;
 }
-.plot {
+.performance-viewer .plot {
   min-width: 0;
   margin: 0;
+  padding: 16px;
+  border: 1px solid var(--performance-border);
+  border-radius: 12px;
+  background: var(--performance-background);
 }
-.plot-header {
+.performance-viewer .plot-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
 }
-.plot h2 {
+.performance-viewer .plot h2 {
   font-size: 17px;
   margin: 0;
 }
-.plot .delta {
+.performance-viewer .plot .delta {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
-.plot figcaption {
-  color: var(--muted);
+.performance-viewer .plot figcaption {
+  color: var(--performance-muted);
   font-size: 12px;
   margin-top: 4px;
 }
-.chart {
+.performance-viewer .chart {
   display: block;
   width: 100%;
   height: 220px;
 }
-.chart text {
+.performance-viewer .chart text {
   font:
     12px system-ui,
     sans-serif;
-  fill: var(--text);
+  fill: var(--performance-text);
   font-variant-numeric: tabular-nums;
 }
-.chart .frame,
-.chart .grid {
-  stroke: var(--border);
+.performance-viewer .chart .frame,
+.performance-viewer .chart .grid {
+  stroke: var(--performance-border);
   stroke-width: 1;
   fill: none;
 }
-.chart .line {
-  stroke: var(--series);
+.performance-viewer .chart .line {
+  stroke: var(--performance-series);
   stroke-width: 1.6;
   fill: none;
 }
-.chart .candidate {
+.performance-viewer .chart .candidate {
   stroke-dasharray: 4 4;
 }
-.chart .point {
-  fill: var(--series);
+.performance-viewer .chart .point {
+  fill: var(--performance-series);
 }
-.chart .selected-baseline {
-  stroke: var(--text);
+.performance-viewer .chart .selected-baseline {
+  stroke: var(--performance-text);
   stroke-width: 1.5;
 }
-.chart .whisker {
-  stroke: var(--muted);
+.performance-viewer .chart .whisker {
+  stroke: var(--performance-muted);
   fill: none;
   stroke-width: 1;
 }
-.chart .value {
+.performance-viewer .chart .value {
   font-weight: 600;
 }
-.chart .empty {
-  fill: var(--muted);
+.performance-viewer .chart .empty {
+  fill: var(--performance-muted);
   font-size: 13px;
 }
-.legend,
-footer {
-  color: var(--muted);
+.performance-viewer .legend,
+.performance-viewer footer {
+  color: var(--performance-muted);
   font-size: 13px;
   margin-top: 18px;
 }
-details {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+.performance-viewer details {
+  border-top: 1px solid var(--performance-border);
+  border-bottom: 1px solid var(--performance-border);
   margin-top: 24px;
   padding: 14px 0;
 }
-summary {
+.performance-viewer summary {
   cursor: pointer;
   font-weight: 500;
 }
-.table-scroll {
+.performance-viewer .table-scroll {
   overflow-x: auto;
 }
-table {
+.performance-viewer table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
   margin-top: 12px;
 }
-th,
-td {
+.performance-viewer th,
+.performance-viewer td {
   text-align: right;
   padding: 9px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--performance-border);
   font-variant-numeric: tabular-nums;
 }
-th:first-child,
-td:first-child {
+.performance-viewer th:first-child,
+.performance-viewer td:first-child {
   text-align: left;
   padding-left: 0;
 }
-tr:last-child td {
+.performance-viewer tr:last-child td {
   border-bottom: 0;
 }
-#evidence {
+.performance-viewer #evidence {
   margin-top: 24px;
 }
-#evidence p,
-#evidence li {
+.performance-viewer #evidence p,
+.performance-viewer #evidence li {
   font-size: 13px;
   overflow-wrap: anywhere;
 }
-#records {
+.performance-viewer #records {
   padding-left: 20px;
 }
-#records li {
+.performance-viewer #records li {
   margin-bottom: 8px;
 }
-a {
-  color: var(--series);
+.performance-viewer a {
+  color: var(--performance-series);
   text-underline-offset: 3px;
 }
-footer {
+.performance-viewer footer {
   max-width: 95ch;
 }
 @media (max-width: 420px) {
-  h1 {
+  .performance-viewer h1 {
     font-size: 26px;
   }
-  main {
+  .performance-viewer {
     padding-top: 20px;
   }
+}
+
+.performance-site .performance-viewer {
+  --performance-background: var(--bg-color);
+  --performance-surface: var(--surface);
+  --performance-text: var(--text-primary);
+  --performance-muted: var(--text-secondary);
+  --performance-border: var(--border);
+  --performance-series: var(--accent-hover);
+  --performance-focus: var(--accent);
+  width: 100%;
+  padding: 40px 0 56px;
+  color: var(--performance-text);
+}
+.performance-viewer .version-options {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 18px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.performance-viewer .version-options[hidden] {
+  display: none;
+}
+.performance-viewer input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--performance-series);
+}
+.performance-viewer .comparison-value {
+  margin: 12px 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.performance-viewer .comparison-value strong {
+  display: block;
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+.performance-viewer .comparison-value small {
+  display: block;
+  color: var(--performance-muted);
+  font-size: 12px;
+}
+.performance-viewer .methodology p + p {
+  margin-top: 12px;
+}
+.performance-viewer .methodology {
+  color: var(--performance-muted);
+  font-size: 14px;
+}
+.performance-viewer .methodology summary {
+  color: var(--performance-text);
+}
+.performance-viewer .methodology p:first-of-type {
+  margin-top: 14px;
 }

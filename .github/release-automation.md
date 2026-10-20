@@ -39,6 +39,9 @@ and a draft data-only PR preserves the records in Git.
 Use `pnpm performance:preview` to view archived history. Full instructions,
 including downloading new CI observations before merging their archive PR,
 are in [notes/performance/README.md](../notes/performance/README.md).
+The website build also generates `/performance/` from reviewed, clean archive
+records. Merging a measurement PR makes those records available to the next
+website build; it does not rerun benchmarks during site generation.
 
 ## Manual 3.0.0 baseline and minimum automated version
 

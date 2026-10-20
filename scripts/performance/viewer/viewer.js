@@ -26,15 +26,15 @@
     )
       entry.source = record.source
   }
-  const entries = [...map.values()].sort(
+  const allEntries = [...map.values()].sort(
     (a, b) =>
       Date.parse(a.source.committedAt) - Date.parse(b.source.committedAt) ||
       a.key.localeCompare(b.key),
   )
+  let entries = allEntries
   const groups = new Map()
-  for (const record of data.filter((record) => record.runtime))
-    groups.set(record.runtime.compatibilityKey, record.runtime.environment)
   const controls = {
+    candidates: byId('candidates'),
     target: byId('target'),
     baseline: byId('baseline'),
     browser: byId('browser'),
@@ -49,33 +49,19 @@
   }
   const entryLabel = (entry) =>
     `${entry.source.status === 'released' ? entry.source.version : `${entry.source.version} candidate @ ${entry.source.commit.slice(0, 8)}`}${entry.source.dirty ? ' (working tree)' : ''}`
-  for (const entry of entries)
-    option(controls.target, entry.key, entryLabel(entry))
-  for (const [key, env] of groups)
-    option(
-      controls.series,
-      key,
-      `${env.runner || `${env.platform}/${env.arch}`} · Chrome ${env.browser} · ${key.slice(0, 8)}`,
-    )
-  if (!groups.size) option(controls.series, '', 'No runtime measurements')
-  controls.series.disabled = !groups.size
   const query = new URL(window.location.href).searchParams
-  controls.target.value = entries.some(
-    (entry) => entry.key === query.get('target'),
+  const requestedDevelopment = ['target', 'baseline'].some((name) => {
+    const entry = map.get(query.get(name))
+    return entry && entry.source.status !== 'released'
+  })
+  controls.candidates.checked = query.has('candidates')
+    ? query.get('candidates') === '1'
+    : document.body.dataset.performanceView !== 'public' || requestedDevelopment
+  controls.candidates.closest('label').hidden = allEntries.every(
+    (entry) => entry.source.status === 'released',
   )
-    ? query.get('target')
-    : entries.at(-1).key
   controls.browser.value =
     query.get('browser') === 'firefox' ? 'firefox' : 'chrome'
-  if (groups.has(query.get('series')))
-    controls.series.value = query.get('series')
-  else {
-    const selected = map
-      .get(controls.target.value)
-      .records.filter((record) => record.runtime)
-      .at(-1)
-    if (selected) controls.series.value = selected.runtime.compatibilityKey
-  }
   const chooseBaseline = (preferred) => {
     const target = map.get(controls.target.value)
     controls.baseline.replaceChildren()
@@ -97,10 +83,49 @@
       ? preferred
       : previous?.key || controls.baseline.options[0].value
   }
+  const chooseSeries = (preferred) => {
+    groups.clear()
+    for (const record of entries
+      .flatMap((entry) => entry.records)
+      .filter((record) => record.runtime))
+      groups.set(record.runtime.compatibilityKey, record.runtime.environment)
+    const current = controls.series.value
+    controls.series.replaceChildren()
+    for (const [key, env] of groups)
+      option(
+        controls.series,
+        key,
+        `${env.runner || `${env.platform}/${env.arch}`} · Chrome ${env.browser} · ${key.slice(0, 8)}`,
+      )
+    if (!groups.size) option(controls.series, '', 'No runtime measurements')
+    controls.series.disabled = !groups.size
+    const runtimes = map
+      .get(controls.target.value)
+      .records.filter((record) => record.runtime)
+      .reverse()
+    const baseSeries = new Set(
+      map
+        .get(controls.baseline.value)
+        ?.records.filter((record) => record.runtime)
+        .map((record) => record.runtime.compatibilityKey),
+    )
+    const common = runtimes.filter((record) =>
+      baseSeries.has(record.runtime.compatibilityKey),
+    )
+    controls.series.value = groups.has(preferred)
+      ? preferred
+      : common.find((record) => record.runtime.compatibilityKey === current)
+          ?.runtime.compatibilityKey ||
+        common[0]?.runtime.compatibilityKey ||
+        runtimes[0]?.runtime.compatibilityKey ||
+        groups.keys().next().value ||
+        ''
+  }
   const setWorkloads = (preferred) => {
     const values = [
       ...new Set(
-        data
+        entries
+          .flatMap((entry) => entry.records)
           .filter(
             (record) =>
               record.runtime?.compatibilityKey === controls.series.value,
@@ -125,8 +150,31 @@
       ? String(preferred)
       : String(values.at(-1) || '')
   }
-  chooseBaseline(query.get('baseline'))
-  setWorkloads(query.get('tabs'))
+  const updateVersions = (target, baseline, series, workload) => {
+    entries = allEntries.filter(
+      (entry) =>
+        controls.candidates.checked || entry.source.status === 'released',
+    )
+    if (!entries.length) {
+      controls.candidates.checked = true
+      entries = allEntries
+    }
+    controls.target.replaceChildren()
+    for (const entry of entries)
+      option(controls.target, entry.key, entryLabel(entry))
+    controls.target.value = entries.some((entry) => entry.key === target)
+      ? target
+      : entries.at(-1).key
+    chooseBaseline(baseline)
+    chooseSeries(series)
+    setWorkloads(workload)
+  }
+  updateVersions(
+    query.get('target'),
+    query.get('baseline'),
+    query.get('series'),
+    query.get('tabs'),
+  )
   const bundleFor = (entry) =>
     entry?.records
       .filter((record) =>
@@ -231,13 +279,26 @@
     const delta = document.createElement('span')
     delta.className = 'delta'
     const caption = document.createElement('figcaption')
+    const value = document.createElement('p')
+    value.className = 'comparison-value'
+    const selectedValue = document.createElement('strong')
+    const baselineValue = document.createElement('small')
+    value.append(selectedValue, baselineValue)
     const svg = document.createElementNS(namespace, 'svg')
     svg.classList.add('chart')
     svg.setAttribute('role', 'img')
     header.append(title, delta)
-    figure.append(header, caption, svg)
+    figure.append(header, value, caption, svg)
     byId('charts').append(figure)
-    return { definition, figure, delta, caption, svg }
+    return {
+      definition,
+      figure,
+      delta,
+      caption,
+      svg,
+      selectedValue,
+      baselineValue,
+    }
   })
   const svgNode = (parent, type, attrs = {}, text) => {
     const node = document.createElementNS(namespace, type)
@@ -248,10 +309,11 @@
     return node
   }
   function draw(plot) {
-    const { definition, figure, svg, delta, caption } = plot
+    const { definition, svg, delta, caption, selectedValue, baselineValue } =
+      plot
     const target = map.get(controls.target.value),
       base = map.get(controls.baseline.value)
-    const width = figure.getBoundingClientRect().width,
+    const width = svg.getBoundingClientRect().width,
       height = 220
     const values = entries.map((entry, index) => ({
       entry,
@@ -260,6 +322,12 @@
     }))
     const targetStat = definition.get(target),
       baseStat = definition.get(base)
+    const format = (stat) =>
+      stat
+        ? `${stat.median.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${definition.unit}`
+        : 'Not measured'
+    selectedValue.textContent = format(targetStat)
+    baselineValue.textContent = `Baseline: ${format(baseStat)}`
     delta.textContent =
       targetStat && baseStat && baseStat.median > 0
         ? `${targetStat.median >= baseStat.median ? '+' : ''}${((targetStat.median / baseStat.median - 1) * 100).toFixed(1)}% vs baseline`
@@ -267,6 +335,10 @@
     caption.textContent = definition.subtitle()
     svg.replaceChildren()
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
+    svg.setAttribute(
+      'aria-label',
+      `${definition.title}: ${entryLabel(target)} ${format(targetStat)}; baseline ${base ? entryLabel(base) : 'unavailable'} ${format(baseStat)}`,
+    )
     svgNode(
       svg,
       'desc',
@@ -504,6 +576,15 @@
       ),
       link,
     )
+    const notes = [
+      ...new Set(
+        [bundle, runtime]
+          .filter(Boolean)
+          .map((record) => record.provenance.note)
+          .filter(Boolean),
+      ),
+    ]
+    byId('provenance-note').textContent = notes.join(' ')
     byId('records').replaceChildren()
     const selected = [...new Set([bundle, runtime].filter(Boolean))]
     for (const record of selected) {
@@ -536,6 +617,7 @@
       browser: controls.browser.value,
       series: controls.series.value,
       tabs: controls.workload.value,
+      candidates: controls.candidates.checked ? '1' : '0',
     }))
       url.searchParams.set(key, value)
     try {
@@ -546,6 +628,24 @@
   }
   controls.target.addEventListener('change', () => {
     chooseBaseline()
+    chooseSeries()
+    setWorkloads(controls.workload.value)
+    render()
+    remember()
+  })
+  controls.baseline.addEventListener('change', () => {
+    chooseSeries()
+    setWorkloads(controls.workload.value)
+    render()
+    remember()
+  })
+  controls.candidates.addEventListener('change', () => {
+    updateVersions(
+      controls.target.value,
+      controls.baseline.value,
+      controls.series.value,
+      controls.workload.value,
+    )
     render()
     remember()
   })
@@ -554,7 +654,7 @@
     render()
     remember()
   })
-  for (const key of ['baseline', 'browser', 'workload'])
+  for (const key of ['browser', 'workload'])
     controls[key].addEventListener('change', () => {
       render()
       remember()
@@ -563,4 +663,5 @@
     for (const plot of plots) draw(plot)
   }).observe(byId('charts'))
   render()
+  remember()
 })()

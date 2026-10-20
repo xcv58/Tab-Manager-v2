@@ -2,7 +2,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 const websiteRoot = path.resolve(__dirname, '../docs')
-const pageNames = ['privacy', 'support']
+const pageNames = ['privacy', 'support', 'performance']
 
 // The main page is the single source of header markup for every site route.
 function renderHeader(page, { logo = '../assets/images/logo.png' } = {}) {
@@ -14,6 +14,7 @@ function renderHeader(page, { logo = '../assets/images/logo.png' } = {}) {
   const links = {
     overview: '../',
     demo: page === 'demo' ? './' : '../demo/',
+    performance: page === 'performance' ? './' : '../performance/',
     install: '../#install',
     privacy: page === 'privacy' ? './' : '../privacy/',
     support: page === 'support' ? './' : '../support/',

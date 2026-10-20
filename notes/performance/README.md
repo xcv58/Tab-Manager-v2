@@ -1,8 +1,35 @@
 # Performance history
 
-The archive stores measurements; the viewer is generated from those records.
-It is an internal developer report and is not included in the public website or
-the extension package.
+The archive stores measurements. The public website and offline viewer are
+generated from the same records and chart code. Neither is included in the
+extension package.
+
+## Website page
+
+The website's **Performance** navigation link opens `/performance/`. It defaults
+to the latest measured release versus the previous measured release. Enable
+**Include development versions** to inspect archived candidate commits. The
+page identifies the frozen master snapshot rather than treating it as a release.
+Version, baseline, browser, measurement series, workload, and development-version
+visibility are preserved in the URL so a comparison can be shared.
+
+`pnpm build:site` builds the page into `dist/site/performance/`, using the shared
+site navigation and theme. It reads only checked-in archive records and excludes
+dirty working-tree captures. A release's archive PR must be reviewed and merged
+before its records appear in the next website build. Missing runtime measurements
+remain unavailable; exact bundle sizes can be published independently.
+
+To preview the complete website locally:
+
+```sh
+pnpm build:site
+node scripts/preview-release-media.mjs dist/site 8781
+```
+
+Open **http://127.0.0.1:8781/performance/**. The comparison report is in English;
+the shared navigation keeps the website's language and appearance controls.
+The generated page embeds summaries; complete raw records are downloadable
+from its evidence links. No measurements run during the website build.
 
 ## Visualize the archived versions
 
@@ -14,6 +41,8 @@ pnpm performance:preview
 
 Open **http://127.0.0.1:8780/**. Choose the version, baseline, package browser,
 runtime series, and workload. Changes to the controls are reflected in the URL.
+The developer viewer includes candidate versions by default; use its checkbox to
+show releases only.
 The browser does not need network access to render the report. Stop the local
 server with Ctrl+C.
 

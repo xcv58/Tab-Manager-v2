@@ -86,7 +86,7 @@ export function recordReport(record, baseline) {
   return lines.join('\n') + '\n'
 }
 
-export async function buildViewer(records, output) {
+export async function buildViewer(records, output, { template } = {}) {
   if (!records.length) throw new Error('No performance records to visualize')
   for (const record of records) validateRecord(record)
   output = resolve(output)
@@ -95,19 +95,36 @@ export async function buildViewer(records, output) {
   await mkdir(recordDirectory, { recursive: true })
   const data = records.map((record) => ({
     ...record,
+    // Charts need summaries, not every observation. Full immutable records
+    // remain downloadable alongside the page as the archive grows.
+    runtime: record.runtime
+      ? {
+          compatibilityKey: record.runtime.compatibilityKey,
+          environment: record.runtime.environment,
+        }
+      : null,
     runtimeSummary: summarizeRuntime(record.runtime),
   }))
   for (const record of records) await writeRecord(record, recordDirectory)
   const templateRoot = fileURLToPath(new URL('./viewer/', import.meta.url))
-  const template = await readFile(join(templateRoot, 'index.html'), 'utf8')
+  template ||= await readFile(join(templateRoot, 'index.html'), 'utf8')
+  const content = await readFile(join(templateRoot, 'content.html'), 'utf8')
+  for (const slot of [
+    '<!-- PERFORMANCE_VIEWER -->',
+    '<!-- PERFORMANCE_RECORDS -->',
+  ])
+    if (!template.includes(slot))
+      throw new Error(`Missing viewer slot: ${slot}`)
   const embedded = json(data)
     .replaceAll('<', '\\u003c')
     .replaceAll('\u2028', '\\u2028')
     .replaceAll('\u2029', '\\u2029')
-  const html = template.replace(
-    '<!-- PERFORMANCE_RECORDS -->',
-    `<script id="performance-records" type="application/json">${embedded}</script>`,
-  )
+  const html = template
+    .replace('<!-- PERFORMANCE_VIEWER -->', content)
+    .replace(
+      '<!-- PERFORMANCE_RECORDS -->',
+      `<script id="performance-records" type="application/json">${embedded}</script>`,
+    )
   await writeText(join(output, 'index.html'), html)
   for (const file of ['viewer.js', 'viewer.css'])
     await copyFile(join(templateRoot, file), join(output, file))

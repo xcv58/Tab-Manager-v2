@@ -3,6 +3,8 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath, URL } from 'node:url'
 import path from 'node:path'
 import sitePages from './site-pages.js'
+import { readRecords } from './performance/records.mjs'
+import { buildViewer } from './performance/reports.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const output = path.join(root, 'dist/site')
@@ -20,10 +22,14 @@ await rm(output, { recursive: true, force: true })
 await mkdir(output, { recursive: true })
 await cp(path.join(root, 'docs'), output, { recursive: true })
 for (const page of sitePages.pageNames) {
-  await writeFile(
-    path.join(output, page, 'index.html'),
-    sitePages.renderPage(page),
-  )
+  const template = sitePages.renderPage(page)
+  if (page === 'performance')
+    await buildViewer(
+      (await readRecords()).filter((record) => !record.source.dirty),
+      path.join(output, page),
+      { template },
+    )
+  else await writeFile(path.join(output, page, 'index.html'), template)
 }
 await cp(
   path.join(root, 'packages/extension/build/build_demo'),
@@ -38,6 +44,9 @@ for (const entry of [
   'demo/workspace.html',
   'assets/site-pages.css',
   'assets/site-pages.js',
+  'performance/viewer.js',
+  'performance/viewer.css',
+  'performance/index.json',
   ...sitePages.pageNames.map((page) => `${page}/index.html`),
 ]) {
   if (!(await stat(path.join(output, entry))).isFile()) {

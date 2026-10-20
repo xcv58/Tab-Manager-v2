@@ -256,7 +256,9 @@ pnpm performance:preview
 
 Open **http://127.0.0.1:8780/** to compare archived versions. For an offline
 report, run `pnpm performance:build` and open `dist/performance/index.html`.
-The report is internal and is not included in the public website or extension.
+The website also provides a **Performance** page at `/performance/`, generated
+from the same archive by `pnpm build:site`. It defaults to released versions and
+supports shareable comparisons. Reports are not included in the extension.
 See [measurement, archival, and CI instructions](notes/performance/README.md).
 
 ## Repository Layout

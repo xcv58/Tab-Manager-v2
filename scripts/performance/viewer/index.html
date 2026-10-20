@@ -11,67 +11,8 @@
     <link rel="stylesheet" href="viewer.css" />
     <script src="viewer.js" defer></script>
   </head>
-  <body>
-    <main>
-      <header>
-        <p class="eyebrow">Tab Manager v2</p>
-        <h1>Performance history</h1>
-        <p class="description">
-          Exact packaged sizes and advisory runtime measurements. Every version
-          identifies its source commit and archived observations.
-        </p>
-      </header>
-      <form id="controls" aria-label="Comparison controls">
-        <label>Version to inspect<select id="target"></select></label>
-        <label>Compare with<select id="baseline"></select></label>
-        <label
-          >Package browser<select id="browser">
-            <option value="chrome">Chrome</option>
-            <option value="firefox">Firefox</option>
-          </select></label
-        >
-        <label>Runtime measurement series<select id="series"></select></label>
-        <label
-          >Startup and search workload<select id="workload"></select
-        ></label>
-      </form>
-      <p id="notice" role="status" aria-live="polite"></p>
-      <section id="charts" aria-label="Version comparison charts"></section>
-      <p class="legend">
-        Points show medians; whiskers show the observed minimum and maximum.
-        Diamond markers and dashed lines identify candidates. All plotted
-        metrics use lower values for less time or space.
-      </p>
-      <details>
-        <summary>More measurements</summary>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Measurement</th>
-                <th id="baseline-name">Baseline</th>
-                <th id="target-name">Selected version</th>
-              </tr>
-            </thead>
-            <tbody id="more"></tbody>
-          </table>
-        </div>
-      </details>
-      <section id="evidence" aria-labelledby="evidence-title">
-        <h2 id="evidence-title">Evidence for the selected version</h2>
-        <p id="source"></p>
-        <ul id="records"></ul>
-      </section>
-      <footer>
-        Runtime series separate browser, runner, fixture, and harness changes.
-        Missing measurements stay unavailable. Profiling uses simulated tab
-        metadata; native browser API latency and renderer RSS are not measured.
-      </footer>
-      <noscript
-        >Enable JavaScript to view the archived measurements. The records
-        directory also contains each original JSON record.</noscript
-      >
-    </main>
+  <body class="performance-standalone">
+    <!-- PERFORMANCE_VIEWER -->
     <!-- PERFORMANCE_RECORDS -->
   </body>
 </html>
