@@ -62,6 +62,13 @@ module.exports = () => {
         patterns: [
           { from: 'src/img/*.png', to: '[name][ext]' },
           {
+            from: '../safari-native/WebExtension/read-icon.js',
+            to: 'read-icon.js',
+            // executeScript consumes this file's completion value. Terser can
+            // discard its returned object as unused, so preserve it verbatim.
+            info: { minimized: true },
+          },
+          {
             from: '../safari-native/WebExtension/manifest.json',
             to: 'manifest.json',
           },

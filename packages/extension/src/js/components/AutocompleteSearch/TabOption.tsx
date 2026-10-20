@@ -150,7 +150,7 @@ export default observer(function TabOption(props: Props) {
     >
       <TabMenu tab={tab} menuKey={`search-tab-${tab.id}`} hideTrigger />
       {tab.pinned && PIN}
-      <Icon tab={tab} faked />
+      <Icon tab={tab} faked liveIcon />
       <TabDetailsAnchor tab={tab} surface="search">
         {rowButton}
       </TabDetailsAnchor>

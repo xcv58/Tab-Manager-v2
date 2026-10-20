@@ -46,6 +46,7 @@
           data-page-label="contentsNav"
         >
           <a href="#install" data-page-copy="installTitle">Install</a>
+          <a href="#safari" data-page-copy="safariTitle">Safari for macOS</a>
           <a href="#quick-start" data-page-copy="quickStartTitle"
             >Quick start</a
           >
@@ -80,11 +81,54 @@
               >
             </div>
             <p data-page-copy="browserSupport">
-              Use Chrome, Edge, or Firefox. There is no Safari version. See
-              <a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545"
-                >the Safari discussion</a
-              >
-              for updates.
+              Chrome, Edge, and Firefox are available from their extension
+              stores. Safari for macOS is available in
+              <a href="https://testflight.apple.com/join/UKyc8DmK"
+                >public beta through TestFlight</a
+              >. See <a href="#safari">Safari setup</a> and the
+              <a href="#browser-features">browser comparison</a>.
+            </p>
+          </section>
+
+          <section id="safari" aria-labelledby="safari-heading">
+            <h2 id="safari-heading" data-page-copy="safariTitle">
+              Safari for macOS
+            </h2>
+            <p data-page-copy="safariIntro">
+              The Safari version is a public beta for macOS. Install it through
+              <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a
+              >.
+            </p>
+            <ol>
+              <li data-page-copy="safariInstall">
+                Install TestFlight, accept the beta invitation, and install Tab
+                Manager v2. Open the installed app.
+              </li>
+              <li data-page-copy="safariEnable">
+                Open Safari Settings → Extensions and enable Tab Manager v2 for
+                the profile you want to use.
+              </li>
+              <li data-page-copy="safariAccess">
+                Allow website access when Safari asks so Tab Manager can show
+                tab titles and URLs. If a title or URL is missing, check
+                Safari’s website access settings and refresh the manager.
+              </li>
+              <li data-page-copy="safariOpen">
+                Click the Safari toolbar icon for the popup. Control+O opens a
+                full browser tab, Control+T opens a separate manager window, and
+                Option+B cycles recently used tabs.
+              </li>
+            </ol>
+            <p data-page-copy="safariScope">
+              Safari shows normal windows in the current profile and the active
+              tab groups Safari exposes. Inactive groups and private windows are
+              excluded.
+            </p>
+            <p data-page-copy="safariIcons">
+              With “Show tab icons” on, Safari loads icons from websites you
+              have allowed. Settings offers “Allow website access” when
+              permission is missing. Unavailable icons use the same neutral
+              placeholder as other browsers.
             </p>
           </section>
 
@@ -105,13 +149,15 @@
                 help.
               </li>
               <li data-page-copy="quickStartSelect">
-                Select matching tabs, then move, group, or close them in bulk.
+                Select matching tabs to close, reload, pin, copy, or export them
+                together. Moving and grouping are available where supported by
+                your browser.
               </li>
             </ol>
             <p data-page-copy="moveTabsTip">
-              Use Window actions to move selected tabs to a window’s beginning
-              or end, or drag them onto its header drop targets. A destination
-              tab’s menu can move the selection before or after that tab.
+              In Chrome, Edge, and Firefox, use Window actions to move selected
+              tabs to a window’s beginning or end, or drag them onto its header
+              drop targets. Safari does not support tab moving or reordering.
             </p>
             <div
               class="page-table-wrap"
@@ -219,23 +265,91 @@
             >
               Browser features
             </h2>
+            <div
+              class="page-table-wrap"
+              tabindex="0"
+              role="region"
+              aria-labelledby="browser-comparison"
+            >
+              <table class="page-table">
+                <caption
+                  id="browser-comparison"
+                  data-page-copy="browserComparison"
+                >
+                  Browser comparison
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" data-page-copy="comparisonFeature">
+                      Feature
+                    </th>
+                    <th scope="col">Chrome / Edge / Firefox</th>
+                    <th scope="col" data-page-copy="safariBeta">
+                      Safari for macOS · Beta
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" data-page-copy="comparisonCommon">
+                      Find, close, reload, pin, copy, and export tabs
+                    </th>
+                    <td data-page-copy="available">Available</td>
+                    <td data-page-copy="available">Available</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="comparisonMove">
+                      Move or reorder tabs
+                    </th>
+                    <td data-page-copy="available">Available</td>
+                    <td data-page-copy="unavailable">Unavailable</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="comparisonGroups">
+                      Edit browser tab groups
+                    </th>
+                    <td data-page-copy="whereSupported">Where supported</td>
+                    <td data-page-copy="unavailable">Unavailable</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="comparisonHistory">
+                      Search browser history
+                    </th>
+                    <td data-page-copy="available">Available</td>
+                    <td data-page-copy="unavailable">Unavailable</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" data-page-copy="comparisonScope">
+                      Workspace scope
+                    </th>
+                    <td data-page-copy="browserDependent">
+                      Depends on browser permissions
+                    </td>
+                    <td data-page-copy="safariScopeShort">
+                      Current profile and active tab groups; no private windows
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
             <h3 data-page-copy="groupsTitle">Your browser’s tab groups</h3>
             <p data-page-copy="groupsBody">
-              Where your browser supports tab groups, you can name them, change
-              their color, collapse them, or ungroup their tabs in Tab Manager
-              v2. Select tabs in the same window to create a group. Use named
-              groups to organize related tabs; custom window names are not
-              available.
+              In Chrome, Edge, and Firefox, supported tab groups can be named,
+              recolored, collapsed, or ungrouped. Select tabs in the same window
+              to create a group. Safari does not expose group editing; only the
+              active groups are visible.
             </p>
             <h3 data-page-copy="historyTitle">
               Include or hide browser history
             </h3>
             <p data-page-copy="historyBody">
-              Search includes browser history by default. To show only open
-              tabs, turn off
-              <strong>Include browser history in results</strong> in Settings.
-              Read the <a href="../privacy/">privacy policy</a> for more about
-              browser access and saved data.
+              Chrome, Edge, and Firefox include browser history in search by
+              default. Turn off
+              <strong>Include browser history in results</strong> in Settings to
+              show only open tabs. Safari searches open tabs only. Read the
+              <a href="../privacy/">privacy policy</a> for more about browser
+              access and saved data.
             </p>
             <h3 data-page-copy="containersTitle">Firefox containers</h3>
             <p data-page-copy="containersBody">
@@ -246,12 +360,11 @@
             </p>
             <h3 data-page-copy="settingsTitle">Settings and appearance</h3>
             <p data-page-copy="settingsBody">
-              Open Settings and search for the option you want to change: theme,
-              contrast, layout, toolbar visibility, Title line limit, URL line
-              limit, or search preferences. Previews show what will change. Your
-              browser saves these settings and may sync them between devices if
-              you enable browser sync. This website has its own theme and
-              language settings.
+              Open Settings and search for theme, contrast, layout, toolbar
+              visibility, tab details, or search preferences. Previews show what
+              will change. Safari saves settings locally; other browsers may
+              sync settings if browser sync is enabled. This website has its own
+              theme and language settings.
             </p>
             <h3 data-page-copy="tabActionsTitle">Tab actions and copying</h3>
             <p data-page-copy="tabActionsBody">
@@ -269,10 +382,10 @@
             <p data-page-copy="liteModeBody">
               Lite popup mode keeps finding, switching, closing, pinning,
               reloading, copying, and tab details close at hand. Open full Tab
-              Manager for bulk organization, moving, grouping, exports,
-              Settings, and shortcut help. Palette shortcuts only work inside
-              Tab Manager. Escape resets ordinary search; in a menu or dialog,
-              it dismisses that overlay first.
+              Manager for bulk actions, exports, Settings, and shortcut help.
+              Moving and grouping require browser support. Escape resets
+              ordinary search; in a menu or dialog, it dismisses that overlay
+              first.
             </p>
           </section>
 

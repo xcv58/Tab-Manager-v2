@@ -76,6 +76,14 @@ const manifest = JSON.parse(
 )
 assert.equal(manifest.version, hostInfo.CFBundleShortVersionString)
 assert.deepEqual(manifest.permissions, ['tabs', 'storage'])
+assert.deepEqual(manifest.optional_permissions, ['http://*/*', 'https://*/*'])
+// executeScript needs this file's completion value. A minifier must not discard
+// the returned metadata even when the file has no exports or side effects.
+assert.deepEqual(
+  readFileSync(join(resources, 'read-icon.js')),
+  readFileSync('packages/safari-native/WebExtension/read-icon.js'),
+  'Packaged icon reader must preserve its completion value verbatim',
+)
 console.log(
   `Verified Safari ${configuration}: app/extension identity, versions, and all ${readdirSync(source).length} web resources. This unsigned build is not a distributable package.`,
 )

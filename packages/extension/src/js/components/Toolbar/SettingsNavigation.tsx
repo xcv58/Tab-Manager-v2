@@ -20,7 +20,8 @@ const aliases: Record<string, string> = {
   'Minimum tab width': 'columns size density layout',
   'Auto-fit columns': 'horizontal scrolling layout responsive',
   'Window order': 'recent last used default sort',
-  'Show tab icons': 'favicon favicons',
+  'Show tab icons':
+    'favicon favicons safari placeholder default load website icons website access privacy permissions',
   'Show URLs': 'address links',
   'Show tab tooltips': 'hover title url length lines copy expand',
   'Mark duplicate tabs': 'duplicates identical same url',

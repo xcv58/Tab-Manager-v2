@@ -42,6 +42,8 @@ import {
   AppearancePreview,
 } from './SettingsExamples'
 import SettingsPopupPreview from './SettingsPopupPreview'
+import WebsiteIconAccess from './WebsiteIconAccess'
+import { websiteIcons } from 'libs/websiteIcons'
 import SettingsNavigation, {
   type SettingsNavigationState,
   type SettingsSectionId,
@@ -912,6 +914,7 @@ export default observer(() => {
               <RowDetailsOption
                 testId="row-details-option-icons"
                 title="Show tab icons"
+                details={websiteIcons ? <WebsiteIconAccess /> : undefined}
                 checked={showTabIcon}
                 onChange={toggleShowTabIcon}
                 style={rowDetailOptionStyle}

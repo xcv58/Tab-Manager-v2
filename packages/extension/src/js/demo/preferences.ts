@@ -25,6 +25,7 @@ const booleanKeys = [
   'autoFocusSearch',
   'ignoreHash',
   'showTabIcon',
+  'demoWebsiteIconAccess',
   'useSystemTheme',
   'darkTheme',
 ] as const

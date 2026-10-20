@@ -412,6 +412,8 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
     if (Object.keys(changes).length) {
       if (area === 'sync' && !settingsPreview) saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
+      if (changes.demoWebsiteIconAccess || changes.showTabIcon)
+        iconListeners.forEach((listener) => listener())
       notify()
     }
   },
@@ -484,8 +486,40 @@ type TabCreateProperties = {
   cookieStoreId?: string
 }
 
+const iconPreview =
+  initialScenario === 'safari-icons' ||
+  process.env.TARGET_BROWSER === 'safari' ||
+  (settingsPreview &&
+    new URLSearchParams(window.location.search).get('website_icons') === '1')
+const iconListeners = new Set<() => void>()
 const browser = {
   isDemoBrowser: true,
+  websiteIcons: iconPreview
+    ? {
+        isDemo: true,
+        hasAccess: async (_urls: string[]) =>
+          settingsPreview || syncData.demoWebsiteIconAccess === true,
+        requestAccess: async (_urls: string[]) => {
+          await browser.storage.sync.set({ demoWebsiteIconAccess: true })
+          return true
+        },
+        resolve: async (id: number, url: string) => {
+          const tab = getTabsFromWindows().find(
+            (tab) => tab.id === id && tab.url === url && !tab.incognito,
+          )
+          return syncData.showTabIcon !== false &&
+            (settingsPreview || syncData.demoWebsiteIconAccess === true)
+            ? tab?.favIconUrl || null
+            : null
+        },
+        subscribe: (listener: () => void) => {
+          iconListeners.add(listener)
+          return () => {
+            iconListeners.delete(listener)
+          }
+        },
+      }
+    : undefined,
   storage: {
     local: createStorage(localData, 'local'),
     sync: createStorage(syncData, 'sync'),
