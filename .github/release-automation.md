@@ -131,6 +131,15 @@ pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256 
 The publisher skips stores with an archived successful submission for these
 exact packages. Store attempt receipts are uploaded before submission and after
 available API checkpoints, including Edge operation IDs and Chrome responses.
+Successful receipts require acceptance evidence for the candidate version and
+package hash. Chrome waits for upload processing to succeed and verifies the
+submitted version; `PENDING_REVIEW` is already sufficient and does not wait for
+store approval. Edge requires explicit successful upload and submission
+operations with matching IDs. Firefox uses the audited, pinned `web-ext` 10.6.0
+submission contract with `--approval-timeout 0`; review and signed download remain
+separate. A tool upgrade requires checking that contract before updating it.
+An older `submitted` receipt without acceptance evidence remains unknown, so a
+maintainer can reconcile it and retry instead of being permanently skipped.
 A failure, timeout, or interruption is an **uncertain outcome**, not permission
 to resubmit. First inspect the store dashboard and archived operation/status
 receipts. If the attempt is confirmed unfinished and a new submission is needed,

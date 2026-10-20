@@ -3,6 +3,11 @@ import { URLSearchParams } from 'node:url'
 import { checkpoint } from './scripts/release/journal.mjs'
 import { createSign } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { submitChromePackage } from './scripts/release/chrome-submission.mjs'
+import {
+  packageIdentity,
+  writeStoreAcceptance,
+} from './scripts/release/store-acceptance.mjs'
 
 const { fetch } = globalThis
 
@@ -38,62 +43,48 @@ for (const [name, value] of Object.entries({
   }
 }
 
+const zipBuffer = await readFile(zipPath)
+const identity = packageIdentity(zipPath, zipBuffer)
 const serviceAccount = JSON.parse(serviceAccountJson)
 const accessToken = await getAccessToken(serviceAccount)
 const itemName = `publishers/${publisherId}/items/${extensionId}`
-const zipBuffer = await readFile(zipPath)
-
-const uploadResult = await fetchJson(
-  `https://chromewebstore.googleapis.com/upload/v2/${itemName}:upload`,
-  {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/zip',
-    },
-    body: zipBuffer,
-  },
-)
-
-await checkpoint('uploaded', { uploadResult })
-
-const publishBody = publishType ? { publishType } : {}
-const publishResult = await fetchJson(
-  `https://chromewebstore.googleapis.com/v2/${itemName}:publish`,
-  {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(publishBody),
-  },
-)
-
-await checkpoint('publish-accepted', { publishResult })
-
-const statusResult = await fetchJson(
-  `https://chromewebstore.googleapis.com/v2/${itemName}:fetchStatus`,
-  {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  },
-)
-
-await checkpoint('status', { statusResult })
-
-console.log(
-  JSON.stringify(
-    {
-      uploadResult,
-      publishResult,
-      statusResult,
-    },
-    null,
-    2,
-  ),
-)
+const result = await submitChromePackage({
+  itemName,
+  identity,
+  checkpoint,
+  upload: () =>
+    fetchJson(
+      `https://chromewebstore.googleapis.com/upload/v2/${itemName}:upload`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/zip',
+        },
+        body: zipBuffer,
+      },
+    ),
+  publish: () =>
+    fetchJson(`https://chromewebstore.googleapis.com/v2/${itemName}:publish`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(publishType ? { publishType } : {}),
+    }),
+  fetchStatus: () =>
+    fetchJson(
+      `https://chromewebstore.googleapis.com/v2/${itemName}:fetchStatus`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ),
+})
+await writeStoreAcceptance(result.acceptance)
+console.log(JSON.stringify(result, null, 2))
 
 async function getAccessToken(serviceAccount) {
   const issuedAt = Math.floor(Date.now() / 1000)

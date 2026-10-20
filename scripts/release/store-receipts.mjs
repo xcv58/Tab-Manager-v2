@@ -1,4 +1,5 @@
 import { assert, readJsonAsset } from './github.mjs'
+import { confirmedSubmission } from './store-acceptance.mjs'
 
 // Both store retries and report capture must interpret interrupted journals the
 // same way. An unreadable starter records an uncertain attempt, never a pass.
@@ -50,13 +51,16 @@ export async function readStoreReceipts(
         Number.isFinite(Date.parse(receipt.recordedAt)),
       'store receipt belongs to different packages or has invalid identity',
     )
+    // Invalid supplied proof is an error; older receipts without proof remain
+    // uncertain and require reconciliation instead of suppressing every retry.
+    confirmedSubmission(receipt)
     receipts.push({ name: asset.name, bytes: saved.bytes, receipt })
   }
   return receipts
 }
 
 export function storeRetryDecision(receipts, reconciled) {
-  if (receipts.some(({ receipt }) => receipt.phase === 'submitted'))
+  if (receipts.some(({ receipt }) => confirmedSubmission(receipt)))
     return 'skip'
   assert(
     !receipts.length || reconciled,
@@ -69,13 +73,11 @@ export function summarizeStoreReceipts(store, receipts) {
   const ordered = receipts
     .map(({ receipt }) => receipt)
     .sort((a, b) => Date.parse(a.recordedAt) - Date.parse(b.recordedAt))
-  const latest =
-    ordered.findLast((receipt) => receipt.phase === 'submitted') ||
-    ordered.at(-1)
+  const latest = ordered.findLast(confirmedSubmission) || ordered.at(-1)
   return latest
     ? {
         store,
-        state: latest.phase === 'submitted' ? 'submitted' : 'unknown',
+        state: confirmedSubmission(latest) ? 'submitted' : 'unknown',
         runId: latest.runId,
         recordedAt: latest.recordedAt,
       }

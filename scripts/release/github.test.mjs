@@ -340,7 +340,7 @@ test('completed conflicting publication receipts remain immutable', async (t) =>
 })
 
 const candidate = {
-  source: { commit: 'a'.repeat(40), tag: 'v3.0.1' },
+  source: { commit: 'a'.repeat(40), tag: 'v3.0.1', version: '3.0.1' },
   files: [{ name: 'build_chrome.zip', sha256: 'b'.repeat(64) }],
 }
 const receipt = {
@@ -354,6 +354,16 @@ const receipt = {
   attempt: 1,
   recordedAt: '2026-10-20T12:00:00Z',
   phase: 'submitted',
+  details: {
+    acceptance: {
+      schemaVersion: 1,
+      store: 'edge',
+      version: candidate.source.version,
+      packageSha256: candidate.files[0].sha256,
+      upload: { id: 'upload-1', status: 'Succeeded' },
+      submission: { id: 'publish-1', status: 'Succeeded' },
+    },
+  },
 }
 const incompleteReceipt = {
   ...starter,
@@ -417,6 +427,32 @@ test('a validated later store submission survives an older incomplete checkpoint
   assert.equal(value.decision, 'skip')
   assert.equal(value.summary.state, 'submitted')
   assert.equal(value.summary.runId, '600')
+  assert.equal(value.bytes, bytes)
+})
+
+test('an older submitted receipt without acceptance proof remains unknown without changing its archived bytes', async (t) => {
+  const unverified = { ...receipt, details: undefined }
+  const bytes = JSON.stringify(unverified) + '\n'
+  const saved = {
+    ...uploaded,
+    id: 52,
+    name: 'store-edge-600-1-902.json',
+    size: Buffer.byteLength(bytes),
+  }
+  const result = await scenario(
+    t,
+    [{ path: `${repo}/releases/assets/52`, bytes }],
+    `
+    const entries = ${readReceipts([saved])};
+    let blocked;
+    try { storeRetryDecision(entries, false) } catch (error) { blocked = error.message }
+    process.stdout.write(JSON.stringify({blocked, retry: storeRetryDecision(entries, true), summary: summarizeStoreReceipts('edge', entries), bytes: entries[0].bytes.toString()}));
+  `,
+  )
+  const value = JSON.parse(result)
+  assert.match(value.blocked, /requires store reconciliation/)
+  assert.equal(value.retry, 'submit')
+  assert.equal(value.summary.state, 'unknown')
   assert.equal(value.bytes, bytes)
 })
 

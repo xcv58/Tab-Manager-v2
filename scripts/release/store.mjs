@@ -1,11 +1,13 @@
 import { spawnSync } from 'node:child_process'
 import { cp, mkdir, readFile, readdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { URL } from 'node:url'
 import { releasedCandidate } from './publish.mjs'
 import { assert, pages, repository, uploadImmutable } from './github.mjs'
 import { sha256 } from '../performance/records.mjs'
 import { checkpoint } from './journal.mjs'
 import { readStoreReceipts, storeRetryDecision } from './store-receipts.mjs'
+import { assertStoreAcceptance } from './store-acceptance.mjs'
 
 const store = process.env.RELEASE_STORE
 assert(
@@ -27,6 +29,11 @@ const file = candidate.files.find(
 )
 process.env.RELEASE_SOURCE = candidate.source.commit
 process.env.RELEASE_PACKAGE_SHA256 = file.sha256
+process.env.RELEASE_VERSION = candidate.source.version
+process.env.RELEASE_ACCEPTANCE_PATH = join(
+  directory,
+  `${store}-acceptance-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}.json`,
+)
 process.env.RELEASE_JOURNAL_DIR = resolve('.tmp/store-receipts')
 const previous = await readStoreReceipts(
   await pages(`releases/${release.id}/assets`),
@@ -85,13 +92,46 @@ const result = spawnSync(store === 'firefox' ? 'pnpm' : 'node', args, {
 })
 // Reserve a separate sequence range so a child checkpoint can never be clobbered.
 process.env.RELEASE_JOURNAL_SEQUENCE = '900'
-if (result.status !== 0) {
+let acceptance
+try {
+  assert(result.status === 0, 'store publisher did not finish successfully')
+  if (store === 'firefox') {
+    // In this pinned web-ext version, zero exit follows validation, version
+    // creation and source upload. approval-timeout=0 skips approval waiting.
+    const tool = JSON.parse(
+      await readFile(
+        new URL('../../node_modules/web-ext/package.json', import.meta.url),
+        'utf8',
+      ),
+    )
+    acceptance = {
+      schemaVersion: 1,
+      store,
+      version: candidate.source.version,
+      packageSha256: file.sha256,
+      tool: 'web-ext',
+      toolVersion: tool.version,
+      channel: 'listed',
+      approvalTimeout: 0,
+    }
+  } else {
+    acceptance = JSON.parse(
+      await readFile(process.env.RELEASE_ACCEPTANCE_PATH, 'utf8'),
+    )
+  }
+  assertStoreAcceptance(acceptance, {
+    store,
+    version: candidate.source.version,
+    packageSha256: file.sha256,
+  })
+} catch (error) {
   await checkpoint('unknown', {
     exitCode: result.status,
-    reason: 'Inspect store status and operation receipts before retrying.',
+    reason: `Acceptance could not be verified: ${error.message}. Inspect store status and operation receipts before retrying.`,
   })
   throw new Error(
-    `${store} submission did not finish; outcome requires reconciliation`,
+    `${store} submission acceptance is unknown; outcome requires reconciliation`,
+    { cause: error },
   )
 }
 const signed = []
@@ -114,6 +154,7 @@ if (store === 'firefox') {
   }
 }
 await checkpoint('submitted', {
+  acceptance,
   signedOutputs: signed,
   note: 'Submitted; review and public availability require separate verification.',
 })

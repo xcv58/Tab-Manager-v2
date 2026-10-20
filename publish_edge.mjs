@@ -2,6 +2,11 @@ import console from 'node:console'
 import { setTimeout } from 'node:timers'
 import { checkpoint } from './scripts/release/journal.mjs'
 import { readFile } from 'node:fs/promises'
+import {
+  edgeOperationState,
+  packageIdentity,
+  writeStoreAcceptance,
+} from './scripts/release/store-acceptance.mjs'
 
 const { fetch } = globalThis
 
@@ -42,6 +47,7 @@ const headers = {
 }
 
 const packageBuffer = await readFile(zipPath)
+const identity = packageIdentity(zipPath, packageBuffer)
 const uploadResponse = await fetch(
   `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions/draft/package`,
   {
@@ -66,6 +72,7 @@ const uploadResult = await pollOperation({
   headers,
   url: `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions/draft/package/operations/${uploadOperationId}`,
   kind: 'upload',
+  operationId: uploadOperationId,
 })
 
 const publishResponse = await fetch(
@@ -94,14 +101,24 @@ const publishResult = await pollOperation({
   headers,
   url: `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions/operations/${publishOperationId}`,
   kind: 'publish',
+  operationId: publishOperationId,
 })
 
+const acceptance = {
+  schemaVersion: 1,
+  store: 'edge',
+  ...identity,
+  upload: uploadResult,
+  submission: publishResult,
+}
 await checkpoint('status', {
   uploadOperationId,
   publishOperationId,
   uploadResult,
   publishResult,
+  acceptance,
 })
+await writeStoreAcceptance(acceptance)
 
 console.log(
   JSON.stringify(
@@ -114,19 +131,15 @@ console.log(
   ),
 )
 
-async function pollOperation({ headers, url, kind }) {
+async function pollOperation({ headers, url, kind, operationId }) {
   for (let attempt = 1; attempt <= 30; attempt += 1) {
     const response = await fetch(url, { headers })
     const result = await readResponse(response)
     if (!response.ok && response.status !== 202) {
       throw new Error(`Edge ${kind} status failed: ${JSON.stringify(result)}`)
     }
-    if (result.status && result.status !== 'InProgress') {
-      if (result.status === 'Failed') {
-        throw new Error(`Edge ${kind} failed: ${JSON.stringify(result)}`)
-      }
+    if (edgeOperationState(result, operationId, kind) === 'Succeeded')
       return result
-    }
     await sleep(10000)
   }
   throw new Error(`Timed out waiting for Edge ${kind} status`)
