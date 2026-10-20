@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/v3.0.0...v3.0.1) (2026-10-20)
+
+
+### Features
+
+* **safari:** add macOS extension with shared popup and workspace ([#2684](https://github.com/xcv58/Tab-Manager-v2/issues/2684)) ([26106cd](https://github.com/xcv58/Tab-Manager-v2/commit/26106cd632589d08a3f8e06c4d9c61ea62cec04a))
+
+
+### Bug Fixes
+
+* align recent-tab cycling and popup behavior across browsers ([#2693](https://github.com/xcv58/Tab-Manager-v2/issues/2693)) ([e0887c7](https://github.com/xcv58/Tab-Manager-v2/commit/e0887c7dce9a5bd38de17ab1c444ba0e25e479c5))
+* improve website usability and mitigate dependency security alerts ([#2681](https://github.com/xcv58/Tab-Manager-v2/issues/2681)) ([220a0e4](https://github.com/xcv58/Tab-Manager-v2/commit/220a0e44de32bf22658175429263f338f4364bd3))
+* **layout:** keep search stable when relayout becomes available ([#2690](https://github.com/xcv58/Tab-Manager-v2/issues/2690)) ([0e44c1c](https://github.com/xcv58/Tab-Manager-v2/commit/0e44c1cc0a196884d9d0b7cf53d2f4b15b341af8))
+* preserve Firefox grouped-tab moves and expand browser coverage ([#2682](https://github.com/xcv58/Tab-Manager-v2/issues/2682)) ([0bae399](https://github.com/xcv58/Tab-Manager-v2/commit/0bae399548cb5c610ad7e7c17dc10eb5a249a4c8))
+* **release:** prevent replaying the manual 3.0.0 release ([#2694](https://github.com/xcv58/Tab-Manager-v2/issues/2694)) ([3e7a511](https://github.com/xcv58/Tab-Manager-v2/commit/3e7a511dd7197169d4288ac158c390ec9ee02e45))
+* **safari:** complete website icons and public beta support ([#2691](https://github.com/xcv58/Tab-Manager-v2/issues/2691)) ([5bdd871](https://github.com/xcv58/Tab-Manager-v2/commit/5bdd87135fe044eaf8c854bf5fc3aff678f6b90d))
+* **search:** preserve result highlighting and keyboard menus ([#2689](https://github.com/xcv58/Tab-Manager-v2/issues/2689)) ([288bb8e](https://github.com/xcv58/Tab-Manager-v2/commit/288bb8e3e25f5482e9d84f97170b1cb0f5f3f5a3))
+
 ## [3.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.2...c2dea3aacb3c1fb871434bdcbbcf54019b03f602) (2026-10-16)
 
 Compared with 2.7.2:
