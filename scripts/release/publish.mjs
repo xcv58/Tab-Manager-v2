@@ -10,6 +10,7 @@ import {
   request,
   pages,
   optionalRelease,
+  completedAsset,
   uploadImmutable,
 } from './github.mjs'
 import {
@@ -81,6 +82,24 @@ export async function reviewPublishedRelease(tag, directory) {
   )
   const digest = sha256(await request(`releases/assets/${asset.id}`, true))
   return { ...(await releasedCandidate(tag, directory, digest)), digest }
+}
+
+export async function publicationReceipt(draft, publication) {
+  const saved = draft ? await completedAsset(draft, 'publication.json') : null
+  assert(
+    !saved || saved.uploader?.login === 'github-actions[bot]',
+    'draft publication receipt was not written by the trusted publisher',
+  )
+  const bytes = saved
+    ? await request(`releases/assets/${saved.id}`, true)
+    : Buffer.from(json(publication))
+  const receipt = JSON.parse(bytes)
+  assert(
+    receipt.candidateSha256 === publication.candidateSha256 &&
+      receipt.commit === publication.commit,
+    'draft publication receipt conflicts',
+  )
+  return bytes
 }
 
 async function main() {
@@ -192,23 +211,7 @@ async function main() {
         })),
       run: verified.run,
     }
-    const savedPublication = draft?.assets?.find(
-      (asset) => asset.name === 'publication.json',
-    )
-    assert(
-      !savedPublication ||
-        savedPublication.uploader?.login === 'github-actions[bot]',
-      'draft publication receipt was not written by the trusted publisher',
-    )
-    const publicationBytes = savedPublication
-      ? await request(`releases/assets/${savedPublication.id}`, true)
-      : Buffer.from(json(publication))
-    const savedReceipt = JSON.parse(publicationBytes)
-    assert(
-      savedReceipt.candidateSha256 === digest &&
-        savedReceipt.commit === candidate.source.commit,
-      'draft publication receipt conflicts',
-    )
+    const publicationBytes = await publicationReceipt(draft, publication)
     await writeFile(join(directory, 'publication.json'), publicationBytes)
     // Draft first, upload every verified package, then publish. A later retry
     // recovers an incomplete draft by verifying its existing immutable files.

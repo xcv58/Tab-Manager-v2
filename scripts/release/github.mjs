@@ -49,6 +49,49 @@ export async function pages(path) {
     if (values.length < 100) return all
   }
 }
+export async function completedAsset(release, name) {
+  assert(
+    Number.isSafeInteger(release?.id) && release.id > 0,
+    'missing release ID',
+  )
+  let existing = (await pages(`releases/${release.id}/assets`)).find(
+    (item) => item.name === name,
+  )
+  if (!existing) return null
+  if (existing.state === 'starter') {
+    const recoverable = (asset) =>
+      assert(
+        asset.name === name &&
+          asset.size === 0 &&
+          asset.uploader?.login === 'github-actions[bot]',
+        `refusing to remove untrusted or nonempty incomplete asset ${name}`,
+      )
+    recoverable(existing)
+    const current = await request(`releases/assets/${existing.id}`)
+    assert(
+      current.id === existing.id && current.name === name,
+      `release asset identity changed: ${name}`,
+    )
+    existing = current
+    if (existing.state === 'starter') {
+      recoverable(existing)
+      // GitHub can leave empty starter assets after a failed upload. Recheck
+      // before removing that placeholder; a completed asset is never deleted.
+      gh([
+        'api',
+        '--method',
+        'DELETE',
+        `repos/${repository}/releases/assets/${existing.id}`,
+      ])
+      return null
+    }
+  }
+  assert(
+    existing.state === 'uploaded',
+    `unsupported release asset state for ${name}`,
+  )
+  return existing
+}
 export async function uploadImmutable(releaseOrTag, path, name) {
   const { readFile } = await import('node:fs/promises')
   const { basename } = await import('node:path')
@@ -58,28 +101,32 @@ export async function uploadImmutable(releaseOrTag, path, name) {
     typeof releaseOrTag === 'string'
       ? await optionalRelease(releaseOrTag)
       : releaseOrTag
-  assert(
-    Number.isSafeInteger(release?.id) && release.id > 0,
-    'missing release ID',
-  )
-  const existing = (await pages(`releases/${release.id}/assets`)).find(
-    (item) => item.name === name,
-  )
+  const existing = await completedAsset(release, name)
   if (existing) {
     const previous = await request(`releases/assets/${existing.id}`, true)
     assert(
       sha256(previous) === sha256(await readFile(path)),
       `refusing to overwrite release asset ${name}`,
     )
-  } else
-    gh([
-      'api',
-      '--method',
-      'POST',
-      `https://uploads.github.com/repos/${repository}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`,
-      '-H',
-      'Content-Type: application/octet-stream',
-      '--input',
-      path,
-    ])
+  } else {
+    // One upload attempt, including after placeholder cleanup. A further
+    // failure stops this invocation instead of entering an automatic retry loop.
+    try {
+      gh([
+        'api',
+        '--method',
+        'POST',
+        `https://uploads.github.com/repos/${repository}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`,
+        '-H',
+        'Content-Type: application/octet-stream',
+        '--input',
+        path,
+      ])
+    } catch (error) {
+      throw new Error(
+        `Release asset upload failed for ${name}; stopped after one attempt. Retry the reviewed publication to recover an incomplete upload.`,
+        { cause: error },
+      )
+    }
+  }
 }

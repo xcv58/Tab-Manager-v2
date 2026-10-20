@@ -84,6 +84,12 @@ uploads verified files without overwriting, and publishes the GitHub release
 before store submission. An interrupted draft can resume from the same reviewed
 candidate. The release tag identifies the tested application commit.
 
+If GitHub leaves an empty `starter` asset after an upload failure, retrying
+rechecks its state and removes it only when it is still empty and owned by the
+trusted publisher. Completed assets remain immutable. Each invocation makes
+one cleanup/upload attempt; another failure stops with an error. The same
+recovery applies before reading an incomplete publication receipt.
+
 Chrome, Firefox, and Edge jobs run independently using the saved packages. Store
 credentials remain in the existing `chrome-web-store`, `firefox-amo`, and
 `edge-addons` GitHub environments. This flow needs no local store credentials,
