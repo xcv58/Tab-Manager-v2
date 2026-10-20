@@ -20,6 +20,31 @@ import {
   hashPattern,
   requiredJobs,
 } from './candidate.mjs'
+import { assertReleaseTag } from './tag.mjs'
+
+export function releaseStores(value) {
+  const stores = (value || 'none').split(',')
+  assert(
+    stores.every((store) =>
+      ['chrome', 'firefox', 'edge', 'none'].includes(store),
+    ) &&
+      new Set(stores).size === stores.length &&
+      (!stores.includes('none') || stores.length === 1),
+    'invalid store selection',
+  )
+  return stores
+}
+
+export function assertNewReleaseVersion(candidate, releases) {
+  for (const release of releases.filter(
+    (item) =>
+      !item.draft && !item.prerelease && /^v\d+\.\d+\.\d+$/.test(item.tag_name),
+  ))
+    assert(
+      compareVersions(candidate.source.version, release.tag_name.slice(1)) > 0,
+      'new release must exceed existing stable versions',
+    )
+}
 
 export async function releasedCandidate(tag, directory, digest) {
   const release = await request(`releases/tags/${encodeURIComponent(tag)}`)
@@ -114,15 +139,7 @@ async function main() {
     /^\d+$/.test(runId || '') && hashPattern.test(digest || ''),
     'reviewed candidate run and SHA-256 are required',
   )
-  const stores = (process.env.RELEASE_STORES || 'none').split(',')
-  assert(
-    stores.every((store) =>
-      ['chrome', 'firefox', 'edge', 'none'].includes(store),
-    ) &&
-      new Set(stores).size === stores.length &&
-      (!stores.includes('none') || stores.length === 1),
-    'invalid store selection',
-  )
+  const stores = releaseStores(process.env.RELEASE_STORES)
   const directory = resolve('.tmp/publish-candidate')
   await mkdir(directory, { recursive: true })
   // Find a previously published release by the candidate's immutable build identity.
@@ -168,22 +185,10 @@ async function main() {
         (draft.draft && draft.target_commitish === candidate.source.commit),
       'release already exists with a different candidate',
     )
-    for (const release of existing.filter((item) =>
-      /^v\d+\.\d+\.\d+$/.test(item.tag_name),
-    ))
-      assert(
-        compareVersions(candidate.source.version, release.tag_name.slice(1)) >
-          0,
-        'new release must exceed existing stable versions',
-      )
-    // Avoid accidentally reusing a moved or pre-existing tag.
-    const refs = git(['ls-remote', '--tags', 'origin', `refs/tags/${tag}`])
-    assert(
-      !refs ||
-        (draft &&
-          (await request(`commits/${tag}`)).sha === candidate.source.commit),
-      'tag already exists without the reviewed release',
-    )
+    assertNewReleaseVersion(candidate, existing)
+    // The approved local command pushes this tag with existing Git credentials.
+    // Publishing an existing verified ref avoids requiring a workflow-write token.
+    assertReleaseTag(candidate.source)
     const notes =
       process.env.RELEASE_NOTES ||
       git([
@@ -255,6 +260,7 @@ async function main() {
       ...candidate.files.map((file) => file.name),
     ])
       await uploadImmutable(release, join(directory, name))
+    assertReleaseTag(candidate.source)
     gh([
       'api',
       '--method',

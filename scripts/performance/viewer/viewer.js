@@ -223,7 +223,7 @@
     workload,
     from = controls.from.value,
     to = controls.to.value,
-    changedEndpoint,
+    { changedEndpoint, restorePins = false } = {},
   ) => {
     eligibleEntries = allEntries.filter(
       (entry) =>
@@ -255,6 +255,20 @@
         : controls.range.value === 'custom'
           ? eligibleEntries.slice(start, end + 1)
           : eligibleEntries
+    // Saved version/capture pins outlive a rolling history window. Restore the
+    // archived comparison first; explicit range changes keep their usual behavior.
+    if (
+      restorePins &&
+      controls.range.value === 'latest' &&
+      [target, baseline].some(
+        (key) =>
+          eligibleEntries.some((entry) => entry.key === key) &&
+          !entries.some((entry) => entry.key === key),
+      )
+    ) {
+      controls.range.value = 'all'
+      entries = eligibleEntries
+    }
     byId('custom-range').hidden = controls.range.value !== 'custom'
     controls.target.replaceChildren()
     for (const entry of entries)
@@ -273,6 +287,7 @@
     query.get('tabs'),
     query.get('from'),
     query.get('to'),
+    { restorePins: true },
   )
   const captureSelections = new Map()
   const captureInputs = [
@@ -1382,7 +1397,7 @@
         controls.workload.value,
         controls.from.value,
         controls.to.value,
-        key,
+        { changedEndpoint: key },
       )
       render()
       remember()

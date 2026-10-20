@@ -7,14 +7,14 @@ still apply to source, version changes, and report commits.
 
 ## Responsibilities
 
-| Location                      | Responsibility                                                                                              |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Local                         | Version/changelog preparation, reviewing packages and preview, approving publication, importing report JSON |
-| CI: Prepare release candidate | Build frozen packages, run required checks, capture advisory measurements on separate runners               |
-| CI: Publish reviewed release  | Verify approval and gates, publish GitHub assets, submit stores independently, archive receipts/evidence    |
-| Git                           | Source of truth for website report JSON, history, and release inventory                                     |
-| GitHub releases               | Durable packages, raw evidence, checksummed capture manifests, and store receipts                           |
-| Vercel                        | Existing Git integration builds the website from committed data                                             |
+| Location                      | Responsibility                                                                                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local                         | Version/changelog preparation, reviewing packages and preview, approving publication, pushing its tag through existing Git authentication, importing report JSON |
+| CI: Prepare release candidate | Build frozen packages, run required checks, capture advisory measurements on separate runners                                                                    |
+| CI: Publish reviewed release  | Verify approval and gates, publish GitHub assets, submit stores independently, archive receipts/evidence                                                         |
+| Git                           | Source of truth for website report JSON, history, and release inventory                                                                                          |
+| GitHub releases               | Durable packages, raw evidence, checksummed capture manifests, and store receipts                                                                                |
+| Vercel                        | Existing Git integration builds the website from committed data                                                                                                  |
 
 ## Prepare and verify
 
@@ -75,11 +75,23 @@ pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256
 # Optional: --notes /absolute/path/github-release-body.md
 ```
 
-`--approve` must match the digest saved by `release:review`. This dispatch is the
-publication approval; there is no repeated approval prompt during preparation.
+`--approve` must match the digest saved by `release:review`. This command is the
+publication approval, including its version tag push; there is no repeated
+approval prompt during preparation.
 The trusted default-branch publisher rechecks the exact run/attempt, manifest,
 package hashes, packaged versions, required job outcomes, and master ancestry.
-It refuses a conflicting tag or an older stable version. It creates a draft,
+Before dispatch, the local command rechecks the approved manifest, exact package
+hashes and required CI gates (or durable publication receipts for an existing
+release), checks source ancestry/version, and pushes the final version tag through
+the repository's existing Git/SSH authentication. It reuses a matching tag and
+rejects a conflicting one; tags are never force-pushed or automatically deleted.
+No additional token or approval step is needed. If dispatch fails after the push,
+rerun the same approved command to reuse the tag.
+
+CI requires that existing tag to identify the reviewed commit, rechecking it
+before publishing. This lets a frozen candidate remain publishable after master
+advances with workflow edits. It refuses an older stable version. It creates a
+draft,
 uploads verified files without overwriting, and publishes the GitHub release
 before store submission. An interrupted draft can resume from the same reviewed
 candidate. The release tag identifies the tested application commit.
@@ -177,14 +189,19 @@ records incomplete store receipts as unavailable, with an unknown store outcome
 unless a validated successful submission for the exact packages was archived.
 An existing release without archived metrics can still be imported into the
 inventory. Review the diff and commit/push through normal repository rules.
-Every push, including a report-data import, runs the normal application CI and
-website build. There is no path-based application verification bypass. No bot
-opens a follow-up PR.
+Every branch push, including a report-data import, runs the normal application
+CI and website build. Version tag pushes do not repeat the already completed
+candidate verification or start another publication workflow. There is no
+path-based application verification bypass. No bot opens a follow-up PR.
 
 Open `http://127.0.0.1:8777/reports/` after the default preview command. Hover or
 tap charts for details; use arrow keys to browse and Enter to select. Choose a
 release, baseline, workload and compatible measurement series. Shared links pin
-capture IDs so a later capture does not silently change the comparison.
+version and capture IDs so later captures or releases do not silently change the
+comparison. When restoring a saved Latest 10 comparison whose archived target or
+baseline has moved outside that window, the page expands to All releases and
+retains both selections. Choosing Latest 10 explicitly still shows a rolling
+window.
 
 Vercel builds every environment from the same committed catalog. The browser
 loads embedded data and same-site static downloads; GitHub links are explicit

@@ -1,10 +1,28 @@
 import { parseArgs } from 'node:util'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { assert, gh, repository, request } from './github.mjs'
-import { verifiedCandidate, commitPattern, hashPattern } from './candidate.mjs'
+import {
+  assert,
+  gh,
+  repository,
+  request,
+  optionalRelease,
+  pages,
+} from './github.mjs'
+import {
+  verifiedCandidate,
+  validateCandidate,
+  commitPattern,
+  hashPattern,
+} from './candidate.mjs'
 import { candidatePreview } from './preview.mjs'
-import { reviewPublishedRelease } from './publish.mjs'
+import {
+  reviewPublishedRelease,
+  releasedCandidate,
+  releaseStores,
+  assertNewReleaseVersion,
+} from './publish.mjs'
+import { assertReleaseRemote, pushReleaseTag } from './tag.mjs'
 import { git, json } from '../performance/records.mjs'
 import {
   assertReleaseVersion,
@@ -46,6 +64,8 @@ Preparation edits version/changelog files locally. Verification dispatches CI.
 Review downloads immutable packages and prints required check outcomes.
 Publishing requires the exact locally reviewed digest; --reconciled means you
 checked the store and its archived operation IDs before retrying an uncertain attempt.
+After rechecking gates, publishing pushes the final version tag through existing
+Git authentication and dispatches CI. Matching tags are reused, never moved.
 No command merges PRs, commits report data, or deploys production directly.
 `
 if (values.help || !command) {
@@ -180,6 +200,41 @@ if (command === 'prepare') {
     reviewed.candidateSha256 === values.approve,
     'approval does not match the local review',
   )
+  releaseStores(values.stores)
+  if (values.notes) await readFile(resolve(values.notes), 'utf8')
+  assertReleaseRemote()
+  const source = validateCandidate(reviewed.candidate).source
+  const release = await optionalRelease(source.tag)
+  const directory = await mkdtemp(
+    resolve('.tmp/releases', values.run, 'publish-'),
+  )
+  const verified =
+    release && !release.draft
+      ? await releasedCandidate(source.tag, directory, values.approve)
+      : await verifiedCandidate(values.run, directory, values.approve)
+  const candidate = verified.candidate
+  assert(
+    String(candidate.build.runId) === values.run,
+    'candidate run differs from approval',
+  )
+  if (!release || release.draft) {
+    assert(
+      !release || release.target_commitish === candidate.source.commit,
+      'draft release belongs to a different candidate',
+    )
+    assertNewReleaseVersion(candidate, await pages('releases'))
+    const comparison = await request(
+      `compare/${candidate.source.commit}...master`,
+    )
+    assert(
+      ['ahead', 'identical'].includes(comparison.status),
+      'candidate is not on master',
+    )
+  }
+  const createdTag = pushReleaseTag(candidate.source)
+  process.stdout.write(
+    `${createdTag ? 'Pushed' : 'Reused'} ${candidate.source.tag} at ${candidate.source.commit}.\n`,
+  )
   const args = [
     'workflow',
     'run',
@@ -200,7 +255,14 @@ if (command === 'prepare') {
   if (values['metric-run'])
     args.push('-f', `metric_run=${values['metric-run']}`)
   if (values.notes) args.push('-F', `notes=@${resolve(values.notes)}`)
-  gh(args)
+  try {
+    gh(args)
+  } catch (error) {
+    throw new Error(
+      `Publication dispatch failed after verifying ${candidate.source.tag}. Retry the same approved command; its matching tag will be reused.`,
+      { cause: error },
+    )
+  }
   process.stdout.write(
     'Reviewed publication dispatched. Inspect individual store receipts; then import the report with pnpm release:reports --tag VERSION.\n',
   )

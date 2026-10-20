@@ -1,6 +1,8 @@
 name: Build, Test, Integration Test
 
-on: [push]
+on:
+  push:
+    branches: ['**']
 
 permissions:
   contents: read

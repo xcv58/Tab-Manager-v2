@@ -2,6 +2,7 @@ name: Safari build
 
 on:
   push:
+    branches: ['**']
   workflow_call:
     inputs:
       source:
