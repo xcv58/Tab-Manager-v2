@@ -49,7 +49,14 @@ async function fixture(t) {
   const master = run(['rev-parse', 'HEAD'])
   run(['remote', 'add', 'origin', remote])
   run(['push', 'origin', 'master'])
-  return { checkout, run, commit, master, source: { tag: 'v3.0.1', commit } }
+  return {
+    checkout,
+    remote,
+    run,
+    commit,
+    master,
+    source: { tag: 'v3.0.1', commit },
+  }
 }
 
 test('the approved tag identifies an older frozen source after master workflow edits and retries reuse it', async (t) => {
@@ -88,6 +95,15 @@ test('matching annotated tags are resolved to their source commit and preserved'
   assert.equal(pushReleaseTag(source, checkout), false)
 })
 
+test('the approved push excludes other annotated tags even when automatic following is enabled', async (t) => {
+  const { source, checkout, run } = await fixture(t)
+  run(['tag', '-a', 'v3.0.0', source.commit, '-m', 'withdrawn local release'])
+  run(['config', 'push.followTags', 'true'])
+  assert.equal(pushReleaseTag(source, checkout), true)
+  assert.equal(remoteTagCommit(source.tag, checkout), source.commit)
+  assert.equal(remoteTagCommit('v3.0.0', checkout), null)
+})
+
 test('a source unavailable from origin fails without creating a tag', async (t) => {
   const { source, checkout } = await fixture(t)
   assert.throws(() =>
@@ -115,6 +131,54 @@ test('publication accepts only the configured release repository before pushing'
     () => assertReleaseRemote(checkout),
     /origin must point to the release repository/,
   )
+})
+
+test('preflight validates every push URL and rejects ambiguous destinations', async (t) => {
+  const { checkout, remote, source, run } = await fixture(t)
+  const fetchUrl = 'https://github.com/xcv58/Tab-Manager-v2.git'
+  const pushUrl = 'git@github.com:xcv58/Tab-Manager-v2.git'
+  run(['remote', 'set-url', 'origin', fetchUrl])
+  run(['remote', 'set-url', '--push', 'origin', pushUrl])
+  assert.doesNotThrow(() => assertReleaseRemote(checkout))
+  run(['remote', 'set-url', '--push', '--add', 'origin', fetchUrl])
+  assert.throws(
+    () => assertReleaseRemote(checkout),
+    /exactly one release push destination/,
+  )
+  run([
+    'remote',
+    'set-url',
+    '--push',
+    '--add',
+    'origin',
+    'git@github.com:someone/fork.git',
+  ])
+  assert.throws(() => assertReleaseRemote(checkout), /every push destination/)
+  run(['remote', 'set-url', '--push', '--delete', 'origin', '.*'])
+  run([
+    'remote',
+    'set-url',
+    '--push',
+    'origin',
+    'git@github.com:someone/fork.git',
+  ])
+  assert.throws(() => assertReleaseRemote(checkout), /every push destination/)
+  assert.equal(
+    run(['ls-remote', '--tags', remote, `refs/tags/${source.tag}`]),
+    '',
+  )
+})
+
+test('push-only URL rewrites are validated before publication', async (t) => {
+  const { checkout, run } = await fixture(t)
+  const url = 'git@github.com:xcv58/Tab-Manager-v2.git'
+  run(['remote', 'set-url', 'origin', url])
+  run([
+    'config',
+    'url.git@github.com:someone/.pushInsteadOf',
+    'git@github.com:xcv58/',
+  ])
+  assert.throws(() => assertReleaseRemote(checkout), /every push destination/)
 })
 
 test('local preflight rejects invalid store selections and stale stable versions', () => {

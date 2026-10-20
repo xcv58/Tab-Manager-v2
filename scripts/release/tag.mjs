@@ -3,13 +3,25 @@ import { assert } from './github.mjs'
 import { commitPattern } from './candidate.mjs'
 
 export function assertReleaseRemote(cwd = repositoryRoot) {
-  const url = git(['remote', 'get-url', 'origin'], cwd)
+  const fetchUrl = git(['remote', 'get-url', 'origin'], cwd)
+  const pushUrls = git(
+    ['remote', 'get-url', '--push', '--all', 'origin'],
+    cwd,
+  ).split('\n')
   assert(
-    /^(?:git@github\.com:|https:\/\/github\.com\/|ssh:\/\/git@github\.com\/)xcv58\/Tab-Manager-v2(?:\.git)?$/i.test(
-      url,
+    [fetchUrl, ...pushUrls].every((url) =>
+      /^(?:git@github\.com:|https:\/\/github\.com\/|ssh:\/\/git@github\.com\/)xcv58\/Tab-Manager-v2(?:\.git)?$/i.test(
+        url,
+      ),
     ),
-    'origin must point to the release repository before pushing a version tag',
+    'origin must point to the release repository for fetching and every push destination before pushing a version tag',
   )
+  assert(
+    pushUrls.length === 1,
+    'origin must have exactly one release push destination',
+  )
+  // Keep using this remote: passing an expanded URL back to Git can apply URL
+  // rewrites again. Its fetch and sole push destination identify the same repo.
 }
 
 export function remoteTagCommit(tag, cwd = repositoryRoot) {
@@ -52,7 +64,15 @@ export function pushReleaseTag(source, cwd = repositoryRoot) {
   }
   git(['fetch', '--no-tags', 'origin', source.commit], cwd)
   try {
-    git(['push', 'origin', `${source.commit}:refs/tags/${source.tag}`], cwd)
+    git(
+      [
+        'push',
+        '--no-follow-tags',
+        'origin',
+        `${source.commit}:refs/tags/${source.tag}`,
+      ],
+      cwd,
+    )
   } catch (error) {
     // A concurrent identical push is reusable; every conflicting tag is fatal.
     if (remoteTagCommit(source.tag, cwd) !== source.commit) throw error

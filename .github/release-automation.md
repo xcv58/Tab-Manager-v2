@@ -85,6 +85,10 @@ hashes and required CI gates (or durable publication receipts for an existing
 release), checks source ancestry/version, and pushes the final version tag through
 the repository's existing Git/SSH authentication. It reuses a matching tag and
 rejects a conflicting one; tags are never force-pushed or automatically deleted.
+It validates the fetch URL and every resolved push URL, requiring one push
+destination in the release repository. Checks and publication use that validated
+remote. Automatic tag following is disabled so only the explicitly approved
+version tag is published.
 No additional token or approval step is needed. If dispatch fails after the push,
 rerun the same approved command to reuse the tag.
 
