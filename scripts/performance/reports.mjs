@@ -86,7 +86,7 @@ export function recordReport(record, baseline) {
   return lines.join('\n') + '\n'
 }
 
-export async function buildViewer(records, output, { template } = {}) {
+export async function buildViewer(records, output, { template, catalog } = {}) {
   if (!records.length) throw new Error('No performance records to visualize')
   for (const record of records) validateRecord(record)
   output = resolve(output)
@@ -124,7 +124,11 @@ export async function buildViewer(records, output, { template } = {}) {
   ])
     if (!template.includes(slot))
       throw new Error(`Missing viewer slot: ${slot}`)
-  const embedded = json(data)
+  const embedded = json(
+    catalog
+      ? { ...catalog, records: data }
+      : { records: data, reports: [], inventory: [] },
+  )
     .replaceAll('<', '\\u003c')
     .replaceAll('\u2028', '\\u2028')
     .replaceAll('\u2029', '\\u2029')
@@ -135,6 +139,7 @@ export async function buildViewer(records, output, { template } = {}) {
       `<script id="performance-records" type="application/json">${embedded}</script>`,
     )
   await writeText(join(output, 'index.html'), html)
+  if (catalog) await writeText(join(output, 'snapshot.json'), json(catalog))
   for (const file of ['viewer.js', 'viewer.css'])
     await copyFile(join(templateRoot, file), join(output, file))
   await writeText(

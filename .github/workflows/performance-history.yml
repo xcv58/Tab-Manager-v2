@@ -29,11 +29,6 @@ on:
       release_tag:
         type: string
         default: ''
-    secrets:
-      archive_token:
-        required: false
-      RELEASE_PLEASE_TOKEN:
-        required: false
 
 permissions:
   contents: read
@@ -98,53 +93,3 @@ jobs:
           path: .tmp/performance-results/*-diagnostics.json
           if-no-files-found: ignore
           retention-days: 30
-
-  archive:
-    name: Open data-only archive PR
-    needs: measure
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.repository.default_branch }}
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.measure.outputs.artifact_name }}
-          path: .tmp/performance-import
-      - name: Archive validated observations
-        env:
-          GH_TOKEN: ${{ secrets.archive_token || secrets.RELEASE_PLEASE_TOKEN || github.token }}
-          ARCHIVE_BASE_BRANCH: ${{ github.event.repository.default_branch }}
-        run: >-
-          node scripts/performance/archive-pr.mjs
-          --input .tmp/performance-import/runs
-          --branch "automation/performance-runtime-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-
-  attach-release-evidence:
-    name: Attach runtime evidence to release
-    needs: measure
-    if: ${{ inputs.release_tag != '' }}
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.measure.outputs.artifact_name }}
-          path: performance-evidence
-      - name: Attach complete baseline and candidate records
-        env:
-          GH_TOKEN: ${{ secrets.archive_token || secrets.RELEASE_PLEASE_TOKEN || github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: |
-          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          gh release upload "$RELEASE_TAG" \
-            performance-evidence/runs/*.json performance-evidence/*.md \
-            --repo "$GITHUB_REPOSITORY"

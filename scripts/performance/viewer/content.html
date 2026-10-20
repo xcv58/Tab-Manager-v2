@@ -1,9 +1,9 @@
 <main id="main-content" class="performance-viewer" lang="en">
   <header>
     <p class="eyebrow">Tab Manager v2 · Engineering</p>
-    <h1>Release history</h1>
+    <h1>Release reports</h1>
     <p class="description">
-      The size and performance of Tab Manager v2, release by release.
+      Size, performance, and verification evidence, release by release.
     </p>
   </header>
   <form id="controls" aria-label="Release history controls">
@@ -76,6 +76,54 @@
     markers and dashed lines identify candidates. Lower values use less time or
     space. Local runtime measurements are advisory.
   </p>
+  <section class="verification-section" aria-labelledby="verification-title">
+    <div class="section-heading">
+      <h2 id="verification-title">Tests and builds</h2>
+      <p id="verification-context"></p>
+    </div>
+    <label>Evidence capture<select id="report-capture"></select></label>
+    <p id="verification-note"></p>
+    <div
+      class="table-scroll"
+      tabindex="0"
+      role="region"
+      aria-labelledby="verification-title"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Check</th>
+            <th scope="col">Environment</th>
+            <th scope="col">Outcome</th>
+            <th scope="col">Tests</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody id="verification-rows"></tbody>
+      </table>
+    </div>
+  </section>
+  <details id="capture-settings">
+    <summary>Measurement captures</summary>
+    <p>
+      Choose archived observations for a reproducible comparison. Shared links
+      pin these capture IDs; newer runs keep their own evidence.
+    </p>
+    <div class="pair-controls">
+      <label
+        >Selected version · package<select id="target-bundle"></select
+      ></label>
+      <label>Baseline · package<select id="baseline-bundle"></select></label>
+      <label
+        >Selected version · runtime<select id="target-runtime"></select
+      ></label>
+      <label>Baseline · runtime<select id="baseline-runtime"></select></label>
+    </div>
+    <p id="snapshot-note"></p>
+    <a href="snapshot.json" id="snapshot-download"
+      >Download this website's complete catalog</a
+    >
+  </details>
   <details id="release-history">
     <summary id="release-history-title">Releases at a glance</summary>
     <p class="description">
@@ -149,9 +197,11 @@
       a separate series; their absolute timings are not silently connected.
     </p>
     <p>
-      Published measurements may appear after a release when their archive PR
-      has been reviewed and merged. Download the original records below for raw
-      samples, hashes, and provenance.
+      New reports are stored as uniquely named assets on the app's GitHub
+      release. The website loads and validates them during its build, then
+      serves a static snapshot. Chart interactions make no requests to GitHub.
+      Download the original records below for raw samples, hashes, and
+      provenance.
     </p>
     <p>
       Historical timing backfills measure the frozen release sources today,

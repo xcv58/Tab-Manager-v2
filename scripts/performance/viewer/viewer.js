@@ -1,8 +1,9 @@
 /* global document, window, ResizeObserver, URL, history */
 ;(() => {
-  const data = JSON.parse(
+  const catalog = JSON.parse(
     document.getElementById('performance-records').textContent,
   )
+  const data = catalog.records
   const byId = (id) => document.getElementById(id)
   const namespace = 'http://www.w3.org/2000/svg'
   const sourceKey = (record) =>
@@ -25,6 +26,21 @@
       entry.source.status !== 'released'
     )
       entry.source = record.source
+  }
+  for (const release of catalog.inventory || []) {
+    if (!map.has(release.commit))
+      map.set(release.commit, {
+        key: release.commit,
+        records: [],
+        source: {
+          commit: release.commit,
+          version: release.version,
+          status: 'released',
+          committedAt: release.releasedAt,
+          label: release.tag,
+          dirty: false,
+        },
+      })
   }
   const allEntries = [...map.values()].sort(
     (a, b) =>
@@ -228,20 +244,165 @@
     query.get('from'),
     query.get('to'),
   )
-  const bundleFor = (entry) =>
-    entry?.records
-      .filter((record) =>
-        record.bundles.some(
-          (bundle) => bundle.browser === controls.browser.value,
-        ),
+  const captureSelections = new Map()
+  const captureInputs = [
+    ['target-bundle', 'target', 'bundle'],
+    ['baseline-bundle', 'baseline', 'bundle'],
+    ['target-runtime', 'target', 'runtime'],
+    ['baseline-runtime', 'baseline', 'runtime'],
+  ]
+  const captureKey = (entry, kind) => `${entry?.key}:${kind}`
+  for (const [id, side, kind] of captureInputs) {
+    if (query.get(id))
+      captureSelections.set(`${controls[side].value}:${kind}`, query.get(id))
+  }
+  const eligibleCaptures = (entry, kind) =>
+    entry?.records.filter((record) =>
+      kind === 'bundle'
+        ? record.bundles.some(
+            (bundle) => bundle.browser === controls.browser.value,
+          )
+        : record.runtime?.compatibilityKey === controls.series.value,
+    ) || []
+  const captureFor = (entry, kind) => {
+    const records = eligibleCaptures(entry, kind)
+    const selected = captureSelections.get(captureKey(entry, kind))
+    return selected
+      ? records.find((record) => record.id === selected)
+      : records.at(-1)
+  }
+  const bundleFor = (entry) => captureFor(entry, 'bundle')
+  const runtimeFor = (entry) => captureFor(entry, 'runtime')
+  function captureControls() {
+    let missing = false
+    for (const [id, side, kind] of captureInputs) {
+      const entry = map.get(controls[side].value),
+        select = byId(id)
+      const records = eligibleCaptures(entry, kind)
+      const selected =
+        captureSelections.get(captureKey(entry, kind)) ||
+        records.at(-1)?.id ||
+        ''
+      select.replaceChildren()
+      for (const record of records)
+        option(
+          select,
+          record.id,
+          `${record.recordedAt.slice(0, 19)} · ${record.id}`,
+        )
+      if (selected && !records.some((record) => record.id === selected)) {
+        option(select, selected, `Requested capture unavailable: ${selected}`)
+        missing = true
+      } else if (!records.length) option(select, '', 'Not measured')
+      select.value = selected
+      select.disabled = !records.length
+      if (selected) captureSelections.set(captureKey(entry, kind), selected)
+    }
+    byId('snapshot-note').textContent =
+      `${missing ? 'A pinned capture is unavailable in this snapshot or measurement series. Choose another capture to compare. ' : ''}${catalog.digest ? `Catalog SHA-256: ${catalog.digest}. ` : ''}Release dates and capture dates are recorded separately. Historical test evidence was not archived.`
+    byId('snapshot-download').hidden = !catalog.digest
+  }
+  const reportSelections = new Map()
+  if (query.get('report'))
+    reportSelections.set(controls.target.value, query.get('report'))
+  function verification() {
+    const reports = (catalog.reports || [])
+      .filter((report) => report.source.commit === controls.target.value)
+      .sort(
+        (a, b) =>
+          Date.parse(a.recordedAt) - Date.parse(b.recordedAt) ||
+          a.id.localeCompare(b.id),
       )
-      .at(-1)
-  const runtimeFor = (entry) =>
-    entry?.records
-      .filter(
-        (record) => record.runtime?.compatibilityKey === controls.series.value,
+    const select = byId('report-capture'),
+      rows = byId('verification-rows')
+    const requested = reportSelections.get(controls.target.value)
+    const selected = requested
+      ? reports.find((report) => report.id === requested)
+      : reports.at(-1)
+    select.replaceChildren()
+    for (const report of reports)
+      option(
+        select,
+        report.id,
+        `${report.recordedAt.slice(0, 19)} · ${report.id}`,
       )
-      .at(-1)
+    if (requested && !selected)
+      option(select, requested, 'Requested capture unavailable')
+    else if (!reports.length) option(select, '', 'Not archived')
+    select.value = selected?.id || requested || ''
+    select.disabled = !reports.length
+    if (selected) reportSelections.set(controls.target.value, selected.id)
+    rows.replaceChildren()
+    byId('verification-context').textContent = selected
+      ? `Captured ${selected.recordedAt.slice(0, 10)} · workflow ${selected.publisher.runId}, attempt ${selected.publisher.attempt}`
+      : 'Not archived'
+    byId('verification-note').textContent = selected
+      ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some diagnostic archives exceeded the size limit and were not preserved; the manifest lists these omissions.' : ''}`
+      : requested
+        ? 'The pinned evidence capture is unavailable in this website snapshot.'
+        : 'Test and build evidence was not archived for this release. Historical benchmark data remains available; no tests have been inferred or rerun.'
+    const labels = {
+      success: 'Passed',
+      failure: 'Failed',
+      cancelled: 'Cancelled',
+      skipped: 'Skipped',
+      timed_out: 'Timed out',
+      pending: 'Pending',
+      missing: 'Not archived',
+      action_required: 'Action required',
+      neutral: 'Neutral',
+      stale: 'Stale',
+    }
+    for (const check of selected?.checks || []) {
+      const row = document.createElement('tr')
+      for (const text of [
+        check.name,
+        check.environment,
+        labels[check.conclusion] || check.conclusion,
+        check.counts
+          ? `${check.counts.passed} passed · ${check.counts.failed} failed · ${check.counts.skipped} skipped · ${check.counts.flaky} flaky`
+          : 'Counts not archived',
+      ]) {
+        const cell = document.createElement('td')
+        cell.textContent = text
+        row.append(cell)
+      }
+      row.dataset.conclusion = check.conclusion
+      const cell = document.createElement('td'),
+        link = document.createElement('a')
+      link.textContent =
+        check.kind === 'build' ? 'Build log' : 'Workflow evidence'
+      link.href = check.url
+      cell.append(link)
+      row.append(cell)
+      rows.append(row)
+    }
+    if (!selected?.checks.length) {
+      const row = document.createElement('tr'),
+        cell = document.createElement('td')
+      cell.colSpan = 5
+      cell.textContent = 'Not archived'
+      row.append(cell)
+      rows.append(row)
+    }
+    if (selected) {
+      const row = document.createElement('tr'),
+        cell = document.createElement('td')
+      cell.colSpan = 5
+      for (const file of [
+        { name: 'Report manifest', url: selected.url },
+        ...selected.files,
+      ]) {
+        if (!file.url) continue
+        const link = document.createElement('a')
+        link.href = file.url
+        link.textContent = file.name
+        cell.append(link, document.createTextNode(' · '))
+      }
+      row.append(cell)
+      rows.append(row)
+    }
+  }
   const workloadFor = (entry) =>
     runtimeFor(entry)?.runtimeSummary.workloads.find(
       (workload) => workload.sourceTabs === Number(controls.workload.value),
@@ -977,6 +1138,8 @@
     }
   }
   function render() {
+    captureControls()
+    verification()
     const focusedTableKey = byId('release-rows').contains(
       document.activeElement,
     )
@@ -1122,6 +1285,8 @@
       to: controls.to.value,
       compare: byId('comparison').open ? '1' : '0',
       setup: byId('measurement-settings').open ? '1' : '0',
+      ...Object.fromEntries(captureInputs.map(([id]) => [id, byId(id).value])),
+      report: byId('report-capture').value,
     }))
       url.searchParams.set(key, value)
     try {
@@ -1167,15 +1332,31 @@
   byId('measurement-settings').addEventListener('toggle', remember)
   byId('controls').addEventListener('submit', (event) => event.preventDefault())
   controls.series.addEventListener('change', () => {
+    for (const side of ['target', 'baseline'])
+      captureSelections.delete(`${controls[side].value}:runtime`)
     setWorkloads(controls.workload.value)
     render()
     remember()
   })
   for (const key of ['browser', 'workload'])
     controls[key].addEventListener('change', () => {
+      if (key === 'browser')
+        for (const side of ['target', 'baseline'])
+          captureSelections.delete(`${controls[side].value}:bundle`)
       render()
       remember()
     })
+  for (const [id, side, kind] of captureInputs)
+    byId(id).addEventListener('change', () => {
+      captureSelections.set(`${controls[side].value}:${kind}`, byId(id).value)
+      render()
+      remember()
+    })
+  byId('report-capture').addEventListener('change', () => {
+    reportSelections.set(controls.target.value, byId('report-capture').value)
+    render()
+    remember()
+  })
   new ResizeObserver(() => {
     redrawPlots(true)
   }).observe(byId('charts'))

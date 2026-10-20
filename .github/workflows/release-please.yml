@@ -113,21 +113,20 @@ jobs:
       - name: Install Playwright
         run: pnpm --filter integration-test exec playwright install --with-deps --no-shell chromium
 
+      - name: Release unit tests
+        run: |
+          mkdir -p .tmp/report-results
+          pnpm --filter tab-manager-v2 test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
+
       - name: Run release gate on Ubuntu
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
+        env:
+          RELEASE_REPORTS_DIR: ${{ github.workspace }}/.tmp/report-results
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test:integration
 
       - name: Build release artifacts
         run: |
           pnpm run deploy
           pnpm run package:firefox-source
-
-      - name: Measure exact packaged release sizes
-        env:
-          RELEASE_TAG: ${{ needs.release-please.outputs.extension_tag_name }}
-        run: >-
-          pnpm performance:collect --status released --tag "$RELEASE_TAG"
-          --id "bundle-${RELEASE_TAG}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          --output packages/extension/build/performance
 
       - name: Checksum packages and performance evidence
         run: |
@@ -136,8 +135,6 @@ jobs:
             build/build_chrome.zip \
             build/build_firefox.zip \
             build/build_firefox_source.zip \
-            build/performance/runs/*.json \
-            build/performance/*.md \
             > build/SHA256SUMS.txt
 
       - name: Upload packaged extension artifacts
@@ -149,7 +146,18 @@ jobs:
             packages/extension/build/build_firefox.zip
             packages/extension/build/build_firefox_source.zip
             packages/extension/build/SHA256SUMS.txt
-            packages/extension/build/performance/
+          retention-days: 30
+
+      - name: Archive release gate results even after failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-results-release-${{ github.run_attempt }}
+          path: |
+            .tmp/report-results/
+            packages/integration_test/playwright-report/
+            packages/integration_test/test-results/
+          if-no-files-found: ignore
           retention-days: 30
 
   attach-release-assets:
@@ -180,23 +188,21 @@ jobs:
             packages/extension/build/build_firefox.zip \
             packages/extension/build/build_firefox_source.zip \
             packages/extension/build/SHA256SUMS.txt \
-            packages/extension/build/performance/runs/*.json \
-            packages/extension/build/performance/*.md \
             --clobber \
             --repo "${{ github.repository }}"
 
-  archive-bundle-performance:
-    name: Archive release bundle measurements
-    needs: [release-please, build-release, attach-release-assets]
+  bundle-performance:
+    name: Advisory bundle measurement
+    needs: [release-please, build-release]
     if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          ref: ${{ needs.release-please.outputs.extension_tag_name }}
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -205,32 +211,38 @@ jobs:
         with:
           name: extension-release-${{ needs.release-please.outputs.extension_tag_name }}
           path: packages/extension/build
-      - name: Verify release artifacts
+      - name: Verify packages and expand exact ZIP contents
         working-directory: packages/extension
-        run: sha256sum --check build/SHA256SUMS.txt
-      - name: Open data-only archive PR
+        run: |
+          sha256sum --check build/SHA256SUMS.txt
+          unzip -q build/build_chrome.zip -d build/build_chrome
+          unzip -q build/build_firefox.zip -d build/build_firefox
+      - name: Measure exact packaged release sizes
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
-          ARCHIVE_BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          RELEASE_TAG: ${{ needs.release-please.outputs.extension_tag_name }}
         run: >-
-          node scripts/performance/archive-pr.mjs
-          --input packages/extension/build/performance/runs
-          --branch "automation/performance-bundle-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          node scripts/performance/cli.mjs collect --status released --tag "$RELEASE_TAG"
+          --id "bundle-${RELEASE_TAG}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          --output packages/extension/build/performance
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-bundle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/extension/build/performance/
+          if-no-files-found: error
+          retention-days: 30
 
   runtime-performance:
     name: Advisory runtime comparison
     needs: [release-please, build-release]
     if: ${{ needs.release-please.outputs.extension_release_created == 'true' }}
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     uses: ./.github/workflows/performance-history.yml
     with:
       head: ${{ needs.release-please.outputs.extension_tag_name }}
       base: auto
       release_tag: ${{ needs.release-please.outputs.extension_tag_name }}
-    secrets:
-      archive_token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
 
   publish-chrome:
     name: Publish Chrome
@@ -422,3 +434,43 @@ jobs:
               printf '\nTo submit Edge later, run **Retry Edge Release** on the default branch with release tag **%s**. It uses the saved, checksummed package.\n' "$RELEASE_TAG"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+  release-report:
+    name: Publish release report
+    needs:
+      [
+        release-please,
+        build-release,
+        bundle-performance,
+        runtime-performance,
+        attach-release-assets,
+      ]
+    if: ${{ always() && needs.release-please.outputs.extension_release_created == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Archive exact-revision checks and publish manifest last
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release-please.outputs.extension_tag_name }}
+          REPORT_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: node scripts/reports/publish.mjs
+
+  website:
+    name: Publish website after release evidence
+    needs: [release-please, release-report, release-summary]
+    if: ${{ always() && needs.release-please.result == 'success' && (needs.release-please.outputs.extension_release_created != 'true' || needs.release-report.result == 'success') }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/publish-website.yml
+    secrets: inherit

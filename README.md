@@ -248,20 +248,23 @@ pnpm build
 
 This outputs packaged browser builds under `packages/extension/build/`.
 
-## Release history
+## Release reports
+
+The website's **Release reports** footer link opens `/reports/`: interactive
+release history charts, version comparisons, and typed test/build evidence.
+The 19 historical records since v2.6.0 remain a frozen seed. New reports are
+checksummed assets on app releases, loaded at website build time; browser
+interactions make no GitHub data requests. Shared links pin capture IDs.
 
 ```shell
+pnpm build:site
 pnpm performance:preview
 ```
 
-Open **http://127.0.0.1:8780/** to compare archived versions. For an offline
-report, run `pnpm performance:build` and open `dist/performance/index.html`.
-The website's **Performance** footer link opens `/performance/`, generated from the same
-archive by `pnpm build:site`. Release history includes all releases since v2.6.0,
-range controls, selectable chart points, and a table with changes from each
-preceding release. Two-version comparisons remain available, and selections are
-shareable by URL. Reports are not included in the extension.
-See [measurement, archival, and CI instructions](notes/performance/README.md).
+The offline metrics preview opens at **http://127.0.0.1:8780/**.
+See [storage, visualization, CI and production setup](notes/performance/README.md).
+Production publication requires the `VERCEL_TOKEN` environment secret documented
+there before merging the coordinated workflow.
 
 ## Repository Layout
 

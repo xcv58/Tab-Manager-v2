@@ -6,12 +6,29 @@
   "outputDirectory": "dist/site",
   "redirects": [
     {
-      "source": "/performance",
-      "destination": "/performance/",
+      "source": "/reports",
+      "destination": "/reports/",
       "permanent": true
     },
-    { "source": "/demo", "destination": "/demo/", "permanent": true },
-    { "source": "/privacy", "destination": "/privacy/", "permanent": true },
-    { "source": "/support", "destination": "/support/", "permanent": true }
-  ]
+    {
+      "source": "/demo",
+      "destination": "/demo/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy/",
+      "permanent": true
+    },
+    {
+      "source": "/support",
+      "destination": "/support/",
+      "permanent": true
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "master": false
+    }
+  }
 }

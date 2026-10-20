@@ -548,3 +548,36 @@
     font-size: 28px;
   }
 }
+.performance-viewer .verification-section {
+  margin-block: 2rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--performance-border);
+  border-radius: 1rem;
+  background: var(--performance-background);
+}
+.performance-viewer .verification-section select {
+  max-width: 100%;
+}
+.performance-viewer #verification-note,
+.performance-viewer #snapshot-note {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.performance-viewer #verification-rows td {
+  white-space: normal;
+  min-width: 8rem;
+}
+.performance-viewer
+  #verification-rows
+  tr[data-conclusion='failure']
+  td:nth-child(3),
+.performance-viewer
+  #verification-rows
+  tr[data-conclusion='timed_out']
+  td:nth-child(3) {
+  color: #d54a50;
+  font-weight: 600;
+}
+.performance-viewer #verification-rows a {
+  overflow-wrap: anywhere;
+}

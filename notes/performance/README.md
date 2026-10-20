@@ -1,253 +1,158 @@
-# Performance history
+# Release reports
 
-The archive stores measurements. The public website and offline viewer are
-generated from the same records and chart code. Neither is included in the
-extension package.
+The website's **Release reports** footer link opens `/reports/`. It is not a
+primary navigation item. The default view is the release history: interactive
+bundle/startup/search/drag/heap charts, history ranges, and version comparison.
+Hover, tap, or focus a chart to inspect a point; arrow keys browse and Enter
+selects it. Measurement captures and test/build evidence have their own selectors.
+Shared URLs pin the selected capture IDs as well as versions, protocol, and workload.
 
-## Website page
+## Sources of truth
 
-The website's **Performance** footer link opens `/performance/`. Its main
-view is **Release history**, with separate bundle and runtime chart sections.
-Use **History range** for all releases, the latest 10, or an inclusive custom
-range. Open **Measurement settings** to change the runtime series or workload. Enable
-**Include development versions** to inspect archived candidate commits. The
-page identifies the frozen master snapshot rather than treating it as a release.
-Version, baseline, browser, measurement series, workload, and development-version
-visibility, history range, comparison disclosure, and measurement-settings
-disclosure are preserved in the URL.
-Hover or focus any chart to inspect a version's value, observed range, sample
-count, and change from the comparison baseline. Guides highlight the same version
-across all six charts. Click or tap the chart to select that release; on a
-keyboard, Tab enters each chart, arrows or Home/End move between measured
-points, Enter/Space select, and Escape dismisses the detail. Touch details stay
-visible until another selection, a tap outside the charts, or scrolling.
-The version picker and expandable **Releases at a glance** table also select a
-release. The **Compared with** disclosure changes the inspected version and
-baseline; initially these are the latest measured release and its predecessor.
-Selection keeps focus in the chart or control you are using and updates the URL.
-The release table shows all six metrics and their changes from each version's
-preceding archived release, even if that preceding version is outside the range.
-Package evidence distinguishes original published ZIPs from source rebuilds.
-The release table, additional metrics, and **Measurement setup and evidence**
-stay in expandable sections below the charts.
+- `notes/performance/runs/` is the frozen historical seed: 19 original records,
+  eight releases from v2.6.0 through the manual 3.0.0 baseline, plus the collected
+  master snapshot. Keep their bytes, record IDs, hashes, timestamps, and raw
+  samples unchanged. No historical remeasurement or CI attestation is implied.
+- New reports are uniquely named **assets on the existing app release**. There
+  are no companion release tags, routine report commits, or archive PRs.
+- A `release-report-RUN-ATTEMPT.manifest.json` file commits each capture. It is
+  published last, after its inventory of metric JSON, typed checks JSON, and
+  durable diagnostic evidence has been validated and uploaded. Each file has
+  a byte length and SHA-256. Never overwrite a previous capture.
+- The GitHub app-release inventory is independent of metric/report assets. An
+  app release with no report still appears with unavailable measurements and
+  **Not archived** verification. Seed-only manual 3.0.0 is retained even though
+  it has no matching GitHub release.
 
-`pnpm build:site` builds the page into `dist/site/performance/`, using the shared
-site navigation and theme. It reads only checked-in archive records and excludes
-dirty working-tree captures. A release's archive PR must be reviewed and merged
-before its records appear in the next website build. Missing runtime measurements
-remain unavailable; exact bundle sizes can be published independently.
+The manifest records the subject release SHA separately from the publisher SHA,
+workflow run and attempt. The loader verifies the publisher against the archived receipt from a trusted
+`master` workflow and the subject against the release tag. The manifest must
+have been uploaded by the workflow bot; loading does not depend on Actions
+retaining the original run. Checksums detect
+inconsistent assets; they are not a cryptographic attestation. Repository owners
+can still modify release assets; back up important published snapshots separately.
 
-To preview the complete website locally:
+## Static loading and offline use
 
-```sh
-pnpm build:site
-node scripts/preview-release-media.mjs dist/site 8781
+The browser receives embedded summaries and static record/snapshot downloads from
+the website. It never requests GitHub to load or compare report data. Explicit
+source, manifest, workflow, and diagnostic links open GitHub only when selected.
+
+`pnpm build:site` merges the frozen seed with a validated catalog at **build time**:
+
+- Local default: seed only, with no network dependency.
+- Automatic Vercel PR preview: fetch current app releases and report assets during
+  the build; any download/schema/hash/provenance failure fails the build.
+- Production: the coordinated workflow fetches a complete catalog with its
+  read-only GitHub token, then builds with `REPORTS_SNAPSHOT` pointing to that
+  pinned file. There is no second download during the build.
+- Reproduce a published site: download `/reports/snapshot.json`, then run
+  `REPORTS_SNAPSHOT=/absolute/path/snapshot.json pnpm build:site`.
+
+To fetch a fresh snapshot locally (optional `GH_TOKEN` for API rate limits):
+
+```shell
+mkdir -p .tmp/reports
+node scripts/reports/catalog.mjs .tmp/reports/snapshot.json
+REPORTS_SNAPSHOT="$PWD/.tmp/reports/snapshot.json" pnpm build:site
 ```
 
-Open **http://127.0.0.1:8781/performance/**. The comparison report is in English;
-the shared navigation keeps the website's language and appearance controls.
-The generated page embeds summaries; complete raw records are downloadable
-from its evidence links. No measurements run during the website build.
+Serve `dist/site/` with the existing site preview command or a static server and
+open `/reports/`. The full catalog has a SHA-256 displayed under **Measurement
+captures**. Store that JSON with a deployment backup to preserve the exact view.
+The loader retains all historical seed records and rejects conflicting record IDs.
+A failed build does not replace the currently published production site.
 
-## Visualize the archived versions
+For a metrics-only offline viewer using the same charts:
 
-From the repository root, with Node.js 24+ and the pinned pnpm installed:
-
-```sh
+```shell
 pnpm performance:preview
-```
-
-Open **http://127.0.0.1:8780/**. Choose the version, baseline, package browser,
-runtime series, and workload. Changes to the controls are reflected in the URL.
-The developer viewer includes candidate versions by default; use its checkbox to
-show releases only.
-The browser does not need network access to render the report. Stop the local
-server with Ctrl+C.
-
-For an offline copy:
-
-```sh
 pnpm performance:build
-open dist/performance/index.html
 ```
 
-Keep `index.html`, `viewer.js`, `viewer.css`, and `records/` together when copying
-the generated folder. No dev server, external chart library, or browser API
-permissions are required. Evidence links open the full raw JSON record; commit
-links point to GitHub. The viewer generates its own `index.json` and discovers
-archived records automatically, so a new version needs no chart-code changes.
+The preview opens at `http://127.0.0.1:8780/`; the generated offline viewer is
+`dist/performance/index.html`. `performance:preview --input PATH` can include
+additional downloaded **metric records**, not report manifests or checks files.
 
-The archive covers all seven published releases from v2.6.0 through v2.7.2,
-the manual 3.0.0 store source, and the unreleased master snapshot at `3e7a511d`.
-See [the historical backfill](reports/2026-10-20-release-history.md) and
-[the original three-version comparison](reports/2026-10-20-comparison.md).
+## Verification evidence
 
-## Read a new CI run before merging its archive PR
+Diagnostic ZIPs larger than 100 MB are explicitly listed as unavailable in the
+manifest; check outcomes remain archived even if a trace is too large.
 
-Download the `performance-runtime-<run>-<attempt>` artifact from **Advisory
-Performance History** in GitHub Actions. Its `viewer/` folder is ready to open
-offline. To combine its records with the checked-out history:
+The report archives exact-revision, latest-attempt Node and Safari workflow
+outcomes, including failed/cancelled/skipped checks, and the release gate and
+advisory benchmark job outcomes. An unfinished workflow is pending; a missing
+exact-revision run is missing. It never selects an older passing run to hide a
+newer failure. Diagnostic metadata and available structured-result/browser
+artifacts are attached to the app release rather than relying on Actions' short
+retention window.
 
-```sh
-pnpm performance:preview --input /path/to/downloaded-artifact/runs
-```
+Unit tests and Playwright produce structured JSON. Firefox already produces
+Jest JSON. Counts are shown only from those files; retries are counted once using
+the final Playwright outcome, with flaky tests separate. Different Node matrix
+environments are separate rows, never a fabricated grand total. Status-only
+checks have **Counts not archived**. Safari compilation/resource checks are
+**build** evidence and lint is separate; neither implies a Safari browser test.
+Historical releases show **Not archived** for tests/builds unless actual evidence
+for their exact revision is subsequently archived.
 
-For bundle-only records attached to a release:
+Advisory benchmark failure does not block store submissions. A report containing
+only checks and failed/missing benchmark outcomes is valid. Partial runtime
+measurements are never inserted as successful numeric chart data. The existing
+3.0.0 release policy and original extension ZIP checksums remain separate.
 
-```sh
-gh release download vX.Y.Z --pattern 'bundle-*.json' --dir .tmp/performance-import
-pnpm performance:preview --input .tmp/performance-import
-```
+## Release and publication flow
 
-These commands visualize additional records without changing the archive.
+`Release Please` still creates the app release and builds/packages the extension.
+Store submissions depend on the required release gate/package build, not on the
+advisory benchmark. Bundle measurement is a separate advisory job so it cannot hold up a store
+submission. After bundle collection and advisory runtime finish, the
+trusted **Publish release report** job captures CI evidence and uploads a manifest
+last, even when a required build or advisory benchmark failed.
 
-## Preserve a measurement
+One **Publish website** job runs at the end, after report publication and the
+store summary. Ordinary `master` changes without an app release use that same
+website job. Automatic production Git deployments are disabled only for `master`
+in `vercel.json` to avoid an early stale build followed by a second publication;
+automatic PR previews stay enabled. Production publication builds once using the
+pinned catalog and deploys that prebuilt output. This PR does not itself deploy
+the production website.
 
-`runs/<id>.json` is one immutable record per frozen source commit and capture
-run. Records contain source/version/status, exact ZIP and file hashes, raw
-observations, provenance, and the runtime compatibility key. A rerun gets a new
-ID. Reimporting identical JSON is harmless; an existing ID with different data
-is rejected. Missing metrics stay unavailable rather than becoming zero.
+**Required setup before merging:** configure a Vercel deployment token in the
+GitHub `website-production` environment as `VERCEL_TOKEN`, scoped to the existing
+`tab-manager-v2` project/team. Set any desired environment protection/approvers.
+The workflow fails explicitly if the token is missing. Do not merge the production
+coordination change until this is configured, because automatic `master` deploys
+will then be disabled. Project/team IDs are already pinned in the workflow. Enter
+the secret directly in GitHub; do not put tokens in source or issue/PR comments.
+Vercel PR builds may optionally have a read-only `GH_TOKEN` to avoid public API
+rate limits; it must never be embedded into generated site files.
 
-To archive downloaded records locally, then review the resulting data change:
+To refresh after a later evidence capture/backfill, dispatch **Refresh release
+reports** on `master`. Leave the release tag empty for a website-only refresh;
+provide an existing app release tag to append its latest available CI evidence
+before rebuilding. This never reruns old benchmarks or changes earlier reports.
+To capture fresh runtime measurements first, dispatch **Advisory Performance
+History** with the desired frozen release ref, then use its run ID in the refresh
+workflow. Preserve the downloaded metric records and original diagnostic evidence.
+A refresh must target an existing app release, not invent a release for manual 3.0.
 
-```sh
-pnpm performance:archive --input /path/to/downloaded-artifact/runs
-pnpm performance:build
-git diff --stat
-```
+## Collecting measurements manually
 
-Commit the added records in a data-only PR. `dist/` and `.tmp/` remain generated
-and ignored. Do not commit browser profiles, ZIPs, screenshots, or heap snapshots.
+These commands perform benchmarks/builds rather than a unit/integration test
+suite; run them deliberately. Frozen sources, fixture/browser/harness hashes,
+runner, raw samples and capture dates remain in the records. Runtime values from
+different compatibility keys are never silently connected as one chart series.
 
-The October 20 audit was imported retrospectively. Its original observations
-are preserved in the three records, and the original capture/harness sources
-are archived as text in `audits/2026-10-20/`. Their hashes were computed at
-archival, not signed during the original measurement. Concrete fixture hashes
-and CPU model were not captured then. That audit is its own runtime series and
-is never silently joined with future captures.
-
-## Collect exact bundle sizes
-
-```sh
+```shell
 pnpm build
 pnpm zip
-pnpm performance:collect
+pnpm performance:collect --id local-package-capture
+pnpm performance:compare --head master --base auto --reference c2dea3aacb3c1fb871434bdcbbcf54019b03f602 --output .tmp/performance-results
 pnpm performance:preview --input .tmp/performance-results/runs
 ```
 
-The collector checks that every ZIP entry matches its unpacked build, including
-the manifest version. It records the complete download plus startup assets and
-separate Settings preview assets. Stale ZIPs fail collection. Working-tree
-captures are marked dirty and are not merged with clean commit measurements.
-
-## Run an advisory runtime comparison
-
-After installing workspace dependencies and Playwright Chromium:
-
-```sh
-pnpm --filter integration-test exec playwright install chromium
-pnpm performance:compare --head HEAD --base auto
-pnpm performance:preview --input .tmp/performance-results/runs
-```
-
-`auto` finds the release preceding the candidate, excluding the candidate's own
-tag, and honors the manual 3.0.0 bootstrap commit. It does not recreate withdrawn
-tags. Override it with an exact release ref when appropriate:
-
-```sh
-pnpm performance:compare --head 3e7a511d --base v2.7.2
-```
-
-The command exports each commit with `git archive`, installs each frozen
-lockfile independently, and builds a common production React profiling harness.
-It runs seven alternating samples at 112, 1,012, and 5,012 total tabs, then three
-scroll/GC and native mouse group-drag observations per revision. The actual
-fixture fingerprints must agree. Both versions use the same browser process,
-viewport, harness, external-request blocking, and HTTP-cache policy. The common
-simulated browser adapter is part of the profiling harness, including for releases
-that predate the website demo. The frozen version's UI and stores remain intact.
-
-Every capture also measures a fixed reference: the manual 3.0.0 source at
-`c2dea3aacb3c1fb871434bdcbbcf54019b03f602`. Duplicate revisions are measured only
-once per run. Override `--reference REF` explicitly if a future benchmark protocol
-needs another reference. The recorded reference and harness/environment changes
-remain visible; measurements from different series are never joined silently.
-
-Optional capture controls:
-
-```sh
-pnpm performance:compare --head HEAD --base auto --samples 1 --drag-samples 0 --tabs 100
-pnpm performance:compare --head HEAD --base auto --executable '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-```
-
-A reduced sample count is a smoke capture, not a substitute for the default
-comparison. The full sample counts are always recorded. Runtime measurements
-are simulations of the tab-management UI, not native browser IPC, cold browser
-launch, website loading, renderer RSS, or proof of leak-free behavior. Min/max
-whiskers are observed ranges, not confidence intervals or p95 estimates.
-
-Browser/runner/toolchain/harness/fixture changes create separate series. The
-viewer only computes runtime deltas inside the selected series and workload.
-Bundle records and runtime records can be from different captures of the same
-clean commit; both evidence links and capture dates are shown. No numeric
-performance thresholds block publishing in this initial implementation.
-
-## Backfill release history
-
-Original published ZIPs can be inspected independently of rebuilding source:
-
-```sh
-pnpm performance:backfill --since 2.6.0 --output .tmp/performance-backfill
-pnpm performance:archive --input .tmp/performance-backfill/runs
-```
-
-This reads all matching non-prerelease GitHub releases, verifies the tag's source
-version, downloads the two original packages, and checks GitHub asset digests,
-published checksums, manifest versions, and ZIP entry CRCs. The archived record
-identifies the release, assets, URLs, publication dates, and backfill date.
-The manual 3.0.0 release has no remaining GitHub assets; its existing source-build
-measurements remain explicitly identified as a rebuild.
-
-To remeasure a complete history in one compatible runtime series:
-
-```sh
-pnpm performance:compare --base c2dea3aa --reference c2dea3aa \
-  --revisions v2.6.0,v2.6.1,v2.6.2,v2.6.3,v2.7.0,v2.7.1,v2.7.2,3e7a511d \
-  --output .tmp/performance-runtime-backfill
-pnpm performance:archive --input .tmp/performance-runtime-backfill/runs
-```
-
-All frozen sources are built before timing begins. Captures use one browser and
-the same adapter, concrete fixture fingerprints, viewport, warmups, and repeated
-workloads. Observations alternate forward and reverse revision order. Historical
-timings are measured today, never presented as observations from the original
-publication dates. Defaults remain seven samples per workload and three drags;
-the reduced smoke records are not part of the committed history.
-
-## Release integration
-
-The release build collects bundle sizes from the exact already-built ZIPs.
-Its JSON and Markdown reports are checksummed, uploaded with the release build,
-and attached to the GitHub release. A separate job opens a draft, data-only PR
-to preserve those records in Git.
-
-The release also calls **Advisory Performance History**, a separate workflow
-that compares the tag against the previous release and opens its own data-only
-archive PR. Complete runtime records and Markdown reports are also attached to
-the candidate's GitHub release. Store publishing jobs do not depend on runtime
-or archive jobs.
-Capture failures upload diagnostics and do not create partial successful
-records. Archive PRs require human review and are never auto-merged.
-
-After this tooling is merged, a manual run is available in GitHub Actions →
-**Advisory Performance History** → **Run workflow**. Set `head` to the candidate
-ref and `base` to `auto` or an explicit ref. No release is created by that manual
-workflow. A runtime viewer is included in its downloadable artifact.
-
-Archive jobs prefer `RELEASE_PLEASE_TOKEN`, matching the release bot setup, with
-`GITHUB_TOKEN` as a fallback. The token/repository settings must allow pushing
-an archive branch and opening a PR. If PR creation is unavailable, the immutable
-JSON remains in the release assets or workflow artifact for manual import.
-Workflow artifacts use 30-day retention; Git records and release attachments
-are the long-term copies.
+The pre-existing historical JSON files are sufficient for the migration; do not
+run the backfill scripts again just to move storage. The manual
+`performance:archive` command remains available for explicitly reviewed local
+imports. CI no longer opens automatic data-only archive PRs.
