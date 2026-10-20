@@ -72,35 +72,25 @@ if (!exec('git', ['status', '--porcelain', '--', ...paths])) {
       body,
       `## Summary\n\nArchive ${records.length} immutable performance record(s) produced by workflow run ${process.env.GITHUB_RUN_ID}. Measurements identify frozen source commits and preserve raw observations; timing deltas remain advisory.\n\n${records.map((record) => `- ${record.id}: ${record.source.commit}`).join('\n')}\n\n## Testing\n\n- Parsed and validated each record before archival.\n- No application source changes.\n\n## Release Notes\n\nData-only archive; no extension release requested.\n`,
     )
-    // gh disallows --template together with --body-file. This editor supplies
-    // the reviewed body while retaining the repository's required template.
-    const editor = join(directory, 'editor.sh')
-    await writeFile(editor, '#!/bin/sh\ncat "$PERFORMANCE_PR_BODY" > "$1"\n', {
-      mode: 0o700,
-    })
-    const result = execFileSync(
-      'gh',
-      [
-        'pr',
-        'create',
-        '--draft',
-        '--base',
-        process.env.ARCHIVE_BASE_BRANCH || 'master',
-        '--head',
-        values.branch,
-        '--title',
-        'chore(performance): archive measured release records',
-        '--template',
-        '.github/PULL_REQUEST_TEMPLATE.md',
-        '--editor',
-      ],
-      {
-        cwd: repositoryRoot,
-        encoding: 'utf8',
-        env: { ...process.env, GH_EDITOR: editor, PERFORMANCE_PR_BODY: body },
-      },
-    )
-    console.log(result.trim())
+    // gh rejects --template with --body-file, and --editor requires a TTY.
+    // Create a draft noninteractively, then populate the template's sections
+    // from the prepared body file. This also works in GitHub Actions.
+    const url = exec('gh', [
+      'pr',
+      'create',
+      '--draft',
+      '--base',
+      process.env.ARCHIVE_BASE_BRANCH || 'master',
+      '--head',
+      values.branch,
+      '--title',
+      'chore(performance): archive measured release records',
+      '--template',
+      '.github/PULL_REQUEST_TEMPLATE.md',
+      '--fill',
+    ])
+    exec('gh', ['pr', 'edit', url, '--body-file', body])
+    console.log(url)
   } finally {
     await rm(directory, { recursive: true, force: true })
   }
