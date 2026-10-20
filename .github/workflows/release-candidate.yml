@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       candidate:
-        description: Reviewed application commit (full SHA on master)
+        description: Reviewed current master commit (full SHA; checked against dispatch revision)
         required: true
         type: string
       benchmarks:
@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.freeze.outputs.commit }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -80,7 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.freeze.outputs.commit }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -130,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.freeze.outputs.commit }}
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -170,7 +170,7 @@ jobs:
     needs: freeze
     uses: ./.github/workflows/safari.yml
     with:
-      source: ${{ needs.freeze.outputs.commit }}
+      source: ${{ github.sha }}
 
   bundle:
     name: Advisory bundle measurement
@@ -179,7 +179,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.freeze.outputs.commit }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -208,5 +208,5 @@ jobs:
     if: ${{ inputs.benchmarks }}
     uses: ./.github/workflows/performance-history.yml
     with:
-      head: ${{ needs.freeze.outputs.commit }}
+      head: ${{ github.sha }}
       base: auto

@@ -184,7 +184,10 @@ async function main() {
       commitPattern.test(input || ''),
       'candidate must be a full commit SHA',
     )
-    git(['merge-base', '--is-ancestor', input, 'origin/master'])
+    assert(
+      input === process.env.GITHUB_SHA && input === git(['rev-parse', 'HEAD']),
+      'candidate must match the reviewed master revision at workflow dispatch; reuse an existing run for an older frozen candidate',
+    )
     const version = assertReleaseVersion(
       JSON.parse(git(['show', `${input}:packages/extension/package.json`]))
         .version,

@@ -1,7 +1,7 @@
 import { parseArgs } from 'node:util'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
-import { assert, gh, repository } from './github.mjs'
+import { assert, gh, repository, request } from './github.mjs'
 import { verifiedCandidate, commitPattern, hashPattern } from './candidate.mjs'
 import { candidatePreview } from './preview.mjs'
 import { reviewPublishedRelease } from './publish.mjs'
@@ -98,7 +98,11 @@ if (command === 'prepare') {
 } else if (command === 'verify') {
   assert(
     commitPattern.test(values.sha || ''),
-    '--sha must be a full reviewed master commit',
+    '--sha must be the full reviewed current master commit',
+  )
+  assert(
+    (await request('commits/master')).sha === values.sha,
+    'master changed; review its current SHA, or reuse an already prepared candidate run',
   )
   gh([
     'workflow',

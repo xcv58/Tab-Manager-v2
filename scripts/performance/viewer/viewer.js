@@ -1143,7 +1143,7 @@
       byId('more').append(row)
     }
     const link = document.createElement('a')
-    link.href = `https://github.com/xcv58/Tab-Manager-v2/commit/${target.source.commit}`
+    link.href = `https://github.com/xcv58/Tab-Manager-v2/commit/${encodeURIComponent(target.source.commit)}`
     link.textContent = target.source.commit
     byId('source').replaceChildren(
       document.createTextNode(

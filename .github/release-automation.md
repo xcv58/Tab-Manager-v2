@@ -30,7 +30,7 @@ never commits, pushes, tags, or submits anything. Review and merge these source
 changes through the normal repository process. The withdrawn manual 3.0.0 tag
 must not be recreated; its source remains the historical comparison baseline.
 
-After merging, freeze the actual application commit on master:
+After merging, freeze the reviewed current master commit:
 
 ```sh
 pnpm release:verify --sha FULL_MASTER_COMMIT
@@ -40,7 +40,11 @@ pnpm release:review --run CANDIDATE_RUN_ID
 ```
 
 The workflow is dispatched on master. Its preflight rejects arbitrary refs and
-requires the candidate SHA to be an ancestor of master. It builds Chrome and
+requires the expected candidate SHA to equal the master revision captured at
+dispatch. All executable checkouts use that trusted `github.sha`, never an
+arbitrary dispatch-input ref. If master moves before dispatch, preparation fails
+early instead of building a different source. Existing frozen runs remain
+reusable after master advances. It builds Chrome and
 Firefox once and saves ZIP hashes plus the Firefox source archive in
 `candidate.json`. Chrome/Firefox browser checks expand and exercise those exact
 ZIPs. Unit checks and unsigned Safari Debug/Release compilation are also
