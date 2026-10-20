@@ -287,10 +287,17 @@
     ['target-runtime', 'target', 'runtime'],
     ['baseline-runtime', 'baseline', 'runtime'],
   ]
-  const captureKey = (entry, kind) => `${entry?.key}:${kind}`
+  // Runtime pins belong to a measurement series, including when inspecting a
+  // version automatically selects another series. Keep missing URL pins within
+  // their requested series instead of replacing them with a different capture.
+  const captureKey = (entry, kind) =>
+    `${entry?.key}:${kind}${kind === 'runtime' ? `:${controls.series.value}` : ''}`
   for (const [id, side, kind] of captureInputs) {
     if (query.get(id))
-      captureSelections.set(`${controls[side].value}:${kind}`, query.get(id))
+      captureSelections.set(
+        captureKey(map.get(controls[side].value), kind),
+        query.get(id),
+      )
   }
   const eligibleCaptures = (entry, kind) =>
     entry?.records.filter((record) =>
@@ -1377,8 +1384,6 @@
   byId('measurement-settings').addEventListener('toggle', remember)
   byId('controls').addEventListener('submit', (event) => event.preventDefault())
   controls.series.addEventListener('change', () => {
-    for (const side of ['target', 'baseline'])
-      captureSelections.delete(`${controls[side].value}:runtime`)
     setWorkloads(controls.workload.value)
     render()
     remember()
@@ -1393,7 +1398,10 @@
     })
   for (const [id, side, kind] of captureInputs)
     byId(id).addEventListener('change', () => {
-      captureSelections.set(`${controls[side].value}:${kind}`, byId(id).value)
+      captureSelections.set(
+        captureKey(map.get(controls[side].value), kind),
+        byId(id).value,
+      )
       render()
       remember()
     })

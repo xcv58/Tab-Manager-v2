@@ -25,7 +25,13 @@ export async function optionalRelease(tag) {
   try {
     return await request(`releases/tags/${encodeURIComponent(tag)}`)
   } catch (error) {
-    if (/HTTP 404/.test(String(error.stderr))) return null
+    // Pending draft tags are invisible to the by-tag REST endpoint. The
+    // authenticated release inventory includes them, so retries recover the ID.
+    if (/HTTP 404/.test(String(error.stderr)))
+      return (
+        (await pages('releases')).find((release) => release.tag_name === tag) ||
+        null
+      )
     throw error
   }
 }
@@ -43,12 +49,19 @@ export async function pages(path) {
     if (values.length < 100) return all
   }
 }
-export async function uploadImmutable(tag, path, name) {
+export async function uploadImmutable(releaseOrTag, path, name) {
   const { readFile } = await import('node:fs/promises')
   const { basename } = await import('node:path')
   const { sha256 } = await import('../performance/records.mjs')
   name ||= basename(path)
-  const release = await request(`releases/tags/${encodeURIComponent(tag)}`)
+  const release =
+    typeof releaseOrTag === 'string'
+      ? await optionalRelease(releaseOrTag)
+      : releaseOrTag
+  assert(
+    Number.isSafeInteger(release?.id) && release.id > 0,
+    'missing release ID',
+  )
   const existing = (await pages(`releases/${release.id}/assets`)).find(
     (item) => item.name === name,
   )
@@ -58,5 +71,15 @@ export async function uploadImmutable(tag, path, name) {
       sha256(previous) === sha256(await readFile(path)),
       `refusing to overwrite release asset ${name}`,
     )
-  } else gh(['release', 'upload', tag, `${path}#${name}`, '--repo', repository])
+  } else
+    gh([
+      'api',
+      '--method',
+      'POST',
+      `https://uploads.github.com/repos/${repository}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`,
+      '-H',
+      'Content-Type: application/octet-stream',
+      '--input',
+      path,
+    ])
 }

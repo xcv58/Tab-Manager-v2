@@ -1,10 +1,10 @@
 // Assemble a local, unpublished candidate view without changing Git history.
-import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { loadCatalog } from '../reports/catalog.mjs'
 import { buildViewer } from '../performance/reports.mjs'
-import { json, sha256, validateRecord } from '../performance/records.mjs'
+import { json, sha256 } from '../performance/records.mjs'
 import { assert, gh, pages, repository, request } from './github.mjs'
+import { readMetricArtifact } from './metric-artifact.mjs'
 
 export async function candidatePreview({ candidate, run, jobs }, output) {
   const catalog = await loadCatalog()
@@ -30,36 +30,14 @@ export async function candidatePreview({ candidate, run, jobs }, output) {
         '--dir',
         directory,
       ])
-      const captures = []
-      async function visit(path) {
-        for (const entry of await readdir(path, { withFileTypes: true })) {
-          const file = join(path, entry.name)
-          if (entry.isDirectory()) await visit(file)
-          else if (entry.name.endsWith('.json')) {
-            const record = JSON.parse(await readFile(file, 'utf8'))
-            if (
-              record.schemaVersion !== 1 ||
-              !record.source?.commit ||
-              !record.id
-            )
-              continue
-            validateRecord(record)
-            assert(
-              !record.source.dirty &&
-                String(record.provenance.workflowRun) === String(run.id),
-              'preview metric provenance mismatch',
-            )
-            captures.push(record)
-          }
-        }
-      }
-      await visit(directory)
-      assert(
-        captures.some(
-          (record) => record.source.commit === candidate.source.commit,
-        ),
-        'preview capture does not include candidate',
-      )
+      const captures = (
+        await readMetricArtifact(
+          directory,
+          artifact,
+          run,
+          candidate.source.commit,
+        )
+      ).map(({ value }) => value)
       for (const record of captures) {
         assert(
           !records.has(record.id) ||

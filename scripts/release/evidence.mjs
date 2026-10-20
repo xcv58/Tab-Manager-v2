@@ -11,7 +11,8 @@ import {
 } from './github.mjs'
 import { releasedCandidate } from './publish.mjs'
 import { trustedRun } from './candidate.mjs'
-import { json, sha256, validateRecord, git } from '../performance/records.mjs'
+import { json, sha256, git } from '../performance/records.mjs'
+import { readMetricArtifact } from './metric-artifact.mjs'
 import { validateManifest, validateChecks } from '../reports/catalog.mjs'
 import { jestCounts, playwrightCounts } from '../reports/results.mjs'
 
@@ -146,33 +147,11 @@ async function capture(run) {
       await counts(directory, run.id)
       continue
     }
-    let includesSubject = false
-    const records = []
-    async function visit(path) {
-      for (const entry of await readdir(path, { withFileTypes: true })) {
-        const file = join(path, entry.name)
-        if (entry.isDirectory()) await visit(file)
-        else if (entry.name.endsWith('.json')) {
-          const bytes = await readFile(file),
-            value = JSON.parse(bytes)
-          if (value.schemaVersion !== 1 || !value.source?.commit || !value.id)
-            continue
-          validateRecord(value)
-          assert(
-            !value.source.dirty &&
-              String(value.provenance.workflowRun) === String(run.id),
-            'invalid metric provenance',
-          )
-          if (value.source.commit === candidate.source.commit)
-            includesSubject = true
-          records.push({ bytes, value })
-        }
-      }
-    }
-    await visit(directory)
-    assert(
-      includesSubject,
-      'metric artifact does not include the release source',
+    const records = await readMetricArtifact(
+      directory,
+      artifact,
+      run,
+      candidate.source.commit,
     )
     for (const { bytes, value } of records)
       if (!files.some((file) => file.name === `${id}-${value.id}.json`))

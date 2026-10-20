@@ -212,30 +212,38 @@ async function main() {
     await writeFile(join(directory, 'publication.json'), publicationBytes)
     // Draft first, upload every verified package, then publish. A later retry
     // recovers an incomplete draft by verifying its existing immutable files.
-    if (!draft)
+    const release =
+      draft ||
+      JSON.parse(
+        gh([
+          'api',
+          '--method',
+          'POST',
+          `repos/${repository}/releases`,
+          '-f',
+          `tag_name=${tag}`,
+          '-f',
+          `target_commitish=${candidate.source.commit}`,
+          '-F',
+          'draft=true',
+          '-f',
+          `name=${tag}`,
+          '-F',
+          `body=@${join(directory, 'notes.md')}`,
+        ]),
+      )
+    assert(
+      Number.isSafeInteger(release.id) && release.id > 0,
+      'missing draft release ID',
+    )
+    if (draft && process.env.RELEASE_NOTES)
       gh([
-        'release',
-        'create',
-        tag,
-        '--draft',
-        '--target',
-        candidate.source.commit,
-        '--title',
-        tag,
-        '--notes-file',
-        join(directory, 'notes.md'),
-        '--repo',
-        repository,
-      ])
-    else if (process.env.RELEASE_NOTES)
-      gh([
-        'release',
-        'edit',
-        tag,
-        '--notes-file',
-        join(directory, 'notes.md'),
-        '--repo',
-        repository,
+        'api',
+        '--method',
+        'PATCH',
+        `repos/${repository}/releases/${release.id}`,
+        '-F',
+        `body=@${join(directory, 'notes.md')}`,
       ])
     for (const name of [
       'candidate.json',
@@ -243,8 +251,15 @@ async function main() {
       'SHA256SUMS.txt',
       ...candidate.files.map((file) => file.name),
     ])
-      await uploadImmutable(tag, join(directory, name))
-    gh(['release', 'edit', tag, '--draft=false', '--repo', repository])
+      await uploadImmutable(release, join(directory, name))
+    gh([
+      'api',
+      '--method',
+      'PATCH',
+      `repos/${repository}/releases/${release.id}`,
+      '-F',
+      'draft=false',
+    ])
   }
   await appendFile(
     process.env.GITHUB_OUTPUT,
