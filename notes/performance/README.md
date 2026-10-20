@@ -6,12 +6,19 @@ extension package.
 
 ## Website page
 
-The website's **Performance** navigation link opens `/performance/`. It defaults
-to the latest measured release versus the previous measured release. Enable
+The website's **Performance** navigation link opens `/performance/`. Its main
+view is **Release history**, showing every archived release. Use **History range**
+for all versions, the latest 10, or an inclusive custom range. Enable
 **Include development versions** to inspect archived candidate commits. The
 page identifies the frozen master snapshot rather than treating it as a release.
 Version, baseline, browser, measurement series, workload, and development-version
-visibility are preserved in the URL so a comparison can be shared.
+visibility, history range, and comparison disclosure are preserved in the URL.
+Select any chart point (mouse or keyboard) or version in **Releases at a glance**
+to inspect it. **Compare two versions** exposes the highlighted version and its
+baseline; initially these are the latest measured release and its predecessor.
+The release table shows all six metrics and their changes from each version's
+preceding archived release, even if that preceding version is outside the range.
+Package evidence distinguishes original published ZIPs from source rebuilds.
 
 `pnpm build:site` builds the page into `dist/site/performance/`, using the shared
 site navigation and theme. It reads only checked-in archive records and excludes
@@ -59,9 +66,10 @@ permissions are required. Evidence links open the full raw JSON record; commit
 links point to GitHub. The viewer generates its own `index.json` and discovers
 archived records automatically, so a new version needs no chart-code changes.
 
-The initial archive contains v2.7.2, the manual 3.0.0 store source, and the
-unreleased master snapshot at `3e7a511d`. See
-[the measured comparison](reports/2026-10-20-comparison.md).
+The archive covers all seven published releases from v2.6.0 through v2.7.2,
+the manual 3.0.0 store source, and the unreleased master snapshot at `3e7a511d`.
+See [the historical backfill](reports/2026-10-20-release-history.md) and
+[the original three-version comparison](reports/2026-10-20-comparison.md).
 
 ## Read a new CI run before merging its archive PR
 
@@ -145,7 +153,15 @@ lockfile independently, and builds a common production React profiling harness.
 It runs seven alternating samples at 112, 1,012, and 5,012 total tabs, then three
 scroll/GC and native mouse group-drag observations per revision. The actual
 fixture fingerprints must agree. Both versions use the same browser process,
-viewport, harness, external-request blocking, and HTTP-cache policy.
+viewport, harness, external-request blocking, and HTTP-cache policy. The common
+simulated browser adapter is part of the profiling harness, including for releases
+that predate the website demo. The frozen version's UI and stores remain intact.
+
+Every capture also measures a fixed reference: the manual 3.0.0 source at
+`c2dea3aacb3c1fb871434bdcbbcf54019b03f602`. Duplicate revisions are measured only
+once per run. Override `--reference REF` explicitly if a future benchmark protocol
+needs another reference. The recorded reference and harness/environment changes
+remain visible; measurements from different series are never joined silently.
 
 Optional capture controls:
 
@@ -165,6 +181,38 @@ viewer only computes runtime deltas inside the selected series and workload.
 Bundle records and runtime records can be from different captures of the same
 clean commit; both evidence links and capture dates are shown. No numeric
 performance thresholds block publishing in this initial implementation.
+
+## Backfill release history
+
+Original published ZIPs can be inspected independently of rebuilding source:
+
+```sh
+pnpm performance:backfill --since 2.6.0 --output .tmp/performance-backfill
+pnpm performance:archive --input .tmp/performance-backfill/runs
+```
+
+This reads all matching non-prerelease GitHub releases, verifies the tag's source
+version, downloads the two original packages, and checks GitHub asset digests,
+published checksums, manifest versions, and ZIP entry CRCs. The archived record
+identifies the release, assets, URLs, publication dates, and backfill date.
+The manual 3.0.0 release has no remaining GitHub assets; its existing source-build
+measurements remain explicitly identified as a rebuild.
+
+To remeasure a complete history in one compatible runtime series:
+
+```sh
+pnpm performance:compare --base c2dea3aa --reference c2dea3aa \
+  --revisions v2.6.0,v2.6.1,v2.6.2,v2.6.3,v2.7.0,v2.7.1,v2.7.2,3e7a511d \
+  --output .tmp/performance-runtime-backfill
+pnpm performance:archive --input .tmp/performance-runtime-backfill/runs
+```
+
+All frozen sources are built before timing begins. Captures use one browser and
+the same adapter, concrete fixture fingerprints, viewport, warmups, and repeated
+workloads. Observations alternate forward and reverse revision order. Historical
+timings are measured today, never presented as observations from the original
+publication dates. Defaults remain seven samples per workload and three drags;
+the reduced smoke records are not part of the committed history.
 
 ## Release integration
 

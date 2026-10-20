@@ -94,7 +94,16 @@ export async function buildViewer(records, output, { template } = {}) {
   const recordDirectory = join(output, 'records')
   await mkdir(recordDirectory, { recursive: true })
   const data = records.map((record) => ({
-    ...record,
+    id: record.id,
+    recordedAt: record.recordedAt,
+    source: record.source,
+    bundles: record.bundles,
+    provenance: {
+      kind: record.provenance.kind,
+      runner: record.provenance.runner,
+      note: record.provenance.note,
+      publishedAt: record.provenance.publishedAt,
+    },
     // Charts need summaries, not every observation. Full immutable records
     // remain downloadable alongside the page as the archive grows.
     runtime: record.runtime

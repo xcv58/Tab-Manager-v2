@@ -59,6 +59,7 @@
     "build:safari:app": "node packages/safari-native/Tools/build-shared-ui.mjs",
     "test:release-metadata": "node --test scripts/release-baseline.test.mjs scripts/release-policy.test.mjs",
     "performance:collect": "node scripts/performance/cli.mjs collect",
+    "performance:backfill": "node scripts/performance/backfill.mjs",
     "performance:compare": "node scripts/performance/cli.mjs compare",
     "performance:archive": "node scripts/performance/cli.mjs archive",
     "performance:build": "node scripts/performance/cli.mjs build",

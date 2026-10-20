@@ -35,6 +35,17 @@ const assets = path.resolve(
   __dirname,
   '../../integration_test/assets/profiling',
 )
+// Use one simulated browser adapter for every frozen UI, including releases
+// before the website demo existed. No application UI/store code is substituted.
+const harnessSource = path.resolve(__dirname, '../src/js')
+const demoRoot = path.join(harnessSource, 'demo')
+const adapterData = {
+  'components/Toolbar/SettingsPreviewData': path.join(
+    assets,
+    'settings-preview.ts',
+  ),
+  'libs/tabTooltip': path.join(harnessSource, 'libs/tabTooltip.ts'),
+}
 const output = path.resolve(
   process.env.PROFILE_OUTPUT ||
     path.join(__dirname, '../../..', '.tmp/performance/current'),
@@ -45,7 +56,12 @@ config.output = { ...config.output, path: output }
 config.mode = 'production'
 config.module.rules.forEach((rule) => {
   if (String(rule.test) === String(/\.(js|ts)x?$/)) {
-    rule.include = [rule.include, assets]
+    rule.include = [
+      rule.include,
+      assets,
+      demoRoot,
+      ...Object.values(adapterData),
+    ]
     rule.use[0].options.configFile = path.join(sourceRoot, 'tsconfig.json')
   }
 })
@@ -65,8 +81,8 @@ config.resolve.modules = [
   'node_modules',
 ]
 config.resolve.alias['webextension-polyfill$'] = path.join(
-  sourceRoot,
-  'src/js/demo/browser.ts',
+  demoRoot,
+  'browser.ts',
 )
 config.plugins = config.plugins.filter(
   (plugin) =>
@@ -83,18 +99,26 @@ config.plugins.push(
   new webpack.NormalModuleReplacementPlugin(
     /^\.\.\/\.\.\/\.\.\/extension\/src\//,
     (resource) => {
-      resource.request = path.join(
-        sourceRoot,
-        'src',
-        resource.request.split('/extension/src/')[1],
-      )
+      const relative = resource.request.split('/extension/src/')[1]
+      resource.request = relative.startsWith('js/demo/')
+        ? path.join(harnessSource, relative.slice(3))
+        : path.join(sourceRoot, 'src', relative)
     },
   ),
   new webpack.NormalModuleReplacementPlugin(/^\.\/fixtures$/, (resource) => {
-    if (resource.context === path.join(sourceRoot, 'src/js/demo')) {
+    if (resource.context === demoRoot) {
       resource.request = path.join(assets, 'fixtures.ts')
     }
   }),
+  new webpack.NormalModuleReplacementPlugin(
+    /^(components\/Toolbar\/SettingsPreviewData|libs\/tabTooltip|\.\.\/libs|\.\.\/background\/TabHistory)$/,
+    (resource) => {
+      if (resource.context !== demoRoot) return
+      resource.request =
+        adapterData[resource.request] ||
+        path.join(sourceRoot, 'src/js', resource.request.slice(3))
+    },
+  ),
   new HtmlWebpackPlugin({ template: path.join(assets, 'index.html') }),
 )
 config.optimization = { minimizer: [new Terser(), new CssMinimizer()] }

@@ -78,6 +78,7 @@
 }
 .performance-viewer select:focus-visible,
 .performance-viewer input:focus-visible,
+.performance-viewer button:focus-visible,
 .performance-viewer a:focus-visible,
 .performance-viewer summary:focus-visible {
   outline: 3px solid var(--performance-focus);
@@ -128,7 +129,7 @@
 .performance-viewer .chart {
   display: block;
   width: 100%;
-  height: 220px;
+  height: 232px;
 }
 .performance-viewer .chart text {
   font:
@@ -264,6 +265,72 @@
 }
 .performance-viewer .version-options[hidden] {
   display: none;
+}
+.performance-viewer .pair-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 14px 18px;
+  margin: 16px 0;
+}
+.performance-viewer .pair-controls[hidden] {
+  display: none;
+}
+.performance-viewer #history-summary {
+  font-size: 14px;
+  color: var(--performance-muted);
+  margin-top: 16px;
+}
+.performance-viewer #comparison {
+  margin-top: 18px;
+}
+.performance-viewer #release-history {
+  margin-top: 32px;
+}
+.performance-viewer #release-history > p {
+  font-size: 13px;
+}
+.performance-viewer #release-table {
+  min-width: 1040px;
+}
+.performance-viewer #release-table td {
+  white-space: nowrap;
+}
+.performance-viewer #release-table th:first-child {
+  min-width: 150px;
+  max-width: 235px;
+}
+.performance-viewer #release-table small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--performance-muted);
+}
+.performance-viewer #release-table button {
+  min-height: 44px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--performance-series);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.performance-viewer .inspected-release {
+  background: var(--performance-surface);
+}
+.performance-viewer .release-point {
+  cursor: pointer;
+}
+.performance-viewer .release-point:focus-visible {
+  outline: none;
+}
+.performance-viewer .release-point:focus-visible .point,
+.performance-viewer .release-point:hover .point {
+  stroke: var(--performance-focus);
+  stroke-width: 3;
 }
 .performance-viewer input[type='checkbox'] {
   width: 18px;

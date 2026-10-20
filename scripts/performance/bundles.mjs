@@ -76,38 +76,16 @@ export function zipFiles(data) {
   return files
 }
 
-export async function collectBundle(extensionRoot, browser, expectedVersion) {
-  const directory = join(extensionRoot, 'build', `build_${browser}`)
-  const zip = await readFile(`${directory}.zip`)
-  const packaged = zipFiles(zip)
-  const disk = new Map()
-  const walk = async (path) => {
-    for (const entry of await readdir(path, { withFileTypes: true })) {
-      if (entry.isDirectory()) await walk(join(path, entry.name))
-      else if (entry.isFile())
-        disk.set(
-          relative(directory, join(path, entry.name)).replaceAll('\\', '/'),
-          await readFile(join(path, entry.name)),
-        )
-      else throw new Error('Package contains a symlink or unsupported file')
-    }
-  }
-  await walk(directory)
-  if (packaged.size !== disk.size)
-    throw new Error(`${browser}: ZIP and build have different file counts`)
-  const files = []
-  for (const [path, content] of [...disk].sort(([a], [b]) =>
-    a.localeCompare(b, 'en'),
-  )) {
-    if (!packaged.get(path)?.equals(content))
-      throw new Error(`${browser}: stale ZIP differs at ${path}`)
-    files.push({
+export function measurePackage(zip, browser, expectedVersion) {
+  const disk = zipFiles(zip)
+  const files = [...disk]
+    .sort(([a], [b]) => a.localeCompare(b, 'en'))
+    .map(([path, content]) => ({
       path,
       bytes: content.length,
       gzipBytes: gzipSync(content, { level: 9 }).length,
       sha256: sha256(content),
-    })
-  }
+    }))
   const manifest = JSON.parse(disk.get('manifest.json').toString())
   if (manifest.version !== expectedVersion)
     throw new Error(`${browser}: package version differs from source`)
@@ -148,4 +126,30 @@ export async function collectBundle(extensionRoot, browser, expectedVersion) {
       ),
     },
   }
+}
+
+export async function collectBundle(extensionRoot, browser, expectedVersion) {
+  const directory = join(extensionRoot, 'build', `build_${browser}`)
+  const zip = await readFile(`${directory}.zip`)
+  const packaged = zipFiles(zip)
+  const disk = new Map()
+  const walk = async (path) => {
+    for (const entry of await readdir(path, { withFileTypes: true })) {
+      if (entry.isDirectory()) await walk(join(path, entry.name))
+      else if (entry.isFile())
+        disk.set(
+          relative(directory, join(path, entry.name)).replaceAll('\\', '/'),
+          await readFile(join(path, entry.name)),
+        )
+      else throw new Error('Package contains a symlink or unsupported file')
+    }
+  }
+  await walk(directory)
+  if (packaged.size !== disk.size)
+    throw new Error(`${browser}: ZIP and build have different file counts`)
+  for (const [path, content] of disk) {
+    if (!packaged.get(path)?.equals(content))
+      throw new Error(`${browser}: stale ZIP differs at ${path}`)
+  }
+  return measurePackage(zip, browser, expectedVersion)
 }

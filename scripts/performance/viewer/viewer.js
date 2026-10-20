@@ -32,9 +32,13 @@
       a.key.localeCompare(b.key),
   )
   let entries = allEntries
+  let eligibleEntries = allEntries
   const groups = new Map()
   const controls = {
     candidates: byId('candidates'),
+    range: byId('range'),
+    from: byId('from'),
+    to: byId('to'),
     target: byId('target'),
     baseline: byId('baseline'),
     browser: byId('browser'),
@@ -50,6 +54,12 @@
   const entryLabel = (entry) =>
     `${entry.source.status === 'released' ? entry.source.version : `${entry.source.version} candidate @ ${entry.source.commit.slice(0, 8)}`}${entry.source.dirty ? ' (working tree)' : ''}`
   const query = new URL(window.location.href).searchParams
+  controls.range.value = ['all', 'latest', 'custom'].includes(
+    query.get('range'),
+  )
+    ? query.get('range')
+    : 'all'
+  byId('comparison').open = query.get('compare') === '1'
   const requestedDevelopment = ['target', 'baseline'].some((name) => {
     const entry = map.get(query.get(name))
     return entry && entry.source.status !== 'released'
@@ -91,12 +101,21 @@
       groups.set(record.runtime.compatibilityKey, record.runtime.environment)
     const current = controls.series.value
     controls.series.replaceChildren()
-    for (const [key, env] of groups)
+    for (const [key, env] of groups) {
+      const observations = entries
+        .flatMap((entry) => entry.records)
+        .filter((record) => record.runtime?.compatibilityKey === key)
+      const coverage = entries.filter((entry) =>
+        entry.records.some(
+          (record) => record.runtime?.compatibilityKey === key,
+        ),
+      ).length
       option(
         controls.series,
         key,
-        `${env.runner || `${env.platform}/${env.arch}`} · Chrome ${env.browser} · ${key.slice(0, 8)}`,
+        `${coverage}/${entries.length} versions · ${observations.at(-1).recordedAt.slice(0, 10)} · ${env.runner || `${env.platform}/${env.arch}`} · Chrome ${env.browser} · ${key.slice(0, 8)}`,
       )
+    }
     if (!groups.size) option(controls.series, '', 'No runtime measurements')
     controls.series.disabled = !groups.size
     const runtimes = map
@@ -150,15 +169,46 @@
       ? String(preferred)
       : String(values.at(-1) || '')
   }
-  const updateVersions = (target, baseline, series, workload) => {
-    entries = allEntries.filter(
+  const updateVersions = (
+    target,
+    baseline,
+    series,
+    workload,
+    from = controls.from.value,
+    to = controls.to.value,
+    changedEndpoint,
+  ) => {
+    eligibleEntries = allEntries.filter(
       (entry) =>
         controls.candidates.checked || entry.source.status === 'released',
     )
-    if (!entries.length) {
+    if (!eligibleEntries.length) {
       controls.candidates.checked = true
-      entries = allEntries
+      eligibleEntries = allEntries
     }
+    for (const control of [controls.from, controls.to]) {
+      control.replaceChildren()
+      for (const entry of eligibleEntries)
+        option(control, entry.key, entryLabel(entry))
+    }
+    let start = eligibleEntries.findIndex((entry) => entry.key === from)
+    let end = eligibleEntries.findIndex((entry) => entry.key === to)
+    if (start < 0) start = 0
+    if (end < 0) end = eligibleEntries.length - 1
+    if (start > end) {
+      if (changedEndpoint === 'from') end = start
+      else if (changedEndpoint === 'to') start = end
+      else [start, end] = [end, start]
+    }
+    controls.from.value = eligibleEntries[start].key
+    controls.to.value = eligibleEntries[end].key
+    entries =
+      controls.range.value === 'latest'
+        ? eligibleEntries.slice(-10)
+        : controls.range.value === 'custom'
+          ? eligibleEntries.slice(start, end + 1)
+          : eligibleEntries
+    byId('custom-range').hidden = controls.range.value !== 'custom'
     controls.target.replaceChildren()
     for (const entry of entries)
       option(controls.target, entry.key, entryLabel(entry))
@@ -174,6 +224,8 @@
     query.get('baseline'),
     query.get('series'),
     query.get('tabs'),
+    query.get('from'),
+    query.get('to'),
   )
   const bundleFor = (entry) =>
     entry?.records
@@ -197,6 +249,10 @@
     Number.isFinite(value)
       ? { median: value, min: value, max: value, count: 1 }
       : null
+  const percentChange = (value, baseline) => {
+    const rounded = Number(((value / baseline - 1) * 100).toFixed(1))
+    return `${rounded > 0 ? '+' : ''}${rounded.toFixed(1)}%`
+  }
   const initialJavaScript = (entry) => {
     const bundle = bundleFor(entry)?.bundles.find(
       (item) => item.browser === controls.browser.value,
@@ -286,7 +342,7 @@
     value.append(selectedValue, baselineValue)
     const svg = document.createElementNS(namespace, 'svg')
     svg.classList.add('chart')
-    svg.setAttribute('role', 'img')
+    svg.setAttribute('role', 'group')
     header.append(title, delta)
     figure.append(header, value, caption, svg)
     byId('charts').append(figure)
@@ -314,7 +370,7 @@
     const target = map.get(controls.target.value),
       base = map.get(controls.baseline.value)
     const width = svg.getBoundingClientRect().width,
-      height = 220
+      height = 232
     const values = entries.map((entry, index) => ({
       entry,
       index,
@@ -327,12 +383,15 @@
         ? `${stat.median.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${definition.unit}`
         : 'Not measured'
     selectedValue.textContent = format(targetStat)
-    baselineValue.textContent = `Baseline: ${format(baseStat)}`
+    baselineValue.textContent = `${base ? entryLabel(base) : 'Baseline'}: ${format(baseStat)}`
     delta.textContent =
       targetStat && baseStat && baseStat.median > 0
-        ? `${targetStat.median >= baseStat.median ? '+' : ''}${((targetStat.median / baseStat.median - 1) * 100).toFixed(1)}% vs baseline`
+        ? `${percentChange(targetStat.median, baseStat.median)} vs baseline`
         : 'Comparison unavailable'
     caption.textContent = definition.subtitle()
+    // Navigation or a hidden layout can briefly report a zero-width chart.
+    // ResizeObserver will redraw it when it has usable space again.
+    if (width < 100) return
     svg.replaceChildren()
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`)
     svg.setAttribute(
@@ -411,32 +470,52 @@
       definition.unit,
     )
     const stride = Math.max(1, Math.ceil(values.length / (width < 400 ? 3 : 5)))
+    const axisLabels = new Map()
+    const lanes = [[], []]
+    // Endpoints and the inspected release take priority over intermediate labels.
+    // Use two rows and omit lower-priority labels when a chart becomes dense.
+    for (const index of new Set([
+      0,
+      values.length - 1,
+      values.findIndex((point) => point.entry.key === target.key),
+      values.findIndex((point) => point.entry.key === base?.key),
+      ...values
+        .filter((point) => point.index % stride === 0)
+        .map((point) => point.index),
+    ])) {
+      if (index < 0) continue
+      const entry = values[index].entry
+      const label =
+        entry.source.status === 'released'
+          ? entry.source.version
+          : `${entry.source.commit.slice(0, 7)}*`
+      const anchor =
+        index === 0 ? 'start' : index === values.length - 1 ? 'end' : 'middle'
+      const size = label.length * 7
+      const start =
+        x(index) - (anchor === 'start' ? 0 : anchor === 'end' ? size : size / 2)
+      const span = { start, end: start + size }
+      const lane = lanes.findIndex((spans) =>
+        spans.every(
+          (other) => span.end + 6 < other.start || span.start > other.end + 6,
+        ),
+      )
+      if (lane < 0) continue
+      lanes[lane].push(span)
+      axisLabels.set(index, { label, anchor, lane })
+    }
     for (const point of values) {
       const current = point.entry.key === target.key,
         isBase = point.entry.key === base?.key
-      if (
-        point.index === 0 ||
-        point.index === values.length - 1 ||
-        current ||
-        isBase ||
-        point.index % stride === 0
-      ) {
-        const label =
-          point.entry.source.status === 'released'
-            ? point.entry.source.version
-            : `${point.entry.source.commit.slice(0, 7)}*`
+      if (axisLabels.has(point.index)) {
+        const { label, anchor, lane } = axisLabels.get(point.index)
         svgNode(
           svg,
           'text',
           {
             x: x(point.index),
-            y: bottom + 21,
-            'text-anchor':
-              point.index === 0
-                ? 'start'
-                : point.index === values.length - 1
-                  ? 'end'
-                  : 'middle',
+            y: bottom + 21 + lane * 16,
+            'text-anchor': anchor,
           },
           label,
         )
@@ -456,10 +535,36 @@
           class: 'whisker',
           d: `M${xx},${y(stat.min)}V${y(stat.max)}M${xx - 4},${y(stat.min)}h8M${xx - 4},${y(stat.max)}h8`,
         })
+      const interactive = svgNode(svg, 'g', {
+        class: 'release-point',
+        tabindex: '0',
+        role: 'button',
+        'aria-label': `Inspect ${entryLabel(point.entry)}: ${stat.median.toFixed(1)} ${definition.unit}`,
+        'aria-pressed': String(current),
+      })
+      svgNode(interactive, 'circle', {
+        cx: xx,
+        cy: yy,
+        r: 12,
+        fill: 'transparent',
+      })
+      interactive.addEventListener('click', () => selectEntry(point.entry.key))
+      interactive.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          selectEntry(point.entry.key)
+        }
+      })
       const marker =
         point.entry.source.status === 'released'
-          ? svgNode(svg, 'circle', { cx: xx, cy: yy, r: current ? 5 : 4 })
-          : svgNode(svg, 'path', { d: `M${xx},${yy - 7}l5,7l-5,7l-5,-7Z` })
+          ? svgNode(interactive, 'circle', {
+              cx: xx,
+              cy: yy,
+              r: current ? 5 : 4,
+            })
+          : svgNode(interactive, 'path', {
+              d: `M${xx},${yy - 7}l5,7l-5,7l-5,-7Z`,
+            })
       marker.setAttribute('class', `point ${isBase ? 'selected-baseline' : ''}`)
       svgNode(
         marker,
@@ -467,7 +572,7 @@
         {},
         `${entryLabel(point.entry)}: ${stat.median.toFixed(1)} ${definition.unit}; ${stat.count} observations, min ${stat.min.toFixed(1)}, max ${stat.max.toFixed(1)}`,
       )
-      if (values.length <= 6 || current || isBase)
+      if (values.length <= 4 || current)
         svgNode(
           svg,
           'text',
@@ -488,8 +593,10 @@
     svgNode(
       svg,
       'text',
-      { x: (left + right) / 2, y: 211, 'text-anchor': 'middle' },
-      'Version · * candidate',
+      { x: (left + right) / 2, y: 225, 'text-anchor': 'middle' },
+      entries.some((entry) => entry.source.status !== 'released')
+        ? 'Version · * candidate'
+        : 'Version',
     )
   }
   function details() {
@@ -499,7 +606,7 @@
       runtime = runtimeFor(target),
       environment = groups.get(controls.series.value)
     byId('notice').textContent = runtime
-      ? `Runtime: ${environment.runner || environment.platform} · Chrome ${environment.browser} · viewport ${environment.viewport.width}×${environment.viewport.height}. Measurement differences are advisory.`
+      ? `Runtime series covers ${entries.filter((entry) => runtimeFor(entry)).length}/${entries.length} shown versions: ${environment.runner || environment.platform} · Chrome ${environment.browser} · viewport ${environment.viewport.width}×${environment.viewport.height}${environment.referenceCommit ? ` · fixed reference ${map.get(environment.referenceCommit)?.source.version || environment.referenceCommit.slice(0, 8)}` : ''}. Measurement differences are advisory.`
       : 'Runtime has not been measured for this version in the selected series. Missing points are not zero.'
     byId('baseline-name').textContent = base ? entryLabel(base) : 'No baseline'
     byId('target-name').textContent = entryLabel(target)
@@ -606,8 +713,94 @@
     }
   }
   function render() {
+    byId('history-summary').textContent =
+      `${entries.length} of ${eligibleEntries.length} archived versions · ${entryLabel(entries[0])} through ${entryLabel(entries.at(-1))}. Charts show the full selected range; highlighted values show ${entryLabel(map.get(controls.target.value))}.`
     for (const plot of plots) draw(plot)
     details()
+    releaseTable()
+  }
+  function selectEntry(key) {
+    const currentSeries = controls.series.value
+    controls.target.value = key
+    chooseBaseline()
+    chooseSeries(
+      map
+        .get(key)
+        .records.some(
+          (record) => record.runtime?.compatibilityKey === currentSeries,
+        )
+        ? currentSeries
+        : undefined,
+    )
+    setWorkloads(controls.workload.value)
+    byId('comparison').open = true
+    render()
+    remember()
+    controls.target.focus({ preventScroll: true })
+  }
+  function releaseTable() {
+    byId('release-rows').replaceChildren()
+    for (const entry of entries) {
+      const row = document.createElement('tr')
+      row.classList.toggle(
+        'inspected-release',
+        entry.key === controls.target.value,
+      )
+      const name = document.createElement('th')
+      name.scope = 'row'
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.textContent = entryLabel(entry)
+      button.setAttribute(
+        'aria-pressed',
+        String(entry.key === controls.target.value),
+      )
+      button.addEventListener('click', () => selectEntry(entry.key))
+      const date = document.createElement('small')
+      const published = entry.records
+        .map(
+          (record) =>
+            record.source.publishedAt || record.provenance.publishedAt,
+        )
+        .filter(Boolean)
+        .at(-1)
+      date.textContent = `${published ? 'Released' : 'Source'} ${String(published || entry.source.committedAt).slice(0, 10)}`
+      name.append(button, date)
+      row.append(name)
+      const previous = eligibleEntries
+        .slice(0, eligibleEntries.indexOf(entry))
+        .filter((item) => item.source.status === 'released')
+        .at(-1)
+      for (const definition of definitions) {
+        const cell = document.createElement('td')
+        const stat = definition.get(entry),
+          baseline = definition.get(previous)
+        cell.textContent = stat
+          ? stat.median.toLocaleString(undefined, { maximumFractionDigits: 1 })
+          : 'Not measured'
+        if (stat && baseline && baseline.median > 0) {
+          const change = document.createElement('small')
+          change.textContent = percentChange(stat.median, baseline.median)
+          change.title = `Compared with ${entryLabel(previous)}`
+          cell.append(change)
+        }
+        row.append(cell)
+      }
+      const origin = document.createElement('td')
+      const record = bundleFor(entry)
+      const bundle = record?.bundles.find(
+        (item) => item.browser === controls.browser.value,
+      )
+      origin.textContent = bundle
+        ? bundle.origin === 'published-release'
+          ? 'Published ZIP'
+          : record.provenance.kind === 'packaged-bundles'
+            ? 'Release build'
+            : 'Source rebuild'
+        : 'Not measured'
+      row.append(origin)
+      byId('release-rows').append(row)
+    }
   }
   function remember() {
     const url = new URL(window.location.href)
@@ -618,6 +811,10 @@
       series: controls.series.value,
       tabs: controls.workload.value,
       candidates: controls.candidates.checked ? '1' : '0',
+      range: controls.range.value,
+      from: controls.from.value,
+      to: controls.to.value,
+      compare: byId('comparison').open ? '1' : '0',
     }))
       url.searchParams.set(key, value)
     try {
@@ -626,13 +823,9 @@
       /* Local file viewers may not permit history changes. */
     }
   }
-  controls.target.addEventListener('change', () => {
-    chooseBaseline()
-    chooseSeries()
-    setWorkloads(controls.workload.value)
-    render()
-    remember()
-  })
+  controls.target.addEventListener('change', () =>
+    selectEntry(controls.target.value),
+  )
   controls.baseline.addEventListener('change', () => {
     chooseSeries()
     setWorkloads(controls.workload.value)
@@ -649,6 +842,21 @@
     render()
     remember()
   })
+  for (const key of ['range', 'from', 'to'])
+    controls[key].addEventListener('change', () => {
+      updateVersions(
+        controls.target.value,
+        controls.baseline.value,
+        controls.series.value,
+        controls.workload.value,
+        controls.from.value,
+        controls.to.value,
+        key,
+      )
+      render()
+      remember()
+    })
+  byId('comparison').addEventListener('toggle', remember)
   controls.series.addEventListener('change', () => {
     setWorkloads(controls.workload.value)
     render()

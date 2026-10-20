@@ -68,9 +68,14 @@ export async function compareRevisions(options) {
         .map((value) => integer(value, 1, 5000, 'tab count')),
     ),
   ].sort((a, b) => a - b)
-  const candidate = git(['rev-parse', '--verify', `${options.head}^{commit}`])
-  if (candidate === options.baseCommit)
-    throw new Error('Candidate and baseline resolve to the same commit')
+  const candidates = (
+    options.revisions ? options.revisions.split(',') : [options.head]
+  ).map((ref) => git(['rev-parse', '--verify', `${ref}^{commit}`]))
+  const commits = [
+    ...new Set([options.baseCommit, options.referenceCommit, ...candidates]),
+  ]
+  if (commits.length < 2 || commits.length > 30)
+    throw new Error('Expected 2–30 distinct frozen revisions')
   const id =
     options.id || `runtime-${new Date().toISOString().replaceAll(/[:.]/g, '-')}`
   if (!/^[\w.-]{1,130}$/.test(id)) throw new Error('Invalid run id')
@@ -89,10 +94,8 @@ export async function compareRevisions(options) {
   const errors = []
   const fixtureFingerprints = {}
   try {
-    for (const [key, commit] of [
-      ['baseline', options.baseCommit],
-      ['candidate', candidate],
-    ]) {
+    for (const commit of commits) {
+      const key = commit.slice(0, 8)
       const source = join(workspace, key)
       await mkdir(source)
       const tar = join(workspace, `${key}.tar`)
@@ -208,6 +211,7 @@ export async function compareRevisions(options) {
       samplesPerCase: samples,
       dragSamples,
       sourceTabs: tabs,
+      referenceCommit: options.referenceCommit,
     }
     server = await startMediaPreview(workspace, 0)
     const baseUrl = `http://127.0.0.1:${server.address().port}`
@@ -375,6 +379,12 @@ export async function compareRevisions(options) {
       'packages/integration_test/assets/profiling/entry.tsx',
       'packages/integration_test/assets/profiling/fixtures.ts',
       'packages/integration_test/assets/profiling/index.html',
+      'packages/extension/src/js/demo/browser.ts',
+      'packages/extension/src/js/demo/fixtures.ts',
+      'packages/extension/src/js/demo/preferences.ts',
+      'packages/extension/src/js/demo/scenarios.ts',
+      'packages/integration_test/assets/profiling/settings-preview.ts',
+      'packages/extension/src/js/libs/tabTooltip.ts',
     ]
     const harness = []
     for (const file of harnessFiles)
@@ -398,7 +408,12 @@ export async function compareRevisions(options) {
         recordedAt: new Date().toISOString(),
         source: revision.metadata,
         provenance: {
-          kind: 'matched-runtime-comparison',
+          kind: options.revisions
+            ? 'release-runtime-backfill'
+            : 'matched-runtime-comparison',
+          note: options.revisions
+            ? 'Frozen historical release UI and stores re-measured at recordedAt with a common simulated browser adapter. These are present-day measurements, not timings recorded when the versions were released.'
+            : undefined,
           repository: 'xcv58/Tab-Manager-v2',
           runner: environment.runner,
           lockfileSha256: await fileHash(
@@ -417,7 +432,11 @@ export async function compareRevisions(options) {
           drags: revision.drags,
           errors: [],
         },
-        comparisonBaseline: { commit: options.baseCommit },
+        comparisonBaseline: {
+          commit: options.baseCommit,
+          referenceCommit: options.referenceCommit,
+        },
+        retrospective: Boolean(options.revisions),
       }
       await writeRecord(record, join(options.output, 'runs'))
       await writeText(

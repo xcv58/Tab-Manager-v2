@@ -28,7 +28,8 @@ A separate job opens a draft data-only PR to archive them under
 `notes/performance/runs/`.
 
 The independent **Advisory Performance History** workflow compares the frozen
-release tag with the preceding release using a common profiling harness. It
+release tag with the preceding release and a fixed 3.0.0 reference using a common
+profiling harness. It
 can also be dispatched manually. Timings have no release-blocking budgets;
 publishing jobs do not depend on runtime measurement or archive jobs. Capture
 failures retain diagnostics and never create partial successful records.

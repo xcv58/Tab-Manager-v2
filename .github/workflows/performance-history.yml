@@ -11,6 +11,10 @@ on:
         description: Previous release ref, or auto (respects the manual 3.0 baseline)
         default: auto
         required: true
+      reference:
+        description: Fixed reference source measured alongside each release
+        default: c2dea3aacb3c1fb871434bdcbbcf54019b03f602
+        required: true
   workflow_call:
     inputs:
       head:
@@ -19,6 +23,9 @@ on:
       base:
         type: string
         default: auto
+      reference:
+        type: string
+        default: c2dea3aacb3c1fb871434bdcbbcf54019b03f602
       release_tag:
         type: string
         default: ''
@@ -66,9 +73,11 @@ jobs:
         env:
           CANDIDATE_REF: ${{ inputs.head }}
           BASELINE_REF: ${{ inputs.base }}
+          REFERENCE_REF: ${{ inputs.reference }}
         run: >-
           pnpm performance:compare
           --head "$CANDIDATE_REF" --base "$BASELINE_REF"
+          --reference "$REFERENCE_REF"
           --id "runtime-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           --output .tmp/performance-results
       - name: Upload complete records and offline viewer

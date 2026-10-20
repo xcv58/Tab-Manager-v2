@@ -248,7 +248,7 @@ pnpm build
 
 This outputs packaged browser builds under `packages/extension/build/`.
 
-## Performance history
+## Release history
 
 ```shell
 pnpm performance:preview
@@ -256,9 +256,11 @@ pnpm performance:preview
 
 Open **http://127.0.0.1:8780/** to compare archived versions. For an offline
 report, run `pnpm performance:build` and open `dist/performance/index.html`.
-The website also provides a **Performance** page at `/performance/`, generated
-from the same archive by `pnpm build:site`. It defaults to released versions and
-supports shareable comparisons. Reports are not included in the extension.
+The website's **Performance** link opens `/performance/`, generated from the same
+archive by `pnpm build:site`. Release history includes all releases since v2.6.0,
+range controls, selectable chart points, and a table with changes from each
+preceding release. Two-version comparisons remain available, and selections are
+shareable by URL. Reports are not included in the extension.
 See [measurement, archival, and CI instructions](notes/performance/README.md).
 
 ## Repository Layout

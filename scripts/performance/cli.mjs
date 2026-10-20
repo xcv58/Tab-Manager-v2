@@ -30,6 +30,11 @@ const { positionals, values } = parseArgs({
     tag: { type: 'string' },
     base: { type: 'string', default: 'auto' },
     head: { type: 'string', default: 'HEAD' },
+    revisions: { type: 'string' },
+    reference: {
+      type: 'string',
+      default: 'c2dea3aacb3c1fb871434bdcbbcf54019b03f602',
+    },
     samples: { type: 'string', default: '7' },
     'drag-samples': { type: 'string', default: '3' },
     tabs: { type: 'string', default: '100,1000,5000' },
@@ -79,7 +84,7 @@ async function main() {
   const command = positionals[0]
   if (values.help || !command) {
     console.log(
-      `Performance history (no test runner)\n\n  build [--input FILE_OR_RUNS_DIR] [--output dist/performance]\n  preview [--input FILE_OR_RUNS_DIR] [--port 8780]\n  collect [--id ID] [--status candidate|released] [--tag vX.Y.Z]\n  compare [--head REF] [--base auto|REF] [--samples 7] [--drag-samples 3]\n          [--tabs 100,1000,5000] [--executable CHROME_PATH]\n  archive --input FILE_OR_RUNS_DIR\n\ncollect requires current pnpm build + pnpm zip output.\ncompare builds two frozen revisions and runs isolated browser profiling.\nDefault output: .tmp/performance-results (collect/compare).\nDefault records: notes/performance/runs. Records are immutable.\n`,
+      `Performance history (no test runner)\n\n  build [--input FILE_OR_RUNS_DIR] [--output dist/performance]\n  preview [--input FILE_OR_RUNS_DIR] [--port 8780]\n  collect [--id ID] [--status candidate|released] [--tag vX.Y.Z]\n  compare [--head REF] [--base auto|REF] [--samples 7] [--drag-samples 3]\n          [--reference REF] [--revisions REF,REF,...]\n          [--tabs 100,1000,5000] [--executable CHROME_PATH]\n  archive --input FILE_OR_RUNS_DIR\n\ncollect requires current pnpm build + pnpm zip output.\ncompare builds frozen revisions plus a fixed reference and runs isolated browser profiling.\nDefault output: .tmp/performance-results (collect/compare).\nDefault records: notes/performance/runs. Records are immutable.\n`,
     )
     return
   }
@@ -193,6 +198,11 @@ async function main() {
       ...values,
       output,
       baseCommit: previousRelease(values.head, values.base),
+      referenceCommit: git([
+        'rev-parse',
+        '--verify',
+        `${values.reference}^{commit}`,
+      ]),
     })
     return
   }

@@ -1,19 +1,18 @@
 <main id="main-content" class="performance-viewer" lang="en">
   <header>
     <p class="eyebrow">Tab Manager v2</p>
-    <h1>Performance history</h1>
+    <h1>Release history</h1>
     <p class="description">
-      Exact packaged sizes and advisory runtime measurements. Every version
-      identifies its source commit and archived observations.
+      Follow package size and performance across releases. Select a point or a
+      release below to inspect its measurements and compare it with another
+      version.
     </p>
   </header>
   <label class="version-options">
     <input id="candidates" type="checkbox" />
     Include development versions
   </label>
-  <form id="controls" aria-label="Comparison controls">
-    <label>Version to inspect<select id="target"></select></label>
-    <label>Compare with<select id="baseline"></select></label>
+  <form id="controls" aria-label="Release history controls">
     <label
       >Package browser<select id="browser">
         <option value="chrome">Chrome</option>
@@ -22,7 +21,26 @@
     >
     <label>Runtime measurement series<select id="series"></select></label>
     <label>Startup and search workload<select id="workload"></select></label>
+    <label
+      >History range<select id="range">
+        <option value="all">All versions</option>
+        <option value="latest">Latest 10 versions</option>
+        <option value="custom">Choose a version range</option>
+      </select></label
+    >
   </form>
+  <div id="custom-range" class="pair-controls" hidden>
+    <label>From version<select id="from"></select></label>
+    <label>Through version<select id="to"></select></label>
+  </div>
+  <p id="history-summary" role="status" aria-live="polite"></p>
+  <details id="comparison">
+    <summary>Compare two versions</summary>
+    <div class="pair-controls">
+      <label>Version to inspect<select id="target"></select></label>
+      <label>Compare with<select id="baseline"></select></label>
+    </div>
+  </details>
   <p id="notice" role="status" aria-live="polite"></p>
   <section id="charts" aria-label="Version comparison charts"></section>
   <p class="legend">
@@ -30,6 +48,36 @@
     markers and dashed lines identify candidates. All plotted metrics use lower
     values for less time or space.
   </p>
+  <section id="release-history" aria-labelledby="release-history-title">
+    <h2 id="release-history-title">Releases at a glance</h2>
+    <p class="description">
+      Values follow the browser, measurement series, and workload above. Changes
+      are relative to each version's preceding archived release; unavailable
+      comparisons are omitted.
+    </p>
+    <div
+      class="table-scroll"
+      tabindex="0"
+      role="region"
+      aria-labelledby="release-history-title"
+    >
+      <table id="release-table">
+        <thead>
+          <tr>
+            <th scope="col">Version</th>
+            <th scope="col">ZIP · kB</th>
+            <th scope="col">Startup JS · kB</th>
+            <th scope="col">Startup · ms</th>
+            <th scope="col">Search · ms</th>
+            <th scope="col">Group drag · ms</th>
+            <th scope="col">Post-drag heap · MB</th>
+            <th scope="col">Package evidence</th>
+          </tr>
+        </thead>
+        <tbody id="release-rows"></tbody>
+      </table>
+    </div>
+  </section>
   <details>
     <summary>More measurements</summary>
     <div class="table-scroll">
@@ -67,9 +115,21 @@
       show the observed minimum and maximum, not confidence intervals.
     </p>
     <p>
+      New captures also measure the fixed 3.0.0 reference alongside the
+      candidate and its preceding release. The series selector shows how many
+      versions share the protocol. Browser, hardware, or harness changes create
+      a separate series; their absolute timings are not silently connected.
+    </p>
+    <p>
       Published measurements may appear after a release when their archive PR
       has been reviewed and merged. Download the original records below for raw
       samples, hashes, and provenance.
+    </p>
+    <p>
+      Historical timing backfills measure the frozen release sources today,
+      using one common simulated browser adapter. They are not observations from
+      the original release dates. Original published ZIPs and rebuilt source
+      packages are identified separately in the table.
     </p>
   </details>
   <section id="evidence" aria-labelledby="evidence-title">
