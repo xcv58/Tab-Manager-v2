@@ -256,7 +256,7 @@ pnpm performance:preview
 
 Open **http://127.0.0.1:8780/** to compare archived versions. For an offline
 report, run `pnpm performance:build` and open `dist/performance/index.html`.
-The website's **Performance** link opens `/performance/`, generated from the same
+The website's **Performance** footer link opens `/performance/`, generated from the same
 archive by `pnpm build:site`. Release history includes all releases since v2.6.0,
 range controls, selectable chart points, and a table with changes from each
 preceding release. Two-version comparisons remain available, and selections are

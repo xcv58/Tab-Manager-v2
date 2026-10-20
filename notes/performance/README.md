@@ -6,7 +6,7 @@ extension package.
 
 ## Website page
 
-The website's **Performance** navigation link opens `/performance/`. Its main
+The website's **Performance** footer link opens `/performance/`. Its main
 view is **Release history**, showing every archived release. Use **History range**
 for all versions, the latest 10, or an inclusive custom range. Enable
 **Include development versions** to inspect archived candidate commits. The

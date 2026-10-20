@@ -14,7 +14,6 @@ function renderHeader(page, { logo = '../assets/images/logo.png' } = {}) {
   const links = {
     overview: '../',
     demo: page === 'demo' ? './' : '../demo/',
-    performance: page === 'performance' ? './' : '../performance/',
     install: '../#install',
     privacy: page === 'privacy' ? './' : '../privacy/',
     support: page === 'support' ? './' : '../support/',
