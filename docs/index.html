@@ -316,7 +316,27 @@
                   />
                   <span>Edge</span>
                 </a>
+                <a
+                  href="https://testflight.apple.com/join/UKyc8DmK"
+                  class="btn-store"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Get Tab Manager v2 for Safari on macOS (TestFlight beta)"
+                >
+                  <img
+                    src="assets/images/safari.svg"
+                    width="28"
+                    height="28"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span>Safari for macOS · Beta</span>
+                </a>
               </div>
+              <p class="hero-note" data-i18n-html="install.safariNote">
+                Safari beta is for macOS.
+                <a href="support/#safari">Setup and supported features</a>.
+              </p>
               <p class="hero-note">
                 Using a phone? Try the demo, or
                 <a href="support/#install">check browser support</a>
@@ -357,6 +377,12 @@
             </a>
           </div>
 
+          <p class="hero-note" data-i18n-html="media.browserNote">
+            Shown in Chrome.
+            <a href="support/#browser-features"
+              >See which features are available in each browser.</a
+            >
+          </p>
           <div class="gallery-toolbar fade-in">
             <div class="gallery-toolbar-copy-wrap">
               <span class="gallery-toolbar-label">Screenshots</span>
@@ -1084,10 +1110,16 @@
 
           <div class="faq-container">
             <details class="faq-item">
-              <summary>Why is Safari not supported?</summary>
-              <p data-i18n-html="faq.safariUnsupportedBody">
-                Tab Manager v2 supports Chrome, Edge, and Firefox. There is no
-                Safari version.
+              <summary>Does it work with Safari?</summary>
+              <p data-i18n-html="faq.safariBody">
+                Yes. Tab Manager v2 for Safari is available in public beta on
+                macOS through
+                <a href="https://testflight.apple.com/join/UKyc8DmK"
+                  >TestFlight</a
+                >. Search open tabs, close duplicates, and act on several tabs
+                at once. See
+                <a href="support/#safari">Safari setup and supported features</a
+                >.
               </p>
             </details>
             <details class="faq-item">
@@ -1101,24 +1133,22 @@
             <details class="faq-item">
               <summary>What permissions does the extension need?</summary>
               <p data-i18n-html="faq.permissionsSummary">
-                It needs access to your open tabs and windows, saved settings,
-                and browser features such as tab groups. Search includes browser
-                history by default; turn off “Include browser history in
-                results” in Settings to hide it. Your tab data stays in your
-                browser.
+                It needs access to open tabs and windows and saved settings.
+                Safari asks for website access to show titles and URLs. Chrome,
+                Edge, and Firefox also offer optional browser-history search.
+                Your tab data stays in your browser.
               </p>
               <details class="permission-details">
                 <summary>See permission names</summary>
                 <p data-i18n-html="faq.permissionsBody">
-                  Tab Manager v2 uses <code>tabs</code>, <code>storage</code>,
-                  and <code>management</code> for core tab and window
-                  management. It also includes <code>history</code> for the
-                  optional browser history search setting,
-                  <code>tabGroups</code> on supported browsers for browser
-                  tab-group features, and <code>contextualIdentities</code> plus
-                  <code>cookies</code> on Firefox for container-aware features.
-                  Your tab data stays in your browser, and the extension does
-                  not add analytics or tracking.
+                  Permissions vary by browser. All versions use
+                  <code>tabs</code> and <code>storage</code>. Chrome, Edge, and
+                  Firefox use <code>history</code> for optional history search
+                  and <code>tabGroups</code> where supported; Firefox also uses
+                  <code>contextualIdentities</code> and <code>cookies</code> for
+                  containers. Safari uses existing website access for icons;
+                  Settings lets you request missing access. No analytics or
+                  tracking is added.
                 </p>
               </details>
             </details>

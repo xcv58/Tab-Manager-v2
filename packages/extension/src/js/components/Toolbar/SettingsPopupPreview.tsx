@@ -10,6 +10,7 @@ import useSystemTheme from 'use-system-theme'
 import { useStore } from 'components/hooks/useStore'
 import { useAppTheme } from 'libs/appTheme'
 import { browser } from 'libs'
+import { websiteIcons } from 'libs/websiteIcons'
 import { drawActionIcon, formatActionTabCountLabel } from 'libs/verify'
 import tabManagerIcon from 'img/icon-128.png'
 import tabManagerDarkIcon from 'img/icon-128-dark.png'
@@ -177,7 +178,7 @@ export default observer(function SettingsPopupPreview({
                 ref={frameRef}
                 title="Sample Tab Manager popup"
                 tabIndex={0}
-                src={`${browser.runtime.getURL('settings-preview.html')}?not_popup=1`}
+                src={`${browser.runtime.getURL('settings-preview.html')}?not_popup=1${websiteIcons ? '&website_icons=1' : ''}`}
                 onLoad={sendPreferences}
                 className="settings-popup-iframe"
                 style={{

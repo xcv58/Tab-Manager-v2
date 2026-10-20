@@ -2,6 +2,7 @@
 // describe scenarios without bundling tab data or favicon SVG strings.
 export type DemoScenarioId =
   | 'workspace'
+  | 'safari-icons'
   | 'duplicates'
   | 'large'
   | 'empty'
@@ -53,6 +54,21 @@ export const demoScenarios: ReadonlyArray<DemoScenario> = [
     windowCount: 3,
     groupCount: 6,
     workspaceUrl: 'workspace.html?not_popup=1#scenario=workspace',
+    resetBehavior: demoResetBehavior,
+    optIn: false,
+  },
+  {
+    id: 'safari-icons',
+    label: 'Safari icon preview',
+    title: 'Website icons and missing icons',
+    description:
+      'Preview Safari tab icons using sample data. Other actions use the normal website demo.',
+    hint: 'Open Settings → Tab details → Show tab icons, then Allow website access to preview sample icons. Access is simulated; no websites are contacted or browser permissions requested.',
+    category: 'Workflow',
+    tabCount: 12,
+    windowCount: 2,
+    groupCount: 0,
+    workspaceUrl: 'workspace.html?not_popup=1#scenario=safari-icons',
     resetBehavior: demoResetBehavior,
     optIn: false,
   },

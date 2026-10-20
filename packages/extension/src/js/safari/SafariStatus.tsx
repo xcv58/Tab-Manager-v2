@@ -26,19 +26,6 @@ export default observer(function SafariStatus() {
   }
   return (
     <>
-      <div
-        data-safari-action-controls
-        className="flex shrink-0 items-center gap-3 border-b px-3 py-1 text-xs"
-        style={{ minHeight: 28 }}
-      >
-        <span className="flex-1 opacity-70">
-          This Safari profile · Active tab groups only · Private windows
-          excluded
-        </span>
-        <a href={process.env.SAFARI_HOST_APP_URL} className="underline">
-          Safari access
-        </a>
-      </div>
       {safariState.error && (
         <div
           data-safari-action-controls
@@ -46,6 +33,9 @@ export default observer(function SafariStatus() {
           className="flex shrink-0 items-center gap-3 border-b px-3 py-2 text-sm"
         >
           <span className="flex-1">{safariState.error}</span>
+          <a href={process.env.SAFARI_HOST_APP_URL} className="underline">
+            Safari access
+          </a>
           <button onClick={retry} className="underline">
             Refresh
           </button>

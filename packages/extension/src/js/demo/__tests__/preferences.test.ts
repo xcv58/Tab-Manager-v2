@@ -35,3 +35,23 @@ it('drops invalid limits and restores only allowed preferences from storage', ()
     showTabTooltip: true,
   })
 })
+
+it('restores simulated icon access and the shared preference without saving website access or tab data', () => {
+  saveDemoPreferences({
+    demoWebsiteIconAccess: true,
+    showTabIcon: true,
+    loadWebsiteIcons: true,
+    origins: ['https://private.example/*'],
+    tabs: [{ url: 'https://private.example' }],
+  })
+  expect(readDemoPreferences()).toEqual({
+    demoWebsiteIconAccess: true,
+    showTabIcon: true,
+  })
+  saveDemoPreferences({ demoWebsiteIconAccess: false, showTabIcon: false })
+  expect(readDemoPreferences()).toEqual({
+    demoWebsiteIconAccess: false,
+    showTabIcon: false,
+  })
+  expect(sanitizePreferences({ demoWebsiteIconAccess: 'true' })).toEqual({})
+})

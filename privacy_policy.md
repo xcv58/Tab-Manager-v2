@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Effective date: March 11, 2026
+Effective date: October 19, 2026
 
 Tab Manager v2 is a browser extension for managing tabs and windows. Its core functionality runs locally in your browser. We do not operate an account system, do not send your tab, window, history, or settings data to our own servers, and do not include analytics or advertising trackers.
 
@@ -10,13 +10,13 @@ To provide its features, the extension may access:
 
 - open tabs and windows
 - native tab groups on browsers that support them
-- browser history results when "Include browser history in results" is on; this setting is on by default and can be turned off in Settings
+- browser history results in Chrome, Edge, and Firefox when "Include browser history in results" is on; this setting is on by default and can be turned off in Settings. Safari does not search browsing history
 - Firefox container identities and related cookie-store information for container-aware features
 - installed extension metadata for `chrome-extension://` pages so the UI can show the correct icon
 
 ## What the extension stores in your browser
 
-Tab Manager v2 stores data in browser `storage.sync` when available, with `storage.local` as a fallback.
+Safari stores settings and UI state locally. Other browsers use `storage.sync` when available, with `storage.local` as a fallback.
 
 Stored data may include:
 
@@ -30,7 +30,7 @@ If your browser sync service is enabled, settings saved through `storage.sync` m
 
 ## Permissions
 
-The extension requests these permissions to support its features:
+Permissions depend on the browser. Safari uses open-tab and window access and local settings. Website access is needed to display titles, URLs and website icons. Icons use existing access; you can request missing access in Settings. On other browsers, the extension uses these permissions where supported:
 
 - `tabs`: read and manage open tabs and windows
 - `storage`: save settings and UI state
@@ -43,9 +43,11 @@ The extension requests these permissions to support its features:
 
 Tab Manager v2 does not send your browsing data to Tab Manager v2 servers because no such service is used for core functionality.
 
+In Safari, “Show tab icons” is on by default. With website access, the extension reads icon links from those pages and downloads icons directly from permitted websites and their permitted icon hosts, without cookies or referrers. You can turn off icon loading with “Show tab icons.” Icons and discovered icon hosts are cached only in extension memory. No favicon lookup service is used, and private tabs are excluded.
+
 The extension and docs include links to third-party sites such as browser stores, GitHub, and support pages. If you open those links, your interaction with those sites is governed by their privacy policies.
 
-The extension popup currently references Google Fonts. When your browser loads that stylesheet or related font assets, those requests are made directly to Google and are governed by Google's privacy policy.
+The Chrome, Edge, and Firefox extension popup currently references Google Fonts. Safari does not load Google Fonts. When your browser loads that stylesheet or related font assets, those requests are made directly to Google and are governed by Google's privacy policy.
 
 ## Data retention and control
 

@@ -179,7 +179,11 @@ export default observer((props: TabProps & { className?: string }) => {
         />
       )}
       {tab.pinned && PIN}
-      <Icon tab={tab} disableSequentialFocus={props.disableSequentialFocus} />
+      <Icon
+        tab={tab}
+        preview={props.preview}
+        disableSequentialFocus={props.disableSequentialFocus}
+      />
       <TabContent
         tab={tab}
         disableSequentialFocus={props.disableSequentialFocus}

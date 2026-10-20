@@ -12,6 +12,7 @@ Tab Manager v2 turns crowded browser sessions into a searchable workspace. Find 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2)
 - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb)
+- [Safari for macOS · Public beta (TestFlight)](https://testflight.apple.com/join/UKyc8DmK)
 
 ## Quick Start
 
@@ -58,12 +59,12 @@ Shortcut behavior can vary slightly by platform and browser. Use the in-app shor
 
 ## Browser Support
 
-| Browser | Status        | Notes                                                                      |
-| ------- | ------------- | -------------------------------------------------------------------------- |
-| Chrome  | Supported     | Full core workflow, including tab group integration                        |
-| Edge    | Supported     | Chromium-based behavior; feature availability follows exposed browser APIs |
-| Firefox | Supported     | Core workflow plus Firefox-specific container support                      |
-| Safari  | Not supported | See the FAQ below for the limitation                                       |
+| Browser | Status                | Notes                                                                          |
+| ------- | --------------------- | ------------------------------------------------------------------------------ |
+| Chrome  | Supported             | Full core workflow, including tab group integration                            |
+| Edge    | Supported             | Chromium-based behavior; feature availability follows exposed browser APIs     |
+| Firefox | Supported             | Core workflow plus Firefox-specific container support                          |
+| Safari  | Public beta for macOS | Search, close, reload, pin, copy, export, and settings; see Safari scope below |
 
 ## Privacy and Permissions
 
@@ -80,9 +81,13 @@ User preferences are stored in browser sync storage when available, with a local
 
 ## FAQ
 
-### Why is Safari not supported?
+### Does it work with Safari?
 
-Safari does not support the `tabs.move()` WebExtension API that Tab Manager v2 depends on for drag-and-drop reordering, moving tabs between windows, and sorting workflows. Those are core features rather than optional extras, so Safari support would be incomplete and misleading. The current investigation is tracked in [issue #2545](https://github.com/xcv58/Tab-Manager-v2/issues/2545).
+Yes. The macOS Safari version is available in [public beta through TestFlight](https://testflight.apple.com/join/UKyc8DmK). Open the installed app, enable Tab Manager v2 in Safari Settings → Extensions for your profile, and allow website access to show titles and URLs.
+
+Safari exposes normal windows in the current profile and active tab groups only. Inactive groups and private windows are excluded. Moving/reordering tabs, editing Safari tab groups, and browsing-history search are unavailable. Search, duplicate cleanup, bulk close/reload/pin, copying, exports, settings, and keyboard navigation are available.
+
+With “Show tab icons” on, Safari loads icons from websites you have allowed. Settings offers “Allow website access” when permission is missing. Unavailable icons use the same neutral placeholder as other browsers. See the [Safari setup guide](https://tab.jenny.media/support/#safari) and [privacy policy](privacy_policy.md).
 
 ### Does it work with browser tab groups?
 
@@ -98,7 +103,7 @@ Settings are stored in browser sync storage when the browser supports it. If syn
 
 ### Do all features work the same way in every browser?
 
-No. Core tab and window management works across Chrome, Edge, and Firefox, but some features depend on browser-specific APIs. Examples include Firefox containers and browser tab groups.
+No. Core tab actions work across Chrome, Edge, Firefox, and the Safari macOS beta, but some features depend on browser-specific APIs. Examples include Firefox containers and browser tab groups.
 
 ## Development
 

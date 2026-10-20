@@ -1,4 +1,5 @@
 import { safariState } from './state'
+import { createWebsiteIcons } from './websiteIcons'
 
 // This adapter is packaged only for Safari. It reads actual Safari APIs; it is
 // deliberately separate from the website's fictional, in-memory adapter.
@@ -259,6 +260,7 @@ const windows = {
   },
 }
 const api = {
+  websiteIcons: createWebsiteIcons(raw),
   runtime: raw.runtime,
   commands: raw.commands,
   browserAction: raw.browserAction,

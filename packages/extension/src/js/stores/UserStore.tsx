@@ -59,7 +59,7 @@ const DEFAULT_SETTINGS = {
   windowOrder: DEFAULT_WINDOW_ORDER as WindowOrder,
 }
 
-const LEGACY_SETTINGS = ['groupByDomain'] as const
+const LEGACY_SETTINGS = ['groupByDomain', 'loadWebsiteIcons'] as const
 const SETTINGS_KEYS = [...Object.keys(DEFAULT_SETTINGS), ...LEGACY_SETTINGS]
 
 export const stripLegacySettings = (settings: { [key: string]: unknown }) => {

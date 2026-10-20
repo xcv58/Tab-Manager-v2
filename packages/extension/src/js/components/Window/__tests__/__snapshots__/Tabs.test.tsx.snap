@@ -30,6 +30,7 @@ exports[`Tabs render correct components 1`] = `
               type="button"
             >
               <img
+                alt=""
                 class="w-6 h-6"
                 style="width: 20px; height: 20px;"
               />
@@ -208,6 +209,7 @@ exports[`Tabs render correct components 1`] = `
               type="button"
             >
               <img
+                alt=""
                 class="w-6 h-6"
                 style="width: 20px; height: 20px;"
               />
