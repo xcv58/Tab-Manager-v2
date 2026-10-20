@@ -10,6 +10,7 @@ const githubModule = new URL('./github.mjs', import.meta.url).href
 const publishModule = new URL('./publish.mjs', import.meta.url).href
 const receiptsModule = new URL('./store-receipts.mjs', import.meta.url).href
 const reportsModule = new URL('../reports/import.mjs', import.meta.url).href
+const metricModule = new URL('./metric-artifact.mjs', import.meta.url).href
 const repo = 'repos/xcv58/Tab-Manager-v2'
 const upload =
   'https://uploads.github.com/repos/xcv58/Tab-Manager-v2/releases/41/assets?name=package.zip'
@@ -546,6 +547,40 @@ for (const [name, bytes] of [
       try { await readReportManifests([${JSON.stringify(saved)}]) }
       catch { rejected = true }
       process.stdout.write(String(rejected));
+    `,
+    )
+    assert.equal(result, 'true')
+  })
+}
+
+for (const [name, assets] of [
+  ['no source artifact', []],
+  [
+    'an expired source artifact',
+    [{ name: 'performance-source-123-2', expired: true }],
+  ],
+  [
+    'only an earlier attempt',
+    [{ name: 'performance-source-123-1', expired: false }],
+  ],
+  [
+    'only unrelated diagnostics',
+    [{ name: 'performance-diagnostics-123-2', expired: false }],
+  ],
+]) {
+  test(`late benchmark checks remain unavailable with ${name}`, async (t) => {
+    const result = await scenario(
+      t,
+      [
+        {
+          path: `${repo}/actions/runs/123/artifacts?per_page=100&page=1`,
+          json: assets,
+        },
+      ],
+      `
+      const { loadBenchmarkSource } = await import(${JSON.stringify(metricModule)});
+      const source = await loadBenchmarkSource({ id: 123, run_attempt: 2 }, 'a'.repeat(40), '.');
+      process.stdout.write(String(source === null));
     `,
     )
     assert.equal(result, 'true')

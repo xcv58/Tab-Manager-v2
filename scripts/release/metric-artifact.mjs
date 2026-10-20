@@ -1,7 +1,42 @@
 import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { validateRecord } from '../performance/records.mjs'
-import { assert } from './github.mjs'
+import { assert, gh, pages, repository } from './github.mjs'
+import { validateBenchmarkSource } from '../performance/sources.mjs'
+
+export async function readBenchmarkSource(directory, artifact, run, commit) {
+  assert(
+    artifact.name === `performance-source-${run.id}-${run.run_attempt}`,
+    'unexpected benchmark source artifact identity',
+  )
+  const bytes = await readFile(join(directory, 'benchmark-source.json'))
+  return {
+    bytes,
+    value: validateBenchmarkSource(JSON.parse(bytes), run, commit),
+  }
+}
+
+export async function loadBenchmarkSource(run, commit, output) {
+  const artifact = (await pages(`actions/runs/${run.id}/artifacts`)).find(
+    (item) =>
+      item.name === `performance-source-${run.id}-${run.run_attempt}` &&
+      !item.expired,
+  )
+  if (!artifact) return null
+  const directory = join(output, `source-${artifact.id}`)
+  gh([
+    'run',
+    'download',
+    String(run.id),
+    '--repo',
+    repository,
+    '--name',
+    artifact.name,
+    '--dir',
+    directory,
+  ])
+  return readBenchmarkSource(directory, artifact, run, commit)
+}
 
 // Runtime artifacts also carry an offline viewer with historical records.
 // Only runs/ is new evidence; bundle-only artifacts have a flat JSON root.

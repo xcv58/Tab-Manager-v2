@@ -13,7 +13,7 @@ import {
 import { releasedCandidate } from './publish.mjs'
 import { trustedRun } from './candidate.mjs'
 import { json, sha256, git } from '../performance/records.mjs'
-import { readMetricArtifact } from './metric-artifact.mjs'
+import { readMetricArtifact, loadBenchmarkSource } from './metric-artifact.mjs'
 import { validateManifest, validateChecks } from '../reports/catalog.mjs'
 import { jestCounts, playwrightCounts } from '../reports/results.mjs'
 import { readStoreReceipts, summarizeStoreReceipts } from './store-receipts.mjs'
@@ -205,7 +205,23 @@ if (process.env.METRIC_RUN) {
     'performance-history.yml',
   )
   assert(run.status === 'completed', 'advisory run is still running')
-  await capture(run)
+  const source = await loadBenchmarkSource(run, candidate.source.commit, output)
+  if (source) {
+    await save(
+      `${id}-benchmark-source-${run.id}-${run.run_attempt}.json`,
+      source.bytes,
+      'evidence',
+    )
+    await capture(run)
+  } else {
+    const reason =
+      'Benchmark source could not be verified; outcomes and measurements were not attached to this release.'
+    unavailableEvidence.push({
+      name: `performance-source-${run.id}-${run.run_attempt}`,
+      reason,
+    })
+    process.stderr.write(`Warning: ${reason}\n`)
+  }
 }
 for (const name of ['candidate.json', 'publication.json'])
   await save(

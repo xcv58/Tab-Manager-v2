@@ -16,8 +16,9 @@ import {
 } from './records.mjs'
 import { collectBundle } from './bundles.mjs'
 import { recordReport, buildViewer } from './reports.mjs'
-import { resolveReleaseBaseline } from '../release-baseline.mjs'
+import { previousRelease } from './sources.mjs'
 import { startMediaPreview } from '../preview-release-media.mjs'
+export { previousRelease } from './sources.mjs'
 
 const { positionals, values } = parseArgs({
   allowPositionals: true,
@@ -68,16 +69,6 @@ export function sourceMetadata(
     tag,
     dirty,
   }
-}
-
-export function previousRelease(ref = 'HEAD', base = 'auto') {
-  const resolved = git(['rev-parse', '--verify', `${ref}^{commit}`])
-  // Exclude the candidate's own release tag; also respects the withdrawn 3.0 tag.
-  return git([
-    'rev-parse',
-    '--verify',
-    `${base === 'auto' ? resolveReleaseBaseline(`${resolved}^`) : base}^{commit}`,
-  ])
 }
 
 async function main() {

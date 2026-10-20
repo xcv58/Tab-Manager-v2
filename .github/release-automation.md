@@ -84,6 +84,12 @@ uploads verified files without overwriting, and publishes the GitHub release
 before store submission. An interrupted draft can resume from the same reviewed
 candidate. The release tag identifies the tested application commit.
 
+Wait for the current GitHub publication job to finish before starting another
+publication. CI also queues that job behind a repository-wide lock, covering
+the release inventory, version guard, uploads and publication so an older
+version cannot finish last and become Latest. Preparation and verification can
+overlap; store jobs retain their independent product-wide locks.
+
 If GitHub leaves an empty `starter` asset after an upload failure, retrying
 rechecks its state and removes it only when it is still empty and owned by the
 trusted publisher. Completed assets remain immutable. Each invocation makes
@@ -149,6 +155,17 @@ pnpm preview:release-media
 `--stores none` still publishes the GitHub release if it has not been published;
 after publication it only validates the saved release and appends available
 evidence. An appended capture never replaces an earlier capture.
+
+Advisory runtime runs freeze the target, baseline and reference to full commit
+SHAs before dependency/browser setup, and archive a small source receipt before
+measuring. The measurement command uses those frozen SHAs. Before attaching a
+late run's outcomes, the publisher verifies its receipt against the selected
+release's source commit, the exact run/attempt and the workflow controller SHA.
+A failed or cancelled run can therefore retain correctly attributed outcomes.
+If no current source receipt is available, the report records unavailable
+evidence and omits that run's outcomes and measurements. A mismatched or malformed
+receipt is rejected. The workflow's controller SHA alone is not evidence of which
+application revision was benchmarked.
 
 The explicit local import validates release/tag identity, trusted publisher
 receipts, file sizes/SHA-256, schema, and immutable record IDs before writing

@@ -40,6 +40,11 @@ jobs:
     name: Publish verified packages
     if: ${{ github.ref_name == github.event.repository.default_branch }}
     runs-on: ubuntu-24.04
+    concurrency:
+      # The release inventory, version guard and Latest selection are shared.
+      group: publish-github-release
+      cancel-in-progress: false
+      queue: max
     permissions:
       contents: write
       actions: read

@@ -56,6 +56,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Freeze benchmark sources before setup
+        id: source
+        env:
+          CANDIDATE_REF: ${{ inputs.head }}
+          BASELINE_REF: ${{ inputs.base }}
+          REFERENCE_REF: ${{ inputs.reference }}
+        run: >-
+          node scripts/performance/sources.mjs
+          --head "$CANDIDATE_REF" --base "$BASELINE_REF"
+          --reference "$REFERENCE_REF" --output .tmp/performance-source
+      - name: Archive frozen benchmark source
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/performance-source/benchmark-source.json
+          if-no-files-found: error
+          retention-days: 30
       - uses: pnpm/action-setup@v2
         with:
           version: 10.32.1
@@ -66,9 +83,9 @@ jobs:
         run: pnpm --filter integration-test exec playwright install --with-deps chromium
       - name: Measure startup, search, scrolling, heap, and drag
         env:
-          CANDIDATE_REF: ${{ inputs.head }}
-          BASELINE_REF: ${{ inputs.base }}
-          REFERENCE_REF: ${{ inputs.reference }}
+          CANDIDATE_REF: ${{ steps.source.outputs.head }}
+          BASELINE_REF: ${{ steps.source.outputs.base }}
+          REFERENCE_REF: ${{ steps.source.outputs.reference }}
         run: >-
           pnpm performance:compare
           --head "$CANDIDATE_REF" --base "$BASELINE_REF"
