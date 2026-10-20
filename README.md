@@ -87,7 +87,7 @@ Yes. The macOS Safari version is available in [public beta through TestFlight](h
 
 Safari exposes normal windows in the current profile and active tab groups only. Inactive groups and private windows are excluded. Moving/reordering tabs, editing Safari tab groups, and browsing-history search are unavailable. Search, duplicate cleanup, bulk close/reload/pin, copying, exports, settings, and keyboard navigation are available.
 
-Website tabs show local initials by default. “Load website icons” is opt-in and downloads icons directly from permitted websites without cookies or referrers. See the [Safari setup guide](https://tab.jenny.media/support/#safari) and [privacy policy](privacy_policy.md).
+With “Show tab icons” on, Safari loads icons from websites you have allowed. Settings offers “Allow website access” when permission is missing. Unavailable icons use the same neutral placeholder as other browsers. See the [Safari setup guide](https://tab.jenny.media/support/#safari) and [privacy policy](privacy_policy.md).
 
 ### Does it work with browser tab groups?
 

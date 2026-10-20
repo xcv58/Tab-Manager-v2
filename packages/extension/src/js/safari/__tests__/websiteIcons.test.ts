@@ -96,11 +96,10 @@ afterEach(() => {
   URL.revokeObjectURL = originalRevoke
 })
 
-it.each(['disabled', 'hidden', 'denied', 'private', 'stale'])(
+it.each(['hidden', 'denied', 'private', 'stale'])(
   'does not inspect the page or make a network request when %s',
   async (reason) => {
     const f = fixture()
-    if (reason === 'disabled') f.preferences.loadWebsiteIcons = false
     if (reason === 'hidden') f.preferences.showTabIcon = false
     if (reason === 'denied') f.raw.permissions.contains.mockResolvedValue(false)
     if (reason === 'private') f.tab.incognito = true
@@ -146,13 +145,16 @@ it('uses a top-frame packaged reader and never sends cookies or referrers or fol
   expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:local-icon')
 })
 
-it('does not fetch cross-origin, cross-port, or executable icon links', async () => {
+it('does not fetch local cross-origin, cross-port, or executable icon links', async () => {
   const { api, raw } = fixture()
   raw.tabs.executeScript.mockResolvedValue([
     {
       url: page,
       icons: [
-        'https://other.example/icon.png',
+        'https://127.0.0.1/icon.png',
+        'https://router.local/icon.png',
+        'https://intranet/icon.png',
+        'http://other.example/icon.png',
         'https://example.com:8443/icon.png',
         'javascript:alert(1)',
         'data:image/png;base64,AAAA',
@@ -182,11 +184,11 @@ it.each(['metadata', 'navigation', 'revoked'])(
   },
 )
 
-it.each(['svg', 'declared-oversize', 'streamed-oversize'])(
+it.each(['executable', 'declared-oversize', 'streamed-oversize'])(
   'falls back on %s icon data and closes the response body',
   async (reason) => {
     const r = response(
-      reason === 'svg' ? 'image/svg+xml' : 'image/png',
+      reason === 'executable' ? 'text/html' : 'image/png',
       new Uint8Array(reason === 'streamed-oversize' ? 262145 : 3),
       reason === 'declared-oversize' ? '262145' : '',
     )
@@ -227,8 +229,8 @@ it.each(['disabled', 'revoked'])(
     await flush()
     expect(fetch).toHaveBeenCalledTimes(1)
     if (reason === 'disabled') {
-      f.preferences.loadWebsiteIcons = false
-      f.events.storage({ loadWebsiteIcons: { newValue: false } }, 'local')
+      f.preferences.showTabIcon = false
+      f.events.storage({ showTabIcon: { newValue: false } }, 'local')
     } else f.events.removed()
     expect(await task).toBeNull()
     expect(signal!.aborted).toBe(true)
@@ -277,4 +279,66 @@ it('limits concurrent icon requests while allowing queued visible tabs to finish
   expect(fetch).toHaveBeenCalledTimes(5)
   completions.slice(1).forEach((complete) => complete(response()))
   expect(await Promise.all(tasks)).toEqual([png, png, png, png, png])
+})
+
+it('uses the shared setting even when the old beta opt-in was disabled', async () => {
+  const f = fixture()
+  f.preferences.loadWebsiteIcons = false
+  expect(await f.api.resolve(1, page)).toBe(png)
+})
+
+it('checks missing permissions without inspecting pages or fetching icons', async () => {
+  const f = fixture()
+  f.raw.permissions.contains.mockResolvedValue(false)
+  expect(await f.api.hasAccess([page, page, 'file:///private'])).toBe(false)
+  expect(f.raw.permissions.contains).toHaveBeenCalledWith({
+    origins: ['https://example.com/*'],
+  })
+  expect(f.raw.tabs.executeScript).not.toHaveBeenCalled()
+  expect(fetch).not.toHaveBeenCalled()
+  expect(await f.api.hasAccess([])).toBe(true)
+})
+
+it('decodes a permitted CDN SVG in image mode and returns only PNG data', async () => {
+  const { api, raw } = fixture()
+  const cdn = 'https://cdn.example.net/icon.svg'
+  raw.tabs.executeScript.mockResolvedValue([{ url: page, icons: [cdn] }])
+  ;(fetch as jest.Mock).mockResolvedValue(response('image/svg+xml'))
+  expect(await api.resolve(1, page)).toBe(png)
+  expect(fetch).toHaveBeenCalledWith(
+    cdn,
+    expect.objectContaining({ credentials: 'omit', redirect: 'error' }),
+  )
+  expect(fetch).toHaveBeenCalledTimes(1)
+})
+
+it.each([true, false])(
+  'offers missing CDN access only when the permitted fallback is unavailable (%s)',
+  async (fallbackAvailable) => {
+    const f = fixture()
+    const cdn = 'https://cdn.example.net/icon.png'
+    const pattern = 'https://cdn.example.net/*'
+    f.raw.tabs.executeScript.mockResolvedValue([{ url: page, icons: [cdn] }])
+    f.raw.permissions.contains.mockImplementation(
+      async ({ origins }) => !origins.includes(pattern),
+    )
+    if (!fallbackAvailable)
+      (fetch as jest.Mock).mockRejectedValue(new Error('No icon'))
+    expect(await f.api.resolve(1, page)).toBe(fallbackAvailable ? png : null)
+    expect(fetch).not.toHaveBeenCalledWith(cdn, expect.anything())
+    expect(await f.api.hasAccess([page])).toBe(fallbackAvailable)
+    await f.api.requestAccess([page])
+    expect(f.raw.permissions.request).toHaveBeenCalledWith({
+      origins: fallbackAvailable
+        ? ['https://example.com/*']
+        : ['https://example.com/*', pattern],
+    })
+  },
+)
+
+it('does not treat a missing or broken permitted icon as a permission failure', async () => {
+  const f = fixture()
+  ;(fetch as jest.Mock).mockRejectedValue(new Error('Not found'))
+  expect(await f.api.resolve(1, page)).toBeNull()
+  expect(await f.api.hasAccess([page])).toBe(true)
 })

@@ -122,6 +122,13 @@ const scenarioCopy: Record<
       description: '三个窗口，包含标签页组、固定标签页和少量重复项。',
       hint: '选择标签页，然后使用 Window actions 将其移到窗口开头或末尾，或拖到窗口标题栏。在工作区内按 ? 查看快捷键。',
     },
+    'safari-icons': {
+      label: 'Safari 图标预览',
+      title: '网站图标与默认图标',
+      description:
+        '用示例数据预览 Safari 标签页图标。其他操作使用普通网站演示。',
+      hint: '打开 Settings → Tab details → Show tab icons，然后选择 Allow website access 预览示例图标。权限为模拟，不会访问网站或请求浏览器权限。',
+    },
     duplicates: {
       label: '清理重复项',
       title: '跨窗口的重复标签页',
@@ -202,6 +209,12 @@ const scenarioCopy: Record<
       title: '日常使用的工作區',
       description: '三個視窗，包含分頁群組、固定分頁和少量重複項目。',
       hint: '選取分頁，然後使用 Window actions 將其移到視窗開頭或結尾，或拖到視窗標題列。在工作區內按 ? 查看快速鍵。',
+    },
+    'safari-icons': {
+      label: 'Safari 圖示預覽',
+      title: '網站圖示與預設圖示',
+      description: '用範例資料預覽 Safari 分頁圖示。其他操作使用一般網站示範。',
+      hint: '開啟 Settings → Tab details → Show tab icons，然後選擇 Allow website access 預覽範例圖示。權限為模擬，不會存取網站或要求瀏覽器權限。',
     },
     duplicates: {
       label: '清理重複項目',

@@ -46,7 +46,6 @@ export default observer(function SettingsPopupPreview({
     increaseContrast: userStore.increaseContrast,
     showUrl: userStore.showUrl,
     showTabIcon: userStore.showTabIcon,
-    loadWebsiteIcons: userStore.loadWebsiteIcons,
     showTabTooltip: userStore.showTabTooltip,
     tabTooltipTitleLines: userStore.tabTooltipTitleLines,
     tabTooltipUrlLines: userStore.tabTooltipUrlLines,

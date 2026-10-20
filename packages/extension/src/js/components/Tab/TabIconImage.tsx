@@ -1,7 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { useStore } from 'components/hooks/useStore'
-import { createTabMonogram } from 'libs/tabMonogram'
 import { websiteIcons } from 'libs/websiteIcons'
 import emptyIcon from 'img/chrome/empty.png'
 import type { TabProps } from 'components/types'
@@ -11,8 +10,8 @@ const WebsiteTabIconImage = observer(function WebsiteTabIconImage({
   faked,
 }: Pick<TabProps, 'tab' | 'faked'>) {
   const { userStore } = useStore()
-  const { id, url, title, iconUrl } = tab
-  const enabled = userStore.showTabIcon && userStore.loadWebsiteIcons
+  const { id, url, iconUrl } = tab
+  const enabled = userStore.showTabIcon
   const ref = React.useRef<HTMLImageElement>(null)
   const [visible, setVisible] = React.useState(false)
   const [revision, setRevision] = React.useState(0)
@@ -56,26 +55,21 @@ const WebsiteTabIconImage = observer(function WebsiteTabIconImage({
       current = false
     }
   }, [id, url, key, enabled, visible, faked])
-  const fallback = websiteIcons
-    ? createTabMonogram(url, title) || emptyIcon
-    : iconUrl
   const candidate =
     enabled && websiteIcons
       ? faked
         ? iconUrl
         : resolved?.key === key
           ? resolved.image
-          : fallback
-      : fallback
+          : emptyIcon
+      : emptyIcon
   return (
     <img
       ref={ref}
       alt=""
       className="w-6 h-6"
       style={{ width: 20, height: 20 }}
-      src={
-        failed === candidate ? (websiteIcons ? fallback : emptyIcon) : candidate
-      }
+      src={failed === candidate ? emptyIcon : candidate}
       onError={() => setFailed(candidate)}
     />
   )

@@ -2,9 +2,10 @@ import React from 'react'
 import { observable, runInAction } from 'mobx'
 import { render, waitFor, act } from '@testing-library/react'
 import TabIconImage from '../TabIconImage'
+import emptyIcon from 'img/chrome/empty.png'
 
 let mockBridge: any
-const mockUser = observable({ showTabIcon: true, loadWebsiteIcons: false })
+const mockUser = observable({ showTabIcon: true })
 jest.mock('libs/websiteIcons', () => ({
   get websiteIcons() {
     return mockBridge
@@ -21,7 +22,7 @@ const tab = {
 } as any
 beforeEach(() => {
   mockBridge = undefined
-  mockUser.loadWebsiteIcons = false
+  mockUser.showTabIcon = true
 })
 
 it('keeps the original browser-provided icon in Chrome and Firefox', () => {
@@ -29,16 +30,17 @@ it('keeps the original browser-provided icon in Chrome and Firefox', () => {
   expect(document.querySelector('img')).toHaveAttribute('src', tab.iconUrl)
 })
 
-it('uses local initials without resolving a website while icon loading is off', () => {
+it('uses the shared neutral placeholder without resolving a website while icons are hidden', () => {
+  mockUser.showTabIcon = false
   mockBridge = { resolve: jest.fn(), subscribe: jest.fn(() => () => {}) }
   render(<TabIconImage tab={tab} />)
-  expect(document.querySelector('img')!.src).toContain('data:image/svg+xml,')
+  expect(document.querySelector('img')).toHaveAttribute('src', emptyIcon)
   expect(mockBridge.resolve).not.toHaveBeenCalled()
 })
 
 it('never requests live website metadata from static Settings previews', () => {
   mockBridge = { resolve: jest.fn(), subscribe: jest.fn(() => () => {}) }
-  mockUser.loadWebsiteIcons = true
+  mockUser.showTabIcon = true
   render(<TabIconImage tab={tab} faked />)
   expect(document.querySelector('img')).toHaveAttribute('src', tab.iconUrl)
   expect(mockBridge.resolve).not.toHaveBeenCalled()
@@ -59,7 +61,7 @@ it('discards a previous tab’s late icon and falls back immediately when loadin
       )
       .mockResolvedValue(resolved),
   }
-  mockUser.loadWebsiteIcons = true
+  mockUser.showTabIcon = true
   const view = render(<TabIconImage tab={tab} />)
   await waitFor(() =>
     expect(mockBridge.resolve).toHaveBeenCalledWith(1, tab.url),
@@ -75,9 +77,9 @@ it('discards a previous tab’s late icon and falls back immediately when loadin
   expect(document.querySelector('img')).toHaveAttribute('src', resolved)
   act(() =>
     runInAction(() => {
-      mockUser.loadWebsiteIcons = false
+      mockUser.showTabIcon = false
     }),
   )
   view.rerender(<TabIconImage tab={next} />)
-  expect(document.querySelector('img')!.src).toContain('data:image/svg+xml,')
+  expect(document.querySelector('img')).toHaveAttribute('src', emptyIcon)
 })

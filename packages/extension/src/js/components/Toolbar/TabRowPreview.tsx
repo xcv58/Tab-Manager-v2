@@ -32,7 +32,6 @@ export type PreviewConfig = {
   highlightActiveTabsInAllWindows?: boolean
   showDuplicateMarker?: boolean
   showTabIcon?: boolean
-  loadWebsiteIcons?: boolean
   showUrl?: boolean
   showTabTooltip?: boolean
   tabTooltipTitleLines?: TabTooltipTitleLines
@@ -56,8 +55,6 @@ class PreviewUserStore {
 
   showTabIcon = true
 
-  loadWebsiteIcons = false
-
   increaseContrast = false
 
   highlightActiveTabsInAllWindows = false
@@ -80,7 +77,6 @@ class PreviewUserStore {
     )
     this.showUrl = config.showUrl ?? true
     this.showTabIcon = config.showTabIcon ?? true
-    this.loadWebsiteIcons = config.loadWebsiteIcons === true
     this.increaseContrast = !!config.increaseContrast
     this.highlightActiveTabsInAllWindows =
       !!config.highlightActiveTabsInAllWindows

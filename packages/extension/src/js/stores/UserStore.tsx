@@ -54,13 +54,12 @@ const DEFAULT_SETTINGS = {
   uiPreset: 'modern' as UiPreset,
   tabWidth: 20,
   showTabIcon: true,
-  loadWebsiteIcons: false,
   fontSize: 14,
   actionTabCountMode: DEFAULT_ACTION_TAB_COUNT_MODE as ActionTabCountMode,
   windowOrder: DEFAULT_WINDOW_ORDER as WindowOrder,
 }
 
-const LEGACY_SETTINGS = ['groupByDomain'] as const
+const LEGACY_SETTINGS = ['groupByDomain', 'loadWebsiteIcons'] as const
 const SETTINGS_KEYS = [...Object.keys(DEFAULT_SETTINGS), ...LEGACY_SETTINGS]
 
 export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
@@ -84,7 +83,6 @@ export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
   nextSettings.tabTooltipUrlLines = normalizeTabTooltipUrlLines(
     nextSettings.tabTooltipUrlLines,
   )
-  nextSettings.loadWebsiteIcons = nextSettings.loadWebsiteIcons === true
   if (isSafari) {
     nextSettings.searchHistory = false
     nextSettings.showAppWindow = false
@@ -140,8 +138,6 @@ export default class UserStore {
       useSystemTheme: observable,
       tabWidth: observable,
       showTabIcon: observable,
-      loadWebsiteIcons: observable,
-      setLoadWebsiteIcons: action,
       ignoreHash: observable,
       fontSize: observable,
       actionTabCountMode: observable,
@@ -300,12 +296,6 @@ export default class UserStore {
   tabWidth = 20
   fontSize = 14
   showTabIcon = true
-  loadWebsiteIcons = false
-
-  setLoadWebsiteIcons = (enabled: boolean) => {
-    this.loadWebsiteIcons = enabled
-    return this.writeSettings({ loadWebsiteIcons: enabled })
-  }
   actionTabCountMode: ActionTabCountMode = DEFAULT_ACTION_TAB_COUNT_MODE
   windowOrder: WindowOrder = DEFAULT_WINDOW_ORDER
   dialogOpen = false

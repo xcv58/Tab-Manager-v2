@@ -96,7 +96,6 @@ export const SampleWindowPreview = observer(function SampleWindowPreview({
             userStore.highlightActiveTabsInAllWindows,
           showDuplicateMarker: userStore.highlightDuplicatedTab,
           showTabIcon: userStore.showTabIcon,
-          loadWebsiteIcons: userStore.loadWebsiteIcons,
           showUrl: userStore.showUrl,
         }))}
       />
@@ -283,7 +282,6 @@ export const TabDetailsPreview = observer(function TabDetailsPreview() {
     highlightActiveTabsInAllWindows: userStore.highlightActiveTabsInAllWindows,
     showDuplicateMarker: userStore.highlightDuplicatedTab,
     showTabIcon: userStore.showTabIcon,
-    loadWebsiteIcons: userStore.loadWebsiteIcons,
     showUrl: userStore.showUrl,
     showTabTooltip: userStore.showTabTooltip,
     tabTooltipTitleLines: userStore.tabTooltipTitleLines,

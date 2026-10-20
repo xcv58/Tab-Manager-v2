@@ -134,10 +134,11 @@
             </h2>
             <p data-page-copy="privacyPermissionsIntro">
               Permissions depend on the browser. All versions need open-tab and
-              window access and saved settings. Safari requests website access
-              to display tab titles and URLs, and optional website access for
-              icon loading. Browser-history search is available in Chrome, Edge,
-              and Firefox; its setting can be turned off.
+              window access and saved settings. Safari uses website access to
+              display tab titles, URLs and website icons. Icons use existing
+              access; you can request missing access in Settings.
+              Browser-history search is available in Chrome, Edge, and Firefox;
+              its setting can be turned off.
             </p>
             <details class="permission-details">
               <summary data-page-copy="permissionDetailsTitle">
@@ -179,12 +180,13 @@
               on our own servers.
             </p>
             <p data-page-copy="privacyNetworkSafariIcons">
-              In Safari, website icons use locally generated initials by
-              default. If you enable "Load website icons" and allow website
-              access, the extension reads icon links from those pages and
-              downloads icons directly from the same websites, without cookies
-              or referrers. Icons are cached in extension memory. No favicon
-              lookup service is used, and private tabs are excluded.
+              In Safari, “Show tab icons” is on by default. With website access,
+              the extension reads icon links from those pages and downloads
+              icons directly from permitted websites and their permitted icon
+              hosts, without cookies or referrers. You can turn off icon loading
+              with “Show tab icons.” Icons and discovered icon hosts are cached
+              only in extension memory. No favicon lookup service is used, and
+              private tabs are excluded.
             </p>
             <p data-page-copy="privacyNetworkLinks">
               The extension and docs include links to third-party sites such as

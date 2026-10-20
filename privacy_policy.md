@@ -30,7 +30,7 @@ If your browser sync service is enabled, settings saved through `storage.sync` m
 
 ## Permissions
 
-Permissions depend on the browser. Safari uses open-tab and window access and local settings. Website access is needed to display titles and URLs, and optional website access is requested for icon loading. On other browsers, the extension uses these permissions where supported:
+Permissions depend on the browser. Safari uses open-tab and window access and local settings. Website access is needed to display titles, URLs and website icons. Icons use existing access; you can request missing access in Settings. On other browsers, the extension uses these permissions where supported:
 
 - `tabs`: read and manage open tabs and windows
 - `storage`: save settings and UI state
@@ -43,7 +43,7 @@ Permissions depend on the browser. Safari uses open-tab and window access and lo
 
 Tab Manager v2 does not send your browsing data to Tab Manager v2 servers because no such service is used for core functionality.
 
-In Safari, website icons use locally generated initials by default. If you enable "Load website icons" and allow website access, the extension reads icon links from those pages and downloads icons directly from the same websites, without cookies or referrers. Icons are cached in extension memory. No favicon lookup service is used, and private tabs are excluded.
+In Safari, “Show tab icons” is on by default. With website access, the extension reads icon links from those pages and downloads icons directly from permitted websites and their permitted icon hosts, without cookies or referrers. You can turn off icon loading with “Show tab icons.” Icons and discovered icon hosts are cached only in extension memory. No favicon lookup service is used, and private tabs are excluded.
 
 The extension and docs include links to third-party sites such as browser stores, GitHub, and support pages. If you open those links, your interaction with those sites is governed by their privacy policies.
 

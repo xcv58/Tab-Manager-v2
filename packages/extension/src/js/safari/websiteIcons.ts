@@ -1,5 +1,5 @@
 import type { WebsiteIcons } from 'libs/websiteIcons'
-import { websiteOriginPattern } from 'libs/tabMonogram'
+import { websiteOriginPattern } from 'libs/websiteOriginPattern'
 
 const MAX_BYTES = 256 * 1024
 const MAX_CACHE = 128
@@ -8,6 +8,17 @@ const TIMEOUT = 8000
 // Lives only in the extension page's memory, not in synced storage or a server.
 export const createWebsiteIcons = (raw: any): WebsiteIcons => {
   const cache = new Map<string, { image: string | null; expires: number }>()
+  // Only icon hosts discovered from a current, permitted normal tab are
+  // considered for a later user-triggered access request. Never persist them.
+  const missingHosts = new Map<string, string[]>()
+  const accessOrigins = (urls: string[]) => [
+    ...new Set(
+      urls.flatMap((url) => {
+        const origin = websiteOriginPattern(url)
+        return origin ? [origin, ...(missingHosts.get(url) || [])] : []
+      }),
+    ),
+  ]
   const pending = new Map<string, Promise<string | null>>()
   const listeners = new Set<(tabId?: number) => void>()
   const controllers = new Set<AbortController>()
@@ -17,6 +28,7 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
   const invalidate = () => {
     generation++
     cache.clear()
+    missingHosts.clear()
     pending.clear()
     controllers.forEach((controller) => controller.abort())
     listeners.forEach((listener) => listener())
@@ -24,13 +36,13 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
   raw.permissions?.onAdded?.addListener(invalidate)
   raw.permissions?.onRemoved?.addListener(invalidate)
   raw.storage.onChanged.addListener((changes: any, area: string) => {
-    if (area === 'local' && (changes.loadWebsiteIcons || changes.showTabIcon))
-      invalidate()
+    if (area === 'local' && changes.showTabIcon) invalidate()
   })
   raw.tabs.onUpdated?.addListener((id: number, changes: any, tab: any) => {
     // A background tab finishing a load must not cancel every visible icon.
     if (changes.url || changes.status === 'complete') {
       cache.delete(tab?.url || changes.url)
+      missingHosts.delete(tab?.url || changes.url)
       listeners.forEach((listener) => listener(id))
     }
   })
@@ -39,6 +51,31 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
     return (
       !!origin &&
       (await raw.permissions?.contains({ origins: [origin] })) === true
+    )
+  }
+  const recordMissingHosts = (id: number, url: string, origins: string[]) => {
+    const previous = missingHosts.get(url) || []
+    if (JSON.stringify(previous) === JSON.stringify(origins)) return
+    if (origins.length) {
+      if (missingHosts.size >= MAX_CACHE)
+        missingHosts.delete(missingHosts.keys().next().value!)
+      missingHosts.set(url, origins)
+    } else missingHosts.delete(url)
+    listeners.forEach((listener) => listener(id))
+  }
+  const usableCandidate = (candidate: string, page: string) => {
+    if (!websiteOriginPattern(candidate)) return false
+    const icon = new URL(candidate)
+    if (icon.origin === new URL(page).origin) return true
+    // Declared CDN icons may use existing permission or ask in Settings. Do
+    // not turn a page's icon link into a local-network or alternate-port probe.
+    return (
+      icon.protocol === 'https:' &&
+      !icon.port &&
+      icon.hostname.includes('.') &&
+      !icon.hostname.includes(':') &&
+      !/^[0-9.]+$/.test(icon.hostname) &&
+      !/(^|\.)(localhost|local|internal)\.?$/i.test(icon.hostname)
     )
   }
   const matchingTab = async (id: number, url: string) => {
@@ -107,10 +144,12 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
       .split(';')[0]
       .trim()
       .toLowerCase()
-    // Keep SVG in the local monogram path; fetched images must be raster data.
+    // SVG is decoded only as an Image, never inserted as markup. Image mode
+    // disables scripts and external resources; the UI receives a 32px PNG.
     if (
       ![
         'image/png',
+        'image/svg+xml',
         'image/jpeg',
         'image/webp',
         'image/gif',
@@ -146,12 +185,8 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
   }
   const load = async (id: number, url: string, signal: AbortSignal) => {
     if (signal.aborted || !(await matchingTab(id, url))) return null
-    const settings = await raw.storage.local.get([
-      'loadWebsiteIcons',
-      'showTabIcon',
-    ])
+    const settings = await raw.storage.local.get(['showTabIcon'])
     if (
-      settings.loadWebsiteIcons !== true ||
       settings.showTabIcon === false ||
       !(await allowed(url)) ||
       signal.aborted
@@ -176,17 +211,19 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
       new URL('/favicon.ico', url).href,
     ]
     let image: string | null = null
+    const missing = new Set<string>()
     for (const candidate of [...new Set(candidates)]) {
       if (signal.aborted) return null
-      if (typeof candidate !== 'string' || !websiteOriginPattern(candidate))
+      if (typeof candidate !== 'string' || !usableCandidate(candidate, url))
         continue
-      // A page cannot use its icon link to probe another private/local network.
-      // Cross-origin icons are left as initials; no extra CDN access is requested.
-      if (new URL(candidate).origin !== new URL(url).origin) continue
       try {
+        if (!(await allowed(candidate))) {
+          missing.add(websiteOriginPattern(candidate)!)
+          continue
+        }
         image = await fetchIcon(candidate, signal)
       } catch {
-        /* Use initials on missing/offline/denied icons. */
+        /* Use the shared neutral placeholder on missing/offline/denied icons. */
       }
       if (image) break
     }
@@ -201,18 +238,22 @@ export const createWebsiteIcons = (raw: any): WebsiteIcons => {
       image,
       expires: Date.now() + (image ? 30 * 60_000 : 60_000),
     })
+    // A missing/invalid/offline image is not a permission failure. Only offer
+    // access for denied hosts when no already-permitted fallback worked.
+    recordMissingHosts(id, url, image ? [] : [...missing].sort())
     return image
   }
   return {
+    hasAccess: async (urls) => {
+      const origins = accessOrigins(urls)
+      return (
+        !origins.length ||
+        (await raw.permissions?.contains({ origins })) === true
+      )
+    },
     // Called directly in the Settings click handler, before any await.
     requestAccess: (urls) => {
-      const origins = [
-        ...new Set(
-          urls
-            .map(websiteOriginPattern)
-            .filter((value): value is string => !!value),
-        ),
-      ]
+      const origins = accessOrigins(urls)
       if (!origins.length || !raw.permissions?.request)
         return Promise.resolve(false)
       return raw.permissions.request({ origins })

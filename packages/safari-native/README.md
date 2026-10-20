@@ -14,7 +14,7 @@ The native project consumes `packages/extension/build/build_safari` as resources
 
 ## App identity
 
-Production builds reuse App Store Connect app `6758364114`. The prepared defaults are **3.0.1 (19)**; the preceding internal TestFlight candidate is **3.0.1 (18)**. Build 19 also enables live icon rendering in read-only search rows. Build 18 preserves the icon reader’s completion value in the optimized Release package; build 17’s optional icon downloads fail safely to initials. Confirm processing and tester availability in App Store Connect separately. The earlier draft was 1.0 and its last TestFlight build was 13. The original app and extension IDs are preserved in the Release configuration. Debug keeps its existing development identity.
+Production builds reuse App Store Connect app `6758364114` and its original app and extension IDs. Debug keeps a separate development identity. Read the current marketing version and build number from the project configuration; confirm processing and tester availability separately in App Store Connect.
 
 | Setting             | Debug                                            | Release                               |
 | ------------------- | ------------------------------------------------ | ------------------------------------- |
@@ -27,7 +27,7 @@ Production builds reuse App Store Connect app `6758364114`. The prepared default
 
 `pnpm build:safari:app` still defaults to Debug. To select production identities for web and native builds together, set `SAFARI_BUILD_CONFIGURATION=Release`. The same variable applies to `pnpm build:safari`. Rebuild the web assets for the selected configuration before compiling in Xcode; otherwise the setup URL may point at the other channel.
 
-The host app, extension and web manifest use marketing version 3.0.1; both native targets use build 19. Release uses automatic provisioning and is re-signed with Apple Distribution during App Store export; Debug retains development signing. The restored Mac app icon comes from the original Safari app assets. Building or uploading does not enable the production extension or grant Safari website access.
+The host app, extension and web manifest must use the same marketing version; both native targets must use the same build number. Release uses automatic provisioning and is re-signed with Apple Distribution during App Store export; Debug retains development signing. The restored Mac app icon comes from the original Safari app assets. Building or uploading does not enable the production extension or grant Safari website access.
 
 Marketing versions follow the shared product version, even when Safari has fewer supported features. Increment the native build for every uploaded candidate. Archive and export with the Release configuration; verify both bundle identifiers, matching versions/build numbers, provisioning profiles and signatures before uploading. TestFlight upload, beta availability, App Review and public release are separate steps. Keep App Store release set to manual.
 
@@ -41,12 +41,12 @@ xcodegen generate --spec packages/safari-native/project.yml
 xcodebuild -project packages/safari-native/TabManagerSafariPrototype.xcodeproj \
   -scheme TabManagerSafariPrototype -configuration Release \
   -destination 'generic/platform=macOS' \
-  -archivePath .tmp/safari-testflight-3.0.1-19.xcarchive \
+  -archivePath .tmp/safari-testflight-candidate.xcarchive \
   -allowProvisioningUpdates archive
 xcodebuild -exportArchive \
-  -archivePath .tmp/safari-testflight-3.0.1-19.xcarchive \
+  -archivePath .tmp/safari-testflight-candidate.xcarchive \
   -exportOptionsPlist packages/safari-native/Config/ExportOptions.plist \
-  -exportPath .tmp/safari-testflight-3.0.1-19-export \
+  -exportPath .tmp/safari-testflight-candidate-export \
   -allowProvisioningUpdates
 ```
 
@@ -59,7 +59,7 @@ The export configuration preserves the chosen version/build and exports locally.
 - Use the shared close, reload and pin flows with standard browser APIs. Failed operations show an error; rows are removed after Safari reports the actual removal. There is no separate job queue, progress panel or Stop shortcut.
 - Close individual or selected tabs directly, as in Chrome. Tab actions use current-session tab and window IDs; missing URL access does not block actions on Start Pages or other tabs.
 - Close an entire browser window directly, as in Chrome, including any inactive tab groups Safari keeps in that window.
-- Store settings locally and show colored initials for website tabs without making icon requests. “Load website icons” is off by default; enabling it requests optional access to open websites. It reads icon links only from the document head and loads small raster icons from the same origin, without cookies or referrers. A bounded memory cache and four concurrent requests limit work to visible tabs. Denied access, offline sites, SVG-only or cross-origin icons fall back to initials. Internal pages keep the generic icon. No external favicon service is used.
+- Store settings locally. The shared “Show tab icons” setting enables icon loading with existing website access. Settings offers a user-triggered access request only for missing website or discovered icon-host permissions. The reader inspects only the document head. Small raster and SVG icons are decoded in image mode and converted to 32px PNGs; page markup is never inserted into the UI. Cross-origin icons require permitted HTTPS hosts; local-network literals and alternate ports are rejected. Fetches omit cookies and referrers and reject redirects. A bounded memory cache and four concurrent requests limit work to visible tabs. Missing, denied or unusable icons and internal pages use the shared neutral placeholder. No external favicon service is used.
 
 Private browsing is deliberately excluded from both reads and mutations. Moving/reordering tabs, moving selected tabs into new windows, sorting/clustering, native tab-group management, browser history search, address-bar keywords, browser-synced preferences and Chrome-style app-window enumeration are unavailable and hidden. Titles and URLs depend on Safari's website-access permissions. The host app does not poll or maintain a separate native tab overview.
 

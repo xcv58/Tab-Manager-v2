@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'faq.permissionsSummary':
         '扩展需要访问打开的标签页、窗口和保存的设置。Safari 会请求网站访问权限以显示标题和网址。Chrome、Edge 和 Firefox 还提供可选的浏览历史搜索。标签页数据留在你的浏览器中。',
       'faq.permissionsBody':
-        '权限因浏览器而异。所有版本使用 <code>tabs</code> 和 <code>storage</code>。Chrome、Edge 和 Firefox 使用 <code>history</code> 提供可选的历史搜索，并在支持时使用 <code>tabGroups</code>；Firefox 还使用 <code>contextualIdentities</code> 和 <code>cookies</code> 支持容器。Safari 在你开启网站图标时请求可选的网站访问权限。没有分析或跟踪。',
+        '权限因浏览器而异。所有版本使用 <code>tabs</code> 和 <code>storage</code>。Chrome、Edge 和 Firefox 使用 <code>history</code> 提供可选的历史搜索，并在支持时使用 <code>tabGroups</code>；Firefox 还使用 <code>contextualIdentities</code> 和 <code>cookies</code> 支持容器。Safari 使用已有的网站访问权限加载图标；可在设置中请求缺少的权限。没有分析或跟踪。',
       'media.browserNote':
         '画面录制于 Chrome。<a href="support/#browser-features">查看各浏览器支持的功能。</a>',
       'install.safariNote':
@@ -461,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'faq.permissionsSummary':
         '擴充功能需要存取開啟的分頁、視窗和儲存的設定。Safari 會要求網站存取權限以顯示標題和網址。Chrome、Edge 和 Firefox 還提供可選的瀏覽紀錄搜尋。分頁資料留在你的瀏覽器中。',
       'faq.permissionsBody':
-        '權限因瀏覽器而異。所有版本使用 <code>tabs</code> 和 <code>storage</code>。Chrome、Edge 和 Firefox 使用 <code>history</code> 提供可選的歷史紀錄搜尋，並在支援時使用 <code>tabGroups</code>；Firefox 還使用 <code>contextualIdentities</code> 和 <code>cookies</code> 支援容器。Safari 在你開啟網站圖示時要求可選的網站存取權限。沒有分析或追蹤。',
+        '權限因瀏覽器而異。所有版本使用 <code>tabs</code> 和 <code>storage</code>。Chrome、Edge 和 Firefox 使用 <code>history</code> 提供可選的歷史紀錄搜尋，並在支援時使用 <code>tabGroups</code>；Firefox 還使用 <code>contextualIdentities</code> 和 <code>cookies</code> 支援容器。Safari 使用已有的網站存取權限載入圖示；可在設定中要求缺少的權限。沒有分析或追蹤。',
       'media.browserNote':
         '畫面錄製於 Chrome。<a href="support/#browser-features">查看各瀏覽器支援的功能。</a>',
       'install.safariNote':

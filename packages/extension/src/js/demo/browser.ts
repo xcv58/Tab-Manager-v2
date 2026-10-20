@@ -412,7 +412,7 @@ const createStorage = (data: Record<string, unknown>, area: string) => ({
     if (Object.keys(changes).length) {
       if (area === 'sync' && !settingsPreview) saveDemoPreferences(data)
       browser.storage.onChanged.emit(changes, area)
-      if (changes.loadWebsiteIcons || changes.showTabIcon)
+      if (changes.demoWebsiteIconAccess || changes.showTabIcon)
         iconListeners.forEach((listener) => listener())
       notify()
     }
@@ -497,12 +497,18 @@ const browser = {
   websiteIcons: iconPreview
     ? {
         isDemo: true,
-        requestAccess: async (_urls: string[]) => true,
+        hasAccess: async (_urls: string[]) =>
+          settingsPreview || syncData.demoWebsiteIconAccess === true,
+        requestAccess: async (_urls: string[]) => {
+          await browser.storage.sync.set({ demoWebsiteIconAccess: true })
+          return true
+        },
         resolve: async (id: number, url: string) => {
           const tab = getTabsFromWindows().find(
             (tab) => tab.id === id && tab.url === url && !tab.incognito,
           )
-          return syncData.loadWebsiteIcons === true
+          return syncData.showTabIcon !== false &&
+            (settingsPreview || syncData.demoWebsiteIconAccess === true)
             ? tab?.favIconUrl || null
             : null
         },

@@ -60,10 +60,10 @@ export const demoScenarios: ReadonlyArray<DemoScenario> = [
   {
     id: 'safari-icons',
     label: 'Safari icon preview',
-    title: 'Local initials and website icons',
+    title: 'Website icons and missing icons',
     description:
       'Preview Safari tab icons using sample data. Other actions use the normal website demo.',
-    hint: 'Open Settings → Tab details → Load website icons to compare local initials with sample icons. No websites are contacted or permissions requested.',
+    hint: 'Open Settings → Tab details → Show tab icons, then Allow website access to preview sample icons. Access is simulated; no websites are contacted or browser permissions requested.',
     category: 'Workflow',
     tabCount: 12,
     windowCount: 2,
