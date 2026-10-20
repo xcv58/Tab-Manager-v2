@@ -194,27 +194,21 @@
         ''
   }
   const setWorkloads = (preferred) => {
+    const workloads = entries
+      .flatMap((entry) => entry.records)
+      .filter(
+        (record) => record.runtime?.compatibilityKey === controls.series.value,
+      )
+      .flatMap((record) => record.runtimeSummary.workloads)
     const values = [
-      ...new Set(
-        entries
-          .flatMap((entry) => entry.records)
-          .filter(
-            (record) =>
-              record.runtime?.compatibilityKey === controls.series.value,
-          )
-          .flatMap((record) =>
-            record.runtimeSummary.workloads.map(
-              (workload) => workload.sourceTabs,
-            ),
-          ),
-      ),
+      ...new Set(workloads.map((workload) => workload.sourceTabs)),
     ].sort((a, b) => a - b)
     controls.workload.replaceChildren()
     for (const value of values)
       option(
         controls.workload,
         String(value),
-        `${(value + 12).toLocaleString()} tabs`,
+        `${workloads.find((workload) => workload.sourceTabs === value).totalTabs.toLocaleString()} tabs`,
       )
     if (!values.length) option(controls.workload, '', 'Not measured')
     controls.workload.disabled = !values.length
@@ -342,7 +336,7 @@
       if (selected) captureSelections.set(captureKey(entry, kind), selected)
     }
     byId('snapshot-note').textContent =
-      `${missing ? 'A pinned capture is unavailable in this snapshot or measurement series. Choose another capture to compare. ' : ''}${catalog.digest ? `Catalog SHA-256: ${catalog.digest}. ` : ''}Release dates and capture dates are recorded separately. Historical test evidence was not archived.`
+      `${missing ? 'A pinned capture is unavailable in this snapshot or measurement series. Choose another capture to compare. ' : ''}${catalog.digest ? `Catalog SHA-256: ${catalog.digest}. ` : ''}Release dates and capture dates are recorded separately.`
     byId('snapshot-download').hidden = !catalog.digest
   }
   const reportSelections = new Map()
@@ -377,7 +371,7 @@
     if (selected) reportSelections.set(controls.target.value, selected.id)
     rows.replaceChildren()
     byId('verification-context').textContent = selected
-      ? `Captured ${selected.recordedAt.slice(0, 10)} · workflow ${selected.publisher.runId}, attempt ${selected.publisher.attempt}`
+      ? `Captured ${selected.recordedAt.slice(0, 10)}`
       : 'Not archived'
     const submissions = selected?.submissions || []
     byId('store-submissions').hidden = !submissions.length
@@ -388,7 +382,7 @@
       ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some diagnostic archives exceeded the size limit and were not preserved; the manifest lists these omissions.' : ''}`
       : requested
         ? 'The pinned evidence capture is unavailable in this website snapshot.'
-        : 'Test and build evidence was not archived for this release. Historical benchmark data remains available; no tests have been inferred or rerun.'
+        : 'No saved test or build results are available for this release.'
     const labels = {
       success: 'Passed',
       failure: 'Failed',
@@ -480,6 +474,18 @@
         .reduce((total, file) => total + file.bytes, 0) / 1000,
     )
   }
+  const dragWorkload = (entry) => {
+    const counts = [
+      ...new Set(
+        (entry ? [entry] : entries).flatMap(
+          (item) => runtimeFor(item)?.runtimeSummary.drag?.tabCounts || [],
+        ),
+      ),
+    ].sort((a, b) => a - b)
+    return counts.length
+      ? `${counts.map((count) => count.toLocaleString()).join(' / ')} tabs`
+      : 'Workload unavailable'
+  }
   const definitions = [
     {
       title: 'Download size',
@@ -517,13 +523,13 @@
     {
       title: 'Group-drag rendering',
       unit: 'ms',
-      subtitle: () => `1,012 tabs · React render time`,
+      subtitle: (entry) => `${dragWorkload(entry)} · React render time`,
       get: (entry) => runtimeFor(entry)?.runtimeSummary.drag?.render,
     },
     {
       title: 'JS heap after group drag',
       unit: 'MB',
-      subtitle: () => `1,012 tabs · after garbage collection`,
+      subtitle: (entry) => `${dragWorkload(entry)} · after garbage collection`,
       get: (entry) => {
         const value = runtimeFor(entry)?.runtimeSummary.drag?.postDropHeap
         return value
@@ -948,6 +954,7 @@
           true,
         )
         addLine(`${stat.count} observation${stat.count === 1 ? '' : 's'}`, true)
+        addLine(plot.definition.subtitle(point.entry), true)
       }
       const base = map.get(controls.baseline.value)
       const baseStat = plot.definition.get(base)

@@ -40,7 +40,7 @@ export function summarizeRuntime(runtime) {
       const metric = (get) => statistics(samples.map(get))
       return {
         sourceTabs: tabs,
-        totalTabs: tabs + 12,
+        totalTabs: samples[0].startup.tabCount,
         startup: metric((sample) => sample.startup.readyMs),
         searchPaint: metric((sample) => sample.search.Needle.searchPaintMs),
         narrowSearch: metric(
@@ -54,18 +54,23 @@ export function summarizeRuntime(runtime) {
   return {
     workloads,
     drag: drags.length
-      ? Object.fromEntries(
-          Object.entries({
-            render: (sample) => sample.after.dragRenderMs,
-            largestRender: (sample) => sample.after.dragMaxCommitRenderMs,
-            largestLongTask: (sample) => sample.after.maxLongTaskMs,
-            peakRows: (sample) => sample.after.dragMaxRows,
-            postDropHeap: (sample) => sample.heap.usedSize,
-            postScrollHeap: (sample) => sample.scroll.afterHeap.usedSize,
-            detachedReferences: (sample) =>
-              sample.scroll.state.retainedReferences.detachedNodeRefs,
-          }).map(([key, get]) => [key, statistics(drags.map(get))]),
-        )
+      ? {
+          tabCounts: [
+            ...new Set(drags.map((sample) => sample.after.tabCount)),
+          ].sort((a, b) => a - b),
+          ...Object.fromEntries(
+            Object.entries({
+              render: (sample) => sample.after.dragRenderMs,
+              largestRender: (sample) => sample.after.dragMaxCommitRenderMs,
+              largestLongTask: (sample) => sample.after.maxLongTaskMs,
+              peakRows: (sample) => sample.after.dragMaxRows,
+              postDropHeap: (sample) => sample.heap.usedSize,
+              postScrollHeap: (sample) => sample.scroll.afterHeap.usedSize,
+              detachedReferences: (sample) =>
+                sample.scroll.state.retainedReferences.detachedNodeRefs,
+            }).map(([key, get]) => [key, statistics(drags.map(get))]),
+          ),
+        }
       : null,
   }
 }

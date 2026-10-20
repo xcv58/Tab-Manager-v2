@@ -179,8 +179,8 @@
       and the same workload for each compared version.
     </p>
     <p>
-      Startup and search use the selected tab count. Group dragging and
-      post-drag heap always use 1,012 tabs. Search includes the application's
+      Each chart shows the workload used for its measurements. Startup and
+      search use the selected tab count. Search includes the application's
       debounce; heap is measured after garbage collection. These observations do
       not measure native browser API latency, website loading, cold browser
       launch, or total browser memory.
@@ -192,20 +192,14 @@
       show the observed minimum and maximum, not confidence intervals.
     </p>
     <p>
-      New captures also measure the fixed 3.0.0 reference alongside the
-      candidate and its preceding release. The series selector shows how many
-      versions share the protocol. Browser, hardware, or harness changes create
-      a separate series; their absolute timings are not silently connected.
-    </p>
-    <p>
       Download the original measurement records below to inspect raw samples,
       package hashes, and measurement conditions.
     </p>
     <p>
-      Historical timing backfills measure the frozen release sources today,
-      using one common simulated browser adapter. They are not observations from
-      the original release dates. Original published ZIPs and rebuilt source
-      packages are identified separately in the table.
+      Historical performance measurements were collected after release using
+      each version's source code. Capture dates are shown separately from
+      release dates. Original published ZIPs and rebuilt source packages are
+      identified separately in the table.
     </p>
     <section id="evidence" aria-labelledby="evidence-title">
       <h2 id="evidence-title">Evidence for the selected version</h2>
