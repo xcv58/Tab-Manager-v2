@@ -7,6 +7,7 @@ import {
   validateRecord,
   writeText,
   writeRecord,
+  archiveDirectory,
 } from './records.mjs'
 
 export function recordReport(record, baseline) {
@@ -114,7 +115,21 @@ export async function buildViewer(records, output, { template, catalog } = {}) {
       : null,
     runtimeSummary: summarizeRuntime(record.runtime),
   }))
-  for (const record of records) await writeRecord(record, recordDirectory)
+  for (const record of records) {
+    const historical = join(archiveDirectory, `${record.id}.json`)
+    let original
+    try {
+      original = await readFile(historical, 'utf8')
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error
+    }
+    if (original !== undefined) {
+      if (json(JSON.parse(original)) !== json(record))
+        throw new Error(`Conflicting historical record: ${record.id}`)
+      // Preserve original bytes too: early audit JSON used compact arrays.
+      await copyFile(historical, join(recordDirectory, `${record.id}.json`))
+    } else await writeRecord(record, recordDirectory)
+  }
   const templateRoot = fileURLToPath(new URL('./viewer/', import.meta.url))
   template ||= await readFile(join(templateRoot, 'index.html'), 'utf8')
   const content = await readFile(join(templateRoot, 'content.html'), 'utf8')
