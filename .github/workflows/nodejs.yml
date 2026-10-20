@@ -155,7 +155,7 @@ jobs:
       - name: Unit Test
         run: |
           mkdir -p .tmp/report-results
-          pnpm --filter tab-manager-v2 test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
+          pnpm --filter ./packages/extension test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
 
       - name: Build extensions
         if: ${{ matrix.node == 24 }}

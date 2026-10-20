@@ -5,6 +5,29 @@
   )
   const data = catalog.records
   const byId = (id) => document.getElementById(id)
+  const evidenceURL = (value) => {
+    try {
+      const url = new URL(value)
+      const prefix = '/xcv58/Tab-Manager-v2/'
+      if (
+        url.protocol !== 'https:' ||
+        url.hostname !== 'github.com' ||
+        url.username ||
+        url.password ||
+        !url.pathname.startsWith(prefix)
+      )
+        return null
+      // Reconstruct from a fixed origin and escaped path segments. Report data
+      // is never interpreted as a javascript: URL, HTML, or another origin.
+      return `https://github.com/xcv58/Tab-Manager-v2/${url.pathname
+        .slice(prefix.length)
+        .split('/')
+        .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+        .join('/')}`
+    } catch {
+      return null
+    }
+  }
   const namespace = 'http://www.w3.org/2000/svg'
   const sourceKey = (record) =>
     record.source.dirty
@@ -372,7 +395,8 @@
         link = document.createElement('a')
       link.textContent =
         check.kind === 'build' ? 'Build log' : 'Workflow evidence'
-      link.href = check.url
+      const href = evidenceURL(check.url)
+      if (href) link.href = href
       cell.append(link)
       row.append(cell)
       rows.append(row)
@@ -393,9 +417,10 @@
         { name: 'Report manifest', url: selected.url },
         ...selected.files,
       ]) {
-        if (!file.url) continue
+        const href = evidenceURL(file.url)
+        if (!href) continue
         const link = document.createElement('a')
-        link.href = file.url
+        link.href = href
         link.textContent = file.name
         cell.append(link, document.createTextNode(' · '))
       }

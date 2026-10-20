@@ -116,7 +116,7 @@ jobs:
       - name: Release unit tests
         run: |
           mkdir -p .tmp/report-results
-          pnpm --filter tab-manager-v2 test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
+          pnpm --filter ./packages/extension test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
 
       - name: Run release gate on Ubuntu
         env:

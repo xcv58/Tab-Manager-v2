@@ -119,7 +119,9 @@ export function validateChecks(value, report) {
     )
     assert(
       typeof check.url === 'string' &&
-        check.url.startsWith(`https://github.com/${repository}/actions/runs/`),
+        /^https:\/\/github\.com\/xcv58\/Tab-Manager-v2\/actions\/runs\/\d+(?:\/job\/\d+)?$/.test(
+          check.url,
+        ),
       'invalid check evidence URL',
     )
   }
