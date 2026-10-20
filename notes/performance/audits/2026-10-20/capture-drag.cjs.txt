@@ -1,0 +1,81 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const http = require('node:http');
+const { chromium } = require('./master/packages/integration_test/node_modules/playwright');
+const root = __dirname;
+const samples = [];
+const read = page => page.locator('#profile-metrics').textContent().then(JSON.parse);
+const server = http.createServer((req,res)=>{
+  const file=path.resolve(root,'.'+new URL(req.url,'http://127.0.0.1').pathname);
+  if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}
+  fs.readFile(file,(err,data)=>{
+    if(err){res.writeHead(404).end();return;}
+    res.writeHead(200,{'Content-Type':({'.js':'text/javascript','.html':'text/html','.css':'text/css','.png':'image/png'})[path.extname(file)]||'application/octet-stream'}).end(data);
+  });
+});
+(async()=>{
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--enable-precise-memory-info','--disable-background-timer-throttling','--disable-renderer-backgrounding']});
+  try {
+    const orders=[['legacy','release','master'],['release','master','legacy'],['master','legacy','release']];
+    for(let iteration=0;iteration<3;iteration++) for(const revision of orders[iteration]) {
+      const context=await browser.newContext({viewport:{width:2320,height:989},serviceWorkers:'block'});
+      await context.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+      const page=await context.newPage();
+      const errors=[];
+      page.on('pageerror',e=>errors.push(e.message));
+      await page.goto(`http://127.0.0.1:${server.address().port}/profile-${revision}/index.html?not_popup=1#scenario=single-window&tabs=1000&grouped=1`);
+      await page.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#profile-metrics').textContent).readyMs>0}catch{return false}});
+      const scrollCdp=await context.newCDPSession(page);
+      await scrollCdp.send('HeapProfiler.collectGarbage');
+      const beforeScrollHeap=await scrollCdp.send('Runtime.getHeapUsage');
+      const scroller=page.getByTestId('window-list-scroll-container');
+      for(let step=0;step<8;step++) {
+        await scroller.evaluate(node=>{node.scrollTop+=node.clientHeight;});
+        await page.waitForTimeout(100);
+      }
+      const scrollPosition=await scroller.evaluate(node=>({scrollTop:node.scrollTop,clientHeight:node.clientHeight}));
+      await page.locator('#inspect-references').click();
+      const scrolled=await read(page);
+      await scrollCdp.send('HeapProfiler.collectGarbage');
+      const afterScrollHeap=await scrollCdp.send('Runtime.getHeapUsage');
+      const scroll={position:scrollPosition,beforeHeap:beforeScrollHeap,afterHeap:afterScrollHeap,state:scrolled};
+      if(scrolled.tabCount!==1012||scrolled.windowCount!==2||Math.abs(scrollPosition.scrollTop-8*scrollPosition.clientHeight)>8)throw new Error('Scroll fixture mismatch '+JSON.stringify({revision,scrollPosition,tabs:scrolled.tabCount,windows:scrolled.windowCount}));
+      await scrollCdp.detach();
+      await page.reload();
+      await page.waitForFunction(()=>{try{return JSON.parse(document.querySelector('#profile-metrics').textContent).readyMs>0}catch{return false}});
+      await page.getByTestId('tab-group-header-101').hover();
+      const source=await page.getByTestId('tab-group-drag-handle-101').boundingBox();
+      const target=await page.getByTestId('tab-row-1008').boundingBox();
+      if(!source||!target)throw new Error('Drag nodes unavailable');
+      await page.locator('#reset-metrics').click();
+      const x=source.x+source.width/2,y=source.y+source.height/2;
+      const tx=target.x+20,ty=target.y+target.height*.75;
+      await page.mouse.move(x,y);
+      await page.mouse.down();
+      await page.mouse.move(x+15,y+10,{steps:4});
+      await page.mouse.move(tx,ty,{steps:20});
+      await page.waitForTimeout(300);
+      const during=await read(page);
+      await page.mouse.up();
+      await page.waitForFunction(()=>JSON.parse(document.querySelector('#profile-metrics').textContent).windowCount===1,{}, {timeout:15000});
+      await page.waitForTimeout(400);
+      const after=await read(page);
+      if(after.tabCount!==1012)throw new Error('Drag lost tabs');
+      await page.locator('#inspect-references').click();
+      const references=await read(page);
+      const cdp=await context.newCDPSession(page);
+      await cdp.send('HeapProfiler.collectGarbage');
+      const heap=await cdp.send('Runtime.getHeapUsage');
+      await page.screenshot({path:path.join(root,`${revision}-drag-${iteration}.png`)});
+      const result={revision,iteration,scroll,during,after,references:references.retainedReferences,heap,errors};
+      samples.push(result);
+      fs.writeFileSync(path.join(root,'drag-raw.json'),JSON.stringify(samples,null,2)+'\n');
+      console.log(JSON.stringify({revision,iteration,peakRows:after.dragMaxRows,render:after.dragRenderMs,maxRender:after.dragMaxCommitRenderMs,maxLongTask:after.maxLongTaskMs,tabs:after.tabCount,windows:after.windowCount,references:references.retainedReferences,scrollHeap:afterScrollHeap.usedSize,scrollReferences:scrolled.retainedReferences}));
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+    await new Promise(resolve=>server.close(resolve));
+  }
+})().catch(e=>{console.error(e);process.exitCode=1;server.close()});

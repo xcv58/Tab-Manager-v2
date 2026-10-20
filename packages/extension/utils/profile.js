@@ -49,9 +49,16 @@ config.module.rules.forEach((rule) => {
     rule.use[0].options.configFile = path.join(sourceRoot, 'tsconfig.json')
   }
 })
-config.resolve.alias['react-dom/client$'] =
-  require.resolve('react-dom/profiling')
-config.resolve.alias['react-dom$'] = require.resolve('react-dom/profiling')
+config.resolve.alias['react$'] = require.resolve('react', {
+  paths: [sourceRoot],
+})
+config.resolve.alias['react-dom/client$'] = require.resolve(
+  'react-dom/profiling',
+  { paths: [sourceRoot] },
+)
+config.resolve.alias['react-dom$'] = require.resolve('react-dom/profiling', {
+  paths: [sourceRoot],
+})
 config.resolve.modules = [
   path.join(sourceRoot, 'node_modules'),
   path.resolve(__dirname, '../node_modules'),

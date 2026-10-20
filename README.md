@@ -248,6 +248,17 @@ pnpm build
 
 This outputs packaged browser builds under `packages/extension/build/`.
 
+## Performance history
+
+```shell
+pnpm performance:preview
+```
+
+Open **http://127.0.0.1:8780/** to compare archived versions. For an offline
+report, run `pnpm performance:build` and open `dist/performance/index.html`.
+The report is internal and is not included in the public website or extension.
+See [measurement, archival, and CI instructions](notes/performance/README.md).
+
 ## Repository Layout
 
 - `packages/extension`: main extension source, assets, build scripts, and unit tests

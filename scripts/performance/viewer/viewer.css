@@ -1,0 +1,234 @@
+:root {
+  color-scheme: light dark;
+  --background: light-dark(#fafbfe, #10131a);
+  --surface: light-dark(#ffffff, #191e29);
+  --text: light-dark(#182235, #e6ebf5);
+  --muted: light-dark(#5c687d, #a5b0c3);
+  --border: light-dark(#d9e0ec, #394253);
+  --series: light-dark(#5046d5, #a8a0ff);
+  --focus: light-dark(#5b52eb, #b1aaff);
+  font:
+    15px/1.5 system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  width: min(1120px, 100%);
+  margin: auto;
+  padding: 30px clamp(16px, 4vw, 40px) 40px;
+}
+h1 {
+  font-size: 30px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  letter-spacing: -0.025em;
+}
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+p {
+  margin: 0;
+}
+.eyebrow {
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.description {
+  max-width: 75ch;
+  color: var(--muted);
+}
+#controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 14px 18px;
+  margin: 24px 0 14px;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  font-size: 13px;
+}
+select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-size: 15px;
+  text-overflow: ellipsis;
+}
+select:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+select:disabled {
+  opacity: 0.65;
+}
+#notice {
+  color: var(--muted);
+  min-height: 23px;
+  margin: 14px 0 22px;
+  overflow-wrap: anywhere;
+}
+#charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 22px 28px;
+}
+.plot {
+  min-width: 0;
+  margin: 0;
+}
+.plot-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.plot h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.plot .delta {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.plot figcaption {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.chart {
+  display: block;
+  width: 100%;
+  height: 220px;
+}
+.chart text {
+  font:
+    12px system-ui,
+    sans-serif;
+  fill: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.chart .frame,
+.chart .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  fill: none;
+}
+.chart .line {
+  stroke: var(--series);
+  stroke-width: 1.6;
+  fill: none;
+}
+.chart .candidate {
+  stroke-dasharray: 4 4;
+}
+.chart .point {
+  fill: var(--series);
+}
+.chart .selected-baseline {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.chart .whisker {
+  stroke: var(--muted);
+  fill: none;
+  stroke-width: 1;
+}
+.chart .value {
+  font-weight: 600;
+}
+.chart .empty {
+  fill: var(--muted);
+  font-size: 13px;
+}
+.legend,
+footer {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 18px;
+}
+details {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-top: 24px;
+  padding: 14px 0;
+}
+summary {
+  cursor: pointer;
+  font-weight: 500;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 12px;
+}
+th,
+td {
+  text-align: right;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+th:first-child,
+td:first-child {
+  text-align: left;
+  padding-left: 0;
+}
+tr:last-child td {
+  border-bottom: 0;
+}
+#evidence {
+  margin-top: 24px;
+}
+#evidence p,
+#evidence li {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+#records {
+  padding-left: 20px;
+}
+#records li {
+  margin-bottom: 8px;
+}
+a {
+  color: var(--series);
+  text-underline-offset: 3px;
+}
+footer {
+  max-width: 95ch;
+}
+@media (max-width: 420px) {
+  h1 {
+    font-size: 26px;
+  }
+  main {
+    padding-top: 20px;
+  }
+}

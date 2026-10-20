@@ -19,6 +19,27 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
    store's submission result separately. Store approval and public availability
    still require separate verification.
 
+## Performance evidence
+
+After packaging, the build records exact Chrome/Firefox ZIP sizes and verifies
+each ZIP against its unpacked files. The `bundle-*.json` and Markdown reports
+are included in the checksummed build artifact and attached to the release.
+A separate job opens a draft data-only PR to archive them under
+`notes/performance/runs/`.
+
+The independent **Advisory Performance History** workflow compares the frozen
+release tag with the preceding release using a common profiling harness. It
+can also be dispatched manually. Timings have no release-blocking budgets;
+publishing jobs do not depend on runtime measurement or archive jobs. Capture
+failures retain diagnostics and never create partial successful records.
+Runtime results and an offline viewer are uploaded as workflow artifacts.
+Complete runtime JSON and Markdown reports are also attached to the release,
+and a draft data-only PR preserves the records in Git.
+
+Use `pnpm performance:preview` to view archived history. Full instructions,
+including downloading new CI observations before merging their archive PR,
+are in [notes/performance/README.md](../notes/performance/README.md).
+
 ## Manual 3.0.0 baseline and minimum automated version
 
 The browser-store 3.0.0 rollout used source commit

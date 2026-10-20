@@ -1,0 +1,141 @@
+name: Advisory Performance History
+
+on:
+  workflow_dispatch:
+    inputs:
+      head:
+        description: Candidate branch, tag, or commit
+        default: master
+        required: true
+      base:
+        description: Previous release ref, or auto (respects the manual 3.0 baseline)
+        default: auto
+        required: true
+  workflow_call:
+    inputs:
+      head:
+        type: string
+        required: true
+      base:
+        type: string
+        default: auto
+      release_tag:
+        type: string
+        default: ''
+    secrets:
+      archive_token:
+        required: false
+      RELEASE_PLEASE_TOKEN:
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: performance-history-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    name: Compare frozen revisions (advisory)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      artifact_name: ${{ steps.artifact.outputs.name }}
+    steps:
+      - name: Identify this capture artifact
+        id: artifact
+        run: echo "name=performance-runtime-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+          run_install: false
+      - name: Install pinned profiling dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Install pinned Chromium
+        run: pnpm --filter integration-test exec playwright install --with-deps chromium
+      - name: Measure startup, search, scrolling, heap, and drag
+        env:
+          CANDIDATE_REF: ${{ inputs.head }}
+          BASELINE_REF: ${{ inputs.base }}
+        run: >-
+          pnpm performance:compare
+          --head "$CANDIDATE_REF" --base "$BASELINE_REF"
+          --id "runtime-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          --output .tmp/performance-results
+      - name: Upload complete records and offline viewer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: |
+            .tmp/performance-results/runs/
+            .tmp/performance-results/*.md
+            .tmp/performance-results/viewer/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload incomplete-capture diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/performance-results/*-diagnostics.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+  archive:
+    name: Open data-only archive PR
+    needs: measure
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.measure.outputs.artifact_name }}
+          path: .tmp/performance-import
+      - name: Archive validated observations
+        env:
+          GH_TOKEN: ${{ secrets.archive_token || secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          ARCHIVE_BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          node scripts/performance/archive-pr.mjs
+          --input .tmp/performance-import/runs
+          --branch "automation/performance-runtime-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+  attach-release-evidence:
+    name: Attach runtime evidence to release
+    needs: measure
+    if: ${{ inputs.release_tag != '' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.measure.outputs.artifact_name }}
+          path: performance-evidence
+      - name: Attach complete baseline and candidate records
+        env:
+          GH_TOKEN: ${{ secrets.archive_token || secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh release upload "$RELEASE_TAG" \
+            performance-evidence/runs/*.json performance-evidence/*.md \
+            --repo "$GITHUB_REPOSITORY"

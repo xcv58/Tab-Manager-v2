@@ -1,0 +1,73 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const http = require('node:http');
+const { chromium } = require('./master/packages/integration_test/node_modules/playwright');
+const root = __dirname;
+const samples = [];
+const errors = [];
+const read = page => page.locator('#profile-metrics').textContent().then(JSON.parse);
+const save = () => fs.writeFileSync(path.join(root,'runtime-raw.json'), JSON.stringify({environment,samples,errors},null,2)+'\n');
+const environment = {node:process.version,platform:process.platform,arch:process.arch,viewport:{width:2320,height:989},samplesPerCase:7,headless:true,externalRequests:'blocked',fixture:'single source group plus 12 destination tabs',gc:'HeapProfiler.collectGarbage then Runtime.getHeapUsage',profiling:true};
+const server = http.createServer((req,res)=>{
+  const pathname = new URL(req.url,'http://127.0.0.1').pathname;
+  const file = path.resolve(root,'.'+pathname);
+  if (!file.startsWith(root+path.sep)) {res.writeHead(403).end();return;}
+  fs.readFile(file,(err,data)=>{
+    if(err){res.writeHead(404).end();return;}
+    const types={'.js':'text/javascript','.html':'text/html','.css':'text/css','.png':'image/png'};
+    res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'public,max-age=3600'});
+    res.end(data);
+  });
+});
+(async()=>{
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const port=server.address().port;
+  const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--enable-precise-memory-info','--disable-background-timer-throttling','--disable-renderer-backgrounding']});
+  environment.browser=browser.version();
+  const contexts={};
+  for(const revision of ['legacy','release','master']) {
+    contexts[revision]=await browser.newContext({viewport:environment.viewport,serviceWorkers:'block'});
+    await contexts[revision].route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+  }
+  const run=async(revision,tabs,iteration,warmup=false)=>{
+    const page=await contexts[revision].newPage();
+    page.on('pageerror',e=>errors.push({revision,tabs,iteration,message:e.message}));
+    await page.goto(`http://127.0.0.1:${port}/profile-${revision}/index.html?not_popup=1#scenario=single-window&tabs=${tabs}&grouped=1`,{waitUntil:'load'});
+    await page.waitForFunction(()=>{try{const m=JSON.parse(document.querySelector('#profile-metrics').textContent);return m.readyMs>0&&m.mountedRows>0;}catch{return false;}},{},{timeout:30000});
+    await page.waitForTimeout(250);
+    const startup=await read(page);
+    if(startup.tabCount!==tabs+12)throw new Error('Fixture mismatch '+JSON.stringify(startup));
+    const cdp=await contexts[revision].newCDPSession(page);
+    await cdp.send('HeapProfiler.collectGarbage');
+    const heap=await cdp.send('Runtime.getHeapUsage');
+    const search={};
+    const input=page.getByPlaceholder('Search tabs or URLs');
+    for(const query of ['Needle','Work']) {
+      await page.locator('#reset-metrics').click();
+      await input.fill(query);
+      await page.waitForFunction(q=>{const m=JSON.parse(document.querySelector('#profile-metrics').textContent);return m.effectiveQuery===q&&m.searchWorkspaceMs>0;},query,{timeout:30000});
+      search[query]=await read(page);
+      await input.fill('');
+      await page.waitForFunction(()=>JSON.parse(document.querySelector('#profile-metrics').textContent).effectiveQuery==='');
+      await page.waitForTimeout(250);
+    }
+    if(!warmup) {
+      samples.push({revision,tabs,iteration,startup,heap,search});
+      save();
+      console.log(JSON.stringify({revision,tabs,iteration,ready:startup.readyMs,heap:heap.usedSize,needle:search.Needle.searchWorkspaceMs,work:search.Work.searchWorkspaceMs,rows:startup.mountedRows}));
+    }
+    await cdp.detach();
+    await page.close();
+  };
+  try {
+    for(const tabs of [100,1000,5000]) {
+      for(const revision of ['legacy','release','master'])await run(revision,tabs,-1,true);
+      const orders=[['legacy','release','master'],['release','master','legacy'],['master','legacy','release'],['master','release','legacy'],['release','legacy','master'],['legacy','master','release'],['legacy','release','master']];
+      for(let i=0;i<7;i++)for(const revision of orders[i])await run(revision,tabs,i);
+    }
+  } finally {
+    save();
+    await browser.close();
+    await new Promise(resolve=>server.close(resolve));
+  }
+})().catch(e=>{console.error(e);process.exitCode=1;server.close();});
