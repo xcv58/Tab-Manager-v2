@@ -1,14 +1,10 @@
-import { isSafari } from 'libs/browserCapabilities'
-import emptyTabIcon from 'img/chrome/empty.png'
 import type { PreviewConfig } from './TabRowPreview'
 
 // Local-only examples; previews never fetch favicons or operate on browser tabs.
 export const previewIcon = (letter: string, color: string) =>
-  isSafari
-    ? emptyTabIcon
-    : `data:image/svg+xml,${encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" rx="7" fill="${color}"/><text x="16" y="22" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="white">${letter}</text></svg>`,
-      )}`
+  `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" rx="7" fill="${color}"/><text x="16" y="22" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="white">${letter}</text></svg>`,
+  )}`
 
 export type PreviewWindow = {
   id: number

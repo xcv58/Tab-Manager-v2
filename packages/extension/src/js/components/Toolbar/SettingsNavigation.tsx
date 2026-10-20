@@ -21,6 +21,8 @@ const aliases: Record<string, string> = {
   'Auto-fit columns': 'horizontal scrolling layout responsive',
   'Window order': 'recent last used default sort',
   'Show tab icons': 'favicon favicons',
+  'Load website icons':
+    'favicon favicons safari initials website access privacy permissions',
   'Show URLs': 'address links',
   'Show tab tooltips': 'hover title url length lines copy expand',
   'Mark duplicate tabs': 'duplicates identical same url',

@@ -39,7 +39,7 @@
             Privacy Policy
           </h1>
           <p class="page-meta" data-page-copy="privacyDate">
-            Effective date: March 11, 2026
+            Effective date: October 19, 2026
           </p>
         </header>
         <article class="page-prose" aria-labelledby="policy-title">
@@ -63,9 +63,10 @@
                 your browser’s tab groups, where supported
               </li>
               <li data-page-copy="privacyAccessHistory">
-                browser history results when "Include browser history in
-                results" is on; this setting is on by default and can be turned
-                off in Settings
+                browser history results in Chrome, Edge, and Firefox when
+                “Include browser history in results” is on; this setting is on
+                by default and can be turned off. Safari does not search
+                browsing history
               </li>
               <li data-page-copy="privacyAccessContainers">
                 Firefox containers and the related information that keeps their
@@ -112,8 +113,9 @@
               </li>
             </ul>
             <p data-page-copy="privacyStorageSync">
-              If you enable browser sync, your browser provider may sync these
-              settings under its own privacy policy.
+              Safari stores its settings locally. In other browsers, settings
+              may be synchronized by the browser provider if you enable browser
+              sync, under that provider’s privacy policy.
             </p>
             <details class="permission-details">
               <summary data-page-copy="storageDetailsTitle">
@@ -131,10 +133,11 @@
               Permissions
             </h2>
             <p data-page-copy="privacyPermissionsIntro">
-              Tab Manager v2 needs access to open tabs and windows, saved
-              settings, and supported browser features. Browser history search
-              is on by default; turn off “Include browser history in results” in
-              Settings to exclude it.
+              Permissions depend on the browser. All versions need open-tab and
+              window access and saved settings. Safari requests website access
+              to display tab titles and URLs, and optional website access for
+              icon loading. Browser-history search is available in Chrome, Edge,
+              and Firefox; its setting can be turned off.
             </p>
             <details class="permission-details">
               <summary data-page-copy="permissionDetailsTitle">
@@ -175,6 +178,14 @@
               We do not receive your tabs, windows, browser history, or settings
               on our own servers.
             </p>
+            <p data-page-copy="privacyNetworkSafariIcons">
+              In Safari, website icons use locally generated initials by
+              default. If you enable "Load website icons" and allow website
+              access, the extension reads icon links from those pages and
+              downloads icons directly from the same websites, without cookies
+              or referrers. Icons are cached in extension memory. No favicon
+              lookup service is used, and private tabs are excluded.
+            </p>
             <p data-page-copy="privacyNetworkLinks">
               The extension and docs include links to third-party sites such as
               browser stores, GitHub, and support pages. If you open those
@@ -182,10 +193,10 @@
               privacy policies.
             </p>
             <p data-page-copy="privacyNetworkFonts">
-              The extension popup currently references Google Fonts. When your
-              browser loads that stylesheet or related font assets, those
-              requests are made directly to Google and are governed by Google's
-              privacy policy.
+              The Chrome, Edge, and Firefox popup references Google Fonts.
+              Safari does not load Google Fonts. When your browser loads that
+              stylesheet or related font assets, those requests are made
+              directly to Google and are governed by Google's privacy policy.
             </p>
           </section>
 

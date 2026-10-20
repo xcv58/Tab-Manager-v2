@@ -35,3 +35,15 @@ it('drops invalid limits and restores only allowed preferences from storage', ()
     showTabTooltip: true,
   })
 })
+
+it('restores the icon preview opt-in without saving website access or tab data', () => {
+  saveDemoPreferences({
+    loadWebsiteIcons: true,
+    origins: ['https://private.example/*'],
+    tabs: [{ url: 'https://private.example' }],
+  })
+  expect(readDemoPreferences()).toEqual({ loadWebsiteIcons: true })
+  saveDemoPreferences({ loadWebsiteIcons: false })
+  expect(readDemoPreferences()).toEqual({ loadWebsiteIcons: false })
+  expect(sanitizePreferences({ loadWebsiteIcons: 'true' })).toEqual({})
+})

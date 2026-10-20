@@ -17,6 +17,7 @@ exports[`Icon should render correct component 1`] = `
         type="button"
       >
         <img
+          alt=""
           class="w-6 h-6"
           src="url"
           style="width: 20px; height: 20px;"

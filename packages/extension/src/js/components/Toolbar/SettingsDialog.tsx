@@ -42,6 +42,8 @@ import {
   AppearancePreview,
 } from './SettingsExamples'
 import SettingsPopupPreview from './SettingsPopupPreview'
+import WebsiteIconOption from './WebsiteIconOption'
+import { websiteIcons } from 'libs/websiteIcons'
 import SettingsNavigation, {
   type SettingsNavigationState,
   type SettingsSectionId,
@@ -916,6 +918,12 @@ export default observer(() => {
                 onChange={toggleShowTabIcon}
                 style={rowDetailOptionStyle}
               />
+              {websiteIcons && (
+                <WebsiteIconOption
+                  data-setting-search="Load website icons"
+                  style={rowDetailOptionStyle}
+                />
+              )}
               <RowDetailsOption
                 testId="row-details-option-urls"
                 title="Show URLs"
@@ -1007,7 +1015,7 @@ export default observer(() => {
             </div>
             <div
               className="settings-shared-preview"
-              data-settings-preview="Highlight all active tabs|Mark duplicate tabs|Show tab icons|Show URLs|Show tab tooltips"
+              data-settings-preview="Highlight all active tabs|Mark duplicate tabs|Show tab icons|Load website icons|Show URLs|Show tab tooltips"
             >
               <TabDetailsPreview />
             </div>

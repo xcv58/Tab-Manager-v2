@@ -6,6 +6,7 @@ import IconButton from 'components/ui/IconButton'
 import { useStore } from 'components/hooks/useStore'
 import { TabProps } from 'components/types'
 import { DEFAULT_CONTROL_SIZE } from 'libs/layoutMetrics'
+import TabIconImage from './TabIconImage'
 
 const ARIA_LABEL = 'Toggle select'
 const CONTROL_SLOT_CLASS =
@@ -16,7 +17,7 @@ const CONTROL_LAYER_CLASS =
 export const Icon = observer((props: TabProps) => {
   const { userStore } = useStore()
   const { disableSequentialFocus } = props
-  const { focus, select, iconUrl, isSelected, bulkSelect } = props.tab
+  const { focus, select, isSelected, bulkSelect } = props.tab
   const [selectionControlFocused, setSelectionControlFocused] =
     React.useState(false)
   const focusInnerControl = () => {
@@ -80,11 +81,7 @@ export const Icon = observer((props: TabProps) => {
           onClick={() => select()}
           onFocus={focusInnerControl}
         >
-          <img
-            className="w-6 h-6"
-            style={{ width: 20, height: 20 }}
-            src={iconUrl}
-          />
+          <TabIconImage tab={props.tab} />
         </IconButton>
       </div>
       <div
@@ -101,12 +98,12 @@ export const Icon = observer((props: TabProps) => {
   )
 })
 
-export default observer((props: TabProps) => {
-  const { faked, tab, disableSequentialFocus } = props
+// Search rows use non-interactive icon controls, but still show live icons.
+export default observer((props: TabProps & { liveIcon?: boolean }) => {
+  const { faked, tab, disableSequentialFocus, liveIcon } = props
   if (!faked) {
     return <Icon tab={tab} disableSequentialFocus={disableSequentialFocus} />
   }
-  const { iconUrl } = tab
   return (
     <div
       className={CONTROL_SLOT_CLASS}
@@ -117,11 +114,7 @@ export default observer((props: TabProps) => {
         aria-label={ARIA_LABEL}
         className="focus:outline-none focus:ring"
       >
-        <img
-          className="w-6 h-6"
-          style={{ width: 20, height: 20 }}
-          src={iconUrl}
-        />
+        <TabIconImage tab={tab} faked={!liveIcon} />
       </IconButton>
     </div>
   )

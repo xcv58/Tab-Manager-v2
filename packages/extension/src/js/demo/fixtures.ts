@@ -190,6 +190,8 @@ const getWindowTabCounts = (scenario: DemoScenarioId): number[] => {
       return []
     case 'one-tab':
       return [1]
+    case 'safari-icons':
+      return [6, 6]
     case 'duplicates':
       return [8, 8, 8]
     case 'large':
@@ -247,6 +249,7 @@ const getGroupSpecs = (
     case 'empty':
     case 'one-tab':
     case 'ungrouped':
+    case 'safari-icons':
       return []
     case 'many-windows':
       return tabCount < 8
@@ -411,6 +414,15 @@ export const createDemoFixture = (scenario: DemoScenarioId) => {
       }
       if (scenario === 'mixed-states')
         applyMixedTabStates(tab, index, windowIndex)
+      if (scenario === 'safari-icons' && windowIndex === 1 && index === 4) {
+        tab.title = 'Website without an available icon'
+        tab.favIconUrl = ''
+      }
+      if (scenario === 'safari-icons' && windowIndex === 1 && index === 5) {
+        tab.title = 'Start Page'
+        tab.url = 'about:blank'
+        tab.favIconUrl = ''
+      }
       return tab
     })
     const win = createDemoWindow(windowId, tabs)

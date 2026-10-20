@@ -2,6 +2,98 @@
   // Each pair is Simplified and Traditional Chinese. Markup comes only from
   // these checked-in strings, preserving inline code, keyboard keys, and links.
   const copy = {
+    browserSupport: [
+      'Chrome、Edge 和 Firefox 可从各自的扩展商店安装。Safari macOS 版已通过 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight 开放公开测试</a>。请查看 <a href="#safari">Safari 设置</a>和<a href="#browser-features">浏览器对比</a>。',
+      'Chrome、Edge 和 Firefox 可從各自的擴充功能商店安裝。Safari macOS 版已透過 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight 開放公開測試</a>。請查看 <a href="#safari">Safari 設定</a>和<a href="#browser-features">瀏覽器比較</a>。',
+    ],
+    quickStartSelect: [
+      '选择匹配的标签页，一起关闭、重新加载、固定、复制或导出。移动和分组取决于浏览器支持情况。',
+      '選取符合的分頁，一起關閉、重新載入、釘選、複製或匯出。移動和分組取決於瀏覽器支援情況。',
+    ],
+    moveTabsTip: [
+      '在 Chrome、Edge 和 Firefox 中，可通过窗口操作将所选标签页移至窗口开头或末尾，或拖到标题栏的放置区域。Safari 不支持移动标签页或调整顺序。',
+      '在 Chrome、Edge 和 Firefox 中，可透過視窗操作將所選分頁移至視窗開頭或結尾，或拖到標題列的放置區域。Safari 不支援移動分頁或調整順序。',
+    ],
+    groupsBody: [
+      '在 Chrome、Edge 和 Firefox 中，可对支持的标签页组命名、改色、折叠或取消分组。选择同一窗口中的标签页可创建分组。Safari 不提供分组编辑，只显示活动分组。',
+      '在 Chrome、Edge 和 Firefox 中，可對支援的分頁群組命名、改色、收合或取消分組。選取同一視窗中的分頁可建立群組。Safari 不提供群組編輯，只顯示作用中的群組。',
+    ],
+    historyBody: [
+      'Chrome、Edge 和 Firefox 默认搜索浏览器历史记录。关闭设置中的 <strong>Include browser history in results</strong> 后只搜索打开的标签页。Safari 只搜索打开的标签页。有关访问权限和数据存储，请阅读<a href="../privacy/">隐私政策</a>。',
+      'Chrome、Edge 和 Firefox 預設搜尋瀏覽器歷史紀錄。關閉設定中的 <strong>Include browser history in results</strong> 後只搜尋開啟的分頁。Safari 只搜尋開啟的分頁。有關存取權限和資料儲存，請閱讀<a href="../privacy/">隱私政策</a>。',
+    ],
+    settingsBody: [
+      '打开设置并搜索主题、对比度、布局、工具栏、标签页详情或搜索选项。预览展示变化。Safari 在本机保存设置；其他浏览器可在启用浏览器同步时同步设置。网站的主题和语言设置独立保存。',
+      '開啟設定並搜尋主題、對比度、版面、工具列、分頁詳情或搜尋選項。預覽展示變化。Safari 在本機儲存設定；其他瀏覽器可在啟用瀏覽器同步時同步設定。網站的主題和語言設定獨立儲存。',
+    ],
+    liteModeBody: [
+      '精简弹窗支持查找、切换、关闭、固定、重新加载、复制和查看标签页详情。打开完整视图可使用批量操作、导出、设置和快捷键帮助。移动和分组需要浏览器支持。Escape 重置普通搜索；菜单或对话框打开时则先关闭它。',
+      '精簡彈出視窗支援尋找、切換、關閉、釘選、重新載入、複製和查看分頁詳情。開啟完整檢視可使用批次操作、匯出、設定和快速鍵說明。移動和分組需要瀏覽器支援。Escape 重設一般搜尋；選單或對話框開啟時則先關閉它。',
+    ],
+    privacyDate: [
+      '生效日期：2026 年 10 月 19 日',
+      '生效日期：2026 年 10 月 19 日',
+    ],
+    privacyAccessHistory: [
+      'Chrome、Edge 和 Firefox 中启用“Include browser history in results”时的浏览器历史结果；该选项默认开启，可关闭。Safari 不搜索浏览历史',
+      'Chrome、Edge 和 Firefox 中啟用「Include browser history in results」時的瀏覽器歷史結果；該選項預設開啟，可關閉。Safari 不搜尋瀏覽紀錄',
+    ],
+    privacyPermissionsIntro: [
+      '权限因浏览器而异。所有版本需要访问打开的标签页、窗口和保存的设置。Safari 会请求网站访问权限以显示标题和网址，并为图标加载请求可选的网站访问权限。Chrome、Edge 和 Firefox 提供浏览历史搜索，可在设置中关闭。',
+      '權限因瀏覽器而異。所有版本需要存取開啟的分頁、視窗和儲存的設定。Safari 會要求網站存取權限以顯示標題和網址，並為圖示載入要求可選的網站存取權限。Chrome、Edge 和 Firefox 提供瀏覽紀錄搜尋，可在設定中關閉。',
+    ],
+    privacyStorageSync: [
+      'Safari 在本机保存设置。其他浏览器可在你启用浏览器同步时，按照其提供商的隐私政策同步设置。',
+      'Safari 在本機儲存設定。其他瀏覽器可在你啟用瀏覽器同步時，按照其提供者的隱私政策同步設定。',
+    ],
+    safariTitle: ['Safari macOS 版', 'Safari macOS 版'],
+    safariIntro: [
+      'Safari 版本是适用于 macOS 的公开测试版。通过 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 安装。',
+      'Safari 版本是適用於 macOS 的公開測試版。透過 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 安裝。',
+    ],
+    safariInstall: [
+      '安装 TestFlight，接受测试邀请并安装 Tab Manager v2，然后打开已安装的应用。',
+      '安裝 TestFlight，接受測試邀請並安裝 Tab Manager v2，然後開啟已安裝的 App。',
+    ],
+    safariEnable: [
+      '打开 Safari 设置 → 扩展，为你要使用的个人资料启用 Tab Manager v2。',
+      '開啟 Safari 設定 → 延伸功能，為你要使用的個人檔案啟用 Tab Manager v2。',
+    ],
+    safariAccess: [
+      'Safari 询问时允许网站访问，以显示标签页标题和网址。如有标题或网址缺失，请检查 Safari 的网站访问设置并刷新管理器。',
+      'Safari 詢問時允許網站存取，以顯示分頁標題和網址。如有標題或網址缺失，請檢查 Safari 的網站存取設定並重新整理管理器。',
+    ],
+    safariOpen: [
+      '点击 Safari 工具栏图标打开弹窗。Control+O 打开完整浏览器标签页，Control+T 打开独立管理器窗口，Option+B 循环切换最近使用的标签页。',
+      '點擊 Safari 工具列圖示開啟彈出視窗。Control+O 開啟完整瀏覽器分頁，Control+T 開啟獨立管理器視窗，Option+B 循環切換最近使用的分頁。',
+    ],
+    safariScope: [
+      'Safari 显示当前个人资料中的普通窗口，以及 Safari 提供的活动标签页组。不包括非活动分组和隐私窗口。',
+      'Safari 顯示目前個人檔案中的一般視窗，以及 Safari 提供的作用中分頁群組。不包括非作用中的群組和私密視窗。',
+    ],
+    safariIcons: [
+      '网站标签页默认显示本机生成的首字母图标。“Load website icons”是可选功能；允许打开的网站后，直接从这些网站下载图标。缺失或无法访问的图标继续显示首字母。',
+      '網站分頁預設顯示本機產生的首字母圖示。「Load website icons」是可選功能；允許開啟的網站後，直接從這些網站下載圖示。缺失或無法存取的圖示繼續顯示首字母。',
+    ],
+    browserComparison: ['浏览器对比', '瀏覽器比較'],
+    comparisonFeature: ['功能', '功能'],
+    safariBeta: ['Safari macOS 版 · 测试版', 'Safari macOS 版 · 測試版'],
+    comparisonCommon: [
+      '查找、关闭、重新加载、固定、复制和导出标签页',
+      '尋找、關閉、重新載入、釘選、複製和匯出分頁',
+    ],
+    available: ['支持', '支援'],
+    unavailable: ['不支持', '不支援'],
+    whereSupported: ['浏览器支持时可用', '瀏覽器支援時可用'],
+    comparisonMove: ['移动标签页或调整顺序', '移動分頁或調整順序'],
+    comparisonGroups: ['编辑浏览器标签页组', '編輯瀏覽器分頁群組'],
+    comparisonHistory: ['搜索浏览器历史记录', '搜尋瀏覽器歷史紀錄'],
+    comparisonScope: ['工作区范围', '工作區範圍'],
+    browserDependent: ['取决于浏览器权限', '取決於瀏覽器權限'],
+    safariScopeShort: [
+      '当前个人资料和活动标签页组；不包括隐私窗口',
+      '目前個人檔案和作用中的分頁群組；不包括私密視窗',
+    ],
     skip: ['跳到主要内容', '跳到主要內容'],
     overview: ['总览', '總覽'],
     demo: ['试用演示', '試用示範'],
@@ -23,10 +115,6 @@
       '安裝 Tab Manager v2，了解快速鍵和瀏覽器功能，取得協助或回報問題。',
     ],
     privacyTitle: ['隐私政策', '隱私政策'],
-    privacyDate: [
-      '生效日期：2026 年 3 月 11 日',
-      '生效日期：2026 年 3 月 11 日',
-    ],
     privacyIntro: [
       'Tab Manager v2 帮助你管理标签页和窗口。标签页、窗口、历史记录和设置数据留在你的浏览器中，不会发送到我们的服务器。无需账户，扩展也不包含使用情况分析或广告跟踪工具。',
       'Tab Manager v2 幫助你管理分頁和視窗。分頁、視窗、歷史紀錄和設定資料留在你的瀏覽器中，不會傳送到我們的伺服器。無需帳戶，擴充功能也不包含使用情況分析或廣告追蹤工具。',
@@ -40,10 +128,6 @@
     privacyAccessGroups: [
       '浏览器的标签页组（如果支持）',
       '瀏覽器的分頁群組（如果支援）',
-    ],
-    privacyAccessHistory: [
-      '“Include browser history in results”（在结果中包含浏览器历史记录）开启时的浏览器历史记录结果；该设置默认开启，可在设置中关闭',
-      '「Include browser history in results」（在結果中包含瀏覽器歷史紀錄）開啟時的瀏覽器歷史紀錄結果；此設定預設開啟，可在設定中關閉',
     ],
     privacyAccessContainers: [
       'Firefox 容器及用于区分其登录身份的相关信息',
@@ -82,15 +166,7 @@
       '屏幕边界和检测到的系统主题等显示信息，用于调整弹出窗口的大小和位置',
       '螢幕邊界和偵測到的系統主題等顯示資訊，用於調整彈出視窗的大小和位置',
     ],
-    privacyStorageSync: [
-      '如果你启用浏览器同步，浏览器提供商可能会依据其隐私政策同步这些设置。',
-      '如果你啟用瀏覽器同步，瀏覽器供應商可能會依據其隱私政策同步這些設定。',
-    ],
     privacyPermissionsTitle: ['权限', '權限'],
-    privacyPermissionsIntro: [
-      'Tab Manager v2 需要访问打开的标签页和窗口、保存的设置，以及浏览器支持的功能。历史记录搜索默认开启；在 Settings（设置）中关闭“Include browser history in results”即可排除历史记录。',
-      'Tab Manager v2 需要存取開啟的分頁和視窗、儲存的設定，以及瀏覽器支援的功能。歷史紀錄搜尋預設開啟；在 Settings（設定）中關閉「Include browser history in results」即可排除歷史紀錄。',
-    ],
     privacyPermissionTabs: [
       '<code>tabs</code>：读取和管理打开的标签页和窗口',
       '<code>tabs</code>：讀取和管理開啟的分頁和視窗',
@@ -120,13 +196,17 @@
       '我们不会在自己的服务器上接收你的标签页、窗口、浏览器历史记录或设置。',
       '我們不會在自己的伺服器上接收你的分頁、視窗、瀏覽器歷史紀錄或設定。',
     ],
+    privacyNetworkSafariIcons: [
+      'Safari 默认使用在本机生成的首字母图标。只有开启“Load website icons”（加载网站图标）并允许网站访问后，扩展才会读取这些页面的图标链接，直接从同一网站下载图标，不发送 Cookie 或来源页面信息。图标缓存在扩展内存中，不使用图标查询服务，也不访问隐私标签页。',
+      'Safari 預設使用在本機產生的首字母圖示。只有開啟「Load website icons」（載入網站圖示）並允許網站存取後，擴充功能才會讀取這些頁面的圖示連結，直接從同一網站下載圖示，不傳送 Cookie 或來源頁面資訊。圖示快取儲存在擴充功能記憶體中，不使用圖示查詢服務，也不存取私密分頁。',
+    ],
     privacyNetworkLinks: [
       '扩展和文档包含指向浏览器商店、GitHub 和支持页面等第三方网站的链接。如果你打开这些链接，你与这些网站的交互受其隐私政策约束。',
       '擴充功能和文件包含指向瀏覽器商店、GitHub 和支援頁面等第三方網站的連結。如果你開啟這些連結，你與這些網站的互動受其隱私政策約束。',
     ],
     privacyNetworkFonts: [
-      '扩展的弹出界面目前引用 Google Fonts。当浏览器加载该样式表或相关字体资源时，这些请求会直接发送给 Google，并受 Google 的隐私政策约束。',
-      '擴充功能的彈出介面目前引用 Google Fonts。當瀏覽器載入該樣式表或相關字型資源時，這些請求會直接傳送給 Google，並受 Google 的隱私政策約束。',
+      'Chrome、Edge 和 Firefox 的弹出界面引用 Google Fonts。Safari 不加载 Google Fonts。当浏览器加载该样式表或相关字体资源时，这些请求会直接发送给 Google，并受 Google 的隐私政策约束。',
+      'Chrome、Edge 和 Firefox 的彈出介面引用 Google Fonts。Safari 不載入 Google Fonts。當瀏覽器載入該樣式表或相關字型資源時，這些請求會直接傳送給 Google，並受 Google 的隱私政策約束。',
     ],
     privacyRetentionTitle: ['数据保留和控制', '資料保留和控制'],
     privacyRetentionStorage: [
@@ -171,10 +251,6 @@
       '选择与你的浏览器对应的商店。安装后，从浏览器工具栏打开 Tab Manager v2。',
       '選擇與你的瀏覽器對應的商店。安裝後，從瀏覽器工具列開啟 Tab Manager v2。',
     ],
-    browserSupport: [
-      '请使用 Chrome、Edge 或 Firefox。目前没有 Safari 版本。后续进展请见<a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545">Safari 相关讨论</a>。',
-      '請使用 Chrome、Edge 或 Firefox。目前沒有 Safari 版本。後續進展請見<a href="https://github.com/xcv58/Tab-Manager-v2/issues/2545">Safari 相關討論</a>。',
-    ],
     quickStartTitle: ['快速开始', '快速開始'],
     quickStartOpen: [
       '从浏览器工具栏打开扩展，或在独立标签页或窗口中打开，获得更大的视图。',
@@ -184,15 +260,7 @@
       '按 <kbd>/</kbd> 搜索所有窗口中的打开标签页。在 macOS 上按 <kbd>Command</kbd> + <kbd>K</kbd>，在 Windows/Linux 上按 <kbd>Alt</kbd> + <kbd>K</kbd> 打开命令面板。<kbd>&gt;</kbd> 仍是别名；按 <kbd>?</kbd> 查看快捷键帮助。',
       '按 <kbd>/</kbd> 搜尋所有視窗中的開啟分頁。在 macOS 上按 <kbd>Command</kbd> + <kbd>K</kbd>，在 Windows/Linux 上按 <kbd>Alt</kbd> + <kbd>K</kbd> 開啟指令面板。<kbd>&gt;</kbd> 仍是別名；按 <kbd>?</kbd> 查看快速鍵說明。',
     ],
-    quickStartSelect: [
-      '选择匹配的标签页，然后批量移动、分组或关闭。',
-      '選取符合的分頁，然後批次移動、分組或關閉。',
-    ],
     shortcutsTitle: ['常用快捷键', '常用快速鍵'],
-    moveTabsTip: [
-      '使用 Window actions 将所选标签页移到窗口开头或末尾，或将其拖到标题栏上的拖放目标。目标标签页的菜单可将所选标签页移到该标签页之前或之后。',
-      '使用 Window actions 將所選分頁移到視窗開頭或結尾，或將其拖到標題列上的拖放目標。目標分頁的選單可將所選分頁移到該分頁之前或之後。',
-    ],
     shortcutAction: ['操作', '操作'],
     shortcutKeys: ['快捷键', '快速鍵'],
     shortcutFocus: ['聚焦标签页搜索', '聚焦分頁搜尋'],
@@ -217,35 +285,19 @@
     ],
     browserFeaturesTitle: ['浏览器功能', '瀏覽器功能'],
     groupsTitle: ['浏览器的标签页组', '瀏覽器的分頁群組'],
-    groupsBody: [
-      '如果浏览器支持标签页组，你可以在 Tab Manager v2 中为组命名、更改颜色、折叠或取消分组。选择同一窗口中的标签页即可创建组。请用有名称的组整理相关标签页；目前不能自定义窗口名称。',
-      '如果瀏覽器支援分頁群組，你可以在 Tab Manager v2 中為群組命名、更改顏色、摺疊或取消分組。選取同一視窗中的分頁即可建立群組。請用有名稱的群組整理相關分頁；目前不能自訂視窗名稱。',
-    ],
     historyTitle: ['显示或隐藏浏览器历史记录', '顯示或隱藏瀏覽器歷史紀錄'],
-    historyBody: [
-      '搜索默认包含浏览器历史记录。如果只想搜索打开的标签页，请在 Settings（设置）中关闭 <strong>Include browser history in results</strong>。有关浏览器访问和保存数据的详情，请阅读<a href="../privacy/">隐私政策</a>。',
-      '搜尋預設包含瀏覽器歷史紀錄。如果只想搜尋開啟的分頁，請在 Settings（設定）中關閉 <strong>Include browser history in results</strong>。有關瀏覽器存取和儲存資料的詳情，請閱讀<a href="../privacy/">隱私政策</a>。',
-    ],
     containersTitle: ['Firefox 容器', 'Firefox 容器'],
     containersBody: [
       'Firefox 容器可将不同的登录身份分开。功能可用时，Tab Manager v2 可以管理容器中的标签页。容器与标签页组不同，需要安装扩展才能使用。',
       'Firefox 容器可將不同的登入身分分開。功能可用時，Tab Manager v2 可以管理容器中的分頁。容器與分頁群組不同，需要安裝擴充功能才能使用。',
     ],
     settingsTitle: ['设置和外观', '設定和外觀'],
-    settingsBody: [
-      '打开 Settings（设置），搜索想调整的主题、对比度、布局、工具栏显示、Title line limit（标题行数）、URL line limit（网址行数）或搜索偏好。预览会显示变化。浏览器会保存这些设置；如果你启用浏览器同步，也可以在设备间同步。网站的主题和语言设置与扩展分开。',
-      '開啟 Settings（設定），搜尋想調整的主題、對比、版面配置、工具列顯示、Title line limit（標題行數）、URL line limit（網址行數）或搜尋偏好。預覽會顯示變化。瀏覽器會儲存這些設定；如果你啟用瀏覽器同步，也可以在裝置間同步。網站的主題和語言設定與擴充功能分開。',
-    ],
     tabActionsTitle: ['标签页操作与复制', '分頁操作與複製'],
     tabActionsBody: [
       '右键点击标签页、窗口标题栏或标签页组以查看操作。悬停标签页即可选择标题和网址文字，复制或展开长文本。在完整视图中，选中标签页并在角落的操作搜索中输入文字，即可一起移动、重新加载、复制或保存。按 Ctrl+Shift+F 聚焦操作搜索；未选择标签页时，该快捷键会聚焦工具栏。按 Esc 返回或收起操作。可复制标题、网址、两者、CSV、TSV、JSON 或 Markdown，也可下载 CSV、TSV、JSON 或 Markdown。复制和导出会保留所选标签页。',
       '在分頁、視窗標題列或分頁群組上按右鍵以查看操作。停留在分頁上即可選取標題和網址文字，複製或展開長文字。在完整檢視中，選取分頁並在角落的操作搜尋中輸入文字，即可一起移動、重新載入、複製或儲存。按 Ctrl+Shift+F 聚焦操作搜尋；未選取分頁時，此快速鍵會聚焦工具列。按 Esc 返回或收合操作。可複製標題、網址、兩者、CSV、TSV、JSON 或 Markdown，也可下載 CSV、TSV、JSON 或 Markdown。複製和匯出會保留所選分頁。',
     ],
     liteModeTitle: ['精简模式中的快捷操作', '精簡模式中的快捷操作'],
-    liteModeBody: [
-      '精简弹出模式提供查找、切换、关闭、固定、重新加载、复制和标签页详情。批量整理、移动、分组、导出、设置和快捷键帮助会在完整的 Tab Manager 中打开。命令面板快捷键仅在 Tab Manager 内生效。Esc 重置普通搜索；如果菜单或对话框打开，则先关闭该层。',
-      '精簡彈出模式提供尋找、切換、關閉、釘選、重新載入、複製和分頁詳情。批次整理、移動、分組、匯出、設定和快速鍵說明會在完整的 Tab Manager 中開啟。指令面板快速鍵僅在 Tab Manager 內生效。Esc 重設一般搜尋；如果選單或對話框開啟，則先關閉該層。',
-    ],
     demoTitle: ['使用演示', '使用示範'],
     demoBody: [
       '<a href="../demo/">交互演示</a>使用真实的扩展界面和示例标签页、标签页组及历史记录。更改仅保留在演示中，不会影响你的真实浏览器标签页。',

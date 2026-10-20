@@ -41,6 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedCopy = {
     'zh-Hans': {
+      'Safari for macOS · Beta': 'Safari macOS 版 · 测试版',
+      'Get Tab Manager v2 for Safari on macOS (TestFlight beta)':
+        '获取 Safari macOS 版 Tab Manager v2（TestFlight 测试版）',
       'See permission names': '查看权限名称',
       'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
         '跨窗口查找标签页，整理相关页面，关闭重复项，复制或分享标签页。',
@@ -222,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '调整颜色、文字大小和布局。搜索设置，修改时即可查看预览。',
       'Before You Install': '安装前常见问题',
       'Common questions before you add it.': '添加扩展前，先看这些常见问题。',
-      'Why is Safari not supported?': '为什么不支持 Safari？',
+      'Does it work with Safari?': '支持 Safari 吗？',
       'Where are my settings stored?': '我的设置存在哪里？',
       'Settings are stored in browser sync storage when the browser supports it. If sync storage is unavailable, the extension falls back to local storage so everything still works.':
         '浏览器支持同步存储时，设置会保存在浏览器同步存储中。如果同步存储不可用，扩展会回退到本地存储，功能照常可用。',
@@ -238,6 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Back to Top': '返回顶部',
     },
     'zh-Hant': {
+      'Safari for macOS · Beta': 'Safari macOS 版 · 測試版',
+      'Get Tab Manager v2 for Safari on macOS (TestFlight beta)':
+        '取得 Safari macOS 版 Tab Manager v2（TestFlight 測試版）',
       'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
         '跨視窗尋找分頁，整理相關頁面，關閉重複項，複製或分享分頁。',
       'Open command palette screenshot': '開啟指令面板截圖',
@@ -419,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Before You Install': '安裝前常見問題',
       'Common questions before you add it.':
         '新增擴充功能前，先看這些常見問題。',
-      'Why is Safari not supported?': '為什麼不支援 Safari？',
+      'Does it work with Safari?': '支援 Safari 嗎？',
       'Where are my settings stored?': '我的設定存在哪裡？',
       'Settings are stored in browser sync storage when the browser supports it. If sync storage is unavailable, the extension falls back to local storage so everything still works.':
         '瀏覽器支援同步儲存時，設定會保存在瀏覽器同步儲存中。如果同步儲存不可用，擴充功能會改用本機儲存，功能照常可用。',
@@ -438,20 +444,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedHtml = {
     'zh-Hans': {
+      'faq.safariBody':
+        '支持。Safari macOS 版 Tab Manager v2 已通过 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 开放公开测试。你可以搜索打开的标签页、关闭重复项并批量操作。请查看 <a href="support/#safari">Safari 设置和支持的功能</a>。',
       'faq.permissionsSummary':
-        '扩展需要访问打开的标签页和窗口、保存的设置，以及标签页组等浏览器功能。搜索默认包含浏览器历史记录；在 Settings（设置）中关闭“Include browser history in results”即可隐藏它。标签页数据留在你的浏览器中。',
-      'faq.safariUnsupportedBody':
-        'Tab Manager v2 支持 Chrome、Edge 和 Firefox。目前没有 Safari 版本。',
+        '扩展需要访问打开的标签页、窗口和保存的设置。Safari 会请求网站访问权限以显示标题和网址。Chrome、Edge 和 Firefox 还提供可选的浏览历史搜索。标签页数据留在你的浏览器中。',
       'faq.permissionsBody':
-        'Tab Manager v2 使用 <code>tabs</code>、<code>storage</code> 和 <code>management</code> 来完成核心的标签页和窗口管理。它还会使用 <code>history</code> 来支持可选的浏览器历史记录搜索设置；在支持的浏览器上使用 <code>tabGroups</code> 来支持浏览器标签页组功能；并在 Firefox 上使用 <code>contextualIdentities</code> 和 <code>cookies</code> 来支持容器相关功能。你的标签页数据会留在浏览器里，扩展不会加入分析或跟踪。',
+        '权限因浏览器而异。所有版本使用 <code>tabs</code> 和 <code>storage</code>。Chrome、Edge 和 Firefox 使用 <code>history</code> 提供可选的历史搜索，并在支持时使用 <code>tabGroups</code>；Firefox 还使用 <code>contextualIdentities</code> 和 <code>cookies</code> 支持容器。Safari 在你开启网站图标时请求可选的网站访问权限。没有分析或跟踪。',
+      'media.browserNote':
+        '画面录制于 Chrome。<a href="support/#browser-features">查看各浏览器支持的功能。</a>',
+      'install.safariNote':
+        'Safari 测试版适用于 macOS。<a href="support/#safari">设置和支持的功能</a>。',
     },
     'zh-Hant': {
+      'faq.safariBody':
+        '支援。Safari macOS 版 Tab Manager v2 已透過 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 開放公開測試。你可以搜尋開啟的分頁、關閉重複項並批次操作。請查看 <a href="support/#safari">Safari 設定和支援的功能</a>。',
       'faq.permissionsSummary':
-        '擴充功能需要存取開啟的分頁和視窗、儲存的設定，以及分頁群組等瀏覽器功能。搜尋預設包含瀏覽器歷史紀錄；在 Settings（設定）中關閉「Include browser history in results」即可隱藏它。分頁資料留在你的瀏覽器中。',
-      'faq.safariUnsupportedBody':
-        'Tab Manager v2 支援 Chrome、Edge 和 Firefox。目前沒有 Safari 版本。',
+        '擴充功能需要存取開啟的分頁、視窗和儲存的設定。Safari 會要求網站存取權限以顯示標題和網址。Chrome、Edge 和 Firefox 還提供可選的瀏覽紀錄搜尋。分頁資料留在你的瀏覽器中。',
       'faq.permissionsBody':
-        'Tab Manager v2 使用 <code>tabs</code>、<code>storage</code> 和 <code>management</code> 來完成核心的分頁和視窗管理。它還會使用 <code>history</code> 來支援可選的瀏覽器歷史記錄搜尋設定；在支援的瀏覽器上使用 <code>tabGroups</code> 來支援瀏覽器分頁群組功能；並在 Firefox 上使用 <code>contextualIdentities</code> 和 <code>cookies</code> 來支援容器相關功能。你的分頁資料會留在瀏覽器裡，擴充功能不會加入分析或追蹤。',
+        '權限因瀏覽器而異。所有版本使用 <code>tabs</code> 和 <code>storage</code>。Chrome、Edge 和 Firefox 使用 <code>history</code> 提供可選的歷史紀錄搜尋，並在支援時使用 <code>tabGroups</code>；Firefox 還使用 <code>contextualIdentities</code> 和 <code>cookies</code> 支援容器。Safari 在你開啟網站圖示時要求可選的網站存取權限。沒有分析或追蹤。',
+      'media.browserNote':
+        '畫面錄製於 Chrome。<a href="support/#browser-features">查看各瀏覽器支援的功能。</a>',
+      'install.safariNote':
+        'Safari 測試版適用於 macOS。<a href="support/#safari">設定和支援的功能</a>。',
     },
   }
   const translatableAttributes = [
