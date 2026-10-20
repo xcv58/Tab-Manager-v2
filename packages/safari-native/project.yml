@@ -5,15 +5,15 @@ configFiles:
 options:
   bundleIdPrefix: com.xcv58
   deploymentTarget:
-    macOS: "14.0"
+    macOS: '14.0'
 settings:
   base:
-    SWIFT_VERSION: "5.0"
+    SWIFT_VERSION: '5.0'
     DEVELOPMENT_TEAM: 5736QK4NZX
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: Apple Development
-    MARKETING_VERSION: "3.0.0"
-    CURRENT_PROJECT_VERSION: "14"
+    MARKETING_VERSION: '3.0.0'
+    CURRENT_PROJECT_VERSION: '20'
     ENABLE_HARDENED_RUNTIME: YES
     GENERATE_INFOPLIST_FILE: NO
     SWIFT_EMIT_LOC_STRINGS: NO
@@ -46,14 +46,15 @@ targets:
           - CFBundleURLName: Tab Manager v2
             CFBundleURLSchemes: [$(TM_SAFARI_URL_SCHEME)]
         NSPrincipalClass: NSApplication
-        LSMinimumSystemVersion: "14.0"
+        LSMinimumSystemVersion: '14.0'
         LSApplicationCategoryType: public.app-category.productivity
     entitlements:
       path: App/App.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-write: true
-        com.apple.security.application-groups: [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
+        com.apple.security.application-groups:
+          [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_APP_BUNDLE_IDENTIFIER)
@@ -87,7 +88,8 @@ targets:
       path: Extension/Extension.entitlements
       properties:
         com.apple.security.app-sandbox: true
-        com.apple.security.application-groups: [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
+        com.apple.security.application-groups:
+          [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)

@@ -6,7 +6,20 @@
       "package-name": "tab-manager-v2",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": false,
-      "include-v-in-tag": true
+      "include-v-in-tag": true,
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "/packages/safari-native/WebExtension/manifest.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "yaml",
+          "path": "/packages/safari-native/project.yml",
+          "jsonpath": "$.settings.base.MARKETING_VERSION"
+        }
+      ]
     }
-  }
+  },
+  "bootstrap-sha": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"
 }

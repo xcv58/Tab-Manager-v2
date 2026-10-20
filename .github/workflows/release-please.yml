@@ -15,16 +15,31 @@ concurrency:
 
 jobs:
   release-please:
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       issues: write
       pull-requests: write
     outputs:
-      extension_release_created: ${{ steps.release.outputs['packages/extension--release_created'] }}
+      extension_release_created: ${{ steps.release.outputs['packages/extension--release_created'] == 'true' && steps.version-guard.outputs.allow_release == 'true' }}
       extension_tag_name: ${{ steps.release.outputs['packages/extension--tag_name'] }}
       extension_release_url: ${{ steps.release.outputs['packages/extension--html_url'] }}
     steps:
+      - name: Checkout release policy
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check whether the source version may be released
+        id: eligibility
+        run: node scripts/release-policy.mjs eligibility
+
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@v4
@@ -34,6 +49,18 @@ jobs:
           target-branch: master
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # Keep updating the next release PR while 3.0.0 stays a manual baseline.
+          skip-github-release: ${{ steps.eligibility.outputs.allow_release != 'true' }}
+
+      - name: Guard the created release before building or publishing
+        if: ${{ steps.release.outputs['packages/extension--release_created'] == 'true' }}
+        id: version-guard
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs['packages/extension--tag_name'] }}
+          RELEASE_VERSION: ${{ steps.release.outputs['packages/extension--version'] }}
+        run: |
+          node scripts/release-policy.mjs tag "$RELEASE_TAG" "$RELEASE_VERSION"
+          echo "allow_release=true" >> "$GITHUB_OUTPUT"
 
   build-release:
     name: Build Release

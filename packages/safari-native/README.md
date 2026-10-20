@@ -14,7 +14,7 @@ The native project consumes `packages/extension/build/build_safari` as resources
 
 ## App identity
 
-Production builds reuse App Store Connect app `6758364114`. The tracked defaults are **3.0.0 (14)**; the latest uploaded TestFlight candidate is **3.0.0 (15)**, built with a native build-number override. The earlier draft was 1.0 and its last TestFlight build was 13. The original app and extension IDs are preserved in the Release configuration. Debug keeps its existing development identity.
+Production builds reuse App Store Connect app `6758364114`. The tracked marketing baseline is **3.0.0** and the latest native build number is **20**. The latest uploaded TestFlight candidate is **3.0.1 (20)**. Marketing versions advance through the release PR; every later native upload must use an unused build number higher than 20. The earlier draft was 1.0 and its last TestFlight build was 13. The original app and extension IDs are preserved in the Release configuration. Debug keeps its existing development identity.
 
 | Setting             | Debug                                            | Release                               |
 | ------------------- | ------------------------------------------------ | ------------------------------------- |
@@ -27,7 +27,7 @@ Production builds reuse App Store Connect app `6758364114`. The tracked defaults
 
 `pnpm build:safari:app` still defaults to Debug. To select production identities for web and native builds together, set `SAFARI_BUILD_CONFIGURATION=Release`. The same variable applies to `pnpm build:safari`. Rebuild the web assets for the selected configuration before compiling in Xcode; otherwise the setup URL may point at the other channel.
 
-The host app, extension and web manifest use marketing version 3.0.0; both native targets use build 14. Release uses automatic provisioning and is re-signed with Apple Distribution during App Store export; Debug retains development signing. The restored Mac app icon comes from the original Safari app assets. Building or uploading does not enable the production extension or grant Safari website access.
+The host app, extension and web manifest use marketing version 3.0.0; both native targets record build 20. Release uses automatic provisioning and is re-signed with Apple Distribution during App Store export; Debug retains development signing. The restored Mac app icon comes from the original Safari app assets. Building or uploading does not enable the production extension or grant Safari website access.
 
 Marketing versions follow the shared product version, even when Safari has fewer supported features. Increment the native build for every uploaded candidate. Archive and export with the Release configuration; verify both bundle identifiers, matching versions/build numbers, provisioning profiles and signatures before uploading. TestFlight upload, beta availability, App Review and public release are separate steps. Keep App Store release set to manual.
 
@@ -41,12 +41,12 @@ xcodegen generate --spec packages/safari-native/project.yml
 xcodebuild -project packages/safari-native/TabManagerSafariPrototype.xcodeproj \
   -scheme TabManagerSafariPrototype -configuration Release \
   -destination 'generic/platform=macOS' \
-  -archivePath .tmp/safari-testflight-3.0.0-14.xcarchive \
+  -archivePath .tmp/safari-testflight-candidate.xcarchive \
   -allowProvisioningUpdates archive
 xcodebuild -exportArchive \
-  -archivePath .tmp/safari-testflight-3.0.0-14.xcarchive \
+  -archivePath .tmp/safari-testflight-candidate.xcarchive \
   -exportOptionsPlist packages/safari-native/Config/ExportOptions.plist \
-  -exportPath .tmp/safari-testflight-3.0.0-14-export \
+  -exportPath .tmp/safari-testflight-candidate-export \
   -allowProvisioningUpdates
 ```
 
@@ -69,6 +69,6 @@ The Safari build workflow compiles Debug and Release on macOS without signing. I
 
 The shared unit suite covers the Safari adapter's access boundaries, bulk close behavior, read timeouts, overlapping requests, popup focus preferences and recent-tab cycling. Shared combobox regressions cover row navigation and focus recovery. The existing Linux Chromium suite checks visual baselines and real browser interactions; the Firefox integration suite also checks result focus after closing tabs in full and lite views. Mocked Safari APIs and unsigned compilation do not replace manual Safari acceptance.
 
-The 3.0.0 (15) TestFlight candidate includes the standard tab-action implementation and was accepted in manual testing. The newer shared result-focus and Safari startup-focus changes are not in that candidate. A future native upload must use an unused build number higher than 15 and be checked separately in Safari, including native popup focus with the preference on and off.
+The latest 3.0.1 (20) TestFlight candidate includes the merged browser-parity changes plus separately approved website-icon work. Its exact source and signing provenance are recorded locally; those unmerged website-icon changes are not included in this branch. A future native upload must use an unused build number higher than 20 and be checked separately in Safari. Set matching marketing versions and a new native build number before archiving; the example commands do not choose a new candidate for you.
 
 The old native-workspace observation was abandoned and does not establish reliability of this architecture. Broader lifecycle/profile acceptance and App Store listing preparation remain separate. Historical prototype-only tests are not coverage for the current shared Safari UI. Automatic Safari release work is tracked separately in #2685; this PR adds build checks only.

@@ -45,7 +45,13 @@ jest.mock('webextension-polyfill', () => ({
   },
 }))
 
-import { ItemTypes, createWindow, moveTabs } from 'libs'
+import {
+  ItemTypes,
+  createWindow,
+  moveTabs,
+  isSelfPopupTab,
+  popupURL,
+} from 'libs'
 
 const makeTab = (
   id: number,
@@ -710,5 +716,31 @@ describe('ItemTypes', () => {
       color: 'orange',
       collapsed: true,
     })
+  })
+})
+
+describe('manager tab identity', () => {
+  it.each([
+    popupURL,
+    popupURL + '&panel=settings',
+    popupURL + '#search',
+    'chrome-extension://test/popup.html',
+  ])('recognizes manager URL %s', (url) => {
+    expect(isSelfPopupTab({ url })).toBe(true)
+  })
+  it('recognizes a pending manager navigation without matching other pages or extensions', () => {
+    expect(isSelfPopupTab({ pendingUrl: popupURL + '&panel=shortcuts' })).toBe(
+      true,
+    )
+    expect(
+      isSelfPopupTab({
+        url: 'chrome-extension://other/popup.html?not_popup=1',
+      }),
+    ).toBe(false)
+    expect(
+      isSelfPopupTab({ url: 'chrome-extension://test/settings-preview.html' }),
+    ).toBe(false)
+    expect(isSelfPopupTab({ url: 'https://test/popup.html' })).toBe(false)
+    expect(isSelfPopupTab({ url: 'not a URL' })).toBe(false)
   })
 })

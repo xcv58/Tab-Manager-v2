@@ -19,6 +19,36 @@ Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
    store's submission result separately. Store approval and public availability
    still require separate verification.
 
+## Manual 3.0.0 baseline and minimum automated version
+
+The browser-store 3.0.0 rollout used source commit
+`c2dea3aacb3c1fb871434bdcbbcf54019b03f602`. Its GitHub release and tag were
+withdrawn. The release configuration keeps this commit as `bootstrap-sha`, so
+Release Please cannot replay the older `Release-As: 3.0.0` footer while that tag
+is absent. Once a newer release exists, normal tag discovery takes over. Do not
+recreate the withdrawn tag or permanently pin `release-as` or `last-release-sha`.
+
+Automation changes must reach `master` separately from the release PR; otherwise
+the next bot refresh replaces changes made only on the release branch. The
+one-time `Release-As: 3.0.1` footer on the policy-fix PR selects the agreed next
+candidate and expires naturally after that release is tagged.
+
+Only stable versions **strictly newer than 3.0.0** may be released automatically:
+
+- A release-branch CI job rejects 3.0.0, older or malformed versions, and mismatched
+  extension, release manifest, Safari web and native marketing versions.
+- On `master` at 3.0.0, Release Please may update a PR but cannot create a GitHub
+  release or tag. After the source advances, an independent tag/version guard
+  controls the output required by package, asset and all three publisher jobs.
+- The manual Edge retry uses the same version floor before downloading packages
+  or reaching its publisher step. Ordinary development CI continues to run at
+  the manual baseline; this policy applies to release candidates and publishing.
+
+The Safari web manifest and native marketing version are Release Please
+`extra-files`. Native build numbers still require checking App Store Connect
+before an upload. Safari signing, TestFlight and App Store submission remain
+manual and are tracked in #2685.
+
 ## Deferring a store for one release
 
 Use repository-level Actions **variables**, not secrets or environment-level
@@ -55,7 +85,7 @@ branch. The equivalent command is:
 
 ```sh
 gh workflow run retry-edge-release.yml --ref master \
-  --field release_tag=v2.7.1 --repo xcv58/Tab-Manager-v2
+  --field release_tag=v3.0.1 --repo xcv58/Tab-Manager-v2
 ```
 
 This manual workflow intentionally bypasses `EDGE_SKIP_RELEASE_TAG`, downloads
