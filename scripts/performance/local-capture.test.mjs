@@ -1,5 +1,6 @@
 import test from 'node:test'
 import { URL } from 'node:url'
+import { spawnSync } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -263,6 +264,26 @@ test('CI cannot measure, and changed toolchains require a new reviewed protocol'
     /differs/,
   )
   assert.doesNotThrow(() => assertProfileHost(profile, profile))
+})
+
+test('all collection entrypoints reject CI before downloads or measurement', () => {
+  for (const [script, ...args] of [
+    ['cli.mjs', 'collect'],
+    ['backfill.mjs'],
+    ['release.mjs', '--tag', 'v3.0.1'],
+  ]) {
+    const result = spawnSync(
+      process.execPath,
+      [new URL(script, import.meta.url).pathname, ...args],
+      {
+        encoding: 'utf8',
+        env: { ...process.env, CI: 'true' },
+        timeout: 10000,
+      },
+    )
+    assert.equal(result.status, 1, `${script}: ${result.stderr}`)
+    assert.match(result.stderr, /measurements are local-only/)
+  }
 })
 
 test('local measurement lock prevents overlap and is released after a failed capture', async (t) => {
