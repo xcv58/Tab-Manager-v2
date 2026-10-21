@@ -221,6 +221,11 @@ export async function readLocalCapture(
         environment.samplesPerCase === profile.samples &&
         environment.dragSamples === profile.dragSamples &&
         json(environment.sourceTabs) === json(profile.tabs) &&
+        value.runtime.samples.length ===
+          profile.tabs.length * profile.samples &&
+        value.runtime.samples.every((sample) =>
+          profile.tabs.includes(sample.tabs),
+        ) &&
         environment.referenceCommit === capture.referenceCommit &&
         Object.entries(profileIdentity(profile)).every(
           ([key, value]) => environment[key] === value,

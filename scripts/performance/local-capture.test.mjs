@@ -197,6 +197,22 @@ for (const [name, mutate, error] of [
     /partial runtime workload/,
   ],
   [
+    'unlisted workloads',
+    ({ records }) => {
+      const extra = globalThis.structuredClone(
+        records[1].runtime.samples.filter((sample) => sample.tabs === 100),
+      )
+      for (const sample of extra) {
+        sample.tabs = 50
+        sample.startup.tabCount = 62
+        sample.search.Needle.matchedTabs = 4
+        sample.search.Work.matchedTabs = 58
+      }
+      records[1].runtime.samples.push(...extra)
+    },
+    /local protocol/,
+  ],
+  [
     'battery interval',
     ({ capture }) =>
       (capture.conditions.after = {

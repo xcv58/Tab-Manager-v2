@@ -83,6 +83,9 @@ For release evidence, use the standard local command from a clean committed
 worktree on the Mac described by `protocol.json`, connected to AC power:
 
 ```sh
+# One-time browser setup (using a supported installer Node version):
+pnpm --filter integration-test exec playwright install chromium --only-shell
+# Measurements themselves must use the Node version pinned in protocol.json:
 pnpm release:performance --run CANDIDATE_RUN_ID --import
 # Or recover an existing release instead of its expiring Actions artifact:
 pnpm release:performance --tag v3.0.1 --import
@@ -95,6 +98,8 @@ samples per workload after warmup, and three group-drag/scroll samples. Raw
 samples, machine/tool versions, source/package/harness hashes and before/after
 conditions stay in the immutable records. A machine-wide lock prevents concurrent
 standard captures. Keep other heavy work off the benchmark Mac while it runs.
+The raw run and capture directories are excluded from formatting so commit hooks
+cannot invalidate their original checksums.
 
 Review the generated `review.md` and `viewer/` before committing imported JSON.
 The release publisher only archives matching captures after their PR is merged.

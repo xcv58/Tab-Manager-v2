@@ -1,1 +1,43 @@
-.gitignore
+.pnpm-store
+node_modules
+.nyc_output
+dist
+build
+build_*
+build.zip
+build_*.zip
+secrets.*.js
+*.lcov
+coverage
+yarn-error.log
+.env
+.env.release.local
+
+storybook-static
+.turbo
+playwright-report
+test-results
+.playwright-mcp/
+.tmp/
+.worktrees/
+
+# Immutable measurement bytes are checksummed by their capture manifests.
+notes/performance/runs/
+notes/performance/captures/
+
+# macOS
+.DS_Store
+
+# Xcode
+build/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.idestatus
+*.xcuserstate
+xcuserdata/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
