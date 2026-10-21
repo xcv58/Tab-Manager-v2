@@ -69,7 +69,11 @@ export async function verifiedCandidate(
   )
   assert(
     artifact,
-    'candidate packages expired or are unavailable; prepare a new candidate',
+    `candidate packages for attempt ${run.run_attempt} are unavailable or expired. ` +
+      'If packaging is still running, wait for it to finish. Otherwise choose "Re-run all jobs" for this candidate workflow, ' +
+      `then run "pnpm release:review --run ${run.id}" and approve the new reviewed digest. ` +
+      '"Re-run failed jobs" cannot recover packages from an earlier attempt. ' +
+      'If the workflow can no longer be rerun, prepare a new candidate.',
   )
   await mkdir(directory, { recursive: true })
   gh([

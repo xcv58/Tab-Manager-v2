@@ -64,9 +64,28 @@ Review source, packages and this preview before approving publication.
 Reuse a previously prepared candidate by reviewing the same run; there is no
 need to dispatch it again. Source, dependency, version, or build-config changes
 require a new frozen candidate. Release-body text and report presentation edits
-do not. Re-running a workflow creates another attempt and another manifest;
-review the new identity rather than mixing attempts. Candidate artifacts expire
-after 30 days; an unpublished expired candidate must be prepared again.
+do not.
+
+To retry failed candidate verification, choose **Re-run all jobs** in GitHub
+Actions, or run:
+
+```sh
+gh run rerun CANDIDATE_RUN_ID
+# After the required checks pass:
+pnpm release:review --run CANDIDATE_RUN_ID
+```
+
+A full rerun keeps the original source revision and rebuilds the packages and
+checks together in a new attempt. **Re-run failed jobs** and individual-job
+reruns are unsupported: they can leave successful prerequisites in an earlier
+attempt, so the new attempt may lack matching packages or required checks.
+Packages, manifest, and required checks must all belong to the same attempt.
+Review the new manifest and use its new digest for `--approve`; the previous
+approval cannot be reused.
+
+If packaging is still running, wait for it to finish before reviewing. Candidate
+artifacts expire after 30 days; if the workflow can no longer be rerun, prepare a
+new candidate.
 
 ## Approve and publish
 
