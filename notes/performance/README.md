@@ -93,6 +93,9 @@ pnpm release:performance --tag v3.0.1 --import
 
 This downloads and verifies exact packages, measures ZIP contents locally, and
 reruns target/baseline/reference UI workloads in the same session. The standard
+command first fetches existing published tags from the canonical repository so
+a stale checkout cannot silently choose an older release baseline. It does not
+publish tags or overwrite conflicting local tags. The standard
 protocol uses 100, 1,000 and 5,000 source tabs (plus 12 destination tabs), seven
 samples per workload after warmup, and three group-drag/scroll samples. Raw
 samples, machine/tool versions, source/package/harness hashes and before/after

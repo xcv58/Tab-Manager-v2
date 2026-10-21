@@ -99,6 +99,15 @@ async function collect(values) {
     : await verifiedCandidate(values.run, packages)
   const { candidate, digest } = verified
   const target = candidate.source.commit
+  // Local checkouts may predate the last publication. Read the canonical
+  // repository's existing tags before choosing the previous release; never
+  // create a remote tag or replace a conflicting local tag.
+  git([
+    'fetch',
+    '--tags',
+    '--no-recurse-submodules',
+    'https://github.com/xcv58/Tab-Manager-v2.git',
+  ])
   const baseline = previousRelease(target)
   const reference = git([
     'rev-parse',
