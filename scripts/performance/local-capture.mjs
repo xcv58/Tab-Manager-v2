@@ -286,7 +286,8 @@ export async function readCommittedLocalCaptures({
     )
     if (
       candidate &&
-      result.capture.candidate.source.commit !== candidate.source.commit
+      (result.capture.candidate.source.commit !== candidate.source.commit ||
+        result.capture.candidateSha256 !== digest)
     )
       continue
     if (candidate) validateLocalCapture(result.capture, candidate, digest)

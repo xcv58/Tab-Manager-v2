@@ -252,6 +252,18 @@ test('committed captures are validated before release archival', async (t) => {
     root: f.root,
   })
   assert.equal(loaded.length, 1)
+  const retried = globalThis.structuredClone(f.candidate)
+  retried.build.attempt = 2
+  const stale = await readCommittedLocalCaptures({
+    candidate: retried,
+    digest: sha256(json(retried)),
+    root: f.root,
+  })
+  assert.equal(
+    stale.length,
+    0,
+    'another approved attempt needs its own capture',
+  )
 })
 
 test('CI cannot measure, and changed toolchains require a new reviewed protocol', () => {
