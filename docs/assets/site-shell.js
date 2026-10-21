@@ -8,7 +8,7 @@
     'zh-Hans': {
       Overview: '总览',
       'Try demo': '试用演示',
-      'Release reports': '发布报告',
+      'Release performance': '版本性能',
       Install: '安装',
       Privacy: '隐私',
       Support: '支持',
@@ -22,7 +22,7 @@
     'zh-Hant': {
       Overview: '總覽',
       'Try demo': '試用示範',
-      'Release reports': '發佈報告',
+      'Release performance': '版本效能',
       Install: '安裝',
       Privacy: '隱私',
       Support: '支援',

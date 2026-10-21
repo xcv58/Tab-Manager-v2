@@ -74,9 +74,9 @@
   }
   if (catalog.preview) {
     document.querySelector('.performance-viewer h1').textContent =
-      'Candidate release report'
+      'Candidate performance preview'
     document.querySelector('.performance-viewer .description').textContent =
-      `Unpublished local preview. Available measurements and actual CI outcomes are shown; publication still requires approval.${catalog.previewWarnings?.length ? ' Some advisory captures could not be loaded and are unavailable.' : ''}`
+      `Unpublished performance preview. Available measurements are shown; publication still requires approval.${catalog.previewWarnings?.length ? ' Some measurements are unavailable.' : ''}`
   }
   const allEntries = [...map.values()].sort(
     (a, b) =>
@@ -111,7 +111,6 @@
   )
     ? query.get('range')
     : 'all'
-  byId('comparison').open = query.get('compare') === '1'
   byId('measurement-settings').open = query.get('setup') === '1'
   const requestedDevelopment = ['target', 'baseline'].some((name) => {
     const entry = map.get(query.get(name))
@@ -146,6 +145,21 @@
       ? preferred
       : previous?.key || controls.baseline.options[0].value
   }
+  const readableDate = (value) =>
+    new Date(value).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+  const machineName = (environment) =>
+    environment.platform === 'darwin'
+      ? 'Mac'
+      : environment.platform === 'linux'
+        ? 'Linux'
+        : environment.platform === 'win32'
+          ? 'Windows'
+          : 'Archived run'
   const chooseSeries = (preferred) => {
     groups.clear()
     for (const record of entries
@@ -154,6 +168,7 @@
       groups.set(record.runtime.compatibilityKey, record.runtime.environment)
     const current = controls.series.value
     controls.series.replaceChildren()
+    const labels = new Map()
     for (const [key, env] of groups) {
       const observations = entries
         .flatMap((entry) => entry.records)
@@ -163,10 +178,13 @@
           (record) => record.runtime?.compatibilityKey === key,
         ),
       ).length
+      const label = `${machineName(env)} · ${readableDate(observations.at(-1).recordedAt)} · Chromium ${env.browser.split('.')[0]} · ${coverage} comparable version${coverage === 1 ? '' : 's'}`
+      const occurrence = (labels.get(label) || 0) + 1
+      labels.set(label, occurrence)
       option(
         controls.series,
         key,
-        `${coverage}/${entries.length} versions · ${observations.at(-1).recordedAt.slice(0, 10)} · ${env.runner || `${env.platform}/${env.arch}`} · Chrome ${env.browser} · ${key.slice(0, 8)}`,
+        `${label}${occurrence > 1 ? ` · Set ${occurrence}` : ''}`,
       )
     }
     if (!groups.size) option(controls.series, '', 'No runtime measurements')
@@ -208,7 +226,7 @@
       option(
         controls.workload,
         String(value),
-        `${workloads.find((workload) => workload.sourceTabs === value).totalTabs.toLocaleString()} tabs`,
+        `${value.toLocaleString()} source tabs`,
       )
     if (!values.length) option(controls.workload, '', 'Not measured')
     controls.workload.disabled = !values.length
@@ -325,145 +343,36 @@
   }
   const bundleFor = (entry) => captureFor(entry, 'bundle')
   const runtimeFor = (entry) => captureFor(entry, 'runtime')
-  function captureControls() {
+  function syncCaptures() {
     let missing = false
-    for (const [id, side, kind] of captureInputs) {
-      const entry = map.get(controls[side].value),
-        select = byId(id)
+    for (const [, side, kind] of captureInputs) {
+      const entry = map.get(controls[side].value)
       const records = eligibleCaptures(entry, kind)
       const selected =
-        captureSelections.get(captureKey(entry, kind)) ||
-        records.at(-1)?.id ||
-        ''
-      select.replaceChildren()
-      for (const record of records)
-        option(
-          select,
-          record.id,
-          `${record.recordedAt.slice(0, 19)} · ${record.id}`,
-        )
-      if (selected && !records.some((record) => record.id === selected)) {
-        option(select, selected, `Requested capture unavailable: ${selected}`)
-        missing = true
-      } else if (!records.length) option(select, '', 'Not measured')
-      select.value = selected
-      select.disabled = !records.length
-      if (selected) captureSelections.set(captureKey(entry, kind), selected)
+        captureSelections.get(captureKey(entry, kind)) || records.at(-1)?.id
+      if (selected) {
+        captureSelections.set(captureKey(entry, kind), selected)
+        if (!records.some((record) => record.id === selected)) missing = true
+      }
     }
-    byId('snapshot-note').textContent =
-      `${missing ? 'A pinned capture is unavailable in this snapshot or measurement series. Choose another capture to compare. ' : ''}${catalog.digest ? `Catalog SHA-256: ${catalog.digest}. ` : ''}Release dates and capture dates are recorded separately.`
+    byId('capture-notice').hidden = !missing
     byId('snapshot-download').hidden = !catalog.digest
   }
   const reportSelections = new Map()
   if (query.get('report'))
     reportSelections.set(controls.target.value, query.get('report'))
-  function verification() {
+  const reportFor = (entry) => {
     const reports = (catalog.reports || [])
-      .filter((report) => report.source.commit === controls.target.value)
+      .filter((report) => report.source.commit === entry.key)
       .sort(
         (a, b) =>
           Date.parse(a.recordedAt) - Date.parse(b.recordedAt) ||
           a.id.localeCompare(b.id),
       )
-    const select = byId('report-capture'),
-      rows = byId('verification-rows')
-    const requested = reportSelections.get(controls.target.value)
-    const selected = requested
+    const requested = reportSelections.get(entry.key)
+    return requested
       ? reports.find((report) => report.id === requested)
       : reports.at(-1)
-    select.replaceChildren()
-    for (const report of reports)
-      option(
-        select,
-        report.id,
-        `${report.recordedAt.slice(0, 19)} · ${report.id}`,
-      )
-    if (requested && !selected)
-      option(select, requested, 'Requested capture unavailable')
-    select.value = selected?.id || requested || ''
-    select.disabled = !reports.length
-    byId('report-capture-control').hidden = !reports.length
-    byId('verification-table').hidden = !selected
-    byId('verification-context').hidden = !selected
-    byId('verification-section').classList.toggle('is-empty', !selected)
-    if (selected) reportSelections.set(controls.target.value, selected.id)
-    rows.replaceChildren()
-    byId('verification-context').textContent = selected
-      ? `Captured ${selected.recordedAt.slice(0, 10)}`
-      : ''
-    const submissions = selected?.submissions || []
-    byId('store-submissions').hidden = !submissions.length
-    byId('store-submissions').textContent = submissions.length
-      ? `Store submissions: ${submissions.map((item) => `${item.store}: ${item.state === 'submitted' ? 'submitted' : 'outcome requires reconciliation'}`).join(' · ')}. Store approval and public availability require separate verification.`
-      : ''
-    byId('verification-note').textContent = selected
-      ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some evidence files were unavailable; the manifest lists these omissions.' : ''}`
-      : requested
-        ? 'The pinned evidence capture is unavailable in this website snapshot.'
-        : 'No test or build evidence has been archived for this version yet. This does not indicate whether checks were run or passed.'
-    const labels = {
-      success: 'Passed',
-      failure: 'Failed',
-      cancelled: 'Cancelled',
-      skipped: 'Skipped',
-      timed_out: 'Timed out',
-      pending: 'Pending',
-      missing: 'Not archived',
-      action_required: 'Action required',
-      neutral: 'Neutral',
-      stale: 'Stale',
-    }
-    for (const check of selected?.checks || []) {
-      const row = document.createElement('tr')
-      for (const text of [
-        check.name,
-        check.environment,
-        labels[check.conclusion] || check.conclusion,
-        check.counts
-          ? `${check.counts.passed} passed · ${check.counts.failed} failed · ${check.counts.skipped} skipped · ${check.counts.flaky} flaky`
-          : 'Counts not archived',
-      ]) {
-        const cell = document.createElement('td')
-        cell.textContent = text
-        row.append(cell)
-      }
-      row.dataset.conclusion = check.conclusion
-      const cell = document.createElement('td'),
-        link = document.createElement('a')
-      link.textContent =
-        check.kind === 'build' ? 'Build log' : 'Workflow evidence'
-      const href = evidenceURL(check.url)
-      if (href) link.href = href
-      cell.append(link)
-      row.append(cell)
-      rows.append(row)
-    }
-    if (selected && !selected.checks.length) {
-      const row = document.createElement('tr'),
-        cell = document.createElement('td')
-      cell.colSpan = 5
-      cell.textContent = 'Not archived'
-      row.append(cell)
-      rows.append(row)
-    }
-    if (selected) {
-      const row = document.createElement('tr'),
-        cell = document.createElement('td')
-      cell.colSpan = 5
-      for (const file of [
-        { name: 'Report manifest', url: selected.url },
-        ...selected.files,
-      ]) {
-        const href = evidenceURL(file.url)
-        if (!href) continue
-        const link = document.createElement('a')
-        link.href = href
-        link.textContent = file.name
-        cell.append(link, document.createTextNode(' · '))
-      }
-      row.append(cell)
-      rows.append(row)
-    }
   }
   const workloadFor = (entry) =>
     runtimeFor(entry)?.runtimeSummary.workloads.find(
@@ -525,17 +434,17 @@
       get: initialJavaScript,
     },
     {
-      title: 'Startup ready',
+      title: 'Startup time',
       unit: 'ms',
       subtitle: () =>
-        `${controls.workload.selectedOptions[0]?.textContent || 'No workload'} · Chrome profiling`,
+        `${controls.workload.selectedOptions[0]?.textContent || 'No workload'} · simulated workspace`,
       get: (entry) => workloadFor(entry)?.startup,
     },
     {
-      title: 'Search results update',
+      title: 'Search response',
       unit: 'ms',
       subtitle: () =>
-        `${controls.workload.selectedOptions[0]?.textContent || 'No workload'} · Needle · includes debounce`,
+        `${controls.workload.selectedOptions[0]?.textContent || 'No workload'} · matching results · includes debounce`,
       get: (entry) => workloadFor(entry)?.narrowSearch,
     },
     {
@@ -561,39 +470,41 @@
       },
     },
   ]
-  const plots = definitions.map((definition, index) => {
-    const figure = document.createElement('figure')
-    figure.className = 'plot'
-    const header = document.createElement('div')
-    header.className = 'plot-header'
-    const title = document.createElement('h3')
-    title.textContent = definition.title
-    const delta = document.createElement('span')
-    delta.className = 'delta'
-    const caption = document.createElement('figcaption')
-    const value = document.createElement('p')
-    value.className = 'comparison-value'
-    const selectedValue = document.createElement('strong')
-    const baselineValue = document.createElement('small')
-    baselineValue.className = 'visually-hidden'
-    value.append(selectedValue, delta, baselineValue)
-    const svg = document.createElementNS(namespace, 'svg')
-    svg.classList.add('chart')
-    svg.setAttribute('role', 'group')
-    header.append(title)
-    figure.append(header, value, caption, svg)
-    byId(index < 2 ? 'bundle-charts' : 'runtime-charts').append(figure)
-    return {
-      definition,
-      figure,
-      delta,
-      caption,
-      svg,
-      selectedValue,
-      baselineValue,
-      isBundle: index < 2,
-    }
-  })
+  const plots = definitions
+    .filter((_, index) => [0, 2, 3].includes(index))
+    .map((definition) => {
+      const figure = document.createElement('figure')
+      figure.className = 'plot'
+      const header = document.createElement('div')
+      header.className = 'plot-header'
+      const title = document.createElement('h3')
+      title.textContent = definition.title
+      const delta = document.createElement('span')
+      delta.className = 'delta'
+      const caption = document.createElement('figcaption')
+      const value = document.createElement('p')
+      value.className = 'comparison-value'
+      const selectedValue = document.createElement('strong')
+      const baselineValue = document.createElement('small')
+      baselineValue.className = 'baseline-value'
+      value.append(selectedValue, delta, baselineValue)
+      const svg = document.createElementNS(namespace, 'svg')
+      svg.classList.add('chart')
+      svg.setAttribute('role', 'group')
+      header.append(title)
+      figure.append(header, value, caption, svg)
+      byId('charts').append(figure)
+      return {
+        definition,
+        figure,
+        delta,
+        caption,
+        svg,
+        selectedValue,
+        baselineValue,
+        isBundle: definitions.indexOf(definition) < 2,
+      }
+    })
   const tooltip = byId('chart-tooltip')
   const reportRoot = byId('main-content')
   let preview = null
@@ -612,24 +523,23 @@
       base = map.get(controls.baseline.value)
     const width = svg.getBoundingClientRect().width,
       height = 218
-    const values = entries.map((entry, index) => ({
-      entry,
-      index,
-      stat: definition.get(entry),
-    }))
+    const values = entries
+      .map((entry) => ({ entry, stat: definition.get(entry) }))
+      .filter((point) => plot.isBundle || point.stat)
+      .map((point, index) => ({ ...point, index }))
     plot.points = []
     const targetStat = definition.get(target),
       baseStat = definition.get(base)
     const format = (stat) =>
       stat
-        ? `${stat.median.toLocaleString(undefined, { maximumFractionDigits: 1 })} ${definition.unit}`
-        : 'Not measured'
+        ? `${stat.median.toLocaleString(undefined, { maximumFractionDigits: definition.unit === 'ms' ? 0 : 1 })} ${definition.unit}`
+        : 'Unavailable in this set'
     selectedValue.textContent = format(targetStat)
     baselineValue.textContent = `${base ? entryLabel(base) : 'Baseline'}: ${format(baseStat)}`
     delta.textContent =
       targetStat && baseStat && baseStat.median > 0
-        ? percentChange(targetStat.median, baseStat.median)
-        : 'No comparison'
+        ? `${targetStat.median - baseStat.median > 0 ? '+' : ''}${(targetStat.median - baseStat.median).toLocaleString(undefined, { maximumFractionDigits: 1 })} ${definition.unit} (${percentChange(targetStat.median, baseStat.median)})`
+        : 'No comparable measurement'
     caption.textContent = definition.subtitle()
     // Navigation or a hidden layout can briefly report a zero-width chart.
     // ResizeObserver will redraw it when it has usable space again.
@@ -915,7 +825,7 @@
       : bundle.origin === 'published-release'
         ? 'Published ZIP'
         : record.provenance.kind === 'local-reviewed-release-bundles'
-          ? 'Verified ZIP · local capture'
+          ? 'Verified release ZIP'
           : record.provenance.kind === 'packaged-bundles'
             ? 'Release build'
             : 'Source rebuild'
@@ -1107,116 +1017,82 @@
     const bundle = bundleFor(target),
       runtime = runtimeFor(target),
       environment = groups.get(controls.series.value)
-    byId('notice').textContent = runtime
-      ? `Runtime series covers ${entries.filter((entry) => runtimeFor(entry)).length}/${entries.length} shown versions: ${environment.runner || environment.platform} · Chrome ${environment.browser} · viewport ${environment.viewport.width}×${environment.viewport.height}${environment.referenceCommit ? ` · fixed reference ${map.get(environment.referenceCommit)?.source.version || environment.referenceCommit.slice(0, 8)}` : ''}. Measurement differences are advisory.`
-      : 'Runtime has not been measured for this version in the selected series. Missing points are not zero.'
-    byId('baseline-name').textContent = base ? entryLabel(base) : 'No baseline'
-    byId('target-name').textContent = entryLabel(target)
-    byId('more').replaceChildren()
-    const fields = [
-      [
-        'Package unpacked bytes',
-        (entry) =>
-          bundleFor(entry)?.bundles.find(
-            (item) => item.browser === controls.browser.value,
-          ).summary.unpackedBytes,
-      ],
-      [
-        'Settings preview bytes',
-        (entry) =>
-          bundleFor(entry)?.bundles.find(
-            (item) => item.browser === controls.browser.value,
-          ).summary.settingsPreviewBytes,
-      ],
-      [
-        'Broad search median ms',
-        (entry) => workloadFor(entry)?.broadSearch.median,
-      ],
-      [
-        'Search input paint median ms',
-        (entry) => workloadFor(entry)?.searchPaint.median,
-      ],
-      [
-        'Startup JS heap MB',
-        (entry) => {
-          const value = workloadFor(entry)?.startupHeap.median
-          return value === undefined ? undefined : value / 1e6
-        },
-      ],
-      [
-        'Post-scroll JS heap MB',
-        (entry) => {
-          const value =
-            runtimeFor(entry)?.runtimeSummary.drag?.postScrollHeap.median
-          return value === undefined ? undefined : value / 1e6
-        },
-      ],
-      [
-        'Peak mounted rows during drag',
-        (entry) => runtimeFor(entry)?.runtimeSummary.drag?.peakRows.median,
-      ],
-      [
-        'Detached DOM refs after scroll',
-        (entry) =>
-          runtimeFor(entry)?.runtimeSummary.drag?.detachedReferences.median,
-      ],
-    ]
-    for (const [label, get] of fields) {
-      const row = document.createElement('tr')
-      const name = document.createElement('td')
-      name.textContent = label
-      row.append(name)
-      for (const entry of [base, target]) {
-        const cell = document.createElement('td'),
-          value = get(entry)
-        cell.textContent = Number.isFinite(value)
-          ? value.toLocaleString(undefined, { maximumFractionDigits: 3 })
-          : 'Unavailable'
-        row.append(cell)
-      }
-      byId('more').append(row)
-    }
+    const workload = workloadFor(target)
+    byId('notice').hidden = Boolean(workload)
+    byId('notice').textContent = !groups.size
+      ? 'Interface timings are not available for these versions. Package measurements remain shown.'
+      : 'This version or workload is unavailable in the selected measurement set. Choose another set to inspect its archived timings.'
+    byId('measurement-summary').textContent = runtime
+      ? `Selected timings were collected ${readableDate(runtime.recordedAt)} on ${environment.hardware?.cpuModels?.join(' / ') || machineName(environment)} using Chromium ${environment.browser}. ${workload?.startup.count || environment.samplesPerCase || 'Repeated'} observations per startup/search workload. Drag workload: ${dragWorkload(target)}; its JavaScript heap measurement excludes total browser memory.`
+      : 'No interface measurement is selected for this version.'
+    byId('package-context').textContent =
+      `Package source: ${packageOrigin(target)}${base ? `. Baseline: ${packageOrigin(base)}` : ''}.`
     const link = document.createElement('a')
     link.href = `https://github.com/xcv58/Tab-Manager-v2/commit/${encodeURIComponent(target.source.commit)}`
-    link.textContent = target.source.commit
-    byId('source').replaceChildren(
-      document.createTextNode(
-        `${entryLabel(target)} · ${target.source.status}${target.source.dirty ? ' · includes uncommitted source changes' : ''} · `,
-      ),
-      link,
-    )
-    const notes = [
+    link.textContent = `View v${entryLabel(target)} source`
+    byId('source').replaceChildren(link)
+    byId('records').replaceChildren()
+    const selected = [
       ...new Set(
-        [bundle, runtime]
-          .filter(Boolean)
-          .map((record) => record.provenance.note)
-          .filter(Boolean),
+        [bundle, runtime, bundleFor(base), runtimeFor(base)].filter(Boolean),
       ),
     ]
-    byId('provenance-note').textContent = notes.join(' ')
-    byId('records').replaceChildren()
-    const selected = [...new Set([bundle, runtime].filter(Boolean))]
     for (const record of selected) {
       const row = document.createElement('li'),
         link = document.createElement('a')
       link.href = `records/${encodeURIComponent(record.id)}.json`
-      link.textContent = `${record.runtime ? 'Runtime' : 'Bundle'} record: ${record.id}`
-      row.append(
-        link,
-        document.createTextNode(
-          ` · ${record.recordedAt} · ${record.provenance.runner}`,
-        ),
-      )
-      if (record.runtime && record.bundles.length)
-        row.append(
-          document.createTextNode(' · includes packaged bundle evidence'),
-        )
+      const kinds = [
+        record === bundle || record === bundleFor(base) ? 'Package' : '',
+        record === runtime || record === runtimeFor(base) ? 'interface' : '',
+      ]
+        .filter(Boolean)
+        .join(' and ')
+      link.textContent = `${record.source.version} · ${kinds} data · ${readableDate(record.recordedAt)}`
+      row.append(link)
       byId('records').append(row)
     }
+    const report = reportFor(target)
+    const verification = byId('verification-link')
+    const href = evidenceURL(report?.url)
+    verification.hidden = !href
+    if (href) verification.href = href
+    else verification.removeAttribute('href')
+    byId('evidence-note').hidden =
+      !reportSelections.has(target.key) || Boolean(report)
+  }
+  // Internal candidate previews still expose the original check outcomes for
+  // release review. The public page keeps only its verification download link.
+  const candidateChecks = catalog.preview
+    ? document.createElement('details')
+    : null
+  if (candidateChecks) {
+    candidateChecks.open = true
+    byId('release-history').before(candidateChecks)
+  }
+  function renderCandidateChecks(target) {
+    if (!candidateChecks) return
+    const summary = document.createElement('summary')
+    summary.textContent = 'Candidate checks'
+    const list = document.createElement('ul')
+    const checks = reportFor(target)?.checks || []
+    for (const check of checks) {
+      const row = document.createElement('li'),
+        link = document.createElement('a')
+      link.textContent = `${check.name}: ${check.conclusion} · ${check.environment}${check.counts ? ` · ${check.counts.passed} passed, ${check.counts.failed} failed, ${check.counts.skipped} skipped, ${check.counts.flaky} flaky` : ''}`
+      const href = evidenceURL(check.url)
+      if (href) link.href = href
+      row.append(link)
+      list.append(row)
+    }
+    if (!checks.length) {
+      const row = document.createElement('li')
+      row.textContent = 'Candidate check results are unavailable.'
+      list.append(row)
+    }
+    candidateChecks.replaceChildren(summary, list)
   }
   function render() {
-    captureControls()
-    verification()
+    syncCaptures()
     const focusedTableKey = byId('release-rows').contains(
       document.activeElement,
     )
@@ -1224,18 +1100,17 @@
       : null
     const target = map.get(controls.target.value)
     const base = map.get(controls.baseline.value)
+    renderCandidateChecks(target)
     byId('history-summary').textContent =
       `${entries.length} of ${eligibleEntries.length} archived versions · ${entryLabel(entries[0])} — ${entryLabel(entries.at(-1))}`
     byId('selected-release').textContent = `v${entryLabel(target)}`
     byId('comparison-summary').textContent = base
       ? `Compared with v${entryLabel(base)}`
-      : 'Compare two versions'
-    byId('package-context').textContent =
-      `${entryLabel(target)} · ${packageOrigin(target)}`
-    byId('runtime-context').textContent = groups.has(controls.series.value)
-      ? `Chrome · ${entries.filter((entry) => runtimeFor(entry)).length}/${entries.length} versions measured · Advisory`
-      : 'No runtime measurements'
-    releasePicker()
+      : 'No comparison baseline'
+    const comparable = entries.filter((entry) => workloadFor(entry))
+    byId('runtime-context').textContent = comparable.length
+      ? `Comparable interface measurements: ${entryLabel(comparable[0])}${comparable.length > 1 ? `–${entryLabel(comparable.at(-1))}` : ''} · ${comparable.length} version${comparable.length === 1 ? '' : 's'} in this set.${groups.size > 1 ? ' Other measurement sets remain available in the selector.' : ''}`
+      : 'No comparable interface measurements for this workload and history range.'
     redrawPlots()
     details()
     releaseTable()
@@ -1263,35 +1138,6 @@
     remember()
     byId('chart-announcement').textContent =
       `Inspecting ${entryLabel(map.get(key))}. ${byId('comparison-summary').textContent}.`
-  }
-  function releasePicker() {
-    const picker = byId('release-picker')
-    const buttons = new Map(
-      [...picker.children].map((button) => [button.dataset.key, button]),
-    )
-    for (const [key, button] of buttons) {
-      if (!entries.some((entry) => entry.key === key)) button.remove()
-    }
-    for (const [index, entry] of entries.entries()) {
-      let button = buttons.get(entry.key)
-      if (!button) {
-        button = document.createElement('button')
-        button.type = 'button'
-        button.dataset.key = entry.key
-        button.textContent =
-          entry.source.status === 'released'
-            ? entry.source.version
-            : `${entry.source.commit.slice(0, 7)}*`
-        button.setAttribute('aria-label', `Inspect ${entryLabel(entry)}`)
-        button.addEventListener('click', () => selectEntry(entry.key))
-      }
-      button.setAttribute(
-        'aria-pressed',
-        String(entry.key === controls.target.value),
-      )
-      if (picker.children[index] !== button)
-        picker.insertBefore(button, picker.children[index] || null)
-    }
   }
   function releaseTable() {
     byId('release-rows').replaceChildren()
@@ -1335,7 +1181,8 @@
           baseline = definition.get(previous)
         cell.textContent = stat
           ? stat.median.toLocaleString(undefined, { maximumFractionDigits: 1 })
-          : 'Not measured'
+          : '—'
+        if (!stat) cell.title = 'Unavailable in the selected measurement set'
         if (stat && baseline && baseline.median > 0) {
           const change = document.createElement('small')
           change.textContent = percentChange(stat.median, baseline.median)
@@ -1362,12 +1209,22 @@
       range: controls.range.value,
       from: controls.from.value,
       to: controls.to.value,
-      compare: byId('comparison').open ? '1' : '0',
       setup: byId('measurement-settings').open ? '1' : '0',
-      ...Object.fromEntries(captureInputs.map(([id]) => [id, byId(id).value])),
-      report: byId('report-capture').value,
+      ...Object.fromEntries(
+        captureInputs.map(([id, side, kind]) => [
+          id,
+          captureSelections.get(
+            captureKey(map.get(controls[side].value), kind),
+          ) || '',
+        ]),
+      ),
+      report:
+        reportSelections.get(controls.target.value) ||
+        reportFor(map.get(controls.target.value))?.id ||
+        '',
     }))
       url.searchParams.set(key, value)
+    url.searchParams.delete('compare')
     try {
       history.replaceState(null, '', url)
     } catch {
@@ -1407,7 +1264,6 @@
       render()
       remember()
     })
-  byId('comparison').addEventListener('toggle', remember)
   byId('measurement-settings').addEventListener('toggle', remember)
   byId('controls').addEventListener('submit', (event) => event.preventDefault())
   controls.series.addEventListener('change', () => {
@@ -1423,17 +1279,8 @@
       render()
       remember()
     })
-  for (const [id, side, kind] of captureInputs)
-    byId(id).addEventListener('change', () => {
-      captureSelections.set(
-        captureKey(map.get(controls[side].value), kind),
-        byId(id).value,
-      )
-      render()
-      remember()
-    })
-  byId('report-capture').addEventListener('change', () => {
-    reportSelections.set(controls.target.value, byId('report-capture').value)
+  byId('reset-captures').addEventListener('click', () => {
+    captureSelections.clear()
     render()
     remember()
   })

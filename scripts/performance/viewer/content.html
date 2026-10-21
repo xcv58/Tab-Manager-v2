@@ -1,38 +1,33 @@
 <main id="main-content" class="performance-viewer" lang="en">
   <header>
-    <p class="eyebrow">Tab Manager v2 · Engineering</p>
-    <h1>Release reports</h1>
+    <p class="eyebrow">Tab Manager v2</p>
+    <h1>Release performance</h1>
     <p class="description">
-      Size, performance, and verification evidence, release by release.
+      Download size and interface performance across releases.
     </p>
   </header>
-  <form id="controls" aria-label="Release history controls">
+  <form id="controls" aria-label="Release comparison controls">
     <label
       >Package<select id="browser">
         <option value="chrome">Chrome</option>
         <option value="firefox">Firefox</option>
       </select></label
     >
+    <label>Version<select id="target"></select></label>
+    <label>Compare with<select id="baseline"></select></label>
     <label
-      >History range<select id="range">
+      >History<select id="range">
         <option value="all">All releases</option>
         <option value="latest">Latest 10</option>
         <option value="custom">Custom range</option>
       </select></label
     >
     <details id="measurement-settings">
-      <summary>Measurement settings</summary>
-      <div class="pair-controls">
-        <label>Runtime measurement series<select id="series"></select></label>
-        <label
-          >Startup and search workload<select id="workload"></select
-        ></label>
-      </div>
-      <label class="version-options">
-        <input id="candidates" type="checkbox" />
-        Include development versions
-      </label>
-      <p id="notice"></p>
+      <summary>History options</summary>
+      <label class="version-options"
+        ><input id="candidates" type="checkbox" />Include development
+        versions</label
+      >
     </details>
   </form>
   <div id="custom-range" class="pair-controls" hidden>
@@ -40,105 +35,39 @@
     <label>Through version<select id="to"></select></label>
   </div>
   <p id="history-summary" role="status" aria-live="polite"></p>
-  <nav id="release-picker" aria-label="Inspect a release"></nav>
   <section class="release-selection" aria-label="Selected release">
     <h2 id="selected-release"></h2>
-    <details id="comparison">
-      <summary id="comparison-summary">Compare two versions</summary>
-      <div class="pair-controls">
-        <label>Version to inspect<select id="target"></select></label>
-        <label>Compare with<select id="baseline"></select></label>
-      </div>
-    </details>
+    <p id="comparison-summary"></p>
   </section>
-  <div id="charts">
-    <section class="chart-section" aria-labelledby="bundle-title">
-      <div class="section-heading">
-        <h2 id="bundle-title">Bundle size</h2>
-        <p id="package-context"></p>
-      </div>
-      <div id="bundle-charts" class="chart-grid"></div>
-    </section>
-    <section class="chart-section" aria-labelledby="runtime-title">
-      <div class="section-heading">
-        <h2 id="runtime-title">Runtime performance</h2>
-        <p id="runtime-context"></p>
-      </div>
-      <div id="runtime-charts" class="chart-grid"></div>
-    </section>
-  </div>
+  <section class="runtime-settings" aria-label="Interface benchmark settings">
+    <div class="pair-controls">
+      <label>Startup and search workload<select id="workload"></select></label>
+      <label>Measurement set<select id="series"></select></label>
+    </div>
+    <p id="runtime-context"></p>
+    <p id="notice" role="status" hidden></p>
+  </section>
+  <p id="capture-notice" role="status" hidden>
+    A measurement pinned by this link is unavailable in the selected set.
+    <button type="button" id="reset-captures">
+      Use available measurements
+    </button>
+  </p>
+  <div id="charts" class="chart-grid"></div>
   <p class="chart-help">
-    Hover or focus a point for details. Click, tap, or press Enter to inspect a
-    release. Use arrow keys to move between points.
+    Hover or focus a point for details. Select a point to inspect a release.
+    Arrow keys move between points; Enter selects.
   </p>
   <p class="legend">
-    Points show medians; whiskers show the observed minimum and maximum. Diamond
-    markers and dashed lines identify candidates. Lower values use less time or
-    space. Local runtime measurements are advisory.
+    Timings show medians; whiskers show the observed range. Lower values use
+    less time or space. Small differences between runs are advisory.
   </p>
-  <section
-    id="verification-section"
-    class="verification-section"
-    aria-labelledby="verification-title"
-  >
-    <div class="section-heading">
-      <h2 id="verification-title">Tests and builds</h2>
-      <p id="verification-context" hidden></p>
-    </div>
-    <label id="report-capture-control" hidden
-      >Evidence capture<select id="report-capture"></select
-    ></label>
-    <p id="verification-note"></p>
-    <p id="store-submissions" hidden></p>
-    <div
-      id="verification-table"
-      class="table-scroll"
-      tabindex="0"
-      role="region"
-      aria-labelledby="verification-title"
-      hidden
-    >
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Check</th>
-            <th scope="col">Environment</th>
-            <th scope="col">Outcome</th>
-            <th scope="col">Tests</th>
-            <th scope="col">Evidence</th>
-          </tr>
-        </thead>
-        <tbody id="verification-rows"></tbody>
-      </table>
-    </div>
-  </section>
-  <details id="capture-settings">
-    <summary>Measurement captures</summary>
-    <p>
-      Choose archived observations for a reproducible comparison. Shared links
-      pin these capture IDs; newer runs keep their own evidence.
-    </p>
-    <div class="pair-controls">
-      <label
-        >Selected version · package<select id="target-bundle"></select
-      ></label>
-      <label>Baseline · package<select id="baseline-bundle"></select></label>
-      <label
-        >Selected version · runtime<select id="target-runtime"></select
-      ></label>
-      <label>Baseline · runtime<select id="baseline-runtime"></select></label>
-    </div>
-    <p id="snapshot-note"></p>
-    <a href="snapshot.json" id="snapshot-download"
-      >Download this website's complete catalog</a
-    >
-  </details>
   <details id="release-history">
     <summary id="release-history-title">Releases at a glance</summary>
     <p class="description">
-      Values follow the browser, measurement series, and workload above. Changes
-      are relative to each version's preceding archived release; unavailable
-      comparisons are omitted.
+      Runtime values use the selected measurement set and workload. A dash means
+      unavailable in this set. Changes compare each version with its preceding
+      release.
     </p>
     <div
       class="table-scroll"
@@ -150,71 +79,59 @@
         <thead>
           <tr>
             <th scope="col">Version</th>
-            <th scope="col">ZIP · kB</th>
+            <th scope="col">Download · kB</th>
             <th scope="col">Startup JS · kB</th>
             <th scope="col">Startup · ms</th>
             <th scope="col">Search · ms</th>
-            <th scope="col">Group drag · ms</th>
-            <th scope="col">Post-drag heap · MB</th>
-            <th scope="col">Package evidence</th>
+            <th scope="col">Drag rendering · ms</th>
+            <th scope="col">Post-drag JS heap · MB</th>
+            <th scope="col">Package source</th>
           </tr>
         </thead>
         <tbody id="release-rows"></tbody>
       </table>
     </div>
   </details>
-  <details>
-    <summary>More measurements</summary>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Measurement</th>
-            <th id="baseline-name">Baseline</th>
-            <th id="target-name">Selected version</th>
-          </tr>
-        </thead>
-        <tbody id="more"></tbody>
-      </table>
-    </div>
-  </details>
   <details class="methodology">
-    <summary>Measurement setup and evidence</summary>
-    <p>
-      Download size is the exact Chrome or Firefox ZIP. Startup JavaScript
-      counts the scripts loaded by the popup. Runtime charts use a production
-      React profiling build with simulated tab metadata, repeated observations,
-      and the same workload for each compared version.
+    <summary>Methodology and data</summary>
+    <ul>
+      <li>
+        Download size is the exact Chrome or Firefox ZIP, except packages marked
+        as source rebuilds. Startup JavaScript counts the popup's initial
+        scripts.
+      </li>
+      <li>
+        Interface benchmarks use a production React profiling build with
+        simulated tab metadata in Chromium. Versions are compared only within
+        the same measurement set. These timings do not measure website loading,
+        cold browser launch, or native browser APIs.
+      </li>
+      <li>
+        Startup and search use the selected source-tab workload plus 12
+        destination tabs. Search measures a specific matching query and includes
+        the application's debounce. Drag rendering and post-drag JavaScript heap
+        use their own workload, shown below.
+      </li>
+      <li>
+        Timings show the median and observed minimum–maximum, not confidence
+        intervals. Historical versions were measured after release from their
+        frozen source. Capture dates and original records are preserved in the
+        downloads.
+      </li>
+    </ul>
+    <p id="measurement-summary"></p>
+    <p id="package-context"></p>
+    <p id="source"></p>
+    <ul id="records"></ul>
+    <p class="data-links">
+      <a href="snapshot.json" id="snapshot-download"
+        >Download all archived data</a
+      ><a id="verification-link" hidden>Verification evidence</a>
     </p>
-    <p>
-      Each chart shows the workload used for its measurements. Startup and
-      search use the selected tab count. Search includes the application's
-      debounce; heap is measured after garbage collection. These observations do
-      not measure native browser API latency, website loading, cold browser
-      launch, or total browser memory.
+    <p id="evidence-note" hidden>
+      The verification capture pinned by this link is unavailable. Archived
+      measurements remain available above.
     </p>
-    <p>
-      Runtime comparisons require the same browser, runner, harness, and
-      fixtures. Choose a measurement series to see compatible observations;
-      missing points stay unavailable. Timing differences are advisory. Whiskers
-      show the observed minimum and maximum, not confidence intervals.
-    </p>
-    <p>
-      Download the original measurement records below to inspect raw samples,
-      package hashes, and measurement conditions.
-    </p>
-    <p>
-      Historical performance measurements were collected after release using
-      each version's source code. Capture dates are shown separately from
-      release dates. Original published ZIPs and rebuilt source packages are
-      identified separately in the table.
-    </p>
-    <section id="evidence" aria-labelledby="evidence-title">
-      <h2 id="evidence-title">Evidence for the selected version</h2>
-      <p id="source"></p>
-      <p id="provenance-note"></p>
-      <ul id="records"></ul>
-    </section>
   </details>
   <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
   <p
@@ -224,7 +141,7 @@
     aria-live="polite"
   ></p>
   <noscript
-    >Enable JavaScript to view the archived measurements. The records directory
-    also contains each original JSON record.</noscript
+    >Enable JavaScript to view the measurements. Original JSON data is available
+    in the records directory.</noscript
   >
 </main>
