@@ -16,13 +16,14 @@ import { createRequire } from 'node:module'
 import {
   repositoryRoot,
   git,
-  sha256,
   fileHash,
   json,
   readRecords,
   writeRecord,
   writeText,
+  runtimeCompatibilityKey,
 } from './records.mjs'
+import { assertLocalMeasurement, profileIdentity } from './environment.mjs'
 import { recordReport, buildViewer } from './reports.mjs'
 import { startMediaPreview } from '../preview-release-media.mjs'
 
@@ -54,6 +55,7 @@ const waitReady = (page) =>
   )
 
 export async function compareRevisions(options) {
+  assertLocalMeasurement()
   const samples = integer(options.samples, 1, 20, 'sample count')
   const dragSamples = integer(
     options['drag-samples'],
@@ -186,6 +188,7 @@ export async function compareRevisions(options) {
       args: flags,
     })
     const environment = {
+      ...(options.profile ? profileIdentity(options.profile) : {}),
       node: process.version,
       platform: platform(),
       arch: arch(),
@@ -251,6 +254,7 @@ export async function compareRevisions(options) {
       return page
     }
     const run = async (revision, count, iteration, warmup = false) => {
+      options.checkConditions?.()
       const page = await pageFor(revision, count)
       await page.waitForTimeout(250)
       const startup = await readMetrics(page)
@@ -298,6 +302,7 @@ export async function compareRevisions(options) {
       for (const revision of iteration % 2
         ? [...revisions].reverse()
         : revisions) {
+        options.checkConditions?.()
         const page = await pageFor(revision, 1000)
         const cdp = await revision.context.newCDPSession(page)
         await cdp.send('HeapProfiler.collectGarbage')
@@ -375,6 +380,8 @@ export async function compareRevisions(options) {
       throw new Error('Profiling pages reported runtime errors')
     const harnessFiles = [
       'scripts/performance/compare.mjs',
+      'scripts/performance/records.mjs',
+      'scripts/performance/environment.mjs',
       'packages/extension/utils/profile.js',
       'packages/integration_test/assets/profiling/entry.tsx',
       'packages/integration_test/assets/profiling/fixtures.ts',
@@ -389,16 +396,10 @@ export async function compareRevisions(options) {
     const harness = []
     for (const file of harnessFiles)
       harness.push({ file, sha256: await fileHash(join(repositoryRoot, file)) })
-    const compatibilityKey = sha256(
-      json({
-        environment: {
-          ...environment,
-          samplesPerCase: undefined,
-          dragSamples: undefined,
-        },
-        harness,
-        fixtureFingerprints,
-      }),
+    const compatibilityKey = runtimeCompatibilityKey(
+      environment,
+      harness,
+      fixtureFingerprints,
     )
     const records = []
     for (const revision of revisions) {
@@ -448,6 +449,7 @@ export async function compareRevisions(options) {
     await buildViewer([...archived, ...records], join(options.output, 'viewer'))
     complete = true
     console.log(`Runtime records: ${join(options.output, 'runs')}`)
+    return records
   } finally {
     if (browser) await browser.close()
     if (server) await new Promise((done) => server.close(done))

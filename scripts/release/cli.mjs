@@ -42,7 +42,6 @@ const { positionals, values } = parseArgs({
     stores: { type: 'string', default: 'chrome,firefox,edge' },
     'metric-run': { type: 'string' },
     reconciled: { type: 'boolean', default: false },
-    'no-benchmarks': { type: 'boolean', default: false },
     help: { type: 'boolean' },
   },
 })
@@ -52,11 +51,12 @@ const help = `Local release driver (no store credentials needed locally):
   # Review/version changes through the normal Git workflow, then freeze merged SHA:
   pnpm release:verify --sha FULL_MASTER_COMMIT
   pnpm release:review --run CANDIDATE_RUN_ID
+  pnpm release:performance --run CANDIDATE_RUN_ID --import
   pnpm release:review --tag v3.0.1  # recover a published review after CI artifacts expire
   pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256
-  # Resume only selected unfinished stores, or append late benchmark evidence:
+  # Resume only selected unfinished stores, or archive reviewed evidence:
   pnpm release:publish --run RUN --approve SHA256 --stores edge [--reconciled]
-  pnpm release:publish --run RUN --approve SHA256 --stores none [--metric-run RUN]
+  pnpm release:publish --run RUN --approve SHA256 --stores none
   pnpm release:reports --tag v3.0.1
   pnpm build:site
 
@@ -66,6 +66,7 @@ Publishing requires the exact locally reviewed digest; --reconciled means you
 checked the store and its archived operation IDs before retrying an uncertain attempt.
 After rechecking gates, publishing pushes the final version tag through existing
 Git authentication and dispatches CI. Matching tags are reused, never moved.
+Performance is measured locally; CI validates and archives reviewed captures.
 No command merges PRs, commits report data, or deploys production directly.
 `
 if (values.help || !command) {
@@ -134,8 +135,6 @@ if (command === 'prepare') {
     'master',
     '-f',
     `candidate=${values.sha}`,
-    '-f',
-    `benchmarks=${!values['no-benchmarks']}`,
   ])
   process.stdout.write(
     `Candidate verification dispatched for ${values.sha}. Find its run ID with gh run list --workflow release-candidate.yml, then run pnpm release:review --run ID.\n`,
@@ -185,7 +184,7 @@ if (command === 'prepare') {
     process.stdout.write(`${job.name}: ${job.conclusion || job.status}\n`)
   process.stdout.write(
     preview
-      ? `\nCandidate report: ${preview}\nServe it with: pnpm preview:release-media "${preview}" 8782\nOpen http://127.0.0.1:8782/?candidates=1&target=${candidate.source.commit}\nAdvisory benchmarks are optional; missing measurements remain explicit. Re-run review after benchmarks finish to refresh the local preview.\nReview source, packages and report before approving publication.\n`
+      ? `\nCandidate report: ${preview}\nServe it with: pnpm preview:release-media "${preview}" 8782\nOpen http://127.0.0.1:8782/?candidates=1&target=${candidate.source.commit}\nCollect performance locally with pnpm release:performance --run ${candidate.build.runId}. Missing measurements remain explicit.\nReview source, packages and report before approving publication.\n`
       : `\nPublished packages verified using archived gate receipts. Candidate run: ${candidate.build.runId}. Use this run ID and the displayed digest for a selected-store retry.\n`,
   )
 } else if (command === 'publish') {

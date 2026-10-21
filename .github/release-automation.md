@@ -7,14 +7,14 @@ still apply to source, version changes, and report commits.
 
 ## Responsibilities
 
-| Location                      | Responsibility                                                                                                                                                   |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Local                         | Version/changelog preparation, reviewing packages and preview, approving publication, pushing its tag through existing Git authentication, importing report JSON |
-| CI: Prepare release candidate | Build frozen packages, run required checks, capture advisory measurements on separate runners                                                                    |
-| CI: Publish reviewed release  | Verify approval and gates, publish GitHub assets, submit stores independently, archive receipts/evidence                                                         |
-| Git                           | Source of truth for website report JSON, history, and release inventory                                                                                          |
-| GitHub releases               | Durable packages, raw evidence, checksummed capture manifests, and store receipts                                                                                |
-| Vercel                        | Existing Git integration builds the website from committed data                                                                                                  |
+| Location                      | Responsibility                                                                                                                                                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local                         | Version/changelog preparation, reviewing packages and preview, collecting performance on the designated Mac, approving publication, pushing its tag through existing Git authentication, importing report JSON |
+| CI: Prepare release candidate | Build frozen packages and run required checks; no performance measurements                                                                                                                                     |
+| CI: Publish reviewed release  | Verify approval and gates, publish GitHub assets, submit stores independently, archive receipts/evidence                                                                                                       |
+| Git                           | Source of truth for website report JSON, history, and release inventory                                                                                                                                        |
+| GitHub releases               | Durable packages, raw evidence, checksummed capture manifests, and store receipts                                                                                                                              |
+| Vercel                        | Existing Git integration builds the website from committed data                                                                                                                                                |
 
 ## Prepare and verify
 
@@ -34,7 +34,6 @@ After merging, freeze the reviewed current master commit:
 
 ```sh
 pnpm release:verify --sha FULL_MASTER_COMMIT
-# Optional: --no-benchmarks skips advisory runtime collection.
 gh run list --workflow release-candidate.yml
 pnpm release:review --run CANDIDATE_RUN_ID
 ```
@@ -50,16 +49,60 @@ Firefox once and saves ZIP hashes plus the Firefox source archive in
 ZIPs. Unit checks and unsigned Safari Debug/Release compilation are also
 required. Safari compilation is build evidence, not Safari browser acceptance.
 
-Runtime benchmarks and packaged-size collection use separate runners and are
-advisory. Required checks may finish while a benchmark is still running. The
-local review prints every job outcome, the source SHA, the candidate manifest
+Runtime benchmarks and packaged-size measurements are collected locally on the
+designated machine using `pnpm release:performance`; GitHub Actions does not run
+them. Performance remains advisory. The local review prints every job outcome, the source SHA, the candidate manifest
 SHA-256, and the directory containing downloaded packages. It also assembles an unpublished
 local report from actual CI outcomes and whatever complete measurements are
 available, using the shared interactive viewer. The command prints a local
-preview command and URL. Missing benchmarks are explicit; rerun `release:review`
-after measurements finish to refresh the preview without rebuilding the candidate.
+preview command and URL. Missing benchmarks are explicit. After importing local
+measurements, rerun `release:review` to refresh the preview without rebuilding the candidate.
 This writes only ignored local output; it does not change the committed catalog.
 Review source, packages and this preview before approving publication.
+
+## Collect performance locally
+
+Use a clean, committed worktree on the designated benchmark Mac, connected to AC
+power. The reviewed `notes/performance/protocol.json` pins the machine hardware,
+Node and Playwright versions, workloads, sample counts and fixed reference.
+
+```sh
+pnpm release:performance --run CANDIDATE_RUN_ID --import
+# For an existing published release, recover its exact packages and gate receipts:
+pnpm release:performance --tag v3.0.1 --import
+```
+
+Choose one command. It verifies the candidate's package hashes and measures those
+exact Chrome/Firefox ZIPs without rebuilding them. The UI benchmark builds frozen
+target, previous-release and reference revisions using a common profiling harness.
+It uses isolated Chromium contexts and local fixtures, with external requests
+blocked, one warmup per workload and interleaved repeated samples. It measures UI
+startup, search, group drag, scrolling and JavaScript heap, not native Safari or
+Firefox performance, cold browser startup, renderer RSS or website loading.
+
+Only one standard local capture may run at a time. Keep the Mac free of other
+heavy work. AC power is rechecked during sampling; before/after load and memory
+conditions are preserved. A partial run never receives a complete capture receipt.
+An existing output directory is not reused. To import a previously completed run
+without repeating measurements, use:
+
+```sh
+pnpm release:performance --input /absolute/path/to/capture.json --import
+```
+
+The ignored output includes downloaded packages, raw samples, checksummed capture
+manifest, review text and an offline viewer. `--import` also adds immutable JSON
+under `notes/performance/runs/` and `notes/performance/captures/`. Review these in a
+normal PR. After merge, the release evidence job validates their candidate/package
+identity, complete paired samples and machine/protocol fingerprints, then archives
+the original bytes with their **local** provenance. No local capture is represented
+as a CI measurement. CI validates data and never executes code from a capture.
+
+New hardware or tool versions require a reviewed protocol update. The environment,
+protocol, driver and fixture hashes separate incompatible timing series; the
+previous release and reference are measured again in the same session. Keep old
+records byte-for-byte, including historical CI captures. For the manually released
+3.0.0 baseline, use its recorded source commit; never recreate its withdrawn tag.
 
 Reuse a previously prepared candidate by reviewing the same run; there is no
 need to dispatch it again. Source, dependency, version, or build-config changes
@@ -189,7 +232,6 @@ not resubmit stores or undo an existing release. Append evidence using:
 
 ```sh
 pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256 --stores none
-# For a separate completed Advisory Performance History run, add --metric-run ID.
 pnpm release:reports --tag v3.0.1
 pnpm reports:validate
 pnpm build:site
@@ -200,7 +242,7 @@ pnpm preview:release-media
 after publication it only validates the saved release and appends available
 evidence. An appended capture never replaces an earlier capture.
 
-Advisory runtime runs freeze the target, baseline and reference to full commit
+Historical advisory CI runtime runs froze the target, baseline and reference to full commit
 SHAs before dependency/browser setup, and archive a small source receipt before
 measuring. The measurement command uses those frozen SHAs. Before attaching a
 late run's outcomes, the publisher verifies its receipt against the selected
@@ -209,7 +251,14 @@ A failed or cancelled run can therefore retain correctly attributed outcomes.
 If no current source receipt is available, the report records unavailable
 evidence and omits that run's outcomes and measurements. A mismatched or malformed
 receipt is rejected. The workflow's controller SHA alone is not evidence of which
-application revision was benchmarked.
+application revision was benchmarked. The legacy `--metric-run` option only reads
+an existing historical run; it does not start measurements. New captures use the
+reviewed local path above.
+
+To recover an evidence-download failure for an already published release, first
+merge the tooling fix and reviewed local data. Then use `--stores none` with the
+original run and digest. This archives test results, local measurements and saved
+store receipts without rebuilding packages or submitting stores again.
 
 The explicit local import validates release/tag identity, trusted publisher
 receipts, file sizes/SHA-256, schema, and immutable record IDs before writing

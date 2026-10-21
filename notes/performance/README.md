@@ -17,6 +17,10 @@ or select a target and baseline. Shared URLs pin measurement/evidence captures.
   and the list of evidence captures. An inventory release can lack metrics.
 - `notes/release-reports/reports/`: immutable compact evidence captures, typed
   checks/counts, metric IDs/hashes, and links to durable GitHub release assets.
+- `notes/performance/captures/`: reviewed local capture manifests tying complete
+  paired measurements to frozen release packages and the benchmark protocol.
+- `notes/performance/protocol.json`: designated machine, toolchain and sample
+  configuration. A changed environment is a distinct comparison series.
 - GitHub app releases: packages, large raw archives, publisher receipts and
   store submission journals. No companion tags or report-only releases.
 
@@ -65,7 +69,8 @@ total. Status-only checks show **Counts not archived**. Safari compilation is
 build evidence, not Safari browser testing. Historical verification remains
 **Not archived** where original evidence was not preserved.
 
-Benchmarks are advisory and run on a separate runner from verification. A late
+Benchmarks are advisory and run locally on the designated Mac. CI verifies
+application correctness and validates/archives reviewed local results. A late
 capture is appended; a missing measurement is not zero. Captures retain browser,
 fixture, harness and toolchain identities, raw samples, runner and timestamps.
 Different compatibility keys are not silently connected into a timing series.
@@ -73,6 +78,38 @@ The profiling fixture measures production React behavior with simulated browser
 metadata, not native IPC, renderer RSS, cold browser launch, or website loading.
 
 ## Manual measurements and offline viewer
+
+For release evidence, use the standard local command from a clean committed
+worktree on the Mac described by `protocol.json`, connected to AC power:
+
+```sh
+pnpm release:performance --run CANDIDATE_RUN_ID --import
+# Or recover an existing release instead of its expiring Actions artifact:
+pnpm release:performance --tag v3.0.1 --import
+```
+
+This downloads and verifies exact packages, measures ZIP contents locally, and
+reruns target/baseline/reference UI workloads in the same session. The standard
+protocol uses 100, 1,000 and 5,000 source tabs (plus 12 destination tabs), seven
+samples per workload after warmup, and three group-drag/scroll samples. Raw
+samples, machine/tool versions, source/package/harness hashes and before/after
+conditions stay in the immutable records. A machine-wide lock prevents concurrent
+standard captures. Keep other heavy work off the benchmark Mac while it runs.
+
+Review the generated `review.md` and `viewer/` before committing imported JSON.
+The release publisher only archives matching captures after their PR is merged.
+To validate/import an already completed capture without measuring again:
+
+```sh
+pnpm release:performance --input /absolute/path/to/capture.json --import
+```
+
+Data review and import do not publish an app release or resubmit a store. Follow
+`.github/release-automation.md` to append evidence to an existing release and
+import its combined report. Historical captures and their provenance stay intact.
+
+The lower-level commands below remain available for local investigations. Their
+results do not become standard release evidence without a valid local capture.
 
 These commands deliberately perform builds and benchmarks, not a test suite:
 

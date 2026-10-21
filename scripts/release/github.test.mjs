@@ -48,6 +48,7 @@ const method = methodIndex < 0 ? 'GET' : args[methodIndex + 1]
 const path = methodIndex < 0 ? args[1] : args[methodIndex + 2]
 assert.equal(method, response.method || 'GET')
 assert.equal(path, response.path)
+if (response.accept) assert.equal(args[args.indexOf('-H') + 1], response.accept)
 if (method === 'POST') {
   assert.equal(args[args.indexOf('-H') + 1], 'Content-Type: application/octet-stream')
   assert.equal(fs.readFileSync(args[args.indexOf('--input') + 1], 'utf8'), 'frozen package bytes')
@@ -55,7 +56,7 @@ if (method === 'POST') {
 calls.push(args)
 fs.writeFileSync('calls.json', JSON.stringify(calls))
 if (response.error) { process.stderr.write(response.error); process.exit(1) }
-process.stdout.write(response.bytes === undefined ? response.json === undefined ? '' : JSON.stringify(response.json) : response.bytes)
+process.stdout.write(response.base64 !== undefined ? Buffer.from(response.base64, 'base64') : response.bytes === undefined ? response.json === undefined ? '' : JSON.stringify(response.json) : response.bytes)
 `,
     { mode: 0o755 },
   )
@@ -64,7 +65,7 @@ process.stdout.write(response.bytes === undefined ? response.json === undefined 
     [
       '--input-type=module',
       '-e',
-      `const { optionalRelease, uploadImmutable, completedAsset, readJsonAsset } = await import(${JSON.stringify(githubModule)}); const { publicationReceipt } = await import(${JSON.stringify(publishModule)}); const { readStoreReceipts, storeRetryDecision, summarizeStoreReceipts } = await import(${JSON.stringify(receiptsModule)}); const { readReportManifests } = await import(${JSON.stringify(reportsModule)}); ${code}`,
+      `const { request, optionalRelease, uploadImmutable, completedAsset, readJsonAsset } = await import(${JSON.stringify(githubModule)}); const { publicationReceipt } = await import(${JSON.stringify(publishModule)}); const { readStoreReceipts, storeRetryDecision, summarizeStoreReceipts } = await import(${JSON.stringify(receiptsModule)}); const { readReportManifests } = await import(${JSON.stringify(reportsModule)}); ${code}`,
     ],
     {
       cwd: directory,
@@ -82,6 +83,37 @@ process.stdout.write(response.bytes === undefined ? response.json === undefined 
   assert.equal(calls.length, responses.length)
   return result.trim()
 }
+
+test('Actions ZIP downloads use the API media type and retain binary bytes', async (t) => {
+  const bytes = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0, 0x80])
+  const result = await scenario(
+    t,
+    [
+      {
+        path: `${repo}/actions/artifacts/51/zip`,
+        accept: 'Accept: application/vnd.github+json',
+        base64: bytes.toString('base64'),
+      },
+    ],
+    `process.stdout.write((await request('actions/artifacts/51/zip',true)).toString('hex'))`,
+  )
+  assert.equal(result, bytes.toString('hex'))
+})
+
+test('release asset downloads retain the raw asset media type', async (t) => {
+  const result = await scenario(
+    t,
+    [
+      {
+        path: `${repo}/releases/assets/51`,
+        accept: 'Accept: application/octet-stream',
+        bytes: 'raw release asset',
+      },
+    ],
+    `process.stdout.write((await request('releases/assets/51',true)).toString())`,
+  )
+  assert.equal(result, 'raw release asset')
+})
 
 test('first draft upload uses the retained numeric ID without a by-tag lookup', async (t) => {
   await scenario(
