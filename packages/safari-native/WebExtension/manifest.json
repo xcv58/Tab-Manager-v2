@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Tab Manager v2",
   "description": "Find and manage Safari tabs locally. Active tab groups only; private windows are excluded.",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "permissions": ["tabs", "storage"],
   "optional_permissions": ["http://*/*", "https://*/*"],
   "background": {
