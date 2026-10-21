@@ -15,6 +15,24 @@ export const git = (args, cwd = repositoryRoot) =>
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim()
 
+export function runtimeCompatibilityKey(
+  environment,
+  harness,
+  fixtureFingerprints,
+) {
+  return sha256(
+    json({
+      environment: {
+        ...environment,
+        samplesPerCase: undefined,
+        dragSamples: undefined,
+      },
+      harness,
+      fixtureFingerprints,
+    }),
+  )
+}
+
 export function statistics(values) {
   if (!values.length || values.some((value) => !Number.isFinite(value)))
     throw new Error('Measurements must contain finite numbers.')

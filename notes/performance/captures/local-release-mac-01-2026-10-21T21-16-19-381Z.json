@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "kind": "local-release-performance",
+  "id": "local-release-mac-01-2026-10-21T21-16-19-381Z",
+  "recordedAt": "2026-10-21T21:19:42.351Z",
+  "candidateSha256": "5a1d4b4e6256e6c0d7ebf62b4c22242dd96ae3a461bfbceea8f00336750c0ce6",
+  "candidate": {
+    "schemaVersion": 1,
+    "kind": "release-candidate",
+    "source": {
+      "commit": "dc1f386c851921f24023037c2a5c0ea0911eb929",
+      "version": "3.0.1",
+      "tag": "v3.0.1"
+    },
+    "build": {
+      "runId": "39534365390",
+      "attempt": 1,
+      "controllerCommit": "dc1f386c851921f24023037c2a5c0ea0911eb929"
+    },
+    "files": [
+      {
+        "name": "build_chrome.zip",
+        "bytes": 472024,
+        "sha256": "411daa50d495a31b893f142a41e990afc0c4dc21878d6309599b9eecd586dc08"
+      },
+      {
+        "name": "build_firefox.zip",
+        "bytes": 473676,
+        "sha256": "df6e20d30e57bb2984a6271020d1cc0d41e98a2efdf7abbb36af2108a1a5a2ff"
+      },
+      {
+        "name": "build_firefox_source.zip",
+        "bytes": 51763650,
+        "sha256": "c94e160b921e01f991d521534d6fd466ea911c90ef31749ba78f1429cbf68a77"
+      }
+    ]
+  },
+  "collectorCommit": "1c0b2ab6c8e9929ea3470529a2712c8dd80b9679",
+  "profile": {
+    "schemaVersion": 1,
+    "id": "release-mac-01-v1",
+    "machineId": "release-mac-01",
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v26.5.0",
+    "playwright": "1.58.2",
+    "hardware": {
+      "cpuModels": [
+        "Apple M5 Pro"
+      ],
+      "logicalCores": 18,
+      "memoryBytes": 68719476736
+    },
+    "requireACPower": true,
+    "tabs": [
+      100,
+      1000,
+      5000
+    ],
+    "samples": 7,
+    "dragSamples": 3,
+    "reference": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"
+  },
+  "baselineCommit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+  "referenceCommit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+  "conditions": {
+    "before": {
+      "recordedAt": "2026-10-21T21:16:19.381Z",
+      "acPower": true,
+      "loadAverage": [
+        7.546875,
+        18.25927734375,
+        18.23193359375
+      ],
+      "freeMemoryBytes": 3140567040
+    },
+    "after": {
+      "recordedAt": "2026-10-21T21:19:42.319Z",
+      "acPower": true,
+      "loadAverage": [
+        7.962890625,
+        14.1494140625,
+        16.55908203125
+      ],
+      "freeMemoryBytes": 222150656
+    }
+  },
+  "files": [
+    {
+      "name": "local-release-mac-01-2026-10-21T21-16-19-381Z-bundles.json",
+      "bytes": 14291,
+      "sha256": "657f582643348e5d8d9f080254c1625d1f8eaf2e71252ee97874c827d086ddd7"
+    },
+    {
+      "name": "local-release-mac-01-2026-10-21T21-16-19-381Z-c2dea3aa.json",
+      "bytes": 102003,
+      "sha256": "b762e29ee070348f8a1380254f40743725c1579b2cef96491056056d51886640"
+    },
+    {
+      "name": "local-release-mac-01-2026-10-21T21-16-19-381Z-dc1f386c.json",
+      "bytes": 101962,
+      "sha256": "2164733bf30e6920c1e7694143c29e033f3e1d87942fe428467d369a0e74c576"
+    }
+  ]
+}

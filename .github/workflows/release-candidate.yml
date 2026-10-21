@@ -8,10 +8,6 @@ on:
         description: Reviewed current master commit (full SHA; checked against dispatch revision)
         required: true
         type: string
-      benchmarks:
-        description: Capture advisory runtime measurements on a separate runner
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -171,42 +167,3 @@ jobs:
     uses: ./.github/workflows/safari.yml
     with:
       source: ${{ github.sha }}
-
-  bundle:
-    name: Advisory bundle measurement
-    needs: [freeze, packages]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - uses: actions/download-artifact@v4
-        with:
-          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: packages/extension/build
-      - working-directory: packages/extension/build
-        run: |
-          sha256sum --check SHA256SUMS.txt
-          unzip -q build_chrome.zip -d build_chrome
-          unzip -q build_firefox.zip -d build_firefox
-      - run: node scripts/performance/cli.mjs collect --id "bundle-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" --output .tmp/performance-bundle
-      - uses: actions/upload-artifact@v4
-        with:
-          name: performance-bundle-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .tmp/performance-bundle/runs/
-          if-no-files-found: error
-          retention-days: 30
-
-  runtime:
-    name: Advisory runtime
-    needs: freeze
-    if: ${{ inputs.benchmarks }}
-    uses: ./.github/workflows/performance-history.yml
-    with:
-      head: ${{ github.sha }}
-      base: auto

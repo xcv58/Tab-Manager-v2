@@ -18,6 +18,7 @@ import { collectBundle } from './bundles.mjs'
 import { recordReport, buildViewer } from './reports.mjs'
 import { previousRelease } from './sources.mjs'
 import { startMediaPreview } from '../preview-release-media.mjs'
+import { assertLocalMeasurement } from './environment.mjs'
 export { previousRelease } from './sources.mjs'
 
 const { positionals, values } = parseArgs({
@@ -112,6 +113,7 @@ async function main() {
     return
   }
   if (command === 'collect') {
+    assertLocalMeasurement()
     if (!['released', 'candidate'].includes(values.status))
       throw new Error('Invalid status')
     const source = sourceMetadata('HEAD', values.status, values.tag || null)

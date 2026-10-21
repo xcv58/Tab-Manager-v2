@@ -15,7 +15,10 @@ export async function request(path, binary = false) {
       'api',
       `repos/${repository}/${path}`,
       '-H',
-      `Accept: ${binary ? 'application/octet-stream' : 'application/vnd.github+json'}`,
+      // Release assets negotiate raw bytes here; Actions artifact downloads
+      // use the normal API media type and redirect to a ZIP. Response decoding
+      // is independent of the endpoint's Accept header.
+      `Accept: ${binary && /^releases\/assets\/\d+$/.test(path) ? 'application/octet-stream' : 'application/vnd.github+json'}`,
     ],
     { maxBuffer: 128 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] },
   )

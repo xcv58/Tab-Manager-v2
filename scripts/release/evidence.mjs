@@ -17,6 +17,7 @@ import { readMetricArtifact, loadBenchmarkSource } from './metric-artifact.mjs'
 import { validateManifest, validateChecks } from '../reports/catalog.mjs'
 import { jestCounts, playwrightCounts } from '../reports/results.mjs'
 import { readStoreReceipts, summarizeStoreReceipts } from './store-receipts.mjs'
+import { readCommittedLocalCaptures } from '../performance/local-capture.mjs'
 
 assert(
   process.env.GITHUB_REPOSITORY === repository &&
@@ -222,6 +223,16 @@ if (process.env.METRIC_RUN) {
     })
     process.stderr.write(`Warning: ${reason}\n`)
   }
+}
+// Only reviewed captures in this trusted master checkout are eligible. Their
+// machine/protocol and raw metric provenance remain local after bot archival.
+for (const local of await readCommittedLocalCaptures({
+  candidate,
+  digest: process.env.CANDIDATE_SHA256,
+})) {
+  await save(`${id}-${local.capture.id}.capture.json`, local.bytes, 'evidence')
+  for (const record of local.records)
+    await save(`${id}-${record.name}`, record.bytes, 'metric')
 }
 for (const name of ['candidate.json', 'publication.json'])
   await save(

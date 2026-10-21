@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "release-mac-01-v1",
+  "machineId": "release-mac-01",
+  "platform": "darwin",
+  "arch": "arm64",
+  "node": "v26.5.0",
+  "playwright": "1.58.2",
+  "hardware": {
+    "cpuModels": ["Apple M5 Pro"],
+    "logicalCores": 18,
+    "memoryBytes": 68719476736
+  },
+  "requireACPower": true,
+  "tabs": [100, 1000, 5000],
+  "samples": 7,
+  "dragSamples": 3,
+  "reference": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"
+}

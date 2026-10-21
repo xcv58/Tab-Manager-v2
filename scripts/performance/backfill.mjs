@@ -15,6 +15,9 @@ import {
 } from './records.mjs'
 import { measurePackage } from './bundles.mjs'
 import { recordReport } from './reports.mjs'
+import { assertLocalMeasurement } from './environment.mjs'
+
+assertLocalMeasurement()
 
 const { values } = parseArgs({
   options: {

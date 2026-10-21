@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { readCommittedLocalCaptures } from '../performance/local-capture.mjs'
 import {
   readRecords,
   sha256,
@@ -198,6 +199,7 @@ export async function loadCatalog() {
     )
     tags.add(release.tag)
   }
+  await readCommittedLocalCaptures()
   const records = (await readRecords()).filter((record) => !record.source.dirty)
   const byId = new Map(records.map((record) => [record.id, record]))
   const reports = []

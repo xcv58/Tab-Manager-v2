@@ -914,9 +914,11 @@
       ? 'Not measured'
       : bundle.origin === 'published-release'
         ? 'Published ZIP'
-        : record.provenance.kind === 'packaged-bundles'
-          ? 'Release build'
-          : 'Source rebuild'
+        : record.provenance.kind === 'local-reviewed-release-bundles'
+          ? 'Verified ZIP · local capture'
+          : record.provenance.kind === 'packaged-bundles'
+            ? 'Release build'
+            : 'Source rebuild'
   }
   function previewPoint(plot, key, mode) {
     const point = plot.points.find((item) => item.entry.key === key)
