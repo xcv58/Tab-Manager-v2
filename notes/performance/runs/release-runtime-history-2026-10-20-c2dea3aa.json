@@ -1,0 +1,3053 @@
+{
+  "schemaVersion": 1,
+  "id": "release-runtime-history-2026-10-20-c2dea3aa",
+  "recordedAt": "2026-10-20T16:26:21.419Z",
+  "source": {
+    "commit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+    "committedAt": "2026-10-16T00:17:21-04:00",
+    "version": "3.0.0",
+    "label": "3.0.0",
+    "status": "released",
+    "tag": null,
+    "dirty": false
+  },
+  "provenance": {
+    "kind": "release-runtime-backfill",
+    "note": "Frozen historical release UI and stores re-measured at recordedAt with a common simulated browser adapter. These are present-day measurements, not timings recorded when the versions were released.",
+    "repository": "xcv58/Tab-Manager-v2",
+    "runner": "local:darwin:arm64",
+    "lockfileSha256": "f3d5a1fd6be8b2958be18da440477339d608693d9daabca05e5fe780c50a5a9f",
+    "harness": [
+      {
+        "file": "scripts/performance/compare.mjs",
+        "sha256": "c6313f53243bfd42b6918cf7d64981d49d66403ad9ecdb3599c925214ecdbb3c"
+      },
+      {
+        "file": "packages/extension/utils/profile.js",
+        "sha256": "709ee839bcb963715b55b47ba66ccd9c22fadccbbac6928bbd49ec5ea00eb186"
+      },
+      {
+        "file": "packages/integration_test/assets/profiling/entry.tsx",
+        "sha256": "49bc7c062fbf582645c6e6310792e2e14e33b38a3fd2c252942693ae252f576b"
+      },
+      {
+        "file": "packages/integration_test/assets/profiling/fixtures.ts",
+        "sha256": "0ae935ea389914c47e3df2c31b69483eef4c711603bf5d6a7f30950ab0fdf024"
+      },
+      {
+        "file": "packages/integration_test/assets/profiling/index.html",
+        "sha256": "715ea20d8d43131ac24dc39cce7b646b28947bce7e43a492b0ca37c6f48cd22e"
+      },
+      {
+        "file": "packages/extension/src/js/demo/browser.ts",
+        "sha256": "cf42b59e589dcb760d235ed73d7f73c440eb8473b98382f223aae433d5473cd7"
+      },
+      {
+        "file": "packages/extension/src/js/demo/fixtures.ts",
+        "sha256": "7b107264f97c3bf5a78b26915ad44216652fc0baefd03c8581ee7199c5e2ca5c"
+      },
+      {
+        "file": "packages/extension/src/js/demo/preferences.ts",
+        "sha256": "48df03a5be26a5a4f2be1fd8893f1738823317e44912dd8e26b091793fe559c6"
+      },
+      {
+        "file": "packages/extension/src/js/demo/scenarios.ts",
+        "sha256": "6ba022a15930003f13e5b8a55ec405f000914179289276460b657711089fbf13"
+      },
+      {
+        "file": "packages/integration_test/assets/profiling/settings-preview.ts",
+        "sha256": "4859480469423c215a224a5c190a61a77b7d70617a35a433264b05a159cc9078"
+      },
+      {
+        "file": "packages/extension/src/js/libs/tabTooltip.ts",
+        "sha256": "03340020199850e549af2f2944b6e909e37e69a3be50b0a051fcb2e30348aa95"
+      }
+    ],
+    "profileFiles": [
+      {
+        "file": "31.js",
+        "sha256": "0d87817946122c386562e470b105e0b35af713e3b3f885adcbad772dc6cad057"
+      },
+      {
+        "file": "349.js",
+        "sha256": "80618516f3d2e3673c0b2f522496284322c55323930b40aa4e4f901c62e62cea"
+      },
+      {
+        "file": "496.js",
+        "sha256": "d5f00941d024cf27b77bbbdb0759941ee2f4ed81f358a587491cf36b859c3373"
+      },
+      {
+        "file": "bookmarks.png",
+        "sha256": "d22ce7588c89a7fa97fceb78346f05d94d4b5785712a63cd96380ceb0e854148"
+      },
+      {
+        "file": "chrome.png",
+        "sha256": "1749c9d9f4055944b8353a94558a4d2477056b6fb124b765d96c14fe8cb6401e"
+      },
+      {
+        "file": "crashes.png",
+        "sha256": "0a4ed30133c10c5f1d34dd6abc4e617dc3f624121e6dd1b0ae4a67004ebd512d"
+      },
+      {
+        "file": "downloads.png",
+        "sha256": "e198ec1c7e96b352443c249aa2c5fb9c1347a8a7dcb4357581d6925c8ab99c29"
+      },
+      {
+        "file": "empty.png",
+        "sha256": "33443aa61925875fc704751f1864702d6131b7d43a028fddf2f010004f929c94"
+      },
+      {
+        "file": "extensions.png",
+        "sha256": "82d914ffd909e8ac9ad1af1e992c663d2c0caa41706021cec0e03909cf3840e4"
+      },
+      {
+        "file": "flags.png",
+        "sha256": "5030e4dcae1ba71c276a69109c71982648b78d73df5e861d516465bfe5660f5d"
+      },
+      {
+        "file": "history.png",
+        "sha256": "072bd8da91587cd4c2702a46277e113f976e2533f0c8011ec48dd3740d61f6de"
+      },
+      {
+        "file": "icon-128-dark.png",
+        "sha256": "03631d69d70f3501a754f83cd89b7426494db6f6549cd639e546d5b924ab269d"
+      },
+      {
+        "file": "icon-128.png",
+        "sha256": "3d4c85f1df2400085b8dccaa9fe49f976062a5d47e3d77319d7a473dcae0884d"
+      },
+      {
+        "file": "icon-16-dark.png",
+        "sha256": "117df5d96678dd6531c5c5e10e3a04ed9a5219b2adbc06d724a97500cc0d7355"
+      },
+      {
+        "file": "icon-16.png",
+        "sha256": "7318d4521e620b04f0b822bb49ff429be1b14c34d4d01298d7d6c17738d67fb0"
+      },
+      {
+        "file": "icon-48-dark.png",
+        "sha256": "877b3e89c39be0674420269bdaa59a5a484bf48402e8c5e6761230e95a28399c"
+      },
+      {
+        "file": "icon-48.png",
+        "sha256": "10aa6745d8751f0ca6e094d19873519638d9e9828d40cba0588ba6bbed36c73d"
+      },
+      {
+        "file": "index.html",
+        "sha256": "58103fe33beca3d790e4c281398f4316f2e71c217240cc3a0f4435af1438f23d"
+      },
+      {
+        "file": "manifest.json",
+        "sha256": "678ca053d9fb1b5aa647cb631b08627649f881dfbd64357cf791dde8967234a9"
+      },
+      {
+        "file": "popup.html",
+        "sha256": "6704632c0b1e7ecd79c6f969f72279a3f360eaaca3c135890c160cb768f05ed5"
+      },
+      {
+        "file": "profile.css",
+        "sha256": "2021a2132035f4677f2734bb9562f5d5faa764bad17aff0e88f84cf71d9256dd"
+      },
+      {
+        "file": "profile.js",
+        "sha256": "3f4a072d47d3c54f7bb84210841db8bae965f611b9ccbf5a3f97ec00df076a09"
+      },
+      {
+        "file": "profile.js.LICENSE.txt",
+        "sha256": "82cc5b0efec33b4bd9a622d31a50f636656cbabedb5e87163aa3d42c3e50bf50"
+      },
+      {
+        "file": "settings.png",
+        "sha256": "8503f7b826c2d984275980cdcc16232f040003ee2d22db4dd0c979426b05e94d"
+      }
+    ],
+    "workflowRun": null
+  },
+  "bundles": [],
+  "runtime": {
+    "compatibilityKey": "b98e9e1b0f08c47bb28584fd35c46ba24d219b6aa79ac3404af0624e4692ea88",
+    "environment": {
+      "node": "v26.5.0",
+      "platform": "darwin",
+      "arch": "arm64",
+      "osVersion": "27.2.0",
+      "hardware": {
+        "cpuModels": [
+          "Apple M5 Pro"
+        ],
+        "logicalCores": 18,
+        "memoryBytes": 68719476736,
+        "runnerImage": null,
+        "runnerImageVersion": null
+      },
+      "browser": "155.0.8059.85",
+      "browserEngine": "chromium",
+      "runner": "local:darwin:arm64",
+      "viewport": {
+        "width": 2320,
+        "height": 989
+      },
+      "headless": true,
+      "flags": [
+        "--enable-precise-memory-info",
+        "--disable-background-timer-throttling",
+        "--disable-renderer-backgrounding"
+      ],
+      "externalRequests": "blocked",
+      "httpCache": "disabled by request routing",
+      "profiling": true,
+      "samplesPerCase": 7,
+      "dragSamples": 3,
+      "sourceTabs": [
+        100,
+        1000,
+        5000
+      ],
+      "referenceCommit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"
+    },
+    "fixtureFingerprints": {
+      "100": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+      "1000": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+      "5000": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6"
+    },
+    "samples": [
+      {
+        "iteration": 0,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 225.5,
+          "commits": 6,
+          "renderMs": 52.299999952316284,
+          "maxCommitRenderMs": 36.99999998509884,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 1,
+          "longTaskMs": 93,
+          "maxLongTaskMs": 93,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12065647,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9622180,
+          "totalSize": 10321920,
+          "embedderHeapUsedSize": 4919656,
+          "backingStorageSize": 697671
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 225.5,
+            "commits": 7,
+            "renderMs": 21.400000005960464,
+            "maxCommitRenderMs": 10.400000020861626,
+            "searchPaintMs": 14.200000002980232,
+            "searchWorkspaceMs": 232.20000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12584327,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 225.5,
+            "commits": 10,
+            "renderMs": 17.499999955296516,
+            "maxCommitRenderMs": 8.399999991059303,
+            "searchPaintMs": 17.399999991059303,
+            "searchWorkspaceMs": 234.5,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 16183336,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 1,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 105,
+          "commits": 7,
+          "renderMs": 20.50000001490116,
+          "maxCommitRenderMs": 13.400000005960464,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 0,
+          "longTaskMs": 0,
+          "maxLongTaskMs": 0,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12079302,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9620520,
+          "totalSize": 10321920,
+          "embedderHeapUsedSize": 4920880,
+          "backingStorageSize": 697622
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 105,
+            "commits": 7,
+            "renderMs": 12,
+            "maxCommitRenderMs": 6.0999999940395355,
+            "searchPaintMs": 29.700000002980232,
+            "searchWorkspaceMs": 232.20000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12586504,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 105,
+            "commits": 6,
+            "renderMs": 10.099999994039536,
+            "maxCommitRenderMs": 4.800000011920929,
+            "searchPaintMs": 17.5,
+            "searchWorkspaceMs": 234.29999999701977,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 15967136,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 2,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 192.5,
+          "commits": 7,
+          "renderMs": 24.599999994039536,
+          "maxCommitRenderMs": 16.599999994039536,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 0,
+          "longTaskMs": 0,
+          "maxLongTaskMs": 0,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12043825,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9622156,
+          "totalSize": 10321920,
+          "embedderHeapUsedSize": 4978288,
+          "backingStorageSize": 697670
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 192.5,
+            "commits": 7,
+            "renderMs": 12,
+            "maxCommitRenderMs": 5.700000002980232,
+            "searchPaintMs": 30,
+            "searchWorkspaceMs": 233.29999999701977,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12613711,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 192.5,
+            "commits": 6,
+            "renderMs": 9.799999997019768,
+            "maxCommitRenderMs": 4.700000002980232,
+            "searchPaintMs": 19.200000002980232,
+            "searchWorkspaceMs": 219.70000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 15971663,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 3,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 149.3999999910593,
+          "commits": 7,
+          "renderMs": 26.69999997317791,
+          "maxCommitRenderMs": 17.69999995827675,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 1,
+          "longTaskMs": 54,
+          "maxLongTaskMs": 54,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12102941,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9633152,
+          "totalSize": 10321920,
+          "embedderHeapUsedSize": 4922768,
+          "backingStorageSize": 697670
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 149.3999999910593,
+            "commits": 7,
+            "renderMs": 15.700000002980232,
+            "maxCommitRenderMs": 7.500000014901161,
+            "searchPaintMs": 39.79999999701977,
+            "searchWorkspaceMs": 228.09999999403954,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12596567,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 149.3999999910593,
+            "commits": 6,
+            "renderMs": 11.399999991059303,
+            "maxCommitRenderMs": 4.899999991059303,
+            "searchPaintMs": 17,
+            "searchWorkspaceMs": 233.69999998807907,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 15968181,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 4,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 217.90000000596046,
+          "commits": 7,
+          "renderMs": 27,
+          "maxCommitRenderMs": 18.099999994039536,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 1,
+          "longTaskMs": 54,
+          "maxLongTaskMs": 54,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12036105,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9631852,
+          "totalSize": 10059776,
+          "embedderHeapUsedSize": 4975448,
+          "backingStorageSize": 697671
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 217.90000000596046,
+            "commits": 7,
+            "renderMs": 14.599999994039536,
+            "maxCommitRenderMs": 7.299999982118607,
+            "searchPaintMs": 47.70000000298023,
+            "searchWorkspaceMs": 228.20000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 52,
+            "maxLongTaskMs": 52,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12609060,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 217.90000000596046,
+            "commits": 6,
+            "renderMs": 11.799999997019768,
+            "maxCommitRenderMs": 5.800000011920929,
+            "searchPaintMs": 13.5,
+            "searchWorkspaceMs": 230.20000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 15962600,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 5,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 251,
+          "commits": 6,
+          "renderMs": 49.799999952316284,
+          "maxCommitRenderMs": 33.099999979138374,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 151,
+          "maxLongTaskMs": 100,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12054289,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9622004,
+          "totalSize": 10059776,
+          "embedderHeapUsedSize": 4911488,
+          "backingStorageSize": 697720
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 251,
+            "commits": 7,
+            "renderMs": 31.19999997317791,
+            "maxCommitRenderMs": 15.699999988079071,
+            "searchPaintMs": 22.5,
+            "searchWorkspaceMs": 221.69999998807907,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12576112,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 251,
+            "commits": 9,
+            "renderMs": 27.19999998807907,
+            "maxCommitRenderMs": 12.399999991059303,
+            "searchPaintMs": 24.600000008940697,
+            "searchWorkspaceMs": 231.1000000089407,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 16173920,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 6,
+        "tabs": 100,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+          "readyMs": 259.29999999701977,
+          "commits": 6,
+          "renderMs": 53.99999998509884,
+          "maxCommitRenderMs": 37.89999997615814,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 1,
+          "longTaskMs": 110,
+          "maxLongTaskMs": 110,
+          "mountedRows": 36,
+          "tabCount": 112,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 112,
+          "heapBytes": 12036513,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 9620848,
+          "totalSize": 10321920,
+          "embedderHeapUsedSize": 4911032,
+          "backingStorageSize": 697671
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 259.29999999701977,
+            "commits": 7,
+            "renderMs": 23.5,
+            "maxCommitRenderMs": 11.400000005960464,
+            "searchPaintMs": 69.79999999701977,
+            "searchWorkspaceMs": 230.90000000596046,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 76,
+            "maxLongTaskMs": 76,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 6,
+            "heapBytes": 12586997,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "45804f11f2786cb70ea6ceb8861b55137b2b2dd429b94dafc82b1187f4db0d5b",
+            "readyMs": 259.29999999701977,
+            "commits": 10,
+            "renderMs": 22.999999970197678,
+            "maxCommitRenderMs": 10.5,
+            "searchPaintMs": 25,
+            "searchWorkspaceMs": 225.20000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 112,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 106,
+            "heapBytes": 16170668,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 0,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 440.40000000596046,
+          "commits": 6,
+          "renderMs": 85.59999996423721,
+          "maxCommitRenderMs": 70.49999997019768,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 321,
+          "maxLongTaskMs": 229,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28252487,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 26250352,
+          "totalSize": 27361280,
+          "embedderHeapUsedSize": 4977672,
+          "backingStorageSize": 742573
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 440.40000000596046,
+            "commits": 7,
+            "renderMs": 56.099999979138374,
+            "maxCommitRenderMs": 24.700000002980232,
+            "searchPaintMs": 41.5,
+            "searchWorkspaceMs": 248.5,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29466954,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 440.40000000596046,
+            "commits": 9,
+            "renderMs": 49.6000000089407,
+            "maxCommitRenderMs": 17.399999991059303,
+            "searchPaintMs": 26.200000002980232,
+            "searchWorkspaceMs": 247.59999999403954,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 39669593,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 1,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 652,
+          "commits": 6,
+          "renderMs": 128.5,
+          "maxCommitRenderMs": 102,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 465,
+          "maxLongTaskMs": 351,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28129818,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 26237576,
+          "totalSize": 27361280,
+          "embedderHeapUsedSize": 4978360,
+          "backingStorageSize": 742575
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 652,
+            "commits": 7,
+            "renderMs": 82.10000002384186,
+            "maxCommitRenderMs": 36.5,
+            "searchPaintMs": 58.20000000298023,
+            "searchWorkspaceMs": 268.5,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 59,
+            "maxLongTaskMs": 59,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29445075,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 652,
+            "commits": 10,
+            "renderMs": 66.2999999821186,
+            "maxCommitRenderMs": 26.599999994039536,
+            "searchPaintMs": 37.69999998807907,
+            "searchWorkspaceMs": 262.09999999403954,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 50,
+            "maxLongTaskMs": 50,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 40110587,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 2,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 596.0999999940395,
+          "commits": 7,
+          "renderMs": 115.39999997615814,
+          "maxCommitRenderMs": 93.69999997317791,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 414,
+          "maxLongTaskMs": 323,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28159248,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 25485652,
+          "totalSize": 26591232,
+          "embedderHeapUsedSize": 4976752,
+          "backingStorageSize": 1517465
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 596.0999999940395,
+            "commits": 7,
+            "renderMs": 66,
+            "maxCommitRenderMs": 30,
+            "searchPaintMs": 47.79999999701977,
+            "searchWorkspaceMs": 256.29999999701977,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 52,
+            "maxLongTaskMs": 52,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29463278,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 596.0999999940395,
+            "commits": 9,
+            "renderMs": 61.20000001788139,
+            "maxCommitRenderMs": 26,
+            "searchPaintMs": 36.599999994039536,
+            "searchWorkspaceMs": 251.09999999403954,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 39688982,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 3,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 299.8999999910593,
+          "commits": 6,
+          "renderMs": 56.5,
+          "maxCommitRenderMs": 46.6000000089407,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 1,
+          "longTaskMs": 168,
+          "maxLongTaskMs": 168,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28143930,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 26260460,
+          "totalSize": 27623424,
+          "embedderHeapUsedSize": 4975296,
+          "backingStorageSize": 742575
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 299.8999999910593,
+            "commits": 7,
+            "renderMs": 48.40000003576279,
+            "maxCommitRenderMs": 21.600000008940697,
+            "searchPaintMs": 87.79999999701977,
+            "searchWorkspaceMs": 246.5,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 90,
+            "maxLongTaskMs": 90,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29476807,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 299.8999999910593,
+            "commits": 9,
+            "renderMs": 65.59999999403954,
+            "maxCommitRenderMs": 24.200000002980232,
+            "searchPaintMs": 34.5,
+            "searchWorkspaceMs": 258.70000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 39665378,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 4,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 435,
+          "commits": 6,
+          "renderMs": 85.30000001192093,
+          "maxCommitRenderMs": 70.10000002384186,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 300,
+          "maxLongTaskMs": 235,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28159622,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 25475408,
+          "totalSize": 26853376,
+          "embedderHeapUsedSize": 4978552,
+          "backingStorageSize": 1517563
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 435,
+            "commits": 7,
+            "renderMs": 54.40000003576279,
+            "maxCommitRenderMs": 24.700000017881393,
+            "searchPaintMs": 40.20000000298023,
+            "searchWorkspaceMs": 248.40000000596046,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29457931,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 435,
+            "commits": 9,
+            "renderMs": 49.29999998211861,
+            "maxCommitRenderMs": 16.399999976158142,
+            "searchPaintMs": 23.599999994039536,
+            "searchWorkspaceMs": 250,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 39665684,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 5,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 394.70000000298023,
+          "commits": 6,
+          "renderMs": 80.20000004768372,
+          "maxCommitRenderMs": 66.00000002980232,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 273,
+          "maxLongTaskMs": 217,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28160591,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 26250336,
+          "totalSize": 27623424,
+          "embedderHeapUsedSize": 4977928,
+          "backingStorageSize": 742525
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 394.70000000298023,
+            "commits": 7,
+            "renderMs": 55.89999996125698,
+            "maxCommitRenderMs": 23.599999994039536,
+            "searchPaintMs": 97.70000000298023,
+            "searchWorkspaceMs": 254.29999999701977,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 101,
+            "maxLongTaskMs": 101,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29463400,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 394.70000000298023,
+            "commits": 9,
+            "renderMs": 50.50000001490116,
+            "maxCommitRenderMs": 18,
+            "searchPaintMs": 25.80000001192093,
+            "searchWorkspaceMs": 246.1000000089407,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 39651123,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 6,
+        "tabs": 1000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 385.59999999403954,
+          "commits": 6,
+          "renderMs": 85.20000000298023,
+          "maxCommitRenderMs": 71.40000002086163,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 284,
+          "maxLongTaskMs": 227,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 28160719,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 26250228,
+          "totalSize": 27361280,
+          "embedderHeapUsedSize": 4978168,
+          "backingStorageSize": 742573
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 385.59999999403954,
+            "commits": 7,
+            "renderMs": 56.20000001788139,
+            "maxCommitRenderMs": 25.100000008940697,
+            "searchPaintMs": 40.20000000298023,
+            "searchWorkspaceMs": 255,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 51,
+            "heapBytes": 29458268,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 385.59999999403954,
+            "commits": 9,
+            "renderMs": 59.39999997615814,
+            "maxCommitRenderMs": 22.700000002980232,
+            "searchPaintMs": 32.099999994039536,
+            "searchWorkspaceMs": 248.90000000596046,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 0,
+            "longTaskMs": 0,
+            "maxLongTaskMs": 0,
+            "mountedRows": 36,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 961,
+            "heapBytes": 39878530,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 0,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 947.3000000119209,
+          "commits": 6,
+          "renderMs": 218.6000000089407,
+          "maxCommitRenderMs": 205,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 812,
+          "maxLongTaskMs": 714,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 121862698,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 100105548,
+          "totalSize": 102825984,
+          "embedderHeapUsedSize": 4880320,
+          "backingStorageSize": 947648
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 947.3000000119209,
+            "commits": 7,
+            "renderMs": 144.8000000268221,
+            "maxCommitRenderMs": 66,
+            "searchPaintMs": 138.09999999403954,
+            "searchWorkspaceMs": 399.09999999403954,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 330,
+            "maxLongTaskMs": 191,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 117315627,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 947.3000000119209,
+            "commits": 10,
+            "renderMs": 214.50000001490116,
+            "maxCommitRenderMs": 60.6000000089407,
+            "searchPaintMs": 88.79999999701977,
+            "searchWorkspaceMs": 422.1000000089407,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 269,
+            "maxLongTaskMs": 198,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 143790924,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 1,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 789.4000000059605,
+          "commits": 6,
+          "renderMs": 170.40000002086163,
+          "maxCommitRenderMs": 156.99999997019768,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 667,
+          "maxLongTaskMs": 570,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 121730127,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 100106668,
+          "totalSize": 102563840,
+          "embedderHeapUsedSize": 4881456,
+          "backingStorageSize": 947649
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 789.4000000059605,
+            "commits": 7,
+            "renderMs": 112.40000000596046,
+            "maxCommitRenderMs": 53.29999998211861,
+            "searchPaintMs": 106,
+            "searchWorkspaceMs": 347.79999999701977,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 247,
+            "maxLongTaskMs": 140,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 117302169,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 789.4000000059605,
+            "commits": 9,
+            "renderMs": 163.59999999403954,
+            "maxCommitRenderMs": 51.099999994039536,
+            "searchPaintMs": 72.40000000596046,
+            "searchWorkspaceMs": 393.90000000596046,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 233,
+            "maxLongTaskMs": 174,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 155226185,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 2,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 795.6000000089407,
+          "commits": 6,
+          "renderMs": 186.40000000596046,
+          "maxCommitRenderMs": 175,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 694,
+          "maxLongTaskMs": 612,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 121873833,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 96253212,
+          "totalSize": 98713600,
+          "embedderHeapUsedSize": 4881400,
+          "backingStorageSize": 4801769
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 795.6000000089407,
+            "commits": 7,
+            "renderMs": 159.20000000298023,
+            "maxCommitRenderMs": 72.20000000298023,
+            "searchPaintMs": 152.3999999910593,
+            "searchWorkspaceMs": 432.3999999910593,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 376,
+            "maxLongTaskMs": 223,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 117268923,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 795.6000000089407,
+            "commits": 10,
+            "renderMs": 239.5,
+            "maxCommitRenderMs": 69.00000001490116,
+            "searchPaintMs": 99.29999999701977,
+            "searchWorkspaceMs": 446,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 302,
+            "maxLongTaskMs": 221,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 144047927,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 3,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 577.7999999970198,
+          "commits": 7,
+          "renderMs": 130.7000000178814,
+          "maxCommitRenderMs": 122.60000002384186,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 490,
+          "maxLongTaskMs": 426,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 120372457,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 96254880,
+          "totalSize": 98975744,
+          "embedderHeapUsedSize": 5061896,
+          "backingStorageSize": 4802308
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 577.7999999970198,
+            "commits": 7,
+            "renderMs": 89.2000000178814,
+            "maxCommitRenderMs": 41.1000000089407,
+            "searchPaintMs": 83.59999999403954,
+            "searchWorkspaceMs": 312.79999999701977,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 193,
+            "maxLongTaskMs": 108,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 117229221,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 577.7999999970198,
+            "commits": 9,
+            "renderMs": 121.79999999701977,
+            "maxCommitRenderMs": 37.70000000298023,
+            "searchPaintMs": 42.400000005960464,
+            "searchWorkspaceMs": 345.20000000298023,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 129,
+            "maxLongTaskMs": 129,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 145286755,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 4,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 524.4000000059605,
+          "commits": 6,
+          "renderMs": 127.20000003278255,
+          "maxCommitRenderMs": 118.80000001192093,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 448,
+          "maxLongTaskMs": 389,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 120638848,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 96253668,
+          "totalSize": 99500032,
+          "embedderHeapUsedSize": 4878480,
+          "backingStorageSize": 4802602
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 524.4000000059605,
+            "commits": 7,
+            "renderMs": 85.70000000298023,
+            "maxCommitRenderMs": 37,
+            "searchPaintMs": 79.1000000089407,
+            "searchWorkspaceMs": 327.1000000089407,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 199,
+            "maxLongTaskMs": 121,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 117430886,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 524.4000000059605,
+            "commits": 9,
+            "renderMs": 136.19999998807907,
+            "maxCommitRenderMs": 42.400000005960464,
+            "searchPaintMs": 62.30000001192093,
+            "searchWorkspaceMs": 356.6000000089407,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 190,
+            "maxLongTaskMs": 140,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 141374902,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 5,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 524.0999999940395,
+          "commits": 6,
+          "renderMs": 118.99999998509884,
+          "maxCommitRenderMs": 111.89999997615814,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 448,
+          "maxLongTaskMs": 394,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 120390298,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 96253016,
+          "totalSize": 100024320,
+          "embedderHeapUsedSize": 4879040,
+          "backingStorageSize": 4802160
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 524.0999999940395,
+            "commits": 7,
+            "renderMs": 100.29999996721745,
+            "maxCommitRenderMs": 40.099999994039536,
+            "searchPaintMs": 79.70000000298023,
+            "searchWorkspaceMs": 412.80000001192093,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 230,
+            "maxLongTaskMs": 150,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 117302093,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 524.0999999940395,
+            "commits": 9,
+            "renderMs": 189.00000001490116,
+            "maxCommitRenderMs": 59.599999994039536,
+            "searchPaintMs": 101.19999998807907,
+            "searchWorkspaceMs": 428.5,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 266,
+            "maxLongTaskMs": 205,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 141156883,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      },
+      {
+        "iteration": 6,
+        "tabs": 5000,
+        "startup": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+          "readyMs": 780.5,
+          "commits": 6,
+          "renderMs": 164.19999998807907,
+          "maxCommitRenderMs": 151,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 0,
+          "dragRenderMs": 0,
+          "dragMaxCommitRenderMs": 0,
+          "longTasks": 2,
+          "longTaskMs": 668,
+          "maxLongTaskMs": 583,
+          "mountedRows": 36,
+          "tabCount": 5012,
+          "windowCount": 2,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 5012,
+          "heapBytes": 121888114,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "heap": {
+          "usedSize": 96251100,
+          "totalSize": 98713600,
+          "embedderHeapUsedSize": 4879128,
+          "backingStorageSize": 4801770
+        },
+        "search": {
+          "Needle": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 780.5,
+            "commits": 8,
+            "renderMs": 127.49999998509884,
+            "maxCommitRenderMs": 50.89999997615814,
+            "searchPaintMs": 65.59999999403954,
+            "searchWorkspaceMs": 332.3999999910593,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 2,
+            "longTaskMs": 191,
+            "maxLongTaskMs": 125,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Needle",
+            "effectiveQuery": "Needle",
+            "matchedTabs": 251,
+            "heapBytes": 113650181,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          },
+          "Work": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "35683b0ed52280767afe09ed54eee3dd69a5fea267f89803ab56c969e55489b6",
+            "readyMs": 780.5,
+            "commits": 9,
+            "renderMs": 131.80000001192093,
+            "maxCommitRenderMs": 40.1000000089407,
+            "searchPaintMs": 45,
+            "searchWorkspaceMs": 348.30000001192093,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 132,
+            "maxLongTaskMs": 132,
+            "mountedRows": 36,
+            "tabCount": 5012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "Work",
+            "effectiveQuery": "Work",
+            "matchedTabs": 4761,
+            "heapBytes": 155449952,
+            "viewport": "2320x989",
+            "retainedReferences": null
+          }
+        }
+      }
+    ],
+    "drags": [
+      {
+        "iteration": 0,
+        "scroll": {
+          "position": {
+            "scrollTop": 7229,
+            "clientHeight": 903
+          },
+          "beforeHeap": {
+            "usedSize": 26240732,
+            "totalSize": 27361280,
+            "embedderHeapUsedSize": 5335584,
+            "backingStorageSize": 742623
+          },
+          "afterHeap": {
+            "usedSize": 26372124,
+            "totalSize": 27885568,
+            "embedderHeapUsedSize": 4881352,
+            "backingStorageSize": 827751
+          },
+          "state": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 218.20000000298023,
+            "commits": 15,
+            "renderMs": 89.49999989569187,
+            "maxCommitRenderMs": 34.89999997615814,
+            "searchPaintMs": 0,
+            "searchWorkspaceMs": 0,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 118,
+            "maxLongTaskMs": 118,
+            "mountedRows": 30,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "",
+            "effectiveQuery": "",
+            "matchedTabs": 1012,
+            "heapBytes": 32800039,
+            "viewport": "2320x989",
+            "retainedReferences": {
+              "detachedNodeRefs": 0,
+              "connectedNodeRefs": 31,
+              "groupRowCache": 1,
+              "staleSelectedModels": 0,
+              "focusedModelCurrent": true,
+              "containerRefConnected": true
+            }
+          }
+        },
+        "during": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 245.3999999910593,
+          "commits": 25,
+          "renderMs": 16.799999997019768,
+          "maxCommitRenderMs": 9.099999994039536,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 36,
+          "dragRenderMs": 12.399999991059303,
+          "dragMaxCommitRenderMs": 9.099999994039536,
+          "longTasks": 0,
+          "longTaskMs": 0,
+          "maxLongTaskMs": 0,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 1000,
+          "dragging": true,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 36940380,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "after": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 245.3999999910593,
+          "commits": 32,
+          "renderMs": 50.10000002384186,
+          "maxCommitRenderMs": 17.00000001490116,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 36,
+          "dragRenderMs": 12.599999994039536,
+          "dragMaxCommitRenderMs": 9.099999994039536,
+          "longTasks": 1,
+          "longTaskMs": 131,
+          "maxLongTaskMs": 131,
+          "mountedRows": 24,
+          "tabCount": 1012,
+          "windowCount": 1,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 35208284,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "references": {
+          "detachedNodeRefs": 0,
+          "connectedNodeRefs": 26,
+          "groupRowCache": 1,
+          "staleSelectedModels": 0,
+          "focusedModelCurrent": true,
+          "containerRefConnected": true
+        },
+        "heap": {
+          "usedSize": 27811968,
+          "totalSize": 28934144,
+          "embedderHeapUsedSize": 5445384,
+          "backingStorageSize": 1411698
+        },
+        "errors": []
+      },
+      {
+        "iteration": 1,
+        "scroll": {
+          "position": {
+            "scrollTop": 7229,
+            "clientHeight": 903
+          },
+          "beforeHeap": {
+            "usedSize": 26240504,
+            "totalSize": 27099136,
+            "embedderHeapUsedSize": 5349144,
+            "backingStorageSize": 742573
+          },
+          "afterHeap": {
+            "usedSize": 26372968,
+            "totalSize": 28147712,
+            "embedderHeapUsedSize": 4910472,
+            "backingStorageSize": 827750
+          },
+          "state": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 193.29999999701977,
+            "commits": 15,
+            "renderMs": 78.00000002980232,
+            "maxCommitRenderMs": 27.700000002980232,
+            "searchPaintMs": 0,
+            "searchWorkspaceMs": 0,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 103,
+            "maxLongTaskMs": 103,
+            "mountedRows": 30,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "",
+            "effectiveQuery": "",
+            "matchedTabs": 1012,
+            "heapBytes": 32864990,
+            "viewport": "2320x989",
+            "retainedReferences": {
+              "detachedNodeRefs": 0,
+              "connectedNodeRefs": 31,
+              "groupRowCache": 1,
+              "staleSelectedModels": 0,
+              "focusedModelCurrent": true,
+              "containerRefConnected": true
+            }
+          }
+        },
+        "during": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 167.79999999701977,
+          "commits": 26,
+          "renderMs": 10.600000068545341,
+          "maxCommitRenderMs": 5.500000014901161,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 36,
+          "dragRenderMs": 7.700000077486038,
+          "dragMaxCommitRenderMs": 5.500000014901161,
+          "longTasks": 0,
+          "longTaskMs": 0,
+          "maxLongTaskMs": 0,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 1000,
+          "dragging": true,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 36944588,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "after": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 167.79999999701977,
+          "commits": 32,
+          "renderMs": 29.50000010430813,
+          "maxCommitRenderMs": 9.900000005960464,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 36,
+          "dragRenderMs": 7.700000077486038,
+          "dragMaxCommitRenderMs": 5.500000014901161,
+          "longTasks": 1,
+          "longTaskMs": 80,
+          "maxLongTaskMs": 80,
+          "mountedRows": 24,
+          "tabCount": 1012,
+          "windowCount": 1,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 35183350,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "references": {
+          "detachedNodeRefs": 0,
+          "connectedNodeRefs": 26,
+          "groupRowCache": 1,
+          "staleSelectedModels": 0,
+          "focusedModelCurrent": true,
+          "containerRefConnected": true
+        },
+        "heap": {
+          "usedSize": 27802984,
+          "totalSize": 29458432,
+          "embedderHeapUsedSize": 5311392,
+          "backingStorageSize": 1411497
+        },
+        "errors": []
+      },
+      {
+        "iteration": 2,
+        "scroll": {
+          "position": {
+            "scrollTop": 7229,
+            "clientHeight": 903
+          },
+          "beforeHeap": {
+            "usedSize": 26240608,
+            "totalSize": 27623424,
+            "embedderHeapUsedSize": 5341712,
+            "backingStorageSize": 742524
+          },
+          "afterHeap": {
+            "usedSize": 26372936,
+            "totalSize": 27885568,
+            "embedderHeapUsedSize": 4916000,
+            "backingStorageSize": 827750
+          },
+          "state": {
+            "build": {
+              "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+              "dependencyVersions": {
+                "react": "18.3.1",
+                "react-dom": "18.3.1",
+                "mobx": "6.15.0"
+              }
+            },
+            "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+            "readyMs": 174.09999999403954,
+            "commits": 15,
+            "renderMs": 69.09999997913837,
+            "maxCommitRenderMs": 24.900000005960464,
+            "searchPaintMs": 0,
+            "searchWorkspaceMs": 0,
+            "dragMaxRows": 0,
+            "dragRenderMs": 0,
+            "dragMaxCommitRenderMs": 0,
+            "longTasks": 1,
+            "longTaskMs": 91,
+            "maxLongTaskMs": 91,
+            "mountedRows": 30,
+            "tabCount": 1012,
+            "windowCount": 2,
+            "selectedTabs": 0,
+            "dragging": false,
+            "query": "",
+            "effectiveQuery": "",
+            "matchedTabs": 1012,
+            "heapBytes": 32805630,
+            "viewport": "2320x989",
+            "retainedReferences": {
+              "detachedNodeRefs": 0,
+              "connectedNodeRefs": 31,
+              "groupRowCache": 1,
+              "staleSelectedModels": 0,
+              "focusedModelCurrent": true,
+              "containerRefConnected": true
+            }
+          }
+        },
+        "during": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 145.29999999701977,
+          "commits": 26,
+          "renderMs": 8.600000008940697,
+          "maxCommitRenderMs": 4.699999988079071,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 36,
+          "dragRenderMs": 7.300000011920929,
+          "dragMaxCommitRenderMs": 4.699999988079071,
+          "longTasks": 0,
+          "longTaskMs": 0,
+          "maxLongTaskMs": 0,
+          "mountedRows": 36,
+          "tabCount": 1012,
+          "windowCount": 2,
+          "selectedTabs": 1000,
+          "dragging": true,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 36981728,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "after": {
+          "build": {
+            "revision": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+            "dependencyVersions": {
+              "react": "18.3.1",
+              "react-dom": "18.3.1",
+              "mobx": "6.15.0"
+            }
+          },
+          "fixtureFingerprint": "115c0157d3103cf5de9f93a30403694af5ea3e448f779e429a26a026d40b517b",
+          "readyMs": 145.29999999701977,
+          "commits": 32,
+          "renderMs": 28.700000002980232,
+          "maxCommitRenderMs": 9.700000002980232,
+          "searchPaintMs": 0,
+          "searchWorkspaceMs": 0,
+          "dragMaxRows": 36,
+          "dragRenderMs": 7.300000011920929,
+          "dragMaxCommitRenderMs": 4.699999988079071,
+          "longTasks": 1,
+          "longTaskMs": 84,
+          "maxLongTaskMs": 84,
+          "mountedRows": 24,
+          "tabCount": 1012,
+          "windowCount": 1,
+          "selectedTabs": 0,
+          "dragging": false,
+          "query": "",
+          "effectiveQuery": "",
+          "matchedTabs": 1012,
+          "heapBytes": 35192810,
+          "viewport": "2320x989",
+          "retainedReferences": null
+        },
+        "references": {
+          "detachedNodeRefs": 0,
+          "connectedNodeRefs": 26,
+          "groupRowCache": 1,
+          "staleSelectedModels": 0,
+          "focusedModelCurrent": true,
+          "containerRefConnected": true
+        },
+        "heap": {
+          "usedSize": 27823076,
+          "totalSize": 29196288,
+          "embedderHeapUsedSize": 5335960,
+          "backingStorageSize": 1411597
+        },
+        "errors": []
+      }
+    ],
+    "errors": []
+  },
+  "comparisonBaseline": {
+    "commit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602",
+    "referenceCommit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"
+  },
+  "retrospective": true
+}

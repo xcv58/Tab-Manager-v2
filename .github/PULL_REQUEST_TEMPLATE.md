@@ -11,6 +11,6 @@
 - Keep the PR title in conventional commit form such as `fix: ...`,
   `feat(scope): ...`, `docs: ...`, or `chore(ci): ...`.
 - GitHub squash merge uses the PR title as the default commit title, and
-  `release-please` reads that title from git history.
+  the local release-note audit reads conventional commit history.
 - If this PR should affect extension release notes, prefer a releasable title
   such as `fix:` or `feat:`.

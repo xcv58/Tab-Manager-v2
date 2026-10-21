@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 1,
+  "id": "published-history-2026-10-20-v2.6.1",
+  "recordedAt": "2026-10-20T16:05:28.419Z",
+  "source": {
+    "commit": "7f2cd7a1651f8e09213eb3c0b27a3ed6ecf6c2a8",
+    "committedAt": "2026-08-23T11:41:29-04:00",
+    "version": "2.6.1",
+    "label": "2.6.1",
+    "status": "released",
+    "tag": "v2.6.1",
+    "dirty": false,
+    "publishedAt": "2026-08-23T15:41:40Z"
+  },
+  "provenance": {
+    "kind": "published-release-backfill",
+    "repository": "xcv58/Tab-Manager-v2",
+    "runner": "local:darwin:arm64",
+    "releaseId": 375252153,
+    "releaseUrl": "https://github.com/xcv58/Tab-Manager-v2/releases/tag/v2.6.1",
+    "publishedAt": "2026-08-23T15:41:40Z",
+    "collectorSha256": "9a64f37ce51c11ffe2803fa9ebc54df9b476d8e033a626c33eb32300424a7672",
+    "note": "Original GitHub release packages downloaded and inspected at backfill time. ZIP bytes and file contents are historical artifacts; no historical runtime timing is inferred."
+  },
+  "bundles": [
+    {
+      "browser": "chrome",
+      "zip": {
+        "bytes": 269761,
+        "sha256": "4d487a126d035678008c41c25dbd2644b4354962a8bd7beb3518a7e1479a4808"
+      },
+      "contentSha256": "b892853a9c60e5de6a4160630697a4c2a633298886a77d708afaa1f6480577c9",
+      "files": [
+        {
+          "path": "background.js",
+          "bytes": 30213,
+          "gzipBytes": 8973,
+          "sha256": "4a60f300bf86d474de961d0b348949ef9199e2205ecdb947e6cf76b969d753fa"
+        },
+        {
+          "path": "bookmarks.png",
+          "bytes": 288,
+          "gzipBytes": 311,
+          "sha256": "d22ce7588c89a7fa97fceb78346f05d94d4b5785712a63cd96380ceb0e854148"
+        },
+        {
+          "path": "chrome.png",
+          "bytes": 710,
+          "gzipBytes": 733,
+          "sha256": "1749c9d9f4055944b8353a94558a4d2477056b6fb124b765d96c14fe8cb6401e"
+        },
+        {
+          "path": "crashes.png",
+          "bytes": 152,
+          "gzipBytes": 168,
+          "sha256": "0a4ed30133c10c5f1d34dd6abc4e617dc3f624121e6dd1b0ae4a67004ebd512d"
+        },
+        {
+          "path": "downloads.png",
+          "bytes": 197,
+          "gzipBytes": 218,
+          "sha256": "e198ec1c7e96b352443c249aa2c5fb9c1347a8a7dcb4357581d6925c8ab99c29"
+        },
+        {
+          "path": "empty.png",
+          "bytes": 414,
+          "gzipBytes": 381,
+          "sha256": "33443aa61925875fc704751f1864702d6131b7d43a028fddf2f010004f929c94"
+        },
+        {
+          "path": "extensions.png",
+          "bytes": 334,
+          "gzipBytes": 357,
+          "sha256": "82d914ffd909e8ac9ad1af1e992c663d2c0caa41706021cec0e03909cf3840e4"
+        },
+        {
+          "path": "flags.png",
+          "bytes": 363,
+          "gzipBytes": 386,
+          "sha256": "5030e4dcae1ba71c276a69109c71982648b78d73df5e861d516465bfe5660f5d"
+        },
+        {
+          "path": "history.png",
+          "bytes": 354,
+          "gzipBytes": 377,
+          "sha256": "072bd8da91587cd4c2702a46277e113f976e2533f0c8011ec48dd3740d61f6de"
+        },
+        {
+          "path": "icon-128-dark.png",
+          "bytes": 512,
+          "gzipBytes": 469,
+          "sha256": "03631d69d70f3501a754f83cd89b7426494db6f6549cd639e546d5b924ab269d"
+        },
+        {
+          "path": "icon-128.png",
+          "bytes": 2070,
+          "gzipBytes": 1611,
+          "sha256": "3d4c85f1df2400085b8dccaa9fe49f976062a5d47e3d77319d7a473dcae0884d"
+        },
+        {
+          "path": "icon-16-dark.png",
+          "bytes": 243,
+          "gzipBytes": 249,
+          "sha256": "117df5d96678dd6531c5c5e10e3a04ed9a5219b2adbc06d724a97500cc0d7355"
+        },
+        {
+          "path": "icon-16.png",
+          "bytes": 1280,
+          "gzipBytes": 1303,
+          "sha256": "7318d4521e620b04f0b822bb49ff429be1b14c34d4d01298d7d6c17738d67fb0"
+        },
+        {
+          "path": "icon-48-dark.png",
+          "bytes": 353,
+          "gzipBytes": 369,
+          "sha256": "877b3e89c39be0674420269bdaa59a5a484bf48402e8c5e6761230e95a28399c"
+        },
+        {
+          "path": "icon-48.png",
+          "bytes": 1466,
+          "gzipBytes": 1461,
+          "sha256": "10aa6745d8751f0ca6e094d19873519638d9e9828d40cba0588ba6bbed36c73d"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 1076,
+          "gzipBytes": 515,
+          "sha256": "6f9dad28df6f0ed1de86d4b1b094333ae3fd577269f7da2cb208c505a8e9a0d3"
+        },
+        {
+          "path": "popup.css",
+          "bytes": 19145,
+          "gzipBytes": 4904,
+          "sha256": "746172384aec33a439616262a8401ead3e01ed5db5286935a48f417194284cdf"
+        },
+        {
+          "path": "popup.html",
+          "bytes": 737,
+          "gzipBytes": 405,
+          "sha256": "4c85be1b62b2739888d30694a472c2e6f04129511a2945733aa16e7334cf20c2"
+        },
+        {
+          "path": "popup.js",
+          "bytes": 880592,
+          "gzipBytes": 244471,
+          "sha256": "b52b1f5ea8c434ab144532bf8dbe237b6d5dc4ee4f49637f9a9811a17b1fe1a9"
+        },
+        {
+          "path": "popup.js.LICENSE.txt",
+          "bytes": 1566,
+          "gzipBytes": 408,
+          "sha256": "c3d2bb063e8f4a27adbd3013be4bdaf6ffe05b18e73dbcc5ad537bb15ed515ec"
+        },
+        {
+          "path": "settings.png",
+          "bytes": 338,
+          "gzipBytes": 361,
+          "sha256": "8503f7b826c2d984275980cdcc16232f040003ee2d22db4dd0c979426b05e94d"
+        }
+      ],
+      "startupFiles": [
+        "popup.js",
+        "popup.css"
+      ],
+      "summary": {
+        "unpackedBytes": 942403,
+        "popupJsBytes": 880592,
+        "popupCssBytes": 19145,
+        "backgroundJsBytes": 30213,
+        "settingsPreviewBytes": 0
+      },
+      "origin": "published-release",
+      "asset": {
+        "id": 526373520,
+        "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v2.6.1/build_chrome.zip",
+        "digest": "sha256:4d487a126d035678008c41c25dbd2644b4354962a8bd7beb3518a7e1479a4808",
+        "releaseChecksum": "4d487a126d035678008c41c25dbd2644b4354962a8bd7beb3518a7e1479a4808"
+      }
+    },
+    {
+      "browser": "firefox",
+      "zip": {
+        "bytes": 270607,
+        "sha256": "dbb7066e574283b2eef6b659b49fcdb4d50992d68eff35fbfe487c70b565bc91"
+      },
+      "contentSha256": "ea88a7fd89d307c01f23012f7b474d204d10e53975e19d6b311849b63f5e13bc",
+      "files": [
+        {
+          "path": "background.js",
+          "bytes": 30213,
+          "gzipBytes": 8973,
+          "sha256": "4a60f300bf86d474de961d0b348949ef9199e2205ecdb947e6cf76b969d753fa"
+        },
+        {
+          "path": "bookmarks.png",
+          "bytes": 288,
+          "gzipBytes": 311,
+          "sha256": "d22ce7588c89a7fa97fceb78346f05d94d4b5785712a63cd96380ceb0e854148"
+        },
+        {
+          "path": "chrome.png",
+          "bytes": 710,
+          "gzipBytes": 733,
+          "sha256": "1749c9d9f4055944b8353a94558a4d2477056b6fb124b765d96c14fe8cb6401e"
+        },
+        {
+          "path": "crashes.png",
+          "bytes": 152,
+          "gzipBytes": 168,
+          "sha256": "0a4ed30133c10c5f1d34dd6abc4e617dc3f624121e6dd1b0ae4a67004ebd512d"
+        },
+        {
+          "path": "downloads.png",
+          "bytes": 197,
+          "gzipBytes": 218,
+          "sha256": "e198ec1c7e96b352443c249aa2c5fb9c1347a8a7dcb4357581d6925c8ab99c29"
+        },
+        {
+          "path": "empty.png",
+          "bytes": 414,
+          "gzipBytes": 381,
+          "sha256": "33443aa61925875fc704751f1864702d6131b7d43a028fddf2f010004f929c94"
+        },
+        {
+          "path": "extensions.png",
+          "bytes": 334,
+          "gzipBytes": 357,
+          "sha256": "82d914ffd909e8ac9ad1af1e992c663d2c0caa41706021cec0e03909cf3840e4"
+        },
+        {
+          "path": "flags.png",
+          "bytes": 363,
+          "gzipBytes": 386,
+          "sha256": "5030e4dcae1ba71c276a69109c71982648b78d73df5e861d516465bfe5660f5d"
+        },
+        {
+          "path": "history.png",
+          "bytes": 354,
+          "gzipBytes": 377,
+          "sha256": "072bd8da91587cd4c2702a46277e113f976e2533f0c8011ec48dd3740d61f6de"
+        },
+        {
+          "path": "icon-128-dark.png",
+          "bytes": 512,
+          "gzipBytes": 469,
+          "sha256": "03631d69d70f3501a754f83cd89b7426494db6f6549cd639e546d5b924ab269d"
+        },
+        {
+          "path": "icon-128.png",
+          "bytes": 2070,
+          "gzipBytes": 1611,
+          "sha256": "3d4c85f1df2400085b8dccaa9fe49f976062a5d47e3d77319d7a473dcae0884d"
+        },
+        {
+          "path": "icon-16-dark.png",
+          "bytes": 243,
+          "gzipBytes": 249,
+          "sha256": "117df5d96678dd6531c5c5e10e3a04ed9a5219b2adbc06d724a97500cc0d7355"
+        },
+        {
+          "path": "icon-16.png",
+          "bytes": 1280,
+          "gzipBytes": 1303,
+          "sha256": "7318d4521e620b04f0b822bb49ff429be1b14c34d4d01298d7d6c17738d67fb0"
+        },
+        {
+          "path": "icon-48-dark.png",
+          "bytes": 353,
+          "gzipBytes": 369,
+          "sha256": "877b3e89c39be0674420269bdaa59a5a484bf48402e8c5e6761230e95a28399c"
+        },
+        {
+          "path": "icon-48.png",
+          "bytes": 1466,
+          "gzipBytes": 1461,
+          "sha256": "10aa6745d8751f0ca6e094d19873519638d9e9828d40cba0588ba6bbed36c73d"
+        },
+        {
+          "path": "manifest.json",
+          "bytes": 1292,
+          "gzipBytes": 634,
+          "sha256": "5c380aa82c2655bb6b1e73871f25ae55779567b05beb573ac2f7fab641b868bb"
+        },
+        {
+          "path": "popup.css",
+          "bytes": 19145,
+          "gzipBytes": 4904,
+          "sha256": "746172384aec33a439616262a8401ead3e01ed5db5286935a48f417194284cdf"
+        },
+        {
+          "path": "popup.html",
+          "bytes": 737,
+          "gzipBytes": 405,
+          "sha256": "4c85be1b62b2739888d30694a472c2e6f04129511a2945733aa16e7334cf20c2"
+        },
+        {
+          "path": "popup.js",
+          "bytes": 883700,
+          "gzipBytes": 245200,
+          "sha256": "c8425137dd67fa5c1050d1e8a63bc2f9ebd0bd505e78ef6e5b3c8c7845cbe952"
+        },
+        {
+          "path": "popup.js.LICENSE.txt",
+          "bytes": 1566,
+          "gzipBytes": 408,
+          "sha256": "c3d2bb063e8f4a27adbd3013be4bdaf6ffe05b18e73dbcc5ad537bb15ed515ec"
+        },
+        {
+          "path": "settings.png",
+          "bytes": 338,
+          "gzipBytes": 361,
+          "sha256": "8503f7b826c2d984275980cdcc16232f040003ee2d22db4dd0c979426b05e94d"
+        }
+      ],
+      "startupFiles": [
+        "popup.js",
+        "popup.css"
+      ],
+      "summary": {
+        "unpackedBytes": 945727,
+        "popupJsBytes": 883700,
+        "popupCssBytes": 19145,
+        "backgroundJsBytes": 30213,
+        "settingsPreviewBytes": 0
+      },
+      "origin": "published-release",
+      "asset": {
+        "id": 526373518,
+        "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v2.6.1/build_firefox.zip",
+        "digest": "sha256:dbb7066e574283b2eef6b659b49fcdb4d50992d68eff35fbfe487c70b565bc91",
+        "releaseChecksum": "dbb7066e574283b2eef6b659b49fcdb4d50992d68eff35fbfe487c70b565bc91"
+      }
+    }
+  ],
+  "runtime": null
+}

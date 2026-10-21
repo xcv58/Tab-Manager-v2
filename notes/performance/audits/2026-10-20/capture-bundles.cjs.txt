@@ -1,0 +1,40 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const zlib = require('node:zlib');
+const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
+const root = __dirname;
+const results = {};
+for (const revision of ['legacy', 'release', 'master']) {
+  results[revision] = {};
+  for (const browser of ['chrome', 'firefox']) {
+    const dir = path.join(root, revision, 'packages/extension/build', `build_${browser}`);
+    const names = fs.readdirSync(dir).sort();
+    const files = names.map(name => {
+      const data = fs.readFileSync(path.join(dir, name));
+      return {name, bytes: data.length, gzipBytes: zlib.gzipSync(data, {level:9}).length, sha256: crypto.createHash('sha256').update(data).digest('hex')};
+    });
+    const zip = path.join(root, `${revision}-${browser}.zip`);
+    execFileSync('zip', ['-X', '--compression-method', 'deflate', '-9', '-q', '-j', zip, ...names], {cwd:dir});
+    const html = fs.readFileSync(path.join(dir, 'popup.html'), 'utf8');
+    const startupNames = [...html.matchAll(/(?:src|href)="([^"#]+\.(?:js|css))"/g)].map(m=>m[1]);
+    const sum = predicate => files.filter(predicate).reduce((n,f)=>n+f.bytes,0);
+    results[revision][browser] = {
+      zipBytes: fs.statSync(zip).size,
+      unpackedBytes: sum(()=>true),
+      popupJsBytes: sum(f=>f.name==='popup.js'),
+      backgroundJsBytes: sum(f=>f.name==='background.js'),
+      popupCssBytes: sum(f=>f.name==='popup.css'),
+      allJsBytes: sum(f=>f.name.endsWith('.js')),
+      settingsPreviewBytes: sum(f=>f.name.startsWith('settings-preview')),
+      startupNames,
+      startupJsCssBytes: sum(f=>startupNames.includes(f.name)),
+      files
+    };
+  }
+}
+fs.writeFileSync(path.join(root,'bundle-sizes.json'),JSON.stringify(results,null,2)+'\n');
+for (const revision of Object.keys(results)) for (const browser of Object.keys(results[revision])) {
+  const {files,...summary}=results[revision][browser];
+  console.log(revision,browser,JSON.stringify(summary));
+}

@@ -65,37 +65,8 @@ jobs:
           path: packages/extension/build
           destination: dist
 
-  publish:
-    docker:
-      - image: cimg/node:25.9
-    steps:
-      - checkout
-      - *restore_cache
-      - *pnpm_setup
-      - run: pnpm run deploy
-      - run: pnpm publish-extension
-      - store_artifacts:
-          path: packages/extension/build
-          destination: dist
-      - run: pnpm release-it
-      - *save_cache
-
 workflows:
   version: 2
   build:
     jobs:
-      - build-test:
-          filters:
-            tags:
-              only: /^v.*/
-      # Temporarily disable tag-driven auto release publishing while the
-      # store upload credentials/flow are broken. Re-enable this job after
-      # the publish pipeline is healthy again.
-      # - publish:
-      #     requires:
-      #       - build-test
-      #     filters:
-      #       branches:
-      #         ignore: /.*/
-      #       tags:
-      #         only: /^v.*/
+      - build-test

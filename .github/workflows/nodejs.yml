@@ -1,26 +1,17 @@
 name: Build, Test, Integration Test
 
-on: [push]
+on:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  release-candidate-version:
-    name: Release candidate version
-    if: ${{ startsWith(github.ref_name, 'release-please--') }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Use Node.js 24 LTS
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - name: Require a matching release newer than 3.0.0
-        run: node scripts/release-policy.mjs candidate
-
   firefox-integration-test:
     name: Firefox integration
     runs-on: ubuntu-24.04
@@ -69,8 +60,8 @@ jobs:
 
       - name: Build and package Firefox extension
         run: |
-          pnpm --filter tab-manager-v2 build:firefox
-          pnpm --filter tab-manager-v2 zip:firefox
+          pnpm --filter ./packages/extension build:firefox
+          pnpm --filter ./packages/extension zip:firefox
 
       - name: Firefox browser integration
         env:
@@ -98,6 +89,7 @@ jobs:
   test-build-integration-test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node: [24, 25]
 
@@ -151,11 +143,14 @@ jobs:
         if: ${{ matrix.node == 25 }}
         run: pnpm --filter integration-test exec playwright install --with-deps --no-shell chromium
 
-      - name: Unit Test and Build
-        if: ${{ matrix.node == 24 }}
+      - name: Unit Test
         run: |
-          pnpm run test:unit
-          pnpm build
+          mkdir -p .tmp/report-results
+          pnpm --filter ./packages/extension test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
+
+      - name: Build extensions
+        if: ${{ matrix.node == 24 }}
+        run: pnpm build
 
       - name: Build website with interactive demo
         if: ${{ matrix.node == 24 }}
@@ -182,7 +177,9 @@ jobs:
       # Run all tests, including the browser integration suite.
       - name: Integration Test
         if: ${{ matrix.node == 25 }}
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test
+        env:
+          RELEASE_REPORTS_DIR: ${{ github.workspace }}/.tmp/report-results
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm run test:integration
 
       - name: Upload unloaded tab results
         if: ${{ matrix.node == 25 && !cancelled() }}
@@ -199,4 +196,13 @@ jobs:
           path: |
             packages/integration_test/playwright-report/
             packages/integration_test/test-results/
+          retention-days: 30
+
+      - name: Archive structured results even after failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-results-node-${{ matrix.node }}-${{ github.run_attempt }}
+          path: .tmp/report-results/
+          if-no-files-found: ignore
           retention-days: 30

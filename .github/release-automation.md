@@ -1,253 +1,252 @@
-# Release Automation
+# Local release coordination
 
-This repository uses `release-please` to turn releasable commits on `master`
-into a single release PR. Merging that PR creates the Git tag and GitHub
-Release, then the publish workflow rebuilds the extension on Ubuntu, reruns the
-Linux Playwright gate, and submits the release to Chrome, Firefox, and Edge.
+A maintainer or local AI driver prepares a release. CI verifies a frozen
+candidate and publishes only after the maintainer approves its package identity.
+There is no mandatory bot release PR. Ordinary PR review and branch protection
+still apply to source, version changes, and report commits.
 
-## Flow
+## Responsibilities
 
-1. Merge releasable commits such as `fix:` or `feat:` into `master`.
-2. `.github/workflows/release-please.yml` opens or updates one release PR.
-3. Merge the release PR after the Linux CI gate passes.
-4. The same workflow detects that a GitHub Release was created and runs the
-   Linux release gate without browser-store credentials.
-5. That job uploads one checksummed artifact, which independent jobs attach to
-   the GitHub Release and submit to Chrome, Firefox, and Edge unless a store
-   is explicitly skipped for that release tag.
-6. The workflow summary reports the release gate, asset attachment, and each
-   store's submission result separately. Store approval and public availability
-   still require separate verification.
+| Location                      | Responsibility                                                                                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local                         | Version/changelog preparation, reviewing packages and preview, approving publication, pushing its tag through existing Git authentication, importing report JSON |
+| CI: Prepare release candidate | Build frozen packages, run required checks, capture advisory measurements on separate runners                                                                    |
+| CI: Publish reviewed release  | Verify approval and gates, publish GitHub assets, submit stores independently, archive receipts/evidence                                                         |
+| Git                           | Source of truth for website report JSON, history, and release inventory                                                                                          |
+| GitHub releases               | Durable packages, raw evidence, checksummed capture manifests, and store receipts                                                                                |
+| Vercel                        | Existing Git integration builds the website from committed data                                                                                                  |
 
-## Manual 3.0.0 baseline and minimum automated version
-
-The browser-store 3.0.0 rollout used source commit
-`c2dea3aacb3c1fb871434bdcbbcf54019b03f602`. Its GitHub release and tag were
-withdrawn. The release configuration keeps this commit as `bootstrap-sha`, so
-Release Please cannot replay the older `Release-As: 3.0.0` footer while that tag
-is absent. Once a newer release exists, normal tag discovery takes over. Do not
-recreate the withdrawn tag or permanently pin `release-as` or `last-release-sha`.
-
-Automation changes must reach `master` separately from the release PR; otherwise
-the next bot refresh replaces changes made only on the release branch. The
-one-time `Release-As: 3.0.1` footer on the policy-fix PR selects the agreed next
-candidate and expires naturally after that release is tagged.
-
-Only stable versions **strictly newer than 3.0.0** may be released automatically:
-
-- A release-branch CI job rejects 3.0.0, older or malformed versions, and mismatched
-  extension, release manifest, Safari web and native marketing versions.
-- On `master` at 3.0.0, Release Please may update a PR but cannot create a GitHub
-  release or tag. After the source advances, an independent tag/version guard
-  controls the output required by package, asset and all three publisher jobs.
-- The manual Edge retry uses the same version floor before downloading packages
-  or reaching its publisher step. Ordinary development CI continues to run at
-  the manual baseline; this policy applies to release candidates and publishing.
-
-The Safari web manifest and native marketing version are Release Please
-`extra-files`. Native build numbers still require checking App Store Connect
-before an upload. Safari signing, TestFlight and App Store submission remain
-manual and are tracked in #2685.
-
-## Deferring a store for one release
-
-Use repository-level Actions **variables**, not secrets or environment-level
-variables, to skip a store's automatic submission for one exact release tag:
-
-| Repository variable        | Store                  |
-| -------------------------- | ---------------------- |
-| `CHROME_SKIP_RELEASE_TAG`  | Chrome Web Store       |
-| `FIREFOX_SKIP_RELEASE_TAG` | Firefox AMO            |
-| `EDGE_SKIP_RELEASE_TAG`    | Microsoft Edge Add-ons |
-
-An unset variable submits normally. A matching tag skips only that store;
-the Ubuntu release gate, package build, checksummed GitHub Release assets,
-and other stores continue normally. Later release tags submit normally even
-if the old variable is left in place.
-
-For example, to defer Edge for `v2.7.1` while its previous submission is still
-under review:
+## Prepare and verify
 
 ```sh
-gh variable set EDGE_SKIP_RELEASE_TAG --body v2.7.1 --repo xcv58/Tab-Manager-v2
+pnpm release:releasability
+pnpm release:prepare --version 3.0.1 --notes /absolute/path/release-notes.md
 ```
 
-Set the variable before merging the release PR. The workflow changes that
-implement these controls must also be on `master` before merging that PR.
-The release summary labels the store as skipped; it does not report a
-successful submission or a live store version for that store.
+The preparation command updates the extension and Safari/native marketing
+versions and prepends the reviewed changelog entry. It requires a clean tracked
+working tree and a version newer than both the current version and 3.0.0. It
+never commits, pushes, tags, or submits anything. Review and merge these source
+changes through the normal repository process. The withdrawn manual 3.0.0 tag
+must not be recreated; its source remains the historical comparison baseline.
 
-### Submitting a deferred Edge release later
-
-Once the previous Edge review is resolved, explicitly choose the saved release
-tag in **Actions > Retry Edge Release > Run workflow**, using the default
-branch. The equivalent command is:
+After merging, freeze the reviewed current master commit:
 
 ```sh
-gh workflow run retry-edge-release.yml --ref master \
-  --field release_tag=v3.0.1 --repo xcv58/Tab-Manager-v2
+pnpm release:verify --sha FULL_MASTER_COMMIT
+# Optional: --no-benchmarks skips advisory runtime collection.
+gh run list --workflow release-candidate.yml
+pnpm release:review --run CANDIDATE_RUN_ID
 ```
 
-This manual workflow intentionally bypasses `EDGE_SKIP_RELEASE_TAG`, downloads
-the existing GitHub Release package, and verifies its checksum before submitting
-to Edge. It does not rebuild the extension or resubmit Chrome and Firefox.
-Only run it when an Edge submission is intended; it does not check whether a
-previous submission is still under review or whether this version is already
-live. A successful run means submission succeeded, with store review and public
-availability still separate.
+The workflow is dispatched on master. Its preflight rejects arbitrary refs and
+requires the expected candidate SHA to equal the master revision captured at
+dispatch. All executable checkouts use that trusted `github.sha`, never an
+arbitrary dispatch-input ref. If master moves before dispatch, preparation fails
+early instead of building a different source. Existing frozen runs remain
+reusable after master advances. It builds Chrome and
+Firefox once and saves ZIP hashes plus the Firefox source archive in
+`candidate.json`. Chrome/Firefox browser checks expand and exercise those exact
+ZIPs. Unit checks and unsigned Safari Debug/Release compilation are also
+required. Safari compilation is build evidence, not Safari browser acceptance.
 
-## Keeping changes releasable
+Runtime benchmarks and packaged-size collection use separate runners and are
+advisory. Required checks may finish while a benchmark is still running. The
+local review prints every job outcome, the source SHA, the candidate manifest
+SHA-256, and the directory containing downloaded packages. It also assembles an unpublished
+local report from actual CI outcomes and whatever complete measurements are
+available, using the shared interactive viewer. The command prints a local
+preview command and URL. Missing benchmarks are explicit; rerun `release:review`
+after measurements finish to refresh the preview without rebuilding the candidate.
+This writes only ignored local output; it does not change the committed catalog.
+Review source, packages and this preview before approving publication.
 
-- Use squash merge titles that already read like the release note you want on
-  `master`, for example `fix: ungrouped tab drops into groups` or
-  `feat: add interactive promo video tour`.
-- This repository's package release tracks `packages/extension`, so commits
-  that only touch root release tooling, docs, marketing assets, or CI helpers
-  do not make the extension package releasable on their own.
-- Run `pnpm release:releasability` locally to audit commits since the latest
-  tag and find merged PRs that still need manual cleanup before the next
-  release.
-- `.github/workflows/pr-title.yml` checks PR titles early so the default squash
-  commit title stays conventional before anything lands on `master`.
+Reuse a previously prepared candidate by reviewing the same run; there is no
+need to dispatch it again. Source, dependency, version, or build-config changes
+require a new frozen candidate. Release-body text and report presentation edits
+do not.
 
-## Fixing already-merged PRs
+To retry failed candidate verification, choose **Re-run all jobs** in GitHub
+Actions, or run:
 
-If a squash-merged PR on `master` has a non-conventional title, edit the body
-of the merged PR and add a `BEGIN_COMMIT_OVERRIDE` block. The next
-`release-please` run will use that block instead of the squash title.
-
-```txt
-BEGIN_COMMIT_OVERRIDE
-fix: ungrouped tab drops into groups
-END_COMMIT_OVERRIDE
+```sh
+gh run rerun CANDIDATE_RUN_ID
+# After the required checks pass:
+pnpm release:review --run CANDIDATE_RUN_ID
 ```
 
-- `pnpm release:releasability` prints suggested override blocks for the current
-  release window.
-- If you want richer prose than the raw commit history provides, draft the
-  override lines or final release notes locally with an LLM, then review the
-  text before pasting it into the merged PR body or the release PR branch.
-- This recovery path depends on GitHub PR metadata. Prefer conventional PR
-  titles so the durable release signal lives in git history instead.
+A full rerun keeps the original source revision and rebuilds the packages and
+checks together in a new attempt. **Re-run failed jobs** and individual-job
+reruns are unsupported: they can leave successful prerequisites in an earlier
+attempt, so the new attempt may lack matching packages or required checks.
+Packages, manifest, and required checks must all belong to the same attempt.
+Review the new manifest and use its new digest for `--approve`; the previous
+approval cannot be reused.
 
-## Required repository settings
+If packaging is still running, wait for it to finish before reviewing. Candidate
+artifacts expire after 30 days; if the workflow can no longer be rerun, prepare a
+new candidate.
 
-- `Settings > Actions > General > Workflow permissions`: allow read and write.
-- `Settings > Actions > General > Allow GitHub Actions to create and approve
-pull requests`: enabled.
-- `Settings > Secrets and variables > Actions`: add the secrets listed below.
+## Approve and publish
 
-## Required secrets
+```sh
+pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256
+# Optional: --notes /absolute/path/github-release-body.md
+```
 
-- `RELEASE_PLEASE_TOKEN`: recommended PAT or GitHub App token for
-  `release-please`. Without it, release PR updates created with
-  `GITHUB_TOKEN` will not trigger follow-up CI on the release branch.
-- `EXTENSION_ID`
-- `CHROME_PUBLISHER_ID`
-- `CHROME_SERVICE_ACCOUNT_JSON`
-- `WEB_EXT_API_KEY`
-- `WEB_EXT_API_SECRET`
-- `EDGE_PRODUCT_ID`
-- `EDGE_CLIENT_ID`
-- `EDGE_API_KEY`
+`--approve` must match the digest saved by `release:review`. This command is the
+publication approval, including its version tag push; there is no repeated
+approval prompt during preparation.
+The trusted default-branch publisher rechecks the exact run/attempt, manifest,
+package hashes, packaged versions, required job outcomes, and master ancestry.
+Before dispatch, the local command rechecks the approved manifest, exact package
+hashes and required CI gates (or durable publication receipts for an existing
+release), checks source ancestry/version, and pushes the final version tag through
+the repository's existing Git/SSH authentication. It reuses a matching tag and
+rejects a conflicting one; tags are never force-pushed or automatically deleted.
+It validates the fetch URL and every resolved push URL, requiring one push
+destination in the release repository. Checks and publication use that validated
+remote. Automatic tag following is disabled so only the explicitly approved
+version tag is published.
+No additional token or approval step is needed. If dispatch fails after the push,
+rerun the same approved command to reuse the tag.
 
-## Local bootstrap flow
+CI requires that existing tag to identify the reviewed commit, rechecking it
+before publishing. This lets a frozen candidate remain publishable after master
+advances with workflow edits. It refuses an older stable version. It creates a
+draft,
+uploads verified files without overwriting, and publishes the GitHub release
+before store submission. An interrupted draft can resume from the same reviewed
+candidate. The release tag identifies the tested application commit.
 
-1. Copy [`.env.release.example`](../.env.release.example) to `.env.release.local`.
-2. Fill in the values in `.env.release.local`.
-3. Download the Chrome service account JSON key and set
-   `CHROME_SERVICE_ACCOUNT_JSON_FILE` to its local path.
-4. Run `pnpm sync:release-secrets` to upload the values into GitHub Actions
-   secrets for the current repository.
-5. Delete or rotate the local file if you do not want to keep the credentials
-   on disk after bootstrap.
+Wait for the current GitHub publication job to finish before starting another
+publication. CI also queues that job behind a repository-wide lock, covering
+the release inventory, version guard, uploads and publication so an older
+version cannot finish last and become Latest. Preparation and verification can
+overlap; store jobs retain their independent product-wide locks.
 
-The local file is gitignored. Keep it uncommitted and do not paste it into PRs,
-issues, or workflow logs.
+If GitHub leaves an empty `starter` asset after an upload failure, retrying
+rechecks its state and removes it only when it is still empty and owned by the
+trusted publisher. Completed assets remain immutable. Each invocation makes
+one cleanup/upload attempt; another failure stops with an error. The same
+recovery applies before reading an incomplete publication receipt.
 
-## How to obtain the credentials
+Chrome, Firefox, and Edge jobs run independently using the saved packages. Each
+store has one product-wide concurrency lock across all release tags. Up to 100
+waiting jobs queue without replacing earlier pending jobs; active submissions
+are never automatically cancelled. Queue order follows when jobs begin waiting,
+so it does not guarantee version order. Store credentials remain in the existing `chrome-web-store`, `firefox-amo`, and
+`edge-addons` GitHub environments. This flow needs no local store credentials,
+Release Please token, Vercel token, deployment hook, or custom website deploy job.
+The manual workflows become available after their definitions reach master.
 
-### GitHub
+## Resume and reconcile
 
-- `RELEASE_PLEASE_TOKEN`
-  Create a fine-grained personal access token at
-  `GitHub > Settings > Developer settings > Personal access tokens`.
-  Grant repository access to `xcv58/Tab-Manager-v2` and repository permissions
-  for `Contents`, `Pull requests`, and `Issues`.
+```sh
+# Retry only Edge; successful Chrome/Firefox submissions are untouched.
+pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256 --stores edge
+```
 
-### Chrome Web Store
+The publisher skips stores with an archived successful submission for these
+exact packages. Store attempt receipts are uploaded before submission and after
+available API checkpoints, including Edge operation IDs and Chrome responses.
+Successful receipts require acceptance evidence for the candidate version and
+package hash. Chrome waits for upload processing to succeed and verifies the
+submitted version; `PENDING_REVIEW` is already sufficient and does not wait for
+store approval. Edge requires explicit successful upload and submission
+operations with matching IDs. Firefox uses the audited, pinned `web-ext` 10.6.0
+submission contract with `--approval-timeout 0`; review and signed download remain
+separate. A tool upgrade requires checking that contract before updating it.
+An older `submitted` receipt without acceptance evidence remains unknown, so a
+maintainer can reconcile it and retry instead of being permanently skipped.
+A failure, timeout, or interruption is an **uncertain outcome**, not permission
+to resubmit. First inspect the store dashboard and archived operation/status
+receipts. If the attempt is confirmed unfinished and a new submission is needed,
+repeat the command with `--reconciled`. A journal upload failure stops the next
+store operation. An empty, trusted `starter` receipt is retained as an unknown
+attempt: it does not crash receipt parsing, and retry still requires checking the
+store and explicitly using `--reconciled`. Completed malformed or mismatched
+receipts remain errors. There is no blind automatic retry after an ambiguous
+response.
 
-- `EXTENSION_ID`
-  The current public listing ID is
-  `nimllkpgmmbdglnjneeakdgcpkbgbfbp`.
-- `CHROME_PUBLISHER_ID`
-  Open the Chrome Web Store Developer Dashboard, switch to the correct
-  publisher if needed, and copy the Publisher ID from the Account section.
-- `CHROME_SERVICE_ACCOUNT_JSON`
-  1. Open Google Cloud Console and create or select a project.
-  2. Enable the Chrome Web Store API for that project.
-  3. Create a service account.
-  4. Create a JSON key for the service account and download it.
-  5. In the Chrome Web Store Developer Dashboard, add the service account email
-     so it can manage your items.
-  6. Paste the full JSON key contents into the GitHub Actions secret named
-     `CHROME_SERVICE_ACCOUNT_JSON`, or set
-     `CHROME_SERVICE_ACCOUNT_JSON_FILE` in `.env.release.local` and let
-     `pnpm sync:release-secrets` upload it for you.
+On a new machine or after losing the ignored local review state, run
+`pnpm release:review --tag v3.0.1` to recover and verify the published packages,
+original candidate run ID, manifest digest, and archived successful gate receipt.
+Use that run ID and digest for a selected-store retry.
 
-### Firefox AMO
+Published retries download GitHub release packages and the archived gate receipt;
+they do not depend on expired Actions artifacts and never rebuild the app.
+Firefox signing can produce different bytes: signed outputs are archived with
+separate hashes, linked to the verified unsigned input and source archive.
+Successful submission means review is pending, not that the store is live.
 
-- `WEB_EXT_API_KEY`
-- `WEB_EXT_API_SECRET`
-  1. Sign in to AMO with the developer account that owns the add-on.
-  2. Open the API credentials page.
-  3. Create a credential pair and copy the key and secret into GitHub.
+## Archive late measurements and import the report
 
-The repository already defines a stable Gecko ID in
-`packages/extension/src/manifest.json`, so updates will continue to target the
-existing AMO listing. The release workflow also uploads
-`packages/extension/build/build_firefox_source.zip`, which is created from the
-current git tree and includes `AMO_SOURCE_CODE_REVIEW.md` for reviewer build
-instructions.
+Publication archives available typed check outcomes, structured test counts,
+raw diagnostic archives up to 100 MB each, metric records, and publisher receipts.
+Missing or pending benchmarks stay explicit. Checks/evidence capture failure does
+not resubmit stores or undo an existing release. Append evidence using:
 
-### Microsoft Edge Add-ons
+```sh
+pnpm release:publish --run CANDIDATE_RUN_ID --approve REVIEWED_CANDIDATE_SHA256 --stores none
+# For a separate completed Advisory Performance History run, add --metric-run ID.
+pnpm release:reports --tag v3.0.1
+pnpm reports:validate
+pnpm build:site
+pnpm preview:release-media
+```
 
-- `EDGE_PRODUCT_ID`
-  Find this in Partner Center for the existing extension. The public store URL
-  slug is not the product ID; Partner Center shows the actual product GUID.
-- `EDGE_CLIENT_ID`
-- `EDGE_API_KEY`
-  1. Sign in to Partner Center with the developer account that owns the
-     extension.
-  2. Open `Microsoft Edge program > Publish API`.
-  3. Enable the new experience if prompted.
-  4. Click `Create API credentials`.
-  5. Copy the Client ID and API key into GitHub.
+`--stores none` still publishes the GitHub release if it has not been published;
+after publication it only validates the saved release and appends available
+evidence. An appended capture never replaces an earlier capture.
 
-Microsoft's v1.1 API keys are
-[valid for 72 days](https://blogs.windows.com/msedgedev/2025/01/08/enhanced-security-for-extensions-with-publish-api-next-steps/).
-Record the expiry shown in Partner Center and rotate `EDGE_API_KEY` before it
-expires. Keep `EDGE_CLIENT_ID` paired with the credentials shown by Partner
-Center, updating it too if Partner Center issues a new Client ID.
+Advisory runtime runs freeze the target, baseline and reference to full commit
+SHAs before dependency/browser setup, and archive a small source receipt before
+measuring. The measurement command uses those frozen SHAs. Before attaching a
+late run's outcomes, the publisher verifies its receipt against the selected
+release's source commit, the exact run/attempt and the workflow controller SHA.
+A failed or cancelled run can therefore retain correctly attributed outcomes.
+If no current source receipt is available, the report records unavailable
+evidence and omits that run's outcomes and measurements. A mismatched or malformed
+receipt is rejected. The workflow's controller SHA alone is not evidence of which
+application revision was benchmarked.
 
-## Notes
+The explicit local import validates release/tag identity, trusted publisher
+receipts, file sizes/SHA-256, schema, and immutable record IDs before writing
+reviewable JSON under `notes/release-reports/` and `notes/performance/runs/`.
+Known empty, trusted `starter` report manifests are skipped with a warning; they
+never hide a later complete capture. Completed manifests and all referenced
+evidence must be uploaded, nonempty, and pass validation. Evidence capture also
+records incomplete store receipts as unavailable, with an unknown store outcome
+unless a validated successful submission for the exact packages was archived.
+An existing release without archived metrics can still be imported into the
+inventory. Review the diff and commit/push through normal repository rules.
+Every branch push, including a report-data import, runs the normal application
+CI and website build. Version tag pushes do not repeat the already completed
+candidate verification or start another publication workflow. There is no
+path-based application verification bypass. No bot opens a follow-up PR.
 
-- The publish workflow intentionally reruns on Ubuntu before store submission,
-  because popup and snapshot-sensitive UI verification in this repository must
-  be trusted on Linux rather than local macOS runs.
-- Browser-store credentials are scoped to their store's final publishing step.
-  Checkout, dependency installation, tests, builds, checksum verification, and
-  the other store jobs cannot read them.
-- Chrome, Firefox, and Edge publish independently from the same immutable
-  artifact. If one store fails, use GitHub Actions' **Re-run failed jobs** to
-  retry only that store without resubmitting successful stores.
-- Configure the `chrome-web-store`, `firefox-amo`, and `edge-addons` GitHub
-  environments with any desired approval or deployment-branch protections.
-- Firefox submission is asynchronous from CI's point of view. A successful
-  workflow means the package was submitted, not necessarily that AMO review has
-  completed.
-- Chrome publishing now uses the Chrome Web Store API v2 with a service
-  account, rather than the older refresh-token flow.
-- The bootstrap helper script reads `.env.release.local` locally, then writes
-  values into GitHub Actions secrets. CI still reads secrets from GitHub rather
-  than from any checked-in env file.
+Open `http://127.0.0.1:8777/reports/` after the default preview command. Hover or
+tap charts for details; use arrow keys to browse and Enter to select. Choose a
+release, baseline, workload and compatible measurement series. Shared links pin
+version and capture IDs so later captures or releases do not silently change the
+comparison. When restoring a saved Latest 10 comparison whose archived target or
+baseline has moved outside that window, the page expands to All releases and
+retains both selections. Choosing Latest 10 explicitly still shows a rolling
+window.
+
+Vercel builds every environment from the same committed catalog. The browser
+loads embedded data and same-site static downloads; GitHub links are explicit
+evidence/download links only. No GitHub credentials or release API requests are
+needed by the website build or by report browsing. Ordinary Git deployments can
+occur before and after report finalization; there is no special single-build
+coordination. Verify the deployment commit and store submission receipts, and
+check store approval/public availability separately.
+
+## Historical data
+
+Preserve all 19 collected records byte-for-byte, covering v2.6.0 onward, the
+manual 3.0.0 baseline, and the collected master snapshot. Capture times, release
+dates, protocol keys, source hashes, and raw samples remain unchanged. Missing
+historical checks remain **Not archived**; migration does not rerun old tests or
+invent old passes. See `notes/performance/README.md` for visualization details.

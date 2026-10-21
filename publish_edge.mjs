@@ -1,12 +1,22 @@
-import { readFile } from "node:fs/promises"
+import console from 'node:console'
+import { setTimeout } from 'node:timers'
+import { checkpoint } from './scripts/release/journal.mjs'
+import { readFile } from 'node:fs/promises'
+import {
+  edgeOperationState,
+  packageIdentity,
+  writeStoreAcceptance,
+} from './scripts/release/store-acceptance.mjs'
+
+const { fetch } = globalThis
 
 const productId = process.env.EDGE_PRODUCT_ID
 const clientId = process.env.EDGE_CLIENT_ID
 const apiKey = process.env.EDGE_API_KEY
-const zipPath = "packages/extension/build/build_chrome.zip"
+const zipPath = 'packages/extension/build/build_chrome.zip'
 const notes =
   process.env.EDGE_SUBMISSION_NOTES ||
-  "Automatic release: https://github.com/xcv58/Tab-Manager-v2/releases"
+  'Automatic release: https://github.com/xcv58/Tab-Manager-v2/releases'
 
 const HELP_TEXT = `Usage: pnpm publish:edge
 
@@ -16,7 +26,7 @@ Required environment variables:
   EDGE_API_KEY
 `
 
-if (process.argv.includes("--help")) {
+if (process.argv.includes('--help')) {
   console.log(HELP_TEXT)
   process.exit(0)
 }
@@ -33,17 +43,18 @@ for (const [name, value] of Object.entries({
 
 const headers = {
   Authorization: `ApiKey ${apiKey}`,
-  "X-ClientID": clientId,
+  'X-ClientID': clientId,
 }
 
 const packageBuffer = await readFile(zipPath)
+const identity = packageIdentity(zipPath, packageBuffer)
 const uploadResponse = await fetch(
   `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions/draft/package`,
   {
-    method: "POST",
+    method: 'POST',
     headers: {
       ...headers,
-      "Content-Type": "application/zip",
+      'Content-Type': 'application/zip',
     },
     body: packageBuffer,
   },
@@ -55,20 +66,22 @@ if (uploadResponse.status !== 202) {
   )
 }
 
-const uploadOperationId = getOperationId(uploadResponse.headers.get("location"))
+const uploadOperationId = getOperationId(uploadResponse.headers.get('location'))
+await checkpoint('upload-operation', { operationId: uploadOperationId })
 const uploadResult = await pollOperation({
   headers,
   url: `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions/draft/package/operations/${uploadOperationId}`,
-  kind: "upload",
+  kind: 'upload',
+  operationId: uploadOperationId,
 })
 
 const publishResponse = await fetch(
   `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions`,
   {
-    method: "POST",
+    method: 'POST',
     headers: {
       ...headers,
-      "Content-Type": "text/plain; charset=utf-8",
+      'Content-Type': 'text/plain; charset=utf-8',
     },
     body: notes,
   },
@@ -81,13 +94,31 @@ if (publishResponse.status !== 202) {
 }
 
 const publishOperationId = getOperationId(
-  publishResponse.headers.get("location"),
+  publishResponse.headers.get('location'),
 )
+await checkpoint('publish-operation', { operationId: publishOperationId })
 const publishResult = await pollOperation({
   headers,
   url: `https://api.addons.microsoftedge.microsoft.com/v1/products/${productId}/submissions/operations/${publishOperationId}`,
-  kind: "publish",
+  kind: 'publish',
+  operationId: publishOperationId,
 })
+
+const acceptance = {
+  schemaVersion: 1,
+  store: 'edge',
+  ...identity,
+  upload: uploadResult,
+  submission: publishResult,
+}
+await checkpoint('status', {
+  uploadOperationId,
+  publishOperationId,
+  uploadResult,
+  publishResult,
+  acceptance,
+})
+await writeStoreAcceptance(acceptance)
 
 console.log(
   JSON.stringify(
@@ -100,19 +131,15 @@ console.log(
   ),
 )
 
-async function pollOperation({ headers, url, kind }) {
+async function pollOperation({ headers, url, kind, operationId }) {
   for (let attempt = 1; attempt <= 30; attempt += 1) {
     const response = await fetch(url, { headers })
     const result = await readResponse(response)
     if (!response.ok && response.status !== 202) {
       throw new Error(`Edge ${kind} status failed: ${JSON.stringify(result)}`)
     }
-    if (result.status && result.status !== "InProgress") {
-      if (result.status === "Failed") {
-        throw new Error(`Edge ${kind} failed: ${JSON.stringify(result)}`)
-      }
+    if (edgeOperationState(result, operationId, kind) === 'Succeeded')
       return result
-    }
     await sleep(10000)
   }
   throw new Error(`Timed out waiting for Edge ${kind} status`)
@@ -132,9 +159,9 @@ async function readResponse(response) {
 
 function getOperationId(locationHeader) {
   if (!locationHeader) {
-    throw new Error("Edge API did not return an operation ID")
+    throw new Error('Edge API did not return an operation ID')
   }
-  const parts = locationHeader.split("/").filter(Boolean)
+  const parts = locationHeader.split('/').filter(Boolean)
   return parts[parts.length - 1]
 }
 

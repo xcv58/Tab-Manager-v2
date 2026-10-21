@@ -5,8 +5,25 @@
   "buildCommand": "pnpm build:site",
   "outputDirectory": "dist/site",
   "redirects": [
-    { "source": "/demo", "destination": "/demo/", "permanent": true },
-    { "source": "/privacy", "destination": "/privacy/", "permanent": true },
-    { "source": "/support", "destination": "/support/", "permanent": true }
+    {
+      "source": "/reports",
+      "destination": "/reports/",
+      "permanent": true
+    },
+    {
+      "source": "/demo",
+      "destination": "/demo/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy/",
+      "permanent": true
+    },
+    {
+      "source": "/support",
+      "destination": "/support/",
+      "permanent": true
+    }
   ]
 }

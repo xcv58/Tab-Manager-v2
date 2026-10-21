@@ -41,9 +41,6 @@ export function assertReleaseTag(tag, version = tag?.slice(1)) {
 export function readReleaseVersion(cwd = process.cwd()) {
   const read = (path) => readFileSync(resolve(cwd, path), 'utf8')
   const product = JSON.parse(read('packages/extension/package.json')).version
-  const manifest = JSON.parse(read('.release-please-manifest.json'))[
-    'packages/extension'
-  ]
   const safari = JSON.parse(
     read('packages/safari-native/WebExtension/manifest.json'),
   ).version
@@ -51,7 +48,7 @@ export function readReleaseVersion(cwd = process.cwd()) {
     /^\s+MARKETING_VERSION:\s*(['"]?)([^'"\s]+)\1\s*$/m,
   )?.[2]
   compareVersions(product, RELEASE_FLOOR)
-  for (const [name, version] of Object.entries({ manifest, safari, native })) {
+  for (const [name, version] of Object.entries({ safari, native })) {
     if (version !== product)
       throw new Error(
         `${name} version ${version} does not match extension ${product}`,

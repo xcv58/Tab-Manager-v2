@@ -253,6 +253,28 @@ pnpm build
 
 This outputs packaged browser builds under `packages/extension/build/`.
 
+## Release reports
+
+The website's **Release reports** footer link opens `/reports/`: interactive
+release history charts, version comparisons, and typed test/build evidence.
+All 19 historical records since v2.6.0 remain byte-for-byte preserved. Report
+JSON and the release inventory live in Git; packages and large raw evidence live
+on GitHub releases. Every website environment reads committed data at build time,
+and browser interactions make no GitHub data requests. Shared links pin captures.
+
+```shell
+pnpm build:site
+pnpm preview:release-media
+pnpm performance:preview
+```
+
+The website report preview opens at **http://127.0.0.1:8777/reports/**; the offline
+metrics viewer uses **http://127.0.0.1:8780/**. See
+[storage and visualization](notes/performance/README.md) and the
+[local release commands](.github/release-automation.md). Release preparation is
+local, verification/publication runs in CI after approval, and Vercel uses the
+existing Git integration. No additional Vercel token or bot release PR is needed.
+
 ## Repository Layout
 
 - `packages/extension`: main extension source, assets, build scripts, and unit tests

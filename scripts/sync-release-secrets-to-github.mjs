@@ -1,6 +1,7 @@
-import { existsSync, readFileSync } from "node:fs"
-import { spawnSync } from "node:child_process"
-import path from "node:path"
+import console from 'node:console'
+import { existsSync, readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import path from 'node:path'
 
 const HELP_TEXT = `Usage: node scripts/sync-release-secrets-to-github.mjs [--env-file PATH] [--repo OWNER/REPO]
 
@@ -27,20 +28,22 @@ if (!existsSync(envFilePath)) {
   )
 }
 
-const envValues = parseEnvFile(readFileSync(envFilePath, "utf8"))
+const envValues = parseEnvFile(readFileSync(envFilePath, 'utf8'))
 const serviceAccountPath = envValues.CHROME_SERVICE_ACCOUNT_JSON_FILE
-  ? path.resolve(path.dirname(envFilePath), envValues.CHROME_SERVICE_ACCOUNT_JSON_FILE)
-  : ""
+  ? path.resolve(
+      path.dirname(envFilePath),
+      envValues.CHROME_SERVICE_ACCOUNT_JSON_FILE,
+    )
+  : ''
 
 const requiredVars = [
-  "RELEASE_PLEASE_TOKEN",
-  "EXTENSION_ID",
-  "CHROME_PUBLISHER_ID",
-  "WEB_EXT_API_KEY",
-  "WEB_EXT_API_SECRET",
-  "EDGE_PRODUCT_ID",
-  "EDGE_CLIENT_ID",
-  "EDGE_API_KEY",
+  'EXTENSION_ID',
+  'CHROME_PUBLISHER_ID',
+  'WEB_EXT_API_KEY',
+  'WEB_EXT_API_SECRET',
+  'EDGE_PRODUCT_ID',
+  'EDGE_CLIENT_ID',
+  'EDGE_API_KEY',
 ]
 
 for (const name of requiredVars) {
@@ -62,10 +65,9 @@ if (!existsSync(serviceAccountPath)) {
 }
 
 const githubSecrets = {
-  RELEASE_PLEASE_TOKEN: envValues.RELEASE_PLEASE_TOKEN,
   EXTENSION_ID: envValues.EXTENSION_ID,
   CHROME_PUBLISHER_ID: envValues.CHROME_PUBLISHER_ID,
-  CHROME_SERVICE_ACCOUNT_JSON: readFileSync(serviceAccountPath, "utf8"),
+  CHROME_SERVICE_ACCOUNT_JSON: readFileSync(serviceAccountPath, 'utf8'),
   WEB_EXT_API_KEY: envValues.WEB_EXT_API_KEY,
   WEB_EXT_API_SECRET: envValues.WEB_EXT_API_SECRET,
   EDGE_PRODUCT_ID: envValues.EDGE_PRODUCT_ID,
@@ -77,38 +79,38 @@ if (envValues.CHROME_PUBLISH_TYPE) {
   githubSecrets.CHROME_PUBLISH_TYPE = envValues.CHROME_PUBLISH_TYPE
 }
 
-runGh(["auth", "status"])
+runGh(['auth', 'status'])
 
 for (const [name, value] of Object.entries(githubSecrets)) {
-  const args = ["secret", "set", name]
+  const args = ['secret', 'set', name]
   if (options.repo) {
-    args.push("--repo", options.repo)
+    args.push('--repo', options.repo)
   }
   console.log(`Setting GitHub Actions secret ${name}`)
   runGh(args, value)
 }
 
-console.log("Release secrets uploaded successfully.")
+console.log('Release secrets uploaded successfully.')
 
 function parseArgs(argv) {
   const result = {
-    envFile: ".env.release.local",
+    envFile: '.env.release.local',
     help: false,
-    repo: "",
+    repo: '',
   }
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]
-    if (arg === "--help") {
+    if (arg === '--help') {
       result.help = true
       continue
     }
-    if (arg === "--env-file") {
-      result.envFile = expectValue(argv, ++index, "--env-file")
+    if (arg === '--env-file') {
+      result.envFile = expectValue(argv, ++index, '--env-file')
       continue
     }
-    if (arg === "--repo") {
-      result.repo = expectValue(argv, ++index, "--repo")
+    if (arg === '--repo') {
+      result.repo = expectValue(argv, ++index, '--repo')
       continue
     }
     throw new Error(`Unknown argument: ${arg}`)
@@ -130,10 +132,10 @@ function parseEnvFile(contents) {
 
   for (const rawLine of contents.split(/\r?\n/)) {
     const line = rawLine.trim()
-    if (!line || line.startsWith("#")) {
+    if (!line || line.startsWith('#')) {
       continue
     }
-    const separatorIndex = line.indexOf("=")
+    const separatorIndex = line.indexOf('=')
     if (separatorIndex === -1) {
       continue
     }
@@ -153,15 +155,17 @@ function parseEnvFile(contents) {
   return values
 }
 
-function runGh(args, stdinText = "") {
-  const result = spawnSync("gh", args, {
+function runGh(args, stdinText = '') {
+  const result = spawnSync('gh', args, {
     cwd: process.cwd(),
-    encoding: "utf8",
+    encoding: 'utf8',
     input: stdinText,
-    stdio: ["pipe", "inherit", "inherit"],
+    stdio: ['pipe', 'inherit', 'inherit'],
   })
 
   if (result.status !== 0) {
-    throw new Error(`gh ${args.join(" ")} failed with exit code ${result.status}`)
+    throw new Error(
+      `gh ${args.join(' ')} failed with exit code ${result.status}`,
+    )
   }
 }

@@ -8,6 +8,7 @@ import demoBrowser, {
 } from '../../../extension/src/js/demo/browser'
 import '../../../extension/src/css/popup.css'
 import '@pigment-css/react/styles.css'
+import { getProfileFixtureIdentity } from './fixtures'
 
 declare const __PROFILE_BUILD__: {
   revision: string
@@ -31,6 +32,14 @@ const metrics = {
 let inputStartedAt = 0
 let inputQuery = ''
 let retainedReferences: Record<string, number | boolean> | null = null
+let fixtureFingerprint: string | null = null
+crypto.subtle
+  .digest('SHA-256', new TextEncoder().encode(getProfileFixtureIdentity()))
+  .then((bytes) => {
+    fixtureFingerprint = Array.from(new Uint8Array(bytes))
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('')
+  })
 const rows = () => document.querySelectorAll('[data-testid^="tab-row-"]').length
 const panel = document.getElementById('profile-metrics')!
 const report = () => {
@@ -43,6 +52,7 @@ const report = () => {
   panel.textContent = JSON.stringify(
     {
       build: __PROFILE_BUILD__,
+      fixtureFingerprint,
       ...metrics,
       mountedRows: rows(),
       tabCount: state.tabCount,
