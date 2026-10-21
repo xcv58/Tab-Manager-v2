@@ -4,12 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [3.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/c2dea3aacb3c1fb871434bdcbbcf54019b03f602...v3.0.1)
 
-- Use Tab Manager in Safari on macOS to find, select, reload, pin, close, copy, and export tabs. Safari exposes normal windows in the current profile and active tab groups; private windows remain excluded. ([#2684](https://github.com/xcv58/Tab-Manager-v2/pull/2684))
-- Recognize Safari tabs by their website icons when website access permits, with guidance for missing access and a neutral placeholder when an icon is unavailable. ([#2691](https://github.com/xcv58/Tab-Manager-v2/pull/2691))
-- Cycle through recently used tabs without stopping at the oldest entry or including Tab Manager itself. Lite popups open ready to search; full views respect the focus preference. New manager windows fit the available display. ([#2693](https://github.com/xcv58/Tab-Manager-v2/pull/2693))
-- Keep search in place when a layout refresh becomes available, and preserve result highlighting and keyboard context menus while navigating tabs. ([#2690](https://github.com/xcv58/Tab-Manager-v2/pull/2690), [#2689](https://github.com/xcv58/Tab-Manager-v2/pull/2689))
-- Move grouped tabs between Firefox windows while preserving their groups and order. ([#2682](https://github.com/xcv58/Tab-Manager-v2/pull/2682))
-- Try full and popup views in the website demo, explore release checks and performance comparisons, and benefit from website accessibility and dependency security improvements. ([#2690](https://github.com/xcv58/Tab-Manager-v2/pull/2690), [#2695](https://github.com/xcv58/Tab-Manager-v2/pull/2695), [#2681](https://github.com/xcv58/Tab-Manager-v2/pull/2681))
+### Shared browser improvements
+
+- Keep search in place when a layout refresh becomes available. ([#2690](https://github.com/xcv58/Tab-Manager-v2/pull/2690))
+- Cycle continuously through recently used tabs, skipping Tab Manager's own tab. ([#2693](https://github.com/xcv58/Tab-Manager-v2/pull/2693))
+- Navigate search results and open tab context menus more reliably with the keyboard. ([#2689](https://github.com/xcv58/Tab-Manager-v2/pull/2689))
+- Compact popups open ready to search; full views respect "Focus search on open." New Tab Manager windows fit the available screen while keeping their familiar starting size. ([#2693](https://github.com/xcv58/Tab-Manager-v2/pull/2693))
+
+### Firefox
+
+- Move grouped tabs between windows while preserving their groups and tab order. ([#2682](https://github.com/xcv58/Tab-Manager-v2/pull/2682))
+
+### Safari on macOS
+
+- Find and manage tabs from a toolbar popup, browser tab, or separate window. Search by title or web address, select several tabs to reload, pin, close, or copy together, close duplicate tabs, and export tab lists as CSV, TSV, JSON, or Markdown. ([#2684](https://github.com/xcv58/Tab-Manager-v2/pull/2684))
+- Recognize tabs by website icons when Safari website access allows, with guidance for missing access and the same neutral placeholder as other browsers when an icon is unavailable. ([#2691](https://github.com/xcv58/Tab-Manager-v2/pull/2691))
+- Manage normal windows in the current Safari profile and active tab groups. Private windows remain excluded. Tab moving, reordering, tab-group management, and browser history search are unavailable in Safari. ([#2684](https://github.com/xcv58/Tab-Manager-v2/pull/2684))
+
+### Website and maintenance
+
+- Try full and popup views in the website demo, including changing views while the workspace is loading. ([#2690](https://github.com/xcv58/Tab-Manager-v2/pull/2690))
+- Explore release checks and performance comparisons on the website. ([#2695](https://github.com/xcv58/Tab-Manager-v2/pull/2695))
+- Improve website accessibility and update dependencies to address security advisories. ([#2681](https://github.com/xcv58/Tab-Manager-v2/pull/2681))
+- Expand Firefox integration coverage and verify frozen release packages before publication. Prevent replaying the manually released 3.0.0 version. ([#2682](https://github.com/xcv58/Tab-Manager-v2/pull/2682), [#2695](https://github.com/xcv58/Tab-Manager-v2/pull/2695), [#2694](https://github.com/xcv58/Tab-Manager-v2/pull/2694))
 
 ## [3.0.0](https://github.com/xcv58/Tab-Manager-v2/compare/v2.7.2...c2dea3aacb3c1fb871434bdcbbcf54019b03f602) (2026-10-16)
 

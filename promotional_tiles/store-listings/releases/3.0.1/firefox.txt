@@ -1,0 +1,6 @@
+- Keep search in place when a layout refresh becomes available.
+- Cycle continuously through recently used tabs, skipping Tab Manager's own tab.
+- Navigate search results and open tab context menus more reliably with the keyboard.
+- Compact popups open ready to search; full views respect "Focus search on open."
+- New Tab Manager windows fit your available screen while keeping their familiar starting size.
+- Move grouped tabs between windows while preserving their groups and tab order.
