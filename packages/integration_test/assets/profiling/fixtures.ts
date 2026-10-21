@@ -7,6 +7,9 @@ import {
 
 export * from '../../../extension/src/js/demo/fixtures'
 
+let fixtureIdentity = ''
+export const getProfileFixtureIdentity = () => fixtureIdentity
+
 export const createDemoFixture = (scenario: DemoScenarioId) => {
   const params = new URLSearchParams(window.location.hash.slice(1))
   const count = Number(params.get('tabs'))
@@ -39,7 +42,7 @@ export const createDemoFixture = (scenario: DemoScenarioId) => {
     win.focused = windowIndex === 0
     return win
   })
-  return {
+  const fixture = {
     windows,
     groups: grouped
       ? [
@@ -57,4 +60,19 @@ export const createDemoFixture = (scenario: DemoScenarioId) => {
     nextWindowId: 3,
     nextGroupId: 102,
   }
+  // Exclude clock-relative timestamps, but include all matching/rendering input.
+  // The runner rejects comparisons when concrete fixture metadata differs.
+  const canonical = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(canonical)
+    if (value && typeof value === 'object')
+      return Object.fromEntries(
+        Object.entries(value)
+          .filter(([key]) => !['lastAccessed', 'lastVisitTime'].includes(key))
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([key, item]) => [key, canonical(item)]),
+      )
+    return value
+  }
+  fixtureIdentity = JSON.stringify(canonical(fixture))
+  return fixture
 }

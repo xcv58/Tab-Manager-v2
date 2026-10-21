@@ -1,0 +1,590 @@
+.performance-standalone {
+  color-scheme: light dark;
+  --performance-background: light-dark(#ffffff, #10131a);
+  --performance-surface: light-dark(#f2f4fa, #191e29);
+  --performance-text: light-dark(#202431, #e6ebf5);
+  --performance-muted: light-dark(#5c687d, #a5b0c3);
+  --performance-border: light-dark(#e1e5ef, #394253);
+  --performance-series: light-dark(#5046d5, #a8a0ff);
+  --performance-focus: light-dark(#5b52eb, #b1aaff);
+  --performance-accent-soft: light-dark(#efedff, #2b2648);
+  margin: 0;
+  min-height: 100vh;
+  background: var(--performance-background);
+  color: var(--performance-text);
+  font:
+    15px/1.6 system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+.performance-site .performance-viewer {
+  --performance-background: var(--bg-color);
+  --performance-surface: var(--surface);
+  --performance-text: var(--text-primary);
+  --performance-muted: var(--text-secondary);
+  --performance-border: var(--border);
+  --performance-series: var(--accent-hover);
+  --performance-focus: var(--accent);
+  --performance-accent-soft: var(--accent-soft);
+  width: 100%;
+  padding: 52px 0 64px;
+  color: var(--performance-text);
+}
+.performance-viewer,
+.performance-viewer * {
+  box-sizing: border-box;
+}
+.performance-viewer {
+  position: relative;
+  width: min(1120px, 100%);
+  margin: auto;
+  padding: 48px clamp(20px, 4vw, 40px) 56px;
+}
+.performance-viewer [hidden] {
+  display: none !important;
+}
+.performance-viewer h1 {
+  font-size: clamp(30px, 4vw, 40px);
+  line-height: 1.2;
+  font-weight: 650;
+  margin: 10px 0 12px;
+  letter-spacing: -0.04em;
+}
+.performance-viewer h2 {
+  font-size: 21px;
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.performance-viewer p {
+  margin: 0;
+}
+.performance-viewer .eyebrow {
+  color: var(--performance-series);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.performance-viewer .description {
+  max-width: 70ch;
+  color: var(--performance-muted);
+}
+.performance-viewer #controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  margin: 32px 0 14px;
+}
+.performance-viewer label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--performance-muted);
+}
+.performance-viewer #controls > label {
+  flex: 0 1 185px;
+}
+.performance-viewer select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--performance-border);
+  border-radius: 8px;
+  color: var(--performance-text);
+  background: var(--performance-background);
+  font: inherit;
+  font-size: 14px;
+  text-overflow: ellipsis;
+}
+.performance-viewer select:disabled {
+  opacity: 0.65;
+}
+.performance-viewer select:focus-visible,
+.performance-viewer input:focus-visible,
+.performance-viewer button:focus-visible,
+.performance-viewer a:focus-visible,
+.performance-viewer summary:focus-visible,
+.performance-viewer .table-scroll:focus-visible {
+  outline: 3px solid var(--performance-focus);
+  outline-offset: 3px;
+}
+.performance-viewer details {
+  border-top: 1px solid var(--performance-border);
+  margin-top: 24px;
+  padding: 18px 0;
+}
+.performance-viewer summary {
+  cursor: pointer;
+  font-weight: 500;
+}
+.performance-viewer #measurement-settings {
+  border: 0;
+  padding: 0;
+  margin: 0 0 0 auto;
+  font-size: 13px;
+}
+.performance-viewer #measurement-settings > summary {
+  padding: 11px 0;
+  color: var(--performance-muted);
+}
+.performance-viewer #measurement-settings[open] {
+  flex-basis: 100%;
+  order: 1;
+  margin-left: 0;
+}
+.performance-viewer #notice {
+  color: var(--performance-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  margin-top: 12px;
+  max-width: 100ch;
+}
+.performance-viewer .version-options {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.performance-viewer input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--performance-series);
+}
+.performance-viewer .pair-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 16px 24px;
+  margin: 16px 0 0;
+}
+.performance-viewer #history-summary {
+  font-size: 12px;
+  color: var(--performance-muted);
+  margin: 18px 0;
+}
+.performance-viewer #release-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 28px;
+}
+.performance-viewer #release-picker button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--performance-muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.performance-viewer #release-picker button:hover {
+  background: var(--performance-surface);
+  color: var(--performance-text);
+}
+.performance-viewer #release-picker button[aria-pressed='true'] {
+  background: var(--performance-accent-soft);
+  color: var(--performance-series);
+  font-weight: 600;
+}
+.performance-viewer .release-selection {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  margin-bottom: 28px;
+}
+.performance-viewer #selected-release {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.performance-viewer #comparison {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--performance-muted);
+}
+.performance-viewer #comparison summary {
+  padding: 8px 0;
+}
+.performance-viewer #comparison[open] {
+  flex-basis: 100%;
+}
+.performance-viewer .chart-section {
+  border-top: 1px solid var(--performance-border);
+  padding-top: 30px;
+  margin-top: 32px;
+}
+.performance-viewer .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-bottom: 24px;
+}
+.performance-viewer .section-heading > p {
+  margin: 0;
+  color: var(--performance-muted);
+  font-size: 12px;
+}
+.performance-viewer .chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 48px;
+}
+.performance-viewer .plot {
+  min-width: 0;
+  margin: 0;
+}
+.performance-viewer .plot h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--performance-muted);
+  margin: 0;
+}
+.performance-viewer .comparison-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 6px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.performance-viewer .comparison-value strong {
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1.35;
+}
+.performance-viewer .delta {
+  color: var(--performance-muted);
+  font-size: 12px;
+}
+.performance-viewer .plot figcaption {
+  color: var(--performance-muted);
+  font-size: 12px;
+  margin: 4px 0 8px;
+}
+.performance-viewer .chart {
+  display: block;
+  width: 100%;
+  height: 218px;
+  overflow: visible;
+}
+.performance-viewer .chart text {
+  font:
+    12px system-ui,
+    sans-serif;
+  fill: var(--performance-muted);
+  font-variant-numeric: tabular-nums;
+}
+.performance-viewer .chart .grid {
+  stroke: var(--performance-border);
+  stroke-width: 1;
+  fill: none;
+}
+.performance-viewer .chart .line {
+  stroke: var(--performance-series);
+  stroke-width: 1.8;
+  fill: none;
+}
+.performance-viewer .chart .candidate {
+  stroke-dasharray: 4 4;
+}
+.performance-viewer .chart .point {
+  fill: var(--performance-background);
+  stroke: var(--performance-series);
+  stroke-width: 1.7;
+}
+.performance-viewer .chart .selected-target {
+  fill: var(--performance-series);
+}
+.performance-viewer .chart .selected-baseline {
+  stroke: var(--performance-text);
+  stroke-width: 2;
+}
+.performance-viewer .chart .whisker {
+  stroke: var(--performance-muted);
+  fill: none;
+  stroke-width: 1;
+  opacity: 0.65;
+}
+.performance-viewer .chart .value {
+  font-weight: 600;
+  fill: var(--performance-text);
+}
+.performance-viewer .chart .empty {
+  fill: var(--performance-muted);
+  font-size: 12px;
+}
+.performance-viewer .chart .selection-guide,
+.performance-viewer .chart .hover-guide {
+  stroke: var(--performance-border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.performance-viewer .chart .hover-guide {
+  stroke: var(--performance-muted);
+}
+.performance-viewer .chart .hover-marker {
+  fill: var(--performance-background);
+  stroke: var(--performance-series);
+  stroke-width: 2.5;
+  pointer-events: none;
+}
+.performance-viewer .chart-hit {
+  fill: transparent;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+.performance-viewer .release-point {
+  cursor: pointer;
+}
+.performance-viewer .release-point:focus-visible {
+  outline: none;
+}
+.performance-viewer .release-point:focus-visible .point {
+  stroke: var(--performance-focus);
+  stroke-width: 3;
+}
+.performance-viewer .chart-tooltip {
+  position: absolute;
+  z-index: 10;
+  width: max-content;
+  max-width: min(280px, calc(100% - 24px));
+  padding: 14px 16px;
+  background: var(--performance-background);
+  color: var(--performance-text);
+  border: 1px solid var(--performance-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px
+    color-mix(in srgb, var(--performance-text) 12%, transparent);
+  font-size: 12px;
+  pointer-events: none;
+  overflow-wrap: anywhere;
+}
+.performance-viewer .chart-tooltip strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.performance-viewer .chart-tooltip p + p {
+  margin-top: 3px;
+}
+.performance-viewer .chart-tooltip .tooltip-context {
+  color: var(--performance-muted);
+}
+.performance-viewer .chart-help,
+.performance-viewer .legend {
+  color: var(--performance-muted);
+  font-size: 12px;
+  margin-top: 18px;
+  max-width: 105ch;
+}
+.performance-viewer .legend {
+  margin-top: 6px;
+}
+.performance-viewer #release-history {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid var(--performance-border);
+}
+.performance-viewer #release-history > p {
+  font-size: 13px;
+  margin-top: 10px;
+}
+.performance-viewer .table-scroll {
+  overflow-x: auto;
+}
+.performance-viewer table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 16px;
+}
+.performance-viewer th,
+.performance-viewer td {
+  text-align: right;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--performance-border);
+  font-variant-numeric: tabular-nums;
+}
+.performance-viewer th:first-child,
+.performance-viewer td:first-child {
+  text-align: left;
+  padding-left: 8px;
+}
+.performance-viewer tr:last-child td {
+  border-bottom: 0;
+}
+.performance-viewer #release-table {
+  min-width: 1040px;
+}
+.performance-viewer #release-table td {
+  white-space: nowrap;
+}
+.performance-viewer #release-table th:first-child {
+  min-width: 150px;
+  max-width: 235px;
+}
+.performance-viewer #release-table small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--performance-muted);
+}
+.performance-viewer #release-table button {
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--performance-series);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.performance-viewer #release-table button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.performance-viewer .inspected-release {
+  background: var(--performance-accent-soft);
+}
+.performance-viewer #evidence {
+  margin-top: 24px;
+  border-top: 1px solid var(--performance-border);
+  padding-top: 28px;
+}
+.performance-viewer #evidence p,
+.performance-viewer #evidence li {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.performance-viewer #evidence h2 {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+.performance-viewer #records {
+  padding-left: 20px;
+}
+.performance-viewer #records li {
+  margin-bottom: 8px;
+}
+.performance-viewer a {
+  color: var(--performance-series);
+  text-underline-offset: 3px;
+}
+.performance-viewer .methodology {
+  color: var(--performance-muted);
+  font-size: 13px;
+}
+.performance-viewer .methodology p + p {
+  margin-top: 12px;
+}
+.performance-viewer .methodology summary {
+  color: var(--performance-text);
+}
+.performance-viewer .methodology p:first-of-type {
+  margin-top: 16px;
+}
+.performance-viewer .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 680px) {
+  .performance-viewer .chart-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .performance-viewer .chart-section {
+    padding-top: 24px;
+  }
+  .performance-viewer #controls > label {
+    flex: 1 1 150px;
+  }
+  .performance-viewer #measurement-settings {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+  .performance-viewer .release-selection {
+    gap: 0 16px;
+  }
+  .performance-viewer #comparison {
+    flex-basis: 100%;
+  }
+  .performance-viewer select {
+    font-size: 16px;
+  }
+}
+@media (max-width: 420px) {
+  .performance-site .performance-viewer {
+    padding-top: 32px;
+  }
+  .performance-viewer #controls {
+    margin-top: 24px;
+  }
+  .performance-viewer .comparison-value strong {
+    font-size: 28px;
+  }
+}
+.performance-viewer .verification-section {
+  margin-block: 2rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px solid var(--performance-border);
+  border-radius: 1rem;
+  background: var(--performance-background);
+}
+.performance-viewer .verification-section select {
+  max-width: 100%;
+}
+.performance-viewer .verification-section.is-empty .section-heading {
+  margin-bottom: 12px;
+}
+.performance-viewer .verification-section.is-empty #verification-note {
+  max-width: 70ch;
+  color: var(--performance-muted);
+}
+.performance-viewer #verification-note,
+.performance-viewer #snapshot-note {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.performance-viewer #verification-rows td {
+  white-space: normal;
+  min-width: 8rem;
+}
+.performance-viewer
+  #verification-rows
+  tr[data-conclusion='failure']
+  td:nth-child(3),
+.performance-viewer
+  #verification-rows
+  tr[data-conclusion='timed_out']
+  td:nth-child(3) {
+  color: #d54a50;
+  font-weight: 600;
+}
+.performance-viewer #verification-rows a {
+  overflow-wrap: anywhere;
+}

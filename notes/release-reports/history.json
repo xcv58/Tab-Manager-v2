@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "name": "2026-10-20-macos-3cd88a06.json",
+      "bytes": 106314,
+      "sha256": "a6872ff5f16f5ead6228ab147c13533b3cc8763575a109b35fd0b15a9bbddbdb"
+    },
+    {
+      "name": "2026-10-20-macos-3e7a511d.json",
+      "bytes": 103902,
+      "sha256": "b8ee0c7e78bb84e0ee208fc307a0b6ce8e1e82d4168bb6112e5c665a4ad906d4"
+    },
+    {
+      "name": "2026-10-20-macos-c2dea3aa.json",
+      "bytes": 103859,
+      "sha256": "c35cc53fced927b5efeb59bf843d30e3c3ffee3cf25b8b45661f0d42728d98b8"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.6.0.json",
+      "bytes": 11072,
+      "sha256": "80cb07aca6d1545af627b94ce36e29de80f4351a6e5bd0e27780597d32862fda"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.6.1.json",
+      "bytes": 11072,
+      "sha256": "2acee3547709799f0a89ef2294f5164e0d886d93581271d158016f76d5522d06"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.6.2.json",
+      "bytes": 11072,
+      "sha256": "7835fbb80eeb0db3b528bbca9fce2e754481e96b01a0d35ec667ed1daded2a29"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.6.3.json",
+      "bytes": 11072,
+      "sha256": "65fa026d11b42e22ffc8560581b0f4fd948f7f582653f1f31381782f11822ed2"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.7.0.json",
+      "bytes": 11072,
+      "sha256": "0c8d3064b323819d01d23b833025176c16f5c5a281375a09779e8d0b9d9ca75a"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.7.1.json",
+      "bytes": 11072,
+      "sha256": "c9f919b9ec53e754ae37d232dc94d860f00073839c7982aa45aecd8999643134"
+    },
+    {
+      "name": "published-history-2026-10-20-v2.7.2.json",
+      "bytes": 11072,
+      "sha256": "ca51d3833f98e5fd93ae315174ef68741f512f24b4842b6f05b8bfa007029fa8"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-060bf9f4.json",
+      "bytes": 107286,
+      "sha256": "e590b2767928daabd5380353748a8c93780f1c12488c94a7864e196c86dd5619"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-3cd88a06.json",
+      "bytes": 107437,
+      "sha256": "0e28949323af1efecede6604326c2230dd4fa0684621660e1a55a821936569ad"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-3e7a511d.json",
+      "bytes": 101930,
+      "sha256": "7e4ab5a8fe6281af1676ec4c9aa00ec0f7b411ad6ba6806bbd5a22348bce474c"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-486f9687.json",
+      "bytes": 107443,
+      "sha256": "f21570f92f7aea129a19f03abafd7c49891e4ea54e6f24792a03f397b2386f86"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-7f2cd7a1.json",
+      "bytes": 107551,
+      "sha256": "12e1faa4cab6f8f1348422ef173bb4a1e608ba629e9736355a82227ee31fe27b"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-81f86f8e.json",
+      "bytes": 107397,
+      "sha256": "6194f90a0a494868cf4951def25ca451dab465a7c27a2c6bf25b0c5f767d323a"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-90aa8ca4.json",
+      "bytes": 107436,
+      "sha256": "cf500aa32428c9b24d66b47b45eb72124ad438d89561a7d6e969a07ae313c41e"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-c2dea3aa.json",
+      "bytes": 101622,
+      "sha256": "6dce2cac11ba6868b81f44a3806b8f2bf7198a803a2554e8a90486b4df68f81c"
+    },
+    {
+      "name": "release-runtime-history-2026-10-20-efbbd7ff.json",
+      "bytes": 107301,
+      "sha256": "4ae4b499aa9b7fe3e827dcb1c94af808ed0633d4965e3ff71abc49ba559defa1"
+    }
+  ]
+}

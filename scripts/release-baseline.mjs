@@ -12,7 +12,10 @@ export function resolveReleaseBaseline(ref = 'HEAD', cwd = process.cwd()) {
     return result
   }
   git(['rev-parse', '--verify', `${ref}^{commit}`])
-  const configResult = git(['show', `${ref}:release-please-config.json`], true)
+  let configResult = git(['show', `${ref}:release-config.json`], true)
+  // Historical refs still carry the old bootstrap configuration.
+  if (configResult.status !== 0)
+    configResult = git(['show', `${ref}:release-please-config.json`], true)
   const config =
     configResult.status === 0 ? JSON.parse(configResult.stdout) : {}
   const bootstrap = config['bootstrap-sha']

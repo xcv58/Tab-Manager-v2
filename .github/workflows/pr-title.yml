@@ -28,5 +28,5 @@ jobs:
             exit 0
           fi
 
-          echo "::error title=Invalid PR title::Use a conventional PR title such as 'fix: ...', 'feat(scope): ...', or 'chore(ci): ...'. GitHub squash merge uses the PR title as the default commit title, and release-please reads that title from git history."
+          echo "::error title=Invalid PR title::Use a conventional PR title such as 'fix: ...', 'feat(scope): ...', or 'chore(ci): ...'. GitHub squash merge uses the PR title as the default commit title, and the release-note audit uses conventional commit history."
           exit 1

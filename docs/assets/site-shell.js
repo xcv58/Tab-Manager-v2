@@ -8,6 +8,7 @@
     'zh-Hans': {
       Overview: '总览',
       'Try demo': '试用演示',
+      'Release reports': '发布报告',
       Install: '安装',
       Privacy: '隐私',
       Support: '支持',
@@ -21,6 +22,7 @@
     'zh-Hant': {
       Overview: '總覽',
       'Try demo': '試用示範',
+      'Release reports': '發佈報告',
       Install: '安裝',
       Privacy: '隱私',
       Support: '支援',
@@ -462,9 +464,10 @@
     document.fonts?.ready.then(scheduleSync)
     if (window.ResizeObserver) {
       const observer = new ResizeObserver(scheduleSync)
-      ;[header, ...header.querySelectorAll('.logo, .nav-links, select')].forEach(
-        (element) => observer.observe(element),
-      )
+      ;[
+        header,
+        ...header.querySelectorAll('.logo, .nav-links, select'),
+      ].forEach((element) => observer.observe(element))
     }
     window.addEventListener('pageshow', (event) => {
       if (event.persisted) sync(true)

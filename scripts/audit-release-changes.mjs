@@ -2,10 +2,10 @@ import console from 'node:console'
 import { spawnSync } from 'node:child_process'
 import { resolveReleaseBaseline } from './release-baseline.mjs'
 
-const HELP_TEXT = `Usage: node scripts/audit-release-please-releasability.mjs [options]
+const HELP_TEXT = `Usage: node scripts/audit-release-changes.mjs [options]
 
 Summarize which commits since the latest release tag are likely to affect the
-extension package release managed by release-please.
+extension release notes. Review the summary before preparing the next version.
 
 Options:
   --from-ref REF       Analyze commits after REF. Defaults to latest tag or manual baseline.
@@ -57,7 +57,7 @@ printCommitGroup('Commits outside the package path', nonPackageCommits)
 
 if (nonConventionalPackageCommits.length > 0) {
   console.log('')
-  console.log('Suggested BEGIN_COMMIT_OVERRIDE blocks (review before pasting):')
+  console.log('Suggested release-note entries (review before using):')
 
   for (const commit of nonConventionalPackageCommits) {
     console.log('')
@@ -67,11 +67,9 @@ if (nonConventionalPackageCommits.length > 0) {
       }`,
     )
     console.log('```txt')
-    console.log('BEGIN_COMMIT_OVERRIDE')
     for (const line of commit.suggestedOverrideLines) {
       console.log(line)
     }
-    console.log('END_COMMIT_OVERRIDE')
     console.log('```')
   }
 }

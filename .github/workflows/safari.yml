@@ -1,9 +1,16 @@
 name: Safari build
 
-on: [push]
+on:
+  push:
+    branches: ['**']
+  workflow_call:
+    inputs:
+      source:
+        type: string
+        required: true
 
 concurrency:
-  group: safari-${{ github.workflow }}-${{ github.ref }}
+  group: safari-${{ github.workflow }}-${{ inputs.source || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -20,6 +27,9 @@ jobs:
         configuration: [Debug, Release]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24

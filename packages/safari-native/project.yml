@@ -12,11 +12,11 @@ settings:
     DEVELOPMENT_TEAM: 5736QK4NZX
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: Apple Development
-    MARKETING_VERSION: 3.0.1
-    CURRENT_PROJECT_VERSION: '20'
-    ENABLE_HARDENED_RUNTIME: 'YES'
-    GENERATE_INFOPLIST_FILE: 'NO'
-    SWIFT_EMIT_LOC_STRINGS: 'NO'
+    MARKETING_VERSION: '3.0.1'
+    CURRENT_PROJECT_VERSION: '21'
+    ENABLE_HARDENED_RUNTIME: YES
+    GENERATE_INFOPLIST_FILE: NO
+    SWIFT_EMIT_LOC_STRINGS: NO
     PRODUCT_NAME: $(TARGET_NAME)
   configs:
     Release:
@@ -44,8 +44,7 @@ targets:
         SafariAppGroupIdentifier: $(TM_SAFARI_APP_GROUP_IDENTIFIER)
         CFBundleURLTypes:
           - CFBundleURLName: Tab Manager v2
-            CFBundleURLSchemes:
-              - $(TM_SAFARI_URL_SCHEME)
+            CFBundleURLSchemes: [$(TM_SAFARI_URL_SCHEME)]
         NSPrincipalClass: NSApplication
         LSMinimumSystemVersion: '14.0'
         LSApplicationCategoryType: public.app-category.productivity
@@ -55,7 +54,7 @@ targets:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-write: true
         com.apple.security.application-groups:
-          - $(TM_SAFARI_APP_GROUP_IDENTIFIER)
+          [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_APP_BUNDLE_IDENTIFIER)
@@ -90,11 +89,11 @@ targets:
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups:
-          - $(TM_SAFARI_APP_GROUP_IDENTIFIER)
+          [$(TM_SAFARI_APP_GROUP_IDENTIFIER)]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(TM_SAFARI_EXTENSION_BUNDLE_IDENTIFIER)
-        SKIP_INSTALL: 'YES'
+        SKIP_INSTALL: YES
 schemes:
   TabManagerSafariPrototype:
     build:

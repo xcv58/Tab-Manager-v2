@@ -1,5 +1,15 @@
-import { createSign } from "node:crypto"
-import { readFile } from "node:fs/promises"
+import console from 'node:console'
+import { URLSearchParams } from 'node:url'
+import { checkpoint } from './scripts/release/journal.mjs'
+import { createSign } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
+import { submitChromePackage } from './scripts/release/chrome-submission.mjs'
+import {
+  packageIdentity,
+  writeStoreAcceptance,
+} from './scripts/release/store-acceptance.mjs'
+
+const { fetch } = globalThis
 
 const HELP_TEXT = `Usage: pnpm publish:chrome
 
@@ -12,7 +22,7 @@ Optional environment variables:
   CHROME_PUBLISH_TYPE
 `
 
-if (process.argv.includes("--help")) {
+if (process.argv.includes('--help')) {
   console.log(HELP_TEXT)
   process.exit(0)
 }
@@ -21,7 +31,7 @@ const extensionId = process.env.EXTENSION_ID
 const publisherId = process.env.CHROME_PUBLISHER_ID
 const serviceAccountJson = process.env.CHROME_SERVICE_ACCOUNT_JSON
 const publishType = process.env.CHROME_PUBLISH_TYPE
-const zipPath = "packages/extension/build/build_chrome.zip"
+const zipPath = 'packages/extension/build/build_chrome.zip'
 
 for (const [name, value] of Object.entries({
   EXTENSION_ID: extensionId,
@@ -33,86 +43,78 @@ for (const [name, value] of Object.entries({
   }
 }
 
+const zipBuffer = await readFile(zipPath)
+const identity = packageIdentity(zipPath, zipBuffer)
 const serviceAccount = JSON.parse(serviceAccountJson)
 const accessToken = await getAccessToken(serviceAccount)
 const itemName = `publishers/${publisherId}/items/${extensionId}`
-const zipBuffer = await readFile(zipPath)
-
-const uploadResult = await fetchJson(
-  `https://chromewebstore.googleapis.com/upload/v2/${itemName}:upload`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/zip",
-    },
-    body: zipBuffer,
-  },
-)
-
-const publishBody = publishType ? { publishType } : {}
-const publishResult = await fetchJson(
-  `https://chromewebstore.googleapis.com/v2/${itemName}:publish`,
-  {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(publishBody),
-  },
-)
-
-const statusResult = await fetchJson(
-  `https://chromewebstore.googleapis.com/v2/${itemName}:fetchStatus`,
-  {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  },
-)
-
-console.log(
-  JSON.stringify(
-    {
-      uploadResult,
-      publishResult,
-      statusResult,
-    },
-    null,
-    2,
-  ),
-)
+const result = await submitChromePackage({
+  itemName,
+  identity,
+  checkpoint,
+  upload: () =>
+    fetchJson(
+      `https://chromewebstore.googleapis.com/upload/v2/${itemName}:upload`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/zip',
+        },
+        body: zipBuffer,
+      },
+    ),
+  publish: () =>
+    fetchJson(`https://chromewebstore.googleapis.com/v2/${itemName}:publish`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(publishType ? { publishType } : {}),
+    }),
+  fetchStatus: () =>
+    fetchJson(
+      `https://chromewebstore.googleapis.com/v2/${itemName}:fetchStatus`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    ),
+})
+await writeStoreAcceptance(result.acceptance)
+console.log(JSON.stringify(result, null, 2))
 
 async function getAccessToken(serviceAccount) {
   const issuedAt = Math.floor(Date.now() / 1000)
   const expiresAt = issuedAt + 3600
   const header = {
-    alg: "RS256",
-    typ: "JWT",
+    alg: 'RS256',
+    typ: 'JWT',
     kid: serviceAccount.private_key_id,
   }
   const payload = {
     iss: serviceAccount.client_email,
-    scope: "https://www.googleapis.com/auth/chromewebstore",
-    aud: "https://oauth2.googleapis.com/token",
+    scope: 'https://www.googleapis.com/auth/chromewebstore',
+    aud: 'https://oauth2.googleapis.com/token',
     iat: issuedAt,
     exp: expiresAt,
   }
   const unsignedToken = `${toBase64Url(header)}.${toBase64Url(payload)}`
-  const signer = createSign("RSA-SHA256")
+  const signer = createSign('RSA-SHA256')
   signer.update(unsignedToken)
   signer.end()
-  const signature = signer.sign(serviceAccount.private_key, "base64")
+  const signature = signer.sign(serviceAccount.private_key, 'base64')
   const assertion = `${unsignedToken}.${toBase64Url(signature, true)}`
 
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
+  const response = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
       assertion,
     }),
   })
@@ -130,7 +132,9 @@ async function fetchJson(url, init) {
   const response = await fetch(url, init)
   const result = await readResponse(response)
   if (!response.ok) {
-    throw new Error(`Chrome Web Store request failed: ${JSON.stringify(result)}`)
+    throw new Error(
+      `Chrome Web Store request failed: ${JSON.stringify(result)}`,
+    )
   }
   return result
 }
@@ -150,6 +154,6 @@ async function readResponse(response) {
 function toBase64Url(value, isBase64 = false) {
   const base64 = isBase64
     ? value
-    : Buffer.from(JSON.stringify(value)).toString("base64")
-  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")
+    : Buffer.from(JSON.stringify(value)).toString('base64')
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
 }

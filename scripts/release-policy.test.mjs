@@ -1,15 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {
-  mkdtempSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { URL } from 'node:url'
 import {
   assertReleaseTag,
   assertReleaseVersion,
@@ -59,7 +52,6 @@ test('all browser and native marketing versions must match', (t) => {
   const json = (path, data) =>
     writeFileSync(join(cwd, path), JSON.stringify(data))
   json('packages/extension/package.json', { version: '3.0.1' })
-  json('.release-please-manifest.json', { 'packages/extension': '3.0.1' })
   json('packages/safari-native/WebExtension/manifest.json', {
     version: '3.0.1',
   })
@@ -72,52 +64,4 @@ test('all browser and native marketing versions must match', (t) => {
     version: '3.0.0',
   })
   assert.throws(() => readReleaseVersion(cwd), /safari version/)
-})
-test('release automation checks the floor before creation and all store submissions', () => {
-  const read = (path) =>
-    readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
-  const workflow = read('.github/workflows/release-please.yml')
-  assert.ok(
-    workflow.indexOf('id: eligibility') < workflow.indexOf('id: release\n'),
-  )
-  assert.match(
-    workflow,
-    /skip-github-release: \$\{\{ steps\.eligibility\.outputs\.allow_release != 'true' \}\}/,
-  )
-  assert.match(
-    workflow,
-    /extension_release_created: \$\{\{ steps\.release\.outputs\['packages\/extension--release_created'\] == 'true' && steps\.version-guard\.outputs\.allow_release == 'true' \}\}/,
-  )
-  assert.match(
-    workflow,
-    /node scripts\/release-policy\.mjs tag "\$RELEASE_TAG" "\$RELEASE_VERSION"/,
-  )
-  for (const job of [
-    'build-release',
-    'attach-release-assets',
-    'publish-chrome',
-    'publish-firefox',
-    'publish-edge',
-  ]) {
-    const section = workflow
-      .slice(workflow.indexOf(`\n  ${job}:`) + 1)
-      .split(/\n {2}[a-z-]+:/)[0]
-    assert.match(
-      section,
-      /needs\.release-please\.outputs\.extension_release_created == 'true'/,
-    )
-  }
-  const retry = read('.github/workflows/retry-edge-release.yml')
-  assert.ok(
-    retry.indexOf('node scripts/release-policy.mjs tag') <
-      retry.indexOf('gh release view'),
-  )
-  assert.match(
-    read('.github/workflows/nodejs.yml'),
-    /release-policy\.mjs candidate/,
-  )
-  assert.match(
-    read('release-please-config.json'),
-    /"bootstrap-sha": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"/,
-  )
 })

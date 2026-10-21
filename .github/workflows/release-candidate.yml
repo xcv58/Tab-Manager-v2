@@ -1,0 +1,212 @@
+name: Prepare release candidate
+run-name: Candidate ${{ inputs.candidate }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: Reviewed current master commit (full SHA; checked against dispatch revision)
+        required: true
+        type: string
+      benchmarks:
+        description: Capture advisory runtime measurements on a separate runner
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  freeze:
+    name: Freeze candidate
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-24.04
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: source
+        env:
+          CANDIDATE: ${{ inputs.candidate }}
+        run: node scripts/release/candidate.mjs freeze "$CANDIDATE"
+
+  packages:
+    name: Build candidate packages
+    needs: freeze
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - run: pnpm install --frozen-lockfile
+      - name: Validate release metadata and build packages
+        run: |
+          node scripts/release-policy.mjs candidate
+          pnpm build
+          pnpm zip
+          pnpm package:firefox-source
+          node scripts/release/candidate.mjs package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            packages/extension/build/build_chrome.zip
+            packages/extension/build/build_firefox.zip
+            packages/extension/build/build_firefox_source.zip
+            packages/extension/build/SHA256SUMS.txt
+            packages/extension/build/candidate.json
+          if-no-files-found: error
+          retention-days: 30
+
+  chrome:
+    name: Verify Chrome package
+    needs: [freeze, packages]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/extension/build
+      - name: Expand verified package
+        working-directory: packages/extension/build
+        run: |
+          sha256sum --check SHA256SUMS.txt
+          unzip -q build_chrome.zip -d build_chrome
+      - run: pnpm --filter integration-test exec playwright install --with-deps --no-shell chromium
+      - name: Unit Test
+        run: |
+          mkdir -p .tmp/report-results
+          pnpm --filter ./packages/extension test --json --outputFile "$GITHUB_WORKSPACE/.tmp/report-results/unit.json"
+      - name: Integration Test against frozen Chrome package
+        env:
+          RELEASE_REPORTS_DIR: ${{ github.workspace }}/.tmp/report-results
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x720x24" pnpm test:integration:run
+      - name: Unloaded tab move regression
+        env:
+          TM_CHROME_FLAGS_EXTENSION: '1'
+        run: pnpm test:integration:unloaded-tabs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: report-results-chrome-${{ github.run_attempt }}
+          path: |
+            .tmp/report-results/
+            packages/integration_test/playwright-report/
+            packages/integration_test/test-results/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  firefox:
+    name: Verify Firefox package
+    needs: [freeze, packages]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/extension/build
+      - name: Expand verified package
+        working-directory: packages/extension/build
+        run: |
+          sha256sum --check SHA256SUMS.txt
+          unzip -q build_firefox.zip -d build_firefox
+      - name: Firefox browser integration
+        env:
+          FIREFOX_E2E_ARTIFACTS: ${{ github.workspace }}/.tmp/firefox-e2e
+        run: pnpm --filter integration-test-firefox test:firefox:ci
+      - name: Firefox unloaded tab move regression
+        env:
+          TM_BROWSER: firefox
+        run: |
+          TM_FIREFOX_BINARY="$(command -v firefox)" TM_GECKODRIVER="$(command -v geckodriver)" pnpm test:integration:unloaded-tabs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: report-results-firefox-${{ github.run_attempt }}
+          path: .tmp/firefox-e2e/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  safari:
+    name: Safari compilation
+    needs: freeze
+    uses: ./.github/workflows/safari.yml
+    with:
+      source: ${{ github.sha }}
+
+  bundle:
+    name: Advisory bundle measurement
+    needs: [freeze, packages]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/extension/build
+      - working-directory: packages/extension/build
+        run: |
+          sha256sum --check SHA256SUMS.txt
+          unzip -q build_chrome.zip -d build_chrome
+          unzip -q build_firefox.zip -d build_firefox
+      - run: node scripts/performance/cli.mjs collect --id "bundle-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" --output .tmp/performance-bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-bundle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/performance-bundle/runs/
+          if-no-files-found: error
+          retention-days: 30
+
+  runtime:
+    name: Advisory runtime
+    needs: freeze
+    if: ${{ inputs.benchmarks }}
+    uses: ./.github/workflows/performance-history.yml
+    with:
+      head: ${{ github.sha }}
+      base: auto

@@ -1,0 +1,218 @@
+name: Publish reviewed release
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_run:
+        description: Reviewed Prepare release candidate run ID
+        required: true
+        type: string
+      candidate_sha256:
+        description: SHA-256 of the candidate.json reviewed locally
+        required: true
+        type: string
+      stores:
+        description: Comma-separated chrome,firefox,edge; none archives evidence only
+        default: chrome,firefox,edge
+        type: string
+      reconciled:
+        description: I checked prior uncertain store attempts before retrying selected stores
+        default: false
+        type: boolean
+      metric_run:
+        description: Optional completed Advisory Performance History run to append
+        type: string
+      notes:
+        description: Optional reviewed GitHub release body (does not rebuild packages)
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: publish-release-${{ inputs.candidate_run }}
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  release:
+    name: Publish verified packages
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-24.04
+    concurrency:
+      # The release inventory, version guard and Latest selection are shared.
+      group: publish-github-release
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      tag: ${{ steps.publish.outputs.tag }}
+      chrome: ${{ steps.publish.outputs.chrome }}
+      firefox: ${{ steps.publish.outputs.firefox }}
+      edge: ${{ steps.publish.outputs.edge }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - id: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_RUN: ${{ inputs.candidate_run }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          RELEASE_STORES: ${{ inputs.stores }}
+          RELEASE_NOTES: ${{ inputs.notes }}
+        run: node scripts/release/publish.mjs
+
+  chrome:
+    name: Submit Chrome
+    needs: release
+    if: ${{ needs.release.outputs.chrome == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: chrome-web-store
+    permissions:
+      contents: write
+    concurrency:
+      # One product per store: serialize draft mutations across release versions.
+      group: publish-chrome
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Submit verified package and persist receipts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          RELEASE_RECONCILED: ${{ inputs.reconciled }}
+          RELEASE_STORE: chrome
+          EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+          CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
+        run: node scripts/release/store.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: store-chrome-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/store-receipts/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  firefox:
+    name: Submit Firefox
+    needs: release
+    if: ${{ needs.release.outputs.firefox == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: firefox-amo
+    permissions:
+      contents: write
+    concurrency:
+      # One product per store: serialize draft mutations across release versions.
+      group: publish-firefox
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - run: pnpm install --frozen-lockfile
+      - name: Submit verified package and persist receipts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          RELEASE_RECONCILED: ${{ inputs.reconciled }}
+          RELEASE_STORE: firefox
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+        run: node scripts/release/store.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: store-firefox-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/store-receipts/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  edge:
+    name: Submit Edge
+    needs: release
+    if: ${{ needs.release.outputs.edge == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: edge-addons
+    permissions:
+      contents: write
+    concurrency:
+      # One product per store: serialize draft mutations across release versions.
+      group: publish-edge
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Submit verified package and persist receipts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          RELEASE_RECONCILED: ${{ inputs.reconciled }}
+          RELEASE_STORE: edge
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: node scripts/release/store.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: store-edge-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/store-receipts/
+          if-no-files-found: ignore
+          retention-days: 30
+
+  evidence:
+    name: Archive release evidence
+    needs: [release, chrome, firefox, edge]
+    if: ${{ always() && needs.release.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Append available evidence; benchmarks never delay store submissions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          METRIC_RUN: ${{ inputs.metric_run }}
+        run: node scripts/release/evidence.mjs
