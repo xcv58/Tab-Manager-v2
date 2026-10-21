@@ -1,0 +1,11 @@
+Find and manage your Safari tabs from a toolbar popup, browser tab, or separate window.
+
+- Search open tabs by title or web address.
+- Select multiple tabs to reload, pin or unpin, close, or copy together.
+- Save tab lists as CSV, TSV, JSON, or Markdown.
+- Find duplicate tabs and close extra copies.
+- Use keyboard shortcuts to navigate tabs, find actions, and cycle through recently used tabs.
+- Customize colors, text size, layout, and tab details.
+- Recognize tabs by website icons, with guidance for Safari website access and a neutral placeholder when an icon is unavailable.
+
+Works with normal windows in the current Safari profile and active tab groups. Private windows are excluded.
