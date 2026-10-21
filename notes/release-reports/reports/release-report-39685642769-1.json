@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "kind": "release-report",
+  "id": "release-report-39685642769-1",
+  "recordedAt": "2026-10-21T22:20:26.647Z",
+  "source": {
+    "commit": "dc1f386c851921f24023037c2a5c0ea0911eb929",
+    "version": "3.0.1",
+    "tag": "v3.0.1"
+  },
+  "publisher": {
+    "repository": "xcv58/Tab-Manager-v2",
+    "workflow": "publish-release.yml",
+    "commit": "590b42accd0d25e24d05f2665454440c0957a32d",
+    "runId": "39685642769",
+    "attempt": 1
+  },
+  "files": [
+    {
+      "name": "release-report-39685642769-1-run-39534365390.json",
+      "bytes": 46961,
+      "sha256": "569b8deda01c7a9d38ab75af7d4518e9a9ea75faa0c39562bb39bcc31e1672d3",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-run-39534365390.json"
+    },
+    {
+      "name": "release-report-39685642769-1-artifact-12317321648.zip",
+      "bytes": 1561873,
+      "sha256": "44a8886640934f83713c40f83284844a8d1b71cbf12f7618ffcf6cbfcd624a88",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-artifact-12317321648.zip"
+    },
+    {
+      "name": "release-report-39685642769-1-artifact-12316843490.zip",
+      "bytes": 767002,
+      "sha256": "12a332f8610531775017218b6aaad786c365d0f5f054c040f55ed9b2eaf712ce",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-artifact-12316843490.zip"
+    },
+    {
+      "name": "release-report-39685642769-1-artifact-12316218349.zip",
+      "bytes": 2857,
+      "sha256": "1b606605f8c25b23076d393ad129efaccaa4654d7fca3903b790c1dffc774926",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-artifact-12316218349.zip"
+    },
+    {
+      "name": "release-report-39685642769-1-bundle-39534365390-1.json",
+      "bytes": 14355,
+      "sha256": "5978d23d05580d490b94c588a79e8926fc2af27b8bee91df089c18ffe26dcd40",
+      "kind": "metric",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-bundle-39534365390-1.json"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z.capture.json",
+      "bytes": 2926,
+      "sha256": "784cac837975468c5e681763c26595983381d48030efe3b3a4cb8169016d4dd9",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z.capture.json"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-bundles.json",
+      "bytes": 14291,
+      "sha256": "657f582643348e5d8d9f080254c1625d1f8eaf2e71252ee97874c827d086ddd7",
+      "kind": "metric",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-bundles.json"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-c2dea3aa.json",
+      "bytes": 102003,
+      "sha256": "b762e29ee070348f8a1380254f40743725c1579b2cef96491056056d51886640",
+      "kind": "metric",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-c2dea3aa.json"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-dc1f386c.json",
+      "bytes": 101962,
+      "sha256": "2164733bf30e6920c1e7694143c29e033f3e1d87942fe428467d369a0e74c576",
+      "kind": "metric",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-dc1f386c.json"
+    },
+    {
+      "name": "release-report-39685642769-1-candidate.json",
+      "bytes": 795,
+      "sha256": "5a1d4b4e6256e6c0d7ebf62b4c22242dd96ae3a461bfbceea8f00336750c0ce6",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-candidate.json"
+    },
+    {
+      "name": "release-report-39685642769-1-publication.json",
+      "bytes": 16262,
+      "sha256": "855b3c6096fcacc506ab306e1febcd9767623f91c228e9f1b512ce95aceabb30",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-publication.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-chrome-39671773694-1-001.json",
+      "bytes": 422,
+      "sha256": "f1d8063ea662e8bacf24f25ddc5dc125c3d0ad3f7a1a101a88e65e400fc19a92",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-chrome-39671773694-1-001.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-chrome-39671773694-1-002.json",
+      "bytes": 679,
+      "sha256": "0227329978427026069d408db3c0d5c90be3bc4a9bca2bd9c1f46f58487ff029",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-chrome-39671773694-1-002.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-chrome-39671773694-1-003.json",
+      "bytes": 698,
+      "sha256": "d9401c207d128f51da17ef71629c894e0d9174dad8ae2b75ff752a96f9d7cf73",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-chrome-39671773694-1-003.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-chrome-39671773694-1-004.json",
+      "bytes": 651,
+      "sha256": "32e63a57351a281dd552ab66af0d3cebbd62c698ad7b6f897df489f3b39f5d22",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-chrome-39671773694-1-004.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-chrome-39671773694-1-005.json",
+      "bytes": 2010,
+      "sha256": "31f8f3e3f5be709a83531922933a69d5d3b72c95e3eb1dc1015e3bc48d921931",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-chrome-39671773694-1-005.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-chrome-39671773694-1-902.json",
+      "bytes": 1020,
+      "sha256": "01fe265f4067145ec42d21af011ed2ea2d8ffb453e7d460f9e8dd6ff8e8720a2",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-chrome-39671773694-1-902.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-firefox-39672160759-1-001.json",
+      "bytes": 423,
+      "sha256": "1a06fee241dac041149498668e253a2bcdfe234311c21a115bc52b6e1ead8e58",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-firefox-39672160759-1-001.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-firefox-39672160759-1-902.json",
+      "bytes": 846,
+      "sha256": "dab7ee6aa83029e977471406610b4bbf4bb21045d8b295c563cc4ad8d4e05b3b",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-firefox-39672160759-1-902.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-edge-39672564916-1-001.json",
+      "bytes": 420,
+      "sha256": "45dccd04f9a0df2c42fc906e6d60a63bbdbc3c766d16d3242a4e80f65de739c7",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-edge-39672564916-1-001.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-edge-39672564916-1-002.json",
+      "bytes": 490,
+      "sha256": "d50b6a53bb1f30307ac7c38c9d6588cd1aacc8fb7f4bf8b659c29602e178b820",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-edge-39672564916-1-002.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-edge-39672564916-1-003.json",
+      "bytes": 491,
+      "sha256": "c642a2459d8f0a45c8d72857ae210375928f66d6122993e376fb7ac34aeaee89",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-edge-39672564916-1-003.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-edge-39672564916-1-004.json",
+      "bytes": 2175,
+      "sha256": "6ea87ebf9a5bfdde51244e16e1ac5ec6bb4185a56e7eca303c5611a840793e9d",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-edge-39672564916-1-004.json"
+    },
+    {
+      "name": "release-report-39685642769-1-store-edge-39672564916-1-902.json",
+      "bytes": 1458,
+      "sha256": "28c93e1e7e6bc910192facc477203f4c0968944040deb018d3484a1580aac204",
+      "kind": "evidence",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-store-edge-39672564916-1-902.json"
+    },
+    {
+      "name": "release-report-39685642769-1-publisher.json",
+      "bytes": 14290,
+      "sha256": "8963724185e611de38d332b1c2052136f470f8712141dc89c6316b9df1cfc286",
+      "kind": "publisher",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-publisher.json"
+    },
+    {
+      "name": "release-report-39685642769-1-checks.json",
+      "bytes": 8365,
+      "sha256": "7fbd88b422b333db08b5f70e871c0302ee1f51556cb13b450a44707c3a05725f",
+      "kind": "checks",
+      "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1-checks.json"
+    }
+  ],
+  "unavailableEvidence": [],
+  "submissions": [
+    {
+      "store": "chrome",
+      "state": "submitted",
+      "runId": "39671773694",
+      "recordedAt": "2026-10-21T20:37:46.353Z"
+    },
+    {
+      "store": "firefox",
+      "state": "submitted",
+      "runId": "39672160759",
+      "recordedAt": "2026-10-21T20:40:25.807Z"
+    },
+    {
+      "store": "edge",
+      "state": "submitted",
+      "runId": "39672564916",
+      "recordedAt": "2026-10-21T20:43:30.574Z"
+    }
+  ],
+  "checks": [
+    {
+      "id": "39534365390-1-119007463179-0",
+      "kind": "workflow",
+      "name": "Freeze candidate",
+      "environment": "Freeze candidate · GitHub Actions 1000009372",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007463179"
+    },
+    {
+      "id": "39534365390-1-119007536427-0",
+      "kind": "build",
+      "name": "Build candidate packages",
+      "environment": "Build candidate packages · GitHub Actions 1000009375",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536427"
+    },
+    {
+      "id": "39534365390-1-119007536427-6",
+      "kind": "build",
+      "name": "Validate release metadata and build packages",
+      "environment": "Build candidate packages · GitHub Actions 1000009375",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536427"
+    },
+    {
+      "id": "39534365390-1-119007536564-0",
+      "kind": "workflow",
+      "name": "Safari compilation / Safari Debug build",
+      "environment": "Safari compilation / Safari Debug build · GitHub Actions 1000009373",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536564"
+    },
+    {
+      "id": "39534365390-1-119007536564-6",
+      "kind": "lint",
+      "name": "Lint Safari sources and build tools",
+      "environment": "Safari compilation / Safari Debug build · GitHub Actions 1000009373",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536564"
+    },
+    {
+      "id": "39534365390-1-119007536564-7",
+      "kind": "build",
+      "name": "Build shared Safari UI",
+      "environment": "Safari compilation / Safari Debug build · GitHub Actions 1000009373",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536564"
+    },
+    {
+      "id": "39534365390-1-119007536564-10",
+      "kind": "build",
+      "name": "Compile app and embedded extension without signing",
+      "environment": "Safari compilation / Safari Debug build · GitHub Actions 1000009373",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536564"
+    },
+    {
+      "id": "39534365390-1-119007536564-11",
+      "kind": "build",
+      "name": "Verify packaged resources and identifiers",
+      "environment": "Safari compilation / Safari Debug build · GitHub Actions 1000009373",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536564"
+    },
+    {
+      "id": "39534365390-1-119007536574-0",
+      "kind": "workflow",
+      "name": "Safari compilation / Safari Release build",
+      "environment": "Safari compilation / Safari Release build · GitHub Actions 1000009374",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536574"
+    },
+    {
+      "id": "39534365390-1-119007536574-6",
+      "kind": "lint",
+      "name": "Lint Safari sources and build tools",
+      "environment": "Safari compilation / Safari Release build · GitHub Actions 1000009374",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536574"
+    },
+    {
+      "id": "39534365390-1-119007536574-7",
+      "kind": "build",
+      "name": "Build shared Safari UI",
+      "environment": "Safari compilation / Safari Release build · GitHub Actions 1000009374",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536574"
+    },
+    {
+      "id": "39534365390-1-119007536574-10",
+      "kind": "build",
+      "name": "Compile app and embedded extension without signing",
+      "environment": "Safari compilation / Safari Release build · GitHub Actions 1000009374",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536574"
+    },
+    {
+      "id": "39534365390-1-119007536574-11",
+      "kind": "build",
+      "name": "Verify packaged resources and identifiers",
+      "environment": "Safari compilation / Safari Release build · GitHub Actions 1000009374",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007536574"
+    },
+    {
+      "id": "39534365390-1-119007537787-0",
+      "kind": "workflow",
+      "name": "Advisory runtime",
+      "environment": "Advisory runtime · CI runner",
+      "conclusion": "skipped",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007537787"
+    },
+    {
+      "id": "39534365390-1-119007808530-0",
+      "kind": "workflow",
+      "name": "Verify Firefox package",
+      "environment": "Verify Firefox package · GitHub Actions 1000009376",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808530"
+    },
+    {
+      "id": "39534365390-1-119007808530-8",
+      "kind": "test",
+      "name": "Firefox browser integration",
+      "environment": "Verify Firefox package · GitHub Actions 1000009376",
+      "conclusion": "success",
+      "counts": {
+        "passed": 20,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808530"
+    },
+    {
+      "id": "39534365390-1-119007808530-9",
+      "kind": "test",
+      "name": "Firefox unloaded tab move regression",
+      "environment": "Verify Firefox package · GitHub Actions 1000009376",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808530"
+    },
+    {
+      "id": "39534365390-1-119007808561-0",
+      "kind": "workflow",
+      "name": "Verify Chrome package",
+      "environment": "Verify Chrome package · GitHub Actions 1000009377",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808561"
+    },
+    {
+      "id": "39534365390-1-119007808561-9",
+      "kind": "test",
+      "name": "Unit Test",
+      "environment": "Verify Chrome package · GitHub Actions 1000009377",
+      "conclusion": "success",
+      "counts": {
+        "passed": 760,
+        "failed": 0,
+        "skipped": 2,
+        "flaky": 0
+      },
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808561"
+    },
+    {
+      "id": "39534365390-1-119007808561-10",
+      "kind": "test",
+      "name": "Integration Test against frozen Chrome package",
+      "environment": "Verify Chrome package · GitHub Actions 1000009377",
+      "conclusion": "success",
+      "counts": {
+        "passed": 190,
+        "failed": 0,
+        "skipped": 1,
+        "flaky": 0
+      },
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808561"
+    },
+    {
+      "id": "39534365390-1-119007808561-11",
+      "kind": "test",
+      "name": "Unloaded tab move regression",
+      "environment": "Verify Chrome package · GitHub Actions 1000009377",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808561"
+    },
+    {
+      "id": "39534365390-1-119007808597-0",
+      "kind": "workflow",
+      "name": "Advisory bundle measurement",
+      "environment": "Advisory bundle measurement · GitHub Actions 1000009378",
+      "conclusion": "success",
+      "counts": null,
+      "url": "https://github.com/xcv58/Tab-Manager-v2/actions/runs/39534365390/job/119007808597"
+    }
+  ],
+  "recordIds": [
+    "bundle-39534365390-1",
+    "local-release-mac-01-2026-10-21T21-16-19-381Z-bundles",
+    "local-release-mac-01-2026-10-21T21-16-19-381Z-c2dea3aa",
+    "local-release-mac-01-2026-10-21T21-16-19-381Z-dc1f386c"
+  ],
+  "metrics": [
+    {
+      "name": "release-report-39685642769-1-bundle-39534365390-1.json",
+      "id": "bundle-39534365390-1"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-bundles.json",
+      "id": "local-release-mac-01-2026-10-21T21-16-19-381Z-bundles"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-c2dea3aa.json",
+      "id": "local-release-mac-01-2026-10-21T21-16-19-381Z-c2dea3aa"
+    },
+    {
+      "name": "release-report-39685642769-1-local-release-mac-01-2026-10-21T21-16-19-381Z-dc1f386c.json",
+      "id": "local-release-mac-01-2026-10-21T21-16-19-381Z-dc1f386c"
+    }
+  ],
+  "url": "https://github.com/xcv58/Tab-Manager-v2/releases/download/v3.0.1/release-report-39685642769-1.manifest.json"
+}
