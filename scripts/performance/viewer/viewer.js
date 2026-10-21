@@ -380,14 +380,17 @@
       )
     if (requested && !selected)
       option(select, requested, 'Requested capture unavailable')
-    else if (!reports.length) option(select, '', 'Not archived')
     select.value = selected?.id || requested || ''
     select.disabled = !reports.length
+    byId('report-capture-control').hidden = !reports.length
+    byId('verification-table').hidden = !selected
+    byId('verification-context').hidden = !selected
+    byId('verification-section').classList.toggle('is-empty', !selected)
     if (selected) reportSelections.set(controls.target.value, selected.id)
     rows.replaceChildren()
     byId('verification-context').textContent = selected
       ? `Captured ${selected.recordedAt.slice(0, 10)}`
-      : 'Not archived'
+      : ''
     const submissions = selected?.submissions || []
     byId('store-submissions').hidden = !submissions.length
     byId('store-submissions').textContent = submissions.length
@@ -397,7 +400,7 @@
       ? `Each row is one check in one environment. Counts are shown only when structured results were archived; environments are not added together. Safari compilation confirms a build, not browser behavior.${selected.unavailableEvidence?.length ? ' Some evidence files were unavailable; the manifest lists these omissions.' : ''}`
       : requested
         ? 'The pinned evidence capture is unavailable in this website snapshot.'
-        : 'No saved test or build results are available for this release.'
+        : 'No test or build evidence has been archived for this version yet. This does not indicate whether checks were run or passed.'
     const labels = {
       success: 'Passed',
       failure: 'Failed',
@@ -435,7 +438,7 @@
       row.append(cell)
       rows.append(row)
     }
-    if (!selected?.checks.length) {
+    if (selected && !selected.checks.length) {
       const row = document.createElement('tr'),
         cell = document.createElement('td')
       cell.colSpan = 5

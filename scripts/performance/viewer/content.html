@@ -76,19 +76,27 @@
     markers and dashed lines identify candidates. Lower values use less time or
     space. Local runtime measurements are advisory.
   </p>
-  <section class="verification-section" aria-labelledby="verification-title">
+  <section
+    id="verification-section"
+    class="verification-section"
+    aria-labelledby="verification-title"
+  >
     <div class="section-heading">
       <h2 id="verification-title">Tests and builds</h2>
-      <p id="verification-context"></p>
+      <p id="verification-context" hidden></p>
     </div>
-    <label>Evidence capture<select id="report-capture"></select></label>
+    <label id="report-capture-control" hidden
+      >Evidence capture<select id="report-capture"></select
+    ></label>
     <p id="verification-note"></p>
     <p id="store-submissions" hidden></p>
     <div
+      id="verification-table"
       class="table-scroll"
       tabindex="0"
       role="region"
       aria-labelledby="verification-title"
+      hidden
     >
       <table>
         <thead>

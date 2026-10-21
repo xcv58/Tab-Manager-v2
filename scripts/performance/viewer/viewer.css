@@ -558,6 +558,13 @@
 .performance-viewer .verification-section select {
   max-width: 100%;
 }
+.performance-viewer .verification-section.is-empty .section-heading {
+  margin-bottom: 12px;
+}
+.performance-viewer .verification-section.is-empty #verification-note {
+  max-width: 70ch;
+  color: var(--performance-muted);
+}
 .performance-viewer #verification-note,
 .performance-viewer #snapshot-note {
   font-size: 0.875rem;
