@@ -160,7 +160,9 @@
       "arch": "arm64",
       "osVersion": "27.2.0",
       "hardware": {
-        "cpuModels": ["Apple M5 Pro"],
+        "cpuModels": [
+          "Apple M5 Pro"
+        ],
         "logicalCores": 18,
         "memoryBytes": 68719476736,
         "runnerImage": null,
@@ -184,7 +186,11 @@
       "profiling": true,
       "samplesPerCase": 7,
       "dragSamples": 3,
-      "sourceTabs": [100, 1000, 5000],
+      "sourceTabs": [
+        100,
+        1000,
+        5000
+      ],
       "referenceCommit": "c2dea3aacb3c1fb871434bdcbbcf54019b03f602"
     },
     "fixtureFingerprints": {

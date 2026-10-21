@@ -158,7 +158,10 @@
           "sha256": "8503f7b826c2d984275980cdcc16232f040003ee2d22db4dd0c979426b05e94d"
         }
       ],
-      "startupFiles": ["popup.js", "popup.css"],
+      "startupFiles": [
+        "popup.js",
+        "popup.css"
+      ],
       "summary": {
         "unpackedBytes": 972812,
         "popupJsBytes": 906893,
@@ -309,7 +312,10 @@
           "sha256": "8503f7b826c2d984275980cdcc16232f040003ee2d22db4dd0c979426b05e94d"
         }
       ],
-      "startupFiles": ["popup.js", "popup.css"],
+      "startupFiles": [
+        "popup.js",
+        "popup.css"
+      ],
       "summary": {
         "unpackedBytes": 976136,
         "popupJsBytes": 910001,
