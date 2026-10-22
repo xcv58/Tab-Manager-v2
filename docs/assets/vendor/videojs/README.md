@@ -2,6 +2,11 @@
 
 # Video.js - Web Video Player & Framework
 
+> **Tab Manager v2 vendored copy:** This directory contains Video.js **8.23.7**.
+> The website serves the local `video.min.js` and `video-js.min.css` files,
+> rather than loading Video.js from a CDN. The CDN examples below are pinned
+> to this version; updating the player requires a separate compatibility review.
+
 [![NPM][npm-icon]][npm-link]
 
 **Update:** Big changes coming in Video.js 10, early 2026! [Read the discussion.](https://github.com/videojs/video.js/discussions/9035)
@@ -37,13 +42,6 @@ Thanks to the awesome folks over at [Fastly][fastly], there's a free, CDN hosted
 Alternatively, you can include Video.js by getting it from [npm](https://videojs.com/getting-started/#install-via-npm), downloading it from [GitHub releases](https://github.com/videojs/video.js/releases) or by including it via [unpkg](https://unpkg.com) or another JavaScript CDN, like CDNjs.
 
 ```html
-<!-- unpkg : use the latest version of Video.js -->
-<link
-  href="https://unpkg.com/video.js/dist/video-js.min.css"
-  rel="stylesheet"
-/>
-<script src="https://unpkg.com/video.js/dist/video.min.js"></script>
-
 <!-- unpkg : use a specific version of Video.js (change the version numbers as necessary) -->
 <link
   href="https://unpkg.com/video.js@8.23.7/dist/video-js.min.css"
