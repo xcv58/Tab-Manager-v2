@@ -1,10 +1,12 @@
-# Release reports
+# Release performance
 
-The **Release reports** footer entry opens `/reports/`. Release history is the
-main view; there is no top-navigation link. Bundle size, startup, search, drag,
-and heap charts are interactive. Hover/tap to inspect, use arrow keys to browse,
-and Enter to select. Filter the history range, browser, workload and protocol,
-or select a target and baseline. Shared URLs pin measurement/evidence captures.
+The **Release performance** footer entry opens `/reports/`. Download size,
+startup time and search response are the primary interactive charts. The
+optional release table retains startup JavaScript, drag rendering and heap
+measurements. Hover/tap to inspect, use arrow keys to browse, and Enter to
+select. Runtime charts show only measurements compatible with the selected
+set and workload. Existing shared URLs retain their exact measurement and
+evidence pins, without exposing raw capture IDs as public controls.
 
 ## Storage and loading
 
@@ -29,7 +31,7 @@ files, embeds summaries, and copies full record downloads into `dist/site/report
 Local, PR-preview and production builds take the same offline data path. Neither
 website builds nor report browsing fetch GitHub releases or need GitHub/Vercel
 credentials. Explicit evidence links open GitHub when selected. The output
-`/reports/snapshot.json` and its displayed SHA-256 identify the deployed catalog;
+`/reports/snapshot.json` contains the SHA-256 identifying the deployed catalog;
 check out its deployment's Git commit to reproduce the build.
 
 ## View and update
@@ -62,12 +64,12 @@ website: the reviewed JSON import commit does.
 
 ## Evidence and comparability
 
-Failed, cancelled, skipped, pending and missing checks remain explicit.
-Structured Jest/Playwright results supply counts; retries count once, flaky
-outcomes remain separate, and environments are never added into a misleading
-total. Status-only checks show **Counts not archived**. Safari compilation is
-build evidence, not Safari browser testing. Historical verification remains
-**Not archived** where original evidence was not preserved.
+The public page links to verification evidence from **Methodology and data**;
+it does not render CI steps, test-count tables or store submission receipts.
+Their original statuses, structured counts, environment identities and
+submission/publication distinctions remain preserved in the archived reports,
+GitHub release assets and downloadable catalog. Source and collection metadata
+remain in the full immutable measurement records.
 
 Benchmarks are advisory and run locally on the designated Mac. CI verifies
 application correctness and validates/archives reviewed local results. A late

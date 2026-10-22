@@ -29,7 +29,7 @@
   --performance-focus: var(--accent);
   --performance-accent-soft: var(--accent-soft);
   width: 100%;
-  padding: 52px 0 64px;
+  padding: 24px 0 48px;
   color: var(--performance-text);
 }
 .performance-viewer,
@@ -40,7 +40,7 @@
   position: relative;
   width: min(1120px, 100%);
   margin: auto;
-  padding: 48px clamp(20px, 4vw, 40px) 56px;
+  padding: 28px clamp(20px, 4vw, 40px) 48px;
 }
 .performance-viewer [hidden] {
   display: none !important;
@@ -78,7 +78,7 @@
   align-items: end;
   flex-wrap: wrap;
   gap: 14px 20px;
-  margin: 32px 0 14px;
+  margin: 22px 0 10px;
 }
 .performance-viewer label {
   display: flex;
@@ -89,7 +89,7 @@
   color: var(--performance-muted);
 }
 .performance-viewer #controls > label {
-  flex: 0 1 185px;
+  flex: 1 1 170px;
 }
 .performance-viewer select {
   width: 100%;
@@ -168,34 +168,7 @@
 .performance-viewer #history-summary {
   font-size: 12px;
   color: var(--performance-muted);
-  margin: 18px 0;
-}
-.performance-viewer #release-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 28px;
-}
-.performance-viewer #release-picker button {
-  min-height: 44px;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--performance-muted);
-  font: inherit;
-  font-size: 14px;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-.performance-viewer #release-picker button:hover {
-  background: var(--performance-surface);
-  color: var(--performance-text);
-}
-.performance-viewer #release-picker button[aria-pressed='true'] {
-  background: var(--performance-accent-soft);
-  color: var(--performance-series);
-  font-weight: 600;
+  margin: 10px 0 16px;
 }
 .performance-viewer .release-selection {
   display: flex;
@@ -203,47 +176,72 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px 32px;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 .performance-viewer #selected-release {
   font-size: 20px;
   overflow-wrap: anywhere;
 }
-.performance-viewer #comparison {
-  border: 0;
-  margin: 0;
-  padding: 0;
+.performance-viewer #comparison-summary {
+  color: var(--performance-muted);
   font-size: 13px;
+}
+.performance-viewer .runtime-settings {
+  margin: 14px 0 24px;
+  padding: 16px 0;
+  border-block: 1px solid var(--performance-border);
+}
+.performance-viewer .runtime-settings .pair-controls {
+  margin-top: 0;
+}
+.performance-viewer #runtime-context {
+  margin-top: 12px;
+  font-size: 12px;
   color: var(--performance-muted);
 }
-.performance-viewer #comparison summary {
-  padding: 8px 0;
+.performance-viewer #capture-notice {
+  margin-bottom: 20px;
+  font-size: 13px;
 }
-.performance-viewer #comparison[open] {
-  flex-basis: 100%;
+.performance-viewer #reset-captures {
+  border: 0;
+  background: none;
+  color: var(--performance-series);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
 }
-.performance-viewer .chart-section {
-  border-top: 1px solid var(--performance-border);
-  padding-top: 30px;
-  margin-top: 32px;
-}
-.performance-viewer .section-heading {
+.performance-viewer .data-links {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
   flex-wrap: wrap;
-  gap: 8px 24px;
-  margin-bottom: 24px;
+  gap: 12px 24px;
+  margin-top: 16px;
 }
-.performance-viewer .section-heading > p {
-  margin: 0;
+.performance-viewer #records {
+  padding-left: 20px;
+}
+.performance-viewer .methodology ul {
+  padding-left: 20px;
+}
+.performance-viewer .methodology li + li {
+  margin-top: 8px;
+}
+.performance-viewer #measurement-summary,
+.performance-viewer #package-context,
+.performance-viewer #source {
+  margin-top: 12px;
+}
+.performance-viewer .baseline-value {
+  display: block;
+  flex-basis: 100%;
   color: var(--performance-muted);
   font-size: 12px;
 }
 .performance-viewer .chart-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px 48px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
 }
 .performance-viewer .plot {
   min-width: 0;
@@ -398,7 +396,7 @@
   margin-top: 6px;
 }
 .performance-viewer #release-history {
-  margin-top: 48px;
+  margin-top: 28px;
   padding-top: 28px;
   border-top: 1px solid var(--performance-border);
 }
@@ -464,26 +462,6 @@
 .performance-viewer .inspected-release {
   background: var(--performance-accent-soft);
 }
-.performance-viewer #evidence {
-  margin-top: 24px;
-  border-top: 1px solid var(--performance-border);
-  padding-top: 28px;
-}
-.performance-viewer #evidence p,
-.performance-viewer #evidence li {
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-.performance-viewer #evidence h2 {
-  font-size: 17px;
-  margin-bottom: 12px;
-}
-.performance-viewer #records {
-  padding-left: 20px;
-}
-.performance-viewer #records li {
-  margin-bottom: 8px;
-}
 .performance-viewer a {
   color: var(--performance-series);
   text-underline-offset: 3px;
@@ -512,13 +490,10 @@
   white-space: nowrap;
   border: 0;
 }
-@media (max-width: 680px) {
+@media (max-width: 900px) {
   .performance-viewer .chart-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 32px;
-  }
-  .performance-viewer .chart-section {
-    padding-top: 24px;
   }
   .performance-viewer #controls > label {
     flex: 1 1 150px;
@@ -529,9 +504,6 @@
   }
   .performance-viewer .release-selection {
     gap: 0 16px;
-  }
-  .performance-viewer #comparison {
-    flex-basis: 100%;
   }
   .performance-viewer select {
     font-size: 16px;
@@ -547,44 +519,4 @@
   .performance-viewer .comparison-value strong {
     font-size: 28px;
   }
-}
-.performance-viewer .verification-section {
-  margin-block: 2rem;
-  padding: clamp(1rem, 3vw, 1.75rem);
-  border: 1px solid var(--performance-border);
-  border-radius: 1rem;
-  background: var(--performance-background);
-}
-.performance-viewer .verification-section select {
-  max-width: 100%;
-}
-.performance-viewer .verification-section.is-empty .section-heading {
-  margin-bottom: 12px;
-}
-.performance-viewer .verification-section.is-empty #verification-note {
-  max-width: 70ch;
-  color: var(--performance-muted);
-}
-.performance-viewer #verification-note,
-.performance-viewer #snapshot-note {
-  font-size: 0.875rem;
-  overflow-wrap: anywhere;
-}
-.performance-viewer #verification-rows td {
-  white-space: normal;
-  min-width: 8rem;
-}
-.performance-viewer
-  #verification-rows
-  tr[data-conclusion='failure']
-  td:nth-child(3),
-.performance-viewer
-  #verification-rows
-  tr[data-conclusion='timed_out']
-  td:nth-child(3) {
-  color: #d54a50;
-  font-weight: 600;
-}
-.performance-viewer #verification-rows a {
-  overflow-wrap: anywhere;
 }
