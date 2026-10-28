@@ -12,7 +12,7 @@ Tab Manager v2 turns crowded browser sessions into a searchable workspace. Find 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/tab-manager-v2/nimllkpgmmbdglnjneeakdgcpkbgbfbp)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/tab-manager-v2)
 - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/idoifhgklnblomgoohijchjignpiddpb)
-- [Safari for macOS · Public beta (TestFlight)](https://testflight.apple.com/join/UKyc8DmK)
+- [Safari for macOS · Mac App Store](https://apps.apple.com/us/app/tab-manager-v2/id6758364114)
 
 ## Quick Start
 
@@ -59,12 +59,12 @@ Shortcut behavior can vary slightly by platform and browser. Use the in-app shor
 
 ## Browser Support
 
-| Browser | Status                | Notes                                                                          |
-| ------- | --------------------- | ------------------------------------------------------------------------------ |
-| Chrome  | Supported             | Full core workflow, including tab group integration                            |
-| Edge    | Supported             | Chromium-based behavior; feature availability follows exposed browser APIs     |
-| Firefox | Supported             | Core workflow plus Firefox-specific container support                          |
-| Safari  | Public beta for macOS | Search, close, reload, pin, copy, export, and settings; see Safari scope below |
+| Browser | Status                  | Notes                                                                          |
+| ------- | ----------------------- | ------------------------------------------------------------------------------ |
+| Chrome  | Supported               | Full core workflow, including tab group integration                            |
+| Edge    | Supported               | Chromium-based behavior; feature availability follows exposed browser APIs     |
+| Firefox | Supported               | Core workflow plus Firefox-specific container support                          |
+| Safari  | Available for macOS 14+ | Search, close, reload, pin, copy, export, and settings; see Safari scope below |
 
 ## Privacy and Permissions
 
@@ -83,7 +83,7 @@ User preferences are stored in browser sync storage when available, with a local
 
 ### Does it work with Safari?
 
-Yes. The macOS Safari version is available in [public beta through TestFlight](https://testflight.apple.com/join/UKyc8DmK). Open the installed app, enable Tab Manager v2 in Safari Settings → Extensions for your profile, and allow website access to show titles and URLs.
+Yes. The Safari version is available free from the [Mac App Store](https://apps.apple.com/us/app/tab-manager-v2/id6758364114) for macOS 14 or later. Open the installed app, enable Tab Manager v2 in Safari Settings → Extensions for your profile, and allow website access to show titles and URLs.
 
 Safari exposes normal windows in the current profile and active tab groups only. Inactive groups and private windows are excluded. Moving/reordering tabs, editing Safari tab groups, and browsing-history search are unavailable. Search, duplicate cleanup, bulk close/reload/pin, copying, exports, settings, and keyboard navigation are available.
 
@@ -103,7 +103,7 @@ Settings are stored in browser sync storage when the browser supports it. If syn
 
 ### Do all features work the same way in every browser?
 
-No. Core tab actions work across Chrome, Edge, Firefox, and the Safari macOS beta, but some features depend on browser-specific APIs. Examples include Firefox containers and browser tab groups.
+No. Core tab actions work across Chrome, Edge, Firefox, and Safari for macOS, but some features depend on browser-specific APIs. Examples include Firefox containers and browser tab groups.
 
 ## Development
 
