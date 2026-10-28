@@ -3,8 +3,8 @@
   // these checked-in strings, preserving inline code, keyboard keys, and links.
   const copy = {
     browserSupport: [
-      'Chrome、Edge 和 Firefox 可从各自的扩展商店安装。Safari macOS 版已通过 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight 开放公开测试</a>。请查看 <a href="#safari">Safari 设置</a>和<a href="#browser-features">浏览器对比</a>。',
-      'Chrome、Edge 和 Firefox 可從各自的擴充功能商店安裝。Safari macOS 版已透過 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight 開放公開測試</a>。請查看 <a href="#safari">Safari 設定</a>和<a href="#browser-features">瀏覽器比較</a>。',
+      'Chrome、Edge 和 Firefox 可从各自的扩展商店安装。Safari macOS 版可从 <a href="https://apps.apple.com/us/app/tab-manager-v2/id6758364114">Mac App Store</a> 安装。请查看 <a href="#safari">Safari 设置</a>和<a href="#browser-features">浏览器对比</a>。',
+      'Chrome、Edge 和 Firefox 可從各自的擴充功能商店安裝。Safari macOS 版可從 <a href="https://apps.apple.com/us/app/tab-manager-v2/id6758364114">Mac App Store</a> 安裝。請查看 <a href="#safari">Safari 設定</a>和<a href="#browser-features">瀏覽器比較</a>。',
     ],
     quickStartSelect: [
       '选择匹配的标签页，一起关闭、重新加载、固定、复制或导出。移动和分组取决于浏览器支持情况。',
@@ -47,13 +47,14 @@
       'Safari 在本機儲存設定。其他瀏覽器可在你啟用瀏覽器同步時，按照其提供者的隱私政策同步設定。',
     ],
     safariTitle: ['Safari macOS 版', 'Safari macOS 版'],
+    safariStore: ['Mac App Store · Safari', 'Mac App Store · Safari'],
     safariIntro: [
-      'Safari 版本是适用于 macOS 的公开测试版。通过 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 安装。',
-      'Safari 版本是適用於 macOS 的公開測試版。透過 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 安裝。',
+      'Safari 版本可从 <a href="https://apps.apple.com/us/app/tab-manager-v2/id6758364114">Mac App Store</a> 免费安装。需要 macOS 14 或更高版本。',
+      'Safari 版本可從 <a href="https://apps.apple.com/us/app/tab-manager-v2/id6758364114">Mac App Store</a> 免費安裝。需要 macOS 14 或以上版本。',
     ],
     safariInstall: [
-      '安装 TestFlight，接受测试邀请并安装 Tab Manager v2，然后打开已安装的应用。',
-      '安裝 TestFlight，接受測試邀請並安裝 Tab Manager v2，然後開啟已安裝的 App。',
+      '从 Mac App Store 安装 Tab Manager v2，然后打开已安装的应用。',
+      '從 Mac App Store 安裝 Tab Manager v2，然後開啟已安裝的 App。',
     ],
     safariEnable: [
       '打开 Safari 设置 → 扩展，为你要使用的个人资料启用 Tab Manager v2。',
@@ -77,7 +78,6 @@
     ],
     browserComparison: ['浏览器对比', '瀏覽器比較'],
     comparisonFeature: ['功能', '功能'],
-    safariBeta: ['Safari macOS 版 · 测试版', 'Safari macOS 版 · 測試版'],
     comparisonCommon: [
       '查找、关闭、重新加载、固定、复制和导出标签页',
       '尋找、關閉、重新載入、釘選、複製和匯出分頁',

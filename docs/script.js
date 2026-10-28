@@ -41,9 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const localizedCopy = {
     'zh-Hans': {
-      'Safari for macOS · Beta': 'Safari macOS 版 · 测试版',
-      'Get Tab Manager v2 for Safari on macOS (TestFlight beta)':
-        '获取 Safari macOS 版 Tab Manager v2（TestFlight 测试版）',
+      'Safari for macOS': 'Safari macOS 版',
+      'Get Tab Manager v2 for Safari on the Mac App Store':
+        '从 Mac App Store 获取 Safari 版 Tab Manager v2',
       'See permission names': '查看权限名称',
       'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
         '跨窗口查找标签页，整理相关页面，关闭重复项，复制或分享标签页。',
@@ -241,9 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
       'Back to Top': '返回顶部',
     },
     'zh-Hant': {
-      'Safari for macOS · Beta': 'Safari macOS 版 · 測試版',
-      'Get Tab Manager v2 for Safari on macOS (TestFlight beta)':
-        '取得 Safari macOS 版 Tab Manager v2（TestFlight 測試版）',
+      'Safari for macOS': 'Safari macOS 版',
+      'Get Tab Manager v2 for Safari on the Mac App Store':
+        '從 Mac App Store 取得 Safari 版 Tab Manager v2',
       'Find any tab across all your windows. Organize related pages, close duplicates, and copy or share your tabs with Tab Manager v2.':
         '跨視窗尋找分頁，整理相關頁面，關閉重複項，複製或分享分頁。',
       'Open command palette screenshot': '開啟指令面板截圖',
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const localizedHtml = {
     'zh-Hans': {
       'faq.safariBody':
-        '支持。Safari macOS 版 Tab Manager v2 已通过 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 开放公开测试。你可以搜索打开的标签页、关闭重复项并批量操作。请查看 <a href="support/#safari">Safari 设置和支持的功能</a>。',
+        '支持。Safari macOS 版 Tab Manager v2 已在 <a href="https://apps.apple.com/us/app/tab-manager-v2/id6758364114">Mac App Store</a> 免费上架。你可以搜索打开的标签页、关闭重复项并批量操作。请查看 <a href="support/#safari">Safari 设置和支持的功能</a>。',
       'faq.permissionsSummary':
         '扩展需要访问打开的标签页、窗口和保存的设置。Safari 会请求网站访问权限以显示标题和网址。Chrome、Edge 和 Firefox 还提供可选的浏览历史搜索。标签页数据留在你的浏览器中。',
       'faq.permissionsBody':
@@ -453,11 +453,11 @@ document.addEventListener('DOMContentLoaded', () => {
       'media.browserNote':
         '画面录制于 Chrome。<a href="support/#browser-features">查看各浏览器支持的功能。</a>',
       'install.safariNote':
-        'Safari 测试版适用于 macOS。<a href="support/#safari">设置和支持的功能</a>。',
+        'Safari 版本需要 macOS 14 或更高版本。<a href="support/#safari">设置和支持的功能</a>。',
     },
     'zh-Hant': {
       'faq.safariBody':
-        '支援。Safari macOS 版 Tab Manager v2 已透過 <a href="https://testflight.apple.com/join/UKyc8DmK">TestFlight</a> 開放公開測試。你可以搜尋開啟的分頁、關閉重複項並批次操作。請查看 <a href="support/#safari">Safari 設定和支援的功能</a>。',
+        '支援。Safari macOS 版 Tab Manager v2 已在 <a href="https://apps.apple.com/us/app/tab-manager-v2/id6758364114">Mac App Store</a> 免費上架。你可以搜尋開啟的分頁、關閉重複項並批次操作。請查看 <a href="support/#safari">Safari 設定和支援的功能</a>。',
       'faq.permissionsSummary':
         '擴充功能需要存取開啟的分頁、視窗和儲存的設定。Safari 會要求網站存取權限以顯示標題和網址。Chrome、Edge 和 Firefox 還提供可選的瀏覽紀錄搜尋。分頁資料留在你的瀏覽器中。',
       'faq.permissionsBody':
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'media.browserNote':
         '畫面錄製於 Chrome。<a href="support/#browser-features">查看各瀏覽器支援的功能。</a>',
       'install.safariNote':
-        'Safari 測試版適用於 macOS。<a href="support/#safari">設定和支援的功能</a>。',
+        'Safari 版本需要 macOS 14 或以上版本。<a href="support/#safari">設定和支援的功能</a>。',
     },
   }
   const translatableAttributes = [
