@@ -8,6 +8,10 @@ on:
         description: Reviewed current master commit (full SHA; checked against dispatch revision)
         required: true
         type: string
+      safari:
+        description: Prepare a signed Safari package (protected environment approval; no upload)
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -58,7 +62,7 @@ jobs:
           node scripts/release/candidate.mjs package
       - uses: actions/upload-artifact@v4
         with:
-          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          name: release-browser-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/extension/build/build_chrome.zip
             packages/extension/build/build_firefox.zip
@@ -87,7 +91,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v4
         with:
-          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          name: release-browser-${{ github.run_id }}-${{ github.run_attempt }}
           path: packages/extension/build
       - name: Expand verified package
         working-directory: packages/extension/build
@@ -137,7 +141,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v4
         with:
-          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          name: release-browser-${{ github.run_id }}-${{ github.run_attempt }}
           path: packages/extension/build
       - name: Expand verified package
         working-directory: packages/extension/build
@@ -167,3 +171,95 @@ jobs:
     uses: ./.github/workflows/safari.yml
     with:
       source: ${{ github.sha }}
+
+  safari-package:
+    name: Package Safari candidate
+    needs: [freeze, safari]
+    if: ${{ inputs.safari }}
+    runs-on: macos-15
+    timeout-minutes: 45
+    environment: safari-app-store
+    permissions:
+      contents: write
+    concurrency:
+      # Same lock as delivery/promotion: allocation ledger and Apple app are shared.
+      group: safari-app-store
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: ./.github/actions/safari-toolchain
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.32.1
+      - run: pnpm install --frozen-lockfile
+      - name: Build production web resources before XcodeGen
+        env:
+          SAFARI_BUILD_CONFIGURATION: Release
+        run: |
+          node scripts/release-policy.mjs candidate
+          pnpm build:safari
+      - name: Allocate, archive, sign, export and verify (no upload)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          SAFARI_CERTIFICATES_P12: ${{ secrets.SAFARI_CERTIFICATES_P12 }}
+          SAFARI_CERTIFICATES_PASSWORD: ${{ secrets.SAFARI_CERTIFICATES_PASSWORD }}
+          SAFARI_APP_PROFILE: ${{ secrets.SAFARI_APP_PROFILE }}
+          SAFARI_EXTENSION_PROFILE: ${{ secrets.SAFARI_EXTENSION_PROFILE }}
+        run: node scripts/release/safari-package.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-safari-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .tmp/safari-candidate/safari-app-store.pkg
+            .tmp/safari-candidate/safari-archive.zip
+            .tmp/safari-candidate/safari.json
+          if-no-files-found: error
+          retention-days: 30
+
+  candidate:
+    name: Assemble candidate manifest
+    needs: [freeze, packages, safari-package]
+    if: ${{ always() && needs.freeze.result == 'success' && needs.packages.result == 'success' && (needs.safari-package.result == 'success' || (!inputs.safari && needs.safari-package.result == 'skipped')) }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/extension/build
+      - uses: actions/download-artifact@v4
+        if: ${{ inputs.safari }}
+        with:
+          name: release-safari-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/extension/build
+      - name: Freeze complete package inventory
+        env:
+          INCLUDE_SAFARI: ${{ inputs.safari }}
+        run: node scripts/release/candidate.mjs assemble
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            packages/extension/build/*.zip
+            packages/extension/build/*.pkg
+            packages/extension/build/SHA256SUMS.txt
+            packages/extension/build/candidate.json
+          if-no-files-found: error
+          retention-days: 30

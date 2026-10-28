@@ -60,6 +60,15 @@ measurements, rerun `release:review` to refresh the preview without rebuilding t
 This writes only ignored local output; it does not change the committed catalog.
 Review source, packages and this preview before approving publication.
 
+Safari can optionally join the same frozen candidate with
+`release:verify --sha SHA --safari`. Its protected signing job does not upload.
+See [Safari automation](../packages/safari-native/RELEASE.md) for signing inputs,
+version-specific release notes, build allocation, exact-package review,
+`--stores safari` delivery/retries and separate `release:safari` App Review
+controls. Default store selection stays `chrome,firefox,edge`; Safari must be
+selected explicitly. Its TestFlight delivery never implicitly submits App Review
+or releases the version. Historical browser-only approvals remain unchanged.
+
 ## Collect performance locally
 
 Use a clean, committed worktree on the designated benchmark Mac, connected to AC

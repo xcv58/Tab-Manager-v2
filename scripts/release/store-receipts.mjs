@@ -1,5 +1,6 @@
 import { assert, readJsonAsset } from './github.mjs'
 import { confirmedSubmission } from './store-acceptance.mjs'
+import { safari, safariSummary } from './safari-model.mjs'
 
 // Both store retries and report capture must interpret interrupted journals the
 // same way. An unreadable starter records an uncertain attempt, never a pass.
@@ -10,7 +11,11 @@ export async function readStoreReceipts(
   candidateSha256,
 ) {
   const packageName =
-    store === 'firefox' ? 'build_firefox.zip' : 'build_chrome.zip'
+    store === 'safari'
+      ? safari.packageName
+      : store === 'firefox'
+        ? 'build_firefox.zip'
+        : 'build_chrome.zip'
   const packageFile = candidate.files.find((file) => file.name === packageName)
   assert(packageFile, `missing ${store} package`)
   const receipts = []
@@ -70,6 +75,7 @@ export function storeRetryDecision(receipts, reconciled) {
 }
 
 export function summarizeStoreReceipts(store, receipts) {
+  if (store === 'safari') return safariSummary(receipts)
   const ordered = receipts
     .map(({ receipt }) => receipt)
     .sort((a, b) => Date.parse(a.recordedAt) - Date.parse(b.recordedAt))

@@ -45,7 +45,9 @@ export function validateManifest(report) {
   )
   assert(
     report.publisher?.repository === repository &&
-      ['publish-release.yml'].includes(report.publisher.workflow),
+      ['publish-release.yml', 'safari-app-store.yml'].includes(
+        report.publisher.workflow,
+      ),
     'unrecognized publisher',
   )
   assert(
@@ -87,9 +89,18 @@ export function validateManifest(report) {
     const stores = new Set()
     for (const item of report.submissions) {
       assert(
-        ['chrome', 'firefox', 'edge'].includes(item.store) &&
+        ['chrome', 'firefox', 'edge', 'safari'].includes(item.store) &&
           !stores.has(item.store) &&
-          ['submitted', 'unknown'].includes(item.state) &&
+          (item.store === 'safari'
+            ? [
+                'uploaded',
+                'processed',
+                'testers-available',
+                'submitted',
+                'unknown',
+              ]
+            : ['submitted', 'unknown']
+          ).includes(item.state) &&
           /^\d+$/.test(String(item.runId)) &&
           Number.isFinite(Date.parse(item.recordedAt)),
         'invalid store receipt summary',

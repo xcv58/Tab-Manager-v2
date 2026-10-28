@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path'
 import { assertReleaseVersion, readReleaseVersion } from '../release-policy.mjs'
 import { git, json, sha256 } from '../performance/records.mjs'
 import { assert, gh, pages, request, repository } from './github.mjs'
+import { safariFiles, validateSafari } from './safari-model.mjs'
 
 export const packageNames = [
   'build_chrome.zip',
@@ -20,8 +21,17 @@ export const requiredJobs = [
 ]
 export const hashPattern = /^[a-f0-9]{64}$/
 export const commitPattern = /^[a-f0-9]{40}$/
-export function assertRequiredJobs(jobs) {
-  for (const name of requiredJobs) {
+export function candidateJobs(candidate) {
+  return candidate?.safari
+    ? [
+        ...requiredJobs,
+        'Package Safari candidate',
+        'Assemble candidate manifest',
+      ]
+    : requiredJobs
+}
+export function assertRequiredJobs(jobs, candidate) {
+  for (const name of candidateJobs(candidate)) {
     const matches = jobs.filter(
       (job) => job.name === name || job.name.endsWith(` / ${name}`),
     )
@@ -106,12 +116,13 @@ export async function verifiedCandidate(
   const jobs = await pages(
     `actions/runs/${run.id}/attempts/${run.run_attempt}/jobs`,
   )
-  if (gate) assertRequiredJobs(jobs)
+  if (gate) assertRequiredJobs(jobs, candidate)
   return { candidate, digest, run, jobs }
 }
 export function validateCandidate(candidate) {
   assert(
-    candidate.schemaVersion === 1 && candidate.kind === 'release-candidate',
+    [1, 2].includes(candidate.schemaVersion) &&
+      candidate.kind === 'release-candidate',
     'invalid candidate manifest',
   )
   assert(
@@ -131,11 +142,23 @@ export function validateCandidate(candidate) {
     'invalid candidate build receipt',
   )
   assert(
-    Array.isArray(candidate.files) &&
-      candidate.files.length === packageNames.length,
+    candidate.schemaVersion === 2 || candidate.safari === undefined,
+    'legacy candidate cannot include Safari',
+  )
+  assert(
+    candidate.schemaVersion !== 2 || candidate.safari,
+    'Safari candidate is missing native evidence',
+  )
+  if (candidate.safari)
+    validateSafari(candidate.safari, candidate.source, candidate.build)
+  const names = candidate.safari
+    ? [...packageNames, ...safariFiles]
+    : packageNames
+  assert(
+    Array.isArray(candidate.files) && candidate.files.length === names.length,
     'invalid package inventory',
   )
-  for (const name of packageNames) {
+  for (const name of names) {
     const files = candidate.files.filter((file) => file.name === name)
     assert(
       files.length === 1 &&
@@ -156,7 +179,11 @@ export async function verifyPackages(candidate, directory) {
       sha256(bytes) === file.sha256 && bytes.length === file.bytes,
       `package changed: ${file.name}`,
     )
-    const entries = execFileSync('unzip', ['-Z1', path], { encoding: 'utf8' })
+    if (file.name.endsWith('.pkg')) continue // Native signatures/resources verified by the protected macOS packaging gate.
+    const entries = execFileSync('unzip', ['-Z1', path], {
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    })
       .trim()
       .split('\n')
     assert(
@@ -168,7 +195,7 @@ export async function verifyPackages(candidate, directory) {
       ),
       'unsafe ZIP entry',
     )
-    if (file.name !== 'build_firefox_source.zip') {
+    if (['build_chrome.zip', 'build_firefox.zip'].includes(file.name)) {
       const manifest = JSON.parse(
         execFileSync('unzip', ['-p', path, 'manifest.json'], {
           encoding: 'utf8',
@@ -233,6 +260,31 @@ async function main() {
       join(directory, 'SHA256SUMS.txt'),
       files.map((file) => `${file.sha256}  ${file.name}\n`).join(''),
     )
-  } else throw new Error('Usage: candidate.mjs freeze SHA | package')
+  } else if (command === 'assemble') {
+    const directory = resolve('packages/extension/build')
+    const candidate = JSON.parse(
+      await readFile(join(directory, 'candidate.json'), 'utf8'),
+    )
+    if (process.env.INCLUDE_SAFARI === 'true') {
+      candidate.schemaVersion = 2
+      candidate.safari = JSON.parse(
+        await readFile(join(directory, 'safari.json'), 'utf8'),
+      )
+      for (const name of safariFiles) {
+        const bytes = await readFile(join(directory, name))
+        candidate.files.push({
+          name,
+          bytes: bytes.length,
+          sha256: sha256(bytes),
+        })
+      }
+    }
+    await verifyPackages(candidate, directory)
+    await writeFile(join(directory, 'candidate.json'), json(candidate))
+    await writeFile(
+      join(directory, 'SHA256SUMS.txt'),
+      candidate.files.map((file) => `${file.sha256}  ${file.name}\n`).join(''),
+    )
+  } else throw new Error('Usage: candidate.mjs freeze SHA | package | assemble')
 }
 if (process.argv[1] === import.meta.filename) await main()

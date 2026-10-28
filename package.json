@@ -56,7 +56,7 @@
     "test:integration:unloaded-tabs": "pnpm --filter integration-test exec node scripts/validate-unloaded-tab-moves.cjs",
     "build:safari": "pnpm --filter ./packages/extension build:safari",
     "build:safari:app": "node packages/safari-native/Tools/build-shared-ui.mjs",
-    "test:release-metadata": "node --test scripts/release-baseline.test.mjs scripts/release-policy.test.mjs scripts/release/candidate.test.mjs scripts/release/github.test.mjs scripts/release/tag.test.mjs scripts/release/store-acceptance.test.mjs scripts/release/metric-artifact.test.mjs scripts/performance/local-capture.test.mjs",
+    "test:release-metadata": "node --test scripts/release-baseline.test.mjs scripts/release-policy.test.mjs scripts/release/candidate.test.mjs scripts/release/safari.test.mjs scripts/release/github.test.mjs scripts/release/tag.test.mjs scripts/release/store-acceptance.test.mjs scripts/release/metric-artifact.test.mjs scripts/performance/local-capture.test.mjs",
     "performance:collect": "node scripts/performance/cli.mjs collect",
     "performance:backfill": "node scripts/performance/backfill.mjs",
     "performance:compare": "node scripts/performance/cli.mjs compare",
@@ -68,6 +68,7 @@
     "release:review": "node scripts/release/cli.mjs review",
     "release:performance": "node scripts/performance/release.mjs",
     "release:publish": "node scripts/release/cli.mjs publish",
+    "release:safari": "node scripts/release/cli.mjs safari",
     "release:reports": "node scripts/reports/import.mjs",
     "reports:validate": "node scripts/reports/catalog.mjs"
   },

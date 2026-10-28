@@ -1,0 +1,82 @@
+name: Safari App Store controls
+run-name: Safari ${{ inputs.action }} ${{ inputs.tag }}
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published release containing the approved Safari candidate
+        required: true
+        type: string
+      candidate_sha256:
+        description: Reviewed candidate.json digest
+        required: true
+        type: string
+      action:
+        description: Status is read-only in Apple; prepare edits the draft; submit requires separately reviewed metadata
+        required: true
+        default: status
+        type: choice
+        options: [status, prepare, submit]
+      metadata_sha256:
+        description: Required for submit; approve the digest printed by status/prepare after reviewing the full listing
+        type: string
+permissions:
+  contents: read
+jobs:
+  safari:
+    name: Safari ${{ inputs.action }}
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: safari-app-store
+    permissions:
+      contents: write
+    concurrency:
+      group: safari-app-store
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Apply the explicit App Store control to the recorded build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          SAFARI_ACTION: ${{ inputs.action }}
+          SAFARI_METADATA_SHA256: ${{ inputs.metadata_sha256 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: node scripts/release/safari-store.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: store-safari-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/store-receipts/
+          if-no-files-found: ignore
+          retention-days: 30
+  evidence:
+    name: Archive Safari state
+    needs: safari
+    if: ${{ always() && github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+        run: node scripts/release/evidence.mjs

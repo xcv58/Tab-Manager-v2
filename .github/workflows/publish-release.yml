@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       stores:
-        description: Comma-separated chrome,firefox,edge; none archives evidence only
+        description: Comma-separated chrome,firefox,edge,safari; Safari uploads to internal TestFlight only; none archives evidence
         default: chrome,firefox,edge
         type: string
       reconciled:
@@ -53,6 +53,7 @@ jobs:
       chrome: ${{ steps.publish.outputs.chrome }}
       firefox: ${{ steps.publish.outputs.firefox }}
       edge: ${{ steps.publish.outputs.edge }}
+      safari: ${{ steps.publish.outputs.safari }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -193,9 +194,50 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+  safari:
+    name: Deliver Safari to internal TestFlight
+    needs: release
+    if: ${{ needs.release.outputs.safari == 'true' }}
+    runs-on: macos-15
+    timeout-minutes: 60
+    environment: safari-app-store
+    permissions:
+      contents: write
+    concurrency:
+      group: safari-app-store
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: ./.github/actions/safari-toolchain
+      - name: Upload approved package, reconcile processing and confirm internal access
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+          RELEASE_RECONCILED: ${{ inputs.reconciled }}
+          SAFARI_ACTION: testflight
+          SAFARI_INTERNAL_GROUP_ID: ${{ vars.SAFARI_INTERNAL_GROUP_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: node scripts/release/safari-store.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: store-safari-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .tmp/store-receipts/
+          if-no-files-found: ignore
+          retention-days: 30
+
   evidence:
     name: Archive release evidence
-    needs: [release, chrome, firefox, edge]
+    needs: [release, chrome, firefox, edge, safari]
     if: ${{ always() && needs.release.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
