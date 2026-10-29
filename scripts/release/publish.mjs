@@ -18,7 +18,7 @@ import {
   validateCandidate,
   verifyPackages,
   hashPattern,
-  requiredJobs,
+  candidateJobs,
 } from './candidate.mjs'
 import { assertReleaseTag } from './tag.mjs'
 
@@ -26,7 +26,7 @@ export function releaseStores(value) {
   const stores = (value || 'none').split(',')
   assert(
     stores.every((store) =>
-      ['chrome', 'firefox', 'edge', 'none'].includes(store),
+      ['chrome', 'firefox', 'edge', 'safari', 'none'].includes(store),
     ) &&
       new Set(stores).size === stores.length &&
       (!stores.includes('none') || stores.length === 1),
@@ -81,7 +81,7 @@ export async function releasedCandidate(tag, directory, digest) {
       publication.checks.every((check) => check.conclusion === 'success'),
     'missing successful publication gate receipt',
   )
-  for (const name of requiredJobs)
+  for (const name of candidateJobs(candidate))
     assert(
       publication.checks.some(
         (check) =>
@@ -172,6 +172,10 @@ async function main() {
   } else {
     const verified = await verifiedCandidate(runId, directory, digest)
     candidate = verified.candidate
+    assert(
+      !stores.includes('safari') || candidate.safari,
+      'Safari was not included in the reviewed candidate',
+    )
     git([
       'merge-base',
       '--is-ancestor',
@@ -270,9 +274,13 @@ async function main() {
       'draft=false',
     ])
   }
+  assert(
+    !stores.includes('safari') || candidate.safari,
+    'Safari was not included in the reviewed candidate. Prepare a new candidate with --safari; existing packages cannot be extended after approval.',
+  )
   await appendFile(
     process.env.GITHUB_OUTPUT,
-    `tag=${candidate.source.tag}\nchrome=${stores.includes('chrome')}\nfirefox=${stores.includes('firefox')}\nedge=${stores.includes('edge')}\n`,
+    `tag=${candidate.source.tag}\nchrome=${stores.includes('chrome')}\nfirefox=${stores.includes('firefox')}\nedge=${stores.includes('edge')}\nsafari=${stores.includes('safari')}\n`,
   )
   await appendFile(
     process.env.GITHUB_STEP_SUMMARY,

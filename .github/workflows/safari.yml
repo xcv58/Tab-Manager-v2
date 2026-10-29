@@ -33,6 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - uses: ./.github/actions/safari-toolchain
       - uses: pnpm/action-setup@v2
         with:
           version: 10.32.1
@@ -44,8 +45,6 @@ jobs:
         env:
           SAFARI_BUILD_CONFIGURATION: ${{ matrix.configuration }}
         run: pnpm build:safari
-      - name: Install XcodeGen
-        run: brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
       - name: Generate native project
         run: xcodegen generate --spec packages/safari-native/project.yml
       # Compilation needs no developer account, certificates or store access.

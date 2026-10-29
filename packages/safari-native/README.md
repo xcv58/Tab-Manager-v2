@@ -1,6 +1,6 @@
 # Safari shared-UI prototype
 
-The Safari toolbar popup, separate manager window and browser-tab workspace use the extension's shared React components. The containing macOS app provides setup instructions. This is a development prototype being prepared for TestFlight; it is not an approved public App Store release.
+The Safari toolbar popup, separate manager window and browser-tab workspace use the extension's shared React components. The containing macOS app provides setup instructions. The production version is [available on the Mac App Store](https://apps.apple.com/us/app/tab-manager-v2/id6758364114); Debug retains the separate prototype identity below.
 
 ## Build and enable
 
@@ -32,6 +32,11 @@ The host app, extension and web manifest must use the same marketing version; bo
 Marketing versions follow the shared product version, even when Safari has fewer supported features. Increment the native build for every uploaded candidate. Archive and export with the Release configuration; verify both bundle identifiers, matching versions/build numbers, provisioning profiles and signatures before uploading. TestFlight upload, beta availability, App Review and public release are separate steps. Keep App Store release set to manual.
 
 ## Manual TestFlight package
+
+For the protected frozen-candidate automation, prerequisites, retry controls and
+separate App Review approval, see [RELEASE.md](RELEASE.md). Candidate preparation
+does not upload; delivery and submission require explicit later commands. The
+commands below remain the manual alternative.
 
 Build the Release web bundle and regenerate the project before archiving. Automatic provisioning requires the owner's approval to update signing assets in Apple Developer.
 
@@ -71,4 +76,4 @@ The shared unit suite covers the Safari adapter's access boundaries, bulk close 
 
 The icon reader must retain its JavaScript completion value because Safari returns that metadata from `executeScript`. CI compares the packaged reader byte-for-byte with its source, and regression tests check the returned URL and bounded head-link metadata. Real website-permission prompts and icon rendering still require manual Safari acceptance; build and upload success alone do not establish those behaviors.
 
-The old native-workspace observation was abandoned and does not establish reliability of this architecture. Broader lifecycle/profile acceptance and App Store listing preparation remain separate. Historical prototype-only tests are not coverage for the current shared Safari UI. Automatic Safari release work is tracked separately in #2685; this PR adds build checks only.
+The old native-workspace observation was abandoned and does not establish reliability of this architecture. Broader lifecycle/profile acceptance remains separate. Historical prototype-only tests are not coverage for the current shared Safari UI. Issue #2685 tracks release automation and its staged end-to-end rollout; implementation does not establish a successful automated delivery.

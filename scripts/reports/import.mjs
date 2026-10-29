@@ -112,7 +112,7 @@ export async function importRelease(tag) {
           run?.head_sha === report.publisher.commit &&
             run.head_branch === 'master' &&
             run.event === 'workflow_dispatch' &&
-            run.path === '.github/workflows/publish-release.yml' &&
+            run.path === `.github/workflows/${report.publisher.workflow}` &&
             String(run.id) === report.publisher.runId &&
             run.run_attempt === report.publisher.attempt,
           'publisher receipt mismatch',

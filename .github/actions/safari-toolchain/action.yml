@@ -1,0 +1,22 @@
+name: Pinned Safari toolchain
+description: Select Xcode 26.3 (17C529) and install checksum-pinned XcodeGen 2.46.0
+runs:
+  using: composite
+  steps:
+    - name: Select and verify Xcode
+      shell: bash
+      run: |
+        test -d /Applications/Xcode_26.3.app/Contents/Developer
+        echo 'DEVELOPER_DIR=/Applications/Xcode_26.3.app/Contents/Developer' >> "$GITHUB_ENV"
+        actual=$(DEVELOPER_DIR=/Applications/Xcode_26.3.app/Contents/Developer xcodebuild -version)
+        test "$actual" = $'Xcode 26.3\nBuild version 17C529'
+    - name: Install verified XcodeGen
+      shell: bash
+      run: |
+        tool_dir="$RUNNER_TEMP/tab-manager-xcodegen"
+        mkdir -p "$tool_dir"
+        curl --fail --location --silent --show-error https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip -o "$tool_dir/xcodegen.zip"
+        echo '4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806  '"$tool_dir/xcodegen.zip" | shasum -a 256 --check
+        unzip -q "$tool_dir/xcodegen.zip" -d "$tool_dir"
+        test "$("$tool_dir/xcodegen/bin/xcodegen" --version)" = 'Version: 2.46.0'
+        echo "$tool_dir/xcodegen/bin" >> "$GITHUB_PATH"

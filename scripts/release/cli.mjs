@@ -23,6 +23,7 @@ import {
   assertNewReleaseVersion,
 } from './publish.mjs'
 import { assertReleaseRemote, pushReleaseTag } from './tag.mjs'
+import { safariNotesPath, validateSafariNotes } from './safari-model.mjs'
 import { git, json } from '../performance/records.mjs'
 import {
   assertReleaseVersion,
@@ -42,14 +43,18 @@ const { positionals, values } = parseArgs({
     stores: { type: 'string', default: 'chrome,firefox,edge' },
     'metric-run': { type: 'string' },
     reconciled: { type: 'boolean', default: false },
+    safari: { type: 'boolean', default: false },
+    'safari-notes': { type: 'string' },
+    action: { type: 'string', default: 'status' },
+    'metadata-sha256': { type: 'string' },
     help: { type: 'boolean' },
   },
 })
 const [command] = positionals
 const help = `Local release driver (no store credentials needed locally):
-  pnpm release:prepare --version 3.0.1 --notes /absolute/path/notes.md
+  pnpm release:prepare --version 3.0.2 --notes /absolute/path/notes.md [--safari-notes /absolute/path/localized-notes.json]
   # Review/version changes through the normal Git workflow, then freeze merged SHA:
-  pnpm release:verify --sha FULL_MASTER_COMMIT
+  pnpm release:verify --sha FULL_MASTER_COMMIT [--safari]
   pnpm release:review --run CANDIDATE_RUN_ID
   pnpm release:performance --run CANDIDATE_RUN_ID --import
   pnpm release:review --tag v3.0.1  # recover a published review after CI artifacts expire
@@ -57,6 +62,9 @@ const help = `Local release driver (no store credentials needed locally):
   # Resume only selected unfinished stores, or archive reviewed evidence:
   pnpm release:publish --run RUN --approve SHA256 --stores edge [--reconciled]
   pnpm release:publish --run RUN --approve SHA256 --stores none
+  pnpm release:publish --run RUN --approve SHA256 --stores safari [--reconciled]
+  pnpm release:safari --tag v3.0.2 --approve SHA256 --action status|prepare
+  pnpm release:safari --tag v3.0.2 --approve SHA256 --action submit --metadata-sha256 REVIEWED_APPLE_METADATA_DIGEST
   pnpm release:reports --tag v3.0.1
   pnpm build:site
 
@@ -86,6 +94,11 @@ if (command === 'prepare') {
   )
   const notes = (await readFile(resolve(values.notes), 'utf8')).trim()
   assert(notes, 'release notes cannot be empty')
+  const safariNotes = values['safari-notes']
+    ? validateSafariNotes(
+        JSON.parse(await readFile(resolve(values['safari-notes']), 'utf8')),
+      )
+    : null
   for (const path of [
     'packages/extension/package.json',
     'packages/safari-native/WebExtension/manifest.json',
@@ -113,6 +126,11 @@ if (command === 'prepare') {
     ),
   )
   assert(readReleaseVersion() === version, 'prepared metadata differs')
+  if (safariNotes) {
+    const path = resolve(safariNotesPath(version))
+    await mkdir(join(path, '..'), { recursive: true })
+    await writeFile(path, json(safariNotes), { flag: 'wx' })
+  }
   process.stdout.write(
     `Prepared ${version}. Review git diff, commit and merge through normal review. No release was published.\n`,
   )
@@ -135,6 +153,8 @@ if (command === 'prepare') {
     'master',
     '-f',
     `candidate=${values.sha}`,
+    '-f',
+    `safari=${values.safari}`,
   ])
   process.stdout.write(
     `Candidate verification dispatched for ${values.sha}. Find its run ID with gh run list --workflow release-candidate.yml, then run pnpm release:review --run ID.\n`,
@@ -182,6 +202,10 @@ if (command === 'prepare') {
   )
   for (const job of jobs)
     process.stdout.write(`${job.name}: ${job.conclusion || job.status}\n`)
+  if (candidate.safari)
+    process.stdout.write(
+      `\nSafari: ${JSON.stringify(candidate.safari, null, 2)}\n`,
+    )
   process.stdout.write(
     preview
       ? `\nCandidate report: ${preview}\nServe it with: pnpm preview:release-media "${preview}" 8782\nOpen http://127.0.0.1:8782/?candidates=1&target=${candidate.source.commit}\nCollect performance locally with pnpm release:performance --run ${candidate.build.runId}. Missing measurements remain explicit.\nReview source, packages and report before approving publication.\n`
@@ -199,7 +223,11 @@ if (command === 'prepare') {
     reviewed.candidateSha256 === values.approve,
     'approval does not match the local review',
   )
-  releaseStores(values.stores)
+  const stores = releaseStores(values.stores)
+  assert(
+    !stores.includes('safari') || reviewed.candidate.safari,
+    'Safari was not included in the reviewed candidate',
+  )
   if (values.notes) await readFile(resolve(values.notes), 'utf8')
   assertReleaseRemote()
   const source = validateCandidate(reviewed.candidate).source
@@ -264,5 +292,59 @@ if (command === 'prepare') {
   }
   process.stdout.write(
     'Reviewed publication dispatched. Inspect individual store receipts; then import the report with pnpm release:reports --tag VERSION.\n',
+  )
+} else if (command === 'safari') {
+  assert(
+    /^v\d+\.\d+\.\d+$/.test(values.tag || '') &&
+      hashPattern.test(values.approve || ''),
+    '--tag and --approve reviewed candidate digest are required',
+  )
+  assert(
+    ['status', 'prepare', 'submit'].includes(values.action),
+    'unknown Safari control',
+  )
+  assert(
+    values.action !== 'submit' ||
+      hashPattern.test(values['metadata-sha256'] || ''),
+    'submission needs the reviewed Apple metadata digest',
+  )
+  await mkdir(resolve('.tmp'), { recursive: true })
+  const directory = await mkdtemp(resolve('.tmp/safari-control-'))
+  const { candidate } = await releasedCandidate(
+    values.tag,
+    directory,
+    values.approve,
+  )
+  assert(candidate.safari, 'published candidate does not include Safari')
+  const reviewed = JSON.parse(
+    await readFile(
+      resolve('.tmp/releases', String(candidate.build.runId), 'review.json'),
+      'utf8',
+    ),
+  )
+  assert(
+    reviewed.candidateSha256 === values.approve,
+    'review the published candidate with release:review --tag before applying Safari controls',
+  )
+  const args = [
+    'workflow',
+    'run',
+    'safari-app-store.yml',
+    '--repo',
+    repository,
+    '--ref',
+    'master',
+    '-f',
+    `tag=${values.tag}`,
+    '-f',
+    `candidate_sha256=${values.approve}`,
+    '-f',
+    `action=${values.action}`,
+  ]
+  if (values['metadata-sha256'])
+    args.push('-f', `metadata_sha256=${values['metadata-sha256']}`)
+  gh(args)
+  process.stdout.write(
+    `Safari ${values.action} dispatched for the recorded build. Release remains manual.\n`,
   )
 } else throw new Error(help)

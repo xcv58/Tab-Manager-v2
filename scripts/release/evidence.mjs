@@ -243,7 +243,12 @@ for (const name of ['candidate.json', 'publication.json'])
 // Store journals are a snapshot of submission state, independent of test status.
 const submissions = []
 const storeAssets = await pages(`releases/${release.id}/assets`)
-for (const store of ['chrome', 'firefox', 'edge']) {
+for (const store of [
+  'chrome',
+  'firefox',
+  'edge',
+  ...(candidate.safari ? ['safari'] : []),
+]) {
   const receipts = await readStoreReceipts(
     storeAssets,
     store,
@@ -275,7 +280,7 @@ const manifest = {
   source: candidate.source,
   publisher: {
     repository,
-    workflow: 'publish-release.yml',
+    workflow: publisher.path.replace('.github/workflows/', ''),
     commit: git(['rev-parse', 'HEAD']),
     runId: String(publisher.id),
     attempt: publisher.run_attempt,
