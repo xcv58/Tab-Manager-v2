@@ -13,7 +13,11 @@ import {
   assertRequiredJobs,
   packageNames,
 } from './candidate.mjs'
-import { assertReviewedListing, versionSnapshot } from './safari-store.mjs'
+import {
+  assertReviewedListing,
+  processedBuild,
+  versionSnapshot,
+} from './safari-store.mjs'
 
 const receipt = (phase, details = {}) => ({
   receipt: { phase, details, runId: '1', recordedAt: '2026-10-28T01:00:00Z' },
@@ -49,7 +53,7 @@ test('allocation includes manual/pending uploads and durable reservations across
     /Reconcile/,
   )
 })
-test('uncertain uploads need reconciliation, accepted builds always resume', () => {
+test('uncertain uploads need reconciliation, recorded Apple builds resume', () => {
   assert.equal(decision(), 'upload')
   assert.throws(
     () => decision({ receipts: [receipt('upload-started')] }),
@@ -60,10 +64,21 @@ test('uncertain uploads need reconciliation, accepted builds always resume', () 
     decision({ receipts: [receipt('upload-started')], reconciled: true }),
     'upload',
   )
-  assert.equal(
-    decision({ receipts: [receipt('upload-started')], uploads: [upload()] }),
-    'resume',
-  )
+  for (const phase of ['upload-started', 'upload-accepted']) {
+    for (const observed of [
+      { uploads: [upload()] },
+      { build: { id: 'unrecorded-build' } },
+    ]) {
+      assert.throws(
+        () => decision({ receipts: [receipt(phase)], ...observed }),
+        /no Apple build ID was recorded/,
+      )
+      assert.equal(
+        decision({ receipts: [receipt(phase)], ...observed, reconciled: true }),
+        'resume',
+      )
+    }
+  }
   assert.equal(
     decision({
       receipts: [receipt('processed', { buildId: 'apple-42' })],
@@ -91,6 +106,41 @@ test('uncertain uploads need reconciliation, accepted builds always resume', () 
         reconciled: true,
       }),
     /failed/,
+  )
+  assert.throws(
+    () =>
+      decision({
+        receipts: [receipt('processed', { buildId: 'other' })],
+        build: { id: 'apple-42' },
+        reconciled: true,
+      }),
+    /differs/,
+  )
+})
+test('processing cannot adopt a different build that appears after the initial query', async () => {
+  const apple = {
+    list: async () => [
+      {
+        id: 'different-build',
+        attributes: { processingState: 'VALID', expired: false },
+      },
+    ],
+    api: async () => ({
+      data: { attributes: { platform: 'MAC_OS', version: '3.0.2' } },
+    }),
+  }
+  const candidate = {
+    source: { version: '3.0.2' },
+    safari: { buildNumber: '42' },
+  }
+  await assert.rejects(
+    processedBuild(
+      apple,
+      candidate,
+      async () => assert.fail('Must not checkpoint an unrelated build'),
+      ['recorded-build'],
+    ),
+    /differs from archived receipt/,
   )
 })
 const nativeCandidate = () => ({

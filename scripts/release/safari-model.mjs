@@ -54,7 +54,15 @@ export function safariUploadDecision({
     !uploads.some((u) => u.attributes.state?.state === 'FAILED'),
     'Apple upload failed; inspect its errors before preparing a new candidate',
   )
-  if (build || uploads.length) return 'resume'
+  if (build || uploads.length) {
+    // Intent and transport acceptance do not identify Apple's processed bytes.
+    // Only a recorded Apple build ID permits unattended adoption of its record.
+    assert(
+      ids.length > 0 || reconciled,
+      'Apple has this build/upload, but no Apple build ID was recorded. Verify that it contains the approved package, then resume with --reconciled; upload intent alone is not provenance.',
+    )
+    return 'resume'
+  }
   assert(
     (!attempts.length &&
       receipts.every(({ receipt }) => receipt.phase !== 'unknown')) ||

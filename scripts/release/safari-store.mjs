@@ -64,10 +64,19 @@ async function gallerySnapshot(apple, localeId) {
   return gallery.sort((a, b) => a.id.localeCompare(b.id))
 }
 
-export async function processedBuild(apple, candidate, record) {
+export async function processedBuild(
+  apple,
+  candidate,
+  record,
+  expectedBuildIds = [],
+) {
   for (let poll = 0; poll < 60; poll++) {
     const build = await matchingAppleBuild(apple, candidate)
     if (build) {
+      assert(
+        expectedBuildIds.every((id) => id === build.id),
+        'Apple build differs from archived receipt; do not adopt a different build while waiting for processing',
+      )
       assert(
         !build.attributes.expired &&
           !['FAILED', 'INVALID'].includes(build.attributes.processingState),
@@ -174,7 +183,12 @@ async function testFlight(apple, candidate, previous) {
       await rm(temporary, { recursive: true, force: true })
     }
   }
-  const build = await processedBuild(apple, candidate, checkpoint)
+  const build = await processedBuild(
+    apple,
+    candidate,
+    checkpoint,
+    previous.map(({ receipt }) => receipt.details?.buildId).filter(Boolean),
+  )
   const groupBuilds = () =>
     apple.list(`/v1/betaGroups/${groupId}/builds?limit=200`)
   if (!(await groupBuilds()).some((b) => b.id === build.id)) {

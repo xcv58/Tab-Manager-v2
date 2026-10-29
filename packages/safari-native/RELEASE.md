@@ -127,9 +127,14 @@ durable `store-safari-*` receipts. A Safari delivery failure does not prevent th
 other selected stores from submitting.
 
 On timeout/failure, rerun the same selected-store publication command. It first
-queries Apple for that app/version/build and checks recorded build IDs. Accepted
-uploads/builds resume processing/group checks without transport. If a prior
-transport attempt has no observable Apple build/upload, stop, inspect Apple's
+queries Apple for that app/version/build and checks recorded build IDs. A known
+Apple build ID resumes processing/group checks without transport. If Apple shows
+a matching build/upload but the receipts contain only upload intent or transport
+acceptance, verify that Apple's record contains the approved package, then resume
+with `--reconciled`. The existing record is reused without another upload; intent
+alone never proves which bytes Apple received. A recorded build ID mismatch is
+rejected even with `--reconciled`, including a build that appears during polling.
+If a prior transport attempt has no observable Apple build/upload, stop, inspect Apple's
 Build Uploads and the receipts, and wait for its outcome. Use `--reconciled` only
 after confirming it was not accepted. This permits another transport attempt of
 the **same** package, never a rebuild or new number. A manual-upload collision or
