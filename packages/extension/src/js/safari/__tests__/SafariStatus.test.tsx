@@ -86,6 +86,21 @@ it('refreshes the workspace and removes resolved errors', async () => {
   expect(container).toBeEmptyDOMElement()
 })
 
+it('shows loading while the banner retries a failed workspace read', () => {
+  const windowStore = {
+    windowLoadState: 'failed',
+    updateAllWindows: mockRefresh,
+  }
+  mockUseStore.mockReturnValue({ windowStore })
+  safariState.showError(new Error('Safari did not respond.'))
+  render(<SafariStatus />)
+
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh' }))
+
+  expect(windowStore.windowLoadState).toBe('loading')
+  expect(mockRefresh).toHaveBeenCalledTimes(1)
+})
+
 it('keeps recovery controls available when refreshing fails', async () => {
   safariState.showError(new Error('Safari did not respond.'))
   mockRefresh.mockRejectedValue(new Error('Allow website access in Safari.'))
