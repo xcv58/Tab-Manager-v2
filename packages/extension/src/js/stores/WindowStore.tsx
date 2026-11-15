@@ -1,6 +1,6 @@
 import { isSafari } from 'libs/browserCapabilities'
 import { safariState } from 'safari/state'
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, runInAction } from 'mobx'
 import {
   browser,
   moveTabs,
@@ -223,7 +223,12 @@ export default class WindowsStore {
 
   windows: Window[] = []
 
-  initialLoading = true
+  windowLoadState: 'loading' | 'failed' | 'ready' = 'loading'
+
+  get initialLoading() {
+    // The workspace still needs a usable snapshot after a blocking read fails.
+    return this.windowLoadState !== 'ready'
+  }
 
   lastFocusedWindowId: number | null = null
 
@@ -2050,7 +2055,7 @@ export default class WindowsStore {
     this.lifecycleListenersBound = false
   }
 
-  syncAllWindows = async ({
+  syncAllWindows = ({
     revealActiveTab = false,
     origin = 'programmatic',
     moveDomFocus = true,
@@ -2059,20 +2064,27 @@ export default class WindowsStore {
     origin?: FocusOrigin
     moveDomFocus?: boolean
   } = {}) => {
-    this.initialLoading = true
-    await this.loadAllWindows({
+    if (isSafari && this.windowLoadState === 'failed')
+      safariState.dismissError()
+    this.windowLoadState = 'loading'
+    const sync = this.loadAllWindows({
       repackPolicy: 'always',
       reason: 'sync',
+    }).then(() => {
+      if (revealActiveTab) {
+        this.pendingFocusedItemReveal = Boolean(
+          this.focusActiveTabInLastFocusedWindow({
+            origin,
+            moveDomFocus,
+            reveal: false,
+          }),
+        )
+      }
     })
-    if (revealActiveTab) {
-      this.pendingFocusedItemReveal = Boolean(
-        this.focusActiveTabInLastFocusedWindow({
-          origin,
-          moveDomFocus,
-          reveal: false,
-        }),
-      )
-    }
+    // Fire-and-forget controls use the workspace error state. Awaiting callers
+    // such as move recovery still receive the rejection.
+    void sync.catch((error) => log.warn('Window sync failed', { error }))
+    return sync
   }
 
   repackLayoutAndRevealActiveTab = (origin: FocusOrigin = 'programmatic') => {
@@ -2153,7 +2165,14 @@ export default class WindowsStore {
             populate: true,
           })
           .catch(() => null),
-      ])
+      ]).catch((error) => {
+        if (loadRequestId === this.windowLoadRequestId && this.initialLoading) {
+          runInAction(() => {
+            this.windowLoadState = 'failed'
+          })
+        }
+        throw error
+      })
     const shouldApplyWindowLastUsedLayout =
       this.shouldApplyWindowLastUsedLayout(reason, wasInitialLoading)
     const windowLastUsedAt = await this.loadWindowLastUsedAt()
@@ -2274,7 +2293,7 @@ export default class WindowsStore {
     if (wasInitialLoading) {
       this.windowMounted()
     }
-    this.initialLoading = false
+    this.windowLoadState = 'ready'
     if (
       !this.hasAppliedInitialDefaultFocus &&
       this.store.focusStore?.setDefaultFocusedTabWithOptions

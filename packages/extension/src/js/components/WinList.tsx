@@ -149,6 +149,7 @@ export default observer(() => {
   )
   const {
     initialLoading,
+    windowLoadState,
     visibleWindows,
     columnLayoutsWithPosition,
     renderedColumnLayouts,
@@ -375,7 +376,32 @@ export default observer(() => {
         ref={scrollbarRef}
         className="flex items-center justify-center flex-auto overflow-hidden"
       >
-        <Loading />
+        {windowLoadState === 'failed' ? (
+          <div className="px-4 text-center" data-testid="window-load-error">
+            <h2 className="text-base font-semibold" role="alert">
+              Couldn’t refresh your tabs
+            </h2>
+            <button
+              type="button"
+              className="mt-4 rounded-md border px-3 py-2 text-sm"
+              style={{
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.divider,
+                backgroundColor: theme.palette.action.hover,
+              }}
+              onClick={() =>
+                void windowStore.syncAllWindows({
+                  revealActiveTab: true,
+                  origin: 'mouse',
+                })
+              }
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <Loading />
+        )}
         {resizeDetector}
       </div>
     )

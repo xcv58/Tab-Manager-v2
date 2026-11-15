@@ -1114,7 +1114,7 @@ describe('WindowStore layout policy', () => {
 
   it('sync keeps existing window order when browser data has same windows', async () => {
     const windowStore = createWindowStore()
-    windowStore.initialLoading = false
+    windowStore.windowLoadState = 'ready'
     windowStore.windows = [3, 1, 2].map(
       (windowId) =>
         new Window(
@@ -1253,10 +1253,29 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.pendingFocusedItemReveal).toBe(false)
   })
 
+  it('keeps the workspace unavailable after a failed sync until a snapshot succeeds', async () => {
+    const windowStore = createWindowStore()
+    const getAll = browser.windows.getAll as jest.Mock
+    getAll.mockResolvedValueOnce([])
+    await windowStore.loadAllWindows()
+
+    getAll.mockRejectedValueOnce(new Error('Window read failed'))
+    const failedSync = windowStore.syncAllWindows()
+    expect(windowStore.windowLoadState).toBe('loading')
+    await expect(failedSync).rejects.toThrow('Window read failed')
+    expect(windowStore.windowLoadState).toBe('failed')
+    expect(windowStore.initialLoading).toBe(true)
+
+    getAll.mockResolvedValueOnce([])
+    await windowStore.syncAllWindows()
+    expect(windowStore.windowLoadState).toBe('ready')
+    expect(windowStore.initialLoading).toBe(false)
+  })
+
   it('queues active-tab reveal after sync before the DOM target mounts', async () => {
     const windowStore = createWindowStore()
     windowStore.hasAppliedInitialDefaultFocus = true
-    windowStore.initialLoading = false
+    windowStore.windowLoadState = 'ready'
     const focus = jest.fn(() => false)
     ;(windowStore.store as any).focusStore.focus = focus
     ;(getLastFocusedWindowId as jest.Mock).mockResolvedValueOnce(1)
