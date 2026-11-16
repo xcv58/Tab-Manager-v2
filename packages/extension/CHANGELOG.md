@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.0.2 (2026-11-16)
+
+### Browser extensions
+
+- Use **Retry** in the workspace or command palette when a tab refresh fails. ([#2705](https://github.com/xcv58/Tab-Manager-v2/pull/2705), [#2707](https://github.com/xcv58/Tab-Manager-v2/pull/2707))
+- After a failed refresh, open-tab search and shortcuts that act on tabs resume once the tab list refreshes successfully. ([#2706](https://github.com/xcv58/Tab-Manager-v2/pull/2706))
+- In Safari, retrying from the refresh warning now shows that a refresh is in progress. ([#2705](https://github.com/xcv58/Tab-Manager-v2/pull/2705))
+
+### Website and maintenance
+
+- Retry directly from the interactive demo if the sample workspace fails to load. ([#2707](https://github.com/xcv58/Tab-Manager-v2/pull/2707))
+- Update development and build dependencies to address security advisories. ([#2704](https://github.com/xcv58/Tab-Manager-v2/pull/2704), [#2708](https://github.com/xcv58/Tab-Manager-v2/pull/2708))
+
 ## [3.0.1](https://github.com/xcv58/Tab-Manager-v2/compare/c2dea3aacb3c1fb871434bdcbbcf54019b03f602...v3.0.1)
 
 ### Shared browser improvements
