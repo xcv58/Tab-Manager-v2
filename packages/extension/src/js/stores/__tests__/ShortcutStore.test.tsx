@@ -136,6 +136,21 @@ describe('ShortcutStore tab details', () => {
 })
 
 describe('ShortcutStore.stopCallback', () => {
+  it('blocks stale-tab shortcuts while letting the user sync again', () => {
+    const windowStore = { hasStaleWindowSnapshot: true }
+    const shortcuts = new ShortcutStore({ windowStore } as any)
+    const event = new KeyboardEvent('keypress')
+    const target = document.createElement('div') as any
+
+    expect(shortcuts.stopCallback(event, target, 'd', 'd d')).toBe(true)
+    expect(shortcuts.stopCallback(event, target, 'ctrl+r')).toBe(true)
+    expect(shortcuts.stopCallback(event, target, 's')).toBe(false)
+
+    windowStore.hasStaleWindowSnapshot = false
+    expect(shortcuts.stopCallback(event, target, 'd', 'd d')).toBe(false)
+    expect(shortcuts.stopCallback(event, target, 'ctrl+r')).toBe(false)
+  })
+
   it.each(['p', 'r', 'x', 'd d', 'ctrl+r', 'alt+down'])(
     'blocks %s from a tab details control',
     (combo) => {

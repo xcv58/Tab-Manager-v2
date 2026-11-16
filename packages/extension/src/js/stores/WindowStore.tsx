@@ -223,7 +223,13 @@ export default class WindowsStore {
 
   windows: Window[] = []
 
-  windowLoadState: 'loading' | 'failed' | 'ready' = 'loading'
+  windowLoadState: 'loading' | 'failed' | 'retrying' | 'ready' = 'loading'
+
+  get hasStaleWindowSnapshot() {
+    return (
+      this.windowLoadState === 'failed' || this.windowLoadState === 'retrying'
+    )
+  }
 
   get initialLoading() {
     // The workspace still needs a usable snapshot after a blocking read fails.
@@ -2066,7 +2072,7 @@ export default class WindowsStore {
   } = {}) => {
     if (isSafari && this.windowLoadState === 'failed')
       safariState.dismissError()
-    this.windowLoadState = 'loading'
+    this.windowLoadState = this.hasStaleWindowSnapshot ? 'retrying' : 'loading'
     const sync = this.loadAllWindows({
       repackPolicy: 'always',
       reason: 'sync',

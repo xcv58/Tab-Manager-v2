@@ -21,7 +21,7 @@ export default observer(function SafariStatus() {
     runInAction(() => {
       safariState.dismissError()
       if (windowStore.windowLoadState === 'failed') {
-        windowStore.windowLoadState = 'loading'
+        windowStore.windowLoadState = 'retrying'
       }
     })
     try {

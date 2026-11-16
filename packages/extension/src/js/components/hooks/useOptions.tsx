@@ -11,10 +11,20 @@ export const useOptions = (enabled = true) => {
     const { shortcuts } = shortcutStore
     return shortcuts
       .map(([shortcut, command, name, hideFromCommand]) => {
-        if (typeof name !== 'string' || hideFromCommand) {
+        if (
+          typeof name !== 'string' ||
+          hideFromCommand ||
+          !shortcutStore.canRunShortcut(shortcut)
+        ) {
           return null
         }
-        return { name, shortcut, command }
+        return {
+          name,
+          shortcut,
+          command: () => {
+            if (shortcutStore.canRunShortcut(shortcut)) command()
+          },
+        }
       })
       .filter((x) => x)
       .sort((a, b) => a.name.localeCompare(b.name))

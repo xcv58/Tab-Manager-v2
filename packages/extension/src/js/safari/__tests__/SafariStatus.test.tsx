@@ -97,7 +97,7 @@ it('shows loading while the banner retries a failed workspace read', () => {
 
   fireEvent.click(screen.getByRole('button', { name: 'Refresh' }))
 
-  expect(windowStore.windowLoadState).toBe('loading')
+  expect(windowStore.windowLoadState).toBe('retrying')
   expect(mockRefresh).toHaveBeenCalledTimes(1)
 })
 
