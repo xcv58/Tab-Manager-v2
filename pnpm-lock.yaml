@@ -21,7 +21,7 @@ overrides:
   diff@3.5.0: 3.5.1
   fast-uri@3: 3.1.8
   flatted@3.3.2: 3.4.2
-  follow-redirects@1.15.9: 1.16.0
+  follow-redirects@1.15.9: 1.16.2
   form-data@4.0.0: 4.0.6
   form-data@4.0.4: 4.0.6
   glob@10.4.5: 10.5.0
@@ -32,13 +32,14 @@ overrides:
   http-proxy-middleware@2.0.9: 2.0.10
   js-yaml@3: 3.15.2
   js-yaml@4: 4.3.2
-  launch-editor@2.9.1: 2.14.1
+  launch-editor@2: 2.14.2
   lodash@4.17.21: 4.18.1
   lodash@4.17.23: 4.18.1
   minimatch@10.0.1: 10.2.4
   minimatch@3.1.2: 3.1.5
   minimatch@9.0.5: 9.0.7
   nanoid@3.3.11: 3.3.18
+  node-forge@1: 1.4.3
   path-to-regexp@0.1.12: 0.1.13
   path-to-regexp@8.2.0: 8.4.1
   picomatch@2.3.1: 2.3.2
@@ -66,9 +67,6 @@ patchedDependencies:
   image-size@2.0.2:
     hash: 3db2eb41c4a8c3eca2a6665ef957e3f05c6d2b5cb1faa0b6fb798a9d4aa7984b
     path: patches/image-size@2.0.2.patch
-  node-forge@1.4.0:
-    hash: 4fa957cddb4b4601a48b535053d0fec7ed013f9d075660a38365f285fc830fe0
-    path: patches/node-forge@1.4.0.patch
   sprintf-js@1.0.3:
     hash: b9ccd7f4f5364ea47a28c72c30a865232ebaf9bf68d63486b6a32891408a1f3a
     path: patches/sprintf-js@1.0.3.patch
@@ -2989,8 +2987,8 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
-  follow-redirects@1.16.0:
-    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -3940,8 +3938,8 @@ packages:
     resolution: {integrity: sha512-7W0vV3rqv5tokqkBAFV1LbR7HPOWzXQDpDgEuib/aJ1jsZZx6x3c2mBI+TJhJzOhkGeaLbCKEHXEXLfirtG2JA==}
     engines: {node: '>=18'}
 
-  launch-editor@2.14.1:
-    resolution: {integrity: sha512-QWBrQsMpH7gPr965dsKD/3cKWiNoTjpATQf++Xq63N6sKRGMwlVXz41O1IZTMfZQgBctD/K5Zt06+/I6pP6+HA==}
+  launch-editor@2.14.2:
+    resolution: {integrity: sha512-NHJEb30MGBCkmZXLZwz25t37QR4aY03ZzPYUJXOJaOa92uWwExI9SBQUuIznBYc1xkD7cJNGX7oc3Nl3sq2kQQ==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -4279,8 +4277,8 @@ packages:
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
 
-  node-forge@1.4.0:
-    resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
+  node-forge@1.4.3:
+    resolution: {integrity: sha512-P6wzfh6t70avmV8FrVEAd/36sOPJQ+hkaJVX1Laap9J/77m7M0eyozDvc8SwnDf4P7MP94gwbAAo0rg3YVXT+g==}
     engines: {node: '>= 6.13.0'}
 
   node-int64@0.4.0:
@@ -6463,7 +6461,7 @@ snapshots:
       bluebird: 3.7.2
       commander: 9.5.0
       debug: 4.3.7
-      node-forge: 1.4.0(patch_hash=4fa957cddb4b4601a48b535053d0fec7ed013f9d075660a38365f285fc830fe0)
+      node-forge: 1.4.3
       split: 1.0.1
     transitivePeerDependencies:
       - supports-color
@@ -9243,7 +9241,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  follow-redirects@1.16.0: {}
+  follow-redirects@1.16.2: {}
 
   for-each@0.3.5:
     dependencies:
@@ -9620,7 +9618,7 @@ snapshots:
   http-proxy@1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.16.0
+      follow-redirects: 1.16.2
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -10428,7 +10426,7 @@ snapshots:
     dependencies:
       package-json: 10.0.1
 
-  launch-editor@2.14.1:
+  launch-editor@2.14.2:
     dependencies:
       picocolors: 1.1.1
       shell-quote: 1.11.0
@@ -10735,7 +10733,7 @@ snapshots:
 
   node-abort-controller@3.1.1: {}
 
-  node-forge@1.4.0(patch_hash=4fa957cddb4b4601a48b535053d0fec7ed013f9d075660a38365f285fc830fe0): {}
+  node-forge@1.4.3: {}
 
   node-int64@0.4.0: {}
 
@@ -12428,7 +12426,7 @@ snapshots:
       graceful-fs: 4.2.11
       http-proxy-middleware: 2.0.10(@types/express@4.17.25)
       ipaddr.js: 2.2.0
-      launch-editor: 2.14.1
+      launch-editor: 2.14.2
       open: 10.1.0
       p-retry: 6.2.1
       schema-utils: 4.3.3
