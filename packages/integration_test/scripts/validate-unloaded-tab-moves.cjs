@@ -54,6 +54,9 @@ async function firefox() {
       .join('\n'),
   )
   const binary = process.env.TM_FIREFOX_BINARY || 'firefox'
+  // Firefox 159 replaced the startup flag with this environment variable.
+  // Keep the flag for older Firefox versions when attaching to the test browser.
+  const remoteSystemAccess = 'MOZ_REMOTE_ALLOW_SYSTEM_ACCESS'
   const args = [
     '-headless',
     '-no-remote',
@@ -66,11 +69,17 @@ async function firefox() {
   if (process.env.TM_FIREFOX_APP)
     cp.execFileSync('open', [
       '-n',
+      '--env',
+      `${remoteSystemAccess}=1`,
       process.env.TM_FIREFOX_APP,
       '--args',
       ...args,
     ])
-  else browserProcess = cp.spawn(binary, args, { stdio: 'ignore' })
+  else
+    browserProcess = cp.spawn(binary, args, {
+      env: { ...process.env, [remoteSystemAccess]: '1' },
+      stdio: 'ignore',
+    })
   driverProcess = cp.spawn(
     process.env.TM_GECKODRIVER || 'geckodriver',
     [
