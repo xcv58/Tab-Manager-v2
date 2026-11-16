@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
+import { runInAction } from 'mobx'
 import { useStore } from 'components/hooks/useStore'
 import { browser } from 'libs'
 import { safariState } from './state'
@@ -17,7 +18,12 @@ export default observer(function SafariStatus() {
       })
   }, [])
   const retry = async () => {
-    safariState.dismissError()
+    runInAction(() => {
+      safariState.dismissError()
+      if (windowStore.windowLoadState === 'failed') {
+        windowStore.windowLoadState = 'loading'
+      }
+    })
     try {
       await windowStore.updateAllWindows()
     } catch (error) {
