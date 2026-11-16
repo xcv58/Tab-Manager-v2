@@ -28,9 +28,9 @@ setPopupModeOverride(popupPreview)
 
 let viewRequestId = 0
 let failed = false
+const { windowStore, userStore } = store
 const sendState = () => {
-  if (failed || store.windowStore.initialLoading || !store.userStore.loaded)
-    return
+  if (failed || windowStore.initialLoading || !userStore.loaded) return
   const state = getDemoState()
   window.parent.postMessage(
     {
@@ -50,7 +50,7 @@ const sendError = () => {
   window.parent.postMessage({ type: 'demo:error' }, window.location.origin)
 }
 const sendActionError = () => {
-  if (store.windowStore.initialLoading || !store.userStore.loaded) {
+  if (windowStore.initialLoading || !userStore.loaded) {
     sendError()
     return
   }
@@ -61,13 +61,29 @@ const sendActionError = () => {
 }
 subscribeDemo(sendState)
 reaction(
-  () => !store.windowStore.initialLoading && store.userStore.loaded,
-  (ready) => {
-    if (ready) sendState()
+  () => (userStore.loaded ? windowStore.windowLoadState : null),
+  (state) => {
+    if (failed) return
+    if (state === 'ready') sendState()
+    if (state === 'failed')
+      window.parent.postMessage(
+        { type: 'demo:window-load-failed' },
+        window.location.origin,
+      )
   },
   { fireImmediately: true },
 )
-window.addEventListener('unhandledrejection', sendActionError)
+window.addEventListener('unhandledrejection', (event) => {
+  // The workspace already shows Retry for this rejected startup read.
+  if (
+    event.promise === windowStore.initialWindowLoadPromise &&
+    windowStore.hasStaleWindowSnapshot
+  ) {
+    event.preventDefault()
+    return
+  }
+  sendActionError()
+})
 // In an ordinary web page Ctrl+R also refreshes the browser. Cancel that
 // default only when the real extension shortcut is allowed to handle it.
 document.addEventListener(

@@ -236,6 +236,7 @@ const loadWorkspace = () => {
   frameReady = false
   viewRequestId = 0
   currentCounts = null
+  counts.hidden = false
   loading.hidden = false
   loadingCopy = 'Preparing your sample workspace…'
   activityCopy = 'A fresh sample workspace. All changes stay in this page.'
@@ -266,21 +267,29 @@ window.addEventListener('message', (event) => {
     event.source !== frame.contentWindow
   )
     return
-  if (event.data?.type === 'demo:state' && !failed) {
+  if (
+    !failed &&
+    (event.data?.type === 'demo:state' ||
+      event.data?.type === 'demo:window-load-failed')
+  ) {
     const firstState = !frameReady
     frameReady = true
-    // A frame can report its URL's initial view after the user has changed the
-    // toggle. Replay the latest choice only once it can receive messages, and
-    // ignore older acknowledgements while a newer choice is still in flight.
+    // Replay a view choice made before the frame could receive messages.
     if (firstState && viewRequestId > 0) sendView()
+    clearTimeout(loadingTimer)
+    loading.hidden = true
+    if (event.data.type === 'demo:window-load-failed') {
+      counts.hidden = !currentCounts
+      return
+    }
+    // Ignore older acknowledgements while a newer view choice is in flight.
     if (
       (event.data.viewRequestId ?? 0) === viewRequestId &&
       (event.data.view === 'full' || event.data.view === 'popup')
     )
       setView(event.data.view, false)
-    clearTimeout(loadingTimer)
-    loading.hidden = true
     addTab.disabled = false
+    counts.hidden = false
     currentCounts = event.data.state
     counts.textContent = formatCounts(currentCounts!)
     if (event.data.state.activity) activityCopy = event.data.state.activity

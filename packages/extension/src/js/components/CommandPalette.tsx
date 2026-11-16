@@ -24,6 +24,8 @@ const PaletteDialog = observer(function PaletteDialog() {
   const contextId = useId()
   const listRef = useRef<HTMLUListElement>(null)
   const recoveryRef = useRef<HTMLButtonElement>(null)
+  const { failedMove, failedSync } = actionStore
+  const recovery = failedMove || failedSync
   const commands = actionStore.commands
   const formatAction = actionStore.formatAction
   const choosingStep = actionStore.choosingDestination || Boolean(formatAction)
@@ -97,13 +99,12 @@ const PaletteDialog = observer(function PaletteDialog() {
   useEffect(() => {
     if (!actionStore.paletteOpen || actionStore.busy) return
     const frame = requestAnimationFrame(() =>
-      (actionStore.failedMove
-        ? recoveryRef.current
-        : inputProps.ref.current
-      )?.focus({ preventScroll: true }),
+      (recovery ? recoveryRef.current : inputProps.ref.current)?.focus({
+        preventScroll: true,
+      }),
     )
     return () => cancelAnimationFrame(frame)
-  }, [actionStore.paletteOpen, actionStore.busy, actionStore.failedMove])
+  }, [actionStore.paletteOpen, actionStore.busy, recovery])
 
   useEffect(() => {
     if (highlightedIndex >= 0) {
@@ -152,7 +153,7 @@ const PaletteDialog = observer(function PaletteDialog() {
           if (event.key === 'Escape') {
             event.preventDefault()
             event.stopPropagation()
-            if (actionStore.failedMove) actionStore.closePalette()
+            if (recovery) actionStore.closePalette()
             else if (choosingStep) actionStore.back()
             else actionStore.closePalette()
           }
@@ -366,19 +367,21 @@ const PaletteDialog = observer(function PaletteDialog() {
           >
             <p role="alert">{actionStore.error}</p>
             <div className="mt-2 flex gap-2">
-              {actionStore.failedMove && (
+              {recovery && (
                 <button
                   ref={recoveryRef}
                   type="button"
                   className="shortcut-run-button"
                   disabled={actionStore.busy}
                   onClick={
-                    actionStore.moveDestinationAvailable
-                      ? actionStore.retryMove
-                      : actionStore.chooseAnotherMoveDestination
+                    failedSync
+                      ? actionStore.retrySync
+                      : actionStore.moveDestinationAvailable
+                        ? actionStore.retryMove
+                        : actionStore.chooseAnotherMoveDestination
                   }
                 >
-                  {actionStore.moveDestinationAvailable
+                  {failedSync || actionStore.moveDestinationAvailable
                     ? 'Retry'
                     : 'Choose another destination'}
                 </button>
@@ -405,12 +408,7 @@ const PaletteDialog = observer(function PaletteDialog() {
             {actionStore.busy ? 'Working…' : '↑ ↓ navigate · Enter run'}
           </span>
           <span>
-            Esc{' '}
-            {actionStore.failedMove
-              ? 'cancel'
-              : choosingStep
-                ? 'back'
-                : 'close'}
+            Esc {recovery ? 'cancel' : choosingStep ? 'back' : 'close'}
           </span>
         </div>
       </div>
