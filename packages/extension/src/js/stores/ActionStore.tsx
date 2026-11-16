@@ -158,6 +158,7 @@ export default class ActionStore {
   busy = false
   error = ''
   failedMove: { target: PaletteMoveTarget; tabIds: number[] } | null = null
+  failedSync: PaletteCommand | null = null
   groupEditorId: number | null = null
   destinationEdge: 'beginning' | 'end' = 'end'
   paletteFocusTarget: HTMLElement | null = null
@@ -177,6 +178,7 @@ export default class ActionStore {
       toolbarFocusTarget: false,
       paletteSearchFocusTarget: false,
       failedMove: observable.ref,
+      failedSync: observable.ref,
     })
     reaction(
       () => !!this.failedMove && !this.busy && !this.failedMoveMatchesSelection,
@@ -437,6 +439,7 @@ export default class ActionStore {
     this.feedback = ''
     this.error = ''
     this.failedMove = null
+    this.failedSync = null
     this.paletteOpen = true
   }
 
@@ -452,6 +455,7 @@ export default class ActionStore {
     this.choosingDestination = false
     this.formatAction = null
     this.failedMove = null
+    this.failedSync = null
     this.error = ''
     if (
       (wasOpen || fromSelection) &&
@@ -516,6 +520,7 @@ export default class ActionStore {
     this.query = ''
     this.error = ''
     this.failedMove = null
+    this.failedSync = null
   }
 
   get moveDestinationAvailable() {
@@ -651,6 +656,10 @@ export default class ActionStore {
     !this.store.windowStore?.hasStaleWindowSnapshot ||
     commandsWithoutWindowSnapshot.has(id)
 
+  retrySync = () => {
+    if (this.failedSync) void this.execute(this.failedSync)
+  }
+
   execute = async (command: PaletteCommand) => {
     if (
       this.busy ||
@@ -664,6 +673,7 @@ export default class ActionStore {
     this.busy = true
     const tabIds = Array.from(this.store.tabStore.selection.keys()) as number[]
     this.failedMove = null
+    this.failedSync = null
     try {
       if (command.afterClose) {
         this.busy = false
@@ -687,6 +697,15 @@ export default class ActionStore {
     } catch (error) {
       runInAction(() => {
         this.busy = false
+        if (
+          command.id === 'sync' &&
+          this.paletteOpen &&
+          this.store.windowStore?.windowLoadState === 'failed'
+        ) {
+          this.failedSync = command
+          this.error = 'Couldn’t refresh your tabs.'
+          return
+        }
         this.error =
           error instanceof PaletteMoveError
             ? error.message
