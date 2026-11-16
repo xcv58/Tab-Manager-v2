@@ -27,7 +27,11 @@ import { filterCommandOptions, type CommandOption } from './filterOptions'
 import { useCombobox } from 'components/ui/Combobox'
 import { VariableSizeList } from 'react-window'
 import { useAppTheme } from 'libs/appTheme'
-import { matchItemsInMode, type SearchMatchMode } from 'libs/searchMatching'
+import {
+  getSearchMatchMode,
+  matchItemsInMode,
+  type SearchMatchMode,
+} from 'libs/searchMatching'
 import ControlIconButton from 'components/ControlIconButton'
 import { CloseIcon } from 'icons/materialIcons'
 import { BrowserWindowIcon, SearchIcon } from 'icons/actionIcons'
@@ -127,6 +131,7 @@ const getFilterOptions = (
   groupedSectionTabIdsRef,
   searchMatchModeRef,
   searchStore,
+  hasStaleWindowSnapshot: boolean,
 ) => {
   if (isCommand) {
     return (options, state) => {
@@ -137,7 +142,9 @@ const getFilterOptions = (
   }
   return (options, { inputValue }) => {
     groupedSectionTabIdsRef.current = new Set()
-    const tabs = options.filter((option) => !isHistoryItem(option))
+    const tabs = hasStaleWindowSnapshot
+      ? []
+      : options.filter((option) => !isHistoryItem(option))
     const history = options.filter(isHistoryItem)
     const trimmedValue = inputValue.trim()
     if (!trimmedValue) {
@@ -161,11 +168,17 @@ const getFilterOptions = (
       }
       return groupedTabs
     }
-    const searchMatchMode = searchStore.getMatchModeForQuery(trimmedValue)
+    const searchMatchMode = hasStaleWindowSnapshot
+      ? getSearchMatchMode(history, trimmedValue, {
+          keys: searchStore.tabSearchKeys,
+        })
+      : searchStore.getMatchModeForQuery(trimmedValue)
     searchMatchModeRef.current = searchMatchMode
     // match-sorter's default rank/key/value ordering is the same ordering the
     // dropdown used previously. Share this work with the debounced workspace.
-    const matchedTabs = searchStore.inputMatchedTabs
+    const matchedTabs = hasStaleWindowSnapshot
+      ? []
+      : searchStore.inputMatchedTabs
     const { items: groupedTabs, sectionTabIds } = buildGroupedTabSections(
       matchedTabs,
       tabGroupStore,
@@ -441,7 +454,9 @@ const AutocompleteSearch = observer((props: Props) => {
     shortcutStore,
     hoverStore,
     focusStore,
+    windowStore,
   } = useStore()
+  const hasStaleWindowSnapshot = !!windowStore?.hasStaleWindowSnapshot
   const uiColors = getUiColorTokens(
     theme.mode === 'dark',
     userStore.uiPreset,
@@ -517,8 +532,9 @@ const AutocompleteSearch = observer((props: Props) => {
         groupedSectionTabIdsRef,
         searchMatchModeRef,
         searchStore,
+        hasStaleWindowSnapshot,
       ),
-    [isCommand, tabGroupStore, searchStore],
+    [isCommand, tabGroupStore, searchStore, hasStaleWindowSnapshot],
   )
 
   const filteredOptions = useMemo(() => {
@@ -538,6 +554,7 @@ const AutocompleteSearch = observer((props: Props) => {
       option.command()
     } else {
       if ('activate' in option && option.activate) {
+        if (windowStore?.hasStaleWindowSnapshot) return
         option.activate({ origin: 'search', reveal: true })
       } else if ('url' in option) {
         openURL(option.url)
@@ -832,7 +849,11 @@ const AutocompleteSearch = observer((props: Props) => {
               className="px-3 py-4 text-sm"
               style={{ color: theme.palette.text.secondary }}
             >
-              {isCommand ? 'No matching commands' : 'No matching tabs'}
+              {isCommand
+                ? 'No matching commands'
+                : hasStaleWindowSnapshot
+                  ? 'Refresh to search open tabs'
+                  : 'No matching tabs'}
             </div>
           ) : (
             <VariableSizeList

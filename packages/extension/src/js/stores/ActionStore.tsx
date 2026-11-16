@@ -91,6 +91,20 @@ type PaletteMoveTarget =
 
 class PaletteMoveError extends Error {}
 
+const commandsWithoutWindowSnapshot = new Set([
+  'sync',
+  'search',
+  'settings',
+  'settings-full',
+  'help',
+  'help-full',
+  'theme',
+  'focus-toolbar',
+  'open-app-tab',
+  'open-full-mode',
+  'clear-selection',
+])
+
 const copyFormats: Array<{
   format: TabFileFormat
   icon: PaletteIconName
@@ -227,7 +241,7 @@ export default class ActionStore {
         run: this.store.userStore.selectNextTheme,
       },
     ]
-    if (!tab) return commands
+    if (!tab || this.store.windowStore?.hasStaleWindowSnapshot) return commands
     const surface = getMountedTabDetailsSurface(tab.id, 'search')
     return [
       {
@@ -633,8 +647,17 @@ export default class ActionStore {
   moveTabToNewWindow = (tab: Tab) =>
     this.store.windowStore.createNewWindow([tab])
 
+  canUseCommand = (id: string) =>
+    !this.store.windowStore?.hasStaleWindowSnapshot ||
+    commandsWithoutWindowSnapshot.has(id)
+
   execute = async (command: PaletteCommand) => {
-    if (this.busy || command.disabledReason || !isSupportedCommand(command.id))
+    if (
+      this.busy ||
+      command.disabledReason ||
+      !isSupportedCommand(command.id) ||
+      !this.canUseCommand(command.id)
+    )
       return
     this.error = ''
     this.feedback = ''
@@ -648,6 +671,7 @@ export default class ActionStore {
         await new Promise<void>((resolve) =>
           requestAnimationFrame(() => resolve()),
         )
+        if (!this.canUseCommand(command.id)) return
       }
       await command.run()
       runInAction(() => {
@@ -678,8 +702,9 @@ export default class ActionStore {
   getCommands = (
     options: { includeSteps?: boolean; selectionOnly?: boolean } = {},
   ) =>
-    this.getUnfilteredCommands(options).filter((command) =>
-      isSupportedCommand(command.id),
+    this.getUnfilteredCommands(options).filter(
+      (command) =>
+        isSupportedCommand(command.id) && this.canUseCommand(command.id),
     )
 
   get commands(): PaletteCommand[] {

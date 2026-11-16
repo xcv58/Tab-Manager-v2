@@ -70,6 +70,23 @@ const selectionPaletteAllowedCombos = new Set([
   TOOLBAR_FOCUS_SHORTCUT,
 ])
 
+const shortcutsWithoutWindowSnapshot = new Set([
+  TOOLBAR_FOCUS_SHORTCUT,
+  getCommandPaletteShortcut(),
+  'command+shift+p',
+  '>',
+  '/',
+  's',
+  'escape',
+  '* n',
+  'ctrl+n',
+  'ctrl+o',
+  'ctrl+i',
+  '?',
+  'ctrl+/',
+  'ctrl+,',
+])
+
 export type ShortcutHelpAction = {
   label: string
   disabledReason?: string
@@ -594,12 +611,17 @@ export default class ShortcutStore {
     ],
   ].filter((x) => x)
 
+  canRunShortcut = (keys: string | string[]) =>
+    !this.store.windowStore?.hasStaleWindowSnapshot ||
+    shortcutsWithoutWindowSnapshot.has(Array.isArray(keys) ? keys[0] : keys)
+
   stopCallback = (
     e: Event,
     element: HTMLInputElement,
     combo: string,
     sequence?: string,
   ) => {
+    if (!this.canRunShortcut(sequence || combo)) return true
     // Native Safari action buttons must keep Enter and Space for activation.
     if (isSafari && element.closest?.('[data-safari-action-controls]'))
       return true
@@ -807,7 +829,9 @@ export default class ShortcutStore {
         ? 'An action is already in progress'
         : dragStore.dragging
           ? 'Finish dragging first'
-          : action.disabledReason
+          : !this.canRunShortcut(keys)
+            ? 'Refresh your tabs first'
+            : action.disabledReason
     return action
   }
 
@@ -821,7 +845,7 @@ export default class ShortcutStore {
       window.requestAnimationFrame(() => resolve()),
     )
     try {
-      await action.run()
+      if (this.canRunShortcut(keys)) await action.run()
     } catch {
       this.showMoveHint('Could not complete this action. Please try again.')
     } finally {

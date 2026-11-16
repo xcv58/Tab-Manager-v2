@@ -1265,11 +1265,15 @@ describe('WindowStore layout policy', () => {
     await expect(failedSync).rejects.toThrow('Window read failed')
     expect(windowStore.windowLoadState).toBe('failed')
     expect(windowStore.initialLoading).toBe(true)
+    expect(windowStore.hasStaleWindowSnapshot).toBe(true)
 
     getAll.mockResolvedValueOnce([])
-    await windowStore.syncAllWindows()
+    const retry = windowStore.syncAllWindows()
+    expect(windowStore.hasStaleWindowSnapshot).toBe(true)
+    await retry
     expect(windowStore.windowLoadState).toBe('ready')
     expect(windowStore.initialLoading).toBe(false)
+    expect(windowStore.hasStaleWindowSnapshot).toBe(false)
   })
 
   it('queues active-tab reveal after sync before the DOM target mounts', async () => {
