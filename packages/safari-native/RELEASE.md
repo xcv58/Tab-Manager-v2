@@ -33,9 +33,11 @@ identifiers, or change Developer Portal provisioning automatically.
 | `SAFARI_APP_PROFILE`           | Base64 of the production Mac App Store distribution `.provisionprofile` for `com.xcv58.Tab-Manager-v2`                                                                                                       |
 | `SAFARI_EXTENSION_PROFILE`     | Base64 of the production Mac App Store distribution `.provisionprofile` for `com.xcv58.Tab-Manager-v2.Extension`                                                                                             |
 
-Both profiles must authorize App Group
-`5736QK4NZX.com.xcv58.Tab-Manager-v2`, include the supplied application signing
-certificate, and have at least 24 hours of validity when packaging begins.
+Both profiles must match their bundle identifiers, include the supplied
+application signing certificate, and have at least 24 hours of validity when
+packaging begins. macOS authorizes the team-qualified App Group
+`5736QK4NZX.com.xcv58.Tab-Manager-v2` through the code signature. The workflow
+checks the exact App Group and team in both signed bundles.
 Development, Developer ID, wildcard, and device-bound profiles are rejected.
 The App Manager API key alone cannot replace these private signing identities.
 

@@ -168,8 +168,11 @@ function profileInfo(path, bundleId, certificate) {
       !e['com.apple.security.get-task-allow'],
     `Profile for ${bundleId} is not App Store distribution`,
   )
+  // macOS authorizes team-qualified App Groups through the code signature.
+  // verifyApp checks the exact App Group and team on each signed bundle.
   assert(
-    e['com.apple.security.application-groups']?.includes(safari.appGroup),
+    safari.appGroup.startsWith(`${safari.teamId}.`) ||
+      e['com.apple.security.application-groups']?.includes(safari.appGroup),
     `Missing production App Group in ${bundleId} profile`,
   )
   assert(
