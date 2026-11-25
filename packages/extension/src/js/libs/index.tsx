@@ -3,6 +3,10 @@ import { isSafari, canMoveTabs } from './browserCapabilities'
 import browser from 'webextension-polyfill'
 import log from 'libs/log'
 import { getTabInsertIndex, planTabMove } from 'libs/tabMovePlan'
+import {
+  WINDOW_LAST_FOCUSED_STORAGE_KEY,
+  type WindowTimestamps,
+} from './windowRecency'
 
 export { browser }
 
@@ -465,9 +469,15 @@ export const isSelfPopup = ({ type, tabs = [] }) => {
 
 export const notSelfPopup = (...args) => !isSelfPopup(...args)
 
-export const setLastFocusedWindowId = (lastFocusedWindowId) => {
-  browser.storage.local.set({ lastFocusedWindowId, _selfPopupActive: false })
-}
+export const setLastFocusedWindowId = (
+  lastFocusedWindowId: number,
+  windowLastFocusedAt: WindowTimestamps,
+) =>
+  browser.storage.local.set({
+    lastFocusedWindowId,
+    _selfPopupActive: false,
+    [WINDOW_LAST_FOCUSED_STORAGE_KEY]: windowLastFocusedAt,
+  })
 
 export const setSelfPopupActive = (_selfPopupActive) => {
   log.debug('setSelfPopupActive:', { _selfPopupActive })

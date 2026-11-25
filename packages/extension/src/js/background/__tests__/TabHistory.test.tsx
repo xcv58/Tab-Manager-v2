@@ -85,8 +85,52 @@ describe('TabHistory.onFocusChanged', () => {
     await tabHistory.onFocusChanged(42)
 
     expect(setSelfPopupActive).not.toHaveBeenCalledWith(true)
-    expect(setLastFocusedWindowId).toHaveBeenCalledWith(42)
+    expect(setLastFocusedWindowId).toHaveBeenCalledWith(42, {
+      42: expect.any(Number),
+    })
     expect(tabHistory.tabHistory).toEqual([])
+  })
+
+  it('records background window focus in event order and drops closed windows', async () => {
+    let windowLastFocusedAt: Record<string, number> = { 2: 100, 99: 150 }
+    const savedAt = jest.spyOn(Date, 'now').mockReturnValue(200)
+    jest
+      .mocked(browser.windows.getAll)
+      .mockResolvedValueOnce([{ id: 1 }, { id: 2 }])
+    jest.mocked(browser.windows.get).mockImplementation(async (id) => ({
+      id,
+      type: 'normal',
+      tabs: [{ id: id * 10, active: true, windowId: id }],
+    }))
+    jest
+      .mocked(browser.storage.local.get)
+      .mockImplementation(async (keys) =>
+        keys && 'windowLastFocusedAt' in keys
+          ? { windowLastFocusedAt }
+          : { tabHistory: [] },
+      )
+    jest
+      .mocked(setLastFocusedWindowId)
+      .mockImplementation(async (_id, timestamps) => {
+        windowLastFocusedAt = timestamps
+      })
+
+    try {
+      const history = new TabHistory()
+      await Promise.all([history.onFocusChanged(1), history.onFocusChanged(2)])
+
+      expect(setLastFocusedWindowId).toHaveBeenNthCalledWith(1, 1, {
+        1: 200,
+        2: 100,
+      })
+      expect(setLastFocusedWindowId).toHaveBeenNthCalledWith(2, 2, {
+        1: 200,
+        2: 201,
+      })
+    } finally {
+      savedAt.mockRestore()
+      jest.mocked(setLastFocusedWindowId).mockReset()
+    }
   })
 
   it('keeps only navigation IDs when loading legacy history metadata', async () => {

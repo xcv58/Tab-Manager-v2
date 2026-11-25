@@ -9,6 +9,11 @@ import {
 import actions from 'libs/actions'
 import { isSafari } from 'libs/browserCapabilities'
 import log from 'libs/log'
+import {
+  WINDOW_LAST_FOCUSED_STORAGE_KEY,
+  nextWindowTimestamp,
+  normalizeWindowTimestamps,
+} from 'libs/windowRecency'
 
 const STORAGE_KEY = 'tabHistory'
 
@@ -29,6 +34,7 @@ export default class TabHistory {
     }
     browser.tabs.onRemoved.addListener(onRemoved)
     browser.windows.onFocusChanged.addListener(onFocusChanged)
+    browser.windows.onRemoved?.addListener(this.onWindowRemoved)
     this.actionMap = {
       [actions.lastActiveTab]: this.activateTab,
     }
@@ -41,6 +47,7 @@ export default class TabHistory {
 
   private activationTail: Promise<unknown> = Promise.resolve()
   private observationTail: Promise<unknown> = Promise.resolve()
+  private prunedWindowFocusHistory = false
   private cycle: {
     entries: HistoryEntry[]
     index: number
@@ -85,7 +92,9 @@ export default class TabHistory {
       const active = current.tabs?.find((tab) => tab.active)
       if (!active || isSelfPopupTab(active)) return
       this.add({ tabId: active.id, windowId: current.id })
-      setLastFocusedWindowId(current.id)
+      await this.persistWindowFocus(current.id, Date.now()).catch((error) => {
+        log.warn('Could not remember the focused Safari window', error)
+      })
     })
 
   // Flag to indicate if history has been loaded from storage
@@ -234,10 +243,48 @@ export default class TabHistory {
     }
   }
 
-  onFocusChanged = (windowId) =>
-    this.observe(() => this.recordFocusedWindow(windowId))
+  private readWindowFocusHistory = async () => {
+    const stored = await browser.storage.local.get({
+      [WINDOW_LAST_FOCUSED_STORAGE_KEY]: {},
+    })
+    return normalizeWindowTimestamps(stored[WINDOW_LAST_FOCUSED_STORAGE_KEY])
+  }
 
-  private recordFocusedWindow = async (windowId) => {
+  private persistWindowFocus = async (windowId: number, focusedAt: number) => {
+    const timestamps = await this.readWindowFocusHistory()
+    if (!this.prunedWindowFocusHistory) {
+      // A browser shutdown can leave window IDs from the previous session.
+      const windows = Object.keys(timestamps).length
+        ? await browser.windows.getAll().catch(() => null)
+        : []
+      if (windows) {
+        const liveIds = new Set(windows.map((win) => win.id))
+        for (const id of Object.keys(timestamps)) {
+          if (!liveIds.has(Number(id))) delete timestamps[id]
+        }
+        this.prunedWindowFocusHistory = true
+      }
+    }
+    timestamps[windowId] = nextWindowTimestamp(timestamps, focusedAt)
+    await setLastFocusedWindowId(windowId, timestamps)
+  }
+
+  private onWindowRemoved = (windowId: number) =>
+    this.observe(async () => {
+      const timestamps = await this.readWindowFocusHistory()
+      if (timestamps[windowId] === undefined) return
+      delete timestamps[windowId]
+      await browser.storage.local.set({
+        [WINDOW_LAST_FOCUSED_STORAGE_KEY]: timestamps,
+      })
+    })
+
+  onFocusChanged = (windowId: number) => {
+    const focusedAt = Date.now()
+    return this.observe(() => this.recordFocusedWindow(windowId, focusedAt))
+  }
+
+  private recordFocusedWindow = async (windowId: number, focusedAt: number) => {
     log.debug('onFocusChanged:', { windowId })
     if (windowId < 0) {
       return setSelfPopupActive(false)
@@ -265,7 +312,7 @@ export default class TabHistory {
         isPopupWindow,
       })
       if (!isSelfPopupTab(tab)) this.add({ tabId: tab.id, windowId })
-      setLastFocusedWindowId(windowId)
+      await this.persistWindowFocus(windowId, focusedAt)
     } catch (e) {
       log.warn('Error in onFocusChanged:', e)
     }
