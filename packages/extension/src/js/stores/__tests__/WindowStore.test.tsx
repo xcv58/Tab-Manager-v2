@@ -932,6 +932,46 @@ describe('WindowStore layout policy', () => {
     expect(save.mock.calls).toEqual([[{ windowLastUsedAt: {} }]])
   })
 
+  it.each([
+    {
+      name: 'shows a newer background focus on the first Sync',
+      focusTimestampOffset: 1,
+      expectedOrder: [1, 2],
+    },
+    {
+      name: 'keeps a newer local activation on Sync before storage catches up',
+      focusTimestampOffset: -1,
+      expectedOrder: [2, 1],
+    },
+  ])('$name', async ({ focusTimestampOffset, expectedOrder }) => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    const windows = [1, 2].map((windowId) => ({
+      id: windowId,
+      tabs: [{ id: windowId * 10, index: 0, windowId, url: 'about:blank' }],
+    }))
+    jest.mocked(browser.windows.getAll).mockResolvedValue(windows)
+    const readStorage = jest.mocked(browser.storage.local.get)
+    const savedUsage = { 2: 20 }
+    readStorage.mockResolvedValueOnce({ windowLastUsedAt: savedUsage })
+    await windowStore.loadAllWindows()
+    expect(windowStore.columnLayout).toEqual([[2, 1]])
+
+    windowStore.onActivated({ tabId: 20, windowId: 2 })
+    const activationTimestamp = windowStore.windowLastUsedAt[2]
+    expect(activationTimestamp).toBeGreaterThan(savedUsage[2])
+    readStorage.mockResolvedValueOnce({
+      windowLastUsedAt: savedUsage,
+      windowLastFocusedAt: { 1: activationTimestamp + focusTimestampOffset },
+    })
+
+    await windowStore.syncAllWindows()
+
+    expect(windowStore.columnLayout).toEqual([expectedOrder])
+    expect(windowStore.windowLastUsedAt).toEqual({ 2: activationTimestamp })
+  })
+
   it('keeps history order after reopening with one recorded window', async () => {
     const windows = [1, 2, 3].map((windowId) => ({
       id: windowId,

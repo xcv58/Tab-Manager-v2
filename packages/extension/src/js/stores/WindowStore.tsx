@@ -235,8 +235,6 @@ export default class WindowsStore {
 
   windowLastUsedLayoutDirty = false
 
-  pendingLastUsedWindowId: number | null = null
-
   isLastUsedWindowOrderEnabled = () =>
     this.store.userStore?.windowOrder === 'lastUsed'
 
@@ -636,7 +634,6 @@ export default class WindowsStore {
     ) {
       return false
     }
-    this.pendingLastUsedWindowId = windowId
     this.windowLastUsedAt = {
       ...this.windowLastUsedAt,
       [String(windowId)]: nextWindowTimestamp(this.windowUsageTimestamps),
@@ -850,23 +847,6 @@ export default class WindowsStore {
     ]
   }
 
-  getWindowIdsToPromoteByLastUsed = (windows: Window[]) => {
-    const visibleWindowIds = new Set(windows.map((win) => win.id))
-    const lastUsedWindowIds = this.getLastUsedWindowIds(windows)
-    if (
-      typeof this.pendingLastUsedWindowId === 'number' &&
-      visibleWindowIds.has(this.pendingLastUsedWindowId)
-    ) {
-      return [
-        this.pendingLastUsedWindowId,
-        ...lastUsedWindowIds.filter(
-          (windowId) => windowId !== this.pendingLastUsedWindowId,
-        ),
-      ]
-    }
-    return lastUsedWindowIds
-  }
-
   getLastUsedPromotedColumnLayout = (
     windows: Window[],
     sourceLayout: number[][] = this.columnLayout,
@@ -877,7 +857,7 @@ export default class WindowsStore {
       windows,
       fallbackLayout,
     )
-    const windowIdsToPromote = this.getWindowIdsToPromoteByLastUsed(windows)
+    const windowIdsToPromote = this.getLastUsedWindowIds(windows)
     if (!windowIdsToPromote.length) {
       return {
         currentLayout,
@@ -907,7 +887,7 @@ export default class WindowsStore {
 
   hasWindowLastUsedLayoutCandidate = () =>
     this.isLastUsedWindowOrderEnabled() &&
-    this.getWindowIdsToPromoteByLastUsed(this.visibleWindows).length > 0
+    this.getLastUsedWindowIds(this.visibleWindows).length > 0
 
   wouldWindowLastUsedLayoutChange = () => {
     if (!this.isLastUsedWindowOrderEnabled() || !this.visibleWindows.length) {
@@ -944,7 +924,6 @@ export default class WindowsStore {
     const visibleWindows = this.visibleWindows
     if (!visibleWindows.length) {
       this.windowLastUsedColumnLayout = null
-      this.pendingLastUsedWindowId = null
       this.windowLastUsedLayoutDirty = false
       return false
     }
@@ -958,7 +937,6 @@ export default class WindowsStore {
       this.windowLastUsedColumnLayout = normalizedNextLayout
       this.layoutDirty = false
       this.dirtyWindowIds.clear()
-      this.pendingLastUsedWindowId = null
       this.windowLastUsedLayoutDirty = false
       return true
     }
@@ -967,7 +945,6 @@ export default class WindowsStore {
     this.columnCount = Math.max(normalizedNextLayout.length, 1)
     this.layoutDirty = false
     this.dirtyWindowIds.clear()
-    this.pendingLastUsedWindowId = null
     this.windowLastUsedLayoutDirty = false
     log.debug('WindowsStore.applyWindowLastUsedLayout', {
       reason,
@@ -2247,7 +2224,6 @@ export default class WindowsStore {
       this.windowLastFocusedAt = {}
       this.windowOrderFromTabHistory = []
       this.windowLastUsedColumnLayout = null
-      this.pendingLastUsedWindowId = null
       this.windowLastUsedLayoutDirty = false
     }
 
