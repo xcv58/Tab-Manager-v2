@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.0.3 (2026-11-25)
+
+### Browser extensions
+
+- Show the most recently focused window first when reopening Tab Manager in **Last used** mode after switching windows, and apply the latest available order on the first **Sync**. ([#2712](https://github.com/xcv58/Tab-Manager-v2/pull/2712))
+
 ## 3.0.2 (2026-11-16)
 
 ### Browser extensions
