@@ -13,6 +13,11 @@ import {
 } from './fixtures'
 import { readDemoPreferences, saveDemoPreferences } from './preferences'
 import { previewWindows } from 'components/Toolbar/SettingsPreviewData'
+import {
+  WINDOW_LAST_FOCUSED_STORAGE_KEY,
+  nextWindowTimestamp,
+  normalizeWindowTimestamps,
+} from 'libs/windowRecency'
 
 export { demoScenarios } from './fixtures'
 
@@ -230,7 +235,16 @@ const focusWindow = (win: DemoWindow) => {
   localData.lastFocusedWindowId = win.id
   const active = win.tabs.find((tab) => tab.active)
   if (active) rememberActivation(active)
-  if (changed) browser.windows.onFocusChanged.emit(win.id)
+  if (changed) {
+    if (!recentTabHistory) {
+      const timestamps = normalizeWindowTimestamps(
+        localData[WINDOW_LAST_FOCUSED_STORAGE_KEY],
+      )
+      timestamps[win.id] = nextWindowTimestamp(timestamps)
+      localData[WINDOW_LAST_FOCUSED_STORAGE_KEY] = timestamps
+    }
+    browser.windows.onFocusChanged.emit(win.id)
+  }
 }
 
 const ensureActiveTab = (win: DemoWindow, nearIndex = 0) => {
@@ -244,6 +258,13 @@ const removeEmptyWindow = (win: DemoWindow) => {
   const index = windows.indexOf(win)
   if (index < 0) return
   windows.splice(index, 1)
+  if (!recentTabHistory) {
+    const timestamps = normalizeWindowTimestamps(
+      localData[WINDOW_LAST_FOCUSED_STORAGE_KEY],
+    )
+    delete timestamps[win.id]
+    localData[WINDOW_LAST_FOCUSED_STORAGE_KEY] = timestamps
+  }
   browser.windows.onRemoved.emit(win.id)
   if (currentWindowId === win.id) {
     currentWindowId = null

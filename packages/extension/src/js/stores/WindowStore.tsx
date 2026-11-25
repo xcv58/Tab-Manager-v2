@@ -13,6 +13,12 @@ import {
 import actions from 'libs/actions'
 import log from 'libs/log'
 import { getWindowRowHeight } from 'libs/layoutMetrics'
+import {
+  WINDOW_LAST_FOCUSED_STORAGE_KEY,
+  nextWindowTimestamp,
+  normalizeWindowTimestamps,
+  type WindowTimestamps,
+} from 'libs/windowRecency'
 import Window from 'stores/Window'
 import Tab from 'stores/Tab'
 import Store from 'stores'
@@ -89,8 +95,6 @@ type LoadAllWindowsOptions = {
   preserveWindowOrder?: boolean
 }
 
-type WindowLastUsedAt = Record<string, number>
-
 type MarkWindowLastUsedOptions = {
   markLayoutDirty?: boolean
 }
@@ -98,27 +102,10 @@ type MarkWindowLastUsedOptions = {
 const WINDOW_LAST_USED_STORAGE_KEY = 'windowLastUsedAt'
 const WINDOW_TAB_HISTORY_STORAGE_KEY = 'tabHistory'
 
-const normalizeWindowLastUsedAt = (value: unknown): WindowLastUsedAt => {
-  if (!value || typeof value !== 'object') {
-    return {}
-  }
-
-  return Object.keys(value as Record<string, unknown>).reduce(
-    (result, windowId) => {
-      const timestamp = Number((value as Record<string, unknown>)[windowId])
-      if (Number.isFinite(timestamp) && timestamp > 0) {
-        result[windowId] = timestamp
-      }
-      return result
-    },
-    {} as WindowLastUsedAt,
-  )
-}
-
 const mergeWindowLastUsedAt = (
-  left: WindowLastUsedAt,
-  right: WindowLastUsedAt,
-): WindowLastUsedAt => {
+  left: WindowTimestamps,
+  right: WindowTimestamps,
+): WindowTimestamps => {
   const keys = new Set([...Object.keys(left), ...Object.keys(right)])
   return Array.from(keys).reduce((result, windowId) => {
     const leftTimestamp = Number(left[windowId])
@@ -131,7 +118,7 @@ const mergeWindowLastUsedAt = (
       result[windowId] = timestamp
     }
     return result
-  }, {} as WindowLastUsedAt)
+  }, {} as WindowTimestamps)
 }
 
 const getWindowOrderFromTabHistory = (
@@ -238,7 +225,9 @@ export default class WindowsStore {
 
   lastFocusedWindowId: number | null = null
 
-  windowLastUsedAt: WindowLastUsedAt = {}
+  windowLastUsedAt: WindowTimestamps = {}
+
+  private windowLastFocusedAt: WindowTimestamps = {}
 
   private windowOrderFromTabHistory: number[] = []
 
@@ -612,6 +601,7 @@ export default class WindowsStore {
     try {
       return await browser.storage.local.get({
         [WINDOW_LAST_USED_STORAGE_KEY]: {},
+        [WINDOW_LAST_FOCUSED_STORAGE_KEY]: {},
         [WINDOW_TAB_HISTORY_STORAGE_KEY]: [],
       })
     } catch {
@@ -628,13 +618,11 @@ export default class WindowsStore {
     })
   }
 
-  getNextWindowLastUsedAt = () => {
-    const latestTimestamp = Object.values(this.windowLastUsedAt).reduce(
-      (latest, timestamp) =>
-        Number.isFinite(timestamp) ? Math.max(latest, timestamp) : latest,
-      0,
+  private get windowUsageTimestamps() {
+    return mergeWindowLastUsedAt(
+      this.windowLastUsedAt,
+      this.windowLastFocusedAt,
     )
-    return Math.max(Date.now(), latestTimestamp + 1)
   }
 
   markWindowLastUsed = (
@@ -651,7 +639,7 @@ export default class WindowsStore {
     this.pendingLastUsedWindowId = windowId
     this.windowLastUsedAt = {
       ...this.windowLastUsedAt,
-      [String(windowId)]: this.getNextWindowLastUsedAt(),
+      [String(windowId)]: nextWindowTimestamp(this.windowUsageTimestamps),
     }
     this.persistWindowLastUsedAt()
     if (
@@ -675,7 +663,7 @@ export default class WindowsStore {
         }
         return result
       },
-      {} as WindowLastUsedAt,
+      {} as WindowTimestamps,
     )
     if (
       Object.keys(nextWindowLastUsedAt).length ===
@@ -839,7 +827,7 @@ export default class WindowsStore {
 
   getLastUsedWindowIds = (windows: Window[]) => {
     const visibleWindowIds = new Set(windows.map((win) => win.id))
-    const rankedWindowIds = Object.entries(this.windowLastUsedAt)
+    const rankedWindowIds = Object.entries(this.windowUsageTimestamps)
       .map(([windowId, timestamp]) => ({
         windowId: Number(windowId),
         timestamp,
@@ -2239,19 +2227,24 @@ export default class WindowsStore {
       const liveWindowIds = new Set(nextWindows.map((win) => win.id))
       this.windowLastUsedAt = mergeWindowLastUsedAt(
         this.windowLastUsedAt,
-        normalizeWindowLastUsedAt(
+        normalizeWindowTimestamps(
           windowLastUsedState?.[WINDOW_LAST_USED_STORAGE_KEY],
         ),
       )
       this.pruneWindowLastUsedAt(liveWindowIds)
       // Refresh the fallback for windows without a saved timestamp on each load.
       if (windowLastUsedState) {
+        this.windowLastFocusedAt = normalizeWindowTimestamps(
+          windowLastUsedState[WINDOW_LAST_FOCUSED_STORAGE_KEY],
+          liveWindowIds,
+        )
         this.windowOrderFromTabHistory = getWindowOrderFromTabHistory(
           windowLastUsedState[WINDOW_TAB_HISTORY_STORAGE_KEY],
           liveWindowIds,
         )
       }
     } else {
+      this.windowLastFocusedAt = {}
       this.windowOrderFromTabHistory = []
       this.windowLastUsedColumnLayout = null
       this.pendingLastUsedWindowId = null

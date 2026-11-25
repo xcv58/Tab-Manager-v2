@@ -978,6 +978,32 @@ describe('WindowStore layout policy', () => {
     expect(save).toHaveBeenCalledTimes(1)
   })
 
+  it('opens on the most recently focused window after a background window switch', async () => {
+    const reopenedPopup = createWindowStore()
+    reopenedPopup.height = 1000
+    reopenedPopup.store.userStore.windowOrder = 'lastUsed'
+    const windows = [1, 2, 3].map((windowId) => ({
+      id: windowId,
+      tabs: [{ id: windowId * 10, index: 0, windowId, url: 'about:blank' }],
+    }))
+    jest.mocked(browser.windows.getAll).mockResolvedValueOnce(windows)
+    jest.mocked(browser.storage.local.get).mockResolvedValueOnce({
+      windowLastUsedAt: { 2: 20 },
+      windowLastFocusedAt: { 1: 30, 3: 25, 2: 10, 99: 40 },
+      tabHistory: [1, 2, 3].map((windowId) => ({
+        tabId: windowId * 10,
+        windowId,
+      })),
+    })
+    const save = jest.mocked(browser.storage.local.set).mockClear()
+
+    await reopenedPopup.refreshAndFlushLayoutForForeground('window-focus')
+
+    expect(reopenedPopup.columnLayout).toEqual([[1, 3, 2]])
+    expect(reopenedPopup.windowLastUsedAt).toEqual({ 2: 20 })
+    expect(save).not.toHaveBeenCalled()
+  })
+
   it('renders only nearby columns for the horizontal viewport', () => {
     const windowStore = createWindowStore()
     windowStore.height = 200
