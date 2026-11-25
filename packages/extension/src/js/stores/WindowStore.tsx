@@ -2244,9 +2244,8 @@ export default class WindowsStore {
         ),
       )
       this.pruneWindowLastUsedAt(liveWindowIds)
-      // Prune before checking for a live ranking. Sync can then reread history
-      // even when a previous load inferred an order from an older snapshot.
-      if (windowLastUsedState && !Object.keys(this.windowLastUsedAt).length) {
+      // Refresh the fallback for windows without a saved timestamp on each load.
+      if (windowLastUsedState) {
         this.windowOrderFromTabHistory = getWindowOrderFromTabHistory(
           windowLastUsedState[WINDOW_TAB_HISTORY_STORAGE_KEY],
           liveWindowIds,

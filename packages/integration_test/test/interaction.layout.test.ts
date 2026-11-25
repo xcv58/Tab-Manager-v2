@@ -91,6 +91,25 @@ const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
 
 const getTestLastUsedTimestamp = () => Date.now() + 60_000
 
+const seedSavedWindowOrder = async (page: Page, firstWindowId: number) => {
+  await page.evaluate(
+    async ({ firstWindowId, timestamp }) => {
+      const windows = await chrome.windows.getAll()
+      const remainingIds = windows
+        .flatMap(({ id }) => (id == null || id === firstWindowId ? [] : [id]))
+        .sort((a, b) => a - b)
+      const windowLastUsedAt = Object.fromEntries(
+        [firstWindowId, ...remainingIds].map((id, index) => [
+          id,
+          timestamp - index,
+        ]),
+      )
+      await chrome.storage.local.set({ windowLastUsedAt })
+    },
+    { firstWindowId, timestamp: getTestLastUsedTimestamp() },
+  )
+}
+
 const writeExtensionSettings = async (
   page: Page,
   settings: Record<string, unknown>,
@@ -206,14 +225,7 @@ const setupLastUsedWindowOrderVisualScenario = async ({
     ]),
   )
   const lastUsedWindowId = createdWindowIds[lastUsedIndex]
-  await page.evaluate(
-    async (windowLastUsedAt) => {
-      await chrome.storage.local.set({ windowLastUsedAt })
-    },
-    {
-      [String(lastUsedWindowId)]: getTestLastUsedTimestamp(),
-    },
-  )
+  await seedSavedWindowOrder(page, lastUsedWindowId)
 
   await page.reload()
   await page.waitForLoadState('domcontentloaded')
@@ -443,19 +455,7 @@ const setupLeftmostEmptyColumnVisualScenario = async () => {
   // column does not depend on a live Settings transition. The separate
   // window-order tests exercise the Settings control itself.
   await writeExtensionSettings(page, { windowOrder: 'lastUsed' })
-  await page.evaluate(
-    async ({ targetWindowId, timestamp }) => {
-      await chrome.storage.local.set({
-        windowLastUsedAt: {
-          [String(targetWindowId)]: timestamp,
-        },
-      })
-    },
-    {
-      targetWindowId,
-      timestamp: getTestLastUsedTimestamp(),
-    },
-  )
+  await seedSavedWindowOrder(page, targetWindowId)
 
   await page.reload()
   await page.waitForLoadState('domcontentloaded')
@@ -1263,14 +1263,7 @@ test.describe('The Extension page should', () => {
     ])
     const lastUsedWindowId = createdWindowIds[2]
 
-    await page.evaluate(
-      async (windowLastUsedAt) => {
-        await chrome.storage.local.set({ windowLastUsedAt })
-      },
-      {
-        [String(lastUsedWindowId)]: getTestLastUsedTimestamp(),
-      },
-    )
+    await seedSavedWindowOrder(page, lastUsedWindowId)
 
     await page.reload()
     await page.waitForLoadState('domcontentloaded')

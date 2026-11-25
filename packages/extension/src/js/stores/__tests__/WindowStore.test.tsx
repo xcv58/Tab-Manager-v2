@@ -932,6 +932,52 @@ describe('WindowStore layout policy', () => {
     expect(save.mock.calls).toEqual([[{ windowLastUsedAt: {} }]])
   })
 
+  it('keeps history order after reopening with one recorded window', async () => {
+    const windows = [1, 2, 3].map((windowId) => ({
+      id: windowId,
+      tabs: [{ id: windowId * 10, index: 0, windowId, url: 'about:blank' }],
+    }))
+    const history = [
+      { tabId: 10, windowId: 1 },
+      { tabId: 30, windowId: 3 },
+    ]
+    const readStorage = jest.mocked(browser.storage.local.get)
+    const save = jest.mocked(browser.storage.local.set).mockClear()
+    const firstPopup = createWindowStore()
+    firstPopup.height = 1000
+    firstPopup.store.userStore.windowOrder = 'lastUsed'
+    jest.mocked(browser.windows.getAll).mockResolvedValueOnce(windows)
+    readStorage.mockResolvedValueOnce({
+      windowLastUsedAt: {},
+      tabHistory: history,
+    })
+
+    await firstPopup.loadAllWindows()
+    expect(firstPopup.columnLayout).toEqual([[3, 1, 2]])
+
+    const activation = { tabId: 20, windowId: 2 }
+    firstPopup.onActivated(activation)
+    expect(save.mock.calls).toEqual([
+      [{ windowLastUsedAt: { 2: expect.any(Number) } }],
+    ])
+
+    const reopenedPopup = createWindowStore()
+    reopenedPopup.height = 1000
+    reopenedPopup.store.userStore.windowOrder = 'lastUsed'
+    jest.mocked(browser.windows.getAll).mockResolvedValue(windows)
+    readStorage.mockResolvedValue({
+      ...save.mock.lastCall?.[0],
+      tabHistory: [...history, activation],
+    })
+
+    await reopenedPopup.loadAllWindows()
+    expect(reopenedPopup.columnLayout).toEqual([[2, 3, 1]])
+
+    await reopenedPopup.syncAllWindows()
+    expect(reopenedPopup.columnLayout).toEqual([[2, 3, 1]])
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
   it('renders only nearby columns for the horizontal viewport', () => {
     const windowStore = createWindowStore()
     windowStore.height = 200
