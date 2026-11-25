@@ -970,7 +970,7 @@ describe('WindowStore layout policy', () => {
       tabHistory: [...history, activation],
     })
 
-    await reopenedPopup.loadAllWindows()
+    await reopenedPopup.refreshAndFlushLayoutForForeground('window-focus')
     expect(reopenedPopup.columnLayout).toEqual([[2, 3, 1]])
 
     await reopenedPopup.syncAllWindows()

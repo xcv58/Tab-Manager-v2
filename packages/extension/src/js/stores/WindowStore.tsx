@@ -2286,7 +2286,10 @@ export default class WindowsStore {
       return this.applyWindowLastUsedLayout(resolvedRepackReason)
     }
 
-    if (policy === 'always') {
+    if (
+      policy === 'always' ||
+      (wasInitialLoading && shouldApplyWindowLastUsedLayout)
+    ) {
       if (!applyWindowLastUsedLayoutIfAvailable()) {
         this.repackLayout(resolvedRepackReason)
       }

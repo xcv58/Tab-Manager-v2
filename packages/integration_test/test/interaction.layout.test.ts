@@ -91,23 +91,30 @@ const AUTO_FIT_WINDOW_URLS = Array.from({ length: 5 }, (_, windowIndex) =>
 
 const getTestLastUsedTimestamp = () => Date.now() + 60_000
 
-const seedSavedWindowOrder = async (page: Page, firstWindowId: number) => {
-  await page.evaluate(
-    async ({ firstWindowId, timestamp }) => {
-      const windows = await chrome.windows.getAll()
-      const remainingIds = windows
-        .flatMap(({ id }) => (id == null || id === firstWindowId ? [] : [id]))
-        .sort((a, b) => a - b)
-      const windowLastUsedAt = Object.fromEntries(
-        [firstWindowId, ...remainingIds].map((id, index) => [
-          id,
-          timestamp - index,
-        ]),
+const seedSavedWindowOrder = async (
+  page: Page,
+  ...preferredWindowIds: number[]
+) => {
+  await page.evaluate(async (preferredWindowIds) => {
+    const windows = await chrome.windows.getAll()
+    const remainingIds = windows
+      .flatMap(({ id }) =>
+        id == null || preferredWindowIds.includes(id) ? [] : [id],
       )
-      await chrome.storage.local.set({ windowLastUsedAt })
-    },
-    { firstWindowId, timestamp: getTestLastUsedTimestamp() },
-  )
+      .sort((a, b) => a - b)
+    const { windowLastUsedAt: saved } = await chrome.storage.local.get({
+      windowLastUsedAt: {},
+    })
+    const timestamp =
+      Math.max(Date.now(), ...Object.values<number>(saved)) + 60_000
+    const windowLastUsedAt = Object.fromEntries(
+      [...preferredWindowIds, ...remainingIds].map((id, index) => [
+        id,
+        timestamp - index,
+      ]),
+    )
+    await chrome.storage.local.set({ windowLastUsedAt })
+  }, preferredWindowIds)
 }
 
 const writeExtensionSettings = async (
@@ -1303,20 +1310,10 @@ test.describe('The Extension page should', () => {
       createdWindowIds[1],
       createdWindowIds[0],
     ]
-    const timestamp = getTestLastUsedTimestamp()
-
     await writeExtensionSettings(page, {
       windowOrder: 'lastUsed',
     })
-    await page.evaluate(
-      async (windowLastUsedAt) => {
-        await chrome.storage.local.set({ windowLastUsedAt })
-      },
-      {
-        [String(createdWindowIds[2])]: timestamp + 2,
-        [String(createdWindowIds[1])]: timestamp + 1,
-      },
-    )
+    await seedSavedWindowOrder(page, ...expectedWindowOrder)
 
     await page.reload()
     await page.waitForLoadState('domcontentloaded')
@@ -1336,19 +1333,8 @@ test.describe('The Extension page should', () => {
       createdWindowIds[1],
       createdWindowIds[2],
     ]
-    await page.evaluate(
-      async (windowLastUsedAt) => {
-        await chrome.storage.local.set({ windowLastUsedAt })
-      },
-      {
-        [String(createdWindowIds[0])]: timestamp + 6,
-        [String(createdWindowIds[1])]: timestamp + 5,
-        [String(createdWindowIds[2])]: timestamp + 4,
-      },
-    )
-
-    await page.locator('main').click()
-    await page.keyboard.press('s')
+    await seedSavedWindowOrder(page, ...expectedSyncedWindowOrder)
+    await page.getByTestId('sync-all-windows').click()
     await waitForMainSurfaceToSettle(page)
 
     await expect
