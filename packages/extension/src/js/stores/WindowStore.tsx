@@ -136,19 +136,19 @@ const mergeWindowLastUsedAt = (
 
 const normalizeWindowLastUsedAtFromTabHistory = (
   value: unknown,
-  startAt = Date.now(),
+  liveWindowIds: ReadonlySet<number>,
 ): WindowLastUsedAt => {
   if (!Array.isArray(value)) {
     return {}
   }
 
-  let timestamp = Math.max(Date.now(), startAt)
+  let timestamp = Date.now()
   return value.reduce((result, entry) => {
     if (!entry || typeof entry !== 'object' || isSelfPopupTab(entry)) {
       return result
     }
     const windowId = Number((entry as { windowId?: unknown }).windowId)
-    if (Number.isFinite(windowId) && windowId > 0) {
+    if (liveWindowIds.has(windowId)) {
       timestamp += 1
       result[String(windowId)] = timestamp
     }
@@ -603,31 +603,17 @@ export default class WindowsStore {
     return this.dirtyWindowIds.has(windowId)
   }
 
-  loadWindowLastUsedAt = async (): Promise<WindowLastUsedAt> => {
+  readWindowLastUsedState = async () => {
     if (!this.isLastUsedWindowOrderEnabled() || !browser.storage?.local) {
-      return {}
+      return null
     }
     try {
-      const stored = await browser.storage.local.get({
+      return await browser.storage.local.get({
         [WINDOW_LAST_USED_STORAGE_KEY]: {},
         [WINDOW_TAB_HISTORY_STORAGE_KEY]: [],
       })
-      const storedLastUsedAt = normalizeWindowLastUsedAt(
-        stored[WINDOW_LAST_USED_STORAGE_KEY],
-      )
-      const baselineLastUsedAt = mergeWindowLastUsedAt(
-        this.windowLastUsedAt,
-        storedLastUsedAt,
-      )
-      if (Object.keys(baselineLastUsedAt).length > 0) {
-        return storedLastUsedAt
-      }
-      const tabHistoryLastUsedAt = normalizeWindowLastUsedAtFromTabHistory(
-        stored[WINDOW_TAB_HISTORY_STORAGE_KEY],
-      )
-      return tabHistoryLastUsedAt
     } catch {
-      return this.windowLastUsedAt
+      return null
     }
   }
 
@@ -2181,7 +2167,7 @@ export default class WindowsStore {
       })
     const shouldApplyWindowLastUsedLayout =
       this.shouldApplyWindowLastUsedLayout(reason, wasInitialLoading)
-    const windowLastUsedAt = await this.loadWindowLastUsedAt()
+    const windowLastUsedState = await this.readWindowLastUsedState()
     if (loadRequestId !== this.windowLoadRequestId) {
       log.debug('WindowsStore.loadAllWindows ignored stale result', {
         loadRequestId,
@@ -2190,10 +2176,6 @@ export default class WindowsStore {
       })
       return
     }
-    this.windowLastUsedAt = mergeWindowLastUsedAt(
-      this.windowLastUsedAt,
-      windowLastUsedAt,
-    )
     const currentFocusedWindowId =
       currentWindow &&
       currentWindow.focused &&
@@ -2245,7 +2227,20 @@ export default class WindowsStore {
 
     if (this.isLastUsedWindowOrderEnabled()) {
       const liveWindowIds = new Set(nextWindows.map((win) => win.id))
+      this.windowLastUsedAt = mergeWindowLastUsedAt(
+        this.windowLastUsedAt,
+        normalizeWindowLastUsedAt(
+          windowLastUsedState?.[WINDOW_LAST_USED_STORAGE_KEY],
+        ),
+      )
       this.pruneWindowLastUsedAt(liveWindowIds)
+      // Prune before falling back so closed windows cannot mask live history.
+      if (!Object.keys(this.windowLastUsedAt).length) {
+        this.windowLastUsedAt = normalizeWindowLastUsedAtFromTabHistory(
+          windowLastUsedState?.[WINDOW_TAB_HISTORY_STORAGE_KEY],
+          liveWindowIds,
+        )
+      }
     } else {
       this.windowLastUsedColumnLayout = null
       this.pendingLastUsedWindowId = null

@@ -843,40 +843,63 @@ describe('WindowStore layout policy', () => {
     expect(windowStore.columnLayout).toEqual([[3, 1, 2]])
   })
 
-  it('seeds last-used timestamps from tab history only when no explicit data exists', async () => {
-    const windowStore = createWindowStore()
-    windowStore.store.userStore.windowOrder = 'lastUsed'
-    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
+  it.each([
+    {
+      scenario: 'empty saved timestamps',
       windowLastUsedAt: {},
-      tabHistory: [
-        { tabId: 11, windowId: 1, url: 'about:blank#first' },
-        { tabId: 22, windowId: 2, url: 'about:blank#second' },
-      ],
-    })
+      history: [1, 2],
+      expectedOrder: [2, 1, 3],
+      expectedTimestamps: undefined,
+    },
+    {
+      scenario: 'saved timestamps for closed windows only',
+      windowLastUsedAt: { 99: 20 },
+      history: [3, 1, 2, 99],
+      expectedOrder: [2, 1, 3],
+      expectedTimestamps: {},
+    },
+    {
+      scenario: 'a live saved timestamp that takes precedence over history',
+      windowLastUsedAt: { 3: 20, 99: 30 },
+      history: [3, 2, 1],
+      expectedOrder: [3, 1, 2],
+      expectedTimestamps: { 3: 20 },
+    },
+  ])(
+    'applies last-used order on first load with $scenario',
+    async ({
+      windowLastUsedAt,
+      history,
+      expectedOrder,
+      expectedTimestamps,
+    }) => {
+      const windowStore = createWindowStore()
+      windowStore.height = 1000
+      windowStore.store.userStore.windowOrder = 'lastUsed'
+      const windows = [1, 2, 3].map((windowId) => ({
+        id: windowId,
+        tabs: [{ id: windowId * 10, index: 0, windowId, url: 'about:blank' }],
+      }))
+      jest.mocked(browser.windows.getAll).mockResolvedValueOnce(windows)
+      jest.mocked(browser.storage.local.get).mockResolvedValueOnce({
+        windowLastUsedAt,
+        tabHistory: history.map((windowId) => ({
+          tabId: windowId * 10,
+          windowId,
+        })),
+      })
+      const save = jest.mocked(browser.storage.local.set).mockClear()
 
-    const loadedLastUsedAt = await windowStore.loadWindowLastUsedAt()
+      await windowStore.loadAllWindows()
 
-    expect(Object.keys(loadedLastUsedAt).sort()).toEqual(['1', '2'])
-    expect(loadedLastUsedAt['2']).toBeGreaterThan(loadedLastUsedAt['1'])
-  })
-
-  it('keeps stored last-used timestamps authoritative over stale tab history', async () => {
-    const windowStore = createWindowStore()
-    windowStore.store.userStore.windowOrder = 'lastUsed'
-    ;(browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-      windowLastUsedAt: {
-        2: 20,
-      },
-      tabHistory: [
-        { tabId: 22, windowId: 2, url: 'about:blank#newer-stored' },
-        { tabId: 11, windowId: 1, url: 'about:blank#stale-history' },
-      ],
-    })
-
-    await expect(windowStore.loadWindowLastUsedAt()).resolves.toEqual({
-      2: 20,
-    })
-  })
+      expect(windowStore.columnLayout).toEqual([expectedOrder])
+      expect(save.mock.calls).toEqual(
+        expectedTimestamps === undefined
+          ? []
+          : [[{ windowLastUsedAt: expectedTimestamps }]],
+      )
+    },
+  )
 
   it('renders only nearby columns for the horizontal viewport', () => {
     const windowStore = createWindowStore()
