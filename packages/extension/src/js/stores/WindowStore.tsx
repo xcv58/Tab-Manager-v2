@@ -134,26 +134,26 @@ const mergeWindowLastUsedAt = (
   }, {} as WindowLastUsedAt)
 }
 
-const normalizeWindowLastUsedAtFromTabHistory = (
+const getWindowOrderFromTabHistory = (
   value: unknown,
   liveWindowIds: ReadonlySet<number>,
-): WindowLastUsedAt => {
+): number[] => {
   if (!Array.isArray(value)) {
-    return {}
+    return []
   }
 
-  let timestamp = Date.now()
-  return value.reduce((result, entry) => {
+  const windowIds = new Set<number>()
+  for (let index = value.length - 1; index >= 0; index -= 1) {
+    const entry = value[index]
     if (!entry || typeof entry !== 'object' || isSelfPopupTab(entry)) {
-      return result
+      continue
     }
     const windowId = Number((entry as { windowId?: unknown }).windowId)
     if (liveWindowIds.has(windowId)) {
-      timestamp += 1
-      result[String(windowId)] = timestamp
+      windowIds.add(windowId)
     }
-    return result
-  }, {} as WindowLastUsedAt)
+  }
+  return [...windowIds]
 }
 
 export default class WindowsStore {
@@ -239,6 +239,8 @@ export default class WindowsStore {
   lastFocusedWindowId: number | null = null
 
   windowLastUsedAt: WindowLastUsedAt = {}
+
+  private windowOrderFromTabHistory: number[] = []
 
   windowLastUsedColumnLayout: number[][] | null = null
 
@@ -837,7 +839,7 @@ export default class WindowsStore {
 
   getLastUsedWindowIds = (windows: Window[]) => {
     const visibleWindowIds = new Set(windows.map((win) => win.id))
-    return Object.entries(this.windowLastUsedAt)
+    const rankedWindowIds = Object.entries(this.windowLastUsedAt)
       .map(([windowId, timestamp]) => ({
         windowId: Number(windowId),
         timestamp,
@@ -850,6 +852,14 @@ export default class WindowsStore {
       )
       .sort((a, b) => b.timestamp - a.timestamp)
       .map(({ windowId }) => windowId)
+    return [
+      ...new Set([
+        ...rankedWindowIds,
+        ...this.windowOrderFromTabHistory.filter((id) =>
+          visibleWindowIds.has(id),
+        ),
+      ]),
+    ]
   }
 
   getWindowIdsToPromoteByLastUsed = (windows: Window[]) => {
@@ -2234,14 +2244,16 @@ export default class WindowsStore {
         ),
       )
       this.pruneWindowLastUsedAt(liveWindowIds)
-      // Prune before falling back so closed windows cannot mask live history.
-      if (!Object.keys(this.windowLastUsedAt).length) {
-        this.windowLastUsedAt = normalizeWindowLastUsedAtFromTabHistory(
-          windowLastUsedState?.[WINDOW_TAB_HISTORY_STORAGE_KEY],
+      // Prune before checking for a live ranking. Sync can then reread history
+      // even when a previous load inferred an order from an older snapshot.
+      if (windowLastUsedState && !Object.keys(this.windowLastUsedAt).length) {
+        this.windowOrderFromTabHistory = getWindowOrderFromTabHistory(
+          windowLastUsedState[WINDOW_TAB_HISTORY_STORAGE_KEY],
           liveWindowIds,
         )
       }
     } else {
+      this.windowOrderFromTabHistory = []
       this.windowLastUsedColumnLayout = null
       this.pendingLastUsedWindowId = null
       this.windowLastUsedLayoutDirty = false

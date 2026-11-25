@@ -901,6 +901,37 @@ describe('WindowStore layout policy', () => {
     },
   )
 
+  it('reorders windows on Sync after delayed tab history is saved', async () => {
+    const windowStore = createWindowStore()
+    windowStore.height = 1000
+    windowStore.store.userStore.windowOrder = 'lastUsed'
+    const windows = [1, 2].map((windowId) => ({
+      id: windowId,
+      tabs: [{ id: windowId * 10, index: 0, windowId, url: 'about:blank' }],
+    }))
+    jest.mocked(browser.windows.getAll).mockResolvedValue(windows)
+    const earlierUse = { tabId: 20, windowId: 2 }
+    const latestUse = { tabId: 10, windowId: 1 }
+    const readStorage = jest.mocked(browser.storage.local.get)
+    readStorage.mockResolvedValueOnce({
+      windowLastUsedAt: { 99: 20 },
+      tabHistory: [earlierUse],
+    })
+    const save = jest.mocked(browser.storage.local.set).mockClear()
+
+    await windowStore.loadAllWindows()
+    expect(windowStore.columnLayout).toEqual([[2, 1]])
+
+    readStorage.mockResolvedValueOnce({
+      windowLastUsedAt: {},
+      tabHistory: [earlierUse, latestUse],
+    })
+    await windowStore.syncAllWindows()
+
+    expect(windowStore.columnLayout).toEqual([[1, 2]])
+    expect(save.mock.calls).toEqual([[{ windowLastUsedAt: {} }]])
+  })
+
   it('renders only nearby columns for the horizontal viewport', () => {
     const windowStore = createWindowStore()
     windowStore.height = 200
