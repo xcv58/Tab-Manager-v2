@@ -57,6 +57,7 @@ const DEFAULT_SETTINGS = {
   fontSize: 14,
   actionTabCountMode: DEFAULT_ACTION_TAB_COUNT_MODE as ActionTabCountMode,
   windowOrder: DEFAULT_WINDOW_ORDER as WindowOrder,
+  useTreeStyleTab: false,
 }
 
 const LEGACY_SETTINGS = ['groupByDomain', 'loadWebsiteIcons'] as const
@@ -142,6 +143,8 @@ export default class UserStore {
       fontSize: observable,
       actionTabCountMode: observable,
       windowOrder: observable,
+      useTreeStyleTab: observable,
+      toggleUseTreeStyleTab: action,
       theme: computed,
       selectTheme: action,
       selectUiPreset: action,
@@ -298,6 +301,7 @@ export default class UserStore {
   showTabIcon = true
   actionTabCountMode: ActionTabCountMode = DEFAULT_ACTION_TAB_COUNT_MODE
   windowOrder: WindowOrder = DEFAULT_WINDOW_ORDER
+  useTreeStyleTab = false
   dialogOpen = false
   dialogFocusTarget: HTMLElement | null = null
   toolbarVisible = true
@@ -503,6 +507,13 @@ export default class UserStore {
 
   updateFontSize = (fontSize: number) => {
     this.fontSize = fontSize
+    this.store.windowStore?.repackLayout?.('settings-change')
+    this.save()
+  }
+
+  // Connection and tree refresh are driven by TreeStyleTabStore's reaction.
+  toggleUseTreeStyleTab = () => {
+    this.useTreeStyleTab = !this.useTreeStyleTab
     this.store.windowStore?.repackLayout?.('settings-change')
     this.save()
   }

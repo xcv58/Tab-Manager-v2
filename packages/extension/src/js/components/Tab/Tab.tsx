@@ -16,6 +16,7 @@ import { getTabRowColorTokens } from 'libs/uiColorTokens'
 import PIN from './Pin'
 import DuplicateMarker from './DuplicateMarker'
 import ContainerOrGroupIndicator from './ContainerOrGroupIndicator'
+import TreeTwisty from './TreeTwisty'
 
 export default observer((props: TabProps & { className?: string }) => {
   const nodeRef = useRef(null)
@@ -179,6 +180,12 @@ export default observer((props: TabProps & { className?: string }) => {
         />
       )}
       {tab.pinned && PIN}
+      {!props.preview && !props.faked && (
+        <TreeTwisty
+          tab={tab}
+          disableSequentialFocus={props.disableSequentialFocus}
+        />
+      )}
       <Icon
         tab={tab}
         preview={props.preview}

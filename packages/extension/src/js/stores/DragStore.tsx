@@ -527,6 +527,49 @@ export default class DragStore {
     })
   }
 
+  // Tree Style Tab "drop into": the dragged tabs become children of `tab`.
+  dropIntoTreeTab = async (tab: Tab) => {
+    const treeStore = this.store.treeStyleTabStore
+    if (!treeStore?.active) return this.drop(tab, false)
+    if (this.pendingWindowEdgeDrop) return 'A tab move is already in progress'
+    const ancestorIds = new Set(tab.treeInfo?.ancestorIds || [])
+    const sources = this.store.tabStore.sources
+    // A tab cannot become a child of itself or of one of its own descendants.
+    const childIds = sources
+      .filter((source) => source.id !== tab.id && !ancestorIds.has(source.id))
+      .map((source) => source.id)
+    if (!childIds.length) {
+      this.clearSelection()
+      return 'Choose a tab outside the dragged tree'
+    }
+    const needsMove = sources.some(
+      (source) =>
+        source.windowId !== tab.windowId || source.groupId !== tab.groupId,
+    )
+    this.pendingWindowEdgeDrop = true
+    try {
+      if (needsMove) {
+        // Reuse the regular move so window and tab-group rules still apply,
+        // then let TST attach the tabs once they share the parent's window.
+        const hint = await this.dropAt({
+          windowId: tab.windowId,
+          index: tab.index + 1,
+          targetGroupId: tab.groupId,
+          targetTabId: tab.id,
+          before: false,
+          source: 'tab-row',
+        })
+        if (hint) return hint
+      }
+      const attached = await treeStore.attachTabs(tab.id, childIds)
+      this.dropped = true
+      this.clearSelection()
+      if (!attached) return 'Tree Style Tab could not attach the tabs'
+    } finally {
+      this.pendingWindowEdgeDrop = false
+    }
+  }
+
   moveSelectedTabsToWindowEdge = async (
     windowId: number,
     position: WindowEdge,

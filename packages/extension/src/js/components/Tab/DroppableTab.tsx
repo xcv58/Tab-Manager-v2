@@ -6,18 +6,25 @@ import Tab from './Tab'
 import { ItemTypes } from 'libs/react-dnd'
 import DropIndicator from 'components/DropIndicator'
 import { useStore } from 'components/hooks/useStore'
+import { useAppTheme } from 'libs/appTheme'
 import { TabProps } from 'components/types'
 
 export default observer((props: TabProps) => {
   const { tab } = props
-  const { dragStore } = useStore()
+  const { dragStore, treeStyleTabStore } = useStore()
+  const theme = useAppTheme()
+  const treeDropEnabled = !!treeStyleTabStore?.active
   const dropRef = React.useRef<HTMLDivElement | null>(null)
-  const [dropPosition, setDropPosition] = React.useState<'before' | 'after'>(
-    'before',
-  )
+  const [dropPosition, setDropPosition] = React.useState<
+    'before' | 'after' | 'into'
+  >('before')
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
     drop: () => {
+      if (dropPosition === 'into') {
+        void dragStore.dropIntoTreeTab(tab)
+        return
+      }
       dragStore.drop(tab, dropPosition === 'before')
     },
     hover: (_, monitor) => {
@@ -27,8 +34,18 @@ export default observer((props: TabProps) => {
         return
       }
       const rect = node.getBoundingClientRect()
-      const midpointY = rect.top + rect.height / 2
-      const nextPosition = clientOffset.y <= midpointY ? 'before' : 'after'
+      const offsetY = clientOffset.y - rect.top
+      // With Tree Style Tab connected, the middle half of the row nests the
+      // dragged tabs under this tab; the outer quarters still reorder.
+      const nextPosition = treeDropEnabled
+        ? offsetY < rect.height / 4
+          ? 'before'
+          : offsetY > (rect.height * 3) / 4
+            ? 'after'
+            : 'into'
+        : offsetY <= rect.height / 2
+          ? 'before'
+          : 'after'
       setDropPosition((previousPosition) => {
         return previousPosition === nextPosition
           ? previousPosition
@@ -59,8 +76,23 @@ export default observer((props: TabProps) => {
     canDrop && isOver && dropPosition === 'after' ? (
       <DropIndicator position="after" />
     ) : null
+  const previewInto =
+    canDrop && isOver && dropPosition === 'into' && !tab.isSelected
   return (
-    <div ref={setDropRef}>
+    <div
+      ref={setDropRef}
+      className="relative"
+      data-tree-drop-into={previewInto ? 'true' : undefined}
+    >
+      {previewInto && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-20 pointer-events-none rounded-sm"
+          style={{
+            boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+          }}
+        />
+      )}
       {previewBefore}
       <Tab
         {...props}

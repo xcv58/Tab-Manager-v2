@@ -501,12 +501,26 @@ const SettingsSwitchOption = ({
   )
 }
 
+const TREE_STYLE_TAB_DESCRIPTION =
+  'Indent tabs like the Tree Style Tab sidebar and hide collapsed branches. Requires the Tree Style Tab add-on.'
+
+const getTreeStyleTabDescription = (enabled: boolean, status?: string) => {
+  if (!enabled) return TREE_STYLE_TAB_DESCRIPTION
+  if (status === 'connected') {
+    return `${TREE_STYLE_TAB_DESCRIPTION} Connected.`
+  }
+  if (status === 'unavailable') {
+    return `${TREE_STYLE_TAB_DESCRIPTION} Not connected: install or enable Tree Style Tab, and make sure its API is enabled.`
+  }
+  return `${TREE_STYLE_TAB_DESCRIPTION} Connecting…`
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Main SettingsDialog                                                        */
 /* -------------------------------------------------------------------------- */
 
 export default observer(() => {
-  const { userStore } = useStore()
+  const { userStore, treeStyleTabStore } = useStore()
   const muiTheme = useAppTheme()
   const {
     dialogOpen,
@@ -555,6 +569,8 @@ export default observer(() => {
     selectActionTabCountMode,
     windowOrder,
     selectWindowOrder,
+    useTreeStyleTab,
+    toggleUseTreeStyleTab,
     uiPreset,
     selectUiPreset,
     theme,
@@ -876,6 +892,19 @@ export default observer(() => {
                   description="Include standalone app windows in the main list."
                   checked={showAppWindow}
                   onChange={toggleShowAppWindow}
+                  style={rowDetailOptionStyle}
+                />
+              )}
+              {process.env.TARGET_BROWSER === 'firefox' && (
+                <SettingsSwitchOption
+                  testId="settings-tree-style-tab"
+                  title="Show Tree Style Tab trees"
+                  description={getTreeStyleTabDescription(
+                    useTreeStyleTab,
+                    treeStyleTabStore?.status,
+                  )}
+                  checked={useTreeStyleTab}
+                  onChange={toggleUseTreeStyleTab}
                   style={rowDetailOptionStyle}
                 />
               )}

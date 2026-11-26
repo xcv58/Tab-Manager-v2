@@ -20,6 +20,8 @@ const aliases: Record<string, string> = {
   'Minimum tab width': 'columns size density layout',
   'Auto-fit columns': 'horizontal scrolling layout responsive',
   'Window order': 'recent last used default sort',
+  'Show Tree Style Tab trees':
+    'tst tree style tab indent hierarchy nested children parent collapse',
   'Show tab icons':
     'favicon favicons safari placeholder default load website icons website access privacy permissions',
   'Show URLs': 'address links',
