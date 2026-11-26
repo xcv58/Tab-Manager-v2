@@ -180,12 +180,14 @@ export default observer((props: TabProps & { className?: string }) => {
         />
       )}
       {tab.pinned && PIN}
-      {!props.preview && !props.faked && (
-        <TreeTwisty
-          tab={tab}
-          disableSequentialFocus={props.disableSequentialFocus}
-        />
-      )}
+      {process.env.TARGET_BROWSER === 'firefox' &&
+        !props.preview &&
+        !props.faked && (
+          <TreeTwisty
+            tab={tab}
+            disableSequentialFocus={props.disableSequentialFocus}
+          />
+        )}
       <Icon
         tab={tab}
         preview={props.preview}

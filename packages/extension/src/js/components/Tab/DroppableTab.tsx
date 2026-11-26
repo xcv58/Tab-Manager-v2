@@ -9,48 +9,55 @@ import { useStore } from 'components/hooks/useStore'
 import { useAppTheme } from 'libs/appTheme'
 import { TabProps } from 'components/types'
 
+type DropPosition = 'before' | 'after' | 'into'
+
 export default observer((props: TabProps) => {
   const { tab } = props
-  const { dragStore, treeStyleTabStore } = useStore()
+  const { dragStore, shortcutStore } = useStore()
   const theme = useAppTheme()
-  const treeDropEnabled = !!treeStyleTabStore?.active
   const dropRef = React.useRef<HTMLDivElement | null>(null)
-  const [dropPosition, setDropPosition] = React.useState<
-    'before' | 'after' | 'into'
-  >('before')
+  const [dropPosition, setDropPosition] = React.useState<DropPosition>('before')
+
+  const treeDropEnabled = () =>
+    process.env.TARGET_BROWSER === 'firefox' && !!tab.treeInfo
+
+  const getDropPosition = (y: number | undefined): DropPosition | undefined => {
+    if (y == null || !dropRef.current) return
+    const { top, height } = dropRef.current.getBoundingClientRect()
+    const offset = y - top
+    if (treeDropEnabled()) {
+      if (offset < height / 4) return 'before'
+      if (offset > (height * 3) / 4) return 'after'
+      return 'into'
+    }
+    return offset <= height / 2 ? 'before' : 'after'
+  }
+
   const [dropProps, drop] = useDrop({
     accept: ItemTypes.TAB,
-    drop: () => {
-      if (dropPosition === 'into') {
-        void dragStore.dropIntoTreeTab(tab)
+    drop: (_, monitor) => {
+      if (
+        process.env.TARGET_BROWSER === 'firefox' &&
+        (treeDropEnabled() || dropPosition === 'into')
+      ) {
+        // The browser delivers the final hover and drop before React rerenders.
+        const position = treeDropEnabled()
+          ? getDropPosition(monitor.getClientOffset()?.y)
+          : 'into'
+        if (position === 'into') {
+          void dragStore.dropIntoTreeTab(tab).then((hint) => {
+            if (hint) shortcutStore.showMoveHint(hint)
+          })
+        } else if (position) {
+          void dragStore.drop(tab, position === 'before')
+        }
         return
       }
-      dragStore.drop(tab, dropPosition === 'before')
+      void dragStore.drop(tab, dropPosition === 'before')
     },
     hover: (_, monitor) => {
-      const node = dropRef.current
-      const clientOffset = monitor.getClientOffset()
-      if (!node || !clientOffset) {
-        return
-      }
-      const rect = node.getBoundingClientRect()
-      const offsetY = clientOffset.y - rect.top
-      // With Tree Style Tab connected, the middle half of the row nests the
-      // dragged tabs under this tab; the outer quarters still reorder.
-      const nextPosition = treeDropEnabled
-        ? offsetY < rect.height / 4
-          ? 'before'
-          : offsetY > (rect.height * 3) / 4
-            ? 'after'
-            : 'into'
-        : offsetY <= rect.height / 2
-          ? 'before'
-          : 'after'
-      setDropPosition((previousPosition) => {
-        return previousPosition === nextPosition
-          ? previousPosition
-          : nextPosition
-      })
+      const position = getDropPosition(monitor.getClientOffset()?.y)
+      if (position) setDropPosition(position)
     },
     canDrop: () => tab.win.canDrop,
     collect: (monitor) => {
@@ -77,11 +84,17 @@ export default observer((props: TabProps) => {
       <DropIndicator position="after" />
     ) : null
   const previewInto =
-    canDrop && isOver && dropPosition === 'into' && !tab.isSelected
+    process.env.TARGET_BROWSER === 'firefox' &&
+    canDrop &&
+    isOver &&
+    dropPosition === 'into' &&
+    !dragStore.getTreeDropHint(tab)
   return (
     <div
       ref={setDropRef}
-      className="relative"
+      className={
+        process.env.TARGET_BROWSER === 'firefox' ? 'relative' : undefined
+      }
       data-tree-drop-into={previewInto ? 'true' : undefined}
     >
       {previewInto && (

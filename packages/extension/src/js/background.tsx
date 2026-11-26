@@ -1,5 +1,6 @@
 import TabHistory from 'background/TabHistory'
 import TabCountIcon from 'background/TabCountIcon'
+import TreeStyleTabConnection from 'background/TreeStyleTabConnection'
 import actions from 'libs/actions'
 import { createWindow, openInNewTab, openOrTogglePopup, browser } from 'libs'
 
@@ -29,6 +30,9 @@ init()
 const tabHistory = new TabHistory()
 // Instantiation is enough here because the constructor registers listeners.
 new TabCountIcon()
+if (process.env.TARGET_BROWSER === 'firefox') {
+  new TreeStyleTabConnection()
+}
 const _createWindow = (request, sender, sendResponse) => {
   createWindow(request.tabs)
   sendResponse()

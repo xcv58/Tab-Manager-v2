@@ -527,21 +527,52 @@ export default class DragStore {
     })
   }
 
-  // Tree Style Tab "drop into": the dragged tabs become children of `tab`.
-  dropIntoTreeTab = async (tab: Tab) => {
+  getTreeDropHint = (tab: Tab) => {
     const treeStore = this.store.treeStyleTabStore
-    if (!treeStore?.active) return this.drop(tab, false)
+    if (!treeStore?.active) return 'Tree Style Tab is unavailable'
     if (this.pendingWindowEdgeDrop) return 'A tab move is already in progress'
-    const ancestorIds = new Set(tab.treeInfo?.ancestorIds || [])
     const sources = this.store.tabStore.sources
-    // A tab cannot become a child of itself or of one of its own descendants.
-    const childIds = sources
-      .filter((source) => source.id !== tab.id && !ancestorIds.has(source.id))
-      .map((source) => source.id)
-    if (!childIds.length) {
-      this.clearSelection()
+    if (!sources.length) return 'Select tabs first'
+    if (tab.pinned || sources.some((source) => source.pinned)) {
+      return 'Pinned tabs cannot be part of a tree drop'
+    }
+
+    const treeInfo = treeStore.getTreeInfo(tab.id)
+    if (
+      !treeInfo ||
+      sources.some((source) => !treeStore.getTreeInfo(source.id))
+    ) {
+      return 'Tree Style Tab has not loaded these tabs'
+    }
+    if (
+      sources.some(
+        (source) =>
+          source.id === tab.id || treeInfo.ancestorIds.includes(source.id),
+      )
+    ) {
       return 'Choose a tab outside the dragged tree'
     }
+    const destinationHint = getTabMoveDestinationHint(tab.win, sources)
+    if (destinationHint) return destinationHint
+
+    const movedFromAnotherWindow = sources.filter(
+      (source) => source.windowId !== tab.windowId,
+    )
+    if (movedFromAnotherWindow.length) {
+      const wholeGroups = this.getWholeSelectedGroupIds(movedFromAnotherWindow)
+      if (wholeGroups.size) {
+        return 'Move the tab group to this window before nesting its tabs'
+      }
+    }
+  }
+
+  // Tree Style Tab "drop into": the dragged tabs become children of `tab`.
+  dropIntoTreeTab = async (tab: Tab) => {
+    const hint = this.getTreeDropHint(tab)
+    if (hint) return hint
+    const treeStore = this.store.treeStyleTabStore
+    const sources = this.store.tabStore.sources
+    const childIds = sources.map((source) => source.id)
     const needsMove = sources.some(
       (source) =>
         source.windowId !== tab.windowId || source.groupId !== tab.groupId,

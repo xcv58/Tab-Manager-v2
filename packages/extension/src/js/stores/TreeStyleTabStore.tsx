@@ -2,27 +2,12 @@ import { action, computed, makeObservable, observable, reaction } from 'mobx'
 import debounce from 'lodash.debounce'
 import { browser } from 'libs'
 import log from 'libs/log'
-import Store from 'stores'
-
-// Optional integration with the Tree Style Tab (TST) add-on for Firefox.
-// API reference: https://github.com/piroor/treestyletab/wiki/API-for-other-addons
-export const TST_ID = 'treestyletab@piro.sakura.ne.jp'
-
-const LISTENING_TYPES = [
-  'ready',
-  'tree-attached',
-  'tree-detached',
-  'tree-collapsed-state-changed',
-  'permissions-changed',
-]
-
-// Notifications that mean the tree shape or collapsed state may have changed.
-const REFRESH_TYPES = new Set([
-  'tree-attached',
-  'tree-detached',
-  'tree-collapsed-state-changed',
-  'permissions-changed',
-])
+import {
+  TREE_STYLE_TAB_PORT,
+  TST_ID,
+  type TreeConnectionUpdate,
+} from 'libs/treeStyleTab'
+import type Store from 'stores'
 
 export type TreeStyleTabStatus =
   | 'disabled'
@@ -46,16 +31,48 @@ type LightTreeItem = {
   ancestorTabIds?: number[]
 }
 
-export default class TreeStyleTabStore {
-  store: Store
+const hiddenByTree = (map: Map<number, TreeInfo>, tabId: number): boolean =>
+  map.get(tabId)?.ancestorIds.some((id) => map.get(id)?.subtreeCollapsed) ??
+  false
 
+const addTree = (map: Map<number, TreeInfo>, items: LightTreeItem[]) => {
+  const pending = [...items]
+  while (pending.length) {
+    const item = pending.pop()
+    if (!item || typeof item.id !== 'number' || map.has(item.id)) continue
+    const ancestors = item.ancestorTabIds || []
+    const children = item.children || []
+    map.set(item.id, {
+      indent: Math.max(0, item.indent || ancestors.length),
+      parentId: ancestors[0] ?? null,
+      hasChildren: children.length > 0,
+      subtreeCollapsed: !!item.states?.includes('subtree-collapsed'),
+      ancestorIds: ancestors,
+    })
+    for (const child of children) pending.push(child)
+  }
+}
+
+export default class TreeStyleTabStore {
   status: TreeStyleTabStatus = 'disabled'
 
   treeMap: Map<number, TreeInfo> = new Map()
 
-  listening = false
+  private port: chrome.runtime.Port | null = null
 
-  constructor(store: Store) {
+  private healthTimer: ReturnType<typeof setInterval> | null = null
+
+  private refreshVersion = 0
+
+  private connectionVersion = 0
+
+  private pendingCollapses = 0
+
+  private retryRefresh = false
+
+  private collapseQueue = Promise.resolve()
+
+  constructor(private store: Store) {
     makeObservable(this, {
       status: observable,
       treeMap: observable.ref,
@@ -63,34 +80,32 @@ export default class TreeStyleTabStore {
       setStatus: action,
       setTreeMap: action,
     })
-    this.store = store
 
     reaction(
-      () =>
-        !!this.store.userStore?.loaded &&
-        !!this.store.userStore?.useTreeStyleTab,
+      () => !!store.userStore.loaded && !!store.userStore.useTreeStyleTab,
       (enabled) => {
         if (enabled) {
-          void this.connect()
+          this.checkConnection()
+          this.healthTimer = setInterval(this.recheck, 10_000)
+          window.addEventListener('focus', this.recheck)
         } else {
-          void this.disconnect()
+          this.disconnect()
         }
       },
       { fireImmediately: true },
     )
 
-    // Tab structure changes (open/close/move/attach) usually also produce TST
-    // notifications, but refreshing on our own snapshot changes keeps the two
-    // views in sync when notifications are missed.
     reaction(
       () =>
-        this.status === 'connected'
-          ? (this.store.windowStore?.windows || [])
-              .map((win) => `${win.id}:${win.tabs.map((t) => t.id).join(',')}`)
+        this.active
+          ? store.windowStore.windows
+              .map(
+                (win) => `${win.id}:${win.tabs.map((tab) => tab.id).join(',')}`,
+              )
               .join('|')
           : '',
-      (signature) => {
-        if (signature) this.scheduleRefresh()
+      () => {
+        if (this.active) this.scheduleRefresh()
       },
     )
   }
@@ -100,199 +115,207 @@ export default class TreeStyleTabStore {
   }
 
   setStatus = (status: TreeStyleTabStatus) => {
+    if (status === this.status) return
     this.status = status
+    this.connectionVersion++
+    if (status === 'connected') {
+      this.scheduleRefresh()
+    } else {
+      this.refreshVersion++
+      this.retryRefresh = false
+      this.readAfterChanges.cancel()
+      this.setTreeMap(new Map())
+    }
   }
 
   setTreeMap = (treeMap: Map<number, TreeInfo>) => {
     const previous = this.treeMap
     this.treeMap = treeMap
-    if (this.didVisibilityChange(previous, treeMap)) {
-      this.store.windowStore?.repackLayout?.('filter-change')
-    }
-  }
-
-  getTreeInfo = (tabId: number): TreeInfo | null => {
-    if (!this.active) return null
-    return this.treeMap.get(tabId) || null
-  }
-
-  isHiddenByCollapsedTree = (tabId: number): boolean => {
-    if (!this.active) return false
-    const info = this.treeMap.get(tabId)
-    if (!info) return false
-    return info.ancestorIds.some(
-      (ancestorId) => this.treeMap.get(ancestorId)?.subtreeCollapsed,
+    // Additions and removals use WindowStore's deferred tab-event layout.
+    // Repack only when a row already in the workspace is hidden or revealed.
+    const { searchStore, userStore, windowStore } = this.store
+    const visibilityChanged = windowStore.windows.some((win) =>
+      win.tabs.some((tab) => {
+        if (hiddenByTree(previous, tab.id) === hiddenByTree(treeMap, tab.id)) {
+          return false
+        }
+        return (
+          !tab.removing &&
+          !tab.isHiddenByCollapsedGroup &&
+          !(searchStore.queryActive && tab.isMatched) &&
+          (tab.isMatched || userStore.showUnmatchedTab)
+        )
+      }),
     )
+    if (visibilityChanged) windowStore.repackLayout('filter-change')
   }
 
-  sendMessage = async <T = unknown,>(message: object): Promise<T> =>
+  getTreeInfo = (tabId: number): TreeInfo | null =>
+    this.active ? (this.treeMap.get(tabId) ?? null) : null
+
+  isHiddenByCollapsedTree = (tabId: number): boolean =>
+    this.active && hiddenByTree(this.treeMap, tabId)
+
+  private sendMessage = async <T = unknown,>(message: object): Promise<T> =>
     browser.runtime.sendMessage(TST_ID, message) as Promise<T>
 
-  connect = async () => {
-    this.listen()
-    this.setStatus('connecting')
-    try {
-      await this.sendMessage({
-        type: 'register-self',
-        name: browser.runtime.getManifest().name,
-        icons: browser.runtime.getManifest().icons,
-        listeningTypes: LISTENING_TYPES,
-      })
-      if (!this.store.userStore.useTreeStyleTab) return
-      this.setStatus('connected')
-      await this.refresh()
-    } catch (error) {
-      log.info('TreeStyleTabStore: Tree Style Tab is not available', {
-        error,
-      })
-      if (this.store.userStore.useTreeStyleTab) {
-        this.setStatus('unavailable')
-      }
-      this.setTreeMap(new Map())
-    }
-  }
-
-  disconnect = async () => {
-    const wasConnected = this.status === 'connected'
-    this.scheduleRefresh.cancel()
-    this.setStatus('disabled')
-    this.setTreeMap(new Map())
-    if (wasConnected) {
-      try {
-        await this.sendMessage({ type: 'unregister-self' })
-      } catch (error) {
-        log.debug('TreeStyleTabStore: unregister failed', { error })
-      }
-    }
-  }
-
-  listen = () => {
-    if (this.listening || !browser.runtime.onMessageExternal) return
-    this.listening = true
-    browser.runtime.onMessageExternal.addListener(this.onMessageExternal)
-  }
-
-  onMessageExternal = (message, sender) => {
-    if (sender?.id !== TST_ID || !message || typeof message !== 'object') {
-      return
-    }
+  private checkConnection = () => {
     if (!this.store.userStore.useTreeStyleTab) return
-    if (message.type === 'ready') {
-      // TST was (re)started: registrations are lost and must be redone.
-      void this.connect()
-      return
-    }
-    if (REFRESH_TYPES.has(message.type)) {
-      this.scheduleRefresh()
+    try {
+      if (this.port) {
+        this.port.postMessage('check')
+        return
+      }
+      this.setStatus('connecting')
+      const port = browser.runtime.connect({ name: TREE_STYLE_TAB_PORT })
+      this.port = port
+      port.onMessage.addListener((message: TreeConnectionUpdate) => {
+        if (this.port !== port) return
+        if (message.type === 'status') {
+          this.setStatus(message.connected ? 'connected' : 'unavailable')
+        } else if (message.type === 'refresh') {
+          this.scheduleRefresh()
+        }
+      })
+      port.onDisconnect.addListener(() => {
+        if (this.port !== port) return
+        this.port = null
+        this.setStatus('unavailable')
+      })
+    } catch (error) {
+      this.port?.disconnect()
+      this.port = null
+      this.setStatus('unavailable')
+      log.debug('Tree Style Tab connection unavailable', error)
     }
   }
 
-  refresh = async () => {
-    if (this.status !== 'connected') return
-    const windows = this.store.windowStore?.windows || []
-    try {
-      const results = await Promise.all(
-        windows.map((win) =>
-          this.sendMessage<LightTreeItem[]>({
+  private recheck = () => {
+    this.checkConnection()
+    if (this.retryRefresh) this.scheduleRefresh()
+  }
+
+  private disconnect = () => {
+    if (this.healthTimer != null) {
+      clearInterval(this.healthTimer)
+      this.healthTimer = null
+      window.removeEventListener('focus', this.recheck)
+    }
+    const port = this.port
+    this.port = null
+    port?.disconnect()
+    this.setStatus('disabled')
+  }
+
+  private refresh = async () => {
+    if (!this.active || this.pendingCollapses) return
+    const version = ++this.refreshVersion
+    const windows = this.store.windowStore.windows.slice()
+    const results = await Promise.all(
+      windows.map(async (win) => {
+        try {
+          // A window-only request returns roots. Each root carries its subtree.
+          const roots = await this.sendMessage<LightTreeItem[]>({
             type: 'get-light-tree',
             window: win.id,
-            tabs: '*',
-          }).catch((error) => {
-            log.debug('TreeStyleTabStore: get-light-tree failed', {
-              windowId: win.id,
-              error,
-            })
-            return [] as LightTreeItem[]
-          }),
-        ),
-      )
-      if (this.status !== 'connected') return
-      const treeMap = new Map<number, TreeInfo>()
-      results.forEach((items) => {
-        ;(Array.isArray(items) ? items : []).forEach((item) => {
-          if (!item || typeof item.id !== 'number') return
-          const states = item.states || []
-          const ancestors = item.ancestorTabIds || []
-          treeMap.set(item.id, {
-            indent: Math.max(0, item.indent || ancestors.length || 0),
-            parentId: ancestors.length ? ancestors[0] : null,
-            hasChildren: !!item.children?.length,
-            subtreeCollapsed: states.includes('subtree-collapsed'),
-            ancestorIds: ancestors,
           })
-        })
-      })
-      this.setTreeMap(treeMap)
-    } catch (error) {
-      log.warn('TreeStyleTabStore.refresh failed', { error })
-    }
+          return Array.isArray(roots) ? roots : null
+        } catch (error) {
+          log.debug('Tree Style Tab could not read a window', {
+            windowId: win.id,
+            error,
+          })
+          return null
+        }
+      }),
+    )
+    if (version !== this.refreshVersion) return
+
+    const treeMap = new Map<number, TreeInfo>()
+    results.forEach((roots, index) => {
+      if (roots) {
+        addTree(treeMap, roots)
+      } else {
+        // One failed window read does not invalidate the whole connection.
+        for (const tab of windows[index].tabs) {
+          const previous = this.treeMap.get(tab.id)
+          if (previous) treeMap.set(tab.id, previous)
+        }
+      }
+    })
+    this.retryRefresh = results.some((roots) => roots == null)
+    if (this.retryRefresh) this.checkConnection()
+    this.setTreeMap(treeMap)
   }
 
-  scheduleRefresh = debounce(() => {
+  private readAfterChanges = debounce(() => {
     void this.refresh()
   }, 120)
 
-  toggleTreeCollapsed = async (tabId: number) => {
+  private scheduleRefresh = () => {
     if (!this.active) return
-    const info = this.treeMap.get(tabId)
+    this.refreshVersion++
+    this.readAfterChanges()
+  }
+
+  toggleTreeCollapsed = (tabId: number) => {
+    const info = this.getTreeInfo(tabId)
     if (!info?.hasChildren) return
-    // Optimistic update so the click feels instant; TST will notify us and
-    // the follow-up refresh reconciles any difference.
+    const connection = this.connectionVersion
     const collapse = !info.subtreeCollapsed
     const next = new Map(this.treeMap)
     next.set(tabId, { ...info, subtreeCollapsed: collapse })
+    this.refreshVersion++
+    this.pendingCollapses++
     this.setTreeMap(next)
-    try {
-      await this.sendMessage({
-        type: collapse ? 'collapse-tree' : 'expand-tree',
-        tab: tabId,
+    this.collapseQueue = this.collapseQueue
+      .then(async () => {
+        if (connection !== this.connectionVersion) return
+        const changed = await this.sendMessage({
+          type: collapse ? 'collapse-tree' : 'expand-tree',
+          tab: tabId,
+        })
+        if (changed !== true) this.checkConnection()
       })
-    } catch (error) {
-      log.warn('TreeStyleTabStore.toggleTreeCollapsed failed', { error })
-    }
-    this.scheduleRefresh()
+      .catch((error) => {
+        log.warn('Tree Style Tab could not change collapse state', error)
+        this.checkConnection()
+      })
+      .finally(() => {
+        this.pendingCollapses--
+        this.scheduleRefresh()
+      })
+    return this.collapseQueue
   }
 
-  // Makes each child the last child of parentId, in the given order. TST only
-  // attaches tabs within one window, so callers move tabs there first.
   attachTabs = async (parentId: number, childIds: number[]) => {
     if (!this.active) return false
     try {
       for (const childId of childIds) {
-        await this.sendMessage({
+        const attached = await this.sendMessage({
           type: 'attach',
           parent: parentId,
           child: childId,
         })
+        if (attached !== true) return false
       }
-      // Dropping into a collapsed tab reveals the new children, like TST.
-      if (this.treeMap.get(parentId)?.subtreeCollapsed) {
+      // The companion can acknowledge an attach even if it ignores the change.
+      const parent = await this.sendMessage<LightTreeItem>({
+        type: 'get-light-tree',
+        tab: parentId,
+      })
+      const attachedIds = new Set(parent?.children?.map((child) => child.id))
+      if (!childIds.every((id) => attachedIds.has(id))) return false
+      if (parent.states?.includes('subtree-collapsed')) {
         await this.sendMessage({ type: 'expand-tree', tab: parentId })
       }
       return true
     } catch (error) {
-      log.warn('TreeStyleTabStore.attachTabs failed', { error })
+      log.warn('Tree Style Tab could not attach tabs', error)
+      this.checkConnection()
       return false
     } finally {
       this.scheduleRefresh()
     }
-  }
-
-  didVisibilityChange = (
-    previous: Map<number, TreeInfo>,
-    next: Map<number, TreeInfo>,
-  ) => {
-    if (previous.size !== next.size) return true
-    for (const [id, info] of next) {
-      const before = previous.get(id)
-      if (
-        !before ||
-        before.subtreeCollapsed !== info.subtreeCollapsed ||
-        before.ancestorIds.join(',') !== info.ancestorIds.join(',')
-      ) {
-        return true
-      }
-    }
-    return false
   }
 }

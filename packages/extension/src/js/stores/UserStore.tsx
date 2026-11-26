@@ -57,11 +57,14 @@ const DEFAULT_SETTINGS = {
   fontSize: 14,
   actionTabCountMode: DEFAULT_ACTION_TAB_COUNT_MODE as ActionTabCountMode,
   windowOrder: DEFAULT_WINDOW_ORDER as WindowOrder,
-  useTreeStyleTab: false,
 }
 
 const LEGACY_SETTINGS = ['groupByDomain', 'loadWebsiteIcons'] as const
-const SETTINGS_KEYS = [...Object.keys(DEFAULT_SETTINGS), ...LEGACY_SETTINGS]
+const SETTINGS_KEYS = [
+  ...Object.keys(DEFAULT_SETTINGS),
+  ...LEGACY_SETTINGS,
+  ...(process.env.TARGET_BROWSER === 'firefox' ? ['useTreeStyleTab'] : []),
+]
 
 export const stripLegacySettings = (settings: { [key: string]: unknown }) => {
   const nextSettings = {
@@ -113,7 +116,7 @@ export default class UserStore {
 
   constructor(store: Store) {
     // makeAutoObservable(this)
-    makeObservable(this, {
+    makeObservable<this, 'onTreeStyleTabPreferenceChanged'>(this, {
       loaded: observable,
       showAppWindow: observable,
       showShortcutHint: observable,
@@ -145,6 +148,7 @@ export default class UserStore {
       windowOrder: observable,
       useTreeStyleTab: observable,
       toggleUseTreeStyleTab: action,
+      onTreeStyleTabPreferenceChanged: action,
       theme: computed,
       selectTheme: action,
       selectUiPreset: action,
@@ -180,6 +184,11 @@ export default class UserStore {
     })
 
     this.store = store
+    if (process.env.TARGET_BROWSER === 'firefox') {
+      browser.storage.onChanged?.addListener(
+        this.onTreeStyleTabPreferenceChanged,
+      )
+    }
     this.initPromise = this.init()
   }
 
@@ -240,6 +249,18 @@ export default class UserStore {
     }
   }
 
+  private treeStyleTabPreferenceVersion = 0
+
+  private onTreeStyleTabPreferenceChanged = (
+    changes: Record<string, chrome.storage.StorageChange>,
+    area: string,
+  ) => {
+    const change = changes.useTreeStyleTab
+    if (!change || (area !== 'sync' && area !== 'local')) return
+    this.treeStyleTabPreferenceVersion++
+    this.useTreeStyleTab = change.newValue === true
+  }
+
   initPromise: Promise<void>
 
   init = async () => {
@@ -248,8 +269,15 @@ export default class UserStore {
     const previousAutoFitColumns = this.autoFitColumns
     const previousWindowOrder = this.windowOrder
     try {
-      const result = await this.readSettings()
-      Object.assign(this, result)
+      const version = this.treeStyleTabPreferenceVersion
+      const { useTreeStyleTab, ...settings } = await this.readSettings()
+      Object.assign(this, settings)
+      if (
+        process.env.TARGET_BROWSER === 'firefox' &&
+        version === this.treeStyleTabPreferenceVersion
+      ) {
+        this.useTreeStyleTab = useTreeStyleTab === true
+      }
       if (
         this.store.windowStore &&
         (this.fontSize !== previousFontSize ||
@@ -514,8 +542,7 @@ export default class UserStore {
   // Connection and tree refresh are driven by TreeStyleTabStore's reaction.
   toggleUseTreeStyleTab = () => {
     this.useTreeStyleTab = !this.useTreeStyleTab
-    this.store.windowStore?.repackLayout?.('settings-change')
-    this.save()
+    void this.writeSettings({ useTreeStyleTab: this.useTreeStyleTab })
   }
 
   toggleShowTabIcon = () => {
