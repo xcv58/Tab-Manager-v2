@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.4 (2026-11-26)
+
+- **Firefox:** Added optional Tree Style Tab support. Turn on **Show Tree Style Tab trees** in **Settings → Windows & layout** to see your tab trees in Tab Manager. Requires the Tree Style Tab add-on. ([#2714](https://github.com/xcv58/Tab-Manager-v2/pull/2714))
+
 All notable changes to this project will be documented in this file.
 
 ## 3.0.3 (2026-11-25)
