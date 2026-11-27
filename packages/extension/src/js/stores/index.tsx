@@ -28,6 +28,7 @@ import HiddenWindowStore from 'stores/HiddenWindowStore'
 import FocusStore from 'stores/FocusStore'
 import TabGroupStore from './TabGroupStore'
 import ContainerStore from './ContainerStore'
+import TreeStyleTabStore from './TreeStyleTabStore'
 
 import Tab from './Tab'
 import TabGroupRow from './TabGroupRow'
@@ -61,6 +62,8 @@ export default class Store {
 
   containerStore
 
+  treeStyleTabStore: TreeStyleTabStore | undefined
+
   constructor() {
     makeAutoObservable(this)
 
@@ -84,6 +87,7 @@ export default class Store {
     }
     if (process.env.TARGET_BROWSER === 'firefox') {
       this.containerStore = new ContainerStore(this)
+      this.treeStyleTabStore = new TreeStyleTabStore(this)
     }
   }
 

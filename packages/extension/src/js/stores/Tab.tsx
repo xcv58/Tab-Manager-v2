@@ -72,6 +72,8 @@ export default class Tab extends Focusable {
       query: computed,
       isHovered: observable,
       isHiddenByCollapsedGroup: computed,
+      isHiddenByCollapsedTree: computed,
+      treeInfo: computed,
       shouldHighlight: computed,
       fingerPrint: computed,
       closeOtherTabs: action,
@@ -188,7 +190,7 @@ export default class Tab extends Focusable {
     if (this.removing) {
       return false
     }
-    if (this.isHiddenByCollapsedGroup) {
+    if (this.isHiddenByCollapsedGroup || this.isHiddenByCollapsedTree) {
       return false
     }
     return this.isMatched || this.store.userStore.showUnmatchedTab
@@ -248,6 +250,26 @@ export default class Tab extends Focusable {
       return false
     }
     return true
+  }
+
+  get treeInfo() {
+    return this.store.treeStyleTabStore?.getTreeInfo(this.id) || null
+  }
+
+  // Mirrors Tree Style Tab: descendants of a collapsed tab are hidden, except
+  // search matches, which stay reachable like matches in collapsed groups.
+  get isHiddenByCollapsedTree() {
+    if (!this.store.treeStyleTabStore?.isHiddenByCollapsedTree(this.id)) {
+      return false
+    }
+    if (this.store.searchStore.queryActive && this.isMatched) {
+      return false
+    }
+    return true
+  }
+
+  toggleTreeCollapsed = () => {
+    void this.store.treeStyleTabStore?.toggleTreeCollapsed(this.id)
   }
 
   get shouldHighlight() {

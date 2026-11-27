@@ -393,7 +393,9 @@ export default class GroupStore {
       const tab = tabs[i]
       if (this.isNoGroupId(tab.groupId)) {
         const shouldShowTab =
-          !tab.removing && (tab.isMatched || showUnmatchedTab)
+          !tab.removing &&
+          !tab.isHiddenByCollapsedTree &&
+          (tab.isMatched || showUnmatchedTab)
         if (shouldShowTab) {
           rows.push({
             kind: 'tab',
@@ -422,7 +424,10 @@ export default class GroupStore {
         matchedSet.has(x.id),
       ).length
       const baseVisibleTabs = resolvedGroupTabs.filter(
-        (x) => !x.removing && (x.isMatched || showUnmatchedTab),
+        (x) =>
+          !x.removing &&
+          !x.isHiddenByCollapsedTree &&
+          (x.isMatched || showUnmatchedTab),
       )
       if (!tabGroup) {
         baseVisibleTabs.forEach((visibleTab) => {
