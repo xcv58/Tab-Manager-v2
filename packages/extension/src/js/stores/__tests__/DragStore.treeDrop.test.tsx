@@ -49,12 +49,12 @@ const setup = (
       getTreeInfo,
     },
   } as unknown as Store)
-  const dropAt = jest.spyOn(dragStore, 'dropAt').mockResolvedValue(undefined)
-  const getWindowTabsFromBrowser = jest
-    .spyOn(dragStore, 'getWindowTabsFromBrowser')
-    .mockImplementation(async (windowId) =>
-      tabs.filter((tab) => tab.windowId === windowId),
-    )
+  const dropAt = jest.fn(async () => undefined)
+  const getWindowTabsFromBrowser = jest.fn(async (windowId: number) =>
+    tabs.filter((tab) => tab.windowId === windowId),
+  )
+  dragStore.dropAt = dropAt
+  dragStore.getWindowTabsFromBrowser = getWindowTabsFromBrowser
 
   return {
     dragStore,
