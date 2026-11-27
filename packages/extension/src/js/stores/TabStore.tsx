@@ -68,7 +68,18 @@ export default class TabStore {
 
   bulkSelct = (tab: Tab) => {
     log.debug('blukSelect:', tab)
-    const { tabs } = this.store.windowStore
+    const { windowStore, treeStyleTabStore } = this.store
+    const tabs = treeStyleTabStore?.active
+      ? windowStore.windowsByColumn.flat().flatMap((win) =>
+          win.hide
+            ? []
+            : win.rows.flatMap((row) => {
+                if (row.kind !== 'tab') return []
+                const visibleTab = win.getTabById(row.tabId)
+                return visibleTab ? [visibleTab] : []
+              }),
+        )
+      : windowStore.tabs
     let fromIndex = -1
     let toIndex = -1
     let index = -1

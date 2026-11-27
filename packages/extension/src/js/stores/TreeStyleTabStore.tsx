@@ -288,30 +288,51 @@ export default class TreeStyleTabStore {
     return this.collapseQueue
   }
 
-  attachTabs = async (parentId: number, childIds: number[]) => {
+  getBranchIds = async (tabId: number) => {
+    if (!this.active) return
+    const branch = await this.sendMessage<LightTreeItem>({
+      type: 'get-light-tree',
+      tab: tabId,
+    })
+    if (branch?.id !== tabId) return
+    const nodes = new Map<number, TreeInfo>()
+    addTree(nodes, [branch])
+    return [...nodes.keys()]
+  }
+
+  attachBranch = async (parentId: number, branchIds: number[]) => {
     if (!this.active) return false
+    const [rootId] = branchIds
     try {
-      for (const childId of childIds) {
-        const attached = await this.sendMessage({
-          type: 'attach',
-          parent: parentId,
-          child: childId,
-        })
-        if (attached !== true) return false
-      }
+      const attached = await this.sendMessage({
+        type: 'attach',
+        parent: parentId,
+        child: rootId,
+      })
+      if (attached !== true) return false
       // The companion can acknowledge an attach even if it ignores the change.
       const parent = await this.sendMessage<LightTreeItem>({
         type: 'get-light-tree',
         tab: parentId,
       })
-      const attachedIds = new Set(parent?.children?.map((child) => child.id))
-      if (!childIds.every((id) => attachedIds.has(id))) return false
+      const branch = parent?.children?.find((child) => child.id === rootId)
+      if (!branch) return false
+      const nodes = new Map<number, TreeInfo>()
+      addTree(nodes, [branch])
+      if (branchIds.some((id) => !nodes.has(id))) return false
+
       if (parent.states?.includes('subtree-collapsed')) {
-        await this.sendMessage({ type: 'expand-tree', tab: parentId })
+        await this.sendMessage({ type: 'expand-tree', tab: parentId }).catch(
+          (error) =>
+            log.debug(
+              'Tree Style Tab could not reveal the nested branch',
+              error,
+            ),
+        )
       }
       return true
     } catch (error) {
-      log.warn('Tree Style Tab could not attach tabs', error)
+      log.warn('Tree Style Tab could not attach the branch', error)
       this.checkConnection()
       return false
     } finally {

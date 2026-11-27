@@ -36,4 +36,14 @@ describe('drag action preview', () => {
     )
     expect(getDragPreviewLabel(5, null, target)).toBe('5 tabs')
   })
+
+  it('shows the full branch size only while the nesting target is active', () => {
+    const target = {
+      targetId: 'tab-row',
+      destination: 'tree' as const,
+      label: 'Nest branch · 4 tabs',
+    }
+    expect(getDragPreviewLabel(1, 'tab-row', target)).toBe(target.label)
+    expect(getDragPreviewLabel(1, null, target)).toBe('1 tab')
+  })
 })

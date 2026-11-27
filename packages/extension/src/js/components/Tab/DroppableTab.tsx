@@ -58,6 +58,27 @@ export default observer((props: TabProps) => {
     hover: (_, monitor) => {
       const position = getDropPosition(monitor.getClientOffset()?.y)
       if (position) setDropPosition(position)
+      if (process.env.TARGET_BROWSER === 'firefox') {
+        const targetId = monitor.getHandlerId()
+        if (!targetId) return
+        if (position !== 'into') {
+          dragStore.clearDropPreviewTarget(targetId)
+          return
+        }
+        const plan = dragStore.getTreeDropPlan(tab)
+        dragStore.setDropPreviewTarget({
+          targetId,
+          destination: 'tree',
+          ...('blockedHint' in plan
+            ? plan
+            : {
+                label:
+                  plan.branch.length === 1
+                    ? 'Nest 1 tab'
+                    : `Nest branch · ${plan.branch.length} tabs`,
+              }),
+        })
+      }
     },
     canDrop: () => tab.win.canDrop,
     collect: (monitor) => {
@@ -88,7 +109,7 @@ export default observer((props: TabProps) => {
     canDrop &&
     isOver &&
     dropPosition === 'into' &&
-    !dragStore.getTreeDropHint(tab)
+    !('blockedHint' in dragStore.getTreeDropPlan(tab))
   return (
     <div
       ref={setDropRef}

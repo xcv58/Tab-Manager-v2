@@ -78,3 +78,35 @@ describe('Tree Style Tab snapshots', () => {
     expect(treeStore.isHiddenByCollapsedTree(2)).toBe(true)
   })
 })
+
+describe('Tree Style Tab attachment', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+    sendMessage.mockReset()
+  })
+
+  afterEach(() => {
+    jest.clearAllTimers()
+    jest.useRealTimers()
+  })
+
+  it('attaches only the root and verifies its descendants in the reply', async () => {
+    const { treeStore } = setup()
+    sendMessage.mockResolvedValueOnce(true)
+    sendMessage.mockResolvedValueOnce({ id: 3, children: [branch()] })
+
+    await expect(treeStore.attachBranch(3, [1, 2])).resolves.toBe(true)
+    expect(sendMessage.mock.calls.map(([, message]) => message)).toEqual([
+      { type: 'attach', parent: 3, child: 1 },
+      { type: 'get-light-tree', tab: 3 },
+    ])
+  })
+
+  it('rejects an acknowledgement that did not preserve the branch', async () => {
+    const { treeStore } = setup()
+    sendMessage.mockResolvedValueOnce(true)
+    sendMessage.mockResolvedValueOnce({ id: 3, children: [{ id: 1 }] })
+
+    await expect(treeStore.attachBranch(3, [1, 2])).resolves.toBe(false)
+  })
+})

@@ -10,6 +10,9 @@ export const getDragPreviewLabel = (
   if (!target || target.targetId !== activeTargetId) {
     return countText
   }
+  if (target.destination === 'tree') {
+    return target.blockedHint || target.label || countText
+  }
   const destination =
     target.destination === 'new-window' ? 'new window' : target.destination
   return (

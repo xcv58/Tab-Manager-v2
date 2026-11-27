@@ -21,7 +21,7 @@ export type WindowEdge = 'beginning' | 'end'
 
 export type DropPreviewTarget = {
   targetId: string | symbol
-  destination: WindowEdge | 'new-window'
+  destination: WindowEdge | 'new-window' | 'tree'
   blockedHint?: string
   label?: string
 }
@@ -37,6 +37,10 @@ export type DropAtOptions = {
   windowEdge?: WindowEdge
   groupEdge?: WindowEdge
 }
+
+type TreeDropPlan = { branch: Tab[] } | { blockedHint: string }
+
+type TreeDropTab = Pick<Tab, 'id' | 'windowId' | 'groupId' | 'pinned'>
 
 type GroupBoundTab = {
   groupId: number | null | undefined
@@ -101,6 +105,12 @@ export default class DragStore {
       previous?.label !== target.label
     ) {
       this.dropPreviewTarget = target
+    }
+  }
+
+  clearDropPreviewTarget = (targetId: DropPreviewTarget['targetId']) => {
+    if (this.dropPreviewTarget?.targetId === targetId) {
+      this.dropPreviewTarget = null
     }
   }
 
@@ -527,75 +537,112 @@ export default class DragStore {
     })
   }
 
-  getTreeDropHint = (tab: Tab) => {
+  private get treeDropBranch(): TreeDropPlan {
     const treeStore = this.store.treeStyleTabStore
-    if (!treeStore?.active) return 'Tree Style Tab is unavailable'
-    if (this.pendingWindowEdgeDrop) return 'A tab move is already in progress'
+    if (!treeStore?.active)
+      return { blockedHint: 'Tree Style Tab is unavailable' }
+    if (this.dragSource === 'group-header') {
+      return { blockedHint: 'Drag a tab or branch to nest it' }
+    }
     const sources = this.store.tabStore.sources
-    if (!sources.length) return 'Select tabs first'
-    if (tab.pinned || sources.some((source) => source.pinned)) {
+    const selectedIds = new Set(sources.map((source) => source.id))
+    const roots: Tab[] = []
+    for (const source of sources) {
+      const info = treeStore.getTreeInfo(source.id)
+      if (!info)
+        return { blockedHint: 'Tree Style Tab has not loaded these tabs' }
+      if (!info.ancestorIds.some((id) => selectedIds.has(id)))
+        roots.push(source)
+    }
+    if (roots.length !== 1) {
+      return { blockedHint: 'Select one tab or branch to nest' }
+    }
+    const [root] = roots
+    const descendants = root.win.tabs.filter((tab) =>
+      treeStore.getTreeInfo(tab.id)?.ancestorIds.includes(root.id),
+    )
+    const branch = [root, ...descendants]
+    const branchIds = new Set(branch.map((tab) => tab.id))
+    if (sources.some((source) => !branchIds.has(source.id))) {
+      return { blockedHint: 'Tree Style Tab has not loaded these tabs' }
+    }
+    return { branch }
+  }
+
+  private getTreeDropBlockedHint = (
+    target: TreeDropTab,
+    branch: TreeDropTab[],
+  ) => {
+    if (target.pinned || branch.some((source) => source.pinned)) {
       return 'Pinned tabs cannot be part of a tree drop'
     }
-
-    const treeInfo = treeStore.getTreeInfo(tab.id)
-    if (
-      !treeInfo ||
-      sources.some((source) => !treeStore.getTreeInfo(source.id))
-    ) {
-      return 'Tree Style Tab has not loaded these tabs'
-    }
-    if (
-      sources.some(
-        (source) =>
-          source.id === tab.id || treeInfo.ancestorIds.includes(source.id),
-      )
-    ) {
+    if (branch.some((source) => source.id === target.id)) {
       return 'Choose a tab outside the dragged tree'
     }
-    const destinationHint = getTabMoveDestinationHint(tab.win, sources)
-    if (destinationHint) return destinationHint
-
-    const movedFromAnotherWindow = sources.filter(
-      (source) => source.windowId !== tab.windowId,
-    )
-    if (movedFromAnotherWindow.length) {
-      const wholeGroups = this.getWholeSelectedGroupIds(movedFromAnotherWindow)
-      if (wholeGroups.size) {
-        return 'Move the tab group to this window before nesting its tabs'
-      }
+    if (branch.some((source) => source.windowId !== target.windowId)) {
+      return 'Nest tabs within the same window'
+    }
+    const noGroup = this.getNoGroupId()
+    const targetGroup = target.groupId ?? noGroup
+    if (branch.some((source) => (source.groupId ?? noGroup) !== targetGroup)) {
+      return 'Nest tabs within the same Firefox tab group'
     }
   }
 
-  // Tree Style Tab "drop into": the dragged tabs become children of `tab`.
-  dropIntoTreeTab = async (tab: Tab) => {
-    const hint = this.getTreeDropHint(tab)
-    if (hint) return hint
+  getTreeDropPlan = (target: Tab): TreeDropPlan => {
+    if (this.pendingWindowEdgeDrop) {
+      return { blockedHint: 'A tab move is already in progress' }
+    }
+    const plan = this.treeDropBranch
+    if ('blockedHint' in plan) return plan
+    if (!target.treeInfo) {
+      return { blockedHint: 'Tree Style Tab has not loaded these tabs' }
+    }
+    const blockedHint =
+      this.getTreeDropBlockedHint(target, plan.branch) ||
+      getTabMoveDestinationHint(target.win, plan.branch)
+    return blockedHint ? { blockedHint } : plan
+  }
+
+  dropIntoTreeTab = async (target: Tab) => {
+    const plan = this.getTreeDropPlan(target)
+    if ('blockedHint' in plan) return plan.blockedHint
     const treeStore = this.store.treeStyleTabStore
-    const sources = this.store.tabStore.sources
-    const childIds = sources.map((source) => source.id)
-    const needsMove = sources.some(
-      (source) =>
-        source.windowId !== tab.windowId || source.groupId !== tab.groupId,
-    )
+    const branchIds = plan.branch.map((tab) => tab.id)
+    const [rootId] = branchIds
     this.pendingWindowEdgeDrop = true
     try {
-      if (needsMove) {
-        // Reuse the regular move so window and tab-group rules still apply,
-        // then let TST attach the tabs once they share the parent's window.
-        const hint = await this.dropAt({
-          windowId: tab.windowId,
-          index: tab.index + 1,
-          targetGroupId: tab.groupId,
-          targetTabId: tab.id,
-          before: false,
-          source: 'tab-row',
-        })
-        if (hint) return hint
+      // The branch may have changed since it was shown in the drag preview.
+      const liveBranch = await treeStore.getBranchIds(rootId)
+      if (!liveBranch) return 'Tree Style Tab could not read the branch'
+      const liveIds = new Set(liveBranch)
+      if (
+        liveIds.size !== branchIds.length ||
+        branchIds.some((id) => !liveIds.has(id))
+      ) {
+        return 'The branch changed. Try the drop again'
       }
-      const attached = await treeStore.attachTabs(tab.id, childIds)
+      const tabs = await this.getWindowTabsFromBrowser(target.windowId)
+      const tabsById = new Map<number, TreeDropTab>(
+        tabs.map((tab: TreeDropTab) => [tab.id, tab]),
+      )
+      const liveTarget = tabsById.get(target.id)
+      const liveTabs = branchIds.map((id) => tabsById.get(id))
+      if (!liveTarget || liveTabs.some((tab) => !tab)) {
+        return 'Tabs changed windows or were closed. Try the drop again'
+      }
+      const blockedHint = this.getTreeDropBlockedHint(liveTarget, liveTabs)
+      if (blockedHint) return blockedHint
+
+      // The companion makes the single attachment and carries the descendants.
+      if (!(await treeStore.attachBranch(target.id, branchIds))) {
+        return 'Tree Style Tab could not attach the branch'
+      }
       this.dropped = true
       this.clearSelection()
-      if (!attached) return 'Tree Style Tab could not attach the tabs'
+    } catch (error) {
+      log.warn('Could not prepare the Tree Style Tab drop', error)
+      return 'Could not check the drag destination. Try the drop again'
     } finally {
       this.pendingWindowEdgeDrop = false
     }
